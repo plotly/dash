@@ -190,7 +190,7 @@
                         'task': 'listen',
                         'events': ['click']
                     }, 'https://plot.ly');
-                    var payload = getState();
+                    var payload = getState({});
                     payload[id] = id;
                     socket.emit('pong', payload);
                 } else if (message.type==='hover' ||
@@ -209,8 +209,7 @@
             //
             // JQuery UI
             //
-            function getState() {
-                var payload = payload || {};
+            function getState(payload) {
 
                 payload.slider = $('#slider').slider("value");
                 payload.xaxis = $('#xaxis option:selected').val();
@@ -220,9 +219,11 @@
             }
 
             function sendState(that, payload){
-                payload = getState();
-                socket.emit('replot', payload)
+                var payload = payload || {};
+                payload = getState(payload);
+                socket.emit('replot', payload);
             }
+
             $('#slider').on('slide', function(){console.log('change'); sendState({},{'slide': true});});
             $('#xaxis').change(function(){
                 sendState({}, {'select': true})

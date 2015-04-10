@@ -56,17 +56,17 @@ class Graph():
                 'xaxis': {
                     'title': labels[self.xaxis],
                     'type': 'log',
-                    'autorange': False,
-                    'range': np.log10([(
-                        min(self.df[self.xaxis])*0.5),
-                        max(self.df[self.xaxis])*1.1])
+                    #'autorange': False,
+                    #'range': np.log10([(
+                    #    min(self.df[self.xaxis])*0.5),
+                    #    max(self.df[self.xaxis])*1.1])
                 },
                 'yaxis': {
                     'title': labels[self.yaxis],
-                    'autorange': False,
-                    'range': [
-                        min(self.df[self.yaxis])*0.8,
-                        max(self.df[self.yaxis])*1.2]
+                    # 'autorange': False,
+                    # 'range': [
+                    #    min(self.df[self.yaxis])*0.8,
+                    #    max(self.df[self.yaxis])*1.2]
                 },
                 'hovermode': 'closest',
                 'annotations': [
@@ -99,7 +99,7 @@ class Graph():
         if 'click' in app_state:
             curveNumber = app_state['click']['points'][0]['curveNumber']
             pointNumber = app_state['click']['points'][0]['pointNumber']
-            text = self.on_slide(app_state)[0]['data'][curveNumber]['text']
+            text = messages[0]['data'][curveNumber]['text']
             self.country = text.get_value(text.index[pointNumber])
 
 
