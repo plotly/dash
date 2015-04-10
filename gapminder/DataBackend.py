@@ -8,7 +8,9 @@ class Graph():
                               'examples/gapminder/data/'
                               'gapminderDataFiveYear.txt', sep='\t')
         self.country = 'United States'
-        self.yaxis = 'pop'
+        self.xaxis = 'gdpPercap'
+        self.yaxis = 'lifeExp'
+        self.size = 'pop'
 
     def on_page_load(self):
         pass
@@ -22,25 +24,29 @@ class Graph():
         return messages
 
     def replot(self, app_state):
-        if 'click' in app_state or 'select' in app_state:
-            return self.on_click(app_state)
-        else:
-            return self.on_slide(app_state)
+        self.yaxis = app_state['yaxis']
+        self.xaxis = app_state['xaxis']
+        self.size = app_state['size']
 
-    def on_slide(self, app_state):
+        if 'click' in app_state:
+            curveNumber = app_state['click']['points'][0]['curveNumber']
+            pointNumber = app_state['click']['points'][0]['pointNumber']
+            text = self.on_slide(app_state)[0]['data'][curveNumber]['text']
+            self.country = text.get_value(text.index[pointNumber])
+
         dfi = self.df[(self.df['year'] == app_state['slider']) &
                       (self.df['country'] != 'Kuwait')]
         traces = []
         for c in dfi['continent'].unique():
             dfc = dfi[dfi['continent'] == c]
             traces.append({
-                'x': dfc['gdpPercap'],
-                'y': dfc['lifeExp'],
+                'x': dfc[self.xaxis],
+                'y': dfc[self.yaxis],
                 'text': dfc['country'],
                 'mode': 'markers',
                 'marker': {
-                    'size': dfc['pop'],
-                    'sizeref': max(self.df['pop'])/7500,
+                    'size': dfc[self.size],
+                    'sizeref': max(self.df[self.size])/7500,
                     'sizemode': 'area'
                 },
                 'name': c
@@ -54,15 +60,15 @@ class Graph():
                     'type': 'log',
                     'autorange': False,
                     'range': np.log10([(
-                        min(self.df['gdpPercap'])*0.5),
-                        max(self.df['gdpPercap'])*1.1])
+                        min(self.df[self.xaxis])*0.5),
+                        max(self.df[self.xaxis])*1.1])
                 },
                 'yaxis': {
                     'title': 'Life Expectancy',
                     'autorange': False,
                     'range': [
-                        min(self.df['lifeExp'])*0.8,
-                        max(self.df['lifeExp'])*1.2]
+                        min(self.df[self.yaxis])*0.8,
+                        max(self.df[self.yaxis])*1.2]
                 },
                 'hovermode': 'closest',
                 'annotations': [
@@ -90,17 +96,6 @@ class Graph():
                 'layout': fig['layout']
             }
         ]
-
-        return messages
-
-    def on_click(self, app_state):
-        if 'click' in app_state:
-            curveNumber = app_state['click']['points'][0]['curveNumber']
-            pointNumber = app_state['click']['points'][0]['pointNumber']
-            text = self.on_slide(app_state)[0]['data'][curveNumber]['text']
-            self.country = text.get_value(text.index[pointNumber])
-        else:
-            self.yaxis = app_state['yaxis']
 
         dfi = self.df[self.df['country'] == self.country]
         labels = {
@@ -136,13 +131,13 @@ class Graph():
                 ]
             }
         }
-        messages = [
+        messages.extend([
             {
                 'id': 'line',
                 'task': 'newPlot',
                 'data': fig['data'],
                 'layout': fig['layout']
             }
-        ]
+        ])
 
         return messages
