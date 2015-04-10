@@ -8,35 +8,33 @@ class Graph():
                               'examples/gapminder/data/'
                               'gapminderDataFiveYear.txt', sep='\t')
         self.country = 'United States'
-        self.xaxis = 'gdpPercap'
-        self.yaxis = 'lifeExp'
-        self.size = 'pop'
+        self.yaxis = 'pop'
 
     def on_page_load(self):
         pass
 
-    def on_pong(self):
+    def on_pong(self, message):
         print('on_pong')
         messages = []
-
-        messages.extend(self.replot({'slider': 1952}))
-        messages.extend(self.replot({'select': True, 'yaxis': self.yaxis}))
+        messages.extend(self.replot(message))
         return messages
 
     def replot(self, app_state):
-        self.yaxis = app_state['yaxis']
         self.xaxis = app_state['xaxis']
+        self.yaxis = app_state['yaxis']
         self.size = app_state['size']
 
-        if 'click' in app_state:
-            curveNumber = app_state['click']['points'][0]['curveNumber']
-            pointNumber = app_state['click']['points'][0]['pointNumber']
-            text = self.on_slide(app_state)[0]['data'][curveNumber]['text']
-            self.country = text.get_value(text.index[pointNumber])
+        labels = {
+            'pop': 'Population',
+            'lifeExp': 'Life Expectancy',
+            'gdpPercap': 'GDP per Capita'
+        }
 
         dfi = self.df[(self.df['year'] == app_state['slider']) &
                       (self.df['country'] != 'Kuwait')]
+
         traces = []
+
         for c in dfi['continent'].unique():
             dfc = dfi[dfi['continent'] == c]
             traces.append({
@@ -56,7 +54,7 @@ class Graph():
             'data': traces,
             'layout': {
                 'xaxis': {
-                    'title': 'GDP per Capita',
+                    'title': labels[self.xaxis],
                     'type': 'log',
                     'autorange': False,
                     'range': np.log10([(
@@ -64,7 +62,7 @@ class Graph():
                         max(self.df[self.xaxis])*1.1])
                 },
                 'yaxis': {
-                    'title': 'Life Expectancy',
+                    'title': labels[self.yaxis],
                     'autorange': False,
                     'range': [
                         min(self.df[self.yaxis])*0.8,
@@ -97,12 +95,16 @@ class Graph():
             }
         ]
 
+
+        if 'click' in app_state:
+            curveNumber = app_state['click']['points'][0]['curveNumber']
+            pointNumber = app_state['click']['points'][0]['pointNumber']
+            text = self.on_slide(app_state)[0]['data'][curveNumber]['text']
+            self.country = text.get_value(text.index[pointNumber])
+
+
         dfi = self.df[self.df['country'] == self.country]
-        labels = {
-            'pop': 'Population',
-            'lifeExp': 'Life Expectancy',
-            'gdpPercap': 'GDP per Capita'
-        }
+
         fig = {
             'data': [
                 {
@@ -131,6 +133,7 @@ class Graph():
                 ]
             }
         }
+
         messages.extend([
             {
                 'id': 'line',

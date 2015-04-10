@@ -50,7 +50,7 @@ def replot(message):
 @socketio.on('pong')
 def on_pong(message):
     app.logger.info('on_pong: {}'.format(message))
-    messages = graph.on_pong()
+    messages = graph.on_pong(message)
     jmessages = replace_nan(json.dumps(messages,
                                        cls=plotly.utils.PlotlyJSONEncoder))
     emit('postMessage', jmessages)

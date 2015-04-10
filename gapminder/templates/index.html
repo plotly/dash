@@ -60,7 +60,7 @@
                             margin-left: 20px;
                             margin-top: 28px;
                             display: inline-block;">
-                    Drilling Down with Sliders, Click Events, and Dropdown
+                    Drilling Down with Sliders, Click Events, and Dropdowns
                 </div>
                 <div style="height: 100%;
                             display: inline-block;
@@ -93,24 +93,26 @@
                     </iframe>
                     <form class="pure-form" style="float: right;">
                         <fieldset>
+                            <label>X Data</label>
                             <select id="xaxis">
                                 <option value="pop">Population</option>
                                 <option value="lifeExp">Life Expectancy</option>
-                                <option value="gdpPercap">GDP per Capita</option>
+                                <option selected="selected" value="gdpPercap">GDP per Capita</option>
                             </select>
 
+                            <label>Y Data</label>
                             <select id="yaxis">
                                 <option value="pop">Population</option>
-                                <option value="lifeExp">Life Expectancy</option>
+                                <option selected="selected" value="lifeExp">Life Expectancy</option>
                                 <option value="gdpPercap">GDP per Capita</option>
                             </select>
 
+                            <label>Size</label>
                             <select id="size">
-                                <option value="pop">Population</option>
+                                <option selected="selected" value="pop">Population</option>
                                 <option value="lifeExp">Life Expectancy</option>
                                 <option value="gdpPercap">GDP per Capita</option>
                             </select>
-
                         </fieldset>
                     </form>
                 </div>
@@ -188,7 +190,9 @@
                         'task': 'listen',
                         'events': ['click']
                     }, 'https://plot.ly');
-                    socket.emit('pong', {id: id});
+                    var payload = getState();
+                    payload[id] = id;
+                    socket.emit('pong', payload);
                 } else if (message.type==='hover' ||
                             message.type==='zoom'  ||
                             message.type==='click') {
@@ -205,21 +209,25 @@
             //
             // JQuery UI
             //
-            function sendState(that, payload){
+            function getState() {
                 var payload = payload || {};
 
                 payload.slider = $('#slider').slider("value");
-                payload.yaxis = $('#yaxis option:selected').val();
                 payload.xaxis = $('#xaxis option:selected').val();
+                payload.yaxis = $('#yaxis option:selected').val();
                 payload.size = $('#size option:selected').val();
+                return payload;
+            }
 
+            function sendState(that, payload){
+                payload = getState();
                 socket.emit('replot', payload)
             }
             $('#slider').on('slide', function(){console.log('change'); sendState({},{'slide': true});});
-            $('#yaxis').change(function(){
+            $('#xaxis').change(function(){
                 sendState({}, {'select': true})
             });
-            $('#xaxis').change(function(){
+            $('#yaxis').change(function(){
                 sendState({}, {'select': true})
             });
             $('#size').change(function(){
