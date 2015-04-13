@@ -8,14 +8,14 @@ import json
 import plotly
 import re
 
-import DataBackend
+import Dash
 
 app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
-graph = DataBackend.Graph()
+graph = Dash.Dash()
 
 nan_regex = re.compile(r'\bNaN\b')
 
