@@ -1,0 +1,82 @@
+{% extends "layouts/layout_twopane.html" %}
+
+{% block banner %}
+    <h3>
+        Official Initials
+    </h3>
+{% endblock %}
+
+{% block leftcolumn %}
+
+    {% include leftcolumn.html %}
+
+    <h4>Etch A Sketch</h4>
+
+    <label for="X">X Position</label>
+    <input  type="range"
+            class="u-full-width show-values"
+            name="X"
+            value="10" min="10" max="2000" step="10">
+
+    <label for="Y">Y Position</label>
+    <input  type="range"
+            class="u-full-width show-values"
+            name="Y"
+            value="10" min="10" max="2000" step="10">
+
+    <label for="searchterms">Title</label>
+    <input class="u-full-width" type="text" placeholder="bloomingdales" name="title">
+
+    <label for="valuesDropdown">Values</label>
+    <select class="u-full-width" name="valuesDropdown">
+        <option value="lifeExp">Life Expectancy</option>
+        <option value="pop">Population</option>
+        <option value="gdp">GDP per Capita</option>
+    </select>
+
+    <label>
+        <input value="python" type="checkbox">
+        <span class="label-body">Python</span>
+    </label>
+
+    <label>
+        <input value="matlab" type="checkbox">
+        <span class="label-body">Matlab</span>
+    </label>
+
+
+    <legend>
+        Animals
+    </legend>
+    <label>
+        <input value="cats" name="animal" type="radio">
+        <span class="label-body">Cats</span>
+    </label>
+
+    <label>
+        <input value="dogs" name="animal" type="radio">
+        <span class="label-body">Dogs</span>
+    </label>
+
+
+    <a href="#" class="button">
+        Refresh
+    </a>
+
+{% endblock %}
+
+{% block rightcolumn %}
+
+    <h4>Quarterly Earnings</h4>
+    <iframe id="top_graph"
+            src="https://plot.ly/~playground/7.embed"
+            style="width: 100%; height: 500px; border: none;">
+    </iframe>
+
+    <h4>Forecasts</h4>
+    <iframe id="bottom_graph"
+            src="https://plot.ly/~playground/7.embed"
+            style="width: 100%; height: 500px; border: none;">
+    </iframe>
+
+{% endblock %}
