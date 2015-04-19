@@ -1,4 +1,3 @@
-var socket = io.connect('http://' + document.domain + ':' + location.port);
 $(document).ready(function(){
 
     function init_graph_obj(id){
