@@ -2,6 +2,9 @@
 Dash is an assemblage of Flask, Socketio, Jinja, and Plotly for easily creating
 data visualization web-apps with your Python data analysis backend.
 
+Try it out:
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
 ![](http://i.imgur.com/we68GEC.gif)
 
 ```python
