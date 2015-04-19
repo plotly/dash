@@ -1,3 +1,4 @@
+var socket = io.connect(window.location.protocol + '//' + document.domain + ':' + location.port);
 $(document).ready(function(){
 
     function init_graph_obj(id){
@@ -24,7 +25,6 @@ $(document).ready(function(){
 
     // the socket.io documentation recommends sending an explicit package upon connection
     // this is specially important when using the global namespace
-    var socket = io.connect(window.location.protocol + '//' + document.domain + ':' + location.port);
 
     socket.on('connect', function() {
         socket.emit('my event', {data: 'I\'m connected!'});
