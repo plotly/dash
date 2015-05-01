@@ -1,20 +1,26 @@
-{% extends "base.html" %}
+{% extends "layouts/base.html" %}
 {% block content %}
 
     <div class="container">
 
         <div style="border-bottom: lightgrey solid thin;">
-                {% block banner %}{% endblock %}
+                {% block banner %}
+                    {% include "dash/banner.html" %}
+                {% endblock %}
         </div>
 
         <div class="row">
 
             <div class="three columns">
-                {% block leftcolumn %}{% endblock %}
+                {% block leftcolumn %}
+                    {% include "dash/leftcolumn.html" %}
+                {% endblock %}
             </div>
 
             <div class="nine columns">
-                {% block rightcolumn %}{% endblock %}
+                {% block rightcolumn %}
+                    {% include "dash/rightcolumn.html" %}
+                {% endblock %}
             </div>
 
         </div>
