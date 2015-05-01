@@ -3,3 +3,4 @@
 *.ipynb
 ignore
 *~
+venv
