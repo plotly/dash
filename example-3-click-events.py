@@ -16,17 +16,22 @@ socketio = SocketIO(app)
 from example_3_click_events_state import Dash
 dash = Dash()
 
+# Write the HTML "includes" blocks to /templates/runtime/dash-3-click-events
+# We're using the template "layout_two_column_and_controls" which uses the
+# includes blocks: 'controls.html', 'leftgraph.html', and 'rightgraph.html'.
+utils.write_templates(
+    {
+        # 'controls.html' is already written as a raw html file in
+        # templates/runtime/dash-3-click-events
+        'leftgraph': [graph('bubbles')],
+        'rightgraph': [graph('line-chart')]
+    }, name
+)
+
 
 @app.route('/')
 def index():
-    utils.write_templates(
-        {
-            # 'controls.html' is already written as a raw html file in
-            # templates/runtime/dash-3-click-events
-            'leftgraph': [graph('bubbles')],
-            'rightgraph': [graph('line-chart')]
-        }, name
-    )
+
     return render_template('layouts/layout_two_column_and_controls.html',
                            app_name=name)
 

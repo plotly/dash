@@ -22,55 +22,58 @@ slider_x_id = 'X'
 slider_y_id = 'Y'
 title_input_id = 'title'
 
+# Write the HTML "includes" blocks to /templates/runtime/dash-2-etch-a-sketch
+# Alternatively, include the HTML yourself in that folder
+utils.write_templates(
+    {
+        'header': [
+            el('H1', {}, 'Etch-a-sketch')
+        ],
+
+        'controls': [
+            el('label', {}, 'X Position'),
+            el('input', {
+                'type': 'range',
+                'class': 'u-full-width show-values',
+                'name': slider_x_id,
+                'value': 0,
+                'min': 10,
+                'max': 2000,
+                'step': 10
+            }),
+
+            el('label', {}, 'Y Position'),
+            el('input', {
+                'type': 'range',
+                'class': 'u-full-width show-values',
+                'name': slider_y_id,
+                'value': 0,
+                'min': 10,
+                'max': 2000,
+                'step': 10
+            }),
+
+            el('label', {}, 'Title'),
+            el('input', {
+                'class': 'u-full-width',
+                'type': 'text',
+                'placeholder': 'Type away',
+                'name': title_input_id})
+        ],
+
+        'main_pane': [
+            graph(graph_id)
+        ]
+    }, name
+)
+
+
 last_x = deque([], 100)
 last_y = deque([], 100)
 
 
 @app.route('/')
 def index():
-    utils.write_templates(
-        {
-            'header': [
-                el('H1', {}, 'Etch-a-sketch')
-            ],
-
-            'controls': [
-                el('label', {}, 'X Position'),
-                el('input', {
-                    'type': 'range',
-                    'class': 'u-full-width show-values',
-                    'name': slider_x_id,
-                    'value': 0,
-                    'min': 10,
-                    'max': 2000,
-                    'step': 10
-                }),
-
-                el('label', {}, 'Y Position'),
-                el('input', {
-                    'type': 'range',
-                    'class': 'u-full-width show-values',
-                    'name': slider_y_id,
-                    'value': 0,
-                    'min': 10,
-                    'max': 2000,
-                    'step': 10
-                }),
-
-                el('label', {}, 'Title'),
-                el('input', {
-                    'class': 'u-full-width',
-                    'type': 'text',
-                    'placeholder': 'Type away',
-                    'name': title_input_id})
-            ],
-
-            'main_pane': [
-                graph(graph_id)
-            ]
-        }, name
-    )
-
     return render_template('layouts/layout_single_column_and_controls.html',
                            app_name=name)
 

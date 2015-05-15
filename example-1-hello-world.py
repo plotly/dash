@@ -15,41 +15,43 @@ app.debug = True
 app.config['key'] = 'secret'
 socketio = SocketIO(app)
 
+# Write the HTML "includes" blocks to /templates/runtime/dash-1-hello-world
+# Alternatively, include the HTML yourself in that folder
+utils.write_templates(
+    {
+        'header': [
+            el('H1', {}, 'Hello Dash')
+        ],
+
+        'controls': [
+            el('label', {}, 'Frequency'),
+            el('input', {
+                'type': 'range',
+                'class': 'u-full-width show-values',
+                'name': 'frequency',
+                'value': 0,
+                'min': 1,
+                'max': 10,
+                'step': 0.1
+            }),
+            el('label', {}, 'Title'),
+            el('input', {
+                'type': 'text',
+                'name': 'title',
+                'placeholder': 'Type away',
+                'class': 'u-full-width'
+            }, '')
+        ],
+
+        'main_pane': [
+            graph('sine-wave')
+        ]
+    }, name
+)
+
 
 @app.route('/')
 def index():
-    utils.write_templates(
-        {
-            'header': [
-                el('H1', {}, 'Hello Dash')
-            ],
-
-            'controls': [
-                el('label', {}, 'Frequency'),
-                el('input', {
-                    'type': 'range',
-                    'class': 'u-full-width show-values',
-                    'name': 'frequency',
-                    'value': 0,
-                    'min': 1,
-                    'max': 10,
-                    'step': 0.1
-                }),
-                el('label', {}, 'Title'),
-                el('input', {
-                    'type': 'text',
-                    'name': 'title',
-                    'placeholder': 'Type away',
-                    'class': 'u-full-width'
-                }, '')
-            ],
-
-            'main_pane': [
-                graph('sine-wave')
-            ]
-        }, name
-    )
-
     return render_template('layouts/layout_single_column_and_controls.html',
                            app_name=name)
 

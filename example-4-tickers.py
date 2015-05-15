@@ -21,33 +21,32 @@ socketio = SocketIO(app)
 df_companies = pd.read_csv('companylist.csv')
 tickers = list(df_companies['Symbol'])
 
+# Write the HTML "includes" blocks to /templates/runtime/dash-4-tickers
+# We're using the template "layout_single_column_and_controls" which uses the
+# includes blocks: 'header.html', 'controls.html', and 'main_pane.html'.
+utils.write_templates(
+    {
+        'header': [
+            el('H1', {}, 'Yahoo Finance Explorer'),
+        ],
+        'controls': [
+            el('label', {'for': 'ticker'}, 'Ticker'),
+            el('input', {
+                'name': 'ticker',
+                'type': 'text',
+                'value': 'GOOG',
+                'class': 'u-full-width'
+            }, '')
+        ],
+        'main_pane': [graph('line-chart')]
+    }, name
+)
+
 
 @app.route('/')
 def index():
-    utils.write_templates(
-        {
-            'header': [
-                el('H1', {}, 'Yahoo Finance Explorer'),
-            ],
-            'controls': [
-                el('label', {'for': 'ticker'}, 'Ticker'),
-                el('input', {
-                    'name': 'ticker',
-                    'type': 'text',
-                    'value': 'GOOG',
-                    'class': 'u-full-width'
-                }, '')
-            ],
-            'main_pane': [graph('line-chart')]
-        }, name
-    )
     return render_template('layouts/layout_single_column_and_controls.html',
                            app_name=name)
-
-
-@socketio.on('pong')
-def pong(app_state):
-    update_graph(app_state)
 
 
 @socketio.on('replot')
@@ -57,7 +56,6 @@ def replot(app_state):
 
 def update_graph(app_state):
     print app_state
-
     ticker = app_state['ticker']
     if ticker not in tickers:
         print ticker, 'not in tickers'
