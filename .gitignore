@@ -1,3 +1,6 @@
 *.pyc
 *.ipynb_notebooks
 *.ipynb
+ignore
+*~
+venv
