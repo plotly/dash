@@ -7,4 +7,6 @@ Check out the four examples:
 - `$ python example-1-hello-world.py`
 - `$ python example-2-etch-a-sketch.py`
 - `$ python example-3-click-events.py`
+![Hans Rosling Bubble Chart Style Interactive Web App](http://i.imgur.com/d3y4nwm.gif)
+
 - `$ python example-4-tickers.py`
