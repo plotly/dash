@@ -1,4 +1,5 @@
 ## Dash
+
 Dash is an assemblage of Flask, Socketio, Jinja, Plotly and boiler plate CSS and JS for easily creating data visualization web-apps with your Python data analysis backend.
 
 ## Getting Started
