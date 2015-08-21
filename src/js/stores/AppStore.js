@@ -4,6 +4,7 @@ import AppDispatcher from '../dispatchers/AppDispatcher';
 import BaseStore from './BaseStore';
 import AppConstants from '../constants/AppConstants';
 import Collection from 'ampersand-collection';
+import AppActions from '../actions/AppActions'
 
 var _appStore = {
     currentD: 'seafood',
@@ -12,23 +13,7 @@ var _appStore = {
         {'val': 'meat', 'name': 'Meats'},
         {'val': 'vegetables', 'name': 'Les Legumes'}
     ],
-
-    secondDropDown: {
-        'seafood': [
-            {'val': 'smoked-salmon', 'name': 'Fresh Smoked Salmon'},
-            {'val': 'smoked-trout', 'name': 'Wild Alaska Trout'},
-            {'val': 'flying-fish', 'name': 'A Barbados Special'}
-        ],
-        'meat': [
-            {'val': 'hamburger', 'name': 'Palace Burger'},
-            {'val': 'sausage', 'name': 'Chez Vito Turkey Sausage'}
-        ],
-        'vegetables': [
-            {'val': 'rutabegga', 'name': 'Rudabagga'},
-            {'val': 'carrots', 'name': 'Rainbow Carrots'},
-            {'val': 'fennel', 'name': 'Sliced Fennal'}
-        ]
-    }
+    secondDropDown: []
 }
 
 var AppStore = BaseStore.extend({
@@ -36,24 +21,23 @@ var AppStore = BaseStore.extend({
         return _appStore.firstDropDown.slice()
     },
     getSecondDropDown: function(){
-        return _appStore.secondDropDown[_appStore.currentD].slice()
-    },
-    getCurrentD: function(){
-        return _appStore.currentD
+        return _appStore.secondDropDown.slice()
     }
 });
 
 var actions = function(action) {
     switch(action.event) {
 
-    case AppConstants.SETCURRENTD:
-        AppStore.emitChange();
-
     case AppConstants.SETSECONDD:
-        _appStore.
-
+        _appStore.secondDropDown = action.secondDropDown;
+        AppStore.emitChange(); // always put here after very action
     }
 };
 
 AppDispatcher.register(actions);
+
+(function(){
+    AppActions.getSecondDropDown('seafood');
+})();
+
 module.exports = AppStore;

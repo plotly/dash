@@ -20,9 +20,9 @@ var AppContainer = React.createClass({
         };
     },
 
-    setFirstD: function (e) {
+    getSecondDropdown: function (e) {
         let dropdownValue = e.target.value;
-        AppActions.setFirstD(dropdownValue);
+        AppActions.getSecondDropDown(dropdownValue);
     },
 
     _onChange: function () {
@@ -38,7 +38,7 @@ var AppContainer = React.createClass({
             <div>
             'Herro from react!'
             <br/>
-            <DropDown options={firstDropdown} handleChange={this.setFirstD}/>
+            <DropDown options={firstDropdown} handleChange={this.getSecondDropdown}/>
             <DropDown options={secondDropdown}/>
             </div>
         );
