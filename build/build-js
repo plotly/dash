@@ -1,0 +1,3 @@
+#!/bin/bash
+
+browserify src/js/main.js --debug -o static/js/bundle.js -v

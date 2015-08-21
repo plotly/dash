@@ -1,0 +1,1 @@
+console.error("SyntaxError: /Users/chriddyp/Repos/react-world/src/js/stores/AppStore.js: Unexpected token (55:4) while parsing file: /Users/chriddyp/Repos/react-world/src/js/stores/AppStore.js");
