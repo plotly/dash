@@ -6,15 +6,16 @@ import AppState from 'ampersand-app';
 import request from 'request';
 
 var AppActions = {
-    getSecondDropDown: function(currentD) {
-        //debugger;
-        request.get('http://localhost:8080/api', function(err, res, body){
-            if(!err && res.statusCode == 200) {
-                AppDispatcher.dispatch({
-                    event: AppConstants.SETSECONDD,
-                    secondDropDown: JSON.parse(body)[currentD]
-                });
-            }
+    setFirstDropdownValue: function(dropdownValue) {
+        AppDispatcher.dispatch({
+            event: AppConstants.SETFIRSTDROPDOWNVALUE,
+            dropdownValue: dropdownValue
+        })
+    },
+    setFirstRadioButtonValue: function(radioButtonValue) {
+        AppDispatcher.dispatch({
+            event: AppConstants.SETFIRSTRADIOBUTTONVALUE,
+            radioButtonValue: radioButtonValue
         })
     }
 };

@@ -4,7 +4,7 @@ import React from 'react';
 import AppStore from '../stores/AppStore';
 import AppActions from '../actions/AppActions';
 import appStoreMixin from './AppStore.mixin.js';
-import {DropDown} from './DoubleD.react.js'
+import {Dropdown, RadioButton} from './Controls.react.js'
 
 var AppContainer = React.createClass({
     getInitialState: function () {
@@ -14,32 +14,53 @@ var AppContainer = React.createClass({
     mixins: [appStoreMixin],
 
     getState: function () {
+        // magic?
+        // the return of this function fills in this.state
+        // why isn't this.state handled in AppStore?
+        //
+        // so really, this.state is whatever we want/need it to be
         return {
-            firstDropdown: AppStore.getFirstDropDown(),
-            secondDropdown: AppStore.getSecondDropDown()
+            firstDropdown: AppStore.getFirstDropdown(),
+            firstDropdownSelection: AppStore.getFirstDropdownSelection(),
+
+            firstRadio: AppStore.getFirstRadio(),
+            firstRadioSelection: AppStore.getFirstRadioSelection()
         };
     },
 
-    getSecondDropdown: function (e) {
+    firstDropdownChangeHandler: function(e) {
         let dropdownValue = e.target.value;
-        AppActions.getSecondDropDown(dropdownValue);
+        AppActions.setFirstDropdownValue(dropdownValue);
+    },
+
+    firstRadioButtonChangeHandler: function(e) {
+        console.log(e);
+        let radioButtonValue = e.target.value;
+        AppActions.setFirstRadioButtonValue(radioButtonValue);
     },
 
     _onChange: function () {
-        // listens to store emittting events
+        // listens to AppStore emittting changes with AppStore.emitChange
         this.setState(this.getState());
     },
 
     render: function () {
         // this.state <- return value from getState
-        let firstDropdown = this.state.firstDropdown;
-        let secondDropdown = this.state.secondDropdown;
         return (
             <div>
-            'Herro from react!'
+            Herro from react!
             <br/>
-            <DropDown options={firstDropdown} handleChange={this.getSecondDropdown}/>
-            <DropDown options={secondDropdown}/>
+            <Dropdown options={this.state.firstDropdown}
+                      handleChange={this.firstDropdownChangeHandler}/>
+
+            <div>Selected value: <b>{this.state.firstDropdownSelection}</b></div>
+
+            <RadioButton name='daysoftheweek'
+                         options={this.state.firstRadio}
+                         handleChange={this.firstRadioButtonChangeHandler}/>
+
+            <div>Selected value: <b>{this.state.firstRadioSelection}</b></div>
+
             </div>
         );
     }

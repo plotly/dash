@@ -3,7 +3,7 @@
 import React from 'react';
 import AppActions from '../actions/AppActions';
 
-var DropDown = React.createClass({
+var Dropdown = React.createClass({
     propTypes: {
         options: React.PropTypes.array.isRequired
     },
@@ -24,4 +24,4 @@ var DropDown = React.createClass({
     }
 });
 
-exports.DropDown = DropDown;
+exports.Dropdown = Dropdown;
