@@ -39,7 +39,8 @@ var RadioButton = React.createClass({
         let options = this.props.options.map((v, i) => {
             return (
                 <label>
-                    <input  onClick={this.handleChange}
+                    <input  id={this.props.id}
+                            onClick={this.handleChange}
                             type="radio"
                             name={this.props.name}
                             value={v.val}/>

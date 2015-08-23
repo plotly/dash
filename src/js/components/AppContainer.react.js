@@ -22,10 +22,11 @@ var AppContainer = React.createClass({
         return AppStore.getState();
     },
 
-    dropdownChangeHandler: function(e) {
-        let dropdownValue = e.target.value;
-        let dropdownId = e.target.id;
-        AppActions.setDropdownValue(dropdownValue, dropdownId);
+    dropdownAndRadioChangeHandler: function(e) {
+        // move this into Controls.react.js?
+        let value = e.target.value;
+        let id = e.target.id;
+        AppActions.setDropdownAndRadioValue(id, value);
     },
 
     _onChange: function () {
@@ -43,15 +44,29 @@ var AppContainer = React.createClass({
 
             <Dropdown id={this.state.firstDropdown.id}
                       options={this.state.firstDropdown.options}
-                      handleChange={this.dropdownChangeHandler}/>
+                      handleChange={this.dropdownAndRadioChangeHandler}/>
 
             <div>Selected value: <b>{this.state.firstDropdown.selected}</b></div>
 
             <Dropdown id={this.state.secondDropdown.id}
                       options={this.state.secondDropdown.options}
-                      handleChange={this.dropdownChangeHandler}/>
+                      handleChange={this.dropdownAndRadioChangeHandler}/>
 
             <div>Selected value: <b>{this.state.secondDropdown.selected}</b></div>
+
+            <RadioButton id={this.state.firstRadio.id}
+                         name={this.state.firstRadio.name}
+                         options={this.state.firstRadio.options}
+                         handleChange={this.dropdownAndRadioChangeHandler}/>
+
+            <div>Selected value: <b>{this.state.firstRadio.selected}</b></div>
+
+            <RadioButton id={this.state.secondRadio.id}
+                         name={this.state.secondRadio.name}
+                         options={this.state.secondRadio.options}
+                         handleChange={this.dropdownAndRadioChangeHandler}/>
+
+            <div>Selected value: <b>{this.state.secondRadio.selected}</b></div>
 
             </div>
         );

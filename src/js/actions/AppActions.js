@@ -6,11 +6,11 @@ import AppState from 'ampersand-app';
 import request from 'request';
 
 var AppActions = {
-    setDropdownValue: function(dropdownValue, dropdownId) {
+    setDropdownAndRadioValue: function(id, value) {
         AppDispatcher.dispatch({
-            event: AppConstants.UPDATEDROPDOWNVALUE,
-            dropdownValue: dropdownValue,
-            dropdownId: dropdownId
+            event: AppConstants.UPDATEDROPDOWNANDRADIOVALUE,
+            id: id,
+            value: value
         })
     }
 };

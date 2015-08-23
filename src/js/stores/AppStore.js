@@ -35,6 +35,8 @@ var _appStore = {
             {'val': 'meat', 'name': 'Meats'},
             {'val': 'vegetables', 'name': 'Les Legumes'}
         ],
+        'id': 'firstRadio',
+        'name': 'foodGroup',
         'selected': 'seafood',
         'element': 'radio'
     },
@@ -45,6 +47,8 @@ var _appStore = {
             {'val': 'cosmos', 'name': 'c0sMOs'},
             {'val': 'sunflr', 'name': 'sunflowerz'}
         ],
+        'id': 'secondRadio',
+        'name': 'flowers',
         'selected': 'cosmos',
         'element': 'radio'
     }
@@ -60,8 +64,8 @@ var AppStore = BaseStore.extend({
 var actions = function(action) {
     switch(action.event) {
 
-    case AppConstants.UPDATEDROPDOWNVALUE:
-        _appStore[action.dropdownId].selected = action.dropdownValue;
+    case AppConstants.UPDATEDROPDOWNANDRADIOVALUE:
+        _appStore[action.id].selected = action.value;
         AppStore.emitChange();
     }
 };
