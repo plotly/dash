@@ -4,7 +4,7 @@ import React from 'react';
 import AppStore from '../stores/AppStore';
 import AppActions from '../actions/AppActions';
 import appStoreMixin from './AppStore.mixin.js';
-import {Dropdown, RadioButton} from './Controls.react.js'
+import {Dropdown, RadioButton, CheckBox, Slider} from './Controls.react.js'
 
 var AppContainer = React.createClass({
     getInitialState: function () {
@@ -20,13 +20,6 @@ var AppContainer = React.createClass({
         //
         // so really, this.state is whatever we want/need it to be
         return AppStore.getState();
-    },
-
-    dropdownAndRadioChangeHandler: function(e) {
-        // move this into Controls.react.js?
-        let value = e.target.value;
-        let id = e.target.id;
-        AppActions.setDropdownAndRadioValue(id, value);
     },
 
     _onChange: function () {
@@ -67,6 +60,30 @@ var AppContainer = React.createClass({
                          handleChange={this.dropdownAndRadioChangeHandler}/>
 
             <div>Selected value: <b>{this.state.secondRadio.selected}</b></div>
+
+            <CheckBox   name={this.state.firstCheckbox.name}
+                        options={this.state.firstCheckbox.options}/>
+
+            {this.state.firstCheckbox.options.map((v, i) => {
+                return (<div>{v.id}: {JSON.stringify(v.isChecked)}</div>)
+            })}
+
+            <label>
+                <Slider min={this.state.firstSlider.min}
+                        max={this.state.firstSlider.max}
+                        step={this.state.firstSlider.step}
+                        value={this.state.firstSlider.value}
+                        id={this.state.firstSlider.id}/>
+                <span>{this.state.firstSlider.value}</span>
+            </label>
+
+            <label>
+                <Slider minDate={this.state.dateSlider.min}
+                        maxDate={this.state.dateSlider.max}
+                        stepMs={this.state.dateSlider.step}
+                        id={this.state.dateSlider.id}/>
+                <span>{this.state.dateSlider.value}</span>
+            </label>
 
             </div>
         );

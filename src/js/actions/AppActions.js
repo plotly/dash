@@ -6,11 +6,27 @@ import AppState from 'ampersand-app';
 import request from 'request';
 
 var AppActions = {
-    setDropdownAndRadioValue: function(id, value) {
+    setSelectedValue: function(id, value) {
         AppDispatcher.dispatch({
-            event: AppConstants.UPDATEDROPDOWNANDRADIOVALUE,
+            event: AppConstants.SETSELECTEDVALUE,
             id: id,
             value: value
+        })
+    },
+
+    setValue: function(id, value) {
+        AppDispatcher.dispatch({
+            event: AppConstants.SETVALUE,
+            id: id,
+            value: value
+        })
+    },
+
+    setCheckedValue: function(id, isChecked) {
+        AppDispatcher.dispatch({
+            event: AppConstants.SETCHECKED,
+            id: id,
+            isChecked: isChecked
         })
     }
 };

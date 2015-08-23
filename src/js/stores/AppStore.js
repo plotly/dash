@@ -9,9 +9,9 @@ import AppActions from '../actions/AppActions';
 var _appStore = {
     firstDropdown: {
         'options': [
-            {'val': 'seafood', 'name': 'Fish'},
-            {'val': 'meat', 'name': 'Meats'},
-            {'val': 'vegetables', 'name': 'Les Legumes'}
+            {'val': 'seafood', 'label': 'Fish'},
+            {'val': 'meat', 'label': 'Meats'},
+            {'val': 'vegetables', 'label': 'Les Legumes'}
         ],
         'selected': 'seafood',
         'id': 'firstDropdown',
@@ -20,9 +20,9 @@ var _appStore = {
 
     secondDropdown: {
         'options': [
-            {'val': 'iris', 'name': 'iriss'},
-            {'val': 'cosmos', 'name': 'c0sMOs'},
-            {'val': 'sunflr', 'name': 'sunflowerz'}
+            {'val': 'iris', 'label': 'iriss'},
+            {'val': 'cosmos', 'label': 'c0sMOs'},
+            {'val': 'sunflr', 'label': 'sunflowerz'}
         ],
         'selected': 'cosmos',
         'id': 'secondDropdown',
@@ -31,9 +31,9 @@ var _appStore = {
 
     firstRadio: {
         'options': [
-            {'val': 'seafood', 'name': 'Fish'},
-            {'val': 'meat', 'name': 'Meats'},
-            {'val': 'vegetables', 'name': 'Les Legumes'}
+            {'val': 'seafood', 'label': 'Fish'},
+            {'val': 'meat', 'label': 'Meats'},
+            {'val': 'vegetables', 'label': 'Les Legumes'}
         ],
         'id': 'firstRadio',
         'name': 'foodGroup',
@@ -43,14 +43,38 @@ var _appStore = {
 
     secondRadio: {
         'options': [
-            {'val': 'iris', 'name': 'iriss'},
-            {'val': 'cosmos', 'name': 'c0sMOs'},
-            {'val': 'sunflr', 'name': 'sunflowerz'}
+            {'val': 'iris', 'label': 'iriss'},
+            {'val': 'cosmos', 'label': 'c0sMOs'},
+            {'val': 'sunflr', 'label': 'sunflowerz'}
         ],
         'id': 'secondRadio',
         'name': 'flowers',
         'selected': 'cosmos',
         'element': 'radio'
+    },
+
+    firstCheckbox: {
+        'options': [
+            {'id': 'daisy', 'label': 'Dasiy', 'isChecked': true},
+            {'id': 'dandalion', 'label': 'Dandalion', 'isChecked': false}
+        ],
+        'name': 'flowers-that-start-with-d'
+    },
+
+    firstSlider: {
+        'min': 5,
+        'max': 50,
+        'step': 0.25,
+        'value': 40,
+        'id': 'firstSlider'
+    },
+
+    dateSlider: {
+        'min': '2015-01-01 00:00:00',
+        'max': '2015-05-03 00:00:00',
+        'step': 1000*60*60*3, // 3 hours
+        'value': '2015-04-01T08:00:00Z',
+        'id': 'dateSlider'
     }
 };
 
@@ -64,9 +88,23 @@ var AppStore = BaseStore.extend({
 var actions = function(action) {
     switch(action.event) {
 
-    case AppConstants.UPDATEDROPDOWNANDRADIOVALUE:
+    case AppConstants.SETSELECTEDVALUE:
         _appStore[action.id].selected = action.value;
         AppStore.emitChange();
+
+    case AppConstants.SETVALUE:
+        _appStore[action.id].value = action.value;
+        AppStore.emitChange();
+
+    case AppConstants.SETCHECKED:
+        var options = _appStore['firstCheckbox'].options;
+        for(var i=0; i<options.length; i++){
+            if(options[i].id == action.id) {
+                options[i].isChecked = action.isChecked;
+            }
+        }
+        AppStore.emitChange();
+
     }
 };
 
