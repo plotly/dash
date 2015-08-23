@@ -5,6 +5,7 @@ import AppActions from '../actions/AppActions';
 
 var Dropdown = React.createClass({
     propTypes: {
+        id: React.PropTypes.string.isRequired,
         options: React.PropTypes.array.isRequired
     },
 
@@ -17,7 +18,7 @@ var Dropdown = React.createClass({
             return <option key={i} value={v.val}>{v.name}</option>
         });
         return (
-            <select onChange={this.handleChange}>
+            <select id={this.props.id} onChange={this.handleChange}>
                 {options}
             </select>
         );

@@ -7,33 +7,52 @@ import Collection from 'ampersand-collection';
 import AppActions from '../actions/AppActions';
 
 var _appStore = {
-    firstDropdown: [
-        {'val': 'seafood', 'name': 'Fish'},
-        {'val': 'meat', 'name': 'Meats'},
-        {'val': 'vegetables', 'name': 'Les Legumes'}
-    ],
-    firstDropdownSelection: 'seafood',
-    firstRadio: [
-        {'val': 'monday', 'name': 'Monday'},
-        {'val': 'tuesday', 'name': 'Tuesday'},
-        {'val': 'wednesday', 'name': 'Wednesday'}
-    ],
-    firstRadioSelection: 'tuesday'
+    firstDropdown: {
+        'options': [
+            {'val': 'seafood', 'name': 'Fish'},
+            {'val': 'meat', 'name': 'Meats'},
+            {'val': 'vegetables', 'name': 'Les Legumes'}
+        ],
+        'selected': 'seafood',
+        'id': 'firstDropdown',
+        'element': 'dropdown'
+    },
+
+    secondDropdown: {
+        'options': [
+            {'val': 'iris', 'name': 'iriss'},
+            {'val': 'cosmos', 'name': 'c0sMOs'},
+            {'val': 'sunflr', 'name': 'sunflowerz'}
+        ],
+        'selected': 'cosmos',
+        'id': 'secondDropdown',
+        'element': 'dropdown'
+    },
+
+    firstRadio: {
+        'options': [
+            {'val': 'seafood', 'name': 'Fish'},
+            {'val': 'meat', 'name': 'Meats'},
+            {'val': 'vegetables', 'name': 'Les Legumes'}
+        ],
+        'selected': 'seafood',
+        'element': 'radio'
+    },
+
+    secondRadio: {
+        'options': [
+            {'val': 'iris', 'name': 'iriss'},
+            {'val': 'cosmos', 'name': 'c0sMOs'},
+            {'val': 'sunflr', 'name': 'sunflowerz'}
+        ],
+        'selected': 'cosmos',
+        'element': 'radio'
+    }
 };
 
 var AppStore = BaseStore.extend({
-    getFirstDropdown: function(){
-        return _appStore.firstDropdown.slice();
-    },
-    getFirstDropdownSelection: function() {
-        return _appStore.firstDropdownSelection;
-    },
-
-    getFirstRadio: function() {
-        return _appStore.firstRadio.slice();
-    },
-    getFirstRadioSelection: function(){
-        return _appStore.firstRadioSelection;
+    getState: function (){
+        return _appStore;
     }
 });
 
@@ -41,14 +60,9 @@ var AppStore = BaseStore.extend({
 var actions = function(action) {
     switch(action.event) {
 
-    case AppConstants.SETFIRSTDROPDOWNVALUE:
-        _appStore.firstDropdownSelection = action.dropdownValue;
+    case AppConstants.UPDATEDROPDOWNVALUE:
+        _appStore[action.dropdownId].selected = action.dropdownValue;
         AppStore.emitChange();
-
-    case AppConstants.SETFIRSTRADIOBUTTONVALUE:
-        _appStore.firstRadioSelection = action.radioButtonValue;
-        AppStore.emitChange();
-
     }
 };
 

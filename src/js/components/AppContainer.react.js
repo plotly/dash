@@ -19,24 +19,13 @@ var AppContainer = React.createClass({
         // why isn't this.state handled in AppStore?
         //
         // so really, this.state is whatever we want/need it to be
-        return {
-            firstDropdown: AppStore.getFirstDropdown(),
-            firstDropdownSelection: AppStore.getFirstDropdownSelection(),
-
-            firstRadio: AppStore.getFirstRadio(),
-            firstRadioSelection: AppStore.getFirstRadioSelection()
-        };
+        return AppStore.getState();
     },
 
-    firstDropdownChangeHandler: function(e) {
+    dropdownChangeHandler: function(e) {
         let dropdownValue = e.target.value;
-        AppActions.setFirstDropdownValue(dropdownValue);
-    },
-
-    firstRadioButtonChangeHandler: function(e) {
-        console.log(e);
-        let radioButtonValue = e.target.value;
-        AppActions.setFirstRadioButtonValue(radioButtonValue);
+        let dropdownId = e.target.id;
+        AppActions.setDropdownValue(dropdownValue, dropdownId);
     },
 
     _onChange: function () {
@@ -46,20 +35,23 @@ var AppContainer = React.createClass({
 
     render: function () {
         // this.state <- return value from getState
+
         return (
             <div>
             Herro from react!
             <br/>
-            <Dropdown options={this.state.firstDropdown}
-                      handleChange={this.firstDropdownChangeHandler}/>
 
-            <div>Selected value: <b>{this.state.firstDropdownSelection}</b></div>
+            <Dropdown id={this.state.firstDropdown.id}
+                      options={this.state.firstDropdown.options}
+                      handleChange={this.dropdownChangeHandler}/>
 
-            <RadioButton name='daysoftheweek'
-                         options={this.state.firstRadio}
-                         handleChange={this.firstRadioButtonChangeHandler}/>
+            <div>Selected value: <b>{this.state.firstDropdown.selected}</b></div>
 
-            <div>Selected value: <b>{this.state.firstRadioSelection}</b></div>
+            <Dropdown id={this.state.secondDropdown.id}
+                      options={this.state.secondDropdown.options}
+                      handleChange={this.dropdownChangeHandler}/>
+
+            <div>Selected value: <b>{this.state.secondDropdown.selected}</b></div>
 
             </div>
         );
