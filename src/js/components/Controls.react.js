@@ -10,7 +10,9 @@ var Dropdown = React.createClass({
     },
 
     handleChange: function(e) {
-        return this.props.handleChange ? this.props.handleChange(e) : false;
+        let value = e.target.value;
+        let id = e.target.id;
+        AppActions.setSelectedValue(id, value);
     },
 
     render: function() {

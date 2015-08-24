@@ -1,33 +1,44 @@
-from flask import Flask
+from flask import Flask, request
 import flask
 
-from flask import Flask
 from flask.ext.cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/api')
-def hello_world():
-    second_dropdown = {
-        'seafood': [
-            {'val': 'smoked-salmon', 'name': 'Fresh Smoked Salmon'},
-            {'val': 'smoked-trout', 'name': 'Wild Alaska Trout'},
-            {'val': 'flying-fish', 'name': 'A Barbados Special'}
-        ],
-        'meat': [
-            {'val': 'hamburger', 'name': 'Palace Burger'},
-            {'val': 'sausage', 'name': 'Chez Vito Turkey Sausage'}
-        ],
-        'vegetables': [
-            {'val': 'rutabegga', 'name': 'Rudabagga'},
-            {'val': 'carrots', 'name': 'Rainbow Carrots'},
-            {'val': 'fennel', 'name': 'Sliced Fennal'}
-        ]
-    }
+app.debug = True
 
-    return flask.jsonify(**second_dropdown)
+
+@app.route('/api', methods=['POST'])
+def hello_world():
+    body = request.json
+
+    if body['targetId'] == 'firstDropdown':
+        selected = body['appStore']['firstDropdown']['selected']
+        secondDropdown = body['appStore']['secondDropdown']
+        if selected == 'seafood':
+            secondDropdown['options'] = [
+                {'val': 'a', 'label': 'A'},
+                {'val': 'b', 'label': 'B'},
+            ]
+            secondDropdown['selected'] = 'a'
+
+        elif selected == 'meat':
+            secondDropdown['options'] = [
+                {'val': 'c', 'label': 'C'},
+                {'val': 'd', 'label': 'D'},
+            ]
+            secondDropdown['selected'] = 'c'
+
+        elif selected == 'vegetables':
+            secondDropdown['options'] = [
+                {'val': 'e', 'label': 'E'},
+                {'val': 'f', 'label': 'F'},
+            ]
+            secondDropdown['selected'] = 'e'
+
+    return flask.jsonify(body)
 
 if __name__ == '__main__':
     app.run(port=8080, debug=True)
