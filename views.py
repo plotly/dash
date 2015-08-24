@@ -62,7 +62,8 @@ LAYOUT = {
             {'id': 'daisy', 'label': 'Dasiy', 'isChecked': True},
             {'id': 'dandalion', 'label': 'Dandalion', 'isChecked': False}
         ],
-        'name': 'flowers-that-start-with-d'
+        'name': 'flowers-that-start-with-d',
+        'element': 'checkbox'
     },
 
     'firstSlider': {
@@ -70,7 +71,8 @@ LAYOUT = {
         'max': 50,
         'step': 0.25,
         'value': 40,
-        'id': 'firstSlider'
+        'id': 'firstSlider',
+        'element': 'slider'
     },
 
     'dateSlider': {
@@ -78,7 +80,8 @@ LAYOUT = {
         'max': '2015-05-03 00:00:00',
         'step': 1000 * 60 * 60 * 3,  # 3 hours
         'value': '2015-04-01T08:00:00Z',
-        'id': 'dateSlider'
+        'id': 'dateSlider',
+        'element': 'dateSlider'
     }
 }
 

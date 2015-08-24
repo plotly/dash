@@ -4,7 +4,7 @@ import React from 'react';
 import AppStore from '../stores/AppStore';
 import AppActions from '../actions/AppActions';
 import appStoreMixin from './AppStore.mixin.js';
-import {Dropdown, RadioButton, CheckBox, Slider} from './Controls.react.js'
+import {Dropdown, RadioButton, CheckBox, Slider, DateSlider} from './Controls.react.js'
 
 var AppContainer = React.createClass({
     getInitialState: function () {
@@ -32,61 +32,35 @@ var AppContainer = React.createClass({
         if(Object.keys(this.state).length === 0) {
             return <div>Loading...</div>
         } else {
+            // yikes!
+            let output = [];
+            let v;
+            for(var i in this.state) {
+                v = this.state[i];
+                console.log(v.element);
+                if(v.element === 'dropdown'){
+                    console.log('case: dropdown');
+                    output.push(<Dropdown key={i} id={v.id} options={v.options}/>);
+                } else if(v.element === 'checkbox'){
+                    console.log('case: checkbox');
+                    output.push(<CheckBox key={i} options={v.options} name={v.name}/>)
+                } else if(v.element === 'slider') {
+                    console.log('case: slider');
+                    output.push(<Slider key={i} min={v.min} max={v.max} step={v.step} value={v.value} id={v.id}/>)
+                } else if(v.element === 'dateSlider') {
+                    console.log('case: dateSlider');
+                    output.push(<DateSlider key={i} minDate={v.min} maxDate={v.max} stepMs={v.step} id={v.id}/>)
+                } else if(v.element === 'radio') {
+                    console.log('case: radio');
+                    output.push(<RadioButton key={i} id={v.id} name={v.name} options={v.options}/>)
+                }
+            }
+
             return (
                 <div>
-                Herro from react!
-                <br/>
-
-                <Dropdown id={this.state.firstDropdown.id}
-                          options={this.state.firstDropdown.options}
-                          handleChange={this.dropdownAndRadioChangeHandler}/>
-
-                <div>Selected value: <b>{this.state.firstDropdown.selected}</b></div>
-
-                <Dropdown id={this.state.secondDropdown.id}
-                          options={this.state.secondDropdown.options}
-                          handleChange={this.dropdownAndRadioChangeHandler}/>
-
-                <div>Selected value: <b>{this.state.secondDropdown.selected}</b></div>
-
-                <RadioButton id={this.state.firstRadio.id}
-                             name={this.state.firstRadio.name}
-                             options={this.state.firstRadio.options}
-                             handleChange={this.dropdownAndRadioChangeHandler}/>
-
-                <div>Selected value: <b>{this.state.firstRadio.selected}</b></div>
-
-                <RadioButton id={this.state.secondRadio.id}
-                             name={this.state.secondRadio.name}
-                             options={this.state.secondRadio.options}
-                             handleChange={this.dropdownAndRadioChangeHandler}/>
-
-                <div>Selected value: <b>{this.state.secondRadio.selected}</b></div>
-
-                <CheckBox   name={this.state.firstCheckbox.name}
-                            options={this.state.firstCheckbox.options}/>
-
-                {this.state.firstCheckbox.options.map((v, i) => {
-                    return (<div>{v.id}: {JSON.stringify(v.isChecked)}</div>)
-                })}
-
-                <label>
-                    <Slider min={this.state.firstSlider.min}
-                            max={this.state.firstSlider.max}
-                            step={this.state.firstSlider.step}
-                            value={this.state.firstSlider.value}
-                            id={this.state.firstSlider.id}/>
-                    <span>{this.state.firstSlider.value}</span>
-                </label>
-
-                <label>
-                    <Slider minDate={this.state.dateSlider.min}
-                            maxDate={this.state.dateSlider.max}
-                            stepMs={this.state.dateSlider.step}
-                            id={this.state.dateSlider.id}/>
-                    <span>{this.state.dateSlider.value}</span>
-                </label>
-
+                    {output.map(function(r){
+                        return r;
+                    })}
                 </div>
             );
         }

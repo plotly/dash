@@ -120,13 +120,12 @@ var Slider = React.createClass({
                     max={this.props.max}
                     step={this.props.step}
                     value={this.props.value}
-                    onChange={this.handleChange}
-            />
+                    onChange={this.handleChange}/>
         )
     }
 });
 
-var Slider = React.createClass({
+var DateSlider = React.createClass({
     propTypes: {
         minDate: React.PropTypes.string.isRequired,
         maxDate: React.PropTypes.string.isRequired,
@@ -149,8 +148,7 @@ var Slider = React.createClass({
                     min={(new Date(this.props.minDate)).getTime()}
                     max={(new Date(this.props.maxDate)).getTime()}
                     step={this.props.stepMs}
-                    onChange={this.handleChange}
-            />
+                    onChange={this.handleChange}/>
         )
     }
 });
@@ -159,3 +157,4 @@ exports.Dropdown = Dropdown;
 exports.RadioButton = RadioButton;
 exports.CheckBox = CheckBox;
 exports.Slider = Slider;
+exports.DateSlider = DateSlider;
