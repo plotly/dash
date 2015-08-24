@@ -7,77 +7,7 @@ import Collection from 'ampersand-collection';
 import AppActions from '../actions/AppActions';
 import request from 'request';
 
-var _appStore = {
-    firstDropdown: {
-        'options': [
-            {'val': 'seafood', 'label': 'Fish'},
-            {'val': 'meat', 'label': 'Meats'},
-            {'val': 'vegetables', 'label': 'Les Legumes'}
-        ],
-        'selected': 'seafood',
-        'id': 'firstDropdown',
-        'element': 'dropdown'
-    },
-
-    secondDropdown: {
-        'options': [
-            {'val': 'iris', 'label': 'iriss'},
-            {'val': 'cosmos', 'label': 'c0sMOs'},
-            {'val': 'sunflr', 'label': 'sunflowerz'}
-        ],
-        'selected': 'cosmos',
-        'id': 'secondDropdown',
-        'element': 'dropdown'
-    },
-
-    firstRadio: {
-        'options': [
-            {'val': 'seafood', 'label': 'Fish'},
-            {'val': 'meat', 'label': 'Meats'},
-            {'val': 'vegetables', 'label': 'Les Legumes'}
-        ],
-        'id': 'firstRadio',
-        'name': 'foodGroup',
-        'selected': 'seafood',
-        'element': 'radio'
-    },
-
-    secondRadio: {
-        'options': [
-            {'val': 'iris', 'label': 'iriss'},
-            {'val': 'cosmos', 'label': 'c0sMOs'},
-            {'val': 'sunflr', 'label': 'sunflowerz'}
-        ],
-        'id': 'secondRadio',
-        'name': 'flowers',
-        'selected': 'cosmos',
-        'element': 'radio'
-    },
-
-    firstCheckbox: {
-        'options': [
-            {'id': 'daisy', 'label': 'Dasiy', 'isChecked': true},
-            {'id': 'dandalion', 'label': 'Dandalion', 'isChecked': false}
-        ],
-        'name': 'flowers-that-start-with-d'
-    },
-
-    firstSlider: {
-        'min': 5,
-        'max': 50,
-        'step': 0.25,
-        'value': 40,
-        'id': 'firstSlider'
-    },
-
-    dateSlider: {
-        'min': '2015-01-01 00:00:00',
-        'max': '2015-05-03 00:00:00',
-        'step': 1000*60*60*3, // 3 hours
-        'value': '2015-04-01T08:00:00Z',
-        'id': 'dateSlider'
-    }
-};
+var _appStore = {}
 
 var AppStore = BaseStore.extend({
     getState: function (){
@@ -109,6 +39,9 @@ var actions = function(action) {
             }
         }
         AppStore.emitChange();
+
+    case AppConstants.GETINITIALSTATE:
+
     }
 
     request({
@@ -131,4 +64,9 @@ var actions = function(action) {
 
 AppDispatcher.register(actions);
 
+(function(){
+    AppActions.getInitialState();
+})();
+
 module.exports = AppStore;
+

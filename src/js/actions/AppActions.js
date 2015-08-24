@@ -5,12 +5,19 @@ import AppDispatcher from '../dispatchers/AppDispatcher';
 import AppState from 'ampersand-app';
 import request from 'request';
 
+
 var AppActions = {
     setSelectedValue: function(id, value) {
         AppDispatcher.dispatch({
             event: AppConstants.SETSELECTEDVALUE,
             id: id,
             value: value
+        })
+    },
+
+    getInitialState: function() {
+        AppDispatcher.dispatch({
+            event: AppConstants.GETINITIALSTATE
         })
     },
 
