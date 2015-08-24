@@ -153,8 +153,41 @@ var DateSlider = React.createClass({
     }
 });
 
+var PlotlyGraph = React.createClass({
+    propTypes: {
+        figure: React.PropTypes.object.isRequired,
+        id: React.PropTypes.string.isRequired
+    },
+
+    // "Invoked once, only on the client (not on the server),
+    // immediately after the initial rendering occurs."
+    componentDidMount: function() {
+        Plotly.newPlot(this.props.id,
+                       this.props.figure.data,
+                       this.props.figure.layout);
+    },
+
+    // "Invoked immediately after the component's updates are flushed to the DOM.
+    // This method is not called for the initial render."
+    componentDidUpdate: function() {
+        Plotly.newPlot(this.props.id,
+                       this.props.figure.data,
+                       this.props.figure.layout);
+    },
+
+    render: function(){
+        return (
+            <div id={this.props.id}
+                 width="600px"
+                 height="550px">
+            </div>
+        );
+    }
+});
+
 exports.Dropdown = Dropdown;
 exports.RadioButton = RadioButton;
 exports.CheckBox = CheckBox;
 exports.Slider = Slider;
 exports.DateSlider = DateSlider;
+exports.PlotlyGraph = PlotlyGraph;

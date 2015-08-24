@@ -4,7 +4,8 @@ import React from 'react';
 import AppStore from '../stores/AppStore';
 import AppActions from '../actions/AppActions';
 import appStoreMixin from './AppStore.mixin.js';
-import {Dropdown, RadioButton, CheckBox, Slider, DateSlider} from './Controls.react.js'
+import {Dropdown, RadioButton, CheckBox,
+        Slider, DateSlider, PlotlyGraph} from './Controls.react.js'
 
 var AppContainer = React.createClass({
     getInitialState: function () {
@@ -43,16 +44,19 @@ var AppContainer = React.createClass({
                     output.push(<Dropdown key={i} id={v.id} options={v.options}/>);
                 } else if(v.element === 'checkbox'){
                     console.log('case: checkbox');
-                    output.push(<CheckBox key={i} options={v.options} name={v.name}/>)
+                    output.push(<CheckBox key={i} options={v.options} name={v.name}/>);
                 } else if(v.element === 'slider') {
                     console.log('case: slider');
-                    output.push(<Slider key={i} min={v.min} max={v.max} step={v.step} value={v.value} id={v.id}/>)
+                    output.push(<Slider key={i} min={v.min} max={v.max} step={v.step} value={v.value} id={v.id}/>);
                 } else if(v.element === 'dateSlider') {
                     console.log('case: dateSlider');
-                    output.push(<DateSlider key={i} minDate={v.min} maxDate={v.max} stepMs={v.step} id={v.id}/>)
+                    output.push(<DateSlider key={i} minDate={v.min} maxDate={v.max} stepMs={v.step} id={v.id}/>);
                 } else if(v.element === 'radio') {
                     console.log('case: radio');
-                    output.push(<RadioButton key={i} id={v.id} name={v.name} options={v.options}/>)
+                    output.push(<RadioButton key={i} id={v.id} name={v.name} options={v.options}/>);
+                } else if(v.element === 'PlotlyGraph') {
+                    console.log('case: PlotlyGraph')
+                    output.push(<PlotlyGraph key={i} id={v.id} figure={v.figure}/>);
                 }
             }
 

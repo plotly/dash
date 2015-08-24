@@ -75,13 +75,27 @@ LAYOUT = {
         'element': 'slider'
     },
 
-    'dateSlider': {
-        'min': '2015-01-01 00:00:00',
-        'max': '2015-05-03 00:00:00',
-        'step': 1000 * 60 * 60 * 3,  # 3 hours
-        'value': '2015-04-01T08:00:00Z',
-        'id': 'dateSlider',
-        'element': 'dateSlider'
+    'secondSlider': {
+        'min': 5,
+        'max': 50,
+        'step': 0.25,
+        'value': 40,
+        'id': 'secondSlider',
+        'element': 'slider'
+    },
+
+    'graph1': {
+        'figure': {
+            'data': [{
+                'x': [1, 2, 3, 4],
+                'y': [1, 4, 9, 16]
+            }],
+            'layout': {
+                'title': 'test'
+            }
+        },
+        'id': 'graph1',
+        'element': 'PlotlyGraph'
     }
 }
 
@@ -93,6 +107,9 @@ def intercept():
     # This is generic, so maybe move it out
     if body['appStore'] == {}:
         body['appStore'] = LAYOUT
+
+    if 'targetId' in body:
+        print body['appStore'][body['targetId']]
 
     if body.get('targetId', '') == 'firstDropdown':
         selected = body['appStore']['firstDropdown']['selected']
@@ -117,6 +134,18 @@ def intercept():
                 {'val': 'f', 'label': 'F'},
             ]
             secondDropdown['selected'] = 'e'
+
+    if (body.get('targetId', '') == 'firstSlider' or
+            body.get('targetId', '') == 'secondSlider'):
+
+        x = float(body['appStore']['firstSlider']['value'])
+        y = float(body['appStore']['secondSlider']['value'])
+        trace = body['appStore']['graph1']['figure']['data'][0]
+        trace['x'] = trace['x'][1:]
+        trace['x'].append(x)
+        trace['y'] = trace['y'][1:]
+        trace['y'].append(y)
+        print trace
 
     return flask.jsonify(body)
 
