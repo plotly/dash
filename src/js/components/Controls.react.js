@@ -156,7 +156,8 @@ var DateSlider = React.createClass({
 var PlotlyGraph = React.createClass({
     propTypes: {
         figure: React.PropTypes.object.isRequired,
-        id: React.PropTypes.string.isRequired
+        id: React.PropTypes.string.isRequired,
+        height: React.PropTypes.string.isRequired
     },
 
     // "Invoked once, only on the client (not on the server),
@@ -176,10 +177,12 @@ var PlotlyGraph = React.createClass({
     },
 
     render: function(){
+        console.log('render ', this.props.height);
+        var heightStyle = {'height': this.props.height};
         return (
             <div id={this.props.id}
-                 width="600px"
-                 height="550px">
+                 width="100%"
+                 style={heightStyle}>
             </div>
         );
     }

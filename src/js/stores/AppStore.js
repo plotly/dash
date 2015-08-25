@@ -19,19 +19,20 @@ var AppStore = BaseStore.extend({
 var actions = function(action) {
     var previous;
     var targetId = action.id;
-    switch(action.event) {
-    case AppConstants.SETSELECTEDVALUE:
+    console.log('event: ', action.event);
+    let evt = action.event;
+    if(evt === AppConstants.SETSELECTEDVALUE){
         previous = _appStore[action.id].selected;
         _appStore[action.id].selected = action.value;
         AppStore.emitChange();
-
-    case AppConstants.SETVALUE:
+        AppActions.updateGraph(targetId, previous, _appStore);
+    } else if (evt === AppConstants.SETVALUE) {
         previous = _appStore[action.id].value;
         _appStore[action.id].value = action.value;
         AppStore.emitChange();
-
-    case AppConstants.SETCHECKED:
-        var options = _appStore['firstCheckbox'].options;
+        AppActions.updateGraph(targetId, previous, _appStore);
+    } else if (evt === AppConstants.SETCHECKED) {
+        var options = _appStore[action.id].options;
         for(var i=0; i<options.length; i++){
             if(options[i].id == action.id) {
                 previous = options[i].isChecked;
@@ -39,33 +40,21 @@ var actions = function(action) {
             }
         }
         AppStore.emitChange();
-
-    case AppConstants.GETINITIALSTATE:
-
+        AppActions.updateGraph(targetId, previous, _appStore);
+    } else if (evt === AppConstants.UPDATEGRAPH) {
+        _appStore[action.graphid].figure = action.figure;
+        _appStore[action.graphid].height = action.figure.layout.height + 'px';
+        AppStore.emitChange();
+    } else if (evt === AppConstants.SERVERUPDATE) {
+        _appStore = action.appStore;
+        AppStore.emitChange();
     }
-
-    request({
-            method: 'POST',
-            body: {
-                'appStore': _appStore,
-                'targetId': targetId,
-                'previousValue': previous
-            },
-            json: true,
-            url: 'http://localhost:8080/api'
-        }, function(err, res, body) {
-            if(!err && res.statusCode == 200) {
-                _appStore = body['appStore'];
-                AppStore.emitChange();
-            }
-        }
-    );
 };
 
 AppDispatcher.register(actions);
 
 (function(){
-    AppActions.getInitialState();
+    AppActions.askServerForUpdates('', '', _appStore);
 })();
 
 module.exports = AppStore;

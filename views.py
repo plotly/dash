@@ -3,98 +3,76 @@ import flask
 
 from flask.ext.cors import CORS
 
+import pandas as pd
+import json
+
+from plotly.utils import PlotlyJSONEncoder
+import plotly.tools as tls
+
 app = Flask(__name__)
 CORS(app)
 
 
 app.debug = True
 
+df = pd.read_csv('http://www.stat.ubc.ca/~jenny/'
+                 'notOcto/STAT545A/examples/gapminder/'
+                 'data/gapminderDataFiveYear.txt', sep='\t')
+
+
+def dropdown(id):
+    return {
+        'options': [{'val': '', 'label': ''}] + [{'val': c, 'label': c} for c in df.columns],
+        'id': id,
+        'selected': '',
+        'element': 'dropdown'
+    }
+
+
+
+def numericdropdown(id):
+    return {
+        'options': [{'val': '', 'label': ''}] + [{'val': c, 'label': c} for c in df.columns if df[c].dtype in ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']],
+        'id': id,
+        'selected': '',
+        'element': 'dropdown'
+    }
 
 LAYOUT = {
-    'firstDropdown': {
-        'options': [
-            {'val': 'seafood', 'label': 'Fish'},
-            {'val': 'meat', 'label': 'Meats'},
-            {'val': 'vegetables', 'label': 'Les Legumes'}
-        ],
-        'selected': 'seafood',
-        'id': 'firstDropdown',
-        'element': 'dropdown'
-    },
+    'x': dropdown('x'),
+    'y': dropdown('y'),
+    'rows': dropdown('rows'),
+    'cols': dropdown('cols'),
 
-    'secondDropdown': {
+    'type': {
         'options': [
-            {'val': 'iris', 'label': 'iriss'},
-            {'val': 'cosmos', 'label': 'c0sMOs'},
-            {'val': 'sunflr', 'label': 'sunflowerz'}
+            {'val': c, 'label': c} for c in ['scatter', 'line', 'bar', '2dhistogram']
         ],
-        'selected': 'cosmos',
-        'id': 'secondDropdown',
-        'element': 'dropdown'
-    },
-
-    'firstRadio': {
-        'options': [
-            {'val': 'seafood', 'label': 'Fish'},
-            {'val': 'meat', 'label': 'Meats'},
-            {'val': 'vegetables', 'label': 'Les Legumes'}
-        ],
-        'id': 'firstRadio',
-        'name': 'foodGroup',
-        'selected': 'seafood',
+        'id': 'type',
+        'selected': 'scatter',
         'element': 'radio'
     },
 
-    'secondRadio': {
-        'options': [
-            {'val': 'iris', 'label': 'iriss'},
-            {'val': 'cosmos', 'label': 'c0sMOs'},
-            {'val': 'sunflr', 'label': 'sunflowerz'}
-        ],
-        'id': 'secondRadio',
-        'name': 'flowers',
-        'selected': 'cosmos',
-        'element': 'radio'
-    },
+    'color': dropdown('color'),
+    'size': numericdropdown('size'),
 
-    'firstCheckbox': {
-        'options': [
-            {'id': 'daisy', 'label': 'Dasiy', 'isChecked': True},
-            {'id': 'dandalion', 'label': 'Dandalion', 'isChecked': False}
-        ],
-        'name': 'flowers-that-start-with-d',
-        'element': 'checkbox'
-    },
+    'slide': dropdown('slide'),
 
-    'firstSlider': {
+    'slider': {
         'min': 5,
         'max': 50,
         'step': 0.25,
         'value': 40,
-        'id': 'firstSlider',
+        'id': 'slider',
         'element': 'slider'
     },
 
-    'secondSlider': {
-        'min': 5,
-        'max': 50,
-        'step': 0.25,
-        'value': 40,
-        'id': 'secondSlider',
-        'element': 'slider'
-    },
-
-    'graph1': {
+    'graph': {
         'figure': {
-            'data': [{
-                'x': [1, 2, 3, 4],
-                'y': [1, 4, 9, 16]
-            }],
-            'layout': {
-                'title': 'test'
-            }
+            'data': [],
+            'layout': {}
         },
-        'id': 'graph1',
+        'id': 'graph',
         'element': 'PlotlyGraph'
     }
 }
@@ -102,50 +80,95 @@ LAYOUT = {
 
 @app.route('/api', methods=['POST'])
 def intercept():
-    body = request.json
+    body = json.loads(request.get_data())
 
     # This is generic, so maybe move it out
     if body['appStore'] == {}:
         body['appStore'] = LAYOUT
+    else:
+        x = body['appStore']['x']['selected']
+        y = body['appStore']['y']['selected']
+        rows = body['appStore']['rows']['selected']
+        cols = body['appStore']['cols']['selected']
+        color = body['appStore']['color']['selected']
+        size = body['appStore']['size']['selected']
+        graphtype = body['appStore']['type']['selected']
+        slider = body['appStore']['slider']
 
-    if 'targetId' in body:
-        print body['appStore'][body['targetId']]
+        def create_trace(x_col, y_col, size_col, graphtype, dff):
+            trace = {}
+            if x_col != '':
+                trace['x'] = dff[x_col]
 
-    if body.get('targetId', '') == 'firstDropdown':
-        selected = body['appStore']['firstDropdown']['selected']
-        secondDropdown = body['appStore']['secondDropdown']
-        if selected == 'seafood':
-            secondDropdown['options'] = [
-                {'val': 'a', 'label': 'A'},
-                {'val': 'b', 'label': 'B'},
-            ]
-            secondDropdown['selected'] = 'a'
+            if y_col != '':
+                trace['y'] = dff[y_col]
+            elif x_col != '':
+                trace['y'] = ['-'] * len(trace['x'])
 
-        elif selected == 'meat':
-            secondDropdown['options'] = [
-                {'val': 'c', 'label': 'C'},
-                {'val': 'd', 'label': 'D'},
-            ]
-            secondDropdown['selected'] = 'c'
+            if graphtype == '':
+                trace['type'] = 'scatter'
+                trace['mode'] = 'markers'
+            else:
+                trace['type'] = 'scatter' if graphtype in ['scatter', 'line'] else trace['type']
+                trace['mode'] = 'markers' if graphtype == 'scatter' else 'lines'
 
-        elif selected == 'vegetables':
-            secondDropdown['options'] = [
-                {'val': 'e', 'label': 'E'},
-                {'val': 'f', 'label': 'F'},
-            ]
-            secondDropdown['selected'] = 'e'
+            if size_col != '' and graphtype == 'scatter':
+                trace['marker'] = {}
+                trace['marker']['sizemin'] = 4
+                trace['marker']['sizeref'] = max(df[size_col]) / 3600.
+                trace['marker']['size'] = dff[size_col]
+                trace['marker']['sizemode'] = 'area'
 
-    if (body.get('targetId', '') == 'firstSlider' or
-            body.get('targetId', '') == 'secondSlider'):
+            return trace
 
-        x = float(body['appStore']['firstSlider']['value'])
-        y = float(body['appStore']['secondSlider']['value'])
-        trace = body['appStore']['graph1']['figure']['data'][0]
-        trace['x'] = trace['x'][1:]
-        trace['x'].append(x)
-        trace['y'] = trace['y'][1:]
-        trace['y'].append(y)
-        print trace
+        def create_traces(color, size, dff):
+            if color != '':
+                if dff[color].dtype == 'object':
+                    trace_names = dff[color].unique()
+                    traces = []
+                    for trace_name in trace_names:
+                        idx = dff[color] == trace_name
+                        traces.append(create_trace(x, y, size, graphtype, dff[idx]))
+                        traces[-1]['name'] = trace_name
+                else:
+                    dff.sort(color, ascending=True, inplace=True)
+                    trace = create_trace(x, y, size, graphtype, dff)
+                    if 'marker' in trace:
+                        trace['marker']['color'] = dff[color]
+                    else:
+                        trace['marker'] = dict(color=dff[color])
+                    traces = [trace]
+            else:
+                traces = [create_trace(x, y, size, graphtype, dff)]
+            return traces
+
+        if slide != '':
+            idx = df[slide] == slider.value
+
+        if rows != '':
+            if df[rows].dtype == 'object':
+                row_names = df[rows].unique()
+                fig = tls.make_subplots(rows=len(row_names), cols=1, shared_xaxes=True, subplot_titles=row_names)
+
+                for i, row_name in enumerate(row_names):
+                    idx = df[rows] == row_name
+                    traces = create_traces(color, size, df[idx])
+                    for trace in traces:
+                        fig.append_trace(trace, i + 1, 1)
+                fig['layout']['height'] = 300 * len(row_names)
+                fig['layout']['showlegend'] = False
+
+        else:
+            fig = {}
+            fig['data'] = create_traces(color, size, df)
+            fig['layout'] = {}
+            fig['layout']['xaxis'] = {'title': x}
+            fig['layout']['yaxis'] = {'title': y}
+            fig['layout']['height'] = 600
+
+        fig['layout']['hovermode'] = 'closest'
+
+        body['appStore']['graph']['figure'] = json.loads(json.dumps(fig, cls=PlotlyJSONEncoder))
 
     return flask.jsonify(body)
 
