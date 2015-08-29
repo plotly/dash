@@ -4,17 +4,19 @@ import AppConstants from '../constants/AppConstants';
 import AppDispatcher from '../dispatchers/AppDispatcher';
 import AppState from 'ampersand-app';
 import request from 'request';
-import AppStore from '../stores/AppStore';
+import {AppStore} from '../stores/AppStore';
 
+var _pendingRequests = {};
 
 var AppActions = {
     setSelectedValue: function(id, value) {
+        console.log('DISPATCH: SETSELECTEDVALUE');
         AppDispatcher.dispatch({
             event: AppConstants.SETSELECTEDVALUE,
             id: id,
             value: value
         })
-
+        console.log('CLEAR: SETSELECTEDVALUE');
     },
 
     getInitialState: function() {
@@ -39,51 +41,68 @@ var AppActions = {
         })
     },
 
-    updateGraph: function(targetId, previous, store) {
-        let body = JSON.stringify({
-            'appStore': store,
-            'targetId': targetId,
-            'previousValue': previous
+
+    getDropdownState: function(id) {
+        // Request is pending, so remove it from this list so that
+        // re-rendering doesn't continuously restart requests.
+        console.log('DISPATCH: UNMARK_COMPONENT_AS_OUTDATED', id);
+        AppDispatcher.dispatch({
+            event: AppConstants.UNMARK_COMPONENT_AS_OUTDATED,
+            id: id
         });
-        request({
+        console.log('CLEAR: UNMARK_COMPONENT_AS_OUTDATED', id);
+        // Abort pending requests
+        if(id in _pendingRequests){
+            _pendingRequests[id].abort();
+            _pendingRequests[id] = null;
+        }
+
+        // Get the component's dependencies
+        let parents = {};
+        let components = AppStore.getState().components;
+        let parentids = components[id].dependson;
+        for(var i=0; i<parentids.length; i++) {
+            parents[parentids[i]] = components[parentids[i]];
+        }
+        let body = {'id': id, 'parents': parents};
+        // Add additional request
+        _pendingRequests[id] = request({
             method: 'POST',
-            body: body,
-            url: 'http://localhost:8080/api'
+            body: JSON.stringify(body),
+            url: 'http://localhost:8080/interceptor'
         }, function(err, res, body) {
             if(!err && res.statusCode == 200) {
-                // In the future, this can just be stuff that changed
                 body = JSON.parse(body);
+                console.log('DISPATCH: UPDATECOMPONENT', body.response.id);
                 AppDispatcher.dispatch({
-                    event: AppConstants.UPDATEGRAPH,
-                    graphid: body['appStore']['graph']['id'],
-                    figure: body['appStore']['graph']['figure']
+                    event: AppConstants.UPDATECOMPONENT,
+                    id: body.response.id,
+                    component: body.response
                 });
+                console.log('CLEAR: UPDATECOMPONENT', body.response.id);
+            } else {
+                // ...
             }
         });
     },
 
-    askServerForUpdates: function(targetId, previous, store) {
-        console.log('Making request');
+    initialize: function() {
         request({
-            method: 'POST',
-            body: JSON.stringify({
-                'appStore': store,
-                'targetId': targetId,
-                'previousValue': previous
-            }),
-            url: 'http://localhost:8080/api'
+            method: 'GET',
+            url: 'http://localhost:8080/initialize'
         }, function(err, res, body) {
             if(!err && res.statusCode == 200) {
+                console.log('initialize: ', body);
                 body = JSON.parse(body);
-                // In the future, this can just be stuff that changed
+                console.log('DISPATCH: SETSTORE');
                 AppDispatcher.dispatch({
-                    event: AppConstants.SERVERUPDATE,
-                    appStore: body['appStore']
+                    event: 'SETSTORE',
+                    appStore: body
                 });
+                console.log('CLEAR: SETSTORE');
             }
         });
     }
 };
 
 module.exports = AppActions;
-window.AppActions = AppActions;

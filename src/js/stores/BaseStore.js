@@ -9,7 +9,8 @@ var BaseStore = assign({}, EventEmitter.prototype, {
 
     emitChange: function() {
         var args = [CHANGE_EVENT].concat(Array.prototype.slice.call(arguments));
-        this.emit.apply(this, args);
+        // Finish the dispatch before emitting the change.
+        process.nextTick(() => this.emit.apply(this, args));
     },
 
     addChangeListener: function (callback) {
@@ -19,7 +20,7 @@ var BaseStore = assign({}, EventEmitter.prototype, {
     removeChangeListener: function (callback) {
         this.removeListener(CHANGE_EVENT, callback);
     },
-    
+
     extend: function(obj){
         return assign({}, BaseStore, obj);
     }

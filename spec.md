@@ -9,14 +9,14 @@ backend supplies a message declaring:
 - how the components depend on each other
 
 ```
-[  
+[
     {
         'id': 'xdropdown',
         'componenttype': 'dropdown',
         // prop types
         'values': [
             {'label': 'Selection 1', 'value': 'sel1'},
-            {'label': 'Selection 2', 'value': 'sel2'},            
+            {'label': 'Selection 2', 'value': 'sel2'},
             {'label': 'Selection 3', 'value': 'sel3'}
         ],
         'dependson': []
@@ -25,7 +25,7 @@ backend supplies a message declaring:
         'id': 'ydropdown',
         'componenttype': 'dropdown',
         'values': ...
-        'dependson': 
+        'dependson':
     },
     {
         'id': 'xslider',
@@ -44,25 +44,25 @@ backend supplies a message declaring:
 ]
 ```
 
-When an element changes state, all of the elements that depend on it will request the server for new values. 
+When an element changes state, all of the elements that depend on it will request the server for new values.
 
 `dropdownx` changes from 'sel1' to 'sel2'
 
 request:
 ```
 {
-    'targets': ['xslider', 'ydropdown'] // redudant: the server should know this since it supplied the original values
+    'children': ['xslider', 'ydropdown'] // redudant: the server should know this since it supplied the original values
     // the app state, expanded. Note that not all of the targets depend on the states listed below
-    'state': [
-        {
+    'parents': {
+        'xdropdown':  {
             'id': 'xdropdown',
             ...
         },
-        {
+        'ydropdown': {
             'id': '...',
             ...
         }
-    ]
+    }
 }
 ```
 
@@ -112,8 +112,8 @@ In Python, the view routes messages
 def():
     if 'target' == 'xslidervalue':
         ...
-        
-    if 'target' == 'xslider': 
+
+    if 'target' == 'xslider':
 
 
 

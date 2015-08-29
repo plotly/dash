@@ -1,6 +1,6 @@
 'use strict';
 
-import AppStore from '../stores/AppStore';
+import {AppStore} from '../stores/AppStore';
 
 /**
  * @param  {Store} Store
