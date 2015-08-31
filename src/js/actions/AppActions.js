@@ -42,7 +42,7 @@ var AppActions = {
     },
 
 
-    getDropdownState: function(id) {
+    getComponentState: function(id) {
         // Request is pending, so remove it from this list so that
         // re-rendering doesn't continuously restart requests.
         console.log('DISPATCH: UNMARK_COMPONENT_AS_OUTDATED', id);

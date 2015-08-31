@@ -13,7 +13,7 @@ var UpdateIfOutdatedMixin = {
         // from the parent component's on change handlers.
         let outdated = AppStore.getState().meta.outdated;
         if(outdated.indexOf(this.props.id) > -1){
-            AppActions.getDropdownState(this.props.id);
+            AppActions.getComponentState(this.props.id);
         }
     }
 };
@@ -56,7 +56,14 @@ var Slider = React.createClass({
         max: React.PropTypes.number.isRequired,
         step: React.PropTypes.number.isRequired,
         value: React.PropTypes.number.isRequired,
-        id: React.PropTypes.string.isRequired
+        id: React.PropTypes.string.isRequired,
+        label: React.PropTypes.bool
+    },
+
+    getDefaultProps: function() {
+        return {
+            label: true
+        }
     },
 
     handleChange: function(e) {
@@ -67,16 +74,27 @@ var Slider = React.createClass({
     },
 
     render: function(){
-        return (
-            <input  type="range"
+        let slider = <input  type="range"
                     id={this.props.id}
                     min={this.props.min}
                     max={this.props.max}
                     step={this.props.step}
                     value={this.props.value}
-                    onChange={this.handleChange}/>
-        )
+                    onChange={this.handleChange}/>;
+
+        if(this.props.label) {
+            return (
+                <div>
+                    {slider}
+                    <span>{this.props.value}</span>
+                </div>
+            );
+        } else {
+            return {slider};
+        }
+
     }
+
 });
 
 var RadioButton = React.createClass({

@@ -32,6 +32,20 @@ def generic_dropdown(id, children, dependson):
 
     }
 
+def generic_slider(id, children, dependson):
+    return {
+        'id': id,
+        'children': children,
+        'dependson': dependson,
+        'min': 0,
+        'max': 10,
+        'value': 2,
+        'label': True
+    }
+
+def generic_graph(id, children, dependson):
+    pass
+
 
 LAYOUT = {
     'w1': generic_dropdown('w1', ['w2'], []),
@@ -43,7 +57,9 @@ LAYOUT = {
     'x2': generic_dropdown('x2', [], ['x1', 'y1']),
     'y2': generic_dropdown('y2', [], ['z1']),
 
-    'w3': generic_dropdown('w3', [], ['w2'])
+    'w3': generic_dropdown('w3', [], ['w2']),
+
+    's1': generic_slider('s1', [], [])
 }
 
 
