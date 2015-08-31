@@ -29,17 +29,11 @@ var Dropdown = React.createClass({
     },
 
     handleChange: function(e) {
-        // When does onChange fire?
-        // Whenever value changes, props change, user selects?
         console.log('Dropdown', this.props.id, 'handleChange');
         let value = e.target.value;
         let id = e.target.id;
         AppActions.setSelectedValue(id, value);
     },
-
-    _onChange: function() {},
-    componentDidMount: function() {AppStore.addChangeListener(this._onChange);},
-    componentWillUnmount: function() {AppStore.removeChangeListener(this._onChange);},
 
     render: function() {
         console.log('Dropdown', this.props.id, 'render');
@@ -51,6 +45,37 @@ var Dropdown = React.createClass({
                 {options}
             </select>
         );
+    }
+});
+
+var Slider = React.createClass({
+    mixins: [UpdateIfOutdatedMixin],
+
+    propTypes: {
+        min: React.PropTypes.number.isRequired,
+        max: React.PropTypes.number.isRequired,
+        step: React.PropTypes.number.isRequired,
+        value: React.PropTypes.number.isRequired,
+        id: React.PropTypes.string.isRequired
+    },
+
+    handleChange: function(e) {
+        let id = e.target.id;
+        let value = parseFloat(e.target.value, 10);
+        AppActions.setValue(id, value);
+        e.preventDefault();
+    },
+
+    render: function(){
+        return (
+            <input  type="range"
+                    id={this.props.id}
+                    min={this.props.min}
+                    max={this.props.max}
+                    step={this.props.step}
+                    value={this.props.value}
+                    onChange={this.handleChange}/>
+        )
     }
 });
 
@@ -119,35 +144,6 @@ var CheckBox = React.createClass({
             <div>
                 {options}
             </div>
-        )
-    }
-});
-
-var Slider = React.createClass({
-    propTypes: {
-        min: React.PropTypes.number.isRequired,
-        max: React.PropTypes.number.isRequired,
-        step: React.PropTypes.number.isRequired,
-        value: React.PropTypes.number.isRequired,
-        id: React.PropTypes.string.isRequired
-    },
-
-    handleChange: function(e) {
-        let id = e.target.id;
-        let value = parseFloat(e.target.value, 10);
-        AppActions.setValue(id, value);
-        e.preventDefault();
-    },
-
-    render: function(){
-        return (
-            <input  type="range"
-                    id={this.props.id}
-                    min={this.props.min}
-                    max={this.props.max}
-                    step={this.props.step}
-                    value={this.props.value}
-                    onChange={this.handleChange}/>
         )
     }
 });
