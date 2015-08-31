@@ -82,7 +82,7 @@ var actions = function(action) {
                 }
             }
             // emit change?
-            AppStore.emitChange();
+            // AppStore.emitChange();
             break;
     }
     console.log('CLEAR-STORE:', evt, action.id);
