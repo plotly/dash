@@ -4,7 +4,23 @@ import React from 'react';
 import AppActions from '../actions/AppActions';
 import {AppStore} from '../stores/AppStore';
 
+var UpdateIfOutdatedMixin = {
+    componentWillReceiveProps: function(nextProps) {
+        // Update this component's state if it is outdated.
+        // These "props" are actually the parent container's
+        // state (eg <Dropdown id={this.state.1.id} .../>).
+        // So, this will get called whenever the parent state changes
+        // from the parent component's on change handlers.
+        let outdated = AppStore.getState().meta.outdated;
+        if(outdated.indexOf(this.props.id) > -1){
+            AppActions.getDropdownState(this.props.id);
+        }
+    }
+};
+
 var Dropdown = React.createClass({
+    mixins: [UpdateIfOutdatedMixin],
+
     propTypes: {
         id: React.PropTypes.string.isRequired,
         options: React.PropTypes.array.isRequired,
@@ -24,18 +40,6 @@ var Dropdown = React.createClass({
     _onChange: function() {},
     componentDidMount: function() {AppStore.addChangeListener(this._onChange);},
     componentWillUnmount: function() {AppStore.removeChangeListener(this._onChange);},
-
-    componentWillReceiveProps: function(nextProps) {
-        // Update this components state if it is outdated.
-        // These "props" are actually the parent container's
-        // state (eg <Dropdown id={this.state.1.id} .../>).
-        // So, this will get called whenever the parent state changes
-        // from the parent component's on change handlers.
-        let outdated = AppStore.getState().meta.outdated;
-        if(outdated.indexOf(this.props.id) > -1){
-            AppActions.getDropdownState(this.props.id);
-        }
-    },
 
     render: function() {
         console.log('Dropdown', this.props.id, 'render');
