@@ -45,6 +45,60 @@ var AppContainer = React.createClass({
                 componentLookup[supportedReactHTMLElements[i]] = supportedReactHTMLElements[i];
             }
 
+            let components = {
+                'type': 'div',
+                'props': {
+                    'className': 'row'
+                },
+                'inner': [
+                    {
+                        'type': 'div',
+                        'props': {
+                            'id': 'mydiv',
+                            'className': 'four columns',
+                            'style': {'border': 'thin solid grey'}
+                        },
+                        'inner': [
+                            {'type': 'h1', 'inner': 'this is my jam'},
+                            {'type': 'br'},
+                            {'type': 'h4', 'inner': 'my bass line'},
+                        ]
+                    },
+                    {
+                        'type': 'div',
+                        'props': {
+                            'className': 'four columns',
+                        },
+                        'inner': 'the silence is deafening'
+                    },
+                    {
+                        'type': 'div',
+                        'props': {
+                            'className': 'four columns',
+                        },
+                        'inner': [
+                            {'type': 'h1', 'inner': 'to the right'},
+                            {'type': 'br'},
+                            {'type': 'h4', 'inner': 'the west side'}
+                        ]
+                    }
+                ]
+            }
+
+            function jsonToJsx(obj) {
+                return obj.map((v, i) => {
+                    return React.createElement(v.type, React.__spread({}, v.props), v.inner && v.inner.constructor === Array ? jsonToJsx(v.inner) : v.inner);
+                });
+            }
+
+            let jsx = jsonToJsx([components]);
+            console.log(jsx);
+            return (
+                <div>
+                    {jsx}
+                </div>
+            )
+
             /*
             let order = ["w1", "br1", "x1", "br1", "y1", "br1", "z1", "g1", "s1"];
             let components = order.map((v, i) => {
