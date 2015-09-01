@@ -18,13 +18,25 @@ var UpdateIfOutdatedMixin = {
     }
 };
 
+var CodeBlock = React.createClass({
+    mixins: [UpdateIfOutdatedMixin],
+
+    propTypes: {
+        id: React.PropTypes.string.isRequired,
+        codeblock: React.PropTypes.string.isRequired
+    },
+
+    render: function() {
+        return <pre id={this.props.id}>{this.props.codeblock}</pre>
+    }
+});
+
 var Dropdown = React.createClass({
     mixins: [UpdateIfOutdatedMixin],
 
     propTypes: {
         id: React.PropTypes.string.isRequired,
         options: React.PropTypes.array.isRequired,
-        children: React.PropTypes.array.isRequired,
         selected: React.PropTypes.string.isRequired
     },
 
@@ -81,7 +93,6 @@ var Slider = React.createClass({
                     step={this.props.step}
                     value={this.props.value}
                     onChange={this.handleChange}/>;
-
         if(this.props.label) {
             return (
                 <div>
@@ -92,21 +103,23 @@ var Slider = React.createClass({
         } else {
             return {slider};
         }
-
     }
 
 });
 
 var RadioButton = React.createClass({
+    mixins: [UpdateIfOutdatedMixin],
+
     propTypes: {
         name: React.PropTypes.string.isRequired,
-        options: React.PropTypes.array.isRequired,
+        options: React.PropTypes.shape({
+            value: React.PropTypes.string.isRequired,
+            label: React.PropTypes.string.isRequired
+        }).isRequired
     },
 
     handleChange: function(e) {
-        let value = e.target.value;
-        let id = e.target.id;
-        AppActions.setSelectedValue(id, value);
+        AppActions.setSelectedValue(e.target.id, e.target.value);
     },
 
     render: function() {
@@ -132,10 +145,16 @@ var RadioButton = React.createClass({
 });
 
 var CheckBox = React.createClass({
+    // need to consolidate the checkbox into an object with a parent id
+    // mixins: [UpdateIfOutdatedMixin],
+
     propTypes: {
         name: React.PropTypes.string.isRequired,
-        options: React.PropTypes.array.isRequired
-        // How to describe which propTypes are available in options? Declare a sub component?
+        options: React.PropTypes.shape({
+            isChecked: React.PropTypes.bool.isRequired,
+            id: React.PropTypes.bool.isRequired,
+            label: React.PropTypes.string.isRequired
+        }).isRequired
     },
 
     handleChange: function(e) {
@@ -166,12 +185,21 @@ var CheckBox = React.createClass({
     }
 });
 
+// finish this one later - need to consolidate value with valueDate etc
 var DateSlider = React.createClass({
+    mixins: [UpdateIfOutdatedMixin],
+
     propTypes: {
+        id: React.PropTypes.string.isRequired,
         minDate: React.PropTypes.string.isRequired,
         maxDate: React.PropTypes.string.isRequired,
         stepMs: React.PropTypes.number.isRequired,
-        id: React.PropTypes.string.isRequired
+        valueDate: React.PropTypes.string,
+        label: React.PropTypes.bool
+    },
+
+    getDefaultProps: function() {
+        return {label: true};
     },
 
     handleChange: function(e) {
@@ -182,28 +210,49 @@ var DateSlider = React.createClass({
         e.preventDefault();
     },
 
-    render: function(){
-        return (
-            <input  type="range"
-                    id={this.props.id}
-                    min={(new Date(this.props.minDate)).getTime()}
-                    max={(new Date(this.props.maxDate)).getTime()}
-                    step={this.props.stepMs}
-                    onChange={this.handleChange}/>
-        )
+    render: function() {
+        let slider = <input  type="range"
+            id={this.props.id}
+            min={(new Date(this.props.minDate)).getTime()}
+            max={(new Date(this.props.maxDate)).getTime()}
+            step={this.props.stepMs}
+            onChange={this.handleChange}/>;
+
+        if(this.props.label) {
+            return (
+                <div>
+                    {slider}
+                    <span>{this.props.value}</span>
+                </div>
+            );
+        } else {
+            return {slider};
+        }
     }
 });
 
 var PlotlyGraph = React.createClass({
+    mixins: [UpdateIfOutdatedMixin],
+
     propTypes: {
-        figure: React.PropTypes.object.isRequired,
+        figure: React.PropTypes.shape({
+            data: React.PropTypes.array,
+            layout: React.PropTypes.object
+        }).isRequired,
         id: React.PropTypes.string.isRequired,
-        height: React.PropTypes.string.isRequired
+        height: React.PropTypes.string
+    },
+
+    getDefaultProps: function() {
+        return {
+            height: '600px'
+        }
     },
 
     // "Invoked once, only on the client (not on the server),
     // immediately after the initial rendering occurs."
     componentDidMount: function() {
+        console.log('newPlot');
         Plotly.newPlot(this.props.id,
                        this.props.figure.data,
                        this.props.figure.layout);
@@ -212,13 +261,13 @@ var PlotlyGraph = React.createClass({
     // "Invoked immediately after the component's updates are flushed to the DOM.
     // This method is not called for the initial render."
     componentDidUpdate: function() {
+        console.log('newPlot');
         Plotly.newPlot(this.props.id,
                        this.props.figure.data,
                        this.props.figure.layout);
     },
 
     render: function(){
-        console.log('render ', this.props.height);
         var heightStyle = {'height': this.props.height};
         return (
             <div id={this.props.id}
@@ -235,3 +284,4 @@ exports.CheckBox = CheckBox;
 exports.Slider = Slider;
 exports.DateSlider = DateSlider;
 exports.PlotlyGraph = PlotlyGraph;
+exports.CodeBlock = CodeBlock;

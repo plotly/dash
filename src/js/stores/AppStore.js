@@ -43,6 +43,7 @@ var actions = function(action) {
         case AppConstants.SETVALUE:
             previous = _appStore[action.id].value;
             _appStore[action.id].value = action.value;
+            flagChildrenAsOutdated(action.id);
             AppStore.emitChange();
             break;
 
@@ -54,12 +55,14 @@ var actions = function(action) {
                     options[i].isChecked = action.isChecked;
                 }
             }
+            // flagChildrenAsOutdated(action.id);
             AppStore.emitChange();
             break;
 
         case AppConstants.UPDATEGRAPH:
             _appStore[action.graphid].figure = action.figure;
             _appStore[action.graphid].height = action.figure.layout.height + 'px';
+            flagChildrenAsOutdated(action.id);
             AppStore.emitChange();
             break;
 
@@ -69,6 +72,7 @@ var actions = function(action) {
             break;
 
         case AppConstants.UPDATECOMPONENT:
+            // from the server
             _appStore[action.id] = action.component;
             flagChildrenAsOutdated(action.id);
             AppStore.emitChange();
