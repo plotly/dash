@@ -34,6 +34,7 @@ def generic_dropdown(id, dependson):
 def generic_slider(id, dependson):
     return {
         'id': id,
+        'component': 'slider',
         'dependson': dependson,
         'min': 0,
         'max': 10,
@@ -45,6 +46,7 @@ def generic_slider(id, dependson):
 def generic_graph(id, dependson):
     return {
         'id': id,
+        'component': 'graph',
         'dependson': dependson,
         'figure': {
             'data': [{
@@ -58,6 +60,7 @@ def generic_graph(id, dependson):
         'height': '400px'
     }
 
+supported_html_elements = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'big', 'blockquote', 'body', 'br','button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'data', 'datalist', 'dd', 'del', 'details', 'dfn','dialog', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5','h6', 'head', 'header', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link','main', 'map', 'mark', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option','output', 'p', 'param', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select','small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th','thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr']
 
 LAYOUT = {
     'w1': generic_dropdown('w1', []),
@@ -73,18 +76,22 @@ LAYOUT = {
 
     's1': generic_slider('s1', []),
 
-    'g1': generic_graph('g1', ['w1', 'w3', 's1'])
+    'g1': generic_graph('g1', ['w1', 'w3', 's1']),
+
+    'br1': {'component': 'br'}
 }
 LAYOUT['t1'] = {
     'id': 't1',
     'codeblock': {'test': 'this'},
-    'dependson': LAYOUT.keys()
+    'dependson': [k for k in LAYOUT.keys() if LAYOUT[k].get('component', '') not in supported_html_elements]
 }
+
 for _, v in LAYOUT.iteritems():
-    v['children'] = []
+    if v.get('component', '') not in supported_html_elements:
+        v['children'] = []
 
 for k, v in LAYOUT.iteritems():
-    for parent in v['dependson']:
+    for parent in v.get('dependson', []):
         LAYOUT[parent]['children'].append(k)
 
 
