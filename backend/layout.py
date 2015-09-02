@@ -12,6 +12,7 @@ import pandas as pd
 import pandas.io.data as web
 from datetime import datetime
 from plotly.utils import PlotlyJSONEncoder
+from plotly.graph_objs import Figure, Data, Scatter
 
 datasets = {
     'hans': pd.read_csv('http://www.stat.ubc.ca/~jenny/'
@@ -44,13 +45,13 @@ LAYOUT = div({'className': 'row'}, [
     ]),
     div({'className': 'eight columns'}, [
         PlotlyGraph({
-            'figure': {
-                'data': [{
-                    'x': datasets['stock'].index,
-                    'y': datasets['stock'][datasets['stock'].columns[0]],
-                    'name': datasets['stock'].columns[0]
-                }],
-            }, 'id': 'graph',
+            'figure': Figure(data=Data([
+                Scatter(
+                    x=datasets['stock'].index,
+                    y=datasets['stock'][datasets['stock'].columns[0]],
+                    name=datasets['stock'].columns[0])
+            ])),
+            'id': 'graph',
             'dependencies': ['yaxis-dropdown', 'dataset']
         })
     ])
