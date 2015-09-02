@@ -58,13 +58,9 @@ var AppActions = {
         }
 
         // Get the component's dependencies
-        let parents = {};
-        let components = AppStore.getState().components;
-        let parentids = components[id].dependson;
-        for(var i=0; i<parentids.length; i++) {
-            parents[parentids[i]] = components[parentids[i]];
-        }
-        let body = {'id': id, 'parents': parents};
+        let parents = AppStore.getComponentDependencies(id);
+        let body = {'target': AppStore.getComponent(id), 'parents': parents};
+        let component;
         // Add additional request
         _pendingRequests[id] = request({
             method: 'POST',
@@ -74,10 +70,11 @@ var AppActions = {
             if(!err && res.statusCode == 200) {
                 body = JSON.parse(body);
                 console.log('DISPATCH: UPDATECOMPONENT', body.response.id);
+                component = body.response;
                 AppDispatcher.dispatch({
                     event: AppConstants.UPDATECOMPONENT,
-                    id: body.response.id,
-                    component: body.response
+                    component: component,
+                    id: component.props.id
                 });
                 console.log('CLEAR: UPDATECOMPONENT', body.response.id);
             } else {

@@ -36,8 +36,11 @@ var Dropdown = React.createClass({
 
     propTypes: {
         id: React.PropTypes.string.isRequired,
-        options: React.PropTypes.array.isRequired,
-        selected: React.PropTypes.string.isRequired
+        options: React.PropTypes.shape({
+            'label': React.PropTypes.string.isRequired,
+            'val': React.PropTypes.string.isRequired
+        }).isRequired,
+        selected: React.PropTypes.string
     },
 
     handleChange: function(e) {
