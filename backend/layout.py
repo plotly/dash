@@ -6,51 +6,60 @@ from flask.ext.cors import CORS
 app = flask.Flask(__name__)
 CORS(app)
 
-from components import div, h1, h4, Dropdown, PlotlyGraph, Slider
+from components import div, label, h2, h4, Dropdown, PlotlyGraph
+
+import pandas as pd
+import pandas.io.data as web
+from datetime import datetime
+from plotly.utils import PlotlyJSONEncoder
+
+datasets = {
+    'hans': pd.read_csv('http://www.stat.ubc.ca/~jenny/'
+                        'notOcto/STAT545A/examples/gapminder/'
+                        'data/gapminderDataFiveYear.txt', sep='\t'),
+    'stock': web.DataReader("aapl", 'yahoo',
+                            datetime(2007, 10, 1), datetime(2009, 4, 1))
+}
 
 LAYOUT = div({'className': 'row'}, [
     div({'className': 'four columns'}, [
-        h1({}, 'this is my bass line'),
-        h4({}, 'my waist line'),
+        h2({}, 'hello dash'),
+        h4({}, 'reactpy. reactly. plux..ly. fluxpy?'),
+
+        label({}, 'Select dataset'),
         Dropdown({
-            'id': 'droppy',
+            'id': 'dataset',
             'options': [
-                {'label': 'label 1', 'val': 'val 1'},
-                {'label': 'label 2', 'val': 'val 2'}
-            ]
-        })
-    ]),
-    div({'className': 'four columns'}, [
-        div({}, 'the silence is deafening'),
-        PlotlyGraph({
-            'figure': {
-                'data': [{
-                    'x': [1, 2, 3], 'y': [3, 1, 2]
-                }],
-                'layout': {'title': 'see the light'}
-            }, 'id': 'g1', 'height': 300,
-            'dependencies': ['droppy', 'slidy']
+                {'label': 'Stocks', 'val': 'stock'},
+                {'label': 'Country Indicators (Hans Rosling)', 'val': 'hans'}
+            ],
+            'selected': 'stock'
         }),
+        label({}, 'Select variable'),
+        Dropdown({
+            'id': 'yaxis-dropdown',
+            'options': [{'label': c, 'val': c} for c in datasets['stock'].columns],
+            'dependencies': ['dataset']
+        }),
+    ]),
+    div({'className': 'eight columns'}, [
         PlotlyGraph({
             'figure': {
                 'data': [{
-                    'x': [1, 2, 3], 'y': [3, 5, 2]
+                    'x': datasets['stock'].index,
+                    'y': datasets['stock'][datasets['stock'].columns[0]],
+                    'name': datasets['stock'].columns[0]
                 }],
-                'layout': {'title': 'its that time of the night'}
-            }, 'id': 'g2', 'height': 300
+            }, 'id': 'graph',
+            'dependencies': ['yaxis-dropdown', 'dataset']
         })
-    ]),
-    div({'className': 'four columns'}, [
-        h1({}, 'the west side'),
-        h4({}, 'the best side'),
-        Slider({'id': 'slidy', 'min': 0, 'max': 5, 'step': 2, 'value': 1})
     ])
 ])
 
 
 @app.route('/initialize')
 def initialize():
-    return flask.jsonify(LAYOUT)
+    return flask.jsonify(json.loads(json.dumps(LAYOUT, cls=PlotlyJSONEncoder)))
 
 
 @app.route('/interceptor', methods=['POST'])
@@ -58,12 +67,28 @@ def interceptor():
     body = json.loads(flask.request.get_data())
     print body
     target = body['target']
-    if target['props']['id'] == 'g1':
-        target['props']['figure']['layout']['title'] = body['parents']['droppy']['props']['selected']
+
+    if target['props']['id'] == 'yaxis-dropdown':
+        selected_dataset = body['parents']['dataset']['props']['selected']
+        target['props']['options'] = [{'label': c, 'val': c} for c in datasets[selected_dataset].columns]
+
+    if target['props']['id'] == 'graph':
+        dataset = datasets[body['parents']['dataset']['props']['selected']]
+        yaxis_column = body['parents']['yaxis-dropdown']['props']['selected']
+        if yaxis_column in dataset.columns:
+            target['props']['figure']['data'][0] = {
+                'x': dataset.index,
+                'y': dataset[yaxis_column]
+            }
+        else:
+            target['props']['figure']['data'][0] = {
+                'x': dataset.index,
+                'y': dataset[dataset.columns[0]]
+            }
 
     response = {'response': target}
 
-    return flask.jsonify(response)
+    return flask.jsonify(json.loads(json.dumps(response, cls=PlotlyJSONEncoder)))
 
 
 if __name__ == '__main__':
