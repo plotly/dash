@@ -45,4 +45,3 @@ def update_graph(xdata_dropdown, ydata_dropdown):
 
 if __name__ == '__main__':
     dash.server.run(port=8080, debug=True)
-

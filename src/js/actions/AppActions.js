@@ -41,6 +41,17 @@ var AppActions = {
         })
     },
 
+    getLongestPathBetweenComponents: function(steps, parent_id, target_id) {
+        var children = AppStore.getComponentDependencies(parent_id)
+        if(children.indexOf(target_id) > -1){
+            return steps+1;
+        } else {
+            for(var i=0; i<children.length; i++) {
+                steps = Math.max(steps, this.getLongestPathBetweenComponents(steps, children[i], target_id))
+            }
+            return steps;
+        }
+    },
 
     getComponentState: function(id) {
         // Request is pending, so remove it from this list so that
