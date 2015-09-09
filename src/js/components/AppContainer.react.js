@@ -50,10 +50,7 @@ var AppContainer = React.createClass({
                     return React.createElement(componentLookup[v.type], React.__spread({}, v.props), v.children && v.children.constructor === Array ? jsonToJsx(v.children) : v.children);
                 });
             }
-
-            console.log(this.state.components);
             let jsx = jsonToJsx([this.state.components]);
-            console.log(jsx);
             return (
                 <div>
                     {jsx}
