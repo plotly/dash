@@ -12,7 +12,7 @@ var UpdateIfOutdatedMixin = {
         // So, this will get called whenever the parent state changes
         // from the parent component's on change handlers.
         let outdated = AppStore.getState().meta.outdated;
-        if(outdated.indexOf(this.props.id) > -1){
+        if(this.props.id in outdated && outdated[this.props.id].length === 0){
             AppActions.getComponentState(this.props.id);
         }
     }

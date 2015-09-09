@@ -7,8 +7,11 @@ import Collection from 'ampersand-collection';
 import AppActions from '../actions/AppActions';
 import request from 'request';
 
-var _appStore = {}
-var _outdated = []
+var _appStore = {};
+var _outdated = {};
+
+var _dependents = {};   // {b: ['a', 'd']} -> b is the parent of 'a', 'd'
+var _dependencies = {}; // {a: ['b', 'c']} -> a is the child of 'b' and 'c'
 
 var AppStore = BaseStore.extend({
     getState: function (){
@@ -41,38 +44,75 @@ var AppStore = BaseStore.extend({
         let dependencies_ids = this.getComponent(component_id).props.dependencies;
         let dependencies = {};
         let component;
-        for(var i=0; i<dependencies_ids.length; i++) {
-            component = this.getComponent(dependencies_ids[i]);
-            delete component.children;
-            dependencies[dependencies_ids[i]] = component;
+        if(dependencies_ids) {
+            for(var i=0; i<dependencies_ids.length; i++) {
+                component = this.getComponent(dependencies_ids[i]);
+                delete component.children;
+                dependencies[dependencies_ids[i]] = component;
+            }
         }
         return dependencies;
     }
 });
 
-function flagChildrenAsOutdated(component_id) {
-    // find which components depend on this component, and flag them as outdated
-    if(!component_id){ return; } // not all components have ids
-    var dependentIds = []
+function initialize_relationships() {
     function traverse(o) {
-        if(o.constructor === Array) {
-            for(var i=0; i<o.length; i++) {
-                traverse(o[i]);
+        if(o.props.id) {
+            if(o.props.dependencies) {
+                for(var i=0; i<o.props.dependencies.length; i++) {
+                    if(o.props.id in _dependencies) {
+                        _dependencies[o.props.id].push(o.props.dependencies[i]);
+                    } else {
+                        _dependencies[o.props.id] = [o.props.dependencies[i]];
+                    }
+                }
             }
-        } else {
-            if(o.props.dependencies && o.props.dependencies.indexOf(component_id) > -1) {
-                dependentIds.push(o.props.id);
-            }
-            if(o.children && o.children.constructor === Array) {
-                traverse(o.children)
+        } if(o.children && o.children.constructor === Array) {
+            for(var i=0; i<o.children.length; i++) {
+                traverse(o.children[i]);
             }
         }
     }
+
     traverse(_appStore);
-    console.log('dependentIds', dependentIds);
-    for(var i=0; i<dependentIds.length; i++) {
-        _outdated.push(dependentIds[i]);
+
+    for(var i in _dependencies) {
+        for(var j=0; j<_dependencies[i].length; j++){
+            if(_dependencies[i][j] in _dependents) {
+                _dependents[_dependencies[i][j]].push(i);
+            } else {
+                _dependents[_dependencies[i][j]] = [i];
+            }
+        }
     }
+}
+
+function flagChildrenAsOutdated(component_id) {
+
+    function traverse(component_id) {
+        if(component_id in _dependents && _dependents[component_id].length > 0) {
+            for(var i=0; i<_dependents[component_id].length; i++) {
+                if(_dependents[component_id][i] in _outdated) {
+                    _outdated[_dependents[component_id][i]].push(component_id);
+                } else {
+                    _outdated[_dependents[component_id][i]] = [component_id];
+                }
+                traverse(_dependents[component_id][i]);
+            }
+        }
+    }
+
+    traverse(component_id);
+
+    for(var i in _outdated) {
+        for(var j = _outdated[i].length - 1; j >= 0; j--) {
+            if(_outdated[i][j] === component_id) {
+               _outdated[i].splice(j, 1);
+            }
+        }
+    }
+
+    console.warn(component_id + ': ' + JSON.stringify(_outdated));
 }
 
 var actions = function(action) {
@@ -118,6 +158,7 @@ var actions = function(action) {
         case 'SETSTORE':
             _appStore = action.appStore;
             AppStore.emitChange();
+            initialize_relationships();
             break;
 
         case AppConstants.UPDATECOMPONENT:
@@ -133,11 +174,8 @@ var actions = function(action) {
             break;
 
         case AppConstants.UNMARK_COMPONENT_AS_OUTDATED:
-            // remove all elements in outdated with id action.id
-            for(var i = _outdated.length - 1; i >= 0; i--) {
-                if(_outdated[i] === action.id) {
-                    _outdated.splice(i, 1);
-                }
+            if(action.id in _outdated && _outdated[action.id].length === 0) {
+                delete _outdated[action.id];
             }
             // emit change?
             // AppStore.emitChange();
