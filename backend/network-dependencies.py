@@ -5,18 +5,18 @@ dash = Dash(__name__)
 
 
 def gen_dropdown(id):
-    return Dropdown({
-        'id': id,
-        'options': [{'val': c, 'label': c} for c in ['a', 'b', 'c']],
-        'selected': 'a'
-    })
+    return Dropdown(
+        id=id,
+        options=[{'val': c, 'label': c} for c in ['a', 'b', 'c']],
+        selected='a'
+    )
 
 components = []
 for id in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'O']:
-    components.append(div({}, id))
+    components.append(div())
     components.append(gen_dropdown(id))
 
-dash.layout = div({}, components)
+dash.layout = div(components)
 
 import time
 
@@ -71,4 +71,4 @@ def update_fdata(e):
 
 
 if __name__ == '__main__':
-    dash.server.run()
+    dash.server.run(port=8080, debug=True)
