@@ -87,6 +87,22 @@ function initialize_relationships() {
     }
 }
 
+function initialize_outdated_relationships() {
+    // Set the app into an outdated state so that all the
+    // callbacks are fired on page load.
+    _outdated = {};
+    for(var i in _dependencies) {
+        _outdated[i] = _dependencies[i].slice();
+    }
+    for(var i in _outdated) {
+        for(var j=_outdated[i].length - 1; j >= 0; j--) {
+            if(!(_outdated[i][j] in _outdated)) {
+                _outdated[i].splice(j, 1);
+            }
+        }
+    }
+}
+
 function flagChildrenAsOutdated(component_id) {
 
     function traverse(component_id) {
@@ -157,8 +173,9 @@ var actions = function(action) {
 
         case 'SETSTORE':
             _appStore = action.appStore;
-            AppStore.emitChange();
             initialize_relationships();
+            initialize_outdated_relationships();
+            AppStore.emitChange();
             break;
 
         case AppConstants.UPDATECOMPONENT:

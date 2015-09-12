@@ -241,33 +241,36 @@ var PlotlyGraph = React.createClass({
         figure: React.PropTypes.shape({
             data: React.PropTypes.array,
             layout: React.PropTypes.object
-        }).isRequired,
+        }),
         id: React.PropTypes.string.isRequired,
         height: React.PropTypes.string
     },
 
     getDefaultProps: function() {
         return {
-            height: '600px'
+            height: '600px',
+            figure: {data: [], layout: {}}
         }
+    },
+
+    _plot: function(){
+        Plotly.newPlot(this.props.id,
+                       'figure' in this.props && this.props.figure && 'data' in this.props.figure ? this.props.figure.data : [],
+                       'figure' in this.props && this.props.figure && 'layout' in this.props.figure ? this.props.figure.layout: {});
     },
 
     // "Invoked once, only on the client (not on the server),
     // immediately after the initial rendering occurs."
     componentDidMount: function() {
         console.log('newPlot');
-        Plotly.newPlot(this.props.id,
-                       this.props.figure.data,
-                       this.props.figure.layout);
+        this._plot();
     },
 
     // "Invoked immediately after the component's updates are flushed to the DOM.
     // This method is not called for the initial render."
     componentDidUpdate: function() {
         console.log('newPlot');
-        Plotly.newPlot(this.props.id,
-                       this.props.figure.data,
-                       this.props.figure.layout);
+        this._plot();
     },
 
     render: function(){

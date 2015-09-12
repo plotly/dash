@@ -30,16 +30,6 @@ dash.layout = div([
 ])
 dash.layout['xdata'].selected = dash.layout['xdata'].options[0]['val']
 dash.layout['ydata'].selected = dash.layout['ydata'].options[0]['val']
-dash.layout['graph'].figure = {
-    'data': [{
-        'x': df[dash.layout['xdata'].selected],
-        'y': df[dash.layout['ydata'].selected]
-    }],
-    'layout': {
-        'xaxis': {'title': dash.layout['xdata'].selected},
-        'yaxis': {'title': dash.layout['ydata'].selected},
-        'margin': {'t': 0}
-    }}
 
 
 @dash.react('graph', ['xdata', 'ydata'])
