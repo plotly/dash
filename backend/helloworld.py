@@ -38,11 +38,13 @@ def update_graph(xdata_dropdown, ydata_dropdown):
         'figure': {
             'data': [{
                 'x': df[xdata_dropdown.selected],
-                'y': df[ydata_dropdown.selected]
+                'y': df[ydata_dropdown.selected],
+                'mode': 'markers'
             }],
             'layout': {
                 'xaxis': {'title': xdata_dropdown.selected},
-                'yaxis': {'title': ydata_dropdown.selected}
+                'yaxis': {'title': ydata_dropdown.selected},
+                'margin': {'t': 0}
             }
         }
     }
