@@ -28,8 +28,6 @@ dash.layout = div([
         ])
     ])
 ])
-dash.layout['xdata'].selected = dash.layout['xdata'].options[0]['val']
-dash.layout['ydata'].selected = dash.layout['ydata'].options[0]['val']
 
 
 @dash.react('graph', ['xdata', 'ydata'])

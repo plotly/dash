@@ -108,7 +108,7 @@ class Component(collections.MutableSequence):
         self.content.insert(index, component)
 
 
-def generate_class(typename, args):
+def generate_class(typename, args, setup):
     # http://jameso.be/2013/08/06/namedtuple.html
     import sys
     c = '''class {typename}(Component):
@@ -118,6 +118,7 @@ def generate_class(typename, args):
             self._prop_names = {list_of_valid_keys}
             self._type = '{typename}'
             super({typename}, self).__init__({argtext})
+            setup(self)
 
         def __repr__(self):
             if(any(c is not None for c in self._prop_names
@@ -143,27 +144,40 @@ def generate_class(typename, args):
 
     d = c.format(**locals())
 
-    namespace = {'Component': Component}
+    namespace = {'Component': Component, 'setup': setup}
     exec d in namespace
     result = namespace[typename]
     result.__module__ = sys._getframe(1).f_globals.get('__name__', '__main__')
     return result
+
+
+def empty(self):
+    pass
+
+
+def init_dropdown(self):
+    if self.selected is None:
+        self.selected = self.options[0]['val']
+
 
 _valid_kwargs = ['content', 'id', 'className', 'style', 'dependencies']
 
 _customelements = [
     {
         'type': 'Dropdown',
-        'valid_kwargs': _valid_kwargs + ['options', 'selected']
+        'valid_kwargs': _valid_kwargs + ['options', 'selected'],
+        'setup': init_dropdown
     },
     {
         'type': 'Slider',
         'valid_kwargs': _valid_kwargs + ['min', 'max', 'step',
-                                         'value', 'label']
+                                         'value', 'label'],
+        'setup': empty
     },
     {
         'type': 'PlotlyGraph',
-        'valid_kwargs': _valid_kwargs + ['figure', 'height']
+        'valid_kwargs': _valid_kwargs + ['figure', 'height'],
+        'setup': empty
     }
 ]
 
@@ -191,7 +205,9 @@ for _i in _invalid_elements:
     _htmlelements.remove(_i)
 
 for _h in _htmlelements:
-    globals()[_h] = generate_class(_h, _valid_kwargs)
+    globals()[_h] = generate_class(_h, _valid_kwargs, empty)
 
 for _s in _customelements:
-    globals()[_s['type']] = generate_class(_s['type'], _s['valid_kwargs'])
+    globals()[_s['type']] = generate_class(_s['type'],
+                                           _s['valid_kwargs'],
+                                           _s['setup'])
