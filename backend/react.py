@@ -38,17 +38,10 @@ class Dash(dict):
     def react(self, component_id, parents=[]):
         def wrap_func(func):
             def add_context(*args, **kwargs):
-                component_props = func(*args, **kwargs)
-                component_type = getattr(
-                    components,
-                    self.layout[component_id]._type)
-                response_as_component = component_type(**component_props)
-                # this is sort of annoying - the front end should just update
-                # the difference, not require an entire copy of the
-                # props to be sent up.
-                response_as_component.id = component_id
-                response_as_component.dependencies = self.layout[component_id].dependencies
-                response = {'response': response_as_component}
+
+                new_component_props = func(*args, **kwargs)
+                new_component_props['id'] = component_id
+                response = {'response': new_component_props}
                 return flask.jsonify(json.loads(json.dumps(response,
                                      cls=plotly.utils.PlotlyJSONEncoder)))
 

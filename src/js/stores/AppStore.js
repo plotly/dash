@@ -183,10 +183,8 @@ var actions = function(action) {
         case AppConstants.UPDATECOMPONENT:
             // from the server
             console.log(component, '\n^^^\n', action.component);
-            // javascript i'm so bad at you. mutate reference of object.
-            // should probably also delete untransferred keys.
-            for(var k in action.component) {
-                component[k] = action.component[k];
+            for(var prop in action.component) {
+                component['props'][prop] = action.component[prop];
             }
             flagChildrenAsOutdated(component.props.id);
             AppStore.emitChange();

@@ -96,7 +96,7 @@ var AppActions = {
                 AppDispatcher.dispatch({
                     event: AppConstants.UPDATECOMPONENT,
                     component: component,
-                    id: component.props.id
+                    id: component.id
                 });
                 // TODO: unify this call somehow.
                 that.updateDependents(id);
