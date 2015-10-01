@@ -11,7 +11,9 @@ var _appStore = {};
 var _outdated = {};
 
 var _dependents = {};   // {b: ['a', 'd']} -> b is the parent of 'a', 'd'
+                        // 'a' and 'd' depend on 'b'
 var _dependencies = {}; // {a: ['b', 'c']} -> a is the child of 'b' and 'c'
+                        // 'a' depends on 'b' and 'c'
 
 var AppStore = BaseStore.extend({
     getState: function (){
@@ -24,6 +26,7 @@ var AppStore = BaseStore.extend({
             }
         };
     },
+
     getComponent: function (component_id) {
         // very confusing tree traversal recursion.
         var out;
@@ -42,6 +45,7 @@ var AppStore = BaseStore.extend({
         traverse(_appStore);
         return out;
     },
+
     getComponentDependencies: function(component_id) {
         let dependencies_ids = this.getComponent(component_id).props.dependencies;
         let dependencies = {};
@@ -96,6 +100,7 @@ function initialize_outdated_relationships() {
     for(var i in _dependencies) {
         _outdated[i] = _dependencies[i].slice();
     }
+    // remove items that have no dependencies
     for(var i in _outdated) {
         for(var j=_outdated[i].length - 1; j >= 0; j--) {
             if(!(_outdated[i][j] in _outdated)) {
@@ -107,6 +112,18 @@ function initialize_outdated_relationships() {
 
 function flagChildrenAsOutdated(component_id) {
 
+    /*
+    _outdated = {
+        'A': ['B', 'C'],    // "A" is outdated, needs "B" and "C" to update
+        'B': ['D'],         // "B" is outdated, is waiting on "C" to update
+        'C': []             // "C" is outdated, is ready to ask the server for updates
+                            // and all of its dependencies are up-to-date.
+    }
+
+    If "A" depends on "B" depends on "C", then:
+    flagChildrenAsOutdated("C"):
+        _oudated -> {A: [B], B: []}
+    */
     function traverse(component_id) {
         if(component_id in _dependents && _dependents[component_id].length > 0) {
             for(var i=0; i<_dependents[component_id].length; i++) {
@@ -122,6 +139,8 @@ function flagChildrenAsOutdated(component_id) {
 
     traverse(component_id);
 
+    /* Now remove component_id from _oudated */
+
     for(var i in _outdated) {
         for(var j = _outdated[i].length - 1; j >= 0; j--) {
             if(_outdated[i][j] === component_id) {
@@ -131,6 +150,7 @@ function flagChildrenAsOutdated(component_id) {
     }
 
     console.warn(component_id + ': ' + JSON.stringify(_outdated));
+
 }
 
 var actions = function(action) {
@@ -147,25 +167,6 @@ var actions = function(action) {
             AppStore.emitChange();
             break;
 
-        /*
-        case AppConstants.SETVALUE:
-            _appStore[action.id].value = action.value;
-            flagChildrenAsOutdated(component_id);
-            AppStore.emitChange();
-            break;
-
-        case AppConstants.SETCHECKED:
-            var options = _appStore[action.id].options;
-            for(var i=0; i<options.length; i++){
-                if(options[i].id == action.id) {
-                    previous = options[i].isChecked;
-                    options[i].isChecked = action.isChecked;
-                }
-            }
-            // flagChildrenAsOutdated(action.id);
-            AppStore.emitChange();
-            break;
-        */
         case AppConstants.UPDATEGRAPH:
             component.props.figure = action.figure;
             component.props.height = action.figure.layout.height + 'px';

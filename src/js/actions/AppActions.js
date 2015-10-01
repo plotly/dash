@@ -9,6 +9,7 @@ import {AppStore} from '../stores/AppStore';
 var _pendingRequests = {};
 
 var AppActions = {
+
     setSelectedValue: function(id, value) {
         console.log('DISPATCH: SETSELECTEDVALUE');
         AppDispatcher.dispatch({
@@ -72,6 +73,7 @@ var AppActions = {
             event: AppConstants.UNMARK_COMPONENT_AS_OUTDATED,
             id: id
         });
+
         console.log('CLEAR: UNMARK_COMPONENT_AS_OUTDATED', id);
         // Abort pending requests
         if(id in _pendingRequests){

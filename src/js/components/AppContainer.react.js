@@ -47,7 +47,10 @@ var AppContainer = React.createClass({
 
             function jsonToJsx(obj) {
                 return obj.map((v, i) => {
-                    return React.createElement(componentLookup[v.type], React.__spread({}, v.props), v.children && v.children.constructor === Array ? jsonToJsx(v.children) : v.children);
+                    return React.createElement(
+                        componentLookup[v.type],
+                        React.__spread({}, v.props),
+                        v.children && v.children.constructor === Array ? jsonToJsx(v.children) : v.children);
                 });
             }
             let jsx = jsonToJsx([this.state.components]);

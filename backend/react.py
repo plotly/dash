@@ -49,6 +49,7 @@ class Dash(dict):
                 'callback': add_context,
                 'parents': parents
             }
+
             self.layout[component_id].dependencies = parents
             return add_context
 
