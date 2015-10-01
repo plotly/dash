@@ -37,10 +37,12 @@ var Dropdown = React.createClass({
     render: function() {
         console.log('Dropdown', this.props.id, 'render');
         let options = this.props.options.map((v, i) => {
+            let selected = (this.props.selected ? "selected" : null);
+
             return <option key={i} value={v.val}>{v.label}</option>
         });
         return (
-            <select id={this.props.id} onChange={this.handleChange}>
+            <select value={this.props.selected} id={this.props.id} onChange={this.handleChange}>
                 {options}
             </select>
         );
