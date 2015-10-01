@@ -4,18 +4,6 @@ import React from 'react';
 import AppActions from '../actions/AppActions';
 import {AppStore} from '../stores/AppStore';
 
-var CodeBlock = React.createClass({
-    mixins: [UpdateIfOutdatedMixin],
-
-    propTypes: {
-        id: React.PropTypes.string.isRequired,
-        codeblock: React.PropTypes.string.isRequired
-    },
-
-    render: function() {
-        return <pre id={this.props.id}>{this.props.codeblock}</pre>
-    }
-});
 
 var Dropdown = React.createClass({
     propTypes: {
@@ -267,4 +255,3 @@ exports.CheckBox = CheckBox;
 exports.Slider = Slider;
 exports.DateSlider = DateSlider;
 exports.PlotlyGraph = PlotlyGraph;
-exports.CodeBlock = CodeBlock;
