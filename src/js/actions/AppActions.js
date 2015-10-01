@@ -17,6 +17,28 @@ var AppActions = {
             value: value
         })
         console.log('CLEAR: SETSELECTEDVALUE');
+        this.updateDependents(id);
+    },
+
+    updateDependents: function(id) {
+        // now update the outdated components
+        let outdated;
+
+        let dependents = AppStore.getState().meta.dependents;
+        if(id in dependents) {
+            dependents = dependents[id];
+            console.warn('updating '+id+' dependents: ', dependents);
+
+            for(var i=0; i<dependents.length; i++) {
+                outdated = AppStore.getState().meta.outdated;
+                console.warn('outdated: ', outdated);
+                if(dependents[i] in outdated && outdated[dependents[i]].length === 0) {
+                    console.warn(dependents[i], 'is ready to be updated');
+                    this.getComponentState(dependents[i]);
+                }
+            }
+        }
+
     },
 
     getInitialState: function() {
@@ -44,6 +66,7 @@ var AppActions = {
     getComponentState: function(id) {
         // Request is pending, so remove it from this list so that
         // re-rendering doesn't continuously restart requests.
+        var that = this;
         console.log('DISPATCH: UNMARK_COMPONENT_AS_OUTDATED', id);
         AppDispatcher.dispatch({
             event: AppConstants.UNMARK_COMPONENT_AS_OUTDATED,
@@ -75,14 +98,18 @@ var AppActions = {
                     component: component,
                     id: component.props.id
                 });
+                // TODO: unify this call somehow.
+                that.updateDependents(id);
                 console.log('CLEAR: UPDATECOMPONENT', body.response.id);
             } else {
                 // ...
             }
         });
+
     },
 
     initialize: function() {
+        var that = this;
         request({
             method: 'GET',
             url: 'http://localhost:8080/initialize'
@@ -96,6 +123,18 @@ var AppActions = {
                     appStore: body
                 });
                 console.log('CLEAR: SETSTORE');
+
+                let outdated = AppStore.getState().meta.outdated;
+                let dependents = AppStore.getState().meta.dependents;
+                // update all the elements that depend on the parent elements
+                // that have no dependencies.
+                console.warn(JSON.stringify(outdated));
+                console.warn(JSON.stringify(dependents));
+                for(var i in dependents) {
+                    if(!(i in outdated)) {
+                        that.updateDependents(i);
+                    }
+                }
             }
         });
     }

@@ -18,7 +18,9 @@ var AppStore = BaseStore.extend({
         return {
             'components': _appStore,
             'meta': {
-                'outdated': _outdated
+                'outdated': _outdated,
+                'dependencies': _dependencies,
+                'dependents': _dependents
             }
         };
     },

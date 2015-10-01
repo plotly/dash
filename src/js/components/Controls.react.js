@@ -4,20 +4,6 @@ import React from 'react';
 import AppActions from '../actions/AppActions';
 import {AppStore} from '../stores/AppStore';
 
-var UpdateIfOutdatedMixin = {
-    componentWillReceiveProps: function(nextProps) {
-        // Update this component's state if it is outdated.
-        // These "props" are actually the parent container's
-        // state (eg <Dropdown id={this.state.1.id} .../>).
-        // So, this will get called whenever the parent state changes
-        // from the parent component's on change handlers.
-        let outdated = AppStore.getState().meta.outdated;
-        if(this.props.id in outdated && outdated[this.props.id].length === 0){
-            AppActions.getComponentState(this.props.id);
-        }
-    }
-};
-
 var CodeBlock = React.createClass({
     mixins: [UpdateIfOutdatedMixin],
 
@@ -32,8 +18,6 @@ var CodeBlock = React.createClass({
 });
 
 var Dropdown = React.createClass({
-    mixins: [UpdateIfOutdatedMixin],
-
     propTypes: {
         id: React.PropTypes.string.isRequired,
         options: React.PropTypes.shape({
@@ -64,8 +48,6 @@ var Dropdown = React.createClass({
 });
 
 var Slider = React.createClass({
-    mixins: [UpdateIfOutdatedMixin],
-
     propTypes: {
         min: React.PropTypes.number.isRequired,
         max: React.PropTypes.number.isRequired,
@@ -111,8 +93,6 @@ var Slider = React.createClass({
 });
 
 var RadioButton = React.createClass({
-    mixins: [UpdateIfOutdatedMixin],
-
     propTypes: {
         name: React.PropTypes.string.isRequired,
         options: React.PropTypes.shape({
@@ -149,7 +129,6 @@ var RadioButton = React.createClass({
 
 var CheckBox = React.createClass({
     // need to consolidate the checkbox into an object with a parent id
-    // mixins: [UpdateIfOutdatedMixin],
 
     propTypes: {
         name: React.PropTypes.string.isRequired,
@@ -190,8 +169,6 @@ var CheckBox = React.createClass({
 
 // finish this one later - need to consolidate value with valueDate etc
 var DateSlider = React.createClass({
-    mixins: [UpdateIfOutdatedMixin],
-
     propTypes: {
         id: React.PropTypes.string.isRequired,
         minDate: React.PropTypes.string.isRequired,
@@ -235,8 +212,6 @@ var DateSlider = React.createClass({
 });
 
 var PlotlyGraph = React.createClass({
-    mixins: [UpdateIfOutdatedMixin],
-
     propTypes: {
         figure: React.PropTypes.shape({
             data: React.PropTypes.array,
