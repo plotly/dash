@@ -11,17 +11,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "agora": "0.0.2",
-    "ampersand-app": "^1.0.4",
-    "ampersand-collection": "^1.4.5",
-    "ampersand-model": "^5.0.3",
     "babelify": "^6.2.0",
-    "brfs": "^1.4.1",
-    "ecstatic": "^0.8.0",
     "flux": "^2.1.1",
-    "hat": "0.0.3",
-    "node-eden": "0.0.3",
-    "object-assign": "^4.0.1",
     "react": "^0.13.3"
   },
   "devDependencies": {
