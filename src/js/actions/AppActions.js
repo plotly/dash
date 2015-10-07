@@ -11,13 +11,11 @@ var _pendingRequests = {};
 var AppActions = {
 
     setSelectedValue: function(id, value) {
-        console.log('DISPATCH: SETSELECTEDVALUE');
         AppDispatcher.dispatch({
             event: AppConstants.SETSELECTEDVALUE,
             id: id,
             value: value
         })
-        console.log('CLEAR: SETSELECTEDVALUE');
         this.updateDependents(id);
     },
 
@@ -28,13 +26,10 @@ var AppActions = {
         let dependents = AppStore.getState().meta.dependents;
         if(id in dependents) {
             dependents = dependents[id];
-            console.warn('updating '+id+' dependents: ', dependents);
 
             for(var i=0; i<dependents.length; i++) {
                 outdated = AppStore.getState().meta.outdated;
-                console.warn('outdated: ', outdated);
                 if(dependents[i] in outdated && outdated[dependents[i]].length === 0) {
-                    console.warn(dependents[i], 'is ready to be updated');
                     this.getComponentState(dependents[i]);
                 }
             }
@@ -68,13 +63,11 @@ var AppActions = {
         // Request is pending, so remove it from this list so that
         // re-rendering doesn't continuously restart requests.
         var that = this;
-        console.log('DISPATCH: UNMARK_COMPONENT_AS_OUTDATED', id);
         AppDispatcher.dispatch({
             event: AppConstants.UNMARK_COMPONENT_AS_OUTDATED,
             id: id
         });
 
-        console.log('CLEAR: UNMARK_COMPONENT_AS_OUTDATED', id);
         // Abort pending requests
         if(id in _pendingRequests){
             _pendingRequests[id].abort();
@@ -93,7 +86,6 @@ var AppActions = {
         }, function(err, res, body) {
             if(!err && res.statusCode == 200) {
                 body = JSON.parse(body);
-                console.log('DISPATCH: UPDATECOMPONENT', body.response.id);
                 component = body.response;
                 AppDispatcher.dispatch({
                     event: AppConstants.UPDATECOMPONENT,
@@ -102,7 +94,6 @@ var AppActions = {
                 });
                 // TODO: unify this call somehow.
                 that.updateDependents(id);
-                console.log('CLEAR: UPDATECOMPONENT', body.response.id);
             } else {
                 // ...
             }
@@ -117,21 +108,16 @@ var AppActions = {
             url: 'http://localhost:8080/initialize'
         }, function(err, res, body) {
             if(!err && res.statusCode == 200) {
-                console.log('initialize: ', body);
                 body = JSON.parse(body);
-                console.log('DISPATCH: SETSTORE');
                 AppDispatcher.dispatch({
                     event: 'SETSTORE',
                     appStore: body
                 });
-                console.log('CLEAR: SETSTORE');
 
                 let outdated = AppStore.getState().meta.outdated;
                 let dependents = AppStore.getState().meta.dependents;
                 // update all the elements that depend on the parent elements
                 // that have no dependencies.
-                console.warn(JSON.stringify(outdated));
-                console.warn(JSON.stringify(dependents));
                 for(var i in dependents) {
                     if(!(i in outdated)) {
                         that.updateDependents(i);

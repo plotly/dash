@@ -23,7 +23,6 @@ var Dropdown = React.createClass({
     },
 
     render: function() {
-        console.log('Dropdown', this.props.id, 'render');
         let options = this.props.options.map((v, i) => {
             let selected = (this.props.selected ? "selected" : null);
 
@@ -227,7 +226,6 @@ var PlotlyGraph = React.createClass({
     // "Invoked once, only on the client (not on the server),
     // immediately after the initial rendering occurs."
     componentDidMount: function() {
-        console.log('newPlot');
         this._plot();
     },
 

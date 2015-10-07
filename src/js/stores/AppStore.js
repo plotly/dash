@@ -111,7 +111,6 @@ function initialize_outdated_relationships() {
 }
 
 function flagChildrenAsOutdated(component_id) {
-
     /*
     _outdated = {
         'A': ['B', 'C'],    // "A" is outdated, needs "B" and "C" to update
@@ -124,6 +123,7 @@ function flagChildrenAsOutdated(component_id) {
     flagChildrenAsOutdated("C"):
         _oudated -> {A: [B], B: []}
     */
+
     function traverse(component_id) {
         if(component_id in _dependents && _dependents[component_id].length > 0) {
             for(var i=0; i<_dependents[component_id].length; i++) {
@@ -149,14 +149,12 @@ function flagChildrenAsOutdated(component_id) {
         }
     }
 
-    console.warn(component_id + ': ' + JSON.stringify(_outdated));
 
 }
 
 var actions = function(action) {
     var previous;
     let evt = action.event;
-    console.log('DISPATCH-STORE:', evt, action.id);
     if(action.id){
         var component = AppStore.getComponent(action.id);
     }
@@ -183,7 +181,6 @@ var actions = function(action) {
 
         case AppConstants.UPDATECOMPONENT:
             // from the server
-            console.log(component, '\n^^^\n', action.component);
             for(var prop in action.component) {
                 component['props'][prop] = action.component[prop];
             }
@@ -199,7 +196,6 @@ var actions = function(action) {
             // AppStore.emitChange();
             break;
     }
-    console.log('CLEAR-STORE:', evt, action.id);
 };
 
 AppDispatcher.register(actions);
