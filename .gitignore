@@ -2,3 +2,4 @@ node_modules/*
 *.ipynb
 *.pyc
 vv/*
+*.egg*

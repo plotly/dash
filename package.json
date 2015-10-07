@@ -13,7 +13,9 @@
   "dependencies": {
     "babelify": "^6.2.0",
     "flux": "^2.1.1",
-    "react": "^0.13.3"
+    "react": "^0.13.3",
+    "request": "2.64.0",
+    "object-assign": "^4.0.1"
   },
   "devDependencies": {
     "tap": "^1.3.2",
