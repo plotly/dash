@@ -1,6 +1,0 @@
-default selected
-reconcile call signature for components - make append, extend easier?
-make certain props immutable - id. that way, user only needs to worry about certain things in the callbacks
-using `this` in layout, dropdown2["options"] = options[dropdown1["selected"]]
-minimal json repr of the plot function - just pass back whats needed?
-debug logging mode to print the app state

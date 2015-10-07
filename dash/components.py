@@ -1,11 +1,8 @@
 import collections
 
 
-'''
-TODO: Validate this list of supported react elements.
-
-Other valid react attributes include:
-https://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
+# Other valid react attributes include:
+# https://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
 
 supported_react_attributes = [
     'src', 'height', 'width', 'accept',
@@ -27,7 +24,6 @@ supported_react_attributes = [
     'selected', 'shape', 'size', 'sizes', 'span', 'spellCheck',
     'srcDoc', 'srcSet', 'start', 'step', 'tabIndex', 'target',
     'title', 'type', 'useMap', 'value', 'wmode']
-'''
 
 
 class Component(collections.MutableSequence):
@@ -38,12 +34,14 @@ class Component(collections.MutableSequence):
                                 "argument.".format(required_key))
 
         for k, v in kwargs.iteritems():
-            setattr(self, k, v)
+            if k in ['id', 'content', 'className', 'style', 'dependencies', 'selected'] or v is not None:  # not sure about this -- sometimes the user will want to send up None, like to clear the output cell
+                setattr(self, k, v)
 
     def to_plotly_json(self):
         return {
             'props': {p: getattr(self, p)
-                      for p in self._prop_names if p != 'content'},
+                      for p in self._prop_names
+                      if p != 'content' and hasattr(self, p)},
             'type': self._type,
             'children': self.content
         }
@@ -55,7 +53,7 @@ class Component(collections.MutableSequence):
         for item in self.content:
             if isinstance(item, basestring) or self.content is None:
                 continue
-            elif item.id == id:
+            elif getattr(item, 'id', None) == id:
                 return item
             try:
                 component = item[id]
@@ -121,14 +119,14 @@ def generate_class(typename, args, setup):
             setup(self)
 
         def __repr__(self):
-            if(any(c is not None for c in self._prop_names
+            if(any(getattr(self, c, None) is not None for c in self._prop_names
                    if c is not "content")):
-                return '{typename}('+', '.join([c+'='+repr(getattr(self, c))
-                                                for c in self._prop_names])+')'
+                return '{typename}(\\n    '+', \\n    '.join([c+'='+repr(getattr(self, c, None))
+                                                for c in self._prop_names if getattr(self, c, None) is not None])+'\\n)'
             else:
-                return '{typename}("' + repr(c.content) + '")'
+                return '{typename}(' + repr(self.content) + ')'
     '''
-
+    args.extend([s for s in supported_react_attributes if s not in args])
     list_of_valid_keys = repr(args)
     bullet_list_of_valid_keys = ('- ' + ' (dflt: None)\n- '.join(args) +
                                  ' (dflt: None)')
@@ -139,7 +137,7 @@ def generate_class(typename, args, setup):
         default_argtext += arg + '=None, '
         argtext += arg + '=' + arg + ', '
 
-    default_argtext = default_argtext[:-2]
+    default_argtext += '**kwargs'
     argtext = argtext[:-2]
 
     d = c.format(**locals())
@@ -169,6 +167,20 @@ _customelements = [
         'setup': init_dropdown
     },
     {
+        'type': 'RadioButton',
+        'valid_kwargs': _valid_kwargs + ['options', 'name', 'selected'],
+        'setup': empty
+    },
+    {
+        'type': 'TextInput',
+        'valid_kwargs': _valid_kwargs + [
+            'label', 'value',
+            'placeholder', 'labelstyle'
+        ],
+        'setup': empty
+    },
+
+    {
         'type': 'Slider',
         'valid_kwargs': _valid_kwargs + ['min', 'max', 'step',
                                          'value', 'label'],
@@ -176,7 +188,15 @@ _customelements = [
     },
     {
         'type': 'PlotlyGraph',
-        'valid_kwargs': _valid_kwargs + ['figure', 'height'],
+        'valid_kwargs': _valid_kwargs +
+                ['figure', 'height', 'width',
+                 'bindClick', 'bindHover',
+                 'click', 'hover'],
+        'setup': empty
+    },
+    {
+        'type': 'CheckList',
+        'valid_kwargs': _valid_kwargs + ['options'],
         'setup': empty
     }
 ]
@@ -211,3 +231,21 @@ for _s in _customelements:
     globals()[_s['type']] = generate_class(_s['type'],
                                            _s['valid_kwargs'],
                                            _s['setup'])
+
+
+def gen_table(rows, header=[]):
+    tbl = table([
+        thead([
+            tr([
+                th(h) for h in header
+            ])
+        ]),
+        tbody([
+            tr([
+                td(cell) for cell in row
+            ]) for row in rows
+        ])
+    ])
+    return tbl
+
+

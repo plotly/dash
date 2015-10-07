@@ -17,6 +17,10 @@ class Dash(dict):
         self.server.add_url_rule('/initialize', view_func=self.initialize)
         self.server.add_url_rule('/interceptor', view_func=self.interceptor,
                                  methods=['POST'])
+        self.server.add_url_rule('/', view_func=self.index)
+
+    def index(self):
+        return flask.render_template('index.html')
 
     def initialize(self):
         return flask.jsonify(json.loads(json.dumps(self.layout,
@@ -41,7 +45,13 @@ class Dash(dict):
 
                 new_component_props = func(*args, **kwargs)
                 new_component_props['id'] = component_id
-                response = {'response': new_component_props}
+                component_json = {}
+                if 'content' in new_component_props:
+                    component_json['children'] = \
+                        new_component_props.pop('content')
+                component_json['props'] = new_component_props
+
+                response = {'response': component_json}
                 return flask.jsonify(json.loads(json.dumps(response,
                                      cls=plotly.utils.PlotlyJSONEncoder)))
 
