@@ -1,7 +1,6 @@
 import flask
 import plotly
 import json
-from flask.ext.cors import CORS
 import components
 
 
@@ -12,7 +11,6 @@ class Dash(dict):
         self.react_map = {}
 
         self.server = flask.Flask(name)
-        CORS(self.server)
 
         self.server.add_url_rule('/initialize', view_func=self.initialize)
         self.server.add_url_rule('/interceptor', view_func=self.interceptor,
