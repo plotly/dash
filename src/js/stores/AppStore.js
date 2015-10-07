@@ -175,6 +175,13 @@ var actions = function(action) {
             AppStore.emitChange();
             break;
 
+        case AppConstants.SETKEY:
+            component.props[action.key] = action.value;
+            flagChildrenAsOutdated(component.props.id);
+            AppStore.emitChange();
+            break;
+
+
         case 'SETSTORE':
             _appStore = action.appStore;
             initialize_relationships();
