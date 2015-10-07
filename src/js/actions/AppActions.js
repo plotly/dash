@@ -2,7 +2,6 @@
 
 import AppConstants from '../constants/AppConstants';
 import AppDispatcher from '../dispatchers/AppDispatcher';
-import AppState from 'ampersand-app';
 import request from 'request';
 import {AppStore} from '../stores/AppStore';
 

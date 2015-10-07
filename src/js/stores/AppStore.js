@@ -3,13 +3,11 @@
 import AppDispatcher from '../dispatchers/AppDispatcher';
 import BaseStore from './BaseStore';
 import AppConstants from '../constants/AppConstants';
-import Collection from 'ampersand-collection';
 import AppActions from '../actions/AppActions';
 import request from 'request';
 
 var _appStore = {};
 var _outdated = {};
-
 
 var _dependents = {};   // {b: ['a', 'd']} -> b is the parent of 'a', 'd'
                         // 'a' and 'd' depend on 'b'
