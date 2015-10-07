@@ -10,6 +10,7 @@ import request from 'request';
 var _appStore = {};
 var _outdated = {};
 
+
 var _dependents = {};   // {b: ['a', 'd']} -> b is the parent of 'a', 'd'
                         // 'a' and 'd' depend on 'b'
 var _dependencies = {}; // {a: ['b', 'c']} -> a is the child of 'b' and 'c'
@@ -35,6 +36,8 @@ var AppStore = BaseStore.extend({
                 for(var i=0; i<o.length; i++) {
                     if(traverse(o[i])){return;}
                 }
+            } else if (typeof o === 'string' || o instanceof String) {
+                return;
             } else if(o.props.id && o.props.id === component_id) {
                 out = o;
                 return true;
@@ -63,7 +66,7 @@ var AppStore = BaseStore.extend({
 
 function initialize_relationships() {
     function traverse(o) {
-        if(o.props.id) {
+        if(!(typeof o === 'string' || o instanceof String) && 'props' in o && 'id' in o.props && o.props.id) {
             if(o.props.dependencies) {
                 for(var i=0; i<o.props.dependencies.length; i++) {
                     if(o.props.id in _dependencies) {
@@ -181,8 +184,11 @@ var actions = function(action) {
 
         case AppConstants.UPDATECOMPONENT:
             // from the server
-            for(var prop in action.component) {
-                component['props'][prop] = action.component[prop];
+            if('children' in action.component) {
+                component.children = action.component.children;
+            }
+            for(var prop in action.component.props) {
+                component.props[prop] = action.component.props[prop];
             }
             flagChildrenAsOutdated(component.props.id);
             AppStore.emitChange();
