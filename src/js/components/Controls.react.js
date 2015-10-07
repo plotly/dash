@@ -84,6 +84,7 @@ var Slider = React.createClass({
 
 var RadioButton = React.createClass({
     propTypes: {
+        id: React.PropTypes.string.isRequired,
         name: React.PropTypes.string.isRequired,
         options: React.PropTypes.shape({
             value: React.PropTypes.string.isRequired,
