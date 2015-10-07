@@ -45,18 +45,24 @@ var AppActions = {
 
     setValue: function(id, value) {
         AppDispatcher.dispatch({
-            event: AppConstants.SETVALUE,
+            event: AppConstants.SETKEY,
             id: id,
+            key: 'value',
             value: value
-        })
+        });
+        this.updateDependents(id);
     },
 
-    setCheckedValue: function(id, isChecked) {
+    setKey: function(id, key, value) {
         AppDispatcher.dispatch({
-            event: AppConstants.SETCHECKED,
+            event: AppConstants.SETKEY,
             id: id,
-            isChecked: isChecked
-        })
+            key: key,
+            value: value
+        });
+        this.updateDependents(id);
+    },
+
     setCheckedValue: function(checklistId, checkboxId, isChecked) {
         let component = AppStore.getComponent(checklistId);
         let options = component.props.options;
