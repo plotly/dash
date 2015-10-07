@@ -3,3 +3,4 @@ node_modules/*
 *.pyc
 vv/*
 *.egg*
+*.tar.gz
