@@ -14,7 +14,7 @@ supported_react_attributes = [
     'dateTime', 'defer', 'dir', 'disabled', 'download', 'draggable',
     'encType', 'form', 'formAction', 'formEncType', 'formMethod',
     'formNoValidate', 'formTarget', 'frameBorder', 'headers', 'hidden',
-    'high', 'href', 'hrefLang', 'htmlFor', 'httpEquiv', 'icon', 'label',
+    'high', 'href', 'hrefLang', 'htmlFor', 'httpEquiv', 'icon',
     'lang', 'list', 'loop', 'low', 'manifest', 'marginHeight',
     'marginWidth', 'max', 'maxLength', 'media', 'mediaGroup',
     'method', 'min', 'multiple', 'muted', 'name', 'noValidate',
@@ -24,6 +24,7 @@ supported_react_attributes = [
     'selected', 'shape', 'size', 'sizes', 'span', 'spellCheck',
     'srcDoc', 'srcSet', 'start', 'step', 'tabIndex', 'target',
     'title', 'type', 'useMap', 'value', 'wmode']
+# TODO: add `label` back - it conflicts with the actual html element type I think
 
 
 class Component(collections.MutableSequence):
