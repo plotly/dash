@@ -102,7 +102,7 @@ var RadioButton = React.createClass({
                             onClick={this.handleChange}
                             type="radio"
                             name={this.props.name}
-                            value={v.val}/>
+                            value={v.value}/>
 
                     <span>{v.label}</span>
                 </label>)
