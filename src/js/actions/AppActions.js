@@ -57,6 +57,25 @@ var AppActions = {
             id: id,
             isChecked: isChecked
         })
+    setCheckedValue: function(checklistId, checkboxId, isChecked) {
+        let component = AppStore.getComponent(checklistId);
+        let options = component.props.options;
+
+        for(var i=0; i<options.length; i++) {
+            if(options[i].id === checkboxId) {
+                options[i].checked = isChecked;
+            }
+        }
+
+        AppDispatcher.dispatch({
+            event: AppConstants.SETKEY,
+            id: checklistId,
+            key: 'options',
+            value: options
+        });
+
+        this.updateDependents(checklistId);
+
     },
 
     getComponentState: function(id) {

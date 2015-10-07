@@ -116,33 +116,42 @@ var RadioButton = React.createClass({
     }
 });
 
-var CheckBox = React.createClass({
-    // need to consolidate the checkbox into an object with a parent id
 
+var CheckList = React.createClass({
     propTypes: {
-        name: React.PropTypes.string.isRequired,
-        options: React.PropTypes.shape({
-            isChecked: React.PropTypes.bool.isRequired,
-            id: React.PropTypes.bool.isRequired,
-            label: React.PropTypes.string.isRequired
-        }).isRequired
+        id: React.PropTypes.string.isRequired,
+        options: React.PropTypes.arrayOf(
+            React.PropTypes.shape({
+                checked: React.PropTypes.bool.isRequired,
+                // TODO: consolidate this with Dropdown's "values"
+                id: React.PropTypes.bool.isRequired,
+                label: React.PropTypes.string.isRequired,
+                // TODO: abstract this to "style"?
+                hidden: React.PropTypes.bool
+            })
+        ).isRequired
     },
 
     handleChange: function(e) {
-        let id = e.target.id;
+        let checkboxid = e.target.id;
         let isChecked = e.target.checked;
-        AppActions.setCheckedValue(id, isChecked);
+        AppActions.setCheckedValue(this.props.id, checkboxid, isChecked);
     },
 
-    render: function(){
+    render: function() {
         let options = this.props.options.map((v, i) => {
+            let style = {};
+            if(v.hidden) {
+                style.display = 'none';
+            }
             return (
-                <label>
+                <label key={v.id} style={style}>
                     <input  id={v.id}
                             onClick={this.handleChange}
                             type="checkbox"
                             name={this.props.name}
-                            isChecked={v.isChecked ? "checked": ""}/>
+                            key={v.id}
+                            checked={v.checked ? "checked": ""}/>
                     <span>{v.label}</span>
                 </label>
             )
@@ -249,7 +258,7 @@ var PlotlyGraph = React.createClass({
 
 exports.Dropdown = Dropdown;
 exports.RadioButton = RadioButton;
-exports.CheckBox = CheckBox;
+exports.CheckList = CheckList;
 exports.Slider = Slider;
 exports.DateSlider = DateSlider;
 exports.PlotlyGraph = PlotlyGraph;
