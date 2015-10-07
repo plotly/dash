@@ -70,6 +70,7 @@ var Slider = React.createClass({
         if(this.props.label) {
             return (
                 <div>
+                    <label><span>{this.props.label}</span></label>
                     {slider}
                     <span>{this.props.value}</span>
                 </div>
