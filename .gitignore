@@ -2,3 +2,4 @@ node_modules/*
 static/js/bundle.js
 *.ipynb
 *.pyc
+vv/*
