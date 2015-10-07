@@ -163,6 +163,37 @@ var CheckList = React.createClass({
             </div>
         )
     }
+
+});
+
+var TextInput = React.createClass({
+    propTypes: {
+        id: React.PropTypes.string.isRequired,
+        label: React.PropTypes.string.isRequired,
+        value: React.PropTypes.string.isRequired,
+        placeholder: React.PropTypes.string.isRequired,
+        labelstyle: React.PropTypes.shape.isRequired, // surely there's a better way
+    },
+
+    updateInput: function(e) {
+        AppActions.setValue(e.target.id, e.target.value);
+    },
+
+    render: function() {
+        let label = (<label style={this.props.labelstyle}
+                        className="chart-title">{this.props.label}</label>)
+
+        return (
+        <div style={{display: "inline-block", marginBottom: '10px'}}>
+            {label}
+            <input
+                id={this.props.id}
+                onChange={this.updateInput}
+                type="text"
+                placeholder={this.props.placeholder}
+                value={this.props.value}/>
+        </div>);
+    }
 });
 
 // finish this one later - need to consolidate value with valueDate etc
@@ -262,3 +293,4 @@ exports.CheckList = CheckList;
 exports.Slider = Slider;
 exports.DateSlider = DateSlider;
 exports.PlotlyGraph = PlotlyGraph;
+exports.TextInput = TextInput;
