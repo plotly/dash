@@ -5,16 +5,23 @@ import components
 
 
 class Dash(dict):
-    def __init__(self, name):
+    def __init__(self, name=None, url_namespace=None, server=None):
         self.layout = None
 
         self.react_map = {}
 
-        self.server = flask.Flask(name)
+        if server is not None:
+            self.server = server
+        else:
+            self.server = flask.Flask(name)
 
-        self.server.add_url_rule('/initialize', view_func=self.initialize)
-        self.server.add_url_rule('/interceptor', view_func=self.interceptor,
-                                 methods=['POST'])
+        self.server.add_url_rule(
+            '{}/initialize'.format(url_namespace),
+            view_func=self.initialize)
+        self.server.add_url_rule(
+            '{}/interceptor'.format(url_namespace),
+            view_func=self.interceptor,
+            methods=['POST'])
         self.server.add_url_rule('/', view_func=self.index)
 
     def index(self):

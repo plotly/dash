@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='dash.ly',
-    version='0.10.2',
+    version='0.10.4',
     author='chris p',
     author_email='chris@plot.ly',
     packages=['dash'],
