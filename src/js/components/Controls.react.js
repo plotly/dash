@@ -247,12 +247,18 @@ var PlotlyGraph = React.createClass({
             layout: React.PropTypes.object
         }),
         id: React.PropTypes.string.isRequired,
-        height: React.PropTypes.string
+        height: React.PropTypes.string,
+        width: React.PropTypes.string,
+        bindHover: React.PropTypes.bool,
+        hover: React.PropTypes.object,
+        bindClick: React.PropTypes.bool,
+        click: React.PropTypes.object
     },
 
     getDefaultProps: function() {
         return {
             height: '600px',
+            width: '100%',
             figure: {data: [], layout: {}}
         }
     },
@@ -263,10 +269,49 @@ var PlotlyGraph = React.createClass({
                        'figure' in this.props && this.props.figure && 'layout' in this.props.figure ? this.props.figure.layout: {});
     },
 
+    _filterEventData: function(plotlyEventData) {
+        var filteredEventData = {'points': []};
+        // todo - a bunch more probably
+        var validKeys = ['x', 'y', 'z', 'labels', 'values', 'pointNumber', 'curveNumber'];
+        for(var i=0; i<plotlyEventData.points.length; i++) {
+            filteredEventData.points.push({});
+            for(var j=0; j<validKeys.length; j++) {
+                if(validKeys[j] in plotlyEventData.points[i]) {
+                    filteredEventData.points[filteredEventData.points.length-1][validKeys[j]] = plotlyEventData.points[i][validKeys[j]];
+                }
+            }
+        }
+        return filteredEventData;
+    },
+
     // "Invoked once, only on the client (not on the server),
     // immediately after the initial rendering occurs."
     componentDidMount: function() {
+        var that = this;
         this._plot();
+        this.setState({lastFigure: this.props.figure});
+
+        if(this.props.bindHover) {
+            console.warn('binding Hover to ', this.props.id);
+            $('#'+this.props.id).bind('plotly_hover', function(event, data){
+                data = that._filterEventData(data);
+                console.warn('hover - ', data);
+                AppActions.setKey(that.props.id, 'hover', data);
+            });
+        }
+
+        if(this.props.bindClick) {
+            console.warn('binding Click to ', this.props.id);
+            $('#'+this.props.id).bind('plotly_click', function(event, data){
+                data = that._filterEventData(data)
+                console.warn('click - ', data);
+                AppActions.setKey(that.props.id, 'click', data);
+            });
+        }
+    },
+
+    shouldComponentUpdate: function(nextProps, nextState) {
+        return JSON.stringify(this.props.figure) !== JSON.stringify(nextProps.figure);
     },
 
     // "Invoked immediately after the component's updates are flushed to the DOM.
@@ -277,11 +322,10 @@ var PlotlyGraph = React.createClass({
     },
 
     render: function(){
-        var heightStyle = {'height': this.props.height};
+        var style = {'height': this.props.height, 'width': this.props.width};
         return (
             <div id={this.props.id}
-                 width="100%"
-                 style={heightStyle}>
+                 style={style}>
             </div>
         );
     }

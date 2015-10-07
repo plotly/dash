@@ -103,10 +103,30 @@ var AppActions = {
         let parents = AppStore.getComponentDependencies(id);
         let body = {'target': AppStore.getComponent(id), 'parents': parents};
         let component;
+        // TODO: Move this somewhere else
+        if(body.target.type === 'PlotlyGraph') {
+            delete body.target.figure;
+        }
+        for(var i=0; i<body.parents.length; i++) {
+            delete body.target.parents[i].figure;
+        }
+
         // Add additional request
+        body = JSON.stringify(body, function(key, value){
+            if(typeof key === 'string' || key instanceof String) {
+                if(key.slice(0, 1) === '_') {
+                    return undefined;
+                } else {
+                    return value;
+                }
+            } else {
+                return value;
+            }
+        });
+
         _pendingRequests[id] = request({
             method: 'POST',
-            body: JSON.stringify(body),
+            body: body,
             url: 'http://localhost:8080/interceptor'
         }, function(err, res, body) {
             if(!err && res.statusCode == 200) {
@@ -115,7 +135,7 @@ var AppActions = {
                 AppDispatcher.dispatch({
                     event: AppConstants.UPDATECOMPONENT,
                     component: component,
-                    id: component.id
+                    id: component.props.id
                 });
                 // TODO: unify this call somehow.
                 that.updateDependents(id);
