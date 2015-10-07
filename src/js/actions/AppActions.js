@@ -126,7 +126,7 @@ var AppActions = {
         _pendingRequests[id] = request({
             method: 'POST',
             body: body,
-            url: 'http://localhost:8080/interceptor'
+            url: location.href + 'interceptor'
         }, function(err, res, body) {
             if(!err && res.statusCode == 200) {
                 body = JSON.parse(body);
@@ -146,10 +146,11 @@ var AppActions = {
     },
 
     initialize: function() {
+        console.warn('intialize');
         var that = this;
         request({
             method: 'GET',
-            url: 'http://localhost:8080/initialize'
+            url: location.href + 'initialize'
         }, function(err, res, body) {
             if(!err && res.statusCode == 200) {
                 body = JSON.parse(body);
