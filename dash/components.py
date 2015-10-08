@@ -199,6 +199,12 @@ _customelements = [
         'type': 'CheckList',
         'valid_kwargs': _valid_kwargs + ['options'],
         'setup': empty
+    },
+
+    {
+        'type': 'Highlight',
+        'valid_kwargs': _valid_kwargs,
+        'setup': empty
     }
 ]
 
