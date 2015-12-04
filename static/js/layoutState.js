@@ -29,7 +29,7 @@ function getState(payload) {
             }
             payload[el.name] = value;
         } else if (el.type==="checkbox") {
-            payload[el.value] = $(el).is(':checked');
+            payload[el.name] = $(el).is(':checked');
         } else if (el.type==="text") {
             payload[el.name] = el.value;
         } else {
