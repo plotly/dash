@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from flask import Flask, render_template
 from flask.ext.socketio import SocketIO, emit
 
@@ -45,7 +47,7 @@ def onpong(app_state):
 
 @socketio.on('replot')
 def replot(app_state):
-    print app_state
+    print(app_state)
     messages = dash.replot(app_state)
     emit('postMessage', json.dumps(messages,
                                    cls=plotly.utils.PlotlyJSONEncoder))

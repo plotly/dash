@@ -1,3 +1,6 @@
+from six import iteritems
+
+
 def element(element='div', attributes={}, content=''):
     if element in ['input', 'img']:
         is_closing = False
@@ -14,7 +17,7 @@ def element(element='div', attributes={}, content=''):
     content = content
 
     el = '<{}'.format(element)
-    for attribute, value in attributes.iteritems():
+    for attribute, value in iteritems(attributes):
         el += ' {}="{}"'.format(attribute, value)
     el += '>'
 
