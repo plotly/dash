@@ -14,7 +14,7 @@ def element(element='div', attributes={}, content=''):
     content = content
 
     el = '<{}'.format(element)
-    for attribute, value in attributes.iteritems():
+    for attribute, value in attributes.items():
         el += ' {}="{}"'.format(attribute, value)
     el += '>'
 

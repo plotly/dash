@@ -55,17 +55,17 @@ def replot(app_state):
 
 
 def update_graph(app_state):
-    print app_state
+    print(app_state)
     ticker = app_state['ticker']
     if ticker not in tickers:
-        print ticker, 'not in tickers'
+        print(ticker, 'not in tickers')
         return
     else:
         try:
             df = web.DataReader(ticker, 'yahoo', dt.datetime(2014, 1, 1),
                                 dt.datetime(2015, 4, 15))
         except:
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return
 
         messages = [
