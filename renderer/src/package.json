@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "node_modules/.bin/watchify index.js -t babelify -p livereactload -o ../build/bundle.js -v"
+    "watch": "mkdir ../build && node_modules/.bin/watchify index.js -t babelify -p livereactload -o ../build/bundle.js -v"
   },
   "author": "chriddyp",
   "license": "MIT",
