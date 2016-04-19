@@ -1,0 +1,8 @@
+- Hide `dependencies` attribute
+- Remove `content` from some components
+- The rest of the HTML attributes
+- Button
+- Auto-assign ids for plotly graphs
+- TableComponent, SimpleTable?, TableWrapper?
+- style is ambiguous in composite components
+- Validation of ids on dash.react

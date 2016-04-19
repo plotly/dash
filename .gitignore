@@ -1,6 +1,8 @@
-*.pyc
-*.ipynb_notebooks
+npm-debug.log
+node_modules/*
 *.ipynb
-ignore
-*~
-venv
+*.pyc
+vv/*
+*.egg*
+*.tar.gz
+static/
