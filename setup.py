@@ -8,5 +8,5 @@ setup(
     packages=['dash'],
     license='See LICENSE.txt',
     description='',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
 )
