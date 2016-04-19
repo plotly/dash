@@ -1,6 +1,6 @@
-*.pyc
-*.ipynb_notebooks
+node_modules/*
 *.ipynb
-ignore
-*~
-venv
+*.pyc
+vv/*
+*.egg*
+*.tar.gz

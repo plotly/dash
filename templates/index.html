@@ -1,0 +1,41 @@
+<!DOCTYPE>
+<html>
+<head>
+    <script src="https://s3.amazonaws.com/plotly-downloads/plotly-offline.min.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/dhg/Skeleton/master/css/skeleton.css"/>
+
+<style>
+
+.log {
+    width: 400px;
+    white-space: normal;
+}
+
+</style>
+
+</head>
+
+<body>
+    <div id="controls"></div>
+    <div id="log"></div>
+</body>
+<script type="text/javascript">
+    var log = document.querySelector('#log');
+
+    ['error'].forEach(function (verb) {
+        console[verb] = (function (method, verb, log) {
+            return function (text) {
+                method(text);
+                // handle distinguishing between methods any way you'd like
+                var msg = document.createElement('pre');
+                msg.className = 'log';
+                msg.classList.add(verb);
+                msg.textContent = verb + ': ' + text;
+                log.appendChild(msg);
+            };
+        })(console[verb].bind(console), verb, log);
+    });
+</script>
+<script src="/static/js/bundle.js"></script>
+</html>
