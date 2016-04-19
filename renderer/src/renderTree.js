@@ -5,6 +5,7 @@ import React from 'react';
 import Registry from './registery.js';
 import Draggable from './components/core/Draggable.react.js';
 import Droppable from './components/core/Droppable.react.js';
+import EditableContent from './components/core/EditableContent.react.js';
 
 export default function render(component, path=[]) {
 
@@ -45,6 +46,15 @@ export default function render(component, path=[]) {
             <Droppable>
                 {content}
             </Droppable>
+        );
+    }
+
+    // editable?
+    if (component.onChange) {
+        content = (
+            <EditableContent>
+                {content}
+            </EditableContent>
         );
     }
 

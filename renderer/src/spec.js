@@ -17,6 +17,10 @@ export default {
             droppable: true
         },
         {
+            type: 'input',
+            onChange: true
+        },
+        {
             type: 'Header',
             props: {name: 'rolo yoloz'},
             draggable: true
