@@ -1,6 +1,0 @@
-{
-    "name": "Dash example",
-    "description": "A barebones dashboard app using Dash",
-    "respository": "https://github.com/chriddyp/dash",
-    "keywords": ["python", "dashboard", "webapp", "shiny", "visualization", "plotly"]
-}
