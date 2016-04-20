@@ -136,10 +136,6 @@ def update_graph(dropdown_updates):
 [Check out full, working examples of a prototype in these docs](http://plotly-dash.herokuapp.com)
 
 
-#### Final Notes
-
-Our technical computing community needs this. All too often our interface for running models is the terminal and the interface to view our results is a PDF. With a web-based GUI framework, we can use sliders to change the parameters of our models, click on points in a graph to drill down into data, run and record experiments with web-forms and buttons. We can make these interfaces gorgeous. We can share them in our communities through the web browser.
-
 - @chriddyp (chris@plot.ly)
 
 ***
