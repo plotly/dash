@@ -16,6 +16,7 @@ Join the chat room at [https://dash-talk.slack.com/signup](https://dash-talk.sla
 ## Architecture
 
 dash is composed of several parts:
+
 A - a JSON API that describes the layout and composition of the web applications
 
 B - an HTTP API that specifies how components depend on each other and how components should update when the front-end state changes
