@@ -363,7 +363,7 @@ Our goal is to make it as easy as possible to plug-in presentational components.
 So, our `renderer.js` must also define a set of `props` that it may inject into the presentational components. The presentational components should be aware of `renderer.js`'s intentions of these props and actions and render or fire the functions appropriately. This list of props include:
 - `onPropUpdate` - if e.g. a text field is editable, then `onPropUpdate` should get called when the value of the text field changes. In this case, the value of the text field is assumed to be a `prop` of that component. If that component has any dependents, then this action will also make an HTTP call to `/component-update` with the new values.
 - `onDrop`, `onDrag` - actions that appropriately update the `layout` state when items get dragged and dropped
-- `isHovering` - prop that informs the appropriate components when they are being actively being dragged (or when a drag event is happening?)
+- `isHovering` - prop that informs the appropriate components when they are actively being dragged (or when a drag event is happening?)
 - `onResize` - if the component is resizable, then this action should be called when it gets resized so that `renderer.js` can appropriately resize the other components by threading around new sets of `width` and `height`
 - `width` and `height`
 - `deleteItem` - action that the component tie to its deleting interface (e.g. clicking on an `x` in the corner of an item)
