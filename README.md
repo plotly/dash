@@ -17,17 +17,17 @@ Join the chat room at [https://dash-talk.slack.com/signup](https://dash-talk.sla
 
 dash is composed of several parts:
 
-A - a JSON API that describes the layout and composition of the web applications
+[A - JSON API](#a---json-api-for-describing-components-layout) that describes the layout and composition of the web applications
 
-B - an HTTP API that specifies how components depend on each other and how components should update when the front-end state changes
+[B - HTTP API](#b---http-api-for-updating-components) that specifies how components depend on each other and how components should update when the front-end state changes
 
-C - a front-end implementation of these APIs written with React and redux ([`./renderer`](https://github.com/plotly/dash2/tree/master/renderer)) that can render components that are supplied to it and thread actions and event handlers into the components.
+[C - Front-end implementation](#c---front-end-implementation-the-renderer) of these APIs written with React and redux ([`./renderer`](https://github.com/plotly/dash2/tree/master/renderer)) that can render components that are supplied to it and thread actions and event handlers into the components.
 
-D - suites of components. e.g. components for creating dashboards, components for creating reports, components for creating slides.
+[D - Suites of components](#d---suites-of-components) e.g. components for creating dashboards, components for creating reports, components for creating slides.
 
-E - a react editing interface for adding new items to interface and maybe ability to edit items in the tree
+[E - React editing interface](#e---react-editing-interface) for adding new items to interface and maybe ability to edit items in the tree
 
-F - a back-end implementation of the HTTP API written with Python and Flask
+[F - Back-end implementation](#f---backend-implementation) of the HTTP API written with Python and Flask
 
 This repo contains prototypes of these pieces.
 
