@@ -2,12 +2,19 @@ dash is a framework for making static and dynamic user interfaces that can conne
 
 See the [dash 2.0 announcement](https://github.com/plotly/dash) for more context.
 
+#### Prototype
+
+Kick dem tires! See what its all about!
+
+http://plotly-dash.herokuapp.com
+
 #### Development
-1 - A messy prototype has been written in [@chriddyp/messin](https://github.com/chriddyp/messin) with docs and examples deployed on heroku at [http://plotly-dash.herokuapp.com](plotly-dash.herokuapp.com). [dashboards.ly](https://dashboards.ly) (code at [@plotly/dashboards.ly](https://github.com/plotly/dashboards.ly)) contains some drag-and-droppable and editable interaction that dash's edit mode should mimic.
 
-2 - **(current phase)** - rewrite an alpha prototype in this repository (1 month)
+1. A messy prototype has been written in [@chriddyp/messin](https://github.com/chriddyp/messin) with docs and examples deployed on heroku at http://plotly-dash.herokuapp.com. Also, [dashboards.ly](https://dashboards.ly) (code at [@plotly/dashboards.ly](https://github.com/plotly/dashboards.ly)) contains some drag-and-droppable and editable interaction that dash's edit mode should mimic.
 
-3 - Rewrite the alpha prototype as a public beta. I imagine that each of the components of dash (the front end, the python back end, suites of react components) will be published as separate repositories under [@plotly](https://github.com/plotly) or a new organization `dash`.
+2. **(current phase)** - rewrite an alpha prototype in this repository (1 month)
+
+3. Rewrite the alpha prototype as a public beta. I imagine that each of the components of dash (the front end, the python back end, suites of react components) will be published as separate repositories under [@plotly](https://github.com/plotly) or a new organization `dash`.
 
 #### Community
 Join the chat room at [https://dash-talk.slack.com/signup](https://dash-talk.slack.com/signup). Feel free to send the distribute the invite.
