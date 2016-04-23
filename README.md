@@ -176,7 +176,7 @@ Should we allow single objects?
 
 - Is this spec missing anything?
 
-#### B - HTTP API for updating components
+### B - HTTP API for updating components
 
 Two types of requests are made.
 
@@ -327,7 +327,7 @@ with a response like:
 - How do actions that aren't state changes fit into this? For example, clicking on a button.
 - Sometimes the backend needs to update the front end, e.g. when data gets pushed to a database, when an experiment finishes, or on some timed event. Maybe we should we define an additional persistent websocket connection to handle these cases?
 
-#### C - Front-End Implementation (the `"renderer"`)
+### C - Front-End Implementation (the `"renderer"`)
 
 ```
 import Renderer from 'dash-renderer.js'
@@ -383,7 +383,7 @@ For a React component to be a fully functional member of `dash`, it just needs t
 - How will the `registry` work? How can get users to define components in the registry without having to write any JS (e.g. from pure python)?
 - The requirements to get resizing and dragging and dropping to work is pretty hazy... not sure what needs to get passed around to the components to make this work
 
-#### D - Suites of Components
+### D - Suites of Components
 
 `renderer.js` won't contain any actual presentational components. It will be able to render all of the built-in HTML elements and any components that are defined by the developer in the `Registry`.
 
@@ -401,9 +401,9 @@ Users will import (or develop their own) suites of components different types of
 - Do suites include CSS stylesheets? Or just pure inline CSS?
 - How will the registry work?
 
-#### E - React editing interface
+### E - React editing interface
 
-#### F - Backend implementation
+### F - Backend implementation
 
 The backend will be responsible for:
 - Responding to the HTTP requests
