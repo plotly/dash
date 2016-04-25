@@ -50,7 +50,7 @@ export default function render(component, path=[]) {
     }
 
     // editable?
-    if (component.onChange) {
+    if (component.props.editable) {
         content = (
             <EditableContent>
                 {content}

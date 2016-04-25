@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 
 import { connect } from 'react-redux'
-import { editChildrenString } from '../../actions'
+import { updateProps } from '../../actions'
 
 /*
  * EditableContent passes a connected onChange handler down to its child
@@ -14,15 +14,19 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    onChange: (e) => {
-      dispatch(editChildrenString(e.target.value, ownProps.path))
+    updateProps: (newProps) => {
+        console.warn('newProps: ', newProps);
+        dispatch(updateProps({
+            props: newProps,
+            itempath: React.Children.only(ownProps.children).props.path
+        }));
     }
   }
 }
 
-const EditableContent = ({ onChange, children }) => {
+const EditableContent = ({ updateProps, children }) => {
     // pass onChange as props to the child element e.g. an <input>
-    return React.cloneElement(children, { onChange });
+    return React.cloneElement(children, {updateProps});
 };
 
 EditableContent.propTypes = {
