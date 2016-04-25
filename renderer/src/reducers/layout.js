@@ -1,20 +1,19 @@
 import R from 'ramda';
 import Immutable from 'immutable';
 
-import spec from '../spec.js';
+// TODO: this should be a prop of the high-level component
+import spec from '../spec.js'; // do we need this now?
 import {ACTIONS} from '../actions';
 
 const pad = R.curry((array, paddingValue) => array.reduce((r, v) => {
     r.push(paddingValue);
     r.push(v);
-}));
-const createTreePath = (array) => pad(array);
+    return r;
+}, []));
+const createTreePath = (array) => pad(array, 'children');
 
-const layout = (state, action) => {
+const layout = (state = Immutable.fromJS(spec), action) => {
     switch (action.type) {
-        case 'EDIT_CHILDREN_STRING':
-            // TODO: Update the children component of the state with this action
-            console.warn('EDIT_CHILDREN_STRING: ', action);
 
         // Update the props of the component
         case ACTIONS('ON_PROP_CHANGE'): {
@@ -23,6 +22,8 @@ const layout = (state, action) => {
             state = state.mergeIn(path, action.payload.props);
             return state;
         }
+
+        // TODO: this doesn't actually do anything yet
         case 'REORDER_CHILDREN': {
             // TODO: wire this in to our drop targets
             const itemTreePath = createTreePath(action.itempath);  // [3, 1, 4, 5]
