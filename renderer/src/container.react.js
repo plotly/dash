@@ -2,26 +2,18 @@
 
 'use strict';
 
+import Immutable from 'immutable';
 import React, { Component } from 'react';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
-import { Provider } from 'react-redux'
-import { createStore } from 'redux'
+import { connect } from 'react-redux'
 
 import renderTree from './renderTree.js';
-import spec from './spec.js';
-import reducer from './reducers/reducer.js';
 
-const store = createStore(reducer);
+const UnconnectedContainer = props => renderTree(props.layout.toJS());
 
-class Container extends Component {
-  render () {
-      return (
-          <Provider store={store}>
-            {renderTree(spec)}
-        </Provider>
-    );
-  }
-}
+const Container = connect(
+    state => ({layout: state.layout}) // map state to props
+)(UnconnectedContainer);
 
 export default DragDropContext(HTML5Backend)(Container);
