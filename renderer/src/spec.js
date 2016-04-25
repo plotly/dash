@@ -11,47 +11,13 @@ export default {
             type: 'p',
             props: {
                 id: 'child',
-                style: {color: 'blue', fontSize: 20}
+                style: {fontSize: 20}
             },
-            children: 'paragram',
+            children: 'basic <p> component',
             droppable: true
         },
+
         {
-            type: 'input',
-            onChange: true
-        },
-        {
-            type: 'Header',
-            props: {name: 'rolo yoloz'},
-            draggable: true
-        },
-        {
-            type: 'div',
-            props: {id: 'd_2'},
-            children: [
-                {
-                    type: 'div',
-                    props: {id: 'd_2_0'},
-                    children: [
-                        {
-                            type: 'div',
-                            props: {id: 'd_2_0_0'}
-                        },
-                        {
-                            type: 'div',
-                            props: {id: 'd_2_0_1'}
-                        }
-                    ]
-                },
-                {
-                    type: 'div',
-                    props: {id: 'd_2_1'},
-                    children: [
-                        {
-                            type: 'div',
-                            props: {id: 'd_2_1_0'}
-                        }
-                    ]
             type: 'EditableDiv',
             props: {
                 editable: true,
@@ -59,8 +25,8 @@ export default {
                 style: {
                     fontSize: 40
                 }
-            ]
             }
         }
+
     ]
 };
