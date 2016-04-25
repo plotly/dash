@@ -52,8 +52,15 @@ export default {
                             props: {id: 'd_2_1_0'}
                         }
                     ]
+            type: 'EditableDiv',
+            props: {
+                editable: true,
+                text: 'basic editable div',
+                style: {
+                    fontSize: 40
                 }
             ]
+            }
         }
     ]
 };
