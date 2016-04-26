@@ -37,6 +37,7 @@
     "react-redux": "^4.4.5",
     "redux": "^3.4.0",
     "redux-actions": "^0.9.1",
+    "redux-thunk": "^2.0.1",
     "webpack": "^1.13.1",
     "webpack-partial": "^1.2.0"
   },
