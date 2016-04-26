@@ -7,8 +7,7 @@ import Draggable from './components/core/Draggable.react.js';
 import Droppable from './components/core/Droppable.react.js';
 import EditableContent from './components/core/EditableContent.react.js';
 
-export default function render(component, path=[]) {
-
+export default function render(component, dependencyGraph, path=[]) {
 
     let content;
     if (!R.has('children', component)) {
@@ -16,7 +15,7 @@ export default function render(component, path=[]) {
     }
     else if (Array.isArray(component.children)) {
         content = component.children.map((v, i) => {
-            return render(v, R.append(i, path));
+            return render(v, dependencyGraph, R.append(i, path));
         });
     }
     else if (typeof component.children === 'string') {
