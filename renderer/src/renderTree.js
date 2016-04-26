@@ -58,6 +58,15 @@ export default function render(component, path=[]) {
         );
     }
 
+    // has dependants?
+    if (component.props.id && dependencyGraph.dependantsOf(component.props.id)) {
+        content = (
+            <UpdateDependants>
+                {content}
+            </UpdateDependants>
+        );
+    }
+
     return content;
 
 }
