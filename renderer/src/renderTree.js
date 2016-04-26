@@ -6,6 +6,7 @@ import Registry from './registery.js';
 import Draggable from './components/core/Draggable.react.js';
 import Droppable from './components/core/Droppable.react.js';
 import EditableContent from './components/core/EditableContent.react.js';
+import UpdateDependants from './components/core/UpdateDependants.react.js';
 
 export default function render(component, dependencyGraph, path=[]) {
 
