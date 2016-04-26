@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { updateProps } from '../../actions'
 
 /*
- * EditableContent passes a connected onChange handler down to its child
+ * EditableContent passes a connected updateProps handler down to its child
  * as a prop
  */
 
@@ -25,12 +25,12 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 }
 
 const EditableContent = ({ updateProps, children }) => {
-    // pass onChange as props to the child element e.g. an <input>
+    // pass updateProps as props to the child element e.g. an <input>
     return React.cloneElement(children, {updateProps});
 };
 
 EditableContent.propTypes = {
-    onChange: PropTypes.func.isRequired
+    updateProps: PropTypes.func.isRequired
 };
 
 export default connect(
