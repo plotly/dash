@@ -11,9 +11,8 @@ const layout = (state = Immutable.fromJS(spec), action) => {
 
         // Update the props of the component
         case ACTIONS('ON_PROP_CHANGE'): {
-            const path = utils.createTreePath(action.payload.itempath);
-            path.push('props');
-            state = state.mergeIn(path, action.payload.props);
+            let propPath = R.append('props', action.payload.itempath);
+            state = state.mergeIn(propPath, action.payload.props);
             return state;
         }
 
