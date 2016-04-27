@@ -6,8 +6,7 @@ import renderTree from './renderTree.js';
 
 const UnconnectedContainer = props => renderTree(
     props.layout.toJS(),
-    props.dependencyGraph,
-    props.paths
+    props.dependencyGraph
 );
 
 const Container = connect(
