@@ -51,7 +51,7 @@ export default function render(component, dependencyGraph, path=[]) {
     }
 
     // editable?
-    if (component.props.editable) {
+    if (component.props && component.props.editable) {
         content = (
             <EditableContent>
                 {content}
@@ -60,7 +60,7 @@ export default function render(component, dependencyGraph, path=[]) {
     }
 
     // has dependants?
-    if (component.props.id && dependencyGraph.dependantsOf(component.props.id)) {
+    if (component.props &&  component.props.id && dependencyGraph.dependantsOf(component.props.id)) {
         content = (
             <UpdateDependants>
                 {content}
