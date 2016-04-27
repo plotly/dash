@@ -14,41 +14,80 @@ export default {
                 style: {fontSize: 20}
             },
             children: 'basic <p> component',
-            droppable: true
-
-            /*
-             * since "editable-div-1" depends on "editable-div-2",
-             * if "editable-div-2" changes then 2 POSTs are made:
-             * 1 - update "editable-div-1" with new values
-             * 2 - following that, update "child" with new values
-             */
-            dependencies: ['input-1', 'input-2']
         },
+
+        // dependency tree
 
         {
             type: 'InputControl',
             props: {
-                id: 'input-1',
-                placeholder: 'input 1'
+                id: 'A',
+                placeholder: 'A'
             },
-            dependencies: ['input-2']
+            dependencies: []
         },
-
         {
             type: 'InputControl',
             props: {
-                id: 'input-2',
-                placeholder: 'input 2'
+                id: 'B',
+                placeholder: 'B'
+            },
+            dependencies: ['A']
+        },
+        {
+            type: 'InputControl',
+            props: {
+                id: 'C',
+                placeholder: 'C'
+            },
+            dependencies: ['A']
+        },
+        {
+            type: 'InputControl',
+            props: {
+                id: 'D',
+                placeholder: 'D'
+            },
+            dependencies: ['A']
+        },
+        {
+            type: 'InputControl',
+            props: {
+                id: 'E',
+                placeholder: 'E'
+            },
+            dependencies: ['B', 'C']
+        },
+        {
+            type: 'InputControl',
+            props: {
+                id: 'F',
+                placeholder: 'F'
+            },
+            dependencies: ['A', 'D']
+        },
+
+
+        {
+            type: 'EditableDiv',
+            props: {
+                id: 'editable-div-1',
+                editable: true,
+                text: 'basic editable div',
+                style: {
+                    fontSize: 25
+                }
             }
         },
 
         {
             type: 'EditableDiv',
             props: {
+                id: 'editable-div-2',
                 editable: true,
-                text: 'basic editable div',
+                text: 'another editable div',
                 style: {
-                    fontSize: 40
+                    fontSize: 25
                 }
             }
         }
