@@ -17,7 +17,15 @@ export default {
         },
 
         // dependency tree
-
+        {
+            type: 'div',
+            props: {style: {fontSize: 14}},
+            children: [
+                {type: 'div', children: 'B, C, D depend on A.'},
+                {type: 'div', children: 'E depends on B and C.'},
+                {type: 'div', children: 'F depends on A and D.'}
+            ]
+        },
         {
             type: 'InputControl',
             props: {
