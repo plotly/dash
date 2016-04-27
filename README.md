@@ -36,6 +36,9 @@ dash is composed of several parts:
 
 [F - Back-end implementation](#f---backend-implementation) of the HTTP API written with Python and Flask
 
+[G - Deployment](#g---deployment) of these apps on plotly and other services
+
+
 This repo contains prototypes of these pieces.
 
 
@@ -421,3 +424,16 @@ I think the interface presented in [@chriddyp/messin prototype](https://github.c
 - Where does the `index.html` and the `dash-bundle.js` go? How is it distributed? How do folks import (or bundle) their own JS? Do we create something like `yoeman` and template generators?
 - How can we make this work really nicely in jupyter (iframe)? How can that work with flask's `debug=True` auto-reloading magic?
 - How should we support multi-page apps? [http://ploty-dash.herokuapp.com](http://ploty-dash.herokuapp.com) is actually a dash app itself, but I *think* supporting multiple pages became sort of messy
+
+### G - Deployment
+- We can save and serve the `layout.json` through Plotly's API
+- Serving "static" `layouts` (`layouts` without dependencies) should be super simple:
+```
+// $ npm install dash-renderer
+import DashRenderer from 'dash-renderer'
+<DashRenderer layout={layout}/>
+```
+- Deployment to something like Heroku should be super easy
+- How should plotly provide hosting for apps that have custom python backends? 
+    - Maybe we can run [Deis](http://deis.io/overview/) for a heroku-like experience?
+    - Can we tie in plotly's authentication and sharing permissions to these apps?
