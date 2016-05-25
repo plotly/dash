@@ -1,9 +1,3 @@
-/*eslint-env browser */
-
-'use strict';
-
-import Immutable from 'immutable';
-import React, { Component } from 'react';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import { connect } from 'react-redux'
