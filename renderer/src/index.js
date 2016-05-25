@@ -4,17 +4,10 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Container from './container.react.js';
 
-import { Provider } from 'react-redux'
-import { createStore } from 'redux'
-import reducer from './reducers/reducer.js';
-
-const store = createStore(reducer);
+import AppContainer from './AppContainer.react.js';
 
 ReactDOM.render(
-    <Provider store={store}>
-        <Container/>
-    </Provider>,
+    <AppContainer/>,
     document.getElementById('react-entry-point')
 );
