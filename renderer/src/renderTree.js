@@ -7,7 +7,7 @@ import Draggable from './components/core/Draggable.react.js';
 import Droppable from './components/core/Droppable.react.js';
 import EditableContent from './components/core/EditableContent.react.js';
 import UpdateDependants from './components/core/UpdateDependants.react.js';
-import utils from './reducers/utils.js';
+import {createTreePath} from './reducers/utils.js';
 
 export default function render(component, dependencyGraph, path=[]) {
 
@@ -26,7 +26,7 @@ export default function render(component, dependencyGraph, path=[]) {
 
     content = React.createElement(
         R.has(component.type, Registry) ? Registry[component.type] : component.type,
-        Object.assign({}, component.props, {path: utils.createTreePath(path)}),
+        Object.assign({}, component.props, {path: createTreePath(path)}),
         ...content
     );
 

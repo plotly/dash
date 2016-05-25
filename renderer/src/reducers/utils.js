@@ -7,7 +7,7 @@ const pad = R.curry((array, paddingValue) => array.reduce((r, v) => {
 }, []));
 
 // crawl a layout object, apply a function on every object
-function crawlLayout(object, func, path=[]) {
+export const crawlLayout = (object, func, path=[]) => {
     func(object, path);
     if (Array.isArray(object.children)) {
         object.children.forEach((child, i) => {
@@ -16,7 +16,4 @@ function crawlLayout(object, func, path=[]) {
     }
 }
 
-export default {
-    createTreePath: (array) => pad(array, 'children'),
-    crawlLayout
-};
+export const createTreePath = (array) => pad(array, 'children');

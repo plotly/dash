@@ -13,7 +13,7 @@ export default {
                 id: 'child',
                 style: {fontSize: 20}
             },
-            children: 'basic <p> component',
+            children: 'basic <p> component'
         },
 
         // dependency tree

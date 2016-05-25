@@ -1,6 +1,5 @@
 import R from 'ramda';
 import { createAction } from 'redux-actions';
-import utils from '../reducers/utils';
 
 export const ACTIONS = (action) => {
     const actionList = {
@@ -61,6 +60,8 @@ export const updateDependants = function(payload) {
                     }, {target: dependantId}
                 );
 
+                /* eslint-disable no-console */
+
                 // make the /POST
                 // xhr.POST(/update-component) ...
                 console.warn('POST /update-component', JSON.stringify(payload, null, 2));
@@ -89,6 +90,8 @@ export const updateDependants = function(payload) {
                     dependantUpdatePayload.id = dependantId;
                     dispatch(updateDependants(dependantUpdatePayload));
                 }, 10000*Math.random());
+
+                /* eslint-enable no-console */
 
             }
 

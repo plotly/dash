@@ -1,12 +1,12 @@
-import utils from './utils.js'
+import {crawlLayout, createTreePath} from './utils'
 
 import spec from '../spec.js'; // TODO: this'll eventually load from the API
 
 const initialPaths = {};
 
-utils.crawlLayout(spec, (child, itempath) => {
+crawlLayout(spec, (child, itempath) => {
     if(child.props && child.props.id) {
-        initialPaths[child.props.id] = utils.createTreePath(itempath);
+        initialPaths[child.props.id] = createTreePath(itempath);
     }
 });
 
