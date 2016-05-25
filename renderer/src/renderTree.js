@@ -2,12 +2,12 @@
 
 import R from 'ramda';
 import React from 'react';
-import Registry from './registery.js';
-import Draggable from './components/core/Draggable.react.js';
-import Droppable from './components/core/Droppable.react.js';
-import EditableContent from './components/core/EditableContent.react.js';
-import UpdateDependants from './components/core/UpdateDependants.react.js';
-import {createTreePath} from './reducers/utils.js';
+import Registry from './registry';
+import Draggable from './components/core/Draggable.react';
+import Droppable from './components/core/Droppable.react';
+import EditableContent from './components/core/EditableContent.react';
+import UpdateDependants from './components/core/UpdateDependants.react';
+import {createTreePath} from './reducers/utils';
 
 export default function render(component, dependencyGraph, path=[]) {
 

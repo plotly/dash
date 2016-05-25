@@ -333,8 +333,8 @@ with a response like:
 ### C - Front-End Implementation (the `"renderer"`)
 
 ```
-import Renderer from 'dash-renderer.js'
-import xhr from 'xhr.js'
+import Renderer from 'dash-renderer'
+import xhr from 'xhr'
 
 const layout = xhr.GET('/initialization')
 
@@ -357,7 +357,7 @@ import {
     PlotlyGraph,
     Dropdown,
     Slider
-} from 'dash-basic-component-suite.js'
+} from 'dash-basic-component-suite'
 
 module.exports = {PlotlyGraph, Dropdown, Slider};
 ```
