@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint ./*.js ./**/*.js --fix",
     "server": "serv .",
-    "start": "npm run watch & npm run server",
+    "start": "npm run watch",
     "test": "npm run lint",
     "watch": "node_modules/.bin/watchify index.js -t babelify -p livereactload -o ../build/bundle.js -v"
   },
