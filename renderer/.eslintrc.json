@@ -1,4 +1,10 @@
 {
+    "env": {
+        "node": false,
+        "browser": true,
+        "es6": true
+    },
+    "extends": "eslint:recommended",
     "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "module",
@@ -6,6 +12,17 @@
             "jsx": true
         }
     },
-    "extends": "eslint:recommended",
-    "rules": {}
+    "plugins": [
+        "eslint-plugin-react"
+    ],
+    "rules": {
+        "react/jsx-uses-vars": 2,
+        "react/jsx-uses-react": 2,
+        "react/react-in-jsx-scope": 2
+    },
+    "settings": {
+        "react": {
+            "version": "15.0"
+        }
+    }
 }

@@ -7,7 +7,7 @@
 
 import R from 'ramda';
 import Radium from 'radium';
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 
 // each suite might have its own set of Styles

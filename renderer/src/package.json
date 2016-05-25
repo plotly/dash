@@ -4,7 +4,10 @@
   "description": "render dash components in react",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./*.js ./**/*.js --fix",
+    "server": "serv .",
+    "start": "npm run watch & npm run server",
+    "test": "npm run lint",
     "watch": "node_modules/.bin/watchify index.js -t babelify -p livereactload -o ../build/bundle.js -v"
   },
   "author": "chriddyp",
@@ -32,8 +35,10 @@
     "babelify": "^7.2.0",
     "browserify": "^13.0.0",
     "eslint": "^2.8.0",
+    "eslint-plugin-react": "^5.1.1",
     "livereactload": "^2.2.2",
     "react-proxy": "^1.1.8",
+    "serv": "^0.2.4",
     "watchify": "^3.7.0"
   }
 }
