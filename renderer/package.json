@@ -4,11 +4,11 @@
   "description": "render dash components in react",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint ./*.js ./**/*.js --fix",
+    "build": "webpack --config=config/webpack.config.js",
+    "lint": "eslint --quiet --fix --ignore-path ../.gitignore ./*.js ./**/*.js",
     "server": "serv .",
-    "start": "npm run watch",
-    "test": "npm run lint",
-    "watch": "node_modules/.bin/watchify index.js -t babelify -p livereactload -o ../build/bundle.js -v"
+    "start": "npm run build && npm run server",
+    "test": "npm run lint"
   },
   "author": "chriddyp",
   "license": "MIT",
@@ -18,6 +18,8 @@
     ]
   },
   "dependencies": {
+    "babel-core": "^6.9.0",
+    "babel-loader": "^6.2.4",
     "immutable": "^3.8.1",
     "radium": "^0.17.1",
     "ramda": "^0.21.0",
@@ -27,19 +29,19 @@
     "react-dom": "^15.0.1",
     "react-redux": "^4.4.5",
     "redux": "^3.4.0",
-    "redux-actions": "^0.9.1"
+    "redux-actions": "^0.9.1",
+    "webpack": "^1.13.1",
+    "webpack-partial": "^1.2.0"
   },
   "devDependencies": {
     "babel-plugin-react-transform": "^2.0.2",
     "babel-preset-es2015": "^6.6.0",
     "babel-preset-react": "^6.5.0",
-    "babelify": "^7.2.0",
     "browserify": "^13.0.0",
     "eslint": "^2.8.0",
     "eslint-plugin-react": "^5.1.1",
-    "livereactload": "^2.2.2",
-    "react-proxy": "^1.1.8",
+    "react-hot-loader": "^1.3.0",
     "serv": "^0.2.4",
-    "watchify": "^3.7.0"
+    "webpack-dev-server": "^1.14.1"
   }
 }
