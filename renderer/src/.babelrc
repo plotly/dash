@@ -1,8 +1,13 @@
 {
-  "presets": ["es2015", "react"],
-  "env": {
-    "development": {
-
+    "presets": ["es2015", "react"],
+    "env": {
+        "development": {
+            "presets": ["es2015-webpack", "react"],
+            "plugins": [
+                ["transform-es2015-modules-commonjs-simple", {
+                    "noMangle": true
+                }]
+            ]
+        }
     }
-  }
 }
