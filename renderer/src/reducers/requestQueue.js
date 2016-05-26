@@ -2,7 +2,7 @@ const requestQueue = (state = [], action) => {
     switch (action.type) {
         case 'SET_REQUEST_QUEUE':
             if (Array.isArray(action.payload)) {
-                state = action.payload;
+                state = Object.assign({}, action.payload);
             }
 
             return state;
