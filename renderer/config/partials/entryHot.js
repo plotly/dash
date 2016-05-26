@@ -7,8 +7,8 @@ module.exports = function (config) {
         entry: {
             bundle: [
                 'webpack-dev-server/client?http://localhost:8080',
-                './index.js',
-                'webpack/hot/only-dev-server'
+                'webpack/hot/only-dev-server',
+                './index.js'
 
             ]
         }

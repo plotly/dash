@@ -4,9 +4,12 @@
   "description": "render dash components in react",
   "main": "index.js",
   "scripts": {
+    "build-dev": "webpack --config=config/webpack.config.dev.js",
+    "build-prod": "NODE_ENV=production webpack --config=config/webpack.config.prod.js",
     "dev": "webpack-dev-server --config=config/webpack.config.dev.js",
     "hot": "webpack-dev-server --hot --config=config/webpack.config.hot.js",
     "lint": "eslint --quiet --fix --ignore-path ../.gitignore ./*.js ./**/*.js",
+    "server": "serv -p 8080 .",
     "start": "npm run hot",
     "test": "npm run lint"
   },
@@ -20,6 +23,7 @@
   "dependencies": {
     "babel-core": "^6.9.0",
     "babel-loader": "^6.2.4",
+    "clean-webpack-plugin": "^0.1.9",
     "immutable": "^3.8.1",
     "radium": "^0.17.1",
     "ramda": "^0.21.0",

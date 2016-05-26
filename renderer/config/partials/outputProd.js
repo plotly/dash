@@ -11,6 +11,7 @@ module.exports = function (config) {
         output: {
             path: BUILD,
             publicPath: '/build/',
+            // TODO: Bundle filename should be hashed (#10)
             filename: '[name].js'
         }
     });
