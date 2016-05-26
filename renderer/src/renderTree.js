@@ -11,35 +11,37 @@ import {createTreePath} from './reducers/utils';
 
 export default function render(component, dependencyGraph, path=[]) {
 
-    let content;
+    // Create list of child elements
+    let children;
     if (!R.has('children', component)) {
-        content = [];
+        children = [];
     }
     else if (Array.isArray(component.children)) {
-        content = component.children.map((v, i) => {
+        children = component.children.map((v, i) => {
             return render(v, dependencyGraph, R.append(i, path));
         });
     }
     else if (typeof component.children === 'string') {
-        content = [component.children];
+        children = [component.children];
     }
 
+    // Create wrapping parent element
     const element = R.has(component.type, Registry)
         ? Registry[component.type]
         : component.type;
 
-    content = React.createElement(
+    const parent = React.createElement(
         element,
         Object.assign({}, component.props, {path: createTreePath(path)}),
-        ...content
+        ...children
     );
 
     // draggable?
     if (component.draggable) {
-        content = (
+        return (
             <Draggable>
                 <div> {/* "Only native element nodes can now be passed to React DnD connectors. You can either wrap Header into a <div>, or turn it into a drag source or a drop target itself." */}
-                    {content}
+                    {parent}
                 </div>
             </Draggable>
         );
@@ -47,18 +49,18 @@ export default function render(component, dependencyGraph, path=[]) {
 
     // droppable?
     if (component.droppable) {
-        content = (
+        return (
             <Droppable>
-                {content}
+                {parent}
             </Droppable>
         );
     }
 
     // editable?
     if (component.props && component.props.editable) {
-        content = (
+        return (
             <EditableContent>
-                {content}
+                {parent}
             </EditableContent>
         );
     }
@@ -69,13 +71,12 @@ export default function render(component, dependencyGraph, path=[]) {
         component.props.id &&
         dependencyGraph.dependantsOf(component.props.id)
     ) {
-        content = (
+        return (
             <UpdateDependants>
-                {content}
+                {parent}
             </UpdateDependants>
         );
     }
 
-    return content;
-
+    return parent;
 }
