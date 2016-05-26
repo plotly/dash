@@ -24,8 +24,12 @@ export default function render(component, dependencyGraph, path=[]) {
         content = [component.children];
     }
 
+    const element = R.has(component.type, Registry)
+        ? Registry[component.type]
+        : component.type;
+
     content = React.createElement(
-        R.has(component.type, Registry) ? Registry[component.type] : component.type,
+        element,
         Object.assign({}, component.props, {path: createTreePath(path)}),
         ...content
     );
@@ -60,7 +64,11 @@ export default function render(component, dependencyGraph, path=[]) {
     }
 
     // has dependants?
-    if (component.props &&  component.props.id && dependencyGraph.dependantsOf(component.props.id)) {
+    if (
+        component.props &&
+        component.props.id &&
+        dependencyGraph.dependantsOf(component.props.id)
+    ) {
         content = (
             <UpdateDependants>
                 {content}
