@@ -5,6 +5,7 @@ import spec from '../spec'; // TODO: this'll eventually load from the API
 
 const initialGraph = new DepGraph();
 
+// TODO: Don't initialize graph as side-effect of importing reducer.
 // add ID's to all the components
 crawlLayout(spec, child => {
     if (child.props && child.props.id) {
