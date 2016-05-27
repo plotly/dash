@@ -5,7 +5,6 @@
  */
 
 
-import R from 'ramda';
 import Radium from 'radium';
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
@@ -19,6 +18,8 @@ const baseStyles = {
         color: Styles.colors.baseHover
     }
 }
+
+import R from 'ramda';
 
 class EditableDiv extends React.Component {
 
