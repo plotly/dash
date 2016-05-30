@@ -5,7 +5,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import AppContainer from './AppContainer.react.js';
+import AppContainer from './AppContainer.react';
 
 ReactDOM.render(
     <AppContainer/>,

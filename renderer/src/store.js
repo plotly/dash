@@ -1,6 +1,7 @@
 /* global module, require */
 
-import {createStore} from 'redux'
+import {createStore, applyMiddleware} from 'redux';
+import thunk from 'redux-thunk';
 
 import reducer from './reducers/reducer';
 
@@ -10,7 +11,10 @@ export const initializeStore = () => {
         return store;
     }
 
-    store = createStore(reducer);
+    store = createStore(
+        reducer,
+        applyMiddleware(thunk)
+    );
 
     if (module.hot) {
         // Enable hot module replacement for reducers

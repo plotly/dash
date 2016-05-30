@@ -2,12 +2,19 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import { DragDropContext } from 'react-dnd';
 import { connect } from 'react-redux'
 
-import renderTree from './renderTree.js';
+import renderTree from './renderTree';
 
-const UnconnectedContainer = props => renderTree(props.layout.toJS());
+const UnconnectedContainer = props => renderTree(
+    props.layout.toJS(),
+    props.dependencyGraph
+);
 
 const Container = connect(
-    state => ({layout: state.layout}) // map state to props
+    state => ({      // map state to props
+        layout: state.layout,
+        dependencyGraph: state.dependencyGraph,
+        paths: state.paths
+    })
 )(UnconnectedContainer);
 
 export default DragDropContext(HTML5Backend)(Container);

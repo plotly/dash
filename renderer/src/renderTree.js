@@ -2,39 +2,46 @@
 
 import R from 'ramda';
 import React from 'react';
-import Registry from './registery.js';
-import Draggable from './components/core/Draggable.react.js';
-import Droppable from './components/core/Droppable.react.js';
-import EditableContent from './components/core/EditableContent.react.js';
+import Registry from './registry';
+import Draggable from './components/core/Draggable.react';
+import Droppable from './components/core/Droppable.react';
+import EditableContent from './components/core/EditableContent.react';
+import NotifyObservers from './components/core/NotifyObservers.react';
+import {createTreePath} from './reducers/utils';
 
-export default function render(component, path=[]) {
+export default function render(component, dependencyGraph, path=[]) {
 
-
-    let content;
+    // Create list of child elements
+    let children;
     if (!R.has('children', component)) {
-        content = [];
+        children = [];
     }
     else if (Array.isArray(component.children)) {
-        content = component.children.map((v, i) => {
-            return render(v, R.append(i, path));
+        children = component.children.map((v, i) => {
+            return render(v, dependencyGraph, R.append(i, path));
         });
     }
     else if (typeof component.children === 'string') {
-        content = [component.children];
+        children = [component.children];
     }
 
-    content = React.createElement(
-        R.has(component.type, Registry) ? Registry[component.type] : component.type,
-        Object.assign({}, component.props, {path}),
-        ...content
+    // Create wrapping parent element
+    const element = R.has(component.type, Registry)
+        ? Registry[component.type]
+        : component.type;
+
+    const parent = React.createElement(
+        element,
+        Object.assign({}, component.props, {path: createTreePath(path)}),
+        ...children
     );
 
     // draggable?
     if (component.draggable) {
-        content = (
+        return (
             <Draggable>
                 <div> {/* "Only native element nodes can now be passed to React DnD connectors. You can either wrap Header into a <div>, or turn it into a drag source or a drop target itself." */}
-                    {content}
+                    {parent}
                 </div>
             </Draggable>
         );
@@ -42,22 +49,34 @@ export default function render(component, path=[]) {
 
     // droppable?
     if (component.droppable) {
-        content = (
+        return (
             <Droppable>
-                {content}
+                {parent}
             </Droppable>
         );
     }
 
     // editable?
-    if (component.props.editable) {
-        content = (
+    if (component.props && component.props.editable) {
+        return (
             <EditableContent>
-                {content}
+                {parent}
             </EditableContent>
         );
     }
 
-    return content;
+    // has observers?
+    if (
+        component.props &&
+        component.props.id &&
+        dependencyGraph.dependantsOf(component.props.id)
+    ) {
+        return (
+            <NotifyObservers>
+                {parent}
+            </NotifyObservers>
+        );
+    }
 
+    return parent;
 }
