@@ -6,7 +6,7 @@ import Registry from './registry';
 import Draggable from './components/core/Draggable.react';
 import Droppable from './components/core/Droppable.react';
 import EditableContent from './components/core/EditableContent.react';
-import UpdateDependants from './components/core/UpdateDependants.react';
+import NotifyObservers from './components/core/NotifyObservers.react';
 import {createTreePath} from './reducers/utils';
 
 export default function render(component, dependencyGraph, path=[]) {
@@ -65,16 +65,16 @@ export default function render(component, dependencyGraph, path=[]) {
         );
     }
 
-    // has dependants?
+    // has observers?
     if (
         component.props &&
         component.props.id &&
         dependencyGraph.dependantsOf(component.props.id)
     ) {
         return (
-            <UpdateDependants>
+            <NotifyObservers>
                 {parent}
-            </UpdateDependants>
+            </NotifyObservers>
         );
     }
 

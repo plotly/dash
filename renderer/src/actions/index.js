@@ -14,7 +14,7 @@ export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
 
 // TODO: make the actual POST
-export const updateDependants = function(payload) {
+export const notifyObservers = function(payload) {
     return function (dispatch, getState) {
         const {
             layout,
@@ -24,40 +24,44 @@ export const updateDependants = function(payload) {
         } = getState();
 
         // Grab the ids of any components that depend on this component
-        let dependantIds = dependencyGraph.dependantsOf(payload.id);
+        let observerIds = dependencyGraph.dependantsOf(payload.id);
 
-        // order the dependant ids
+        // order the observer ids
         const depOrder = dependencyGraph.overallOrder();
-        dependantIds = R.sort(
+        observerIds = R.sort(
             (a, b) => depOrder.indexOf(a) - depOrder.indexOf(b),
-            dependantIds
+            observerIds
         );
 
         // record the set of requests in the queue
-        dispatch(setRequestQueue(R.union(dependantIds, requestQueue)));
+        dispatch(setRequestQueue(R.union(observerIds, requestQueue)));
 
-        // update each dependant component
-        for (let i = 0; i < dependantIds.length; i++) {
-            const dependantId = dependantIds[i];
-            const dependantComponent = layout.getIn(paths[dependantId]);
+        // update each observer
+        for (let i = 0; i < observerIds.length; i++) {
+            const observerId = observerIds[i];
+            const observerComponent = layout.getIn(paths[observerId]);
 
             /*
              * before we make the POST, check that none of it's dependencies
              * are already in the queue. if they are in the queue, then don't update.
-             * when each dependency updates, it'll dispatch it's own `updateDependants`
+             * when each dependency updates, it'll dispatch it's own `notifyObservers`
              * action which will allow this component to update.
              */
             if (R.intersection(
+                    // TODO Can just use `requestQueue`.
                     getState().requestQueue,
-                    dependencyGraph.dependenciesOf(dependantId)
+                    dependencyGraph.dependenciesOf(observerId)
                 ).length === 0) {
 
-                // construct a payload of the props of all of the dependencies
-                const payload = dependantComponent.get('dependencies').reduce(
+                /*
+                 * Construct a payload of the props of all of the dependencies
+                 * (controller components of this observer component).
+                 */
+                const payload = observerComponent.get('dependencies').reduce(
                     (r, id) => {
                         r[id] = layout.getIn(R.append('props', paths[id])).toJS();
                         return r;
-                    }, {target: dependantId}
+                    }, {target: observerId}
                 );
 
                 /* eslint-disable no-console */
@@ -69,32 +73,31 @@ export const updateDependants = function(payload) {
                 // mimic async POST request behaviour with setTimeout
                 setTimeout(() => {
                     // clear this item from the request queue
-                    console.warn(`RESPONSE ${dependantId}`);
+                    console.warn(`RESPONSE ${observerId}`);
                     dispatch(setRequestQueue(
                         R.reject(
-                            id => id === dependantId,
+                            id => id === observerId,
                             // in an async loop so grab the state again
                             getState().requestQueue)
                         )
                     );
 
                     // and update the props of the component
-                    const dependantUpdatePayload = {
-                        itempath: paths[dependantId],
+                    const observerUpdatePayload = {
+                        itempath: paths[observerId],
                         // new props from the server, just hard coded here
                         props: {value: 1000*Math.random()}
                     };
-                    dispatch(updateProps(dependantUpdatePayload));
+                    dispatch(updateProps(observerUpdatePayload));
 
                     // and now update *this* component's dependencies
-                    dependantUpdatePayload.id = dependantId;
-                    dispatch(updateDependants(dependantUpdatePayload));
+                    observerUpdatePayload.id = observerId;
+                    dispatch(notifyObservers(observerUpdatePayload));
                 }, 10000*Math.random());
 
                 /* eslint-enable no-console */
 
             }
-
         }
     }
 }

@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
-import { updateDependants, updateProps } from '../../actions';
+import { notifyObservers, updateProps } from '../../actions';
 
 /*
- * UpdateDependants passes a connected updateDependants handler down to
+ * NotifyObservers passes a connected notifyObservers handler down to
  * its child as a prop
  */
 
@@ -12,7 +12,7 @@ const mapStateToProps = () => ({});
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        updateDependants: (updatedProps) => {
+        notifyObservers: (updatedProps) => {
             const payload = {
                 updatedProps, // pass in the entire prop object or just updates?
 
@@ -24,23 +24,23 @@ const mapDispatchToProps = (dispatch, ownProps) => {
             // Update this component's props
             dispatch(updateProps(payload));
 
-            // Update this component's dependants depending in these new props
-            dispatch(updateDependants(payload));
+            // Update this component's observers with the updated props
+            dispatch(notifyObservers(payload));
 
         }
     }
 };
 
-const UpdateDependants = ({ updateDependants, children }) => {
-    // pass updateDependants as props to the child element e.g. an <input>
-    return React.cloneElement(children, {updateDependants});
+const NotifyObservers = ({ notifyObservers, children }) => {
+    // pass notifyObservers as props to the child element e.g. an <input>
+    return React.cloneElement(children, {notifyObservers});
 }
 
-UpdateDependants.propTypes = {
-    updateDependants: PropTypes.func.isRequired
+NotifyObservers.propTypes = {
+    notifyObservers: PropTypes.func.isRequired
 };
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(UpdateDependants);
+)(NotifyObservers);
