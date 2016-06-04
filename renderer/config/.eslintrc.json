@@ -2,5 +2,12 @@
     "env": {
         "node": true
     },
-    "extends": "eslint:recommended"
+    "extends": "eslint:recommended",
+    "plugins": [
+        "import"
+    ],
+    "rules": {
+        "import/no-commonjs": 0,
+        "import/no-nodejs-modules": 0
+    }
 }

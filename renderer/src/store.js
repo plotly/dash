@@ -6,7 +6,7 @@ import thunk from 'redux-thunk';
 import reducer from './reducers/reducer';
 
 let store;
-export const initializeStore = () => {
+const initializeStore = () => {
     if (store) {
         return store;
     }
@@ -19,11 +19,13 @@ export const initializeStore = () => {
     if (module.hot) {
         // Enable hot module replacement for reducers
         module.hot.accept('./reducers/reducer', () => {
-          const nextRootReducer = require('./reducers/reducer');
-          store.replaceReducer(nextRootReducer);
+            const nextRootReducer = require('./reducers/reducer');
+
+            store.replaceReducer(nextRootReducer);
         });
     }
 
     return store;
 };
 
+export default initializeStore;
