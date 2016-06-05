@@ -11,6 +11,12 @@ module.exports = {
     context: SRC,
     resolve: {
         // Need `''` so referencing modules by `name.js` works.
-        extensions: ['', '.js', '.jsx']
+        extensions: ['', '.js', '.jsx', '.json']
+    },
+    node: {
+        console: true,
+        fs: 'empty',
+        net: 'empty',
+        tls: 'empty'
     }
 };

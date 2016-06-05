@@ -9,7 +9,9 @@ var SRC = path.join(ROOT, 'src');
 module.exports = function (config) {
     return partial(config, {
         module: {
+            noParse: /node_modules\/json-schema\/lib\/validate\.js/, // used to get `request` to work: https://github.com/request/request/issues/1920#issuecomment-171246043
             loaders: [
+                { test: /\.json$/, loader: 'json-loader' },
                 {
                     test: /\.js/,
                     include: [SRC],
@@ -26,4 +28,3 @@ module.exports = function (config) {
         }
     });
 };
-

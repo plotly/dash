@@ -27,7 +27,7 @@ const collectProps = (connect, monitor) => ({
     isDragging: monitor.isDragging()
 });
 
-class Draggable extends Component {
+export class Draggable extends Component {
     render() {
         console.warn('Draggable: ', this.props); // eslint-disable-line
         const { isDragging, connectDragSource } = this.props;

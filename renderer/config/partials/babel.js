@@ -10,6 +10,7 @@ module.exports = function (config) {
     return partial(config, {
         module: {
             loaders: [
+                { test: /\.json$/, loader: 'json-loader' },
                 {
                     test: /\.js/,
                     include: [SRC],
@@ -23,4 +24,3 @@ module.exports = function (config) {
         }
     });
 };
-

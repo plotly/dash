@@ -1,8 +1,9 @@
 const requestQueue = (state = [], action) => {
     switch (action.type) {
         case 'SET_REQUEST_QUEUE':
+            console.warn(`REQUEST QUEUE ${action.payload}`);
             if (Array.isArray(action.payload)) {
-                state = Object.assign({}, action.payload);
+                state = action.payload;
             }
 
             return state;

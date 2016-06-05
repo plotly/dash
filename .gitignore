@@ -1,4 +1,6 @@
 build/
 node_modules/
 .npm
-
+vv/
+venv/
+*.pyc
