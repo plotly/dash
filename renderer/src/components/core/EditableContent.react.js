@@ -8,14 +8,16 @@ import { updateProps } from '../../actions'
  * as a prop
  */
 
+/* eslint-disable no-unused-vars */
 const mapStateToProps = (state, ownProps) => {
   return {}
 }
+/* eslint-enable no-unused-vars */
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     updateProps: (newProps) => {
-        console.warn('newProps: ', newProps);
+        console.warn('newProps: ', newProps); // eslint-disable-line
         dispatch(updateProps({
             props: newProps,
             itempath: React.Children.only(ownProps.children).props.path

@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { DragSource } from 'react-dnd';
 
 const style = {
@@ -29,7 +29,7 @@ const collectProps = (connect, monitor) => ({
 
 class Draggable extends Component {
     render() {
-        console.warn('Draggable: ', this.props);
+        console.warn('Draggable: ', this.props); // eslint-disable-line
         const { isDragging, connectDragSource } = this.props;
         return connectDragSource(
             isDragging ?

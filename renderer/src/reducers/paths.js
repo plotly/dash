@@ -1,5 +1,5 @@
-import {crawlLayout, createTreePath} from './utils'
 import spec from '../spec'; // TODO: this'll eventually load from the API
+import {crawlLayout, createTreePath} from './utils'
 
 const initialPaths = {};
 

@@ -1,13 +1,15 @@
 'use strict';
 
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import { DropTarget } from 'react-dnd';
 
+/* eslint-disable no-unused-vars */
 const spec = {
     drop(props, monitor, component) {return {}},
     hover(props, monitor, component) {return {}},
     canDrop(props, monitor) {return true;}
 };
+/* eslint-enable no-unused-vars */
 
 function collectProps(connect, monitor) {
     return {
@@ -21,7 +23,7 @@ function collectProps(connect, monitor) {
 
 class Droppable extends Component {
     render() {
-        console.warn('Droppable: ', this.props);
+        console.warn('Droppable: ', this.props); // eslint-disable-line
         const { canDrop, isOver, connectDropTarget } = this.props;
         const isActive = canDrop && isOver;
 
