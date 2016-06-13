@@ -1,10 +1,10 @@
 'use strict';
 
-import Header from './components/Header.react';
-import EditableContent from './components/core/EditableContent.react';
+/* eslint-disable import/named */
+import { EditableDiv, Header, InputControl } from '../../component-suites/lib/basic';
+/* eslint-enable import/named */
 
-import EditableDiv from './components/EditableDiv.react';
-import InputControl from './components/InputControl.react';
+import EditableContent from './components/core/EditableContent.react';
 
 export default {
     Header,

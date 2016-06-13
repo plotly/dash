@@ -4,10 +4,10 @@
   "description": "render dash components in react",
   "main": "src/index.js",
   "scripts": {
-    "build-dev": "webpack --config=config/webpack.config.dev.js",
-    "build-prod": "NODE_ENV=production webpack --config=config/webpack.config.prod.js",
-    "dev": "webpack-dev-server --config=config/webpack.config.dev.js",
-    "hot": "webpack-dev-server --hot --config=config/webpack.config.hot.js",
+    "build-dev": "../node_modules/.bin/webpack --config=config/webpack.config.dev.js",
+    "build-prod": "NODE_ENV=production ../node_modules/.bin/webpack --config=config/webpack.config.prod.js",
+    "dev": "../node_modules/.bin/webpack-dev-server --config=config/webpack.config.dev.js",
+    "hot": "../node_modules/.bin/webpack-dev-server --hot --config=config/webpack.config.hot.js",
     "lint": "../node_modules/.bin/eslint --quiet --fix --ignore-path ../.gitignore .",
     "server": "serv -p 8080 .",
     "start": "npm run hot",
@@ -16,10 +16,9 @@
   "author": "chriddyp",
   "license": "MIT",
   "dependencies": {
-    "clean-webpack-plugin": "^0.1.9",
     "dependency-graph": "^0.4.1",
     "immutable": "^3.8.1",
-    "radium": "^0.17.1",
+    "json-loader": "^0.5.4",
     "ramda": "^0.21.0",
     "react": "^15.0.1",
     "react-dnd": "^2.1.4",
@@ -34,9 +33,6 @@
     "webpack-partial": "^1.2.0"
   },
   "devDependencies": {
-    "json-loader": "^0.5.4",
-    "react-hot-loader": "^1.3.0",
-    "serv": "^0.2.4",
-    "webpack-dev-server": "^1.14.1"
+    "serv": "^0.2.4"
   }
 }

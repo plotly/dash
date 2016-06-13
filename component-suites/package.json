@@ -1,0 +1,26 @@
+{
+  "name": "component-suites",
+  "version": "0.0.1",
+  "description": "Component suites for Dash2",
+  "main": "lib/basic/index.js",
+  "scripts": {
+    "clean-lib": "mkdir -p lib && rm -rf lib/*",
+    "transpile-dev": "npm run clean-lib && ../node_modules/.bin/babel --source-root ./src/ -d lib/ src/",
+    "transpile-dev-watch": "npm run clean-lib && ../node_modules/.bin/babel --watch --source-root ./src/ -d lib/ src/",
+    "build-dev": "../node_modules/.bin/webpack --config=config/webpack.config.dev.js",
+    "dev": "../node_modules/.bin/webpack-dev-server --config=config/webpack.config.dev.js",
+    "lint": "../node_modules/.bin/eslint --quiet --fix --ignore-path ../.gitignore .",
+    "start": "npm run dev",
+    "test": "npm run lint"
+  },
+  "author": "Per Nilsson <per@sproutlab.com>",
+  "license": "MIT",
+  "dependencies": {
+    "radium": "^0.17.1",
+    "ramda": "^0.21.0",
+    "react-dom": "^15.1.0"
+  },
+  "devDependencies": {
+    "react": "^15.1.0"
+  }
+}
