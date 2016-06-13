@@ -1,7 +1,7 @@
 import {DepGraph} from 'dependency-graph';
 
-import {crawlLayout} from './utils';
 import spec from '../spec'; // TODO: this'll eventually load from the API
+import {crawlLayout} from './utils';
 
 const initialGraph = new DepGraph();
 
