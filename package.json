@@ -7,8 +7,8 @@
     "install-renderer": "cd renderer && npm i && cd -",
     "install-component-suites": "cd component-suites && npm i && cd -",
     "postinstall": "npm run install-component-suites & npm run install-dash & npm run install-renderer",
-    "test-component-suites": "cd component-suites && npm test && cd ..",
-    "test-renderer": "cd renderer && npm test && cd ..",
+    "test-component-suites": "cd component-suites && npm test && cd -",
+    "test-renderer": "cd renderer && npm test && cd -",
     "test": "npm run test-component-suites & npm run test-renderer"
   },
   "author": "chriddyp",

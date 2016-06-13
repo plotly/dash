@@ -11,6 +11,7 @@
     "lint": "../node_modules/.bin/eslint --quiet --fix --ignore-path ../.gitignore .",
     "server": "serv -p 8080 .",
     "start": "npm run hot",
+    "pretest": "cd ../component-suites && npm run transpile-dev && cd -",
     "test": "npm run lint"
   },
   "author": "chriddyp",
