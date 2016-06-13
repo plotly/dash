@@ -10,7 +10,7 @@
     "build-dev": "../node_modules/.bin/webpack --config=config/webpack.config.dev.js",
     "dev": "../node_modules/.bin/webpack-dev-server --config=config/webpack.config.dev.js",
     "lint": "../node_modules/.bin/eslint --quiet --fix --ignore-path ../.gitignore .",
-    "start": "npm run dev",
+    "start": "npm run transpile-dev-watch",
     "test": "npm run lint"
   },
   "author": "Per Nilsson <per@sproutlab.com>",

@@ -8,6 +8,20 @@ Kick dem tires! See what its all about!
 
 http://plotly-dash.herokuapp.com
 
+#### Running the app locally
+
+1. Build the code in `component-suites/`
+
+        $ cd component-suites
+        $ npm start # Will run transpile-dev-watch and watch for changes!
+
+2. Run the development server
+
+        # In a different terminal:
+        $ cd renderer
+        $ npm start
+        $ open http://localhost:8080
+
 #### Development
 
 1. A messy prototype has been written in [@chriddyp/messin](https://github.com/chriddyp/messin) with docs and examples deployed on heroku at http://plotly-dash.herokuapp.com. Also, [dashboards.ly](https://dashboards.ly) (code at [@plotly/dashboards.ly](https://github.com/plotly/dashboards.ly)) contains some drag-and-droppable and editable interaction that dash's edit mode should mimic.
@@ -213,7 +227,7 @@ JSON layout:
         {
             type: "PlotlyGraph",
             props: {
-                id: "my-graph",    
+                id: "my-graph",
                 figure: {...}
             },
             dependencies: ["dropdown-1"]
@@ -246,7 +260,7 @@ When "dropdown-1" changes, this request is made:
             {label: "Apples", value: "apples"},
             {label: "Oranges", value: "oranges"}
         ]
-    }    
+    }
 }
 ```
 
@@ -434,6 +448,6 @@ import DashRenderer from 'dash-renderer'
 <DashRenderer layout={layout}/>
 ```
 - Deployment to something like Heroku should be super easy
-- How should plotly provide hosting for apps that have custom python backends? 
+- How should plotly provide hosting for apps that have custom python backends?
     - Maybe we can run [Deis](http://deis.io/overview/) for a heroku-like experience?
     - Can we tie in plotly's authentication and sharing permissions to these apps?
