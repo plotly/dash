@@ -1,6 +1,6 @@
-// import HTML5Backend from 'react-dnd-html5-backend';
-// import { DragDropContext } from 'react-dnd';
 import React from 'react';
+import HTML5Backend from 'react-dnd-html5-backend';
+import { DragDropContext } from 'react-dnd';
 import { connect } from 'react-redux'
 
 import renderTree from './renderTree';
@@ -24,5 +24,4 @@ const Container = connect(
     })
 )(UnconnectedContainer);
 
-export default Container;
-// export default DragDropContext(HTML5Backend)(Container);
+export default DragDropContext(HTML5Backend)(Container);
