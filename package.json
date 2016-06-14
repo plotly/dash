@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Create React data visualization UIs with python",
   "scripts": {
+    "install-dash": "cd dash && pip install -r requirements.txt && cd -",
+    "install-renderer": "cd renderer && npm i && cd -",
+    "postinstall": "npm run install-dash & npm run install-renderer",
     "test-renderer": "cd renderer && npm test && cd ..",
     "test": "npm run test-renderer"
   },
