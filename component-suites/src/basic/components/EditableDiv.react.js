@@ -6,7 +6,6 @@
 
 
 import R from 'ramda';
-import Radium from 'radium';
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -23,7 +22,7 @@ const baseStyles = {
 /**
  * A div for displaying text that can be editable.
  */
-export class EditableDiv extends React.Component {
+export default class EditableDiv extends React.Component {
 
     constructor(props) {
         super(props);
@@ -97,5 +96,3 @@ EditableDiv.defaultProps = {
     style: {},
     editable: false
 };
-
-export default Radium(EditableDiv);
