@@ -1,5 +1,7 @@
 import collections
+from component_loader import load_components
 
+component_suites_path = '../component-suites/lib/metadata.json';
 
 # Other valid react attributes include:
 # https://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
@@ -166,58 +168,7 @@ def init_dropdown(self):
 
 _valid_kwargs = ['content', 'id', 'className', 'style', 'dependencies']
 
-_customelements = [
-    {
-        'type': 'Dropdown',
-        'valid_kwargs': _valid_kwargs + ['options', 'selected'],
-        'setup': init_dropdown
-    },
-    {
-        'type': 'RadioButton',
-        'valid_kwargs': _valid_kwargs + ['options', 'name', 'selected'],
-        'setup': empty
-    },
-    {
-        'type': 'TextInput',
-        'valid_kwargs': _valid_kwargs + [
-            'label', 'value',
-            'placeholder', 'labelstyle'
-        ],
-        'setup': empty
-    },
-
-    {
-        'type': 'Slider',
-        'valid_kwargs': _valid_kwargs + ['min', 'max', 'step',
-                                         'value', 'label'],
-        'setup': empty
-    },
-    {
-        'type': 'PlotlyGraph',
-        'valid_kwargs': _valid_kwargs +
-                ['figure', 'height', 'width',
-                 'bindClick', 'bindHover',
-                 'click', 'hover'],
-        'setup': empty
-    },
-    {
-        'type': 'CheckList',
-        'valid_kwargs': _valid_kwargs + ['options'],
-        'setup': empty
-    },
-
-    {
-        'type': 'Highlight',
-        'valid_kwargs': _valid_kwargs,
-        'setup': empty
-    },
-
-    {
-        'type': 'InputControl',
-        'valid_kwargs': _valid_kwargs,
-        'setup': empty
-    }
-]
+_customelements = load_components(component_suites_path, _valid_kwargs)
 
 _htmlelements = ['a', 'abbr', 'address', 'area', 'article', 'aside',
                  'audio', 'b', 'base', 'bdi', 'bdo', 'big', 'blockquote',
