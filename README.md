@@ -22,6 +22,12 @@ http://plotly-dash.herokuapp.com
         $ npm start
         $ open http://localhost:8080
 
+3. Start the python backend
+    - See [dash/README.md](./dash/README.md).
+
+Note that for `1.`, if you change any component propTypes, you need to restart
+the watch process (`ctrl-c`, `npm start`).
+
 #### Development
 
 1. A messy prototype has been written in [@chriddyp/messin](https://github.com/chriddyp/messin) with docs and examples deployed on heroku at http://plotly-dash.herokuapp.com. Also, [dashboards.ly](https://dashboards.ly) (code at [@plotly/dashboards.ly](https://github.com/plotly/dashboards.ly)) contains some drag-and-droppable and editable interaction that dash's edit mode should mimic.
