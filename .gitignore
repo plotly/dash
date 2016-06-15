@@ -1,6 +1,9 @@
 build/
+lib/
 node_modules/
 .npm
 vv/
 venv/
 *.pyc
+*.log
+.DS_Store

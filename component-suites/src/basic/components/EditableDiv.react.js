@@ -11,7 +11,7 @@ import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 
 // each suite might have its own set of Styles
-import Styles from './Styles';
+import Styles from '../Styles';
 
 const baseStyles = {
     color: Styles.colors.base,

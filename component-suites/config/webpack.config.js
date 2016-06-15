@@ -11,14 +11,7 @@ module.exports = {
     context: SRC,
     resolve: {
         // Need `''` so referencing modules by `name.js` works.
-        extensions: ['', '.js', '.jsx', '.json'],
+        extensions: ['', '.js', '.jsx'],
         modulesDirectories: ['node_modules']
-    },
-    // Support `request` node library
-    node: {
-        console: true,
-        fs: 'empty',
-        net: 'empty',
-        tls: 'empty'
     }
 };
