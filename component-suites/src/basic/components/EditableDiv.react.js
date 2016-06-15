@@ -1,12 +1,5 @@
-/*
- * Example of a pretty generic editable component.
- * These types of components would live in their own set of modules ("component suites").
- * This component illustrates how the `onPropUpdate` prop can be used
- */
-
-
 import R from 'ramda';
-import React, { PropTypes } from 'react';
+import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 
 // each suite might have its own set of Styles
@@ -20,9 +13,9 @@ const baseStyles = {
 }
 
 /**
- * A div for displaying text that can be editable.
+ * A div for displaying text. The text is editable.
  */
-export default class EditableDiv extends React.Component {
+export default class EditableDiv extends Component {
 
     constructor(props) {
         super(props);
