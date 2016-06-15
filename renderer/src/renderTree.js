@@ -13,7 +13,7 @@ export default function render(component, dependencyGraph, path=[]) {
 
     // Create list of child elements
     let children;
-    if (!R.has('children', component)) {
+    if (!R.has('children', component) || !component.children) {
         children = [];
     }
     else if (Array.isArray(component.children)) {
@@ -28,7 +28,7 @@ export default function render(component, dependencyGraph, path=[]) {
     // Create wrapping parent element
     const element = R.has(component.type, Registry)
         ? Registry[component.type]
-        : component.type;
+        : component.type; // TODO: check against React's registry - this may not be native component either
 
     const parent = React.createElement(
         element,
@@ -69,6 +69,12 @@ export default function render(component, dependencyGraph, path=[]) {
     if (
         component.props &&
         component.props.id &&
+        /*
+         * in case it isn't initalized yet -
+         * TODO: we should be able to remove this check
+         * with like a initialization status store or something
+         */
+        dependencyGraph.hasNode(component.props.id) &&
         dependencyGraph.dependantsOf(component.props.id)
     ) {
         return (

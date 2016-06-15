@@ -1,0 +1,15 @@
+click==6.6
+Flask==0.11
+Flask-Cors==2.1.2
+itsdangerous==0.24
+Jinja2==2.8
+MarkupSafe==0.23
+numpy==1.11.0
+pandas==0.18.1
+plotly==1.11.0
+python-dateutil==2.5.3
+pytz==2016.4
+requests==2.10.0
+six==1.10.0
+Werkzeug==0.11.10
+wheel==0.26.0
