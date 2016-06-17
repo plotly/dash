@@ -1,13 +1,5 @@
-/*
- * Example of a pretty generic editable component.
- * These types of components would live in their own set of modules ("component suites").
- * This component illustrates how the `onPropUpdate` prop can be used
- */
-
-
 import R from 'ramda';
-import Radium from 'radium';
-import React, { PropTypes } from 'react';
+import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 
 // each suite might have its own set of Styles
@@ -20,7 +12,10 @@ const baseStyles = {
     }
 }
 
-class EditableDiv extends React.Component {
+/**
+ * A div for displaying text. The text is editable.
+ */
+export default class EditableDiv extends Component {
 
     constructor(props) {
         super(props);
@@ -66,17 +61,31 @@ class EditableDiv extends React.Component {
 }
 
 EditableDiv.propTypes = {
-    // unique to this component
-    text: PropTypes.string.isRequired, // the displayed text of this component
-    style: PropTypes.object,           // the style of the text
 
-    // Passed in from the renderer
-    editable: PropTypes.bool,     // whether or not this component should be rendered as editable
-    updateProps: PropTypes.func   // function that updates the state tree
+    /**
+     * The displayed text of this component.
+     */
+    text: PropTypes.string.isRequired,
+
+    /**
+     * The style of the text.
+     */
+    style: PropTypes.object,
+
+    /**
+     * Whether or not this component should be rendered as editable.
+     * Passed in from renderer.
+     */
+    editable: PropTypes.bool,
+
+    /**
+     * Function that updates the state tree.
+     * Passed in from renderer.
+     */
+    updateProps: PropTypes.func.isRequired
 };
 
 EditableDiv.defaultProps = {
-    text: ''
+    style: {},
+    editable: false
 };
-
-export default Radium(EditableDiv);

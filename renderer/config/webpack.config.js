@@ -12,6 +12,7 @@ module.exports = {
     resolve: {
         // Need `''` so referencing modules by `name.js` works.
         extensions: ['', '.js', '.jsx', '.json'],
+        // Make default module directory explicit
         modulesDirectories: ['node_modules']
     },
     // Support `request` node library
