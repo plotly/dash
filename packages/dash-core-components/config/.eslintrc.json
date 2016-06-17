@@ -1,3 +1,5 @@
 {
-    "extends": "../../config/eslint/eslintrc-node.json"
+    // This is a little crazy - referencing `./` makes eslint look in the
+    // `node_modules` directory. This is a workaround for now:
+    "extends": "../config/eslint/eslintrc-node.json"
 }

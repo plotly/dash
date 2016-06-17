@@ -2,15 +2,20 @@
   "name": "dash-components-core",
   "version": "0.0.3",
   "description": "Core component suite for Dash2",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/plotly/dash-components-core.git"
+  },
   "main": "lib/basic/index.js",
   "scripts": {
     "clean-lib": "mkdir -p lib && rm -rf lib/*",
     "transpile-dev": "npm run clean-lib && npm run extract-metadata && babel --source-root ./src/ -d lib/ src/",
     "transpile-dev-watch": "npm run clean-lib && npm run extract-metadata && babel --watch --source-root ./src/ -d lib/ src/",
-    "build-dev": "webpack --config=config/webpack.config.dev.js",
+    "build-dev": "webpack --config=config/webpack/webpack.config.dev.js",
     "extract-metadata": "mkdir -p lib && react-docgen --pretty -o lib/metadata.json src/basic/components",
-    "dev": "webpack-dev-server --config=config/webpack.config.dev.js",
-    "lint": "eslint --quiet --fix --ignore-path ../.gitignore .",
+    "dev": "webpack-dev-server --config=config/webpack/webpack.config.dev.js",
+    "lint": "eslint --quiet --fix --ignore-path .gitignore .",
+    "prepublish": "npm test",
     "start": "npm run transpile-dev-watch",
     "test": "npm run lint"
   },
