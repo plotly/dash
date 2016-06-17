@@ -2,6 +2,10 @@
   "name": "dash",
   "version": "0.0.1",
   "description": "Create React data visualization UIs with python",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/plotly/dash2.git"
+  },
   "scripts": {
     "install-dash": "cd dash && pip install -r requirements.txt && cd -",
     "install-renderer": "cd renderer && npm i && cd -",
