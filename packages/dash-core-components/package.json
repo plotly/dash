@@ -1,6 +1,6 @@
 {
   "name": "dash-components-core",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Core component suite for Dash2",
   "main": "lib/basic/index.js",
   "scripts": {
