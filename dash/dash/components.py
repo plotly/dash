@@ -1,7 +1,7 @@
 import collections
 from component_loader import load_components
 
-component_suites_path = '../component-suites/lib/metadata.json';
+component_suites_path = '../renderer/node_modules/dash-components-core/lib/metadata.json';
 
 # Other valid react attributes include:
 # https://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
