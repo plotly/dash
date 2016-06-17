@@ -1,7 +1,7 @@
 'use strict';
 
 /* eslint-disable import/named */
-import { EditableDiv, Header, InputControl } from '../../component-suites/lib/basic';
+import { EditableDiv, Header, InputControl } from '../../node_modules/dash-components-core/lib/basic';
 /* eslint-enable import/named */
 
 import EditableContent from './components/core/EditableContent.react';
