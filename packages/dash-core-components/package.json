@@ -1,7 +1,7 @@
 {
-  "name": "component-suites",
-  "version": "0.0.1",
-  "description": "Component suites for Dash2",
+  "name": "dash-components-core",
+  "version": "0.0.2",
+  "description": "Core component suite for Dash2",
   "main": "lib/basic/index.js",
   "scripts": {
     "clean-lib": "mkdir -p lib && rm -rf lib/*",
