@@ -5,24 +5,37 @@
   "main": "lib/basic/index.js",
   "scripts": {
     "clean-lib": "mkdir -p lib && rm -rf lib/*",
-    "transpile-dev": "npm run clean-lib && npm run extract-metadata && ../node_modules/.bin/babel --source-root ./src/ -d lib/ src/",
-    "transpile-dev-watch": "npm run clean-lib && npm run extract-metadata && ../node_modules/.bin/babel --watch --source-root ./src/ -d lib/ src/",
-    "build-dev": "../node_modules/.bin/webpack --config=config/webpack.config.dev.js",
+    "transpile-dev": "npm run clean-lib && npm run extract-metadata && babel --source-root ./src/ -d lib/ src/",
+    "transpile-dev-watch": "npm run clean-lib && npm run extract-metadata && babel --watch --source-root ./src/ -d lib/ src/",
+    "build-dev": "webpack --config=config/webpack.config.dev.js",
     "extract-metadata": "mkdir -p lib && react-docgen --pretty -o lib/metadata.json src/basic/components",
-    "dev": "../node_modules/.bin/webpack-dev-server --config=config/webpack.config.dev.js",
-    "lint": "../node_modules/.bin/eslint --quiet --fix --ignore-path ../.gitignore .",
+    "dev": "webpack-dev-server --config=config/webpack.config.dev.js",
+    "lint": "eslint --quiet --fix --ignore-path ../.gitignore .",
     "start": "npm run transpile-dev-watch",
     "test": "npm run lint"
   },
   "author": "Per Nilsson <per@sproutlab.com>",
   "license": "MIT",
   "dependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-core": "^6.9.0",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-react": "^6.5.0",
+    "clean-webpack-plugin": "^0.1.9",
     "radium": "^0.17.1",
     "ramda": "^0.21.0",
     "react-docgen": "^2.8.2",
-    "react-dom": "^15.1.0"
+    "react-dom": "^15.1.0",
+    "webpack": "^1.13.1",
+    "webpack-partial": "^1.2.0"
   },
   "devDependencies": {
+    "babel-plugin-transform-es2015-modules-commonjs-simple": "^6.7.4",
+    "babel-preset-es2015-webpack": "^6.4.1",
+    "eslint": "^2.8.0",
+    "eslint-plugin-import": "^1.8.1",
+    "eslint-plugin-react": "^5.1.1",
     "react": "^15.1.0"
   }
 }
