@@ -10,23 +10,21 @@ http://plotly-dash.herokuapp.com
 
 #### Running the app locally
 
-1. Build the code in `component-suites/`
+1. Install dependencies
 
-        $ cd component-suites
-        $ npm start # Will run transpile-dev-watch and watch for changes!
+        # Install all dependencies by issuing from the project root:
+        $ npm install
 
 2. Run the development server
 
-        # In a different terminal:
         $ cd renderer
         $ npm start
-        $ open http://localhost:8080
 
 3. Start the python backend
     - See [dash/README.md](./dash/README.md).
 
-Note that for `1.`, if you change any component propTypes, you need to restart
-the watch process (`ctrl-c`, `npm start`).
+4. Open `http://localhost:8080` in your favorite browser for development.
+
 
 #### Development
 

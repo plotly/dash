@@ -11,12 +11,12 @@
     "lint": "../node_modules/.bin/eslint --quiet --fix --ignore-path ../.gitignore .",
     "server": "serv -p 8080 .",
     "start": "npm run hot",
-    "pretest": "cd ../component-suites && npm run transpile-dev && cd -",
     "test": "npm run lint"
   },
   "author": "chriddyp",
   "license": "MIT",
   "dependencies": {
+    "dash-components-core": "0.0.3",
     "dependency-graph": "^0.4.1",
     "immutable": "^3.8.1",
     "json-loader": "^0.5.4",
