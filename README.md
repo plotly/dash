@@ -432,16 +432,16 @@ The backend will be responsible for:
 - Providing an intuitive interface for registering and defining the dependency callbacks
 - Exposing the underlying `flask` server so that users can benefit from that ecosystem for things like HTTP Auth, etc.
 
-I think the interface presented in [@chriddyp/messin prototype](https://github.com/chriddyp/messin) (example: [http://ploty-dash.herokuapp.com](http://ploty-dash.herokuapp.com)) is really nice.
+I think the interface presented in [@chriddyp/messin prototype](https://github.com/chriddyp/messin) (example: [http://plotly-dash.herokuapp.com](http://plotly-dash.herokuapp.com)) is really nice.
 
 ##### Uncertainties
-- What do other folks think about the pythonic interface in example: [http://ploty-dash.herokuapp.com](http://ploty-dash.herokuapp.com)
+- What do other folks think about the pythonic interface in example: [http://plotly-dash.herokuapp.com](http://plotly-dash.herokuapp.com)
 - How will the registry of front-end components work?
 - Can we export `PropTypes` so that we can do back-end prop validation?
 - How can we distribute this via pip?
 - Where does the `index.html` and the `dash-bundle.js` go? How is it distributed? How do folks import (or bundle) their own JS? Do we create something like `yoeman` and template generators?
 - How can we make this work really nicely in jupyter (iframe)? How can that work with flask's `debug=True` auto-reloading magic?
-- How should we support multi-page apps? [http://ploty-dash.herokuapp.com](http://ploty-dash.herokuapp.com) is actually a dash app itself, but I *think* supporting multiple pages became sort of messy
+- How should we support multi-page apps? [http://plotly-dash.herokuapp.com](http://plotly-dash.herokuapp.com) is actually a dash app itself, but I *think* supporting multiple pages became sort of messy
 
 ### G - Deployment
 - We can save and serve the `layout.json` through Plotly's API
