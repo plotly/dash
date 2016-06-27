@@ -1,6 +1,0 @@
-dependencies:
-    post:
-        - cd renderer/src/ && npm i
-test:
-    override:
-        - cd renderer/src/ && npm run test
