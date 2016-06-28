@@ -16,7 +16,7 @@
   "author": "chriddyp",
   "license": "MIT",
   "dependencies": {
-    "dash-components-core": "0.0.3",
+    "dash-core-components": "^0.0.4",
     "dependency-graph": "^0.4.1",
     "immutable": "^3.8.1",
     "json-loader": "^0.5.4",
