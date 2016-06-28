@@ -9,4 +9,4 @@ const palette = {
 
 export default {
     colors: palette
-}
+};

@@ -1,5 +1,3 @@
-'use strict';
-
 import React, {Component, PropTypes} from 'react';
 
 /**
@@ -7,7 +5,7 @@ import React, {Component, PropTypes} from 'react';
  */
 class Header extends Component {
     render() {
-        return <h2>Hello, {this.props.name}</h2>;
+        return <h2>Hello, {this.props.name}</h2>
     }
 }
 

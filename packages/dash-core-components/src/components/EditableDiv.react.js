@@ -10,7 +10,7 @@ const baseStyles = {
     ':hover': {
         color: Styles.colors.baseHover
     }
-}
+};
 
 /**
  * A div for displaying text. The text is editable.
@@ -18,12 +18,12 @@ const baseStyles = {
 export default class EditableDiv extends Component {
 
     constructor(props) {
-        super(props);
-        this.state = {inEditMode: false};
+        super(props)
+        this.state = {inEditMode: false}
     }
 
     componentDidUpdate() {
-        if (this.state.inEditMode) ReactDOM.findDOMNode(this.refs.input).focus();
+        if (this.state.inEditMode) ReactDOM.findDOMNode(this.refs.input).focus()
     }
 
     render() {
@@ -43,18 +43,18 @@ export default class EditableDiv extends Component {
                         onBlur={() => this.setState({inEditMode: false})}
                     />
                 </div>
-            );
+            )
         }
         else {
             return (
                 <div style={R.merge(baseStyles, this.props.style)}
                      onClick={() => {
-                        if (this.props.editable) this.setState({inEditMode: true});
+                        if (this.props.editable) this.setState({inEditMode: true})
                     }}
                 >
                     {this.props.text}
                 </div>
-            );
+            )
         }
     }
 
