@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { notifyObservers, updateProps } from '../../actions';
 
 /*
- * NotifyObservers passes a connected notifyObservers handler down to
+ * NotifyObservers passes a connected `valueChanged` handler down to
  * its child as a prop
  */
 
@@ -12,12 +12,12 @@ const mapStateToProps = () => ({});
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        notifyObservers: (updatedProps) => {
+        valueChanged: (newProps) => {
             const payload = {
-                updatedProps, // pass in the entire prop object or just updates?
-
                 // we *need* the ID, should we just pass / merge everything in?
                 id: React.Children.only(ownProps.children).props.id,
+                // TODO pass in the entire prop object or just updates?
+                props: newProps,
                 itempath: React.Children.only(ownProps.children).props.path
             };
 
@@ -31,13 +31,13 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     }
 };
 
-const NotifyObservers = ({ notifyObservers, children }) => {
-    // pass notifyObservers as props to the child element e.g. an <input>
-    return React.cloneElement(children, {notifyObservers});
+const NotifyObservers = ({ valueChanged, children }) => {
+    // pass `valueChanged` handler as prop to the child element e.g. an <input>
+    return React.cloneElement(children, {valueChanged});
 }
 
 NotifyObservers.propTypes = {
-    notifyObservers: PropTypes.func.isRequired
+    valueChanged: PropTypes.func.isRequired
 };
 
 export default connect(

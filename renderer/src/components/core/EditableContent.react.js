@@ -10,29 +10,29 @@ import { updateProps } from '../../actions'
 
 /* eslint-disable no-unused-vars */
 const mapStateToProps = (state, ownProps) => {
-  return {}
+    return {}
 }
 /* eslint-enable no-unused-vars */
 
 const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
-    updateProps: (newProps) => {
-        console.warn('newProps: ', newProps); // eslint-disable-line
-        dispatch(updateProps({
-            props: newProps,
-            itempath: React.Children.only(ownProps.children).props.path
-        }));
+    return {
+        valueChanged: (newProps) => {
+            console.warn('newProps: ', newProps); // eslint-disable-line
+            dispatch(updateProps({
+                props: newProps,
+                itempath: React.Children.only(ownProps.children).props.path
+            }));
+        }
     }
-  }
 }
 
-const EditableContent = ({ updateProps, children }) => {
-    // pass updateProps as props to the child element e.g. an <input>
-    return React.cloneElement(children, {updateProps});
+const EditableContent = ({valueChanged, children}) => {
+    // pass `valueChanged` handler as prop to the child element e.g. an <input>
+    return React.cloneElement(children, {valueChanged});
 };
 
 EditableContent.propTypes = {
-    updateProps: PropTypes.func.isRequired
+    valueChanged: PropTypes.func.isRequired
 };
 
 export default connect(
