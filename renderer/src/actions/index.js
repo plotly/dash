@@ -38,6 +38,7 @@ export const initialize = function() {
 }
 
 // TODO: make the actual POST
+// TODO: Consider moving side effects to reducers via https://github.com/gregwebs/redux-side-effect
 export const notifyObservers = function(payload) {
     return function (dispatch, getState) {
         const {
