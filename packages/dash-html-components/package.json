@@ -1,0 +1,27 @@
+{
+  "name": "dash-html-components",
+  "version": "0.0.1",
+  "description": "Vanilla HTML components for Dash",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plotly/dash-html-components.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/plotly/dash-html-components/issues"
+  },
+  "homepage": "https://github.com/plotly/dash-html-components",
+  "scripts": {
+    "start": "builder run transpile-dev-watch",
+    "test": "builder run check"
+  },
+  "dependencies": {
+    "builder": "2.10.1",
+    "dash-components-archetype": "^0.1.3",
+    "react": "^15.1.0"
+  },
+  "devDependencies": {
+    "dash-components-archetype-dev": "^0.1.3"
+  }
+}
