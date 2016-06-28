@@ -1,10 +1,10 @@
 {
-  "name": "dash-components-core",
+  "name": "dash-core-components",
   "version": "0.0.3",
   "description": "Core component suite for Dash2",
   "repository": {
     "type": "git",
-    "url": "git://github.com/plotly/dash-components-core.git"
+    "url": "git://github.com/plotly/dash-core-components.git"
   },
   "main": "lib/index.js",
   "scripts": {

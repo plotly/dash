@@ -18,7 +18,7 @@ to test your components is by linking into `dash2` and testing them from there.
 2. Link module into `dash2` project
 
         # In the `dash2/renderer` project directory:
-        $ npm link dash-components-core
+        $ npm link dash-core-components
 
 Now you should be able to restart the webpack process (in `dash2/renderer`:
 `ctrl-c`, `npm start`), after which webpack will automatically pick up new
@@ -40,4 +40,4 @@ $ npm publish
 ```
 
 [Dash2]: https://github.com/plotly/dash2
-[NPM package authors]: https://www.npmjs.com/package/dash-components-core/access
+[NPM package authors]: https://www.npmjs.com/package/dash-core-components/access
