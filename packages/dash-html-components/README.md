@@ -16,6 +16,19 @@ $ npm install
 $ npm start
 ```
 
+## Generating HTML Components
+
+The components in `src/components`, as well as the export index in
+`src/index.js` are programmatically generated from element definitions in
+`scripts/`. To regenerate:
+
+```sh
+cd scripts
+node generate-components.js ./block-elements.txt
+node generate-components.js ./inline-elements.txt
+node generate-index.js
+```
+
 ## Development
 
 We don't yet have a dev server with demo capabilities. The best way to test
@@ -38,6 +51,21 @@ Now you should be able to restart the webpack process (in `dash2/renderer`:
 `ctrl-c`, `npm start`), after which webpack will automatically pick up new
 changes to the component suite.
 
+## Publishing
+
+Ask @coopy or @chriddyp to be added to the [NPM package authors][].
+
+```sh
+# Bump the package version
+$ npm version major|minor|patch
+
+# Push branch and tags to repo
+$ git push --follow-tags
+
+# Publish to NPM (will run tests as a pre-publish step)
+$ npm publish
+```
+
 ## Builder / Archetype
 
 We use [Builder][] to centrally manage build configuration, dependencies, and
@@ -47,3 +75,5 @@ scripts. See the [dash-components-archetype][] repo for more information.
 [Builder]: https://github.com/FormidableLabs/builder
 [Dash]: https://github.com/plotly/dash2
 [dash-components-archetype]: https://github.com/plotly/dash-components-archetype
+[NPM package authors]: https://www.npmjs.com/package/dash-html-components/access
+
