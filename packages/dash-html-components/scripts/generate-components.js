@@ -55,6 +55,31 @@ export default ${Component};
     `;
 }
 
+/**
+ * Generate an object with Component names as keys, component definitions as
+ * values
+ */
+function generateComponents(list, attributes) {
+    return list.reduce((componentMap, element) => {
+        const Component = upperCase(element);
+        componentMap[Component] = generateComponent(Component, element, attributes);
+        return componentMap;
+    }, {});
+}
+
+/**
+ * Writes component definitions to disk.
+ */
+function writeComponents(components, destination) {
+    console.log(`Writing ${Object.keys(components).length} component files to ${srcPath}.`);
+    let componentPath;
+    for (let Component in components) {
+        componentPath = path.join(destination, `${Component}.react.js`);
+        fs.writeFileSync(componentPath, components[Component]);
+    }
+}
+
+
 // Get first command-line argument
 const listPath = process.argv[2];
 
@@ -71,17 +96,8 @@ const list = fs
 // Get the mapping of attributes to elements
 const attributes = JSON.parse(fs.readFileSync(attributesPath, 'utf-8'));
 
-// Generate an object with Component names as keys, component definitions as values
-const components = list.reduce((componentMap, element) => {
-    const Component = upperCase(element);
-    componentMap[Component] = generateComponent(Component, element, attributes);
-    return componentMap;
-}, {});
+const components = generateComponents(list, attributes);
 
-let componentPath;
-console.log(`Writing ${Object.keys(components).length} component files to ${srcPath}.`);
-for (let Component in components) {
-    componentPath = path.join(srcPath, `${Component}.react.js`);
-    fs.writeFileSync(componentPath, components[Component]);
-}
+writeComponents(components, srcPath);
+
 console.log('Done.');
