@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const srcPath = '../src/components';
+const attributesPath = './data/attributes.json';
 
 function bail(message) {
     console.error('Error: ' + message);
@@ -18,15 +19,37 @@ function upperCase(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function generateComponent(Component, element) {
+function generatePropTypes(element, attributes) {
+    const supportedAttributes = attributes.elements[element] || attributes.elements.Globalattribute;
+    const numAttributes = supportedAttributes.length;
+
+    return supportedAttributes.reduce((propTypes, attributeName, index) => {
+        const attribute = attributes.attributes[attributeName];
+
+        return propTypes + `
+
+    /**
+     * ${attribute.description}
+     */
+    '${attributeName}': PropTypes.string${index < numAttributes - 1 ? ',' : ''}
+        `;
+    }, '');
+}
+
+function generateComponent(Component, element, attributes) {
+    const propTypes = generatePropTypes(element, attributes);
+
     return `
-import React from 'react';
+import React, {PropTypes} from 'react';
 
 const ${Component} = (props) => (
-    <${element}>
+    <${element} {...props}>
         {props.children}
     </${element}>
 );
+
+${Component}.propTypes = {${propTypes}
+};
 
 export default ${Component};
     `;
@@ -45,10 +68,13 @@ const list = fs
     .split('\n')
     .filter(item => !!item);
 
+// Get the mapping of attributes to elements
+const attributes = JSON.parse(fs.readFileSync(attributesPath, 'utf-8'));
+
 // Generate an object with Component names as keys, component definitions as values
 const components = list.reduce((componentMap, element) => {
     const Component = upperCase(element);
-    componentMap[Component] = generateComponent(Component, element);
+    componentMap[Component] = generateComponent(Component, element, attributes);
     return componentMap;
 }, {});
 

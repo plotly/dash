@@ -3,6 +3,7 @@ const cheerio = require('cheerio');
 const request = require('request');
 
 const htmlURL = 'https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes';
+const dataPath = './data/attributes.json';
 
 /**
  * From the MDN attributes reference, extract a map of attributes with
@@ -20,12 +21,20 @@ function extractAttributes($) {
             .split(',');
         const description = $children.eq(2).text()
             .replace(/\n/g, '')
+            // Fix irregular whitespace characters
+            .replace(' ', ' ')
             .trim();
+
+        // Skip `data-*` attributes
+        if (attribute.indexOf('data') === 0) {
+            return true;
+        }
 
         attributes[attribute] = {
             elements,
             description
         };
+
     });
 
     return attributes;
@@ -63,6 +72,6 @@ request(htmlURL, (error, response, html) => {
         elements
     };
 
-    fs.writeFileSync('./attributes.json', JSON.stringify(out));
+    fs.writeFileSync(dataPath, JSON.stringify(out));
 });
 
