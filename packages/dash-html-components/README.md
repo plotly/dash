@@ -24,8 +24,9 @@ The components in `src/components`, as well as the export index in
 
 ```sh
 cd scripts
-node generate-components.js ./block-elements.txt
-node generate-components.js ./inline-elements.txt
+node extract-attributes.js
+node generate-components.js data/block-elements.txt
+node generate-components.js data/inline-elements.txt
 node generate-index.js
 ```
 
