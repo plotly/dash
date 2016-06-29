@@ -3,16 +3,16 @@ import time
 import random
 
 from dash.react import Dash
-from dash.components import div, p, InputControl
+from dash.components import Div, P, InputControl
 
 dash = Dash(__name__)
 
-dash.layout = div([
-    p('basic <p> component'),
-    div([
-        div('B, C, D, depend on A'),
-        div('E depends on B and C'),
-        div('F depends on A and D')
+dash.layout = Div([
+    P('basic <p> component'),
+    Div([
+        Div('B, C, D, depend on A'),
+        Div('E depends on B and C'),
+        Div('F depends on A and D')
     ], style=dict(fontSize=14)),
 
     InputControl(placeholder='A', id='A'),
