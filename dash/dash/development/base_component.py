@@ -1,13 +1,4 @@
 import collections
-from component_loader import load_components
-
-component_suites_paths = [
-    '../renderer/node_modules/dash-core-components/lib/metadata.json',
-    '../renderer/node_modules/dash-html-components/lib/metadata.json'
-];
-
-# Other valid react attributes include:
-# https://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
 
 # TODO: Resolve conflict with attributes defined in `dash-html-components`
 supported_react_attributes = [
@@ -30,8 +21,6 @@ supported_react_attributes = [
     'selected', 'shape', 'size', 'sizes', 'span', 'spellCheck',
     'srcDoc', 'srcSet', 'start', 'step', 'tabIndex', 'target',
     'title', 'type', 'useMap', 'value', 'wmode']
-# TODO: add `label` back - it conflicts with the actual html element type I think
-
 
 class Component(collections.MutableSequence):
     def __init__(self, **kwargs):
@@ -157,42 +146,5 @@ def generate_class(typename, args, setup):
     namespace = {'Component': Component, 'setup': setup}
     exec d in namespace
     result = namespace[typename]
-    result.__module__ = sys._getframe(1).f_globals.get('__name__', '__main__')
+    # result.__module__ = sys._getframe(1).f_globals.get('__name__', '__main__')
     return result
-
-
-def empty(self):
-    pass
-
-
-def init_dropdown(self):
-    if self.selected is None:
-        self.selected = self.options[0]['val']
-
-
-_valid_kwargs = ['content', 'id', 'className', 'style', 'dependencies']
-
-# Load in external component suites and generate classes for them
-_component_suites = [load_components(path, _valid_kwargs) for path in component_suites_paths]
-
-for suite in _component_suites:
-    for _c in suite:
-        globals()[_c['type']] = generate_class(_c['type'],
-                                           _c['valid_kwargs'],
-                                           _c['setup'])
-
-
-def gen_table(rows, header=[]):
-    tbl = table([
-        thead([
-            tr([
-                th(h) for h in header
-            ])
-        ]),
-        tbody([
-            tr([
-                td(cell) for cell in row
-            ]) for row in rows
-        ])
-    ])
-    return tbl
