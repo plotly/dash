@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr" class="redesign no-js"  data-ffo-opensanslight=false data-ffo-opensans=false >
+<head prefix="og: http://ogp.me/ns#">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <script>(function(d) { d.className = d.className.replace(/\bno-js/, ''); })(document.documentElement);</script>
+
+
+
+
+
+  <title>HTML attribute reference - HTML | MDN</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index, follow">
+  <link rel="home" href="/en-US/">
+  <link rel="copyright" href="#copyright">
+
+
+
+
+    <link href="https://developer.cdn.mozilla.net/static/build/styles/mdn.593f20d8c365.css" rel="stylesheet" type="text/css" />
+
+
+
+    <link href="https://developer.cdn.mozilla.net/static/build/styles/wiki.328342d23d10.css" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+  <!-- common social tags -->
+
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://developer.cdn.mozilla.net/static/img/opengraph-logo.dc4e08e2f6af.png">
+  <meta property="og:site_name" content="Mozilla Developer Network">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:image" content="https://developer.cdn.mozilla.net/static/img/opengraph-logo.dc4e08e2f6af.png">
+  <meta name="twitter:site" content="@MozDevNet">
+  <meta name="twitter:creator" content="@MozDevNet">
+
+  <link rel="search" type="application/opensearchdescription+xml" href="https://developer.mozilla.org/en-US/search/xml" title="Mozilla Developer Network">
+
+  <!-- third-generation iPad with high-resolution Retina display: -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://developer.cdn.mozilla.net/static/img/favicon144.a6e4162070f4.png">
+  <!-- iPhone with high-resolution Retina display: -->
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://developer.cdn.mozilla.net/static/img/favicon114.0e9fabd44f85.png">
+  <!-- first- and second-generation iPad: -->
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://developer.cdn.mozilla.net/static/img/favicon72.8ff9d87c82a0.png">
+  <!-- non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
+  <link rel="apple-touch-icon-precomposed" href="https://developer.cdn.mozilla.net/static/img/favicon57.a2490b9a2d76.png">
+  <!-- basic favicon -->
+
+
+
+  <link rel="shortcut icon" href="https://developer.cdn.mozilla.net/static/img/favicon32.e02854fdcf73.png">
+  <!--[if IE]>
+  <meta http-equiv="imagetoolbar" content="no">
+  <script type="text/javascript" src="https://developer.cdn.mozilla.net/static/build/js/html5shiv.3948ccddab6f.js" charset="utf-8"></script>
+  <![endif]-->
+
+
+  <link rel="alternate" type="application/json" href="/en-US/docs/Web/HTML/Attributes$json">
+  <link rel="canonical" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes" >
+
+
+
+      <link rel="alternate" hreflang="bn-BD" href="/bn-BD/docs/Web/HTML/Attributes" title="HTML অ্যাট্রিবিউট রেফারেন্স">
+
+      <link rel="alternate" hreflang="es" href="/es/docs/Web/HTML/Atributos" title="Guía de Referencia de Atributos HTML">
+
+      <link rel="alternate" hreflang="fa" href="/fa/docs/HTML/Attributes" title="مرجع صفتهای HTML">
+
+      <link rel="alternate" hreflang="fr" href="/fr/docs/Web/HTML/Attributes" title="Liste des attributs HTML">
+
+      <link rel="alternate" hreflang="it" href="/it/docs/Web/HTML/Attributi" title="Attributi">
+
+      <link rel="alternate" hreflang="ja" href="/ja/docs/Web/HTML/Attributes" title="属性 (HTML)">
+
+      <link rel="alternate" hreflang="ko" href="/ko/docs/Web/HTML/Attributes" title="HTML attribute reference">
+
+      <link rel="alternate" hreflang="ms" href="/ms/docs/HTML/Sifat-sifat" title="Sifat-sifat">
+
+      <link rel="alternate" hreflang="pt-BR" href="/pt-BR/docs/HTML/Attributes" title="Atributos">
+
+      <link rel="alternate" hreflang="ro" href="/ro/docs/Web/HTML/Atribute" title="Referință de atribute HTML">
+
+      <link rel="alternate" hreflang="ru" href="/ru/docs/Web/HTML/Attributes" title="Справочная информация по HTML атрибутам">
+
+      <link rel="alternate" hreflang="zh-CN" href="/zh-CN/docs/Web/HTML/Attributes" title="HTML 属性参考">
+
+      <link rel="alternate" hreflang="zh-TW" href="/zh-TW/docs/Web/HTML/Attributes" title="HTML attribute reference">
+
+
+
+  <!-- document-specific social tags -->
+  <meta property="og:title" content="HTML attribute reference">
+  <meta property="og:url" content="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes">
+  <meta name="twitter:url" content="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes">
+  <meta name="twitter:title" content="HTML attribute reference">
+
+  <meta property="og:description" content="Elements in HTML have attributes ; these are additional values that configure the elements or adjust their behavior in various ways to meet the criteria the users want.">
+  <meta name="description" content="Elements in HTML have attributes ; these are additional values that configure the elements or adjust their behavior in various ways to meet the criteria the users want.">
+  <meta name="twitter:description" content="Elements in HTML have attributes ; these are additional values that configure the elements or adjust their behavior in various ways to meet the criteria the users want.">
+
+
+
+
+
+
+<script type="text/javascript">
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-36116321-5', 'mozilla.org');
+    ga('set', 'anonymizeIp', true);
+
+
+
+    // dimension9 == "Section editing"
+
+
+    (function() {
+        // http://cfsimplicity.com/61/removing-analytics-clutter-from-campaign-urls
+        var win = window;
+        var removeUtms = function(){
+            var location = win.location;
+            if (location.href.indexOf('utm') != -1 && win.history.replaceState) {
+                win.history.replaceState({}, '', location.pathname);
+            }
+        };
+
+        ga('send', 'pageview', {'hitCallback': removeUtms});
+    })();
+</script>
+
+
+</head>
+<body data-slug="Web/HTML/Attributes" contextmenu="edit-history-menu" data-search-url="" class="document  ">
+
+  <script type="text/javascript">
+    (function(win) {
+        'use strict';
+
+
+            (function(){
+  var FLAGS = {
+    'compat_api': false,'kumaediting': false,'page_move': false,'registration_disabled': false,'search_suggestions': false,'section_edit': false,'spam_admin_override': false,'spam_checks_enabled': true,'spam_spammer_override': false,'spam_submissions_enabled': false,'spam_testing_mode': false,'wiki_samples': true,'wiki_spam_exempted': false,'wiki_spam_training': false
+    },
+    SWITCHES = {
+    'wiki_error_on_delete': false,'wiki_force_immediate_rendering': false,'enable_optimizely': false,'welcome_email': true,'application_ACAO': true,'store_revision_ips': true,'dumb_doc_urls': true
+    },
+    SAMPLES = {
+
+    };
+  window.waffle = {
+    "flag_is_active": function waffle_flag(flag_name) {
+
+      return !!FLAGS[flag_name];
+    },
+    "switch_is_active": function waffle_switch(switch_name) {
+
+      return !!SWITCHES[switch_name];
+    },
+    "sample_is_active": function waffle_sample(sample_name) {
+
+      return !!SAMPLES[sample_name];
+    },
+    "FLAGS": FLAGS,
+    "SWITCHES": SWITCHES,
+    "SAMPLES": SAMPLES
+  };
+})();
+
+
+
+        // This needs to be set before ckeditor.js loads
+        window.CKEDITOR_BASEPATH = '/static/js/libs/ckeditor/build/ckeditor/';
+
+        // This represents the site configuration
+        win.mdn = {
+            // Properties and settings for CKEditor will go here
+            ckeditor: {},
+            // Feature test results and methods will be placed here
+            features: {},
+            // The path to static assets (images, CSS, JS) in MDN
+            staticPath: 'https://developer.cdn.mozilla.net/static/',
+            // Optimizely API
+            optimizely: win['optimizely'] || [],
+            // Site notifications
+
+            notifications: [],
+
+            // Wiki-specific settings will be placed here
+            wiki: {
+                autosuggestTitleUrl: '/en-US/docs/get-documents'
+            },
+            // Assets that need to be dynamically injected
+            assets: {
+                css: {
+                    'editor-content': ['https://developer.cdn.mozilla.net/static/build/styles/editor-content.ac1d619a5cc3.css',],
+                    'wiki-compat-tables': ['https://developer.cdn.mozilla.net/static/build/styles/wiki-compat-tables.f3a3bfce97a1.css',]
+                },
+                js: {
+                    'syntax-prism': ['https://developer.cdn.mozilla.net/static/build/js/syntax-prism.7a66ddfa68bf.js',],
+                    'wiki-compat-tables': ['https://developer.cdn.mozilla.net/static/build/js/wiki-compat-tables.14ce5dcb2c3d.js',]
+                }
+            }
+        };
+    })(this);
+</script>
+
+
+
+  <ul id="nav-access">
+    <li><a href="#document-main" id="skip-main">Skip to main content</a></li>
+    <li><a id="skip-language" href="#language">Select language</a></li>
+
+      <li><a href="#q" id="skip-search">Skip to search</a></li>
+
+  </ul>
+
+  <!-- Header -->
+  <header id="main-header"><div class="center">
+
+    <div id="tabzilla">
+        <a href="//www.mozilla.org/" class="no-track">mozilla</a>
+    </div>
+
+    <div class="clear header-clear"></div>
+
+
+    <a href="/en-US/" class="logo">Mozilla Developer Network</a>
+
+
+    <div id="nav-sec">
+
+                  <ul>
+                  <li>
+
+
+
+    <form>
+      <div class="oauth-login-container">
+          <div class="oauth-login-options" tabIndex="0">
+              <span class="oauth-login-options-text">
+                Sign in
+              </span>
+              <span class="oauth-icon oauth-github" data-service="GitHub" data-href="/users/github/login/?next=%2Fen-US%2Fdocs%2FWeb%2FHTML%2FAttributes" title="GitHub"><i class="icon-github" aria-hidden="true"></i></span>
+              <span class="oauth-icon oauth-persona launch-persona-login wait-for-persona disabled" data-service="Persona" data-next="/en-US/docs/Web/HTML/Attributes" title="Persona"><i class="icon-user" aria-hidden="true"></i></span>
+          </div>
+          <div class="oauth-login-picker" aria-hidden="true">
+              <ul>
+                  <li class="wait-for-persona disabled"><a href="/en-US/users/signin" class="login-link launch-persona-login" data-next="/en-US/docs/Web/HTML/Attributes" data-service="Persona"><i class="icon-user" aria-hidden="true"></i>Persona</a></li>
+                  <li><a href="/users/github/login/?next=%2Fen-US%2Fdocs%2FWeb%2FHTML%2FAttributes" class="login-link" data-service="GitHub"><i class="icon-github" aria-hidden="true"></i>GitHub</a></li>
+              </ul>
+
+          </div>
+      </div>
+    </form>
+</li>
+                </ul>
+
+    </div>
+
+    <nav id="main-nav" role="navigation"><ul><li><a href="/en-US/docs/Web">Web Platform<i aria-hidden="true" class="icon-caret-down"></i></a>
+
+        <div class="submenu submenu-cols-2 js-submenu" id="nav-platform-submenu">
+          <div class="submenu-column">
+            <div class="title">Technologies</div>
+            <ul>
+              <li><a href="/en-US/docs/Web/HTML">HTML</a></li>
+              <li><a href="/en-US/docs/Web/CSS">CSS</a></li>
+              <li><a href="/en-US/docs/Web/JavaScript">JavaScript</a></li>
+              <li><a href="/en-US/docs/Web/Guide/Graphics">Graphics</a></li>
+              <li><a href="/en-US/docs/Web/API">APIs / DOM</a></li>
+              <li><a href="/en-US/docs/Web/Apps">Apps</a></li>
+              <li><a href="/en-US/docs/Web/MathML">MathML</a></li>
+            </ul>
+          </div><div class="submenu-column last">
+            <div class="title">References & Guides</div>
+            <ul>
+              <li><a href="/en-US/docs/Learn">Learn the Web</a></li>
+              <li><a href="/en-US/docs/Web/Tutorials">Tutorials</a></li>
+              <li><a href="/en-US/docs/Web/Reference">References</a></li>
+              <li><a href="/en-US/docs/Web/Guide">Developer Guides</a></li>
+              <li><a href="/en-US/docs/Web/Accessibility">Accessibility</a></li>
+              <li><a href="/en-US/docs/Web">...more docs</a></li>
+            </ul>
+          </div>
+        </div>
+      </li><li><a href="/en-US/docs/Zones">Mozilla Docs<i aria-hidden="true" class="icon-caret-down"></i></a>
+
+        <div class="submenu js-submenu" id="nav-zones-submenu">
+          <div class="submenu-column">
+            <ul>
+              <li><a href="/en-US/docs/Mozilla/Add-ons">Add-ons</a></li>
+              <li><a href="/en-US/docs/Mozilla/Firefox">Firefox</a></li>
+              <li><a href="/en-US/docs/Mozilla/Marketplace">Firefox Marketplace</a></li>
+              <li><a href="/en-US/docs/Mozilla/B2G_OS">B2G OS</a></li>
+              <li><a href="/en-US/docs/Persona">Persona</a></li>
+            </ul>
+          </div>
+        </div>
+      </li><li><a href="/en-US/docs/Tools">Developer Tools</a></li><li><a href="/en-US/docs/MDN/Feedback">Feedback<i aria-hidden="true" class="icon-caret-down"></i></a>
+
+        <div class="submenu js-submenu" id="nav-contact-submenu">
+          <div class="submenu-column">
+            <ul>
+                <li><a href="https://support.mozilla.org/">Get Firefox help<i aria-hidden="true" class="icon-external-link"></i></a></li>
+                <li><a href="http://stackoverflow.com/">Get web development help<i aria-hidden="true" class="icon-external-link"></i></a></li>
+            </ul>
+            <ul>
+              <li><a href="/en-US/docs/MDN/Community">Join the MDN community</a></li>
+              <li><a href="https://bugzilla.mozilla.org/form.doc">Report a content problem<i aria-hidden="true" class="icon-external-link"></i></a></li>
+              <li><a href="https://bugzilla.mozilla.org/form.mdn">Report a bug<i aria-hidden="true" class="icon-external-link"></i></a></li>
+            </ul>
+          </div>
+        </div>
+
+      </li><li class="nav-search-link"><a href="/en-US/search" title="Search"><i aria-hidden="true" class="icon-search"></i></a></li><li class="main-nav-search"><form action="/en-US/search" method="get" role="search">
+        <div class="search-wrap">
+          <label for="main-q" class="offscreen">Search</label>
+          <input type="search" id="main-q" name="q" placeholder="Search" data-value="" value="" />
+          <span class="search-trigger"><i aria-hidden="true" class="icon-search"></i></span>&nbsp;
+          <button type="submit" class="offscreen">Search</button>
+        </div>
+      </form></li></ul></nav>
+  </div></header>
+
+  <!-- Content will go here -->
+  <main id="content"><div class="center clear">
+
+
+   <!-- end is_zone -->
+
+
+    <div class="wiki-main-content" id="document-main"><div class="center">
+
+      <div class="article-meta">
+        <!-- action buttons -->
+
+
+
+
+
+
+
+
+
+
+
+
+  <ul class="page-buttons" data-sticky="false">
+
+      <li><button id="languages-menu" class="transparent" aria-haspopup="true" aria-owns="languages-menu-submenu" aria-expanded="false"><span>Languages</span><i aria-hidden="true" class="icon-language"></i></button>
+
+        <div class="submenu js-submenu" id="languages-menu-submenu">
+          <div class="submenu-column">
+            <ul id="translations">
+
+
+                  <li><bdi><a rel="internal" href="/bn-BD/docs/Web/HTML/Attributes" title="HTML অ্যাট্রিবিউট রেফারেন্স">বাংলা (বাংলাদেশ)</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/es/docs/Web/HTML/Atributos" title="Guía de Referencia de Atributos HTML">Español</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/fa/docs/HTML/Attributes" title="مرجع صفتهای HTML">فارسی</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/fr/docs/Web/HTML/Attributes" title="Liste des attributs HTML">Français</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/it/docs/Web/HTML/Attributi" title="Attributi">Italiano</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/ja/docs/Web/HTML/Attributes" title="属性 (HTML)">日本語</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/ko/docs/Web/HTML/Attributes" title="HTML attribute reference">한국어</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/ms/docs/HTML/Sifat-sifat" title="Sifat-sifat">Melayu</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/pt-BR/docs/HTML/Attributes" title="Atributos">Português (do Brasil)</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/ro/docs/Web/HTML/Atribute" title="Referință de atribute HTML">Română</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/ru/docs/Web/HTML/Attributes" title="Справочная информация по HTML атрибутам">Русский</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/zh-CN/docs/Web/HTML/Attributes" title="HTML 属性参考">中文 (简体)</a></bdi></li>
+
+                  <li><bdi><a rel="internal" href="/zh-TW/docs/Web/HTML/Attributes" title="HTML attribute reference">正體中文 (繁體)</a></bdi></li>
+
+
+
+
+                <li><a href="/en-US/docs/Web/HTML/Attributes$locales" rel="nofollow, noindex" id="translations-add">Add a translation</a></li>
+
+            </ul>
+          </div>
+        </div>
+      </li>
+
+      <li class="page-buttons-edit"><a href="/en-US/docs/Web/HTML/Attributes$edit" class="button" data-optimizely-hook="button-edit-doc" id="edit-button">Edit<i aria-hidden="true" class="icon-pencil"></i></a></li>
+
+
+
+        <li><button id="advanced-menu" class="only-icon" aria-haspopup="true" aria-owns="advanced-menu-submenu" aria-expanded="false"><span>Advanced</span><i aria-hidden="true" class="icon-cog"></i></button>
+        <div class="submenu js-submenu" id="advanced-menu-submenu">
+          <!-- this page -->
+          <div class="submenu-column">
+            <div class="title">Advanced</div>
+            <ul>
+                <li><a href="/en-US/docs/Web/HTML/Attributes$history" rel="nofollow, noindex">History</a></li>
+
+
+
+
+
+
+
+
+
+
+
+                <li class="page-print"><a href="#" onclick="return window.print();">Print this article</a></li>
+            </ul>
+          </div>
+        </div>
+  </li></ul>
+
+        <!-- crumbs -->
+
+  <nav class="crumbs" role="navigation"><ol xmlns:v="http://rdf.data-vocabulary.org/#" aria-label="breadcrumbs">
+    <li typeof="v:Breadcrumb"><a href="/en-US" rel="v:url" property="v:title">MDN</a></li>
+
+      <li class="crumb" typeof="v:Breadcrumb"><a href="/en-US/docs/Web" rel="v:url" property="v:title">Web technology for developers</a></li>
+
+      <li class="crumb" typeof="v:Breadcrumb"><a href="/en-US/docs/Web/HTML" rel="v:url" property="v:title">HTML</a></li>
+
+    <li class="crumb" typeof="v:Breadcrumb" property="v:title">HTML attribute reference</li>
+  </ol></nav>
+      </div>
+
+      <!-- heading -->
+      <div id="wiki-document-head" class="document-head">
+          <span class="from-search-previous-box">
+            <a class="button from-search-previous only-icon disabled" title="Previous Search Result" data-empty-title="No Previous Search Result"><i aria-hidden="true" class="icon-chevron-left"></i></a>
+          </span>
+          <span class="from-search-navigate-wrap">
+            <a href="#" class="from-search-navigate"><span class="from-search-navigate-up"><i aria-hidden="true" class="icon-double-angle-up"></i></span><span class="from-search-navigate-down"><i aria-hidden="true" class="icon-double-angle-down"></i></span></a>
+          </span>
+          <div class="from-search-toc submenu">
+            <span class="title">Your Search Results</span>
+            <ol></ol>
+          </div>
+          <span class="from-search-next-box">
+            <a class="button from-search-next only-icon disabled" title="Next Search Result" data-empty-title="No Previous Search Result"><i aria-hidden="true" class="icon-chevron-right"></i></a>
+          </span>
+
+
+        <div class="contributor-avatars" data-all-text="see all contributors" data-alternate-message="hide contributors" data-has-hidden="1">
+            <ul>
+
+                <li class="shown">
+                <a href="/en-US/profiles/piglovesyou" title="View profile: piglovesyou">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="piglovesyou" data-src="https://secure.gravatar.com/avatar/bf8039615ae8ae82e954959ea549404d?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">piglovesyou</noscript></a>
+                </li>
+
+                <li class="shown">
+                <a href="/en-US/profiles/jswisher" title="View profile: jswisher">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="jswisher" data-src="https://secure.gravatar.com/avatar/38185c2812cbcae186ebbe4a82910661?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">jswisher</noscript></a>
+                </li>
+
+                <li class="shown">
+                <a href="/en-US/profiles/leleofg" title="View profile: leleofg">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="leleofg" data-src="https://secure.gravatar.com/avatar/c02223c5f55366b3e183cb0f0db726da?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">leleofg</noscript></a>
+                </li>
+
+                <li class="shown">
+                <a href="/en-US/profiles/Tigt" title="View profile: Tigt">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="Tigt" data-src="https://secure.gravatar.com/avatar/6dfc114d927c3f5bd61c2697b4adf2bc?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">Tigt</noscript></a>
+                </li>
+
+                <li class="shown">
+                <a href="/en-US/profiles/Sheppy" title="View profile: Sheppy">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="Sheppy" data-src="https://secure.gravatar.com/avatar/945076feb88f2d7003891ffbf06f32bf?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">Sheppy</noscript></a>
+                </li>
+
+                <li class="shown">
+                <a href="/en-US/profiles/myuller" title="View profile: myuller">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="myuller" data-src="https://secure.gravatar.com/avatar/b6278740a510cff48758ad9f4b10bf48?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">myuller</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/rk17" title="View profile: rk17">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="rk17" data-src="https://secure.gravatar.com/avatar/797774a673cefaea1874d302790ec132?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">rk17</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/louuis" title="View profile: louuis">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="louuis" data-src="https://secure.gravatar.com/avatar/f71f6ff4b1cb760a924097f5f7e7d423?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">louuis</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/George8211" title="View profile: George8211">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="George8211" data-src="https://secure.gravatar.com/avatar/7d0b4cc96c77b96db4bfb94eb04de29e?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">George8211</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/estelle" title="View profile: estelle">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="estelle" data-src="https://secure.gravatar.com/avatar/8e75de08afdc1e0fe9333e758d3c7249?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">estelle</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/klez" title="View profile: klez">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="klez" data-src="https://secure.gravatar.com/avatar/8f12f2e8aea4579fb6cb12c6a197a797?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">klez</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/kscarfone" title="View profile: kscarfone">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="kscarfone" data-src="https://secure.gravatar.com/avatar/89c1e54a9703125168e40d22316d2b49?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">kscarfone</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/Shokr" title="View profile: Shokr">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="Shokr" data-src="https://secure.gravatar.com/avatar/1198883abef2a48e2d5c20fce1538570?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">Shokr</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/Techsin" title="View profile: Techsin">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="Techsin" data-src="https://secure.gravatar.com/avatar/8afd88ea8f653f95e2588769c2cfab6a?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">Techsin</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/haboqueferus" title="View profile: haboqueferus">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="haboqueferus" data-src="https://secure.gravatar.com/avatar/87d659da4bb92cd4d843829b58b3e6b6?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">haboqueferus</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/evilpie" title="View profile: evilpie">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="evilpie" data-src="https://secure.gravatar.com/avatar/6bb31f7207fc068158047b9c8ad4592d?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">evilpie</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/Srggamer" title="View profile: Srggamer">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="Srggamer" data-src="https://secure.gravatar.com/avatar/3a05e8d3c8ff845144105ac0c6d4bef5?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">Srggamer</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/lmorchard" title="View profile: lmorchard">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="lmorchard" data-src="https://secure.gravatar.com/avatar/b45c48fc9e05922e2f368a9d7d7d8de1?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">lmorchard</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/shirayuki" title="View profile: shirayuki">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="shirayuki" data-src="https://secure.gravatar.com/avatar/fc7751ef5d1748227b2dd00956c77986?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">shirayuki</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/jonathan.camenisch" title="View profile: jonathan.camenisch">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="jonathan.camenisch" data-src="https://secure.gravatar.com/avatar/534c781a2786a86d3459e35b04a29e90?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">jonathan.camenisch</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/tregagnon" title="View profile: tregagnon">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="tregagnon" data-src="https://secure.gravatar.com/avatar/8431892ef37f88fe820096de721c00ba?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">tregagnon</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/Markus%20Prokott" title="View profile: Markus Prokott">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="Markus Prokott" data-src="https://secure.gravatar.com/avatar/1497d3b4beaa51767a0ffed2c7834c19?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">Markus Prokott</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/McGurk" title="View profile: McGurk">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="McGurk" data-src="https://secure.gravatar.com/avatar/dcf5220f84cecf5b4eec14f0c43a589a?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">McGurk</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/masondesu" title="View profile: masondesu">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="masondesu" data-src="https://secure.gravatar.com/avatar/091bc95204caaf52b0d299bd9ac59540?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">masondesu</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/hobophobe" title="View profile: hobophobe">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="hobophobe" data-src="https://secure.gravatar.com/avatar/4773ab39b745afa4bdb2e556cbc9dd87?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">hobophobe</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/fscholz" title="View profile: fscholz">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="fscholz" data-src="https://secure.gravatar.com/avatar/e24391c9174352988d819a9b9ea77c9e?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">fscholz</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/thatryan" title="View profile: thatryan">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="thatryan" data-src="https://secure.gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">thatryan</noscript></a>
+                </li>
+
+                <li class="hidden">
+                <a href="/en-US/profiles/garann" title="View profile: garann">
+                <noscript data-width="34" data-height="34" data-class="avatar" data-alt="garann" data-src="https://secure.gravatar.com/avatar/76f795cabbf80024b1024517c67f0bcf?s=34&amp;r=pg&amp;d=https%3A%2F%2Fdeveloper.cdn.mozilla.net%2Fmedia%2Fimg%2Favatar.png">garann</noscript></a>
+                </li>
+
+            </ul>
+        </div>
+
+
+        <h1>HTML attribute reference</h1>
+
+      </div>
+
+
+      <!-- start the main content container -->
+        <div id="wiki-column-container" class="wiki-right-present wiki-left-closed wiki-left-none">
+
+          <!-- content row with three strips -->
+          <div class="column-container column-container-reverse">
+
+
+              <!-- TOC, approvals, etc -->
+              <div class="column-strip wiki-column" id="wiki-right">
+
+              <!-- table of contents -->
+              <div id="toc" class="toc toggleable">
+                <a href="#toc" class="title toggler" data-open-icon="icon-plus" data-closed-icon="icon-minus">In This Article<i></i></a>
+                <ol class="toggle-container">
+                  <li><a href="#Attribute_list" rel="internal">Attribute list</a><li><a href="#Content_versus_IDL_attributes" rel="internal">Content versus IDL attributes</a><li><a href="#See_also" rel="internal">See also</a>
+                </ol>
+              </div>
+
+              </div>
+
+
+
+
+
+
+
+            <!-- center: main article content -->
+            <div id="wiki-content" class="column-main wiki-column text-content">
+
+
+
+
+
+
+
+
+
+
+
+
+              <!-- just the article content -->
+              <article id="wikiArticle">
+
+
+                    <p>Elements in HTML have <strong>attributes</strong>; these are additional values that configure the elements or adjust their behavior in various ways to meet the criteria the users want.</p>
+
+<h2 id="Attribute_list">Attribute list</h2>
+
+<table class="standard-table">
+ <thead>
+  <tr>
+   <th>Attribute Name</th>
+   <th>Elements</th>
+   <th>Description</th>
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+   <td><code>accept</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a></td>
+   <td>List of types the server accepts, typically a file type.</td>
+  </tr>
+  <tr>
+   <td><code>accept-charset</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a></td>
+   <td>List of supported charsets.</td>
+  </tr>
+  <tr>
+   <td><code>accesskey</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Defines a keyboard shortcut to activate or add focus to the element.</td>
+  </tr>
+  <tr>
+   <td><code>action</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a></td>
+   <td>The URI of a program that processes the information submitted via the form.</td>
+  </tr>
+  <tr>
+   <td><code>align</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/applet" title="The HTML Applet Element (&lt;applet>) identifies the inclusion of a Java applet."><code>&lt;applet&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/caption" title="The HTML &lt;caption> Element (or HTML Table Caption Element) represents the title of a table. Though it is always the first descendant of a &lt;table>, its styling, using CSS, may place it elsewhere, relative to the table."><code>&lt;caption&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/col" title="The HTML Table Column Element (&lt;col>) defines a column within a table and is used for defining common semantics on all common cells. It is generally found within a &lt;colgroup> element."><code>&lt;col&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/colgroup" title="The HTML Table Column Group Element (&lt;colgroup>) defines a group of columns within a table."><code>&lt;colgroup&gt;</code></a>,  <a href="/en-US/docs/Web/HTML/Element/hr" title="The HTML &lt;hr> element represents a thematic break between paragraph-level elements (for example, a change of scene in a story, or a shift of topic with a section). In previous versions of HTML, it represented a horizontal rule. It may still be displayed as a horizontal rule in visual browsers, but is now defined in semantic terms, rather than presentational terms."><code>&lt;hr&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/iframe" title="The HTML Inline Frame Element (&lt;iframe>) represents a nested browsing context, effectively embedding another HTML page into the current page. In HTML 4.01, a document may contain a head and a body or a head and a frame-set, but not both a body and a frame-set. However, an &lt;iframe> can be used within a normal document body. Each browsing context has its own session history and active document. The browsing context that contains the embedded content is called the parent browsing context. The top-level browsing context (which has no parent) is typically the browser window."><code>&lt;iframe&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/table" title="The HTML Table Element (&lt;table>) represents tabular data: information expressed via two dimensions or more."><code>&lt;table&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/tbody" title="The HTML Table Body Element (&lt;tbody>) defines one or more &lt;tr> element data-rows to be the body of its parent &lt;table> element (as long as no &lt;tr> elements are immediate children of that table element.)  In conjunction with a preceding &lt;thead> and/or &lt;tfoot> element, &lt;tbody> provides additional semantic information for devices such as printers and displays. Of the parent table's child elements, &lt;tbody> represents the content which, when longer than a page, will most likely differ for each page printed; while the content of &lt;thead> and &lt;tfoot> will be the same or similar for each page printed. For displays, &lt;tbody> will enable separate scrolling of the &lt;thead>, &lt;tfoot>, and &lt;caption> elements of the same parent &lt;table> element.  Note that unlike the &lt;thead>, &lt;tfoot>, and &lt;caption> elements however, multiple &lt;tbody> elements are permitted (if consecutive), allowing the data-rows in long tables to be divided into different sections, each separately formatted as needed."><code>&lt;tbody&gt;</code></a>,  <a href="/en-US/docs/Web/HTML/Element/td" title="The Table cell HTML element (&lt;td>) defines a cell of a table that contains data. It participates in the table model."><code>&lt;td&gt;</code></a>,  <a href="/en-US/docs/Web/HTML/Element/tfoot" title="The HTML Table Foot Element (&lt;tfoot>) defines a set of rows summarizing the columns of the table."><code>&lt;tfoot&gt;</code></a> , <a href="/en-US/docs/Web/HTML/Element/th" title="The HTML element table header cell &lt;th> defines a cell as a header for a group of cells of a table. The group of cells that the header refers to is defined by the scope and headers attribute."><code>&lt;th&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/thead" title="The HTML Table Head Element (&lt;thead>) defines a set of rows defining the head of the columns of the table."><code>&lt;thead&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/tr" title="The HTML element table row &lt;tr> defines a row of cells in a table. Those can be a mix of &lt;td> and &lt;th> elements."><code>&lt;tr&gt;</code></a></td>
+   <td>Specifies the horizontal alignment of the element.</td>
+  </tr>
+  <tr>
+   <td><code>alt</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/applet" title="The HTML Applet Element (&lt;applet>) identifies the inclusion of a Java applet."><code>&lt;applet&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a></td>
+   <td>Alternative text in case an image can't be displayed.</td>
+  </tr>
+  <tr>
+   <td><code>async</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/script" title="The HTML Script Element (&lt;script>) is used to embed or reference an executable script within an HTML or XHTML document."><code>&lt;script&gt;</code></a></td>
+   <td>Indicates that the script should be executed asynchronously.</td>
+  </tr>
+  <tr>
+   <td><code>autocomplete</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a></td>
+   <td>Indicates whether controls in this form can by default have their values automatically completed by the browser.</td>
+  </tr>
+  <tr>
+   <td><code>autofocus</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/button" title="The HTML &lt;button> Element represents a clickable button."><code>&lt;button&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/keygen" title="The HTML &lt;keygen> element exists to facilitate generation of key material, and submission of the public key as part of an HTML form. This mechanism is designed for use with Web-based certificate management systems. It is expected that the &lt;keygen> element will be used in an HTML form along with other information needed to construct a certificate request, and that the result of the process will be a signed certificate."><code>&lt;keygen&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/select" title="The HTML select (&lt;select>) element represents a control that presents a menu of options. The options within the menu are represented by &lt;option> elements, which can be grouped by &lt;optgroup> elements. Options can be pre-selected for the user."><code>&lt;select&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>The element should be automatically focused after the page loaded.</td>
+  </tr>
+  <tr>
+   <td><code>autoplay</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/audio" title="The HTML &lt;audio> element is used to embed sound content in documents. It may contain one or more audio sources, represented using the src attribute or the &lt;source> element; the browser will choose the most suitable one."><code>&lt;audio&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>The audio or video should play as soon as possible.</td>
+  </tr>
+  <tr>
+   <td><code>autosave</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a></td>
+   <td>Previous values should persist dropdowns of selectable values across page loads.</td>
+  </tr>
+  <tr>
+   <td><code>bgcolor</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/body" title="The HTML &lt;body> Element represents the content of an HTML document. There can be only one &lt;body> element in a document."><code>&lt;body&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/col" title="The HTML Table Column Element (&lt;col>) defines a column within a table and is used for defining common semantics on all common cells. It is generally found within a &lt;colgroup> element."><code>&lt;col&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/colgroup" title="The HTML Table Column Group Element (&lt;colgroup>) defines a group of columns within a table."><code>&lt;colgroup&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/marquee" title="The HTML &lt;marquee> element is used to insert a scrolling area of text."><code>&lt;marquee&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/table" title="The HTML Table Element (&lt;table>) represents tabular data: information expressed via two dimensions or more."><code>&lt;table&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/tbody" title="The HTML Table Body Element (&lt;tbody>) defines one or more &lt;tr> element data-rows to be the body of its parent &lt;table> element (as long as no &lt;tr> elements are immediate children of that table element.)  In conjunction with a preceding &lt;thead> and/or &lt;tfoot> element, &lt;tbody> provides additional semantic information for devices such as printers and displays. Of the parent table's child elements, &lt;tbody> represents the content which, when longer than a page, will most likely differ for each page printed; while the content of &lt;thead> and &lt;tfoot> will be the same or similar for each page printed. For displays, &lt;tbody> will enable separate scrolling of the &lt;thead>, &lt;tfoot>, and &lt;caption> elements of the same parent &lt;table> element.  Note that unlike the &lt;thead>, &lt;tfoot>, and &lt;caption> elements however, multiple &lt;tbody> elements are permitted (if consecutive), allowing the data-rows in long tables to be divided into different sections, each separately formatted as needed."><code>&lt;tbody&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/tfoot" title="The HTML Table Foot Element (&lt;tfoot>) defines a set of rows summarizing the columns of the table."><code>&lt;tfoot&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/td" title="The Table cell HTML element (&lt;td>) defines a cell of a table that contains data. It participates in the table model."><code>&lt;td&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/th" title="The HTML element table header cell &lt;th> defines a cell as a header for a group of cells of a table. The group of cells that the header refers to is defined by the scope and headers attribute."><code>&lt;th&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/tr" title="The HTML element table row &lt;tr> defines a row of cells in a table. Those can be a mix of &lt;td> and &lt;th> elements."><code>&lt;tr&gt;</code></a></td>
+   <td>
+    <p>Background color of the element.</p>
+
+    <div class="note">
+    <p><strong>Note:</strong> This is a legacy attribute. Please use the CSS <a href="/en-US/docs/Web/CSS/background-color" title="The background-color CSS property sets the background color of an element, either through a color value or the keyword transparent."><code>background-color</code></a> property instead.</p>
+    </div>
+   </td>
+  </tr>
+  <tr>
+   <td><code>border</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/object" title="The HTML Embedded Object Element (&lt;object>) represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin."><code>&lt;object&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/table" title="The HTML Table Element (&lt;table>) represents tabular data: information expressed via two dimensions or more."><code>&lt;table&gt;</code></a></td>
+   <td>
+    <p>The border width.</p>
+
+    <div class="note">
+    <p><strong>Note:</strong> This is a legacy attribute. Please use the CSS <a href="/en-US/docs/Web/CSS/border" title="The border CSS property is a shorthand property for setting the individual border property values in a single place in the style sheet. border can be used to set the values for one or more of: border-width, border-style, border-color."><code>border</code></a> property instead.</p>
+    </div>
+   </td>
+  </tr>
+  <tr>
+   <td><code>buffered</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/audio" title="The HTML &lt;audio> element is used to embed sound content in documents. It may contain one or more audio sources, represented using the src attribute or the &lt;source> element; the browser will choose the most suitable one."><code>&lt;audio&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>Contains the time range of already buffered media.</td>
+  </tr>
+  <tr>
+   <td><code>challenge</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/keygen" title="The HTML &lt;keygen> element exists to facilitate generation of key material, and submission of the public key as part of an HTML form. This mechanism is designed for use with Web-based certificate management systems. It is expected that the &lt;keygen> element will be used in an HTML form along with other information needed to construct a certificate request, and that the result of the process will be a signed certificate."><code>&lt;keygen&gt;</code></a></td>
+   <td>A challenge string that is submitted along with the public key.</td>
+  </tr>
+  <tr>
+   <td><code>charset</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/meta" title="The HTML &lt;meta> element represents any metadata information that cannot be represented by one of the other HTML meta-related elements (&lt;base>, &lt;link>, &lt;script>, &lt;style> or &lt;title>)."><code>&lt;meta&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/script" title="The HTML Script Element (&lt;script>) is used to embed or reference an executable script within an HTML or XHTML document."><code>&lt;script&gt;</code></a></td>
+   <td>Declares the character encoding of the page or script.</td>
+  </tr>
+  <tr>
+   <td><code>checked</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/command" title="The command element represents a command which the user can invoke."><code>&lt;command&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a></td>
+   <td>Indicates whether the element should be checked on page load.</td>
+  </tr>
+  <tr>
+   <td><code>cite</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/blockquote" title="The HTML &lt;blockquote> Element (or HTML Block Quotation Element) indicates that the enclosed text is an extended quotation. Usually, this is rendered visually by indentation (see Notes for how to change it). A URL for the source of the quotation may be given using the cite attribute, while a text representation of the source can be given using the &lt;cite> element."><code>&lt;blockquote&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/del" title="The HTML Deleted Text Element (&lt;del>) represents a range of text that has been deleted from a document. This element is often (but need not be) rendered with strike-through text."><code>&lt;del&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/ins" title="The HTML &lt;ins> Element (or HTML Inserted Text) HTML represents a range of text that has been added to a document."><code>&lt;ins&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/q" title="The HTML Quote Element (&lt;q>) indicates that the enclosed text is a short inline quotation. This element is intended for short quotations that don't require paragraph breaks; for long quotations use &lt;blockquote> element."><code>&lt;q&gt;</code></a></td>
+   <td>Contains a URI which points to the source of the quote or change.</td>
+  </tr>
+  <tr>
+   <td><code>class</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Often used with CSS to style elements with common properties.</td>
+  </tr>
+  <tr>
+   <td><code>code</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/applet" title="The HTML Applet Element (&lt;applet>) identifies the inclusion of a Java applet."><code>&lt;applet&gt;</code></a></td>
+   <td>Specifies the URL of the applet's class file to be loaded and executed.</td>
+  </tr>
+  <tr>
+   <td><code>codebase</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/applet" title="The HTML Applet Element (&lt;applet>) identifies the inclusion of a Java applet."><code>&lt;applet&gt;</code></a></td>
+   <td>This attribute gives the absolute or relative URL of the directory where applets' .class files referenced by the code attribute are stored.</td>
+  </tr>
+  <tr>
+   <td><code>color</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/basefont" title="The HTML basefont element (&lt;basefont>) establishes a default font size for a document. Font size then can be varied relative to the base font size using the &lt;font> element."><code>&lt;basefont&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/font" title="The HTML Font Element (&lt;font>) defines the font size, color and face for its content."><code>&lt;font&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/hr" title="The HTML &lt;hr> element represents a thematic break between paragraph-level elements (for example, a change of scene in a story, or a shift of topic with a section). In previous versions of HTML, it represented a horizontal rule. It may still be displayed as a horizontal rule in visual browsers, but is now defined in semantic terms, rather than presentational terms."><code>&lt;hr&gt;</code></a></td>
+   <td>
+    <p>This attribute sets the text color using either a named color or a color specified in the hexadecimal #RRGGBB format.</p>
+
+    <div class="note">
+    <p><strong>Note:</strong> This is a legacy attribute. Please use the CSS <a href="/en-US/docs/Web/CSS/color" title="The color property sets the foreground color of an element's text content, and its decorations. It doesn't affect any other characteristic of the element; it should really be called text-color and would have been named so, save for historical reasons and its appearance in CSS Level 1."><code>color</code></a> property instead.</p>
+    </div>
+   </td>
+  </tr>
+  <tr>
+   <td><code>cols</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>Defines the number of columns in a textarea.</td>
+  </tr>
+  <tr>
+   <td><code>colspan</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/td" title="The Table cell HTML element (&lt;td>) defines a cell of a table that contains data. It participates in the table model."><code>&lt;td&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/th" title="The HTML element table header cell &lt;th> defines a cell as a header for a group of cells of a table. The group of cells that the header refers to is defined by the scope and headers attribute."><code>&lt;th&gt;</code></a></td>
+   <td>The colspan attribute defines the number of columns a cell should span.</td>
+  </tr>
+  <tr>
+   <td><code>content</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/meta" title="The HTML &lt;meta> element represents any metadata information that cannot be represented by one of the other HTML meta-related elements (&lt;base>, &lt;link>, &lt;script>, &lt;style> or &lt;title>)."><code>&lt;meta&gt;</code></a></td>
+   <td>A value associated with <code>http-equiv</code> or <code>name</code> depending on the context.</td>
+  </tr>
+  <tr>
+   <td><code>contenteditable</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Indicates whether the element's content is editable.</td>
+  </tr>
+  <tr>
+   <td><code>contextmenu</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Defines the ID of a <a href="/en-US/docs/Web/HTML/Element/menu" title="The HTML &lt;menu> element represents a group of commands that a user can perform or activate. This includes both list menus, which might appear across the top of a screen, as well as context menus, such as those that might appear underneath a button after it has been clicked."><code>&lt;menu&gt;</code></a> element which will serve as the element's context menu.</td>
+  </tr>
+  <tr>
+   <td><code>controls</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/audio" title="The HTML &lt;audio> element is used to embed sound content in documents. It may contain one or more audio sources, represented using the src attribute or the &lt;source> element; the browser will choose the most suitable one."><code>&lt;audio&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>Indicates whether the browser should show playback controls to the user.</td>
+  </tr>
+  <tr>
+   <td><code>coords</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a></td>
+   <td>A set of values specifying the coordinates of the hot-spot region.</td>
+  </tr>
+  <tr>
+   <td><code>data</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/object" title="The HTML Embedded Object Element (&lt;object>) represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin."><code>&lt;object&gt;</code></a></td>
+   <td>Specifies the URL of the resource.</td>
+  </tr>
+  <tr>
+   <td><code>data-*</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Lets you attach custom attributes to an HTML element.</td>
+  </tr>
+  <tr>
+   <td><code>datetime</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/del" title="The HTML Deleted Text Element (&lt;del>) represents a range of text that has been deleted from a document. This element is often (but need not be) rendered with strike-through text."><code>&lt;del&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/ins" title="The HTML &lt;ins> Element (or HTML Inserted Text) HTML represents a range of text that has been added to a document."><code>&lt;ins&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/time" title="Technical review completed."><code>&lt;time&gt;</code></a></td>
+   <td>Indicates the date and time associated with the element.</td>
+  </tr>
+  <tr>
+   <td><code>default</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/track" title="The HTML &lt;track> element is used as a child of the media elements—&lt;audio> and &lt;video>. It lets you specify timed text tracks (or time-based data), for example to automatically handle subtitles. The tracks are formatted in WebVTT format (.vtt files) — Web Video Text Tracks."><code>&lt;track&gt;</code></a></td>
+   <td>Indicates that the track should be enabled unless the user's preferences indicate something different.</td>
+  </tr>
+  <tr>
+   <td><code>defer</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/script" title="The HTML Script Element (&lt;script>) is used to embed or reference an executable script within an HTML or XHTML document."><code>&lt;script&gt;</code></a></td>
+   <td>Indicates that the script should be executed after the page has been parsed.</td>
+  </tr>
+  <tr>
+   <td><code>dir</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)</td>
+  </tr>
+  <tr>
+   <td><code>dirname</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>disabled</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/button" title="The HTML &lt;button> Element represents a clickable button."><code>&lt;button&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/command" title="The command element represents a command which the user can invoke."><code>&lt;command&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/fieldset" title="The HTML &lt;fieldset> element is used to group several controls as well as labels (&lt;label>) within a web form."><code>&lt;fieldset&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/keygen" title="The HTML &lt;keygen> element exists to facilitate generation of key material, and submission of the public key as part of an HTML form. This mechanism is designed for use with Web-based certificate management systems. It is expected that the &lt;keygen> element will be used in an HTML form along with other information needed to construct a certificate request, and that the result of the process will be a signed certificate."><code>&lt;keygen&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/optgroup" title="In a Web form, the HTML &lt;optgroup> element  creates a grouping of options within a &lt;select> element."><code>&lt;optgroup&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/option" title="In a Web form, the HTML &lt;option> element is used to create a control representing an item within a &lt;select>, an &lt;optgroup> or a &lt;datalist> HTML5 element."><code>&lt;option&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/select" title="The HTML select (&lt;select>) element represents a control that presents a menu of options. The options within the menu are represented by &lt;option> elements, which can be grouped by &lt;optgroup> elements. Options can be pre-selected for the user."><code>&lt;select&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>Indicates whether the user can interact with the element.</td>
+  </tr>
+  <tr>
+   <td><code>download</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/a" title="The HTML Anchor Element (&lt;a>) defines a hyperlink to a location on the same page or any other page on the Web. It can also be used (in an obsolete way) to create an anchor point—a destination for hyperlinks within the content of a page, so that links aren't limited to connecting simply to the top of a page."><code>&lt;a&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a></td>
+   <td>Indicates that the hyperlink is to be used for downloading a resource.</td>
+  </tr>
+  <tr>
+   <td><code>draggable</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Defines whether the element can be dragged.</td>
+  </tr>
+  <tr>
+   <td><code>dropzone</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Indicates that the element accept the dropping of content on it.</td>
+  </tr>
+  <tr>
+   <td><code>enctype</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a></td>
+   <td>Defines the content type of the form date when the <code>method</code> is POST.</td>
+  </tr>
+  <tr>
+   <td><code>for</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/label" title="The HTML Label Element (&lt;label>) represents a caption for an item in a user interface. It can be associated with a control either by placing the control element inside the &lt;label> element, or by using the for attribute. Such a control is called the labeled control of the label element. One input can be associated with multiple labels."><code>&lt;label&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/output" title="The HTML &lt;output> element represents the result of a calculation or user action."><code>&lt;output&gt;</code></a></td>
+   <td>Describes elements which belongs to this one.</td>
+  </tr>
+  <tr>
+   <td><code>form</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/button" title="The HTML &lt;button> Element represents a clickable button."><code>&lt;button&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/fieldset" title="The HTML &lt;fieldset> element is used to group several controls as well as labels (&lt;label>) within a web form."><code>&lt;fieldset&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/keygen" title="The HTML &lt;keygen> element exists to facilitate generation of key material, and submission of the public key as part of an HTML form. This mechanism is designed for use with Web-based certificate management systems. It is expected that the &lt;keygen> element will be used in an HTML form along with other information needed to construct a certificate request, and that the result of the process will be a signed certificate."><code>&lt;keygen&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/label" title="The HTML Label Element (&lt;label>) represents a caption for an item in a user interface. It can be associated with a control either by placing the control element inside the &lt;label> element, or by using the for attribute. Such a control is called the labeled control of the label element. One input can be associated with multiple labels."><code>&lt;label&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/meter" title="The HTML &lt;meter> Element represents either a scalar value within a known range or a fractional value."><code>&lt;meter&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/object" title="The HTML Embedded Object Element (&lt;object>) represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin."><code>&lt;object&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/output" title="The HTML &lt;output> element represents the result of a calculation or user action."><code>&lt;output&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/progress" title="The HTML &lt;progress> Element is used to view the completion progress of a task. While the specifics of how it's displayed is left up to the browser developer, it's typically displayed as a progress bar. Javascript can be used to manipulate the value of progress bar."><code>&lt;progress&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/select" title="The HTML select (&lt;select>) element represents a control that presents a menu of options. The options within the menu are represented by &lt;option> elements, which can be grouped by &lt;optgroup> elements. Options can be pre-selected for the user."><code>&lt;select&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>Indicates the form that is the owner of the element.</td>
+  </tr>
+  <tr>
+   <td><code>formaction</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/button" title="The HTML &lt;button> Element represents a clickable button."><code>&lt;button&gt;</code></a></td>
+   <td>Indicates the action of the element, overriding the action defined in the <a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a>.</td>
+  </tr>
+  <tr>
+   <td><code>headers</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/td" title="The Table cell HTML element (&lt;td>) defines a cell of a table that contains data. It participates in the table model."><code>&lt;td&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/th" title="The HTML element table header cell &lt;th> defines a cell as a header for a group of cells of a table. The group of cells that the header refers to is defined by the scope and headers attribute."><code>&lt;th&gt;</code></a></td>
+   <td>IDs of the <code>&lt;th&gt;</code> elements which applies to this element.</td>
+  </tr>
+  <tr>
+   <td><code>height</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/canvas" title="The HTML &lt;canvas> Element can be used to draw graphics via scripting (usually JavaScript). For example, it can be used to draw graphs, make photo compositions or even perform animations. You may (and should) provide alternate content inside the &lt;canvas> block. That content will be rendered both on older browsers that don't support canvas and in browsers with JavaScript disabled."><code>&lt;canvas&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/embed" title="The HTML &lt;embed> Element represents an integration point for an external application or interactive content (in other words, a plug-in)."><code>&lt;embed&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/iframe" title="The HTML Inline Frame Element (&lt;iframe>) represents a nested browsing context, effectively embedding another HTML page into the current page. In HTML 4.01, a document may contain a head and a body or a head and a frame-set, but not both a body and a frame-set. However, an &lt;iframe> can be used within a normal document body. Each browsing context has its own session history and active document. The browsing context that contains the embedded content is called the parent browsing context. The top-level browsing context (which has no parent) is typically the browser window."><code>&lt;iframe&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/object" title="The HTML Embedded Object Element (&lt;object>) represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin."><code>&lt;object&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>
+    <p>Specifies the height of elements listed here. For all other elements, use the CSS <a href="/en-US/docs/Web/CSS/height" title="The height CSS property specifies the height of the content area of an element. The content area is inside the padding, border, and margin of the element."><code>height</code></a> property.</p>
+
+    <div class="note">
+    <p><strong>Note:</strong> In some instances, such as <a href="/en-US/docs/Web/HTML/Element/div" title="The HTML &lt;div> element (or HTML Document Division Element) is the generic container for flow content, which does not inherently represent anything. It can be used to group elements for styling purposes (using the class or id attributes), or because they share attribute values, such as lang. It should be used only when no other semantic element (such as &lt;article> or &lt;nav>) is appropriate."><code>&lt;div&gt;</code></a>, this is a legacy attribute, in which case the CSS <a href="/en-US/docs/Web/CSS/height" title="The height CSS property specifies the height of the content area of an element. The content area is inside the padding, border, and margin of the element."><code>height</code></a> property should be used instead.</p>
+    </div>
+   </td>
+  </tr>
+  <tr>
+   <td><code>hidden</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Prevents rendering of given element, while keeping child elements, e.g. script elements, active.</td>
+  </tr>
+  <tr>
+   <td><code>high</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/meter" title="The HTML &lt;meter> Element represents either a scalar value within a known range or a fractional value."><code>&lt;meter&gt;</code></a></td>
+   <td>Indicates the lower bound of the upper range.</td>
+  </tr>
+  <tr>
+   <td><code>href</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/a" title="The HTML Anchor Element (&lt;a>) defines a hyperlink to a location on the same page or any other page on the Web. It can also be used (in an obsolete way) to create an anchor point—a destination for hyperlinks within the content of a page, so that links aren't limited to connecting simply to the top of a page."><code>&lt;a&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/base" title="The HTML &lt;base> element specifies the base URL to use for all relative URLs contained within a document. There can be only one &lt;base> element in a document."><code>&lt;base&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/link" title="The HTML &lt;link> element specifies relationships between the current document and an external resource. Possible uses for this element include defining a relational framework for navigation. This Element is most used to link to style sheets."><code>&lt;link&gt;</code></a></td>
+   <td> The URL of a linked resource.</td>
+  </tr>
+  <tr>
+   <td><code>hreflang</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/a" title="The HTML Anchor Element (&lt;a>) defines a hyperlink to a location on the same page or any other page on the Web. It can also be used (in an obsolete way) to create an anchor point—a destination for hyperlinks within the content of a page, so that links aren't limited to connecting simply to the top of a page."><code>&lt;a&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/link" title="The HTML &lt;link> element specifies relationships between the current document and an external resource. Possible uses for this element include defining a relational framework for navigation. This Element is most used to link to style sheets."><code>&lt;link&gt;</code></a></td>
+   <td>Specifies the language of the linked resource.</td>
+  </tr>
+  <tr>
+   <td><code>http-equiv</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/meta" title="The HTML &lt;meta> element represents any metadata information that cannot be represented by one of the other HTML meta-related elements (&lt;base>, &lt;link>, &lt;script>, &lt;style> or &lt;title>)."><code>&lt;meta&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>icon</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/command" title="The command element represents a command which the user can invoke."><code>&lt;command&gt;</code></a></td>
+   <td>Specifies a picture which represents the command.</td>
+  </tr>
+  <tr>
+   <td><code>id</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Often used with CSS to style a specific element. The value of this attribute must be unique.</td>
+  </tr>
+  <tr>
+   <td><code>ismap</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a></td>
+   <td>Indicates that the image is part of a server-side image map.</td>
+  </tr>
+  <tr>
+   <td><code>itemprop</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>keytype</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/keygen" title="The HTML &lt;keygen> element exists to facilitate generation of key material, and submission of the public key as part of an HTML form. This mechanism is designed for use with Web-based certificate management systems. It is expected that the &lt;keygen> element will be used in an HTML form along with other information needed to construct a certificate request, and that the result of the process will be a signed certificate."><code>&lt;keygen&gt;</code></a></td>
+   <td>Specifies the type of key generated.</td>
+  </tr>
+  <tr>
+   <td><code>kind</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/track" title="The HTML &lt;track> element is used as a child of the media elements—&lt;audio> and &lt;video>. It lets you specify timed text tracks (or time-based data), for example to automatically handle subtitles. The tracks are formatted in WebVTT format (.vtt files) — Web Video Text Tracks."><code>&lt;track&gt;</code></a></td>
+   <td>Specifies the kind of text track.</td>
+  </tr>
+  <tr>
+   <td><code>label</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/track" title="The HTML &lt;track> element is used as a child of the media elements—&lt;audio> and &lt;video>. It lets you specify timed text tracks (or time-based data), for example to automatically handle subtitles. The tracks are formatted in WebVTT format (.vtt files) — Web Video Text Tracks."><code>&lt;track&gt;</code></a></td>
+   <td>Specifies a user-readable title of the text track.</td>
+  </tr>
+  <tr>
+   <td><code>lang</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Defines the language used in the element.</td>
+  </tr>
+  <tr>
+   <td><code>language</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/script" title="The HTML Script Element (&lt;script>) is used to embed or reference an executable script within an HTML or XHTML document."><code>&lt;script&gt;</code></a></td>
+   <td>Defines the script language used in the element.</td>
+  </tr>
+  <tr>
+   <td><code>list</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a></td>
+   <td>Identifies a list of pre-defined options to suggest to the user.</td>
+  </tr>
+  <tr>
+   <td><code>loop</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/audio" title="The HTML &lt;audio> element is used to embed sound content in documents. It may contain one or more audio sources, represented using the src attribute or the &lt;source> element; the browser will choose the most suitable one."><code>&lt;audio&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/bgsound" title="The HTML Background Sound Element () is an Internet Explorer element associating a background sound with a page."><code>&lt;bgsound&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/marquee" title="The HTML &lt;marquee> element is used to insert a scrolling area of text."><code>&lt;marquee&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>Indicates whether the media should start playing from the start when it's finished.</td>
+  </tr>
+  <tr>
+   <td><code>low</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/meter" title="The HTML &lt;meter> Element represents either a scalar value within a known range or a fractional value."><code>&lt;meter&gt;</code></a></td>
+   <td>Indicates the upper bound of the lower range.</td>
+  </tr>
+  <tr>
+   <td><code>manifest</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/html" title="The HTML &lt;html> element (or HTML root element) represents the root of an HTML document. All other elements must be descendants of this element."><code>&lt;html&gt;</code></a></td>
+   <td>Specifies the URL of the document's cache manifest.</td>
+  </tr>
+  <tr>
+   <td><code>max</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/meter" title="The HTML &lt;meter> Element represents either a scalar value within a known range or a fractional value."><code>&lt;meter&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/progress" title="The HTML &lt;progress> Element is used to view the completion progress of a task. While the specifics of how it's displayed is left up to the browser developer, it's typically displayed as a progress bar. Javascript can be used to manipulate the value of progress bar."><code>&lt;progress&gt;</code></a></td>
+   <td>Indicates the maximum value allowed.</td>
+  </tr>
+  <tr>
+   <td><code>maxlength</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>Defines the maximum number of characters allowed in the element.</td>
+  </tr>
+  <tr>
+   <td><code>media</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/a" title="The HTML Anchor Element (&lt;a>) defines a hyperlink to a location on the same page or any other page on the Web. It can also be used (in an obsolete way) to create an anchor point—a destination for hyperlinks within the content of a page, so that links aren't limited to connecting simply to the top of a page."><code>&lt;a&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/link" title="The HTML &lt;link> element specifies relationships between the current document and an external resource. Possible uses for this element include defining a relational framework for navigation. This Element is most used to link to style sheets."><code>&lt;link&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/source" title="The HTML &lt;source> element specifies multiple media resources for either the &lt;picture>, the &lt;audio> or the &lt;video> element. It is an empty element. It is commonly used to serve the same media content in multiple formats supported by different browsers."><code>&lt;source&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/style" title="The HTML &lt;style> element contains style information for a document, or part of a document. By default, the style instructions written inside that element are expected to be CSS."><code>&lt;style&gt;</code></a></td>
+   <td>Specifies a hint of the media for which the linked resource was designed.</td>
+  </tr>
+  <tr>
+   <td><code>method</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a></td>
+   <td>Defines which <a href="/en-US/docs/Web/HTTP">HTTP</a> method to use when submitting the form. Can be <code>GET</code> (default) or <code>POST</code>.</td>
+  </tr>
+  <tr>
+   <td><code>min</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/meter" title="The HTML &lt;meter> Element represents either a scalar value within a known range or a fractional value."><code>&lt;meter&gt;</code></a></td>
+   <td>Indicates the minimum value allowed.</td>
+  </tr>
+  <tr>
+   <td><code>multiple</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/select" title="The HTML select (&lt;select>) element represents a control that presents a menu of options. The options within the menu are represented by &lt;option> elements, which can be grouped by &lt;optgroup> elements. Options can be pre-selected for the user."><code>&lt;select&gt;</code></a></td>
+   <td>Indicates whether multiple values can be entered in an input of the type <code>email</code> or <code>file</code>.</td>
+  </tr>
+  <tr>
+   <td><code>muted</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>Indicates whether the audio will be initially silenced on page load.</td>
+  </tr>
+  <tr>
+   <td><code>name</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/button" title="The HTML &lt;button> Element represents a clickable button."><code>&lt;button&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/fieldset" title="The HTML &lt;fieldset> element is used to group several controls as well as labels (&lt;label>) within a web form."><code>&lt;fieldset&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/iframe" title="The HTML Inline Frame Element (&lt;iframe>) represents a nested browsing context, effectively embedding another HTML page into the current page. In HTML 4.01, a document may contain a head and a body or a head and a frame-set, but not both a body and a frame-set. However, an &lt;iframe> can be used within a normal document body. Each browsing context has its own session history and active document. The browsing context that contains the embedded content is called the parent browsing context. The top-level browsing context (which has no parent) is typically the browser window."><code>&lt;iframe&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/keygen" title="The HTML &lt;keygen> element exists to facilitate generation of key material, and submission of the public key as part of an HTML form. This mechanism is designed for use with Web-based certificate management systems. It is expected that the &lt;keygen> element will be used in an HTML form along with other information needed to construct a certificate request, and that the result of the process will be a signed certificate."><code>&lt;keygen&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/object" title="The HTML Embedded Object Element (&lt;object>) represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin."><code>&lt;object&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/output" title="The HTML &lt;output> element represents the result of a calculation or user action."><code>&lt;output&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/select" title="The HTML select (&lt;select>) element represents a control that presents a menu of options. The options within the menu are represented by &lt;option> elements, which can be grouped by &lt;optgroup> elements. Options can be pre-selected for the user."><code>&lt;select&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/map" title="The HTML &lt;map> element is used with &lt;area> elements to define an image map (a clickable link area)."><code>&lt;map&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/meta" title="The HTML &lt;meta> element represents any metadata information that cannot be represented by one of the other HTML meta-related elements (&lt;base>, &lt;link>, &lt;script>, &lt;style> or &lt;title>)."><code>&lt;meta&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/param" title="The HTML &lt;param> Element (or HTML Parameter Element) defines parameters for &lt;object>."><code>&lt;param&gt;</code></a></td>
+   <td>Name of the element. For example used by the server to identify the fields in form submits.</td>
+  </tr>
+  <tr>
+   <td><code>novalidate</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a></td>
+   <td>This attribute indicates that the form shouldn't be validated when submitted.</td>
+  </tr>
+  <tr>
+   <td><code>open</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/details" title="The HTML Details Element (&lt;details>) is used as a disclosure widget from which the user can retrieve additional information."><code>&lt;details&gt;</code></a></td>
+   <td>Indicates whether the details will be shown on page load.</td>
+  </tr>
+  <tr>
+   <td><code>optimum</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/meter" title="The HTML &lt;meter> Element represents either a scalar value within a known range or a fractional value."><code>&lt;meter&gt;</code></a></td>
+   <td>Indicates the optimal numeric value.</td>
+  </tr>
+  <tr>
+   <td><code>pattern</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a></td>
+   <td>Defines a regular expression which the element's value will be validated against.</td>
+  </tr>
+  <tr>
+   <td><code>ping</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/a" title="The HTML Anchor Element (&lt;a>) defines a hyperlink to a location on the same page or any other page on the Web. It can also be used (in an obsolete way) to create an anchor point—a destination for hyperlinks within the content of a page, so that links aren't limited to connecting simply to the top of a page."><code>&lt;a&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>placeholder</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>Provides a hint to the user of what can be entered in the field.</td>
+  </tr>
+  <tr>
+   <td><code>poster</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>A URL indicating a poster frame to show until the user plays or seeks.</td>
+  </tr>
+  <tr>
+   <td><code>preload</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/audio" title="The HTML &lt;audio> element is used to embed sound content in documents. It may contain one or more audio sources, represented using the src attribute or the &lt;source> element; the browser will choose the most suitable one."><code>&lt;audio&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>Indicates whether the whole resource, parts of it or nothing should be preloaded.</td>
+  </tr>
+  <tr>
+   <td><code>radiogroup</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/command" title="The command element represents a command which the user can invoke."><code>&lt;command&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>readonly</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>Indicates whether the element can be edited.</td>
+  </tr>
+  <tr>
+   <td><code>rel</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/a" title="The HTML Anchor Element (&lt;a>) defines a hyperlink to a location on the same page or any other page on the Web. It can also be used (in an obsolete way) to create an anchor point—a destination for hyperlinks within the content of a page, so that links aren't limited to connecting simply to the top of a page."><code>&lt;a&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/link" title="The HTML &lt;link> element specifies relationships between the current document and an external resource. Possible uses for this element include defining a relational framework for navigation. This Element is most used to link to style sheets."><code>&lt;link&gt;</code></a></td>
+   <td>Specifies the relationship of the target object to the link object.</td>
+  </tr>
+  <tr>
+   <td><code>required</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/select" title="The HTML select (&lt;select>) element represents a control that presents a menu of options. The options within the menu are represented by &lt;option> elements, which can be grouped by &lt;optgroup> elements. Options can be pre-selected for the user."><code>&lt;select&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>Indicates whether this element is required to fill out or not.</td>
+  </tr>
+  <tr>
+   <td><code>reversed</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/ol" title="The HTML &lt;ol> Element (or HTML Ordered List Element) represents an ordered list of items. Typically, ordered-list items are displayed with a preceding numbering, which can be of any form, like numerals, letters or Romans numerals or even simple bullets. This numbered style is not defined in the HTML description of the page, but in its associated CSS, using the list-style-type property."><code>&lt;ol&gt;</code></a></td>
+   <td>Indicates whether the list should be displayed in a descending order instead of a ascending.</td>
+  </tr>
+  <tr>
+   <td><code>rows</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>Defines the number of rows in a text area.</td>
+  </tr>
+  <tr>
+   <td><code>rowspan</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/td" title="The Table cell HTML element (&lt;td>) defines a cell of a table that contains data. It participates in the table model."><code>&lt;td&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/th" title="The HTML element table header cell &lt;th> defines a cell as a header for a group of cells of a table. The group of cells that the header refers to is defined by the scope and headers attribute."><code>&lt;th&gt;</code></a></td>
+   <td>Defines the number of rows a table cell should span over.</td>
+  </tr>
+  <tr>
+   <td><code>sandbox</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/iframe" title="The HTML Inline Frame Element (&lt;iframe>) represents a nested browsing context, effectively embedding another HTML page into the current page. In HTML 4.01, a document may contain a head and a body or a head and a frame-set, but not both a body and a frame-set. However, an &lt;iframe> can be used within a normal document body. Each browsing context has its own session history and active document. The browsing context that contains the embedded content is called the parent browsing context. The top-level browsing context (which has no parent) is typically the browser window."><code>&lt;iframe&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>scope</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/th" title="The HTML element table header cell &lt;th> defines a cell as a header for a group of cells of a table. The group of cells that the header refers to is defined by the scope and headers attribute."><code>&lt;th&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>scoped</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/style" title="The HTML &lt;style> element contains style information for a document, or part of a document. By default, the style instructions written inside that element are expected to be CSS."><code>&lt;style&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>seamless</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/iframe" title="The HTML Inline Frame Element (&lt;iframe>) represents a nested browsing context, effectively embedding another HTML page into the current page. In HTML 4.01, a document may contain a head and a body or a head and a frame-set, but not both a body and a frame-set. However, an &lt;iframe> can be used within a normal document body. Each browsing context has its own session history and active document. The browsing context that contains the embedded content is called the parent browsing context. The top-level browsing context (which has no parent) is typically the browser window."><code>&lt;iframe&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>selected</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/option" title="In a Web form, the HTML &lt;option> element is used to create a control representing an item within a &lt;select>, an &lt;optgroup> or a &lt;datalist> HTML5 element."><code>&lt;option&gt;</code></a></td>
+   <td>Defines a value which will be selected on page load.</td>
+  </tr>
+  <tr>
+   <td><code>shape</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/a" title="The HTML Anchor Element (&lt;a>) defines a hyperlink to a location on the same page or any other page on the Web. It can also be used (in an obsolete way) to create an anchor point—a destination for hyperlinks within the content of a page, so that links aren't limited to connecting simply to the top of a page."><code>&lt;a&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>size</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/select" title="The HTML select (&lt;select>) element represents a control that presents a menu of options. The options within the menu are represented by &lt;option> elements, which can be grouped by &lt;optgroup> elements. Options can be pre-selected for the user."><code>&lt;select&gt;</code></a></td>
+   <td>Defines the width of the element (in pixels). If the element's <code>type</code> attribute is <code>text</code> or <code>password</code> then it's the number of characters.</td>
+  </tr>
+  <tr>
+   <td><code>sizes</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/link" title="The HTML &lt;link> element specifies relationships between the current document and an external resource. Possible uses for this element include defining a relational framework for navigation. This Element is most used to link to style sheets."><code>&lt;link&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/source" title="The HTML &lt;source> element specifies multiple media resources for either the &lt;picture>, the &lt;audio> or the &lt;video> element. It is an empty element. It is commonly used to serve the same media content in multiple formats supported by different browsers."><code>&lt;source&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>span</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/col" title="The HTML Table Column Element (&lt;col>) defines a column within a table and is used for defining common semantics on all common cells. It is generally found within a &lt;colgroup> element."><code>&lt;col&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/colgroup" title="The HTML Table Column Group Element (&lt;colgroup>) defines a group of columns within a table."><code>&lt;colgroup&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>spellcheck</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Indicates whether spell checking is allowed for the element.</td>
+  </tr>
+  <tr>
+   <td><code>src</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/audio" title="The HTML &lt;audio> element is used to embed sound content in documents. It may contain one or more audio sources, represented using the src attribute or the &lt;source> element; the browser will choose the most suitable one."><code>&lt;audio&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/embed" title="The HTML &lt;embed> Element represents an integration point for an external application or interactive content (in other words, a plug-in)."><code>&lt;embed&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/iframe" title="The HTML Inline Frame Element (&lt;iframe>) represents a nested browsing context, effectively embedding another HTML page into the current page. In HTML 4.01, a document may contain a head and a body or a head and a frame-set, but not both a body and a frame-set. However, an &lt;iframe> can be used within a normal document body. Each browsing context has its own session history and active document. The browsing context that contains the embedded content is called the parent browsing context. The top-level browsing context (which has no parent) is typically the browser window."><code>&lt;iframe&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/script" title="The HTML Script Element (&lt;script>) is used to embed or reference an executable script within an HTML or XHTML document."><code>&lt;script&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/source" title="The HTML &lt;source> element specifies multiple media resources for either the &lt;picture>, the &lt;audio> or the &lt;video> element. It is an empty element. It is commonly used to serve the same media content in multiple formats supported by different browsers."><code>&lt;source&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/track" title="The HTML &lt;track> element is used as a child of the media elements—&lt;audio> and &lt;video>. It lets you specify timed text tracks (or time-based data), for example to automatically handle subtitles. The tracks are formatted in WebVTT format (.vtt files) — Web Video Text Tracks."><code>&lt;track&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>The URL of the embeddable content.</td>
+  </tr>
+  <tr>
+   <td><code>srcdoc</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/iframe" title="The HTML Inline Frame Element (&lt;iframe>) represents a nested browsing context, effectively embedding another HTML page into the current page. In HTML 4.01, a document may contain a head and a body or a head and a frame-set, but not both a body and a frame-set. However, an &lt;iframe> can be used within a normal document body. Each browsing context has its own session history and active document. The browsing context that contains the embedded content is called the parent browsing context. The top-level browsing context (which has no parent) is typically the browser window."><code>&lt;iframe&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>srclang</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/track" title="The HTML &lt;track> element is used as a child of the media elements—&lt;audio> and &lt;video>. It lets you specify timed text tracks (or time-based data), for example to automatically handle subtitles. The tracks are formatted in WebVTT format (.vtt files) — Web Video Text Tracks."><code>&lt;track&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>srcset</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>start</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/ol" title="The HTML &lt;ol> Element (or HTML Ordered List Element) represents an ordered list of items. Typically, ordered-list items are displayed with a preceding numbering, which can be of any form, like numerals, letters or Romans numerals or even simple bullets. This numbered style is not defined in the HTML description of the page, but in its associated CSS, using the list-style-type property."><code>&lt;ol&gt;</code></a></td>
+   <td>Defines the first number if other than 1.</td>
+  </tr>
+  <tr>
+   <td><code>step</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>style</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Defines CSS styles which will override styles previously set.</td>
+  </tr>
+  <tr>
+   <td><code>summary</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/table" title="The HTML Table Element (&lt;table>) represents tabular data: information expressed via two dimensions or more."><code>&lt;table&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>tabindex</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Overrides the browser's default tab order and follows the one specified instead.</td>
+  </tr>
+  <tr>
+   <td><code>target</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/a" title="The HTML Anchor Element (&lt;a>) defines a hyperlink to a location on the same page or any other page on the Web. It can also be used (in an obsolete way) to create an anchor point—a destination for hyperlinks within the content of a page, so that links aren't limited to connecting simply to the top of a page."><code>&lt;a&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/area" title="The HTML &lt;area> element defines a hot-spot region on an image, and optionally associates it with a hypertext link. This element is used only within a &lt;map> element."><code>&lt;area&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/base" title="The HTML &lt;base> element specifies the base URL to use for all relative URLs contained within a document. There can be only one &lt;base> element in a document."><code>&lt;base&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/form" title="The HTML &lt;form> element represents a document section that contains interactive controls to submit information to a web server."><code>&lt;form&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>title</code></td>
+   <td><a href="/en/HTML/Global_attributes" title="en/HTML/Global attributes">Global attribute</a></td>
+   <td>Text to be displayed in a tooltip when hovering over the element.</td>
+  </tr>
+  <tr>
+   <td><code>type</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/button" title="The HTML &lt;button> Element represents a clickable button."><code>&lt;button&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/command" title="The command element represents a command which the user can invoke."><code>&lt;command&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/embed" title="The HTML &lt;embed> Element represents an integration point for an external application or interactive content (in other words, a plug-in)."><code>&lt;embed&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/object" title="The HTML Embedded Object Element (&lt;object>) represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin."><code>&lt;object&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/script" title="The HTML Script Element (&lt;script>) is used to embed or reference an executable script within an HTML or XHTML document."><code>&lt;script&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/source" title="The HTML &lt;source> element specifies multiple media resources for either the &lt;picture>, the &lt;audio> or the &lt;video> element. It is an empty element. It is commonly used to serve the same media content in multiple formats supported by different browsers."><code>&lt;source&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/style" title="The HTML &lt;style> element contains style information for a document, or part of a document. By default, the style instructions written inside that element are expected to be CSS."><code>&lt;style&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/menu" title="The HTML &lt;menu> element represents a group of commands that a user can perform or activate. This includes both list menus, which might appear across the top of a screen, as well as context menus, such as those that might appear underneath a button after it has been clicked."><code>&lt;menu&gt;</code></a></td>
+   <td>Defines the type of the element.</td>
+  </tr>
+  <tr>
+   <td><code>usemap</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a>,  <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/object" title="The HTML Embedded Object Element (&lt;object>) represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin."><code>&lt;object&gt;</code></a></td>
+   <td> </td>
+  </tr>
+  <tr>
+   <td><code>value</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/button" title="The HTML &lt;button> Element represents a clickable button."><code>&lt;button&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/option" title="In a Web form, the HTML &lt;option> element is used to create a control representing an item within a &lt;select>, an &lt;optgroup> or a &lt;datalist> HTML5 element."><code>&lt;option&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/li" title="The HTML &lt;li> element (or HTML List Item Element) is used to represent an item in a list. It must be contained in a parent element: an ordered list (&lt;ol>), an unordered list (&lt;ul>), or a menu (&lt;menu>). In menus and unordered lists, list items are usually displayed using bullet points. In ordered lists, they are usually displayed with an ascending counter on the left, such as a number or letter."><code>&lt;li&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/meter" title="The HTML &lt;meter> Element represents either a scalar value within a known range or a fractional value."><code>&lt;meter&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/progress" title="The HTML &lt;progress> Element is used to view the completion progress of a task. While the specifics of how it's displayed is left up to the browser developer, it's typically displayed as a progress bar. Javascript can be used to manipulate the value of progress bar."><code>&lt;progress&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/param" title="The HTML &lt;param> Element (or HTML Parameter Element) defines parameters for &lt;object>."><code>&lt;param&gt;</code></a></td>
+   <td>Defines a default value which will be displayed in the element on page load.</td>
+  </tr>
+  <tr>
+   <td><code>width</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/canvas" title="The HTML &lt;canvas> Element can be used to draw graphics via scripting (usually JavaScript). For example, it can be used to draw graphs, make photo compositions or even perform animations. You may (and should) provide alternate content inside the &lt;canvas> block. That content will be rendered both on older browsers that don't support canvas and in browsers with JavaScript disabled."><code>&lt;canvas&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/embed" title="The HTML &lt;embed> Element represents an integration point for an external application or interactive content (in other words, a plug-in)."><code>&lt;embed&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/iframe" title="The HTML Inline Frame Element (&lt;iframe>) represents a nested browsing context, effectively embedding another HTML page into the current page. In HTML 4.01, a document may contain a head and a body or a head and a frame-set, but not both a body and a frame-set. However, an &lt;iframe> can be used within a normal document body. Each browsing context has its own session history and active document. The browsing context that contains the embedded content is called the parent browsing context. The top-level browsing context (which has no parent) is typically the browser window."><code>&lt;iframe&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/img" title="The HTML &lt;img> element represents an image in the document."><code>&lt;img&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/object" title="The HTML Embedded Object Element (&lt;object>) represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin."><code>&lt;object&gt;</code></a>, <a href="/en-US/docs/Web/HTML/Element/video" title="Editorial review completed."><code>&lt;video&gt;</code></a></td>
+   <td>
+    <p>For the elements listed here, this establishes the element's width.</p>
+
+    <div class="note">
+    <p><strong>Note:</strong> For all other instances, such as <a href="/en-US/docs/Web/HTML/Element/div" title="The HTML &lt;div> element (or HTML Document Division Element) is the generic container for flow content, which does not inherently represent anything. It can be used to group elements for styling purposes (using the class or id attributes), or because they share attribute values, such as lang. It should be used only when no other semantic element (such as &lt;article> or &lt;nav>) is appropriate."><code>&lt;div&gt;</code></a>, this is a legacy attribute, in which case the CSS <a href="/en-US/docs/Web/CSS/width" title="The width CSS property specifies the width of the content area of an element. The content area is inside the padding, border, and margin of the element."><code>width</code></a> property should be used instead.</p>
+    </div>
+   </td>
+  </tr>
+  <tr>
+   <td><code>wrap</code></td>
+   <td><a href="/en-US/docs/Web/HTML/Element/textarea" title="The HTML &lt;textarea> element represents a multi-line plain-text editing control."><code>&lt;textarea&gt;</code></a></td>
+   <td>Indicates whether the text should be wrapped.</td>
+  </tr>
+ </tbody>
+</table>
+
+<h2 id="Content_versus_IDL_attributes">Content versus IDL attributes</h2>
+
+<p>In HTML, most attributes have two faces: the <strong>content attribute</strong> and the <strong>IDL attribute</strong>.</p>
+
+<p>The content attribute is the attribute as you set it from the content (the HTML code) and you can set it or get it via <a href="/en-US/docs/Web/API/Element/setAttribute" title="Adds a new attribute or changes the value of an existing attribute on the specified element."><code>element.setAttribute()</code></a> or <a href="/en-US/docs/Web/API/Element/getAttribute" title="getAttribute() returns the value of a specified attribute on the element."><code>element.getAttribute()</code></a>. The content attribute is always a string even when the expected value should be an integer. For example, to set an <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a> element's <code>maxlength</code> to 42 using the content attribute, you have to call <code>setAttribute("maxlength", "42")</code> on that element.</p>
+
+<p>The IDL attribute is also known as a JavaScript property. These are the attributes you can read or set using JavaScript properties like <code class="moz-txt-verticalline">element.foo</code>. The IDL attribute is always going to use (but might transform) the underlying content attribute to return a value when you get it and is going to save something in the content attribute when you set it. In other words, the IDL attributes, in essence, reflect the content attributes.</p>
+
+<p>Most of the time, IDL attributes will return their values as they are really used. For example, the default <code>type</code> for <a href="/en-US/docs/Web/HTML/Element/input" title="The HTML element &lt;input> is used to create interactive controls for web-based forms in order to accept data from the user. How an &lt;input> works varies considerably depending on the value of its type attribute."><code>&lt;input&gt;</code></a> elements is "text", so if you set <code>input.type="foobar"</code>, the <code>&lt;input&gt;</code> element will be of type text (in the appearance and the behavior) but the "type" content attribute's value will be "foobar". However, the <code>type</code> IDL attribute will return the string "text".</p>
+
+<p>IDL attributes are not always strings; for example, <code>input.maxlength</code> is a number (a signed long). When using IDL attributes, you read or set values of the desired type, so <code>input.maxlength</code> is always going to return a number and when you set <code>input.maxlength</code> ,it wants a number. If you pass another type, it is automatically converted to a number as specified by the standard JavaScript rules for type conversion.</p>
+
+<p>IDL attributes can <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/urls.html#reflecting-content-attributes-in-idl-attributes" class="external" title="http://www.whatwg.org/specs/web-apps/current-work/multipage/urls.html#reflecting-content-attributes-in-idl-attributes">reflect other types</a> such as unsigned long, URLs, booleans, etc. Unfortunately, there are no clear rules and the way IDL attributes behave in conjunction with their corresponding content attributes depends on the attribute. Most of the time, it will follow <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/urls.html#reflecting-content-attributes-in-idl-attributes" class="external" title="http://www.whatwg.org/specs/web-apps/current-work/multipage/urls.html#reflecting-content-attributes-in-idl-attributes">the rules laid out in the specification</a>, but sometimes it doesn't. HTML specifications try to make this as developer-friendly as possible, but for various reasons (mostly historical), some attributes  behave oddly (<code>select.size</code>, for example) and you should read the specifications to understand how exactly they behave.</p>
+
+<h2 id="See_also">See also</h2>
+
+<ul>
+ <li><a href="/en-US/docs/HTML/Element" title="/en-US/docs/HTML/Element">HTML elements</a></li>
+</ul>
+
+
+              </article>
+
+
+
+                <!-- contributors -->
+                <div class="wiki-block contributors">
+                  <h2 class="offscreen">Document Tags and Contributors</h2>
+
+
+  <div class="tag-attach-list contributors-sub">
+    <i aria-hidden="true" class="icon-tags icon-fw"></i>
+    <strong>Tags:</strong>&nbsp;
+    <ul class="tags tags-small">
+
+        <li><a href="/en-US/docs/tag/Attribute">Attribute</a></li>
+
+        <li><a href="/en-US/docs/tag/HTML">HTML</a></li>
+
+        <li><a href="/en-US/docs/tag/Reference">Reference</a></li>
+
+        <li><a href="/en-US/docs/tag/R%C3%A9f%C3%A9rence">Référence</a></li>
+
+        <li><a href="/en-US/docs/tag/Web">Web</a></li>
+
+    </ul>
+  </div>
+
+
+
+                    <div class="contributors-sub">
+                      <i aria-hidden="true" class="icon-group icon-fw"></i>&nbsp;<strong>Contributors to this page:</strong>
+        <a href="/en-US/profiles/piglovesyou">piglovesyou</a>,
+
+        <a href="/en-US/profiles/jswisher">jswisher</a>,
+
+        <a href="/en-US/profiles/leleofg">leleofg</a>,
+
+        <a href="/en-US/profiles/Tigt">Tigt</a>,
+
+        <a href="/en-US/profiles/Sheppy">Sheppy</a>,
+
+        <a href="/en-US/profiles/myuller">myuller</a>,
+
+        <a href="/en-US/profiles/rk17">rk17</a>,
+
+        <a href="/en-US/profiles/louuis">louuis</a>,
+
+        <a href="/en-US/profiles/George8211">George8211</a>,
+
+        <a href="/en-US/profiles/estelle">estelle</a>,
+
+        <a href="/en-US/profiles/klez">klez</a>,
+
+        <a href="/en-US/profiles/kscarfone">kscarfone</a>,
+
+        <a href="/en-US/profiles/Shokr">Shokr</a>,
+
+        <a href="/en-US/profiles/Techsin">Techsin</a>,
+
+        <a href="/en-US/profiles/haboqueferus">haboqueferus</a>,
+
+        <a href="/en-US/profiles/evilpie">evilpie</a>,
+
+        <a href="/en-US/profiles/Srggamer">Srggamer</a>,
+
+        <a href="/en-US/profiles/lmorchard">lmorchard</a>,
+
+        <a href="/en-US/profiles/shirayuki">shirayuki</a>,
+
+        <a href="/en-US/profiles/jonathan.camenisch">jonathan.camenisch</a>,
+
+        <a href="/en-US/profiles/tregagnon">tregagnon</a>,
+
+        <a href="/en-US/profiles/Markus%20Prokott">Markus Prokott</a>,
+
+        <a href="/en-US/profiles/McGurk">McGurk</a>,
+
+        <a href="/en-US/profiles/masondesu">masondesu</a>,
+
+        <a href="/en-US/profiles/hobophobe">hobophobe</a>,
+
+        <a href="/en-US/profiles/fscholz">fscholz</a>,
+
+        <a href="/en-US/profiles/thatryan">thatryan</a>,
+
+        <a href="/en-US/profiles/garann">garann</a>
+
+                    </div>
+
+
+
+                    <div class="contributors-sub">
+                      <i aria-hidden="true" class="icon-clock-o icon-fw"></i>&nbsp;<strong>Last updated by:</strong>
+                      <a href="/en-US/profiles/piglovesyou">piglovesyou</a>,
+                      <time datetime="2016-03-04T17:15:40-08:00">Mar 4, 2016, 5:15:40 PM</time>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+    </div> <!-- ends "main-content" -->
+
+  <menu type="context" id="edit-history-menu">
+    <menuitem data-action="/en-US/docs/Web/HTML/Attributes$edit" label="Edit page"></menuitem>
+    <menuitem data-action="/en-US/docs/Web/HTML/Attributes$history" label="View page history"></menuitem>
+  </menu>
+
+  </div></main>
+
+  <!-- Footer -->
+  <footer><div class="center">
+    <div class="column-container">
+      <div class="column-main">
+
+        <div class="contentinfo">
+          <p>&copy; 2005-2016 Mozilla Developer Network and individual contributors.</p> <p>Content is available under <a href="/en-US/docs/MDN/About#Copyrights_and_licenses">these licenses</a>.</p>
+          <ul>
+            <li><a href="/docs/MDN/About">About MDN</a></li>
+            <li><a href="//www.mozilla.org/about/legal/terms/mozilla">Terms</a></li>
+            <li><a href="//www.mozilla.org/privacy/websites/">Privacy</a></li>
+            <li><a href="//www.mozilla.org/privacy/websites/#cookies">Cookies</a></li>
+            <li><a href="//github.com/mozilla/kuma">Contribute to the code</a></li>
+          </ul>
+        </p>
+
+        </div>
+      </div>
+      <div class="column-strip">
+
+
+
+    <form class="languages go" method="get" action="/en-US/docs/Web">
+      <label for="language">Other languages:</label>
+      <select id="language" class="wiki-l10n" name="next" dir="ltr">
+        <option value="/en-US/docs/Web/HTML/Attributes" selected>
+          English (US)
+        </option>
+
+          <option value="/bn-BD/docs/Web/HTML/Attributes">
+            বাংলা (বাংলাদেশ)
+          </option>
+          <option value="/es/docs/Web/HTML/Atributos">
+            Español
+          </option>
+          <option value="/fa/docs/HTML/Attributes">
+            فارسی
+          </option>
+          <option value="/fr/docs/Web/HTML/Attributes">
+            Français
+          </option>
+          <option value="/it/docs/Web/HTML/Attributi">
+            Italiano
+          </option>
+          <option value="/ja/docs/Web/HTML/Attributes">
+            日本語
+          </option>
+          <option value="/ko/docs/Web/HTML/Attributes">
+            한국어
+          </option>
+          <option value="/ms/docs/HTML/Sifat-sifat">
+            Melayu
+          </option>
+          <option value="/pt-BR/docs/HTML/Attributes">
+            Português (do Brasil)
+          </option>
+          <option value="/ro/docs/Web/HTML/Atribute">
+            Română
+          </option>
+          <option value="/ru/docs/Web/HTML/Attributes">
+            Русский
+          </option>
+          <option value="/zh-CN/docs/Web/HTML/Attributes">
+            中文 (简体)
+          </option>
+          <option value="/zh-TW/docs/Web/HTML/Attributes">
+            正體中文 (繁體)
+          </option>
+      </select>
+      <noscript><button type="submit">Go</button></noscript>
+    </form>
+
+
+
+      </div>
+    </div>
+  </div></footer>
+
+  <!-- site js -->
+
+
+    <!--[if lte IE 8]><script type="text/javascript" src="https://developer.cdn.mozilla.net/static/build/js/selectivizr.091e18cf669b.js" charset="utf-8"></script><![endif]-->
+
+    <form id="_persona_login" method="post" action="/users/persona/signin" data-csrf-token-url="/users/persona/csrf" data-request='{"siteName": "Mozilla Developer Network", "siteLogo": "/static/img/opengraph-logo.png"}' data-persona-script="https://login.persona.org/include.js">
+  <input type="hidden" name="csrfmiddlewaretoken" value="" id="_persona_csrf_token" />
+  <input type="hidden" name="next" value="" id="_persona_next_url"/>
+  <input type="hidden" name="process" value="" id="_persona_process"/>
+  <input type="hidden" name="assertion" id="_persona_assertion"/>
+</form>
+
+
+    <script type="text/javascript" src="https://developer.cdn.mozilla.net/static/build/js/main.a7b27a25fb9c.js" charset="utf-8"></script>
+
+      <script>
+        if(window.mdn && mdn.analytics) mdn.analytics.trackOutboundLinks();
+      </script>
+
+
+    <script type="text/javascript" src="https://developer.cdn.mozilla.net/static/jsi18n/en-us/javascript.b28203373cc1.js"></script>
+
+    <script async type="text/javascript" src="https://developer.cdn.mozilla.net/static/build/js/wiki.28ae780f6173.js" charset="utf-8"></script>
+
+
+
+
+  <script async type="text/javascript" src="https://developer.cdn.mozilla.net/static/build/js/helpfulness.320352cf4b63.js" charset="utf-8"></script>
+
+
+
+
+</body>
+</html>
