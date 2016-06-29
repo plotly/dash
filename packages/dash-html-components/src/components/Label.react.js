@@ -1,11 +1,26 @@
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 
 const Label = (props) => (
-    <label>
+    <label {...props}>
         {props.children}
     </label>
 );
+
+Label.propTypes = {
+
+    /**
+     * Describes elements which belongs to this one.
+     */
+    'for': PropTypes.string,
+        
+
+    /**
+     * Indicates the form that is the owner of the element.
+     */
+    'form': PropTypes.string
+        
+};
 
 export default Label;
     
