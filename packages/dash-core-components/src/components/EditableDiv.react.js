@@ -18,12 +18,21 @@ const baseStyles = {
 export default class EditableDiv extends Component {
 
     constructor(props) {
-        super(props)
-        this.state = {inEditMode: false}
+        super(props);
+
+        this.state = {
+            inEditMode: false
+        };
     }
 
     componentDidUpdate() {
-        if (this.state.inEditMode) ReactDOM.findDOMNode(this.refs.input).focus()
+        if (this.state.inEditMode) {
+            ReactDOM.findDOMNode(this.refs.input).focus();
+        }
+    }
+
+    handleChange(text) {
+        this.props.valueChanged({text});
     }
 
     render() {
@@ -39,7 +48,7 @@ export default class EditableDiv extends Component {
                             this.props.style
                         ])}
                         value={this.props.text}
-                        onChange={(e) => this.props.updateProps({text: e.target.value})}
+                        onChange={(e) => this.handleChange(e.target.value)}
                         onBlur={() => this.setState({inEditMode: false})}
                     />
                 </div>
@@ -80,12 +89,12 @@ EditableDiv.propTypes = {
 
     /**
      * Function that updates the state tree.
-     * Passed in from renderer.
      */
-    updateProps: PropTypes.func.isRequired
+    valueChanged: PropTypes.func
 };
 
 EditableDiv.defaultProps = {
     style: {},
-    editable: false
+    editable: false,
+    valueChanged: () => {}
 };
