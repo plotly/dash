@@ -8,6 +8,7 @@
   },
   "main": "lib/index.js",
   "scripts": {
+    "prepublish": "npm test",
     "start": "builder run transpile-dev-watch",
     "test": "builder run lint"
   },
