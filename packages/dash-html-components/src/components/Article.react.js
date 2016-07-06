@@ -18,7 +18,7 @@ Article.propTypes = {
     /**
      * Often used with CSS to style elements with common properties.
      */
-    'class': PropTypes.string,
+    'className': PropTypes.string,
         
 
     /**
