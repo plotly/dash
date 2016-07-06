@@ -8,8 +8,8 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "npm test",
-    "start": "builder run transpile-dev-watch",
+    "prepublish": "npm test && builder run transpile-dev",
+    "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "test": "builder run lint"
   },
   "author": "Per Nilsson <per@sproutlab.com>",
