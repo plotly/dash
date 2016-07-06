@@ -13,8 +13,8 @@
   },
   "homepage": "https://github.com/plotly/dash-html-components",
   "scripts": {
-    "prepublish": "npm test",
-    "publish-pypi": "python setup.py sdist upload",
+    "prepublish": "npm test && builder run transpile-dev",
+    "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "start": "builder run transpile-dev-watch",
     "test": "builder run check"
   },
