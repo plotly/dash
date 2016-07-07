@@ -12,7 +12,7 @@ Label.propTypes = {
     /**
      * Describes elements which belongs to this one.
      */
-    'for': PropTypes.string,
+    'htmlFor': PropTypes.string,
         
 
     /**

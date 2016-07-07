@@ -3,6 +3,7 @@
 const fs = require('fs');
 const cheerio = require('cheerio');
 const request = require('request');
+const S = require('string');
 
 const htmlURL = 'https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes';
 const dataPath = './data/attributes.json';
@@ -32,12 +33,17 @@ function extractAttributes($) {
             return true;
         }
 
-        let attributeName = attribute;
+        // Trim attribute, and convert e.g. `accept-charset` to `acceptCharset`.
+        let attributeName = S(attribute)
+            .trim()
+            .camelize()
+            .toString();
 
-        // Rename `class` to `className`
-        if (attributeName === 'class') {
-            attributeName = 'className';
-        }
+        attributeName = attributeName
+            // Rename `class` to `className`
+            .replace(/^class$/, 'className')
+            // Rename `for` to `htmlFor`
+            .replace(/^for$/, 'htmlFor');
 
         attributes[attributeName] = {
             elements,

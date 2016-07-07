@@ -18,7 +18,7 @@ Form.propTypes = {
     /**
      * List of supported charsets.
      */
-    'accept-charset': PropTypes.string,
+    'acceptCharset': PropTypes.string,
         
 
     /**
