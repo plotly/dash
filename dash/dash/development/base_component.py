@@ -24,16 +24,10 @@ supported_react_attributes = [
 
 class Component(collections.MutableSequence):
     def __init__(self, **kwargs):
-        for required_key in ['content', 'id']:
-            if required_key not in kwargs:
-                raise Exception("'{}' is a required keyword "
-                                "argument.".format(required_key))
-
-        for k, v in kwargs.iteritems():
-            if k in ['id', 'content', 'className', 'style', 'selected'] or v is not None:  # not sure about this -- sometimes the user will want to send up None, like to clear the output cell
-                setattr(self, k, v)
         if 'dependencies' in kwargs:
             self.dependencies = kwargs['dependencies']
+
+        self.content = kwargs.get('content', None)
 
     def to_plotly_json(self):
         as_json = {
