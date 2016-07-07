@@ -9,3 +9,6 @@ venv/
 *.egg-info
 *.log
 .DS_Store
+dist
+*egg-info*
+npm-debug*
