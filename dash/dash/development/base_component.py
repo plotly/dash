@@ -120,5 +120,4 @@ def generate_class(typename, component_arguments, setup):
     namespace = {'Component': Component, 'setup': setup}
     exec d in namespace
     result = namespace[typename]
-    # result.__module__ = sys._getframe(1).f_globals.get('__name__', '__main__')
     return result
