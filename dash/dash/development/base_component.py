@@ -5,6 +5,8 @@ class Component(collections.MutableSequence):
         if 'dependencies' in kwargs:
             self.dependencies = kwargs['dependencies']
 
+        self.id = kwargs.get('id', None)
+
         self.content = kwargs.get('content', None)
 
     def to_plotly_json(self):
