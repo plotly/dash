@@ -7,7 +7,9 @@ def empty(self):
 
 
 def load_components(metadata_path,
-                    default_props=['content', 'id', 'key', 'className', 'style', 'dependencies'],
+                    default_props=['content', 'id', 'key', 'className', 'style',
+                                   'dependencies', 'dangerouslySetInnerHTML',
+                                   'suppressContentEditableWarning'],
                     namespace={},
                     module_name='__main__'):
     """Load React component metadata into a format Dash can parse.
