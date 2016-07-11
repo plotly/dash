@@ -99,6 +99,7 @@ def generate_class(typename, component_arguments, setup):
             else:
                 return '{typename}(' + repr(self.content) + ')'
     '''
+    # TODO: This can probably be simplified:
     keyword_arguments = [s for s in component_arguments]
     list_of_valid_keys = repr(keyword_arguments)
     bullet_list_of_valid_keys = ('- ' + ' (dflt: None)\n- '.join(keyword_arguments) +
