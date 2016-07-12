@@ -7,7 +7,7 @@ def empty(self):
 
 
 def load_components(metadata_path,
-                    default_props=['content', 'id', 'key', 'className', 'style',
+                    default_props=['id', 'key', 'className', 'style',
                                    'dependencies', 'dangerouslySetInnerHTML',
                                    'suppressContentEditableWarning'],
                     namespace={},
