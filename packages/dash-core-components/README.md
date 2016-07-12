@@ -4,8 +4,22 @@ This package provides the core React component suite for [Dash2][].
 
 ## Development
 
-We don't yet have a dev server with demo capabilities in this repo. The best way
-to test your components is by linking into `dash2` and testing them from there.
+### Demo Server
+
+You can start up a demo development server to see a demo of the rendered
+components:
+
+```sh
+$ builder run demo
+$ open http://localhost:9000
+```
+
+You have to maintain the list of components in `demo/Demo.react.js`.
+
+### Testing your components in Dash
+
+The best way to test your components in the real Dash context is by linking into
+`dash2` and testing them from there.
 
 1. Prepare module by linking and watching for changes
 
