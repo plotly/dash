@@ -48,12 +48,14 @@ class Dash(object):
         for pid in self.react_map[target_id]['parents']:
             component_json = parent_json[pid]
 
+            print(component_json)
+
             # TODO - Get the component from the layout instead of the
             # components module. This used to be:
             # component = getattr(components, component_json['type'])(
             #      **component_json['props'])
             # and now it should be something like:
-            component = self.layout[component_json['id']]
+            component = self.layout[component_json['props']['id']]
 
             parents.append(component)
         return self.react_map[target_id]['callback'](*parents)
