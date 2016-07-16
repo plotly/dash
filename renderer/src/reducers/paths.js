@@ -1,19 +1,25 @@
-import spec from '../spec'; // TODO: this'll eventually load from the API
 import {crawlLayout, createTreePath} from './utils'
 
 const initialPaths = {};
 
-// TODO: Don't initialize path map as side-effect of importing reducer.
-crawlLayout(spec, (child, itempath) => {
-    if(child.props && child.props.id) {
-        initialPaths[child.props.id] = createTreePath(itempath);
-    }
-});
-
 const paths = (state = initialPaths, action) => {
     switch (action.type) {
-        default:
+        case 'COMPUTE_PATHS': {
+            const layout = action.payload;
+            const newState = Object.assign({}, state);
+
+            crawlLayout(layout, (child, itempath) => {
+                if(child.props && child.props.id) {
+                    newState[child.props.id] = createTreePath(itempath);
+                }
+            });
+
+            return newState;
+        }
+
+        default: {
             return state;
+        }
     }
 }
 
