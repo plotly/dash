@@ -8,11 +8,9 @@ from dash_core_components import Dropdown, PlotlyGraph
 
 dash = Dash(__name__)
 
-graph_json = {
-    'figure': {
-        'layout': {
-            'barmode': 'stack'
-        }
+graph_layout = {
+    'layout': {
+        'barmode': 'stack'
     }
 }
 
@@ -68,7 +66,7 @@ dash.layout = Div(id='wrapper', content=[
         {'value': '0', 'label': 'Data set 0'},
         {'value': '1', 'label': 'Data set 1'}
     ]),
-    PlotlyGraph(id='graph', figure=graph_json)
+    PlotlyGraph(id='graph', layout=graph_layout)
 ])
 
 
@@ -76,9 +74,7 @@ def update_graph(dropdown):
     dropdown_value = int(dropdown['props']['value'])
     selected_data = graph_data[dropdown_value]
     return {
-        'figure': {
-            'data': selected_data
-        }
+        'data': selected_data
     }
 
 
