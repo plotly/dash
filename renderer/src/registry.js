@@ -6,7 +6,8 @@ import {
     Header,
     InputControl,
     Dropdown,
-    Label
+    Label,
+    PlotlyGraph
 } from 'dash-core-components/lib';
 
 export default {
@@ -16,5 +17,6 @@ export default {
     EditableDiv,
     Dropdown,
     InputControl,
-    Label
+    Label,
+    PlotlyGraph
 };
