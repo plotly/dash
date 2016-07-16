@@ -48,16 +48,19 @@ class Dash(object):
         for pid in self.react_map[target_id]['parents']:
             component_json = parent_json[pid]
 
-            print(component_json)
+            # TODO: Update the component in the layout.
+            #       This fails.
+            #
+            #     self.layout[component_id] = component_json
+            #   File "/Users/per/dev/plotly/dash2/dash/dash/development/base_component.py", line 44, in __setitem__
+            #     self.content.__setitem__(index, component)
+            # TypeError: list indices must be integers, not unicode
+            #
+            #component_id = component_json['props']['id']
+            #self.layout[component_id] = component_json
 
-            # TODO - Get the component from the layout instead of the
-            # components module. This used to be:
-            # component = getattr(components, component_json['type'])(
-            #      **component_json['props'])
-            # and now it should be something like:
-            component = self.layout[component_json['props']['id']]
+            parents.append(component_json)
 
-            parents.append(component)
         return self.react_map[target_id]['callback'](*parents)
 
     def react(self, component_id, parents=[]):
