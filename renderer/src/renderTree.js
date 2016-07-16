@@ -75,7 +75,7 @@ export default function render(component, dependencyGraph, path=[]) {
          * with like a initialization status store or something
          */
         dependencyGraph.hasNode(component.props.id) &&
-        dependencyGraph.dependantsOf(component.props.id)
+        dependencyGraph.dependantsOf(component.props.id).length
     ) {
         return (
             <NotifyObservers>
