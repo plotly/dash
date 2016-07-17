@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Dev server to demo components: `npm run demo`
 
-## [0.1.0] - 2016-06-30
+## 0.1.0 - 2016-06-30
 - Initial release
 
+[0.1.1]: https://github.com/plotly/dash-core-components/compare/v0.1.0...v0.1.1
