@@ -20,6 +20,7 @@
     "generate-components": "cd scripts && sh generate-all.sh && cd -",
     "prepublish": "npm run clean && npm run generate-components && npm test && builder run transpile-dev && npm run copy-metadata",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
+    "publish-all": "npm publish && python setup.py sdist upload",
     "start": "builder run transpile-dev-watch",
     "test": "builder run check"
   },
