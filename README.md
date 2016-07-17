@@ -1,3 +1,7 @@
+# Dash
+
+## Overview
+
 dash is a framework for making static and dynamic user interfaces that can connect to technical computing backends.
 
 See the [dash 2.0 announcement](https://github.com/plotly/dash) for more context.
@@ -21,7 +25,11 @@ http://plotly-dash.herokuapp.com
         $ npm start
 
 3. Start the python backend
-    - See [dash/README.md](./dash/README.md).
+
+        $ cd dash
+        $ python helloworld.py
+
+    - See [dash/README.md](./dash/README.md) for more details.
 
 4. Open `http://localhost:8080` in your favorite browser for development.
 
