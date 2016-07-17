@@ -3,7 +3,8 @@ import time
 import random
 
 from dash.react import Dash
-from dash.components import Div, P, InputControl
+from dash_html_components import Div, P
+from dash_core_components import InputControl
 
 dash = Dash(__name__)
 

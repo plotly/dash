@@ -9,7 +9,8 @@ export const ACTIONS = (action) => {
         ON_PROP_CHANGE: 'ON_PROP_CHANGE',
         SET_REQUEST_QUEUE: 'SET_REQUEST_QUEUE',
         SET_LAYOUT: 'SET_LAYOUT',
-        COMPUTE_GRAPH: 'COMPUTE_GRAPH'
+        COMPUTE_GRAPH: 'COMPUTE_GRAPH',
+        COMPUTE_PATHS: 'COMPUTE_PATHS'
     };
     if (actionList[action]) return actionList[action];
     else throw new Error(`${action} is not defined.`)
@@ -19,6 +20,7 @@ export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
 const setLayout = createAction(ACTIONS('SET_LAYOUT'));
 const computeGraph = createAction(ACTIONS('COMPUTE_GRAPH'));
+const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
 
 export const initialize = function() {
     return function (dispatch) {
@@ -33,6 +35,7 @@ export const initialize = function() {
             const immutableLayout = Immutable.fromJS(layout);
             dispatch(setLayout(immutableLayout));
             dispatch(computeGraph(layout)); // TODO - immutable everywhere?
+            dispatch(computePaths(layout))
         });
     }
 }

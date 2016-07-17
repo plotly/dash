@@ -1,9 +1,17 @@
 import json
+from base_component import generate_class
+
 
 def empty(self):
     pass
 
-def load_components(metadata_path, default_props):
+
+def load_components(metadata_path,
+                    default_props=['id', 'key', 'className', 'style',
+                                   'dependencies', 'dangerouslySetInnerHTML',
+                                   'suppressContentEditableWarning'],
+                    namespace={},
+                    module_name='__main__'):
     """Load React component metadata into a format Dash can parse.
 
     Usage: load_components('../../component-suites/lib/metadata.json', ['content', 'id', 'key', 'className', 'style', 'dependencies'])
@@ -41,14 +49,20 @@ def load_components(metadata_path, default_props):
             for prop in componentProps:
                 props.append(prop)
 
-        # Define the component, add it to the list
-        components.append({
+        component_spec = {
             'type': name,
             # Convert list to set and back again to get unique values only.
             # This avoids the dreaded `SyntaxError: keyword argument repeated`
             # in dynamic generate_class() function.
             'valid_kwargs': list(set(default_props + props)),
             'setup': empty
-        })
+        }
 
-    return components
+        component = generate_class(
+            component_spec['type'],
+            component_spec['valid_kwargs'],
+            component_spec['setup']
+        )
+
+        component.__module__ = module_name
+        namespace[component_spec['type']] = component

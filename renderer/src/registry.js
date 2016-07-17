@@ -1,12 +1,12 @@
 'use strict';
 
+import { Div, P } from 'dash-html-components/lib';
 import { EditableDiv, Header, InputControl } from 'dash-core-components/lib';
 
-import EditableContent from './components/core/EditableContent.react';
-
 export default {
+    Div,
+    P,
     Header,
-    EditableContent,
     EditableDiv,
     InputControl
 };

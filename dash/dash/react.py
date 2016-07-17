@@ -1,7 +1,6 @@
 import flask
 import plotly
 import json
-import components
 from flask import Flask
 from flask.ext.cors import CORS
 
@@ -48,9 +47,20 @@ class Dash(object):
         parents = []
         for pid in self.react_map[target_id]['parents']:
             component_json = parent_json[pid]
-            component = getattr(components, component_json['type'])(
-                **component_json['props'])
-            parents.append(component)
+
+            # TODO: Update the component in the layout.
+            #       This fails.
+            #
+            #     self.layout[component_id] = component_json
+            #   File "/Users/per/dev/plotly/dash2/dash/dash/development/base_component.py", line 44, in __setitem__
+            #     self.content.__setitem__(index, component)
+            # TypeError: list indices must be integers, not unicode
+            #
+            #component_id = component_json['props']['id']
+            #self.layout[component_id] = component_json
+
+            parents.append(component_json)
+
         return self.react_map[target_id]['callback'](*parents)
 
     def react(self, component_id, parents=[]):

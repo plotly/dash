@@ -1,50 +1,13 @@
 import collections
-from component_loader import load_components
-
-component_suites_paths = [
-    '../renderer/node_modules/dash-core-components/lib/metadata.json',
-    '../renderer/node_modules/dash-html-components/lib/metadata.json'
-];
-
-# Other valid react attributes include:
-# https://facebook.github.io/react/docs/tags-and-attributes.html#html-attributes
-
-# TODO: Resolve conflict with attributes defined in `dash-html-components`
-supported_react_attributes = [
-    'src', 'height', 'width', 'accept',
-    'acceptCharset', 'accessKey', 'action', 'allowFullScreen',
-    'allowTransparency', 'alt', 'async', 'autoComplete', 'autoFocus',
-    'autoPlay', 'cellPadding', 'cellSpacing', 'charSet', 'checked',
-    'classID', 'colSpan', 'cols', 'content', 'contentEditable',
-    'contextMenu', 'controls', 'coords', 'crossOrigin', 'data',
-    'dateTime', 'defer', 'dir', 'disabled', 'download', 'draggable',
-    'encType', 'form', 'formAction', 'formEncType', 'formMethod',
-    'formNoValidate', 'formTarget', 'frameBorder', 'headers', 'hidden',
-    'high', 'href', 'hrefLang', 'htmlFor', 'httpEquiv', 'icon',
-    'lang', 'list', 'loop', 'low', 'manifest', 'marginHeight',
-    'marginWidth', 'max', 'maxLength', 'media', 'mediaGroup',
-    'method', 'min', 'multiple', 'muted', 'name', 'noValidate',
-    'open', 'optimum', 'pattern', 'placeholder', 'poster', 'preload',
-    'radioGroup', 'readOnly', 'rel', 'required', 'role', 'rowSpan',
-    'rows', 'sandbox', 'scope', 'scoped', 'scrolling', 'seamless',
-    'selected', 'shape', 'size', 'sizes', 'span', 'spellCheck',
-    'srcDoc', 'srcSet', 'start', 'step', 'tabIndex', 'target',
-    'title', 'type', 'useMap', 'value', 'wmode']
-# TODO: add `label` back - it conflicts with the actual html element type I think
-
 
 class Component(collections.MutableSequence):
     def __init__(self, **kwargs):
-        for required_key in ['content', 'id']:
-            if required_key not in kwargs:
-                raise Exception("'{}' is a required keyword "
-                                "argument.".format(required_key))
-
-        for k, v in kwargs.iteritems():
-            if k in ['id', 'content', 'className', 'style', 'selected'] or v is not None:  # not sure about this -- sometimes the user will want to send up None, like to clear the output cell
-                setattr(self, k, v)
         if 'dependencies' in kwargs:
             self.dependencies = kwargs['dependencies']
+
+        self.id = kwargs.get('id', None)
+
+        self.content = kwargs.get('content', None)
 
     def to_plotly_json(self):
         as_json = {
@@ -118,7 +81,7 @@ class Component(collections.MutableSequence):
         self.content.insert(index, component)
 
 
-def generate_class(typename, args, setup):
+def generate_class(typename, component_arguments, setup):
     # http://jameso.be/2013/08/06/namedtuple.html
     import sys
     c = '''class {typename}(Component):
@@ -138,14 +101,16 @@ def generate_class(typename, args, setup):
             else:
                 return '{typename}(' + repr(self.content) + ')'
     '''
-    args.extend([s for s in supported_react_attributes if s not in args])
-    list_of_valid_keys = repr(args)
-    bullet_list_of_valid_keys = ('- ' + ' (dflt: None)\n- '.join(args) +
+    # every component will at least have `content` argument
+    keyword_arguments = ['content']
+    keyword_arguments.extend([s for s in component_arguments if s not in keyword_arguments])
+    list_of_valid_keys = repr(keyword_arguments)
+    bullet_list_of_valid_keys = ('- ' + ' (dflt: None)\n- '.join(keyword_arguments) +
                                  ' (dflt: None)')
 
     default_argtext = ''
     argtext = ''
-    for arg in args:
+    for arg in keyword_arguments:
         default_argtext += arg + '=None, '
         argtext += arg + '=' + arg + ', '
 
@@ -157,42 +122,4 @@ def generate_class(typename, args, setup):
     namespace = {'Component': Component, 'setup': setup}
     exec d in namespace
     result = namespace[typename]
-    result.__module__ = sys._getframe(1).f_globals.get('__name__', '__main__')
     return result
-
-
-def empty(self):
-    pass
-
-
-def init_dropdown(self):
-    if self.selected is None:
-        self.selected = self.options[0]['val']
-
-
-_valid_kwargs = ['content', 'id', 'className', 'style', 'dependencies']
-
-# Load in external component suites and generate classes for them
-_component_suites = [load_components(path, _valid_kwargs) for path in component_suites_paths]
-
-for suite in _component_suites:
-    for _c in suite:
-        globals()[_c['type']] = generate_class(_c['type'],
-                                           _c['valid_kwargs'],
-                                           _c['setup'])
-
-
-def gen_table(rows, header=[]):
-    tbl = table([
-        thead([
-            tr([
-                th(h) for h in header
-            ])
-        ]),
-        tbody([
-            tr([
-                td(cell) for cell in row
-            ]) for row in rows
-        ])
-    ])
-    return tbl
