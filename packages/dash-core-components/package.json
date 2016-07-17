@@ -10,14 +10,13 @@
   "scripts": {
     "copy-metadata": "cp lib/metadata.json dash_core_components/",
     "demo": "builder run demo",
-    "install-local": "builder run transpile-dev && python setup.py install",
+    "install-local": "npm run prepublish && python setup.py install",
     "prepublish": "npm test && builder run transpile-dev && npm run copy-metadata",
-    "prepublish": "npm test && builder run transpile-dev",
     "publish-all": "npm publish && python setup.py sdist upload",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "start": "builder run transpile-dev-watch",
     "test": "builder run lint",
-    "uninstall-local": "pip uninstall dash-core-components"
+    "uninstall-local": "pip uninstall dash-core-components -y"
   },
   "author": "Per Nilsson <per@sproutlab.com>",
   "license": "MIT",
