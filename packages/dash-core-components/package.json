@@ -8,8 +8,9 @@
   },
   "main": "lib/index.js",
   "scripts": {
+    "copy-metadata": "cp lib/metadata.json dash_core_components/",
     "demo": "builder run demo",
-    "prepublish": "npm test && builder run transpile-dev",
+    "prepublish": "npm test && builder run transpile-dev && npm run copy-metadata",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "start": "builder run transpile-dev-watch",
     "test": "builder run lint"
