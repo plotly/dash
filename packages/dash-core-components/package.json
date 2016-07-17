@@ -12,6 +12,7 @@
     "demo": "builder run demo",
     "install-local": "builder run transpile-dev && python setup.py install",
     "prepublish": "npm test && builder run transpile-dev && npm run copy-metadata",
+    "prepublish": "npm test && builder run transpile-dev",
     "publish-all": "npm publish && python setup.py sdist upload",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "start": "builder run transpile-dev-watch",
@@ -23,6 +24,7 @@
   "dependencies": {
     "builder": "2.10.1",
     "dash-components-archetype": "^0.1.5",
+    "plotly.js": "^1.14.2",
     "radium": "^0.17.1",
     "ramda": "^0.21.0",
     "react": "^15.1.0",
