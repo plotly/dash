@@ -18,11 +18,13 @@
     "clean": "npm run clean-lib && npm run clean-src",
     "copy-metadata": "cp lib/metadata.json dash_html_components/",
     "generate-components": "cd scripts && sh generate-all.sh && cd -",
+    "install-local": "npm run prepublish && python setup.py install",
     "prepublish": "npm run clean && npm run generate-components && npm test && builder run transpile-dev && npm run copy-metadata",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "publish-all": "npm publish && python setup.py sdist upload",
     "start": "builder run transpile-dev-watch",
-    "test": "builder run check"
+    "test": "builder run check",
+    "uninstall-local": "pip uninstall dash-html-components -y"
   },
   "dependencies": {
     "builder": "2.10.1",
