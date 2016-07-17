@@ -16,7 +16,7 @@
     "clean-lib": "rm -rf lib/* && mkdir -p lib",
     "clean-src": "rm -rf src/* && mkdir -p src/components",
     "clean": "npm run clean-lib && npm run clean-src",
-    "copy-metadata": "cp lib/metadata.json dash_core_components/",
+    "copy-metadata": "cp lib/metadata.json dash_html_components/",
     "generate-components": "cd scripts && sh generate-all.sh && cd -",
     "prepublish": "npm run clean && npm run generate-components && npm test && builder run transpile-dev && npm run copy-metadata",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
