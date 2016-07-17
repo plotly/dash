@@ -1,6 +1,7 @@
 build/
 dist/
 lib/
+dash_html_components/metadata.json
 node_modules/
 .npm
 vv/
