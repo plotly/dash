@@ -66,7 +66,11 @@ dash.layout = Div(id='wrapper', content=[
         {'value': '0', 'label': 'Data set 0'},
         {'value': '1', 'label': 'Data set 1'}
     ]),
-    PlotlyGraph(id='graph', layout=graph_layout)
+    PlotlyGraph(
+        id='graph',
+        layout=graph_layout,
+        data=graph_data[0]
+    )
 ])
 
 
