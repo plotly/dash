@@ -1,0 +1,15 @@
+# Change Log for dash-core-components
+All notable changes to this project will be documented in this file.
+This project adheres to [Semantic Versioning](http://semver.org/).
+
+## Unreleased
+- Dropdown component
+- PlotlyJS component
+
+## [0.1.1] - 2016-07-17
+### Added
+- Dev server to demo components: `npm run demo`
+
+## [0.1.0] - 2016-06-30
+- Initial release
+
