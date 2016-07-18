@@ -1,12 +1,33 @@
 'use strict';
 
-import { Div, P } from 'dash-html-components/lib';
-import { EditableDiv, Header, InputControl } from 'dash-core-components/lib';
+import {
+    Div,
+    H2,
+    P,
+    Span,
+    Strong
+} from 'dash-html-components/lib';
+
+import {
+    EditableDiv,
+    Header,
+    InputControl,
+    Dropdown,
+    Label,
+    PlotlyGraph
+} from 'dash-core-components/lib';
 
 export default {
     Div,
+    H2,
     P,
-    Header,
+    Span,
+    Strong,
+
+    Dropdown,
     EditableDiv,
-    InputControl
+    Header,
+    InputControl,
+    Label,
+    PlotlyGraph
 };

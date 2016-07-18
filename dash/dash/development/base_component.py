@@ -1,13 +1,20 @@
 import collections
+import types
 
 class Component(collections.MutableSequence):
     def __init__(self, **kwargs):
         if 'dependencies' in kwargs:
             self.dependencies = kwargs['dependencies']
 
-        self.id = kwargs.get('id', None)
-
+        # content is special and must be set here
         self.content = kwargs.get('content', None)
+
+        # Iterate over kwargs and set all other properties
+        for prop in kwargs:
+            prop_value = kwargs.get(prop, None)
+            if (prop != 'content' and prop_value is not None):
+                setattr(self, prop, prop_value)
+
 
     def to_plotly_json(self):
         as_json = {
