@@ -13,16 +13,24 @@ export default function render(component, dependencyGraph, path=[]) {
 
     // Create list of child elements
     let children;
+
+    // No children
     if (!R.has('children', component) || !component.children) {
         children = [];
     }
-    else if (Array.isArray(component.children)) {
-        children = component.children.map((v, i) => {
-            return render(v, dependencyGraph, R.append(i, path));
-        });
-    }
+    // Text node child
     else if (typeof component.children === 'string') {
         children = [component.children];
+    }
+    // One or multiple children
+    else {
+        const renderChild = (child, i) =>
+            render(child, dependencyGraph, R.append(i, path))
+
+        children = (Array.isArray(component.children) ?
+                component.children :
+                [component.children])
+            .map(renderChild);
     }
 
     // Create wrapping parent element

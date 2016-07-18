@@ -7,7 +7,7 @@ itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
 numpy==1.11.0
-pandas==0.18.1
+pandas_datareader==0.2.1
 plotly==1.11.0
 python-dateutil==2.5.3
 pytz==2016.4
