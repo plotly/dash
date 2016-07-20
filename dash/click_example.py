@@ -15,8 +15,8 @@ figmain = deepcopy(fig)
 figmain['layout'].update({'width': 500, 'height': 500})
 figmain['data'][0]['showscale'] = False
 
-figx = {'data': [], 'layout': {'width': 200, 'height': 500}}
-figy = {'data': [], 'layout': {'width': 500, 'height': 200}}
+figx = {'data': [], 'layout': {'width': 200, 'height': 500, 'margin': margin}}
+figy = {'data': [], 'layout': {'width': 500, 'height': 200, 'margin': margin}}
 
 
 dash = Dash(__name__)
@@ -64,45 +64,55 @@ def display_graph_event_info(heatmap):
     """
     clickData = ''
     props = heatmap['props']
-    if hasattr(props, 'clickData'):
-        print('has clickData')
-        clickData = json.dumps(heatmap.clickData, indent=4)
-    else:
-        print('no clickData')
 
-    return {
-        'content': repr(heatmap)+'\nclickData: '+clickData
+    if ('clickData' in props):
+        clickData = json.dumps(props['clickData'], indent=4)
+
+    # TODO FIXME: The client ON_PROP_CHANGE action
+    #             does not receive the `content` prop.
+    result = {
+        'content': clickData
     }
+
+    return result
 
 dash.react('event-info', ['heatmap'])(display_graph_event_info)
 
-# def plot_yslice(heatmap_graph):
-#     """ Update the "yslice" graph with the slice of data that the user has
-#     clicked on.
-#     This function gets called on click events fired from the
-#     "heatmap" graph.
-#     """
-#     props = heatmap_graph['props']
+def plot_yslice(heatmap_graph):
+    """ Update the "xslice" graph with the slice of data that the user has
+    clicked on.
+    This function gets called on click events fired from the
+    "heatmap" graph.
+    """
+    props = heatmap_graph['props']
 
-#     if (hasattr(props, 'clickData')):
-#         event_data = getattr(props, 'clickData')
-#         point = event_data['points'][0]['pointNumber']
-#         rowNumber = point[1]
-#         trace = heatmap_graph.figure['data'][0]
-#         row = trace['z'][rowNumber]
-#         x = trace.get('y', range(len(trace['z'][0])))
+    # Initialize data and layout props for return
+    data = []
 
-#         return {
-#             'data': [{
-#                 'x': x,
-#                 'y': row
-#             }],
-#             'layout': {
-#                 'margin': margin
-#             }
-#         }
+    # Clone existing props, if possible
+    if ('data' in props):
+        data = props['data']
 
-# dash.react('yslice', ['heatmap'])(plot_yslice)
+    # See if we have click data from the event
+    if ('clickData' in props):
+        event_data = props['clickData']
+        point = event_data['points'][0]['pointNumber']
+        rowNumber = point[1]
+        trace = props['data'][0]
+        row = trace['z'][rowNumber]
+        x = trace.get('y', range(len(trace['z'][0])))
+
+        data = [{
+            'x': x,
+            'y': row
+        }]
+
+    # Return the resulting props
+    return {
+        'data': data
+     }
+
+dash.react('yslice', ['heatmap'])(plot_yslice)
 
 def plot_xslice(heatmap_graph):
     """ Update the "xslice" graph with the slice of data that the user has
@@ -114,21 +124,17 @@ def plot_xslice(heatmap_graph):
 
     # Initialize data and layout props for return
     data = []
-    layout = {}
 
     # Clone existing props, if possible
-    if (hasattr(props, 'data')):
-        data = getattr(props, 'data')
-
-    if(hasattr(props, 'layout')):
-        layout = getattr(props, 'layout')
+    if ('data' in props):
+        data = props['data']
 
     # See if we have click data from the event
-    if (hasattr(props, 'clickData')):
-        event_data = getattr(props, 'clickData')
+    if ('clickData' in props):
+        event_data = props['clickData']
         point = event_data['points'][0]['pointNumber']
         colNumber = point[0]
-        trace = heatmap_graph.figure['data'][0]
+        trace = props['data'][0]
         column = [zi[colNumber] for zi in trace['z']]
         y = trace.get('y', range(len(trace['z'])))
 
@@ -137,14 +143,9 @@ def plot_xslice(heatmap_graph):
             'y': y
         }]
 
-        layout = {
-            'margin': margin
-        }
-
     # Return the resulting props
     return {
-        'data': data,
-        'layout': layout
+        'data': data
      }
 
 dash.react('xslice', ['heatmap'])(plot_xslice)
