@@ -19,3 +19,25 @@ Successfully installed Flask-0.11 Flask-Cors-2.1.2 Jinja2-2.8 MarkupSafe-0.23 We
  * Debugger is active!
  * Debugger pin code: 254-379-279
 ```
+
+
+### Python Developer guide
+
+#### Debugging
+
+Install `ipdb`:
+
+```sh
+$ pip install ipdb
+```
+
+Insert a breakpoint in your Python code:
+
+```py
+import ipdb; ipdb.set_trace()
+```
+
+More reading
+- Intro: https://www.safaribooksonline.com/blog/2014/11/18/intro-python-debugger/
+- Cheat sheet: http://georgejhunt.com/olpc/pydebug/pydebug/ipdb.html
+- API: https://pypi.python.org/pypi/ipdb
