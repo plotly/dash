@@ -29,29 +29,36 @@ dash.layout = Div([
             width=figy['layout']['width'],
             height=figy['layout']['height'],
             data=figy['data'],
-            layout=figy['layout']),
-        Div([
-            PlotlyGraph(
-                id='heatmap',
-                bindClick=True,
-                width=figmain['layout']['width'],
-                height=figmain['layout']['height'],
-                data=figmain['data'],
-                layout=figmain['layout']),
-        ]), # style={"display": "inline-block"}
-        Div([
-            PlotlyGraph(
-                id='xslice',
-                width=figx['layout']['width'],
-                height=figx['layout']['height'],
-                layout=figx['layout'],
-                data=figx['data']),
-        ]) # style={"display": "inline-block"}
+            layout=figy['layout']
+        ),
+
+        PlotlyGraph(
+            id='heatmap',
+            bindClick=True,
+            width=figmain['layout']['width'],
+            height=figmain['layout']['height'],
+            data=figmain['data'],
+            layout=figmain['layout'],
+            style={"display": "inline-block"}
+        ),
+
+        PlotlyGraph(
+            id='xslice',
+            width=figx['layout']['width'],
+            height=figx['layout']['height'],
+            layout=figx['layout'],
+            data=figx['data'],
+            style={"display": "inline-block"}
+        ),
+
     ], className="row"),
 
     Div([
         B('click callback'),
-        Pre(id="event-info") # style={"overflowY": "scroll"}
+        Pre(
+            id="event-info",
+            style={"overflowY": "scroll"}
+        )
     ])
 ])
 

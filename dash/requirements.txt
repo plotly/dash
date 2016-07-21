@@ -1,6 +1,6 @@
 click==6.6
-dash-html-components==0.2.2
-dash-core-components==0.1.3
+dash-html-components==0.2.3
+dash-core-components==0.1.4
 Flask==0.11
 Flask-Cors==2.1.2
 itsdangerous==0.24
