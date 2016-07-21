@@ -10,6 +10,11 @@ const path = require('path');
 const srcPath = '../src/components';
 const attributesPath = './data/attributes.json';
 
+const PROP_TYPES = {
+    _default: 'string',
+    style: 'object'
+};
+
 function bail(message) {
     console.error('Error: ' + message);
     process.exit(1);
@@ -38,13 +43,14 @@ function generatePropTypes(element, attributes) {
 
     return supportedAttributes.reduce((propTypes, attributeName, index) => {
         const attribute = attributes.attributes[attributeName];
+        const propType = PROP_TYPES[attributeName] || PROP_TYPES._default;
 
         return propTypes + `
 
     /**
      *${attribute.description ? ' ' + attribute.description : ''}
      */
-    '${attributeName}': PropTypes.string${index < numAttributes - 1 ? ',' : ''}`;
+    '${attributeName}': PropTypes.${propType}${index < numAttributes - 1 ? ',' : ''}`;
     }, '');
 }
 
