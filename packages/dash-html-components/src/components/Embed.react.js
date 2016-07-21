@@ -82,7 +82,7 @@ Embed.propTypes = {
     /**
      * Defines CSS styles which will override styles previously set.
      */
-    'style': PropTypes.string,
+    'style': PropTypes.object,
 
     /**
      * Overrides the browser's default tab order and follows the one specified instead.
