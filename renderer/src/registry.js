@@ -1,7 +1,9 @@
 'use strict';
 
 import {
+    B,
     Div,
+    H1,
     H2,
     P,
     Span,
@@ -18,7 +20,9 @@ import {
 } from 'dash-core-components/lib';
 
 export default {
+    B,
     Div,
+    H1,
     H2,
     P,
     Span,
