@@ -77,6 +77,7 @@ def display_graph_event_info(heatmap):
 
     # TODO FIXME: The client ON_PROP_CHANGE action
     #             does not receive the `content` prop.
+    #             https://github.com/plotly/dash2/issues/47
     result = {
         'content': clickData
     }
