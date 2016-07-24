@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Core component suite for Dash2",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
   "license": "MIT",
   "dependencies": {
     "builder": "2.10.1",
-    "dash-components-archetype": "^0.1.5",
+    "dash-components-archetype": "^0.1.7",
     "plotly.js": "^1.14.2",
     "radium": "^0.17.1",
     "ramda": "^0.21.0",
@@ -30,6 +30,6 @@
     "react-dom": "^15.1.0"
   },
   "devDependencies": {
-    "dash-components-archetype-dev": "^0.1.5"
+    "dash-components-archetype-dev": "^0.1.7"
   }
 }

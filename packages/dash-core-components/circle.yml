@@ -1,0 +1,8 @@
+machine:
+  node:
+    version: 4.4.7
+
+test:
+  post:
+    # Ensure steps leading up to publishing work.
+    - node_modules/.bin/builder run transpile-dev
