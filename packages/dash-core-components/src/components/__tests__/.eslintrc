@@ -1,0 +1,5 @@
+---
+    extends: ../../../node_modules/dash-components-archetype/config/eslint/eslintrc-test.json
+
+    globals:
+        expect: false

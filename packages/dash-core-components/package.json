@@ -15,14 +15,16 @@
     "publish-all": "npm publish && python setup.py sdist upload",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "start": "builder run transpile-dev-watch",
-    "test": "builder run lint",
+    "test": "builder run check",
+    "test-watch": "builder run test-frontend-watch",
+    "test-debug": "builder run test-frontend-debug",
     "uninstall-local": "pip uninstall dash-core-components -y"
   },
   "author": "Per Nilsson <per@sproutlab.com>",
   "license": "MIT",
   "dependencies": {
     "builder": "2.10.1",
-    "dash-components-archetype": "^0.1.7",
+    "dash-components-archetype": "^0.1.8",
     "plotly.js": "^1.14.2",
     "radium": "^0.17.1",
     "ramda": "^0.21.0",
@@ -30,6 +32,7 @@
     "react-dom": "^15.1.0"
   },
   "devDependencies": {
-    "dash-components-archetype-dev": "^0.1.7"
+    "dash-components-archetype-dev": "^0.1.8",
+    "enzyme": "^2.4.1"
   }
 }

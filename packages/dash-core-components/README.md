@@ -4,7 +4,7 @@ This package provides the core React component suite for [Dash2][].
 
 ## Development
 
-### Demo Server
+### Demo server
 
 You can start up a demo development server to see a demo of the rendered
 components:
@@ -15,6 +15,46 @@ $ open http://localhost:9000
 ```
 
 You have to maintain the list of components in `demo/Demo.react.js`.
+
+### Code quality and tests
+
+#### To run lint and unit tests:
+
+```sh
+$ npm test
+```
+
+#### To run unit tests and watch for changes:
+
+```sh
+$ npm run test-watch
+```
+
+#### To debug unit tests in a browser (Chrome):
+
+```sh
+$ npm run test-debug
+```
+
+1. Wait until Chrome launches.
+2. Click the "DEBUG" button in the top right corner.
+3. Open up Chrome Devtools (`Cmd+opt+i`).
+4. Click the "Sources" tab.
+5. Find source files
+  - Navigate to `webpack:// -> . -> spec/components` to find your test source files.
+  - Navigate to `webpack:// -> [your/repo/path]] -> dash-core-components -> src` to find your component source files.
+6. Now you can set breakpoints and reload the page to hit them.
+7. The test output is available in the "Console" tab, or in any tab by pressing "Esc".
+
+#### To run a specific test
+
+In your test, append `.only` to a `describe` or `it` statement:
+
+```javascript
+describe.only('Foo component', () => {
+    // ...
+})l
+```
 
 ### Testing your components in Dash
 
@@ -86,7 +126,15 @@ $ npm run publish-pypi
 ## Builder / Archetype
 
 We use [Builder][] to centrally manage build configuration, dependencies, and
-scripts. See the [dash-components-archetype][] repo for more information.
+scripts.
+
+To see all `builder` scripts available:
+
+```sh
+$ builder help
+```
+
+See the [dash-components-archetype][] repo for more information.
 
 [Builder]: https://github.com/FormidableLabs/builder
 [Dash2]: https://github.com/plotly/dash2
