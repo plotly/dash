@@ -1,7 +1,7 @@
 import flask
 import plotly
 import json
-from flask import Flask
+from flask import Flask, url_for
 from flask.ext.cors import CORS
 
 
@@ -14,7 +14,11 @@ class Dash(object):
         if server is not None:
             self.server = server
         else:
-            self.server = flask.Flask(name)
+            self.server = Flask(name)
+
+        # The name and port number of the server.
+        # Required for subdomain support (e.g.: 'myapp.dev:5000')
+        self.server.config['SERVER_NAME'] = 'localhost:8050'
 
         CORS(self.server) # TODO: lock this down to dev node server port
 
@@ -31,6 +35,9 @@ class Dash(object):
             '{}/'.format(url_namespace),
             endpoint='{}_{}'.format(url_namespace, 'index'),
             view_func=self.index)
+
+        with self.server.app_context():
+            url_for('static', filename='bundle.js')
 
     def index(self):
         return flask.render_template('index.html')
