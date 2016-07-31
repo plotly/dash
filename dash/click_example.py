@@ -160,4 +160,11 @@ dash.react('xslice', ['heatmap'])(plot_xslice)
 
 
 if __name__ == "__main__":
-    dash.server.run(port=8050, debug=True)
+    dash.run_server(
+        port=8050,
+        debug=True,
+        component_suites=[
+            'dash_core_components-0.1.4-py2.7.egg',
+            'dash_html_components-0.2.3-py2.7.egg'
+        ]
+    )

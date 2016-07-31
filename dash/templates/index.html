@@ -2,14 +2,13 @@
 <html>
     <head>
         <meta charset="UTF-8" />
+        {% for suite in component_suites %}
+            <script src="/js/component-suites/{{suite}}/lib/bundle.js"></script>
+        {% endfor %}
     </head>
     <body>
         <div id="react-entry-point"></div>
     </body>
-
-    <script type="text/javascript">
-
-    </script>
 
     <script type="text/javascript" src="static/bundle.js"></script>
 </html>
