@@ -2,11 +2,12 @@ from setuptools import setup
 
 setup(
     name='dash_html_components',
-    version='0.2.3',
-    author='plotly',
+    version='0.3.3',
+    author='Chris Parmer',
+    author_email='chris@plot.ly',
     packages=['dash_html_components'],
-    package_data={'dash_html_components': ['metadata.json']},
+    include_package_data=True,
     license='MIT',
-    description='Dash UI component suite',
+    description='Dash UI HTML component suite',
     install_requires=['flask', 'plotly', 'flask-cors', 'dash.ly']
 )

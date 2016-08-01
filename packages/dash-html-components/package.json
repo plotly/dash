@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "0.2.3",
+  "version": "0.3.3",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -16,24 +16,24 @@
     "clean-lib": "rm -rf lib/* && mkdir -p lib",
     "clean-src": "rm -rf src/* && mkdir -p src/components",
     "clean": "npm run clean-lib && npm run clean-src",
-    "copy-metadata": "cp lib/metadata.json dash_html_components/",
+    "copy-lib": "cp lib/* dash_html_components",
     "generate-components": "cd scripts && sh generate-all.sh && cd -",
-    "install-local": "npm run prepublish && python setup.py install",
-    "prepublish": "npm run clean && npm run generate-components && npm test && builder run transpile-dev && npm run copy-metadata",
+    "install-local": "npm run copy-lib && python setup.py install",
+    "prepublish": "npm run clean && npm run generate-components && npm test && builder run build-dist && npm run copy-lib",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "publish-all": "npm publish && python setup.py sdist upload",
-    "start": "builder run transpile-dev-watch",
-    "test": "builder run check",
+    "start": "builder run build-dev",
+    "test": "builder run lint",
     "uninstall-local": "pip uninstall dash-html-components -y"
   },
   "dependencies": {
     "builder": "2.10.1",
-    "dash-components-archetype": "^0.1.3",
+    "dash-components-archetype": "^0.2.1",
     "react": "^15.1.0"
   },
   "devDependencies": {
     "cheerio": "^0.20.0",
-    "dash-components-archetype-dev": "^0.1.3",
+    "dash-components-archetype-dev": "^0.2.1",
     "request": "^2.72.0",
     "string": "^3.3.1"
   }

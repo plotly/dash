@@ -1,7 +1,9 @@
 build/
 dist/
 lib/
+lib/bundle.js*
 dash_html_components/metadata.json
+dash_html_components/bundle.js*
 node_modules/
 .npm
 vv/
