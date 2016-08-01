@@ -49,5 +49,12 @@ def update_graph(ydata_dropdown):
 
 dash.react('graph', ['ydata'])(update_graph)
 
-if __name__ == '__main__':
-    dash.server.run(port=8050, debug=True)
+if __name__ == "__main__":
+    dash.run_server(
+        port=8050,
+        debug=True,
+        component_suites=[
+            'dash_core_components',
+            'dash_html_components'
+        ]
+    )

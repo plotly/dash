@@ -25,5 +25,12 @@ def update_target(dropdown_data):
 
 dash.react('target', ['source'])(update_target)
 
-if __name__ == '__main__':
-    dash.server.run(port=8050, debug=True)
+if __name__ == "__main__":
+    dash.run_server(
+        port=8050,
+        debug=True,
+        component_suites=[
+            'dash_core_components',
+            'dash_html_components'
+        ]
+    )
