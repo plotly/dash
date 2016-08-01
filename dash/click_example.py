@@ -164,7 +164,7 @@ if __name__ == "__main__":
         port=8050,
         debug=True,
         component_suites=[
-            'dash_core_components-0.1.4-py2.7.egg',
-            'dash_html_components-0.2.3-py2.7.egg'
+            'dash_core_components',
+            'dash_html_components'
         ]
     )
