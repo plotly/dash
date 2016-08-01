@@ -22,6 +22,7 @@ class Component(collections.MutableSequence):
                       for p in self._prop_names
                       if p != 'content' and hasattr(self, p)},
             'type': self._type,
+            'namespace': self._namespace,
             'children': self.content
         }
         if hasattr(self, 'dependencies'):
@@ -88,7 +89,7 @@ class Component(collections.MutableSequence):
         self.content.insert(index, component)
 
 
-def generate_class(typename, component_arguments, setup):
+def generate_class(typename, component_arguments, setup, namespace):
     # http://jameso.be/2013/08/06/namedtuple.html
     import sys
     c = '''class {typename}(Component):
@@ -97,6 +98,7 @@ def generate_class(typename, component_arguments, setup):
         def __init__(self, {default_argtext}):
             self._prop_names = {list_of_valid_keys}
             self._type = '{typename}'
+            self._namespace = '{namespace}'
             super({typename}, self).__init__({argtext})
             setup(self)
 
@@ -126,7 +128,7 @@ def generate_class(typename, component_arguments, setup):
 
     d = c.format(**locals())
 
-    namespace = {'Component': Component, 'setup': setup}
-    exec d in namespace
-    result = namespace[typename]
+    scope = {'Component': Component, 'setup': setup}
+    exec d in scope
+    result = scope[typename]
     return result

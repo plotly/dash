@@ -10,7 +10,8 @@ def load_components(metadata_path,
                     default_props=['id', 'key', 'className', 'style',
                                    'dependencies', 'dangerouslySetInnerHTML',
                                    'suppressContentEditableWarning'],
-                    namespace={},
+                    namespace='default_namespace',
+                    scope={},
                     module_name='__main__'):
     """Load React component metadata into a format Dash can parse.
 
@@ -61,8 +62,9 @@ def load_components(metadata_path,
         component = generate_class(
             component_spec['type'],
             component_spec['valid_kwargs'],
-            component_spec['setup']
+            component_spec['setup'],
+            namespace
         )
 
         component.__module__ = module_name
-        namespace[component_spec['type']] = component
+        scope[component_spec['type']] = component

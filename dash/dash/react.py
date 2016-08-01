@@ -1,39 +1,66 @@
 import flask
-import plotly
 import json
-from flask import Flask
+import plotly
+from flask import Flask, url_for, send_from_directory
 from flask.ext.cors import CORS
 
+from dependency_resolver import Resolver
 
 class Dash(object):
     def __init__(self, name=None, url_namespace='', server=None):
+
         self.layout = None
+
+        # Resolve site-packages location by using plotly as canonical dependency
+        self.resolver = Resolver(plotly, 'plotly')
 
         self.react_map = {}
 
         if server is not None:
             self.server = server
         else:
-            self.server = flask.Flask(name)
+            self.server = Flask(name)
+
+        # The name and port number of the server.
+        # Required for subdomain support (e.g.: 'myapp.dev:5000')
+        self.server.config['SERVER_NAME'] = 'localhost:8050'
 
         CORS(self.server) # TODO: lock this down to dev node server port
 
-        self.server.add_url_rule(
-            '{}/initialize'.format(url_namespace),
-            view_func=self.initialize,
-            endpoint='{}_{}'.format(url_namespace, 'initialize'))
-        self.server.add_url_rule(
-            '{}/interceptor'.format(url_namespace),
-            view_func=self.interceptor,
-            endpoint='{}_{}'.format(url_namespace, 'interceptor'),
-            methods=['POST'])
         self.server.add_url_rule(
             '{}/'.format(url_namespace),
             endpoint='{}_{}'.format(url_namespace, 'index'),
             view_func=self.index)
 
+        self.server.add_url_rule(
+            '{}/initialize'.format(url_namespace),
+            view_func=self.initialize,
+            endpoint='{}_{}'.format(url_namespace, 'initialize'))
+
+        self.server.add_url_rule(
+            '{}/interceptor'.format(url_namespace),
+            view_func=self.interceptor,
+            endpoint='{}_{}'.format(url_namespace, 'interceptor'),
+            methods=['POST'])
+
+        self.server.add_url_rule(
+            '{}/js/component-suites/<path:path>'.format(url_namespace),
+            endpoint='{}_{}'.format(url_namespace, 'js'),
+            view_func=self.component_suites)
+
+        # Serve up the main dash bundle with the treeRenderer
+        with self.server.app_context():
+            url_for('static', filename='bundle.js')
+
+    def component_suites(self, path):
+        name = self.resolver.resolve_dependency_name(path)
+        return send_from_directory(self.resolver.site_packages_path, name)
+
     def index(self):
-        return flask.render_template('index.html')
+        return flask.render_template(
+            'index.html',
+            component_suites=self.component_suites
+        )
 
     def initialize(self):
         return flask.jsonify(json.loads(json.dumps(self.layout,
@@ -62,6 +89,10 @@ class Dash(object):
             parents.append(component_json)
 
         return self.react_map[target_id]['callback'](*parents)
+
+    def run_server(self, port=8050, debug=True, component_suites=[]):
+        self.component_suites = component_suites
+        self.server.run(port=port, debug=debug)
 
     def react(self, component_id, parents=[]):
         def wrap_func(func):

@@ -34,9 +34,10 @@ export default function render(component, dependencyGraph, path=[]) {
     }
 
     // Create wrapping parent element
+    // TODO Remove all static component references from Registry
     const element = R.has(component.type, Registry)
         ? Registry[component.type]
-        : component.type; // TODO: check against React's registry - this may not be native component either
+        : Registry.resolve(component.type, component.namespace);
 
     const parent = React.createElement(
         element,
