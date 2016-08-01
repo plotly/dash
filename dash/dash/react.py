@@ -1,36 +1,18 @@
 import flask
 import json
-from os import path, listdir
 import plotly
 from flask import Flask, url_for, send_from_directory
 from flask.ext.cors import CORS
 
-# Get local path for site-packages
-plotly_module_path = path.abspath(plotly.__file__)
-plotly_module_name = 'plotly'
-plotly_name_index = plotly_module_path.index(plotly_module_name)
-site_packages_path = plotly_module_path[:plotly_name_index]
-# TEMP: check path
-print('site_packages_path: ' + site_packages_path)
-
-# TODO: figure out how we can support local module installations
-# using `python setup.py install`, where the module directory has
-# appended `-[MODULE_VERSION]-[pyVERSTION].egg`
-# e.g. dash_core_components-0.1.4-py2.7.egg
-# IDEA:
-# 1. Traverse site-packages looking for comp. suite root names;
-# 2. map root names to real directory names;
-# 3. use mapping in the `component_suites` req. handler.
-#
-# dash_component_suites = [f for f in listdir(dir)
-#     if f.startswith('dash_') and
-#     not f.endswith('dist-info')
-# ]
+from dependency_resolver import Resolver
 
 class Dash(object):
     def __init__(self, name=None, url_namespace='', server=None):
 
         self.layout = None
+
+        # Resolve site-packages location by using plotly as canonical dependency
+        self.resolver = Resolver(plotly, 'plotly')
 
         self.react_map = {}
 
@@ -71,9 +53,8 @@ class Dash(object):
             url_for('static', filename='bundle.js')
 
     def component_suites(self, path):
-        # http://localhost:8050/js/component-suites/dash_core_components-0.1.4-py2.7.egg/bundle.js
-        print(site_packages_path + path)
-        return send_from_directory(site_packages_path, path)
+        name = self.resolver.resolve_dependency_name(path)
+        return send_from_directory(self.resolver.site_packages_path, name)
 
     def index(self):
         return flask.render_template(
