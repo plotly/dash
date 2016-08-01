@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Core component suite for Dash2",
   "repository": {
     "type": "git",
@@ -8,13 +8,13 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "copy-metadata": "cp lib/metadata.json dash_core_components/",
+    "copy-lib": "cp lib/* dash_core_components",
     "demo": "builder run demo",
-    "install-local": "npm run prepublish && python setup.py install",
-    "prepublish": "npm test && builder run transpile-dev && npm run copy-metadata",
+    "install-local": "npm run copy-lib && python setup.py install",
+    "prepublish": "npm test && builder run build-dist && npm run copy-lib",
     "publish-all": "npm publish && python setup.py sdist upload",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
-    "start": "builder run transpile-dev-watch",
+    "start": "builder run build-dev",
     "test": "builder run check",
     "test-watch": "builder run test-frontend-watch",
     "test-debug": "builder run test-frontend-debug",
@@ -24,7 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "builder": "2.10.1",
-    "dash-components-archetype": "^0.1.9",
+    "dash-components-archetype": "^0.2.0",
     "plotly.js": "^1.14.2",
     "radium": "^0.17.1",
     "ramda": "^0.21.0",
@@ -32,7 +32,7 @@
     "react-dom": "^15.1.0"
   },
   "devDependencies": {
-    "dash-components-archetype-dev": "^0.1.9",
+    "dash-components-archetype-dev": "^0.2.0",
     "enzyme": "^2.4.1"
   }
 }

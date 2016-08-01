@@ -5,4 +5,4 @@ machine:
 test:
   post:
     # Ensure steps leading up to publishing work.
-    - node_modules/.bin/builder run transpile-dev
+    - node_modules/.bin/builder run build-dist
