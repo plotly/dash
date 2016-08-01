@@ -23,6 +23,50 @@ Successfully installed Flask-0.11 Flask-Cors-2.1.2 Jinja2-2.8 MarkupSafe-0.23 We
 
 ### Python Developer guide
 
+#### Use `virtualenv`
+
+Running everything in the same virtual environment ensures that you don't have
+conflicts with other globally installed python packages, and in general makes
+for a much more consistent development environment. You could also create
+multiple virtualenvs for different versions of Dash, for instance.
+
+##### Install the goods
+
+```sh
+$ pip install virtualenv
+$ pip install virtualenvwrapper
+```
+
+##### Add to your shell's configuration
+
+```sh
+# The actual file to edit will vary depending
+# on your OS, shell, and setup.
+$ vi ~/.bash_profile
+
+# Add these lines
+export WORKON_HOME=$HOME/.py_virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh
+```
+
+##### Create a virtual environment
+
+`my-dash-env` is a name of your choosing.
+
+```sh
+$ mkvirtualenv my-dash-env
+```
+
+##### Now you can switch to this virtual environment:
+
+```sh
+$ workon my-dash-env
+```
+
+More reading
+- http://docs.python-guide.org/en/latest/dev/virtualenvs/
+
+
 #### Debugging
 
 Install `ipdb`:
