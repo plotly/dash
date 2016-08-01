@@ -27,7 +27,7 @@ http://plotly-dash.herokuapp.com
 3. Start the python backend
 
         $ cd dash
-        $ python helloworld.py
+        $ python click_example.py
 
     - See [dash/README.md](./dash/README.md) for more details.
 
