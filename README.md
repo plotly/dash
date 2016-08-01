@@ -46,6 +46,22 @@ http://plotly-dash.herokuapp.com
 Join the chat room at [https://dash-talk.slack.com/signup](https://dash-talk.slack.com/signup). Feel free to send the distribute the invite.
 
 
+#### How external component suites are resolved
+
+This is how dynamic component JavaScript bundle loading works:
+
+1. Component suite defines a namespace, passes it to component loader, which
+   adds namespace to component JSON definition
+2. When starting Dash, user passes a `component_suites` kwarg list they want to
+   register to `dash.run_server`
+3. Dash flask server configures `site-packages` as static file directory and
+   generates a list of component suite bundles
+4. Dash flask `index.html` template spits out component suite script bundle URLs
+   in `<HEAD/>`
+5. Renderer Registry uses `namespace` to look for the component definitions on
+   `window`.
+
+
 ## Architecture
 
 dash is composed of several parts:
