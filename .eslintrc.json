@@ -1,0 +1,3 @@
+{
+    "extends": "./eslint/eslintrc-node.json"
+}
