@@ -25,6 +25,11 @@ Script.propTypes = {
     'defer': PropTypes.string,
 
     /**
+     * Security Feature that allows browsers to verify what they fetch.     MDN Link
+     */
+    'integrity': PropTypes.string,
+
+    /**
      * The URL of the embeddable content.
      */
     'src': PropTypes.string,

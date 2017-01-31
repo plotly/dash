@@ -1,43 +1,13 @@
 
 import React, {PropTypes} from 'react';
 
-const Link = (props) => (
-    <link {...props}>
+const Slot = (props) => (
+    <slot {...props}>
         {props.children}
-    </link>
+    </slot>
 );
 
-Link.propTypes = {
-
-    /**
-     * The URL of a linked resource.
-     */
-    'href': PropTypes.string,
-
-    /**
-     * Specifies the language of the linked resource.
-     */
-    'hrefLang': PropTypes.string,
-
-    /**
-     * Security Feature that allows browsers to verify what they fetch.     MDN Link
-     */
-    'integrity': PropTypes.string,
-
-    /**
-     * Specifies a hint of the media for which the linked resource was designed.
-     */
-    'media': PropTypes.string,
-
-    /**
-     * Specifies the relationship of the target object to the link object.
-     */
-    'rel': PropTypes.string,
-
-    /**
-     *
-     */
-    'sizes': PropTypes.string,
+Slot.propTypes = {
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -105,4 +75,4 @@ Link.propTypes = {
     'title': PropTypes.string
 };
 
-export default Link;
+export default Slot;

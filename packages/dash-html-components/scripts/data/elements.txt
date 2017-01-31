@@ -60,6 +60,7 @@ var
 wbr
 area
 audio
+img
 map
 track
 video
@@ -104,6 +105,7 @@ summary
 content
 element
 shadow
+slot
 template
 acronym
 applet
@@ -125,6 +127,7 @@ multicol
 nextid
 noembed
 plaintext
+shadow
 spacer
 strike
 tt

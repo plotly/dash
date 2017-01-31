@@ -1,43 +1,48 @@
 
 import React, {PropTypes} from 'react';
 
-const Link = (props) => (
-    <link {...props}>
+const Img = (props) => (
+    <img {...props}>
         {props.children}
-    </link>
+    </img>
 );
 
-Link.propTypes = {
+Img.propTypes = {
 
     /**
-     * The URL of a linked resource.
+     * Alternative text in case an image can't be displayed.
      */
-    'href': PropTypes.string,
+    'alt': PropTypes.string,
 
     /**
-     * Specifies the language of the linked resource.
+     * Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
      */
-    'hrefLang': PropTypes.string,
-
-    /**
-     * Security Feature that allows browsers to verify what they fetch.     MDN Link
-     */
-    'integrity': PropTypes.string,
-
-    /**
-     * Specifies a hint of the media for which the linked resource was designed.
-     */
-    'media': PropTypes.string,
-
-    /**
-     * Specifies the relationship of the target object to the link object.
-     */
-    'rel': PropTypes.string,
+    'height': PropTypes.string,
 
     /**
      *
      */
     'sizes': PropTypes.string,
+
+    /**
+     * The URL of the embeddable content.
+     */
+    'src': PropTypes.string,
+
+    /**
+     *
+     */
+    'srcSet': PropTypes.string,
+
+    /**
+     *
+     */
+    'useMap': PropTypes.string,
+
+    /**
+     * For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.
+     */
+    'width': PropTypes.string,
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -105,4 +110,4 @@ Link.propTypes = {
     'title': PropTypes.string
 };
 
-export default Link;
+export default Img;
