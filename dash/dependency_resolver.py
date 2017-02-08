@@ -1,11 +1,15 @@
 import os
 
+
 class Resolver(object):
 
     site_packages_path = None
 
     def __init__(self, dependency, dependencyName):
-        self.site_packages_path = self._get_site_packages_path(dependency, dependencyName)
+        self.site_packages_path = self._get_site_packages_path(
+            dependency,
+            dependencyName
+        )
 
     def _get_site_packages_path(self, dependency, dependencyName):
         # Get local path for site-packages
@@ -28,9 +32,8 @@ class Resolver(object):
         package_name = path_parts[0]
         # Find the real directory that matches package name
         matches = [f for f in os.listdir(self.site_packages_path)
-            if f.startswith(package_name) and
-            not f.endswith('dist-info')
-        ]
+                   if f.startswith(package_name) and
+                   not f.endswith('dist-info')]
 
         package_dir = matches[0]
 
