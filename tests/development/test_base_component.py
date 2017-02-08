@@ -6,6 +6,8 @@ import plotly
 import unittest
 
 
+Component._prop_names = ('id', 'a', 'content', 'style', )
+
 class TestComponent(unittest.TestCase):
     def test_init(self):
         c = Component(a=3)
@@ -303,13 +305,21 @@ class TestGenerateClass(unittest.TestCase):
             'namespace': 'TableComponents',
             'type': 'Table',
             'props': {
-                'content': None,
-                'id': None,
-                'rows': None
+                'content': None
             }
         })
 
         c = self.ComponentClass(id='my-id')
+        self.assertEqual(c.to_plotly_json(), {
+            'namespace': 'TableComponents',
+            'type': 'Table',
+            'props': {
+                'content': None,
+                'id': 'my-id'
+            }
+        })
+
+        c = self.ComponentClass(id='my-id', rows=None)
         self.assertEqual(c.to_plotly_json(), {
             'namespace': 'TableComponents',
             'type': 'Table',
@@ -371,9 +381,9 @@ class TestGenerateClass(unittest.TestCase):
             '\n'.join([
                 'A Table component.',
                 'Valid keys:',
-                '- content (dflt: None)',
-                '- id (dflt: None)',
-                '- rows (dflt: None)',
+                '- content',
+                '- id',
+                '- rows',
                 '        '
             ])
         )
@@ -383,9 +393,9 @@ class TestGenerateClass(unittest.TestCase):
         # http://stackoverflow.com/questions/2677185/
         self.assertEqual(
             inspect.getargspec(self.ComponentClass.__init__).args,
-            ['self', 'content', 'id', 'rows']
+            ['self', 'content']
         )
         self.assertEqual(
             inspect.getargspec(self.ComponentClass.__init__).defaults,
-            (None, None, None,)
+            (None, )
         )

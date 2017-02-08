@@ -154,10 +154,7 @@ class IntegrationTest(unittest.TestCase):
                         'type': 'Div',
                         'namespace': 'html_components',
                         'props': {
-                            'className': None,
-                            'content': 'New Component',
-                            'id': None,
-                            'style': None
+                            'content': 'New Component'
                         }
                     }
                 }
