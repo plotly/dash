@@ -1,8 +1,6 @@
 /* eslint-disable no-console */
-import R from 'ramda';
+import R, {view, lensPath, merge} from 'ramda';
 import { createAction } from 'redux-actions';
-import request from 'request';
-import Immutable from 'immutable';
 
 export const ACTIONS = (action) => {
     const actionList = {
@@ -24,23 +22,18 @@ const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
 
 export const initialize = function() {
     return function (dispatch) {
-        console.warn('initializing GET');
-        request({
-            method: 'GET',
-            withCredentials: false, // https://github.com/request/request/issues/986#issuecomment-53377999
-            url: 'http://localhost:8050/initialize'
-        }, function(err, res, body) {
+        console.warn('initializing GET.');
+        fetch('/initialize', {method: 'GET'})
+        .then(res => res.json().then(layout => {
             // TODO: error handling
-            const layout = JSON.parse(body);
-            const immutableLayout = Immutable.fromJS(layout);
-            dispatch(setLayout(immutableLayout));
-            dispatch(computeGraph(layout)); // TODO - immutable everywhere?
+            console.warn(JSON.stringify(layout, null, 2));
+            dispatch(setLayout(layout));
+            dispatch(computeGraph(layout));
             dispatch(computePaths(layout))
-        });
+        }));
     }
 }
 
-// TODO: make the actual POST
 // TODO: Consider moving side effects to reducers via https://github.com/gregwebs/redux-side-effect
 export const notifyObservers = function(payload) {
     return function (dispatch, getState) {
@@ -50,6 +43,8 @@ export const notifyObservers = function(payload) {
             paths,
             requestQueue
         } = getState();
+
+        // debugger;
 
         // Grab the ids of any components that depend on this component
         let observerIds = dependencyGraph.dependantsOf(payload.id);
@@ -67,7 +62,7 @@ export const notifyObservers = function(payload) {
         // update each observer
         for (let i = 0; i < observerIds.length; i++) {
             const observerId = observerIds[i];
-            const observerComponent = layout.getIn(paths[observerId]);
+            const observerComponent = view(lensPath(paths[observerId]), layout);
 
             /*
              * before we make the POST, check that none of its dependencies
@@ -75,8 +70,8 @@ export const notifyObservers = function(payload) {
              * when each dependency updates, it'll dispatch its own `notifyObservers`
              * action which will allow this component to update.
              */
+
             const dependenciesInQueue = R.intersection(
-                // TODO Can just use `requestQueue`?
                 getState().requestQueue,
                 dependencyGraph.dependenciesOf(observerId)
             );
@@ -90,47 +85,46 @@ export const notifyObservers = function(payload) {
                  * Construct a payload of the props of all of the dependencies
                  * (controller components of this observer component).
                  */
-                const controllers = observerComponent.get('dependencies').reduce(
+                const controllers = observerComponent.dependencies.reduce(
                     (r, id) => {
-                        r[id] = layout.getIn(paths[id]).toJS();
+                        r[id] = view(lensPath(paths[id]), layout);
                         return r;
                     }, {}
                 );
                 const body = {
-                    target: layout.getIn(paths[observerId]),
+                    target: view(lensPath(paths[observerId]), layout),
                     parents: controllers
                 }
 
                 /* eslint-disable no-console */
 
                 // make the /POST
-                // xhr.POST(/update-component) ...
                 console.warn(`POST: ${observerId}`);
 
-                // mimic async POST request behaviour with setTimeout
-                request({
+                fetch('/interceptor', {
                     method: 'POST',
-                    body: JSON.stringify(body),
-                    withCredentials: false,
-                    url: 'http://localhost:8050/interceptor'// location.href + 'interceptor'
-                }, function(err, res, body) {
-                    const response = JSON.parse(body).response;
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                }).then(response => response.json().then(function handleResponse(data) {
 
                     // clear this item from the request queue
-                    console.warn(`RESPONSE: ${observerId}`);
+                    console.warn(
+                        `RESPONSE: ${observerId}`,
+//                        JSON.stringify(data, null, 2)
+                    );
                     dispatch(setRequestQueue(
                         R.reject(
                             id => id === observerId,
                             // in an async loop so grab the state again
-                            getState().requestQueue)
+                            getState().requestQueue
                         )
-                    );
+                    ));
 
                     // and update the props of the component
                     const observerUpdatePayload = {
                         itempath: paths[observerId],
                         // new props from the server
-                        props: response.props
+                        props: merge(data.response.props, {content: data.response.children})
                     };
                     dispatch(updateProps(observerUpdatePayload));
 
@@ -138,7 +132,7 @@ export const notifyObservers = function(payload) {
                     observerUpdatePayload.id = observerId;
                     dispatch(notifyObservers(observerUpdatePayload));
 
-                });
+                }));
 
             }
         }

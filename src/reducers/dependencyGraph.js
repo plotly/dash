@@ -13,6 +13,7 @@ const dependencyGraph = (state = initialGraph, action) => {
             // add ID's to all the components
             crawlLayout(layout, child => {
                 if (child.props && child.props.id) {
+                    console.warn(`Adding node: ${child.props.id}`)
                     graph.addNode(child.props.id);
                 }
             });
@@ -21,6 +22,7 @@ const dependencyGraph = (state = initialGraph, action) => {
             crawlLayout(layout, child => {
                 if (child.dependencies) {
                     for (let i = 0; i < child.dependencies.length; i++) {
+                        console.warn(`Adding dependency: ${child.props.id} -> ${child.dependencies[i]}`)
                         graph.addDependency(
                             child.props.id,
                             child.dependencies[i]

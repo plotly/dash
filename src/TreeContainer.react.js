@@ -1,27 +1,27 @@
-import React from 'react';
-import HTML5Backend from 'react-dnd-html5-backend';
-import { DragDropContext } from 'react-dnd';
 import { connect } from 'react-redux'
-
+import { isEmpty } from 'ramda'
+import React from 'react';
 import renderTree from './renderTree';
+
 
 const UnconnectedContainer = props => {
     // TODO: Request status? Loading, error, ...
-    if (props.layout.isEmpty()) {
+    if (isEmpty(props.layout)) {
         return (<div>loading...</div>);
     }
     return renderTree(
-        props.layout.toJS(),
+        props.layout,
         props.dependencyGraph
     );
 }
 
 const Container = connect(
-    state => ({      // map state to props
+    // map state to props
+    state => ({
         layout: state.layout,
         dependencyGraph: state.dependencyGraph,
         paths: state.paths
     })
 )(UnconnectedContainer);
 
-export default DragDropContext(HTML5Backend)(Container);
+export default Container;

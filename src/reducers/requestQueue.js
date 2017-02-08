@@ -1,13 +1,9 @@
-// TODO `state` should be an ImmutableJS data structure
+import {clone, type} from 'ramda';
+
 const requestQueue = (state = [], action) => {
     switch (action.type) {
         case 'SET_REQUEST_QUEUE':
-            console.warn(`REQUEST QUEUE ${action.payload}`); // eslint-disable-line
-            if (Array.isArray(action.payload)) {
-                state = Object.assign({}, action.payload);
-            }
-
-            return state;
+            return clone(action.payload);
 
         default:
             return state;

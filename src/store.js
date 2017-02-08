@@ -2,9 +2,10 @@
 
 import {createStore, applyMiddleware} from 'redux';
 import thunk from 'redux-thunk';
-
 import reducer from './reducers/reducer';
+import createLogger from 'redux-logger';
 
+const logger = createLogger()
 let store;
 const initializeStore = () => {
     if (store) {
@@ -13,7 +14,8 @@ const initializeStore = () => {
 
     store = createStore(
         reducer,
-        applyMiddleware(thunk)
+        // TODO - Remove logger from production
+        applyMiddleware(thunk, logger)
     );
 
     if (module.hot) {

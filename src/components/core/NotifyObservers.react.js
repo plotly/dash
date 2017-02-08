@@ -12,7 +12,7 @@ const mapStateToProps = () => ({});
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        valueChanged: (newProps) => {
+        valueChanged: (newProps, event='default') => {
             const payload = {
                 // we *need* the ID, should we just pass / merge everything in?
                 id: React.Children.only(ownProps.children).props.id,
@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
             dispatch(updateProps(payload));
 
             // Update this component's observers with the updated props
-            dispatch(notifyObservers(payload));
+            dispatch(notifyObservers(payload, event));
 
         }
     }

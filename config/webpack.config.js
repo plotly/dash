@@ -11,15 +11,10 @@ module.exports = {
     context: SRC,
     resolve: {
         // Need `''` so referencing modules by `name.js` works.
-        extensions: ['', '.js', '.jsx', '.json'],
-        // Make default module directory explicit
-        modulesDirectories: ['node_modules']
+        extensions: ['', '.js', '.jsx', '.json']
     },
-    // Support `request` node library
-    node: {
-        console: true,
-        fs: 'empty',
-        net: 'empty',
-        tls: 'empty'
-    }
+    externals: {
+		'react': 'React',
+		'react-dom': 'ReactDOM'
+    }    
 };

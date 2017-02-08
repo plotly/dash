@@ -1,7 +1,7 @@
 import R from 'ramda';
 
-const pad = R.curry((array, paddingValue) => array.reduce((r, v) => {
-    r.push(paddingValue);
+const pad = R.curry((array, paddingValues) => array.reduce((r, v) => {
+    paddingValues.forEach(paddingValue => r.push(paddingValue));
     r.push(v);
     return r;
 }, []));
@@ -9,11 +9,11 @@ const pad = R.curry((array, paddingValue) => array.reduce((r, v) => {
 // crawl a layout object, apply a function on every object
 export const crawlLayout = (object, func, path=[]) => {
     func(object, path);
-    if (Array.isArray(object.children)) {
-        object.children.forEach((child, i) => {
+    if (Array.isArray(object.props.content)) {
+        object.props.content.forEach((child, i) => {
             crawlLayout(child, func, R.append(i, path));
         });
     }
 }
 
-export const createTreePath = (array) => pad(array, 'children');
+export const createTreePath = (array) => pad(array, ['props', 'content']);
