@@ -1,18 +1,11 @@
-import json
 from base_component import generate_class
-
-
-def empty(self):
-    pass
+import collections
+import json
 
 
 def load_components(metadata_path,
-                    default_props=['id', 'key', 'className', 'style',
-                                   'dependencies', 'dangerouslySetInnerHTML',
-                                   'suppressContentEditableWarning'],
-                    namespace='default_namespace',
-                    scope={},
-                    module_name='__main__'):
+                    default_props=[],
+                    namespace='default_namespace'):
     """Load React component metadata into a format Dash can parse.
 
     Usage: load_components('../../component-suites/lib/metadata.json', ['content', 'id', 'key', 'className', 'style', 'dependencies'])
@@ -30,41 +23,42 @@ def load_components(metadata_path,
 
     # Start processing
     with open(metadata_path) as data_file:
-        data = json.load(data_file)
+        json_string = data_file.read()
+        data = json\
+            .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+            .decode(json_string)
 
     # Iterate over each property name (which is a path to the component)
-    for path in data:
-        componentData = data[path]
+    for componentPath in data:
+        componentData = data[componentPath]
 
         # Extract component name from path
         # e.g. src/components/MyControl.react.js
-        # TODO Make more robust
-        name = path.split('/').pop().split('.')[0]
+        # TODO Make more robust - some folks will write .jsx and others
+        # will be on windows. Unfortunately react-docgen doesn't include
+        # the name of the component atm.
+        name = componentPath.split('/').pop().split('.')[0]
 
         # Extract props
-        props = []
+        prop_names = componentData.get('props', {}).keys()
+        for prop in default_props:
+            if prop not in prop_names:
+                prop_names.insert(0, prop)
 
-        if 'props' in componentData:
-            componentProps = componentData['props']
-
-            for prop in componentProps:
-                props.append(prop)
-
-        component_spec = {
-            'type': name,
-            # Convert list to set and back again to get unique values only.
-            # This avoids the dreaded `SyntaxError: keyword argument repeated`
-            # in dynamic generate_class() function.
-            'valid_kwargs': list(set(default_props + props)),
-            'setup': empty
-        }
+        # If "content" is a prop, then move it to the front to respect
+        # dash convention
+        if 'content' in prop_names:
+            prop_names.remove('content')
+            prop_names.insert(0, 'content')
 
         component = generate_class(
-            component_spec['type'],
-            component_spec['valid_kwargs'],
-            component_spec['setup'],
+            name,
+            prop_names,
             namespace
         )
 
-        component.__module__ = module_name
-        scope[component_spec['type']] = component
+        # TODO - Remove this
+        # scope[component_spec['type']] = component
+        components.append(component)
+
+    return components
