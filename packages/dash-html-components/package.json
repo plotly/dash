@@ -19,11 +19,11 @@
     "copy-lib": "cp lib/* dash_html_components",
     "generate-components": "cd scripts && sh generate-all.sh && cd -",
     "install-local": "npm run copy-lib && python setup.py install",
-    "prepublish": "npm run clean && npm run generate-components && npm test && builder run build-dist && npm run copy-lib",
+    "prepublish": "npm run clean && npm run generate-components && npm test && ./node_modules/.bin/builder run build-dist && npm run copy-lib",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "publish-all": "npm publish && python setup.py sdist upload",
-    "start": "builder run build-dev",
-    "test": "builder run lint",
+    "start": "./node_modules/.bin/builder run build-dev",
+    "test": "./node_modules/.bin/builder run lint",
     "uninstall-local": "pip uninstall dash-html-components -y"
   },
   "dependencies": {
