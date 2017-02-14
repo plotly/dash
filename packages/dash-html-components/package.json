@@ -27,7 +27,7 @@
     "uninstall-local": "pip uninstall dash-html-components -y"
   },
   "dependencies": {
-    "builder": "2.10.1",
+    "builder": "3.2.1",
     "dash-components-archetype": "^0.2.1",
     "react": "^15.1.0"
   },
