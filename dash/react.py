@@ -40,6 +40,10 @@ class Dash(object):
             endpoint='{}_{}'.format(url_namespace, 'initialize'))
 
         self.server.add_url_rule(
+            '{}/dependencies'.format(url_namespace),
+            view_func=self.dependencies,
+            endpoint='{}_{}'.format(url_namespace, 'dependencies'))
+
 
         # TODO - A different name for "interceptor".
         # TODO - Should the "interceptor"'s API be keyed by component ID?
@@ -109,6 +113,13 @@ class Dash(object):
         return flask.jsonify(json.loads(json.dumps(self.layout,
                              cls=plotly.utils.PlotlyJSONEncoder)))
 
+    def dependencies(self):
+        return flask.jsonify({
+            k: {
+                i: j for i, j in v.iteritems() if i != 'callback'
+            } for k, v in self.react_map.iteritems()
+        })
+
     def interceptor(self):
         body = json.loads(flask.request.get_data())
         target = body['target']
@@ -158,7 +169,6 @@ class Dash(object):
                 'parents': parents
             }
 
-            self.layout[component_id].dependencies = parents
             return add_context
 
         return wrap_func
