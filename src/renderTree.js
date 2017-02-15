@@ -6,7 +6,7 @@ import Registry from './registry';
 import NotifyObservers from './components/core/NotifyObservers.react';
 import {createTreePath} from './reducers/utils';
 
-export default function render(component, dependencyGraph, path=[]) {
+export default function render(component, path=[]) {
     // Create list of child elements
     let children;
 
@@ -28,7 +28,7 @@ export default function render(component, dependencyGraph, path=[]) {
 
         // Recursively render the tree
         const renderChild = (child, i) =>
-            render(child, dependencyGraph, R.append(i, path))
+            render(child, R.append(i, path))
 
         children = (Array.isArray(content) ? content : [content])
                    .map(renderChild);
@@ -43,23 +43,9 @@ export default function render(component, dependencyGraph, path=[]) {
         ...children
     );
 
-    // has observers?
-    if (
-        props && props.id &&
-        /*
-         * in case it isn't initalized yet -
-         * TODO: we should be able to remove this check
-         * with like a initialization status store or something
-         */
-        dependencyGraph.hasNode(component.props.id) &&
-        dependencyGraph.dependantsOf(component.props.id).length
-    ) {
-        return (
-            <NotifyObservers>
-                {parent}
-            </NotifyObservers>
-        );
-    }
-
-    return parent;
+    return (
+        <NotifyObservers id={props.id}>
+            {parent}
+        </NotifyObservers>
+    );
 }

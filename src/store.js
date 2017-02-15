@@ -18,6 +18,9 @@ const initializeStore = () => {
         applyMiddleware(thunk, logger)
     );
 
+    // TODO - Protect this under a debug mode?
+    window.store = store;
+
     if (module.hot) {
         // Enable hot module replacement for reducers
         module.hot.accept('./reducers/reducer', () => {

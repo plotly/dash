@@ -1,46 +1,96 @@
+import {connect} from 'react-redux';
+import {isEmpty} from 'ramda';
+import {notifyObservers, updateProps} from '../../actions';
 import React, {PropTypes} from 'react';
-import { connect } from 'react-redux';
-
-import { notifyObservers, updateProps } from '../../actions';
 
 /*
  * NotifyObservers passes a connected `valueChanged` handler down to
  * its child as a prop
  */
 
-const mapStateToProps = () => ({});
+function mapStateToProps (state) {
+    return {graphs: state.graphs, paths: state.paths};
+}
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+function mapDispatchToProps (dispatch) {
+    return {dispatch};
+};
+
+function mergeProps(stateProps, dispatchProps, ownProps) {
+    const {dispatch} = dispatchProps;
+
     return {
-        valueChanged: (newProps, event='default') => {
+        id: ownProps.id,
+        children: ownProps.children,
+
+        EventGraph: stateProps.graphs.EventGraph,
+        StateGraph: stateProps.graphs.StateGraph,
+
+        fireEvent: function fireEvent({event}) {
+            // Update this component's observers with the updated props
+            dispatch(notifyObservers({event, id: ownProps.id}));
+        },
+
+        valueChanged: function valueChanged(newProps) {
             const payload = {
-                // we *need* the ID, should we just pass / merge everything in?
-                id: React.Children.only(ownProps.children).props.id,
-                // TODO pass in the entire prop object or just updates?
                 props: newProps,
-                itempath: React.Children.only(ownProps.children).props.path
+                id: ownProps.id,
+                itempath: stateProps.paths[ownProps.id]
             };
 
             // Update this component's props
             dispatch(updateProps(payload));
 
-            // Update this component's observers with the updated props
-            dispatch(notifyObservers(payload, event));
-
+            // Fire an event that the props have changed.
+            // TODO - Will updateProps have finished by the time this is fired?
+            // TODO - Add support for subscribing to a particular prop change?
+            dispatch(notifyObservers({event: 'propChange', id: ownProps.id}));
         }
     }
-};
 
-const NotifyObservers = ({ valueChanged, children }) => {
-    // pass `valueChanged` handler as prop to the child element e.g. an <input>
-    return React.cloneElement(children, {valueChanged});
 }
 
-NotifyObservers.propTypes = {
-    valueChanged: PropTypes.func.isRequired
+function NotifyObserversComponent ({
+    children,
+    id,
+
+    EventGraph,
+    StateGraph,
+
+    fireEvent,
+    valueChanged
+}) {
+
+    // TODO - Check if it triggers this particular event
+    const thisComponentTriggersEvents = (
+        EventGraph.hasNode(id) && EventGraph.dependantsOf(id).length
+    );
+    const thisComponentSharesState = (
+        StateGraph.hasNode(id) && StateGraph.dependantsOf(id).length
+    );
+    const extraProps = {};
+    if (thisComponentSharesState) {
+        extraProps.valueChanged = valueChanged;
+    }
+    if (thisComponentTriggersEvents) {
+        extraProps.fireEvent = fireEvent;
+    }
+
+    if (!isEmpty(extraProps)) {
+        return React.cloneElement(children, extraProps);
+    } else {
+        return children;
+    }
+}
+
+NotifyObserversComponent.propTypes = {
+    id: PropTypes.string.isRequired,
+    children: PropTypes.node.isRequired,
+    path: PropTypes.array.isRequired
 };
 
 export default connect(
     mapStateToProps,
-    mapDispatchToProps
-)(NotifyObservers);
+    mapDispatchToProps,
+    mergeProps
+)(NotifyObserversComponent);

@@ -19,7 +19,6 @@ const Container = connect(
     // map state to props
     state => ({
         layout: state.layout,
-        dependencyGraph: state.dependencyGraph,
         paths: state.paths
     })
 )(UnconnectedContainer);
