@@ -40,14 +40,15 @@ class IntegrationTest(unittest.TestCase):
         urls = [rule.rule for rule in self.app.server.url_map.iter_rules()]
 
         self.assertEqual(
-            urls,
-            [
+            sorted(urls),
+            sorted([
                 '/interceptor',
                 '/initialize',
+                '/dependencies',
                 '/',
                 '/js/component-suites/<path:path>',
                 '/static/<path:filename>'
-            ]
+            ])
         )
 
     def test_initialize_route(self):
@@ -59,6 +60,60 @@ class IntegrationTest(unittest.TestCase):
                 json.dumps(self.app.layout, cls=plotly.utils.PlotlyJSONEncoder)
             )
         )
+
+    def test_dependencies_route(self):
+        self.app.react('header', ['id1'])
+        response = self.client.get('/dependencies')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            json.loads(response.data), {
+                'header': {
+                    'state': [{'id': 'id1'}],
+                    'events': [{'id': 'id1'}]
+                }
+            }
+        )
+
+        self.app.react('header',
+                       state=[{'id': 'id1'}],
+                       events=[{'id': 'id1'}])
+        response = self.client.get('/dependencies')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            json.loads(response.data), {
+                'header': {
+                    'state': [{'id': 'id1'}],
+                    'events': [{'id': 'id1'}]
+                }
+            }
+        )
+
+        state = [
+             {'id': 'id1', 'prop': 'value'},
+
+             # Multiple properties from a single component
+             {'id': 'id1', 'prop': 'className'},
+
+             # Nested state
+             {'id': 'id1', 'prop': ['style', 'color']}
+        ]
+        events = [
+             {'id': 'id1', 'event': 'click'},
+             {'id': 'id1', 'event': 'submit'}
+         ]
+        self.app.react('header', state=state, events=events)
+        response = self.client.get('/dependencies')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            json.loads(response.data), {
+                'header': {
+                    'state': state,
+                    'events': events
+                }
+            }
+        )
+
+
 
     def test_index_html(self):
         response = self.client.get('/')
