@@ -50,8 +50,13 @@ function generatePropTypes(element, attributes) {
     /**
      *${attribute.description ? ' ' + attribute.description : ''}
      */
-    '${attributeName}': PropTypes.${propType}${index < numAttributes - 1 ? ',' : ''}`;
-    }, '');
+    '${attributeName}': PropTypes.${propType},`;
+    }, '') + `
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func`
 }
 
 function generateComponent(Component, element, attributes) {
@@ -60,11 +65,26 @@ function generateComponent(Component, element, attributes) {
     return `
 import React, {PropTypes} from 'react';
 
-const ${Component} = (props) => (
-    <${element} {...props}>
-        {props.children}
-    </${element}>
-);
+const ${Component} = (props) => {
+    if (props.fireEvent) {
+        return (
+            <${element}
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent({event: 'onMouseEnter'})}
+                onMouseLeave={() => props.fireEvent({event: 'onMouseLeave'})}
+                {...props}
+            >
+                {props.children}
+            </${element}>
+        );
+    } else {
+        return (
+            <${element} {...props}>
+                {props.children}
+            </${element}>
+        );
+    }
+};
 
 ${Component}.propTypes = {${propTypes}
 };
