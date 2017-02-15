@@ -23,10 +23,6 @@ class Dash(object):
         else:
             self.server = Flask(name)
 
-        # The name and port number of the server.
-        # Required for subdomain support (e.g.: 'myapp.dev:5000')
-        self.server.config['SERVER_NAME'] = 'localhost:8050'
-
         CORS(self.server)  # TODO: lock this down to dev node server port
 
         self.server.add_url_rule(
