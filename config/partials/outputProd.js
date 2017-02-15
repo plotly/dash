@@ -10,7 +10,7 @@ module.exports = function (config) {
     return partial(config, {
         output: {
             path: BUILD,
-            publicPath: '/build/',
+            publicPath: '/dash_renderer/',
             // TODO: Bundle filename should be hashed (#10)
             filename: '[name].js'
         }
