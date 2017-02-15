@@ -3,15 +3,16 @@ import json
 import plotly
 from flask import Flask, url_for, send_from_directory
 from flask.ext.cors import CORS
-
 from dependency_resolver import Resolver
+
 
 class Dash(object):
     def __init__(self, name=None, url_namespace='', server=None):
 
         self.layout = None
 
-        # Resolve site-packages location by using plotly as canonical dependency
+        # Resolve site-packages location by using plotly as canonical
+        # dependency.
         self.resolver = Resolver(plotly, 'plotly')
 
         self.react_map = {}
@@ -25,19 +26,24 @@ class Dash(object):
         # Required for subdomain support (e.g.: 'myapp.dev:5000')
         self.server.config['SERVER_NAME'] = 'localhost:8050'
 
-        CORS(self.server) # TODO: lock this down to dev node server port
+        CORS(self.server)  # TODO: lock this down to dev node server port
 
         self.server.add_url_rule(
             '{}/'.format(url_namespace),
             endpoint='{}_{}'.format(url_namespace, 'index'),
             view_func=self.index)
 
+        # TODO - Rename "initialize". Perhaps just "GET /components"
         self.server.add_url_rule(
             '{}/initialize'.format(url_namespace),
             view_func=self.initialize,
             endpoint='{}_{}'.format(url_namespace, 'initialize'))
 
         self.server.add_url_rule(
+
+        # TODO - A different name for "interceptor".
+        # TODO - Should the "interceptor"'s API be keyed by component ID?
+        # For example: POST dash.com/components/my-id/update
             '{}/interceptor'.format(url_namespace),
             view_func=self.interceptor,
             endpoint='{}_{}'.format(url_namespace, 'interceptor'),
