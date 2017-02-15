@@ -29,7 +29,6 @@ export default class PlotlyGraph extends Component {
     }
 
     bindEvents(props) {
-        console.warn('bindEvents', props);
         const {id, fireEvent, valueChanged} = props;
 
         // Get DOM node to call jQuery-provided `on` event binder.
@@ -37,11 +36,8 @@ export default class PlotlyGraph extends Component {
 
         gd.on('plotly_click', (eventData) => {
             const clickData = filterEventData(eventData);
-            console.warn('plotly_click..')
             if (valueChanged) {
                 valueChanged({clickData});
-            } else {
-                console.warn('Skipping valueChanged');
             }
             if (fireEvent) fireEvent({event: 'click'});
         });
@@ -62,7 +58,6 @@ export default class PlotlyGraph extends Component {
         this.plot(this.props).then(() => {
             this.bindEvents(this.props);
             window.addEventListener('resize', () => {
-                console.warn('resizing graph');
                 Plotly.Plots.resize(document.getElementById(this.props.id));
             });
         });

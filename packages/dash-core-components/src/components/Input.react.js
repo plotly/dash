@@ -20,7 +20,7 @@ export default class Input extends Component {
                     // fireEvent takes its state?? might need redux-thunk
                     if (fireEvent) fireEvent({event: 'onChange'});
                 }}
-                onBlur={e => {
+                onBlur={() => {
                     if (fireEvent) fireEvent({event: 'onBlur'});
                 }}
             />

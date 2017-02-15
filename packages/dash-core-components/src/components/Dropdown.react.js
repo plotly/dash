@@ -38,7 +38,7 @@ Dropdown.propTypes = {
     /**
      * If true, the option is disabled
      */
-    disabled: PropTypes.boolean,
+    disabled: PropTypes.bool,
 
     /**
      * The id of the component
@@ -48,7 +48,7 @@ Dropdown.propTypes = {
     /**
      * If true, the user can select multiple values
      */
-    multi: PropTypes.boolean,
+    multi: PropTypes.bool,
 
     options: PropTypes.arrayOf(
         PropTypes.shape({

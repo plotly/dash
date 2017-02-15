@@ -1,4 +1,3 @@
-import R from 'ramda';
 import React, {Component, PropTypes} from 'react';
 import ReactSlider from 'rc-slider';
 

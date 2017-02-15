@@ -28,8 +28,10 @@
     "plotly.js": "^1.14.2",
     "radium": "^0.17.1",
     "ramda": "^0.23.0",
+    "rc-slider": "^6.1.0",
     "react": "^15.4.0",
-    "react-dom": "^15.4.0"
+    "react-dom": "^15.4.0",
+    "react-select": "^1.0.0-rc.3"
   },
   "devDependencies": {
     "dash-components-archetype-dev": "^0.2.4",
