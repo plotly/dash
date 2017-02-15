@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Blink = (props) => (
-    <blink {...props}>
-        {props.children}
-    </blink>
-);
+const Blink = (props) => {
+    if (props.fireEvent) {
+        return (
+            <blink
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </blink>
+        );
+    } else {
+        return (
+            <blink {...props}>
+                {props.children}
+            </blink>
+        );
+    }
+};
 
 Blink.propTypes = {
 
@@ -72,7 +87,12 @@ Blink.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Blink;

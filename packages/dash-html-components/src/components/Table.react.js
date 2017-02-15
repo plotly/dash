@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Table = (props) => (
-    <table {...props}>
-        {props.children}
-    </table>
-);
+const Table = (props) => {
+    if (props.fireEvent) {
+        return (
+            <table
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </table>
+        );
+    } else {
+        return (
+            <table {...props}>
+                {props.children}
+            </table>
+        );
+    }
+};
 
 Table.propTypes = {
 
@@ -77,7 +92,12 @@ Table.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Table;

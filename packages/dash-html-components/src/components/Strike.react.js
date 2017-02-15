@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Strike = (props) => (
-    <strike {...props}>
-        {props.children}
-    </strike>
-);
+const Strike = (props) => {
+    if (props.fireEvent) {
+        return (
+            <strike
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </strike>
+        );
+    } else {
+        return (
+            <strike {...props}>
+                {props.children}
+            </strike>
+        );
+    }
+};
 
 Strike.propTypes = {
 
@@ -72,7 +87,12 @@ Strike.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Strike;

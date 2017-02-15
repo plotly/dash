@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Font = (props) => (
-    <font {...props}>
-        {props.children}
-    </font>
-);
+const Font = (props) => {
+    if (props.fireEvent) {
+        return (
+            <font
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </font>
+        );
+    } else {
+        return (
+            <font {...props}>
+                {props.children}
+            </font>
+        );
+    }
+};
 
 Font.propTypes = {
 
@@ -72,7 +87,12 @@ Font.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Font;

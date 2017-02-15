@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Wbr = (props) => (
-    <wbr {...props}>
-        {props.children}
-    </wbr>
-);
+const Wbr = (props) => {
+    if (props.fireEvent) {
+        return (
+            <wbr
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </wbr>
+        );
+    } else {
+        return (
+            <wbr {...props}>
+                {props.children}
+            </wbr>
+        );
+    }
+};
 
 Wbr.propTypes = {
 
@@ -72,7 +87,12 @@ Wbr.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Wbr;

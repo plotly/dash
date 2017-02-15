@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const H5 = (props) => (
-    <h5 {...props}>
-        {props.children}
-    </h5>
-);
+const H5 = (props) => {
+    if (props.fireEvent) {
+        return (
+            <h5
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </h5>
+        );
+    } else {
+        return (
+            <h5 {...props}>
+                {props.children}
+            </h5>
+        );
+    }
+};
 
 H5.propTypes = {
 
@@ -72,7 +87,12 @@ H5.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default H5;

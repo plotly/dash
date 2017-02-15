@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Hgroup = (props) => (
-    <hgroup {...props}>
-        {props.children}
-    </hgroup>
-);
+const Hgroup = (props) => {
+    if (props.fireEvent) {
+        return (
+            <hgroup
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </hgroup>
+        );
+    } else {
+        return (
+            <hgroup {...props}>
+                {props.children}
+            </hgroup>
+        );
+    }
+};
 
 Hgroup.propTypes = {
 
@@ -72,7 +87,12 @@ Hgroup.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Hgroup;

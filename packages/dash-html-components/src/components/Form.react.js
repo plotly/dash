@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Form = (props) => (
-    <form {...props}>
-        {props.children}
-    </form>
-);
+const Form = (props) => {
+    if (props.fireEvent) {
+        return (
+            <form
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </form>
+        );
+    } else {
+        return (
+            <form {...props}>
+                {props.children}
+            </form>
+        );
+    }
+};
 
 Form.propTypes = {
 
@@ -117,7 +132,12 @@ Form.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Form;

@@ -142,6 +142,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -239,6 +246,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -336,6 +350,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -433,6 +454,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -537,6 +565,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -697,6 +732,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -794,6 +836,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -891,6 +940,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1023,6 +1079,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1120,6 +1183,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1231,6 +1301,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1328,6 +1405,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1425,6 +1509,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1522,6 +1613,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1619,6 +1717,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1716,6 +1821,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1813,6 +1925,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -1959,6 +2078,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2070,6 +2196,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2167,6 +2300,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2264,6 +2404,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2361,6 +2508,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2458,6 +2612,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2562,6 +2723,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2666,6 +2834,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2798,6 +2973,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2895,6 +3077,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -2992,6 +3181,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3089,6 +3285,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3186,6 +3389,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3297,6 +3507,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3401,6 +3618,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3498,6 +3722,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3595,6 +3826,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3692,6 +3930,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3789,6 +4034,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3886,6 +4138,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -3983,6 +4242,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -4080,6 +4346,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -4177,6 +4450,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -4302,6 +4582,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -4420,6 +4707,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -4517,6 +4811,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -4614,6 +4915,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -4711,6 +5019,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -4808,6 +5123,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -4968,6 +5290,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5065,6 +5394,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5162,6 +5498,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5259,6 +5602,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5356,6 +5706,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5453,6 +5810,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5550,6 +5914,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5647,6 +6018,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5744,6 +6122,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5841,6 +6226,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -5938,6 +6330,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -6035,6 +6434,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -6132,6 +6538,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -6278,6 +6691,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -6557,6 +6977,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -6668,6 +7095,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -6765,6 +7199,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -6862,6 +7303,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7001,6 +7449,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7112,6 +7567,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7209,6 +7671,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7313,6 +7782,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7452,6 +7928,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7549,6 +8032,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7646,6 +8136,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7750,6 +8247,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7847,6 +8351,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -7951,6 +8462,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -8055,6 +8573,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -8152,6 +8677,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -8277,6 +8809,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -8423,6 +8962,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -8520,6 +9066,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -8617,6 +9170,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -8714,6 +9274,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -8811,6 +9378,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -8908,6 +9482,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -9047,6 +9628,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -9158,6 +9746,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -9262,6 +9857,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -9380,6 +9982,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -9498,6 +10107,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -9595,6 +10211,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -9706,6 +10329,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -9803,6 +10433,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -9900,6 +10537,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10018,6 +10662,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10122,6 +10773,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10219,6 +10877,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10316,6 +10981,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10413,6 +11085,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10510,6 +11189,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10607,6 +11293,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10704,6 +11397,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10843,6 +11543,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -10940,6 +11647,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11086,6 +11800,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11183,6 +11904,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11280,6 +12008,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11377,6 +12112,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11502,6 +12244,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11599,6 +12348,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11696,6 +12452,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11793,6 +12556,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11890,6 +12660,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -11987,6 +12764,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -12084,6 +12868,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -12181,6 +12972,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -12285,6 +13083,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -12382,6 +13187,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -12500,6 +13312,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -12597,6 +13416,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -12771,6 +13597,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -12868,6 +13701,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -12993,6 +13833,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -13090,6 +13937,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -13194,6 +14048,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -13291,6 +14152,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -13388,6 +14256,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -13520,6 +14395,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -13617,6 +14499,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -13714,6 +14603,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -13811,6 +14707,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -13908,6 +14811,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -14068,6 +14978,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -14165,6 +15082,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   },
@@ -14262,6 +15186,13 @@
         },
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
       }
     }
   }

@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Center = (props) => (
-    <center {...props}>
-        {props.children}
-    </center>
-);
+const Center = (props) => {
+    if (props.fireEvent) {
+        return (
+            <center
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </center>
+        );
+    } else {
+        return (
+            <center {...props}>
+                {props.children}
+            </center>
+        );
+    }
+};
 
 Center.propTypes = {
 
@@ -72,7 +87,12 @@ Center.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Center;

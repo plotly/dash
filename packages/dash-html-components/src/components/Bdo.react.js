@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Bdo = (props) => (
-    <bdo {...props}>
-        {props.children}
-    </bdo>
-);
+const Bdo = (props) => {
+    if (props.fireEvent) {
+        return (
+            <bdo
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </bdo>
+        );
+    } else {
+        return (
+            <bdo {...props}>
+                {props.children}
+            </bdo>
+        );
+    }
+};
 
 Bdo.propTypes = {
 
@@ -72,7 +87,12 @@ Bdo.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Bdo;

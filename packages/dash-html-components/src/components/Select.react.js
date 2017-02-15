@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Select = (props) => (
-    <select {...props}>
-        {props.children}
-    </select>
-);
+const Select = (props) => {
+    if (props.fireEvent) {
+        return (
+            <select
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </select>
+        );
+    } else {
+        return (
+            <select {...props}>
+                {props.children}
+            </select>
+        );
+    }
+};
 
 Select.propTypes = {
 
@@ -107,7 +122,12 @@ Select.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Select;

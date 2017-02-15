@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Ol = (props) => (
-    <ol {...props}>
-        {props.children}
-    </ol>
-);
+const Ol = (props) => {
+    if (props.fireEvent) {
+        return (
+            <ol
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </ol>
+        );
+    } else {
+        return (
+            <ol {...props}>
+                {props.children}
+            </ol>
+        );
+    }
+};
 
 Ol.propTypes = {
 
@@ -82,7 +97,12 @@ Ol.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Ol;

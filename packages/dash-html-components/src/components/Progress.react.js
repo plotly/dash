@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Progress = (props) => (
-    <progress {...props}>
-        {props.children}
-    </progress>
-);
+const Progress = (props) => {
+    if (props.fireEvent) {
+        return (
+            <progress
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </progress>
+        );
+    } else {
+        return (
+            <progress {...props}>
+                {props.children}
+            </progress>
+        );
+    }
+};
 
 Progress.propTypes = {
 
@@ -87,7 +102,12 @@ Progress.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Progress;

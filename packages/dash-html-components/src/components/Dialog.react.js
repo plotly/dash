@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Dialog = (props) => (
-    <dialog {...props}>
-        {props.children}
-    </dialog>
-);
+const Dialog = (props) => {
+    if (props.fireEvent) {
+        return (
+            <dialog
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </dialog>
+        );
+    } else {
+        return (
+            <dialog {...props}>
+                {props.children}
+            </dialog>
+        );
+    }
+};
 
 Dialog.propTypes = {
 
@@ -72,7 +87,12 @@ Dialog.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Dialog;

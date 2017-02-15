@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Pre = (props) => (
-    <pre {...props}>
-        {props.children}
-    </pre>
-);
+const Pre = (props) => {
+    if (props.fireEvent) {
+        return (
+            <pre
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </pre>
+        );
+    } else {
+        return (
+            <pre {...props}>
+                {props.children}
+            </pre>
+        );
+    }
+};
 
 Pre.propTypes = {
 
@@ -72,7 +87,12 @@ Pre.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Pre;

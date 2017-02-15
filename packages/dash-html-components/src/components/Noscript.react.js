@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Noscript = (props) => (
-    <noscript {...props}>
-        {props.children}
-    </noscript>
-);
+const Noscript = (props) => {
+    if (props.fireEvent) {
+        return (
+            <noscript
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </noscript>
+        );
+    } else {
+        return (
+            <noscript {...props}>
+                {props.children}
+            </noscript>
+        );
+    }
+};
 
 Noscript.propTypes = {
 
@@ -72,7 +87,12 @@ Noscript.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Noscript;

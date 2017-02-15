@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Img = (props) => (
-    <img {...props}>
-        {props.children}
-    </img>
-);
+const Img = (props) => {
+    if (props.fireEvent) {
+        return (
+            <img
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </img>
+        );
+    } else {
+        return (
+            <img {...props}>
+                {props.children}
+            </img>
+        );
+    }
+};
 
 Img.propTypes = {
 
@@ -107,7 +122,12 @@ Img.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Img;

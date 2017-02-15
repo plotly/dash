@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Cite = (props) => (
-    <cite {...props}>
-        {props.children}
-    </cite>
-);
+const Cite = (props) => {
+    if (props.fireEvent) {
+        return (
+            <cite
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </cite>
+        );
+    } else {
+        return (
+            <cite {...props}>
+                {props.children}
+            </cite>
+        );
+    }
+};
 
 Cite.propTypes = {
 
@@ -72,7 +87,12 @@ Cite.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Cite;

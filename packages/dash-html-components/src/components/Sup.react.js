@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Sup = (props) => (
-    <sup {...props}>
-        {props.children}
-    </sup>
-);
+const Sup = (props) => {
+    if (props.fireEvent) {
+        return (
+            <sup
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </sup>
+        );
+    } else {
+        return (
+            <sup {...props}>
+                {props.children}
+            </sup>
+        );
+    }
+};
 
 Sup.propTypes = {
 
@@ -72,7 +87,12 @@ Sup.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Sup;

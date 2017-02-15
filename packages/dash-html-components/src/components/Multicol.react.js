@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Multicol = (props) => (
-    <multicol {...props}>
-        {props.children}
-    </multicol>
-);
+const Multicol = (props) => {
+    if (props.fireEvent) {
+        return (
+            <multicol
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </multicol>
+        );
+    } else {
+        return (
+            <multicol {...props}>
+                {props.children}
+            </multicol>
+        );
+    }
+};
 
 Multicol.propTypes = {
 
@@ -72,7 +87,12 @@ Multicol.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Multicol;

@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Dfn = (props) => (
-    <dfn {...props}>
-        {props.children}
-    </dfn>
-);
+const Dfn = (props) => {
+    if (props.fireEvent) {
+        return (
+            <dfn
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </dfn>
+        );
+    } else {
+        return (
+            <dfn {...props}>
+                {props.children}
+            </dfn>
+        );
+    }
+};
 
 Dfn.propTypes = {
 
@@ -72,7 +87,12 @@ Dfn.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Dfn;

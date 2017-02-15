@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Shadow = (props) => (
-    <shadow {...props}>
-        {props.children}
-    </shadow>
-);
+const Shadow = (props) => {
+    if (props.fireEvent) {
+        return (
+            <shadow
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </shadow>
+        );
+    } else {
+        return (
+            <shadow {...props}>
+                {props.children}
+            </shadow>
+        );
+    }
+};
 
 Shadow.propTypes = {
 
@@ -72,7 +87,12 @@ Shadow.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Shadow;

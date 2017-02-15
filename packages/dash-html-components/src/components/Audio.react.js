@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Audio = (props) => (
-    <audio {...props}>
-        {props.children}
-    </audio>
-);
+const Audio = (props) => {
+    if (props.fireEvent) {
+        return (
+            <audio
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </audio>
+        );
+    } else {
+        return (
+            <audio {...props}>
+                {props.children}
+            </audio>
+        );
+    }
+};
 
 Audio.propTypes = {
 
@@ -97,7 +112,12 @@ Audio.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Audio;

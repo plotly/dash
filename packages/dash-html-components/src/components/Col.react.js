@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Col = (props) => (
-    <col {...props}>
-        {props.children}
-    </col>
-);
+const Col = (props) => {
+    if (props.fireEvent) {
+        return (
+            <col
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </col>
+        );
+    } else {
+        return (
+            <col {...props}>
+                {props.children}
+            </col>
+        );
+    }
+};
 
 Col.propTypes = {
 
@@ -77,7 +92,12 @@ Col.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Col;

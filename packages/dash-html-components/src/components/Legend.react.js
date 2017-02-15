@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Legend = (props) => (
-    <legend {...props}>
-        {props.children}
-    </legend>
-);
+const Legend = (props) => {
+    if (props.fireEvent) {
+        return (
+            <legend
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </legend>
+        );
+    } else {
+        return (
+            <legend {...props}>
+                {props.children}
+            </legend>
+        );
+    }
+};
 
 Legend.propTypes = {
 
@@ -72,7 +87,12 @@ Legend.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Legend;

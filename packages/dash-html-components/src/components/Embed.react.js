@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Embed = (props) => (
-    <embed {...props}>
-        {props.children}
-    </embed>
-);
+const Embed = (props) => {
+    if (props.fireEvent) {
+        return (
+            <embed
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </embed>
+        );
+    } else {
+        return (
+            <embed {...props}>
+                {props.children}
+            </embed>
+        );
+    }
+};
 
 Embed.propTypes = {
 
@@ -92,7 +107,12 @@ Embed.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Embed;

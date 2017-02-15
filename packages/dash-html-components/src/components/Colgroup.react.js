@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Colgroup = (props) => (
-    <colgroup {...props}>
-        {props.children}
-    </colgroup>
-);
+const Colgroup = (props) => {
+    if (props.fireEvent) {
+        return (
+            <colgroup
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </colgroup>
+        );
+    } else {
+        return (
+            <colgroup {...props}>
+                {props.children}
+            </colgroup>
+        );
+    }
+};
 
 Colgroup.propTypes = {
 
@@ -77,7 +92,12 @@ Colgroup.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Colgroup;

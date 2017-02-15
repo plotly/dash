@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Video = (props) => (
-    <video {...props}>
-        {props.children}
-    </video>
-);
+const Video = (props) => {
+    if (props.fireEvent) {
+        return (
+            <video
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </video>
+        );
+    } else {
+        return (
+            <video {...props}>
+                {props.children}
+            </video>
+        );
+    }
+};
 
 Video.propTypes = {
 
@@ -117,7 +132,12 @@ Video.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Video;

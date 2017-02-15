@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Section = (props) => (
-    <section {...props}>
-        {props.children}
-    </section>
-);
+const Section = (props) => {
+    if (props.fireEvent) {
+        return (
+            <section
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </section>
+        );
+    } else {
+        return (
+            <section {...props}>
+                {props.children}
+            </section>
+        );
+    }
+};
 
 Section.propTypes = {
 
@@ -72,7 +87,12 @@ Section.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Section;

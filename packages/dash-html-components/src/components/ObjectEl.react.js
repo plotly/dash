@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const ObjectEl = (props) => (
-    <object {...props}>
-        {props.children}
-    </object>
-);
+const ObjectEl = (props) => {
+    if (props.fireEvent) {
+        return (
+            <object
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </object>
+        );
+    } else {
+        return (
+            <object {...props}>
+                {props.children}
+            </object>
+        );
+    }
+};
 
 ObjectEl.propTypes = {
 
@@ -102,7 +117,12 @@ ObjectEl.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default ObjectEl;

@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Frameset = (props) => (
-    <frameset {...props}>
-        {props.children}
-    </frameset>
-);
+const Frameset = (props) => {
+    if (props.fireEvent) {
+        return (
+            <frameset
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </frameset>
+        );
+    } else {
+        return (
+            <frameset {...props}>
+                {props.children}
+            </frameset>
+        );
+    }
+};
 
 Frameset.propTypes = {
 
@@ -72,7 +87,12 @@ Frameset.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Frameset;

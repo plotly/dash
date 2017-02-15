@@ -1,11 +1,26 @@
 
 import React, {PropTypes} from 'react';
 
-const Textarea = (props) => (
-    <textarea {...props}>
-        {props.children}
-    </textarea>
-);
+const Textarea = (props) => {
+    if (props.fireEvent) {
+        return (
+            <textarea
+                onClick={() => props.fireEvent({event: 'onClick'})}
+                onMouseEnter={() => props.fireEvent('onMouseEnter')}
+                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                {...props}
+            >
+                {props.children}
+            </textarea>
+        );
+    } else {
+        return (
+            <textarea {...props}>
+                {props.children}
+            </textarea>
+        );
+    }
+};
 
 Textarea.propTypes = {
 
@@ -127,7 +142,12 @@ Textarea.propTypes = {
     /**
      * Text to be displayed in a tooltip when hovering over the element.
      */
-    'title': PropTypes.string
+    'title': PropTypes.string,
+
+    /**
+     * A callback for firing events to dash.
+     */
+    'fireEvent': PropTypes.func
 };
 
 export default Textarea;
