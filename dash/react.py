@@ -63,10 +63,47 @@ class Dash(object):
         return send_from_directory(self.resolver.site_packages_path, name)
 
     def index(self):
-        return flask.render_template(
-            'index.html',
-            component_suites=self.component_suites
-        )
+        scripts = ', '.join([
+            '"{}/js/component-suites/{}/bundle.js"'.format(
+                self.url_namespace, suite
+            )
+            for suite in self.component_suites
+        ])
+        return ('''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8" />
+                <script
+                    src="https://cdn.rawgit.com/ded/script.js/master/dist/script.min.js"
+                    type="text/javascript"
+                ></script>
+            </head>
+            <body>
+                <div id="react-entry-point"></div>
+            </body>
+
+            <footer>
+
+                <!-- TODO: Move this logic into a bundle? -->
+                <script type="text/javascript">
+                    $script([
+                        "https://unpkg.com/react@15/dist/react.js",
+                        "https://unpkg.com/react-dom@15/dist/react-dom.js"
+                    ], function() {{
+
+                        $script([{}], function() {{
+
+                            $script("{}/js/component-suites/dash_renderer/bundle.js");
+
+                        }});
+
+                    }});
+                </script>
+
+            </footer>
+        </html>
+        '''.format(scripts, self.url_namespace))
 
     def initialize(self):
         return flask.jsonify(json.loads(json.dumps(self.layout,
