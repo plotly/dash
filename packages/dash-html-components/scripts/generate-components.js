@@ -39,9 +39,8 @@ function generatePropTypes(element, attributes) {
     const supportedAttributes = elements[element] ?
         elements[element].concat(elements.Globalattribute) :
         elements.Globalattribute;
-    const numAttributes = supportedAttributes.length;
 
-    return supportedAttributes.reduce((propTypes, attributeName, index) => {
+    return supportedAttributes.reduce((propTypes, attributeName) => {
         const attribute = attributes.attributes[attributeName];
         const propType = PROP_TYPES[attributeName] || PROP_TYPES._default;
 
