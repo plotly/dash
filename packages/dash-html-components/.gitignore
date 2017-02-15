@@ -10,3 +10,4 @@ venv/
 *.egg-info
 *.log
 .DS_Store
+lib/bundle.js
