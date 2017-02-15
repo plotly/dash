@@ -61,10 +61,10 @@ Dropdown.propTypes = {
     /**
      * The value of the input
      */
-    value: PropTypes.string.isRequired, // TODO - or array
+    value: PropTypes.string, // TODO - or array
 
     /**
      * Dash-assigned callback that gets fired when the input changes
      */
-    valueChanged: PropTypes.func.isRequired
+    valueChanged: PropTypes.func
 };
