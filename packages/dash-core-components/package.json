@@ -24,16 +24,15 @@
   "license": "MIT",
   "dependencies": {
     "builder": "2.10.1",
+    "dash-components-archetype": "^0.2.4",
     "plotly.js": "^1.14.2",
     "radium": "^0.17.1",
-    "react": "^15.1.0",
-    "react-dom": "^15.4.0",
-    "dash-components-archetype": "^0.2.3",
     "ramda": "^0.23.0",
     "react": "^15.4.0",
+    "react-dom": "^15.4.0"
   },
   "devDependencies": {
-    "enzyme": "^2.4.1",
-    "dash-components-archetype-dev": "^0.2.3",
+    "dash-components-archetype-dev": "^0.2.4",
+    "enzyme": "^2.4.1"
   }
 }

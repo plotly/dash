@@ -62,6 +62,6 @@ Input.propTypes = {
     /**
      * Dash-assigned callback that gets fired when the value changes.
      */
-    valueChanged: PropTypes.func,
+    valueChanged: PropTypes.func
 
 };
