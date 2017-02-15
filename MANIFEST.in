@@ -1,2 +1,2 @@
-include build/bundle.js
+include dash_renderer/bundle.js
 include README.md
