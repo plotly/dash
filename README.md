@@ -1,3 +1,10 @@
+## Testing
+
+```
+$ ag -l --python | entr python -m unittest discover -s tests/
+```
+
+***
 
 ## Dash python backend
 
