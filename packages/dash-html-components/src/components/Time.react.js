@@ -6,8 +6,8 @@ const Time = (props) => {
         return (
             <time
                 onClick={() => props.fireEvent({event: 'onClick'})}
-                onMouseEnter={() => props.fireEvent('onMouseEnter')}
-                onMouseLeave={() => props.fireEvent('onMouseLeave')}
+                onMouseEnter={() => props.fireEvent({event: 'onMouseEnter'})}
+                onMouseLeave={() => props.fireEvent({event: 'onMouseLeave'})}
                 {...props}
             >
                 {props.children}

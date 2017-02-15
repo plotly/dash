@@ -7,14 +7,9 @@ article
 aside
 footer
 header
-h1
-h2
-h3
-h4
-h5
-h6
 hgroup
 nav
+section
 dd
 div
 dl
@@ -102,8 +97,6 @@ dialog
 menu
 menuitem
 summary
-content
-element
 shadow
 slot
 template
@@ -116,6 +109,7 @@ center
 command
 content
 dir
+element
 font
 frame
 frameset
@@ -133,3 +127,9 @@ strike
 tt
 xmp
 section
+h1
+h2
+h3
+h4
+h5
+h6
