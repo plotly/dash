@@ -2,7 +2,7 @@
 
 export default {
     resolve: (componentName, namespace) => {
-        const ns = window[namespace];
+        const ns = window[namespace]; /* global window: true */
 
         if (ns) {
             if (ns[componentName]) {

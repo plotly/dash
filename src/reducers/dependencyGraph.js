@@ -1,8 +1,6 @@
 import {DepGraph} from 'dependency-graph';
 import {append, keys, merge} from 'ramda';
 
-import {crawlLayout} from './utils';
-
 const initialStateGraph = new DepGraph();
 const initialEventGraph = new DepGraph();
 const initialGraph = {
@@ -14,7 +12,6 @@ function computeGraph(dependencies, graph, graphType) {
     return function(observerId) {
         // Add observers to the graph
         if(!graph.hasNode(observerId)) {
-            console.warn(`adding '${observerId}' to graph`);
             graph.addNode(observerId, {});
         }
 
@@ -29,7 +26,6 @@ function computeGraph(dependencies, graph, graphType) {
         dependencies[observerId][graphType].forEach(
             function addStateNodes(controller) {
                 if(!graph.hasNode(controller.id)) {
-                    console.warn(`adding '${controller.id}' to graph`);
                     graph.addNode(controller.id, {[observerId]: []});
                 }
                 graph.addDependency(observerId, controller.id);
@@ -56,7 +52,6 @@ function computeGraph(dependencies, graph, graphType) {
                     graph.getNodeData(controller.id),
                     {[observerId]: controllerData}
                 );
-                console.warn(`Setting ${JSON.stringify(allControllerData)} to ${controller.id}`);
                 graph.setNodeData(controller.id, allControllerData);
             }
         );

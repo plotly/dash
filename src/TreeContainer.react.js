@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 import { isEmpty } from 'ramda'
-import React from 'react';
+import React, {PropTypes} from 'react';
 import renderTree from './renderTree';
 
 
@@ -14,6 +14,11 @@ const UnconnectedContainer = props => {
         props.dependencyGraph
     );
 }
+
+UnconnectedContainer.propTypes = {
+    layout: PropTypes.object,
+    dependencyGraph: PropTypes.object
+};
 
 const Container = connect(
     // map state to props

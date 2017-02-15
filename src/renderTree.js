@@ -1,7 +1,7 @@
 'use strict'
 
 import R from 'ramda';
-import React from 'react';
+import React, {PropTypes} from 'react';
 import Registry from './registry';
 import NotifyObservers from './components/core/NotifyObservers.react';
 import {createTreePath} from './reducers/utils';
@@ -48,4 +48,9 @@ export default function render(component, path=[]) {
             {parent}
         </NotifyObservers>
     );
+}
+
+render.propTypes = {
+    content: PropTypes.object,
+    id: PropTypes.string
 }

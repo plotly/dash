@@ -9,8 +9,10 @@ const store = initializeStore();
 // Initialization
 store.dispatch(initialize());
 
-export default () => (
+const AppContainer = () => (
     <Provider store={store}>
         <TreeContainer/>
     </Provider>
 );
+
+export default AppContainer;

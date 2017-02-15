@@ -2,7 +2,6 @@ import {append, assocPath, lensPath, merge, view} from 'ramda';
 
 // TODO: this should be a prop of the high-level component
 import {ACTIONS} from '../actions';
-import {createTreePath} from './utils';
 
 const layout = (state = {}, action) => {
     switch (action.type) {

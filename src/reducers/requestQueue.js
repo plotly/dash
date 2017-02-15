@@ -1,4 +1,4 @@
-import {clone, type} from 'ramda';
+import {clone} from 'ramda';
 
 const requestQueue = (state = [], action) => {
     switch (action.type) {

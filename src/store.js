@@ -19,7 +19,7 @@ const initializeStore = () => {
     );
 
     // TODO - Protect this under a debug mode?
-    window.store = store;
+    window.store = store; /* global window:true */
 
     if (module.hot) {
         // Enable hot module replacement for reducers

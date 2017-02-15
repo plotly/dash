@@ -1,4 +1,4 @@
-import R, {
+import {
     concat,
     contains,
     intersection,
@@ -14,7 +14,8 @@ import R, {
     union,
     view
 } from 'ramda';
-import { createAction } from 'redux-actions';
+import {createAction} from 'redux-actions';
+import {fetch} from 'whatwg-fetch';
 
 export const ACTIONS = (action) => {
     const actionList = {
@@ -36,7 +37,6 @@ const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
 
 export const initialize = function() {
     return function (dispatch, getState) {
-        console.warn('initializing GET.');
         fetch('/initialize', {method: 'GET'})
         .then(res => res.json().then(layout => {
             // TODO: error handling
@@ -45,8 +45,6 @@ export const initialize = function() {
             // TODO - will need to recompute paths when the layout changes
             // from request responses
             dispatch(computePaths(layout));
-            const a = 3;
-            a = 8
         }));
         fetch('/dependencies', {method: 'GET'})
         .then(res => res.json().then(dependencies => {
@@ -86,9 +84,6 @@ export const notifyObservers = function(payload) {
         } = getState();
         const {EventGraph, StateGraph} = graphs;
 
-        // Check if the event fired by `id` is actually registered
-        const allEventObservers = EventGraph.dependantsOf(id);
-
         /*
          * Each observer may depend on a different set of events.
          * Filter away the observers that are listening to different events.
@@ -103,10 +98,8 @@ export const notifyObservers = function(payload) {
          * then we have no one else to tell about it.
          */
         if (isEmpty(eventObservers)) {
-            console.warn(`Ignore: ${id}.${event}`);
             return;
         }
-        console.warn(`Continue: ${id}.${event}`);
 
         /*
          * There may be several components that depend on this event.
@@ -144,7 +137,6 @@ export const notifyObservers = function(payload) {
             );
 
             if (dependenciesInQueue.length !== 0) {
-                console.warn(`SKIP updating ${eventObserverId}, waiting for ${dependenciesInQueue} to update.`);
                 continue;
             }
 
@@ -171,8 +163,6 @@ export const notifyObservers = function(payload) {
             const body = {id: eventObserverId, state};
 
             // make the /POST
-            console.warn(`POST: ${eventObserverId}`);
-
             fetch('/interceptor', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -180,10 +170,6 @@ export const notifyObservers = function(payload) {
             }).then(response => response.json().then(function handleResponse(data) {
 
                 // clear this item from the request queue
-                console.warn(
-                    `RESPONSE: ${eventObserverId}`,
-//                        JSON.stringify(data, null, 2)
-                );
                 dispatch(setRequestQueue(
                     reject(
                         id => id === eventObserverId,
