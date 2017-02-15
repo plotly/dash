@@ -1,66 +1,70 @@
+import R from 'ramda';
 import React, {Component, PropTypes} from 'react';
+import ReactDropdown from 'react-select';
 
-/*
- * A controlled input that calls `valueChanged` on changes.
- */
+const DELIMETER = ',';
+
 export default class Dropdown extends Component {
-    handleChange(value) {
-        this.props.valueChanged({value});
-    }
-
-    renderOptions() {
-        const {options} = this.props;
-
-        return options.map((option) => (
-            <option
-                key={option.value}
-                value={option.value}
-            >
-                {option.label}
-            </option>
-        ));
-    }
-
     render() {
-        const {value} = this.props;
-
+        const {id, multi, options, value, valueChanged} = this.props;
+        let selectedValue;
+        if (R.type(value) === 'array') {
+            selectedValue = value.join(DELIMETER);
+        } else {
+            selectedValue = value;
+        }
         return (
-            <select
-                value={value}
-                onChange={ev => this.handleChange(ev.target.value)}
-            >
-                {this.renderOptions()}
+            <div id={id}>
+                <ReactDropdown
+                    options={options}
+                    value={selectedValue}
+                    onChange={selectedOption => {
+                        if (multi) {
+                            const values = R.pluck('value', selectedOption);
+                            valueChanged({value: values});
+                        } else {
+                            valueChanged({value: selectedOption.value});
+                        }
 
-            </select>
-        )
+                    }}
+                    {...this.props}
+                />
+            </div>
+        );
     }
 }
 
 Dropdown.propTypes = {
+    /**
+     * If true, the option is disabled
+     */
+    disabled: PropTypes.boolean,
 
     /**
-     * Function that updates the state tree.
+     * The id of the component
      */
-    valueChanged: PropTypes.func,
+    id: PropTypes.string.isRequired,
 
     /**
-     * Options
+     * If true, the user can select multiple values
      */
-    options: React.PropTypes.arrayOf(
-        React.PropTypes.shape({
-            value: React.PropTypes.string.isRequired,
-            label: React.PropTypes.string.isRequired
+    multi: PropTypes.boolean,
+
+    options: PropTypes.arrayOf(
+        PropTypes.shape({
+            disabled: PropTypes.bool,
+            label: PropTypes.string,
+            value: PropTypes.string
         })
     ),
 
     /**
-     * Selected value
+     * The value of the input
      */
-    value: React.PropTypes.string
-};
+    value: PropTypes.string.isRequired, // TODO - or array
 
-Dropdown.defaultProps = {
-    valueChanged: () => {},
-    options: [],
-    value: ''
+    /**
+     * Dash-assigned callback that gets fired when the input changes
+     */
+    valueChanged: PropTypes.func.isRequired
 };

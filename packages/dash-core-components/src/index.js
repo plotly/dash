@@ -1,19 +1,16 @@
-import Radium from 'radium';
-
+/* eslint-disable import/prefer-default-export */
+import ExampleComponent from './components/ExampleComponent.react';
 import Dropdown from './components/Dropdown.react';
-import _EditableDiv from './components/EditableDiv.react';
-import Header from './components/Header.react';
-import InputControl from './components/InputControl.react';
-import Label from './components/Label.react';
-import PlotlyGraph from './components/PlotlyGraph.react';
-
-const EditableDiv = Radium(_EditableDiv);
+import Input from './components/Input.react';
+import Graph from './components/Graph.react';
+import RangeSlider from './components/RangeSlider.react';
+import Slider from './components/Slider.react';
 
 export {
     Dropdown,
-    EditableDiv,
-    Header,
-    InputControl,
-    Label,
-    PlotlyGraph
+    ExampleComponent,
+    Graph,
+    Input,
+    RangeSlider,
+    Slider
 };
