@@ -5,7 +5,7 @@ import DropdownComponent from '../Dropdown.react';
 describe('Dropdown component', () => {
 
     it('renders', () => {
-        const component = shallow(<DropdownComponent/>);
+        const component = shallow(<DropdownComponent id="my-dropdown"/>);
         expect(component).to.be.ok;
     });
 
