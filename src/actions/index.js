@@ -37,7 +37,7 @@ const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
 
 export const initialize = function() {
     return function (dispatch, getState) {
-        fetch('/initialize', {method: 'GET'})
+        fetch('/initialize', {method: 'GET'}) /* global fetch: true */
         .then(res => res.json().then(layout => {
             // TODO: error handling
             dispatch(setLayout(layout));
