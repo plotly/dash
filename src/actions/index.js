@@ -16,6 +16,7 @@ import {
     view
 } from 'ramda';
 import {createAction} from 'redux-actions';
+// TODO - Use whatwg-fetch instead of window.fetch
 // import fetch from 'whatwg-fetch';
 
 export const ACTIONS = (action) => {
