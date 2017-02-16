@@ -3,6 +3,7 @@ import {
     contains,
     intersection,
     isEmpty,
+    isNil,
     filter,
     keys,
     lensPath,
@@ -149,8 +150,19 @@ export const notifyObservers = function(payload) {
              */
             let state = {};
             StateGraph.dependenciesOf(eventObserverId).forEach(function reduceState(controllerId) {
-                state[controllerId] = {};
                 const observedProps = StateGraph.getNodeData(controllerId)[eventObserverId];
+                /*
+                 * StateGraph.dependenciesOf doesn't just return neighbors,
+                 * it also returns grandparents and other non-direct-neighbor
+                 * nodes. Dang!
+                 * If a controller doesn't have this eventObserverId in it's
+                 * node data, then it's not an immediate dependency.
+                 */
+                if (isEmpty(observedProps) || isNil(observedProps)) {
+                    return;
+                }
+                state[controllerId] = {};
+
                 const propLens = lensPath(concat(paths[controllerId], ['props']));
                 const props = view(propLens, layout);
                 // TODO - Is * and omit the right pattern?
