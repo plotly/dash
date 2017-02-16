@@ -45,23 +45,24 @@ export const initialize = function() {
             // TODO - will need to recompute paths when the layout changes
             // from request responses
             dispatch(computePaths(layout));
-        }));
-        fetch('/dependencies', {method: 'GET'})
-        .then(res => res.json().then(dependencies => {
-            dispatch(computeGraphs(dependencies));
-            /*
-             * Fire an initial propChange event for each of the controllers
-             * so that the observer leaves can update
-             */
-            // TODO - Remove this setTimeout
-            setTimeout(function(){
-                const {graphs} = getState();
-                const {EventGraph} = graphs;
-                EventGraph.overallOrder().forEach(nodeId => {
-                    dispatch(notifyObservers({event: 'propChange', id: nodeId}));
-                });
-            }, 0)
-        }))
+        })).then(function() {
+            fetch('/dependencies', {method: 'GET'})
+            .then(res => res.json().then(dependencies => {
+                dispatch(computeGraphs(dependencies));
+                /*
+                 * Fire an initial propChange event for each of the controllers
+                 * so that the observer leaves can update
+                 */
+                // TODO - Remove this setTimeout
+                setTimeout(function(){
+                    const {graphs} = getState();
+                    const {EventGraph} = graphs;
+                    EventGraph.overallOrder().forEach(nodeId => {
+                        dispatch(notifyObservers({event: 'propChange', id: nodeId}));
+                    });
+                }, 50)
+            }));
+        });
     }
 }
 
