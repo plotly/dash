@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='dash_core_components',
-    version='0.2.2',
+    version='0.2.3',
     author='Chris Parmer',
     author_email='chris@plot.ly',
     packages=['dash_core_components'],
