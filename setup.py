@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='dash_renderer',
-    version='0.2.1',
+    version='0.2.2',
     author='Chris Parmer',
     author_email='chris@plot.ly',
     packages=['dash_renderer'],
