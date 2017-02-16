@@ -25,7 +25,9 @@ export default class PlotlyGraph extends Component {
 
     plot(props) {
         const {id, figure} = props;
-        return Plotly.newPlot(id, figure);
+        return Plotly.newPlot(id, figure).then(() => {
+            this.bindEvents(props);
+        });
     }
 
     bindEvents(props) {
@@ -56,7 +58,6 @@ export default class PlotlyGraph extends Component {
 
     componentDidMount() {
         this.plot(this.props).then(() => {
-            this.bindEvents(this.props);
             window.addEventListener('resize', () => {
                 Plotly.Plots.resize(document.getElementById(this.props.id));
             });
@@ -88,9 +89,7 @@ export default class PlotlyGraph extends Component {
             (!this.props.fireEvent && nextProps.fireEvent)
         );
         if (figureChanged) {
-            this.plot(nextProps).then(() => {
-                if(shouldBindEvents) this.bindEvents(nextProps);
-            });
+            this.plot(nextProps);
         } else if (shouldBindEvents) {
             this.bindEvents(nextProps);
         }
