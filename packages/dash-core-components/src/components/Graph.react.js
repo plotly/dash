@@ -1,18 +1,18 @@
 import React, {Component, PropTypes} from 'react';
 import Plotly from 'plotly.js';
-
-const VALID_EVENT_KEYS = ['x', 'y', 'z', 'text', 'labels', 'values', 'pointNumber',
-                          'curveNumber'];
+import {omit, map} from 'ramda';
 
 const filterEventData = (eventData) => {
     // Create a new object
     return {
-        // `Array.prototype.map` creates a new array of points.
-        points: eventData.points.map((pointData) =>
-            VALID_EVENT_KEYS.reduce((result, currentKey) => {
-                const currentVal = pointData[currentKey];
-                return Object.assign(result, {[currentKey]: currentVal});
-            }, {})
+        points: map(omit(
+            /*
+             * remove figure objects from the event data since it's so big
+             * (and most likely redudant for the user on the backend).
+             * layout and fullLayout may not actually be in points,
+             * just including them to be safe.
+             */
+            ['data', 'fullData', 'layout', 'fullLayout']), eventData.points
         )
     };
 };
