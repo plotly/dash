@@ -4,6 +4,7 @@ import plotly
 from flask import Flask, url_for, send_from_directory
 from flask.ext.cors import CORS
 from dependency_resolver import Resolver
+import os
 
 
 class Dash(object):
@@ -58,9 +59,17 @@ class Dash(object):
 
     # Serve the JS bundles for each package
     def serve_component_suites(self, path):
-        # TODO - resolver should be able to figure out the local installation path
-        name = self.resolver.resolve_dependency_name(path)
-        return send_from_directory(self.resolver.site_packages_path, name)
+        # path is like 'dash_html_components/bundle.js'
+        package, bundle_name = path.split('/')
+        if (package not in self.component_suites and
+           package != 'dash_renderer'):
+
+            raise Exception(
+                'Attempting to server {} but {} '.format(path, package) +
+                'was not defined in component_suites')
+
+        directory = os.path.join(self.resolver.site_packages_path, package)
+        return send_from_directory(directory, bundle_name)
 
     def index(self):
         scripts = ', '.join([
