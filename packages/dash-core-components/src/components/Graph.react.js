@@ -1,19 +1,19 @@
 import React, {Component, PropTypes} from 'react';
 import Plotly from 'plotly.js';
-import {omit, map} from 'ramda';
+import {contains, filter, map, type} from 'ramda';
 
 const filterEventData = (eventData) => {
     // Create a new object
     return {
-        points: map(omit(
-            /*
-             * remove figure objects from the event data since it's so big
-             * (and most likely redudant for the user on the backend).
-             * layout and fullLayout may not actually be in points,
-             * just including them to be safe.
-             */
-            ['data', 'fullData', 'layout', 'fullLayout']), eventData.points
-        )
+        /*
+         * remove `data`, `layout`, `xaxis`, etc
+         * objects from the event data since they're so big
+         * and cause JSON stringify ciricular structure errors.
+         */
+        points: map(
+            filter(function(o) {
+                return !contains(type(o), ['Object', 'Array'])
+         }), eventData.points)
     };
 };
 
