@@ -1,7 +1,50 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import Playground from 'component-playground';
-import {Dropdown, Graph, Input, RangeSlider, Slider} from '../src';
+import {
+    Checklist,
+    Dropdown,
+    Graph,
+    Input,
+    RadioItems,
+    RangeSlider,
+    Slider,
+    SyntaxHighlighter
+} from '../src';
+
+const SyntaxHighlighterExample = `
+
+const properties = {
+    language: 'python',
+    theme: 'light',
+    customStyle: {},
+    codeTagProps: {},
+    useInlineStyles: true,
+    showLineNumbers: false,
+    startingLineNumber: 0,
+    lineNumberContainerStyle: {},
+    lineNumberStyle: {},
+    wrapLines: false,
+    lineStyle: {},
+    children: \`import Dash
+dash.layout = Div([
+    Graph(figure={'data': [{'x': [1, 2, 3]}]})
+]);
+
+def update_graph(lahlah):
+	return dict(updates=lahlah)
+
+<html>
+
+</html>
+function thisIsJavascript(test) {
+    console.log({test: that});
+}
+\`
+}
+
+ReactDOM.render(<SyntaxHighlighter {...properties}/>, mountNode);
+`
 
 const DropdownExample = `
 const properties = {
@@ -65,11 +108,31 @@ const properties = {
     pushable: false,
     step: 0.5,
     labels: {},
-    value: [-3, 3],
     vertical: false
 };
 
-ReactDOM.render(<RangeSlider {...properties}/>, mountNode);`
+
+class Controller extends Component {
+    constructor() {
+        super();
+        this.state = {
+            value: [1, 2]
+        };
+    }
+
+    render() {
+        return (<RangeSlider
+            valueChanged={(props) => {
+                this.setState(props);
+            }}
+            fireEvent={event => console.warn(event)}
+            value={this.state.value}
+            {...properties}
+        />);
+    }
+}
+
+ReactDOM.render(<Controller/>, mountNode);`
 
 const InputExample = `
 const properties = {
@@ -82,7 +145,62 @@ const properties = {
 
 ReactDOM.render(<Input {...properties}/>, mountNode);`
 
+const RadioExample = `
+const properties = {
+    id: 'my radios',
+    labelStyle: {'display': 'block'},
+    disabled: false,
+    options: [
+        {'label': 'Melons', 'value': 'melons', 'disabled': false},
+        {'label': 'Apples', 'value': 'apples'},
+        {'label': 'Oranges', 'value': 'oranges', 'disabled': true}
+    ],
+    value: 'apples'
+};
+
+ReactDOM.render(<RadioItems {...properties}/>, mountNode);`
+
+
+const ChecklistExample = `
+const properties = {
+    id: 'my checklist',
+    labelStyle: {'display': 'block'},
+    disabled: false,
+    options: [
+        {'label': 'Melons', 'value': 'melons', 'disabled': false},
+        {'label': 'Apples', 'value': 'apples'},
+        {'label': 'Oranges', 'value': 'oranges', 'disabled': true}
+    ]
+};
+
+class Controller extends Component {
+    constructor() {
+        super();
+        this.state = {
+            values: ['melons', 'apples']
+        };
+    }
+
+    render() {
+        return (<Checklist
+            valueChanged={(props) => {
+                this.setState(props);
+            }}
+            fireEvent={event => console.warn(event)}
+            values={this.state.values}
+            {...properties}
+        />);
+    }
+}
+
+ReactDOM.render(<Controller/>, mountNode);`
+
+
+
 const examples = [
+    {name: 'SyntaxHighlighter', code: SyntaxHighlighterExample},
+    {name: 'Radio', code: RadioExample},
+    {name: 'Checklist', code: ChecklistExample},
     {name: 'Dropdown', code: DropdownExample},
     {name: 'Slider', code: SliderExample},
     {name: 'RangeSlider', code: RangeSliderExample},
@@ -102,7 +220,7 @@ class Demo extends Component {
                             <h3>{example.name}</h3>
                             <Playground
                                 codeText={example.code}
-                                scope={{React, ReactDOM, Dropdown, Graph, Input, RangeSlider, Slider}}
+                                scope={{Component, React, ReactDOM, Checklist, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter}}
                                 noRender={false}
                                 theme={'xq-light'}
                             />
