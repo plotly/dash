@@ -11,5 +11,5 @@ setup(
     include_package_data=True,
     license='MIT',
     description='Front-end component renderer for dash',
-    install_requires=['plotly']
+    install_requires=[]
 )
