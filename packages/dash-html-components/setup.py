@@ -1,8 +1,10 @@
 from setuptools import setup
 
+exec (open('dash_html_components/version.py').read())
+
 setup(
     name='dash_html_components',
-    version='0.3.5',
+    version=__version__,
     author='Chris Parmer',
     author_email='chris@plot.ly',
     packages=['dash_html_components'],
