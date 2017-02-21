@@ -7,4 +7,5 @@
 # command in the dash_html_components package which printed out:
 # `dash_html_components.__init__: module references __file__`
 # TODO - Understand this better
+from version import __version__
 __file__
