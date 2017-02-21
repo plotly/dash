@@ -11,5 +11,5 @@ setup(
     include_package_data=True,
     license='MIT',
     description='Dash UI HTML component suite',
-    install_requires=['flask', 'plotly', 'flask-cors', 'dash.ly']
+    install_requires=['dash.ly']
 )
