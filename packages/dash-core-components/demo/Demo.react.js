@@ -73,7 +73,29 @@ const properties = {
     }
 };
 
-ReactDOM.render(<Graph {...properties}/>, mountNode);`
+class Controller extends Component {
+    constructor() {
+        super();
+        this.state = {};
+    }
+
+    render() {
+        return (<div>
+            <Graph
+                valueChanged={(props) => {
+                    this.setState({props});
+                }}
+                fireEvent={event => {
+                    this.setState({event})
+                }}
+                {...properties}
+            />
+            <pre>{JSON.stringify(this.state, null, 2)}</pre>
+        </div>);
+    }
+}
+
+ReactDOM.render(<Controller/>, mountNode);`
 
 const SliderExample = `
 const properties = {
@@ -198,14 +220,14 @@ ReactDOM.render(<Controller/>, mountNode);`
 
 
 const examples = [
+    {name: 'Graph', code: GraphExample},
     {name: 'SyntaxHighlighter', code: SyntaxHighlighterExample},
     {name: 'Radio', code: RadioExample},
     {name: 'Checklist', code: ChecklistExample},
     {name: 'Dropdown', code: DropdownExample},
     {name: 'Slider', code: SliderExample},
     {name: 'RangeSlider', code: RangeSliderExample},
-    {name: 'Input', code: InputExample},
-    {name: 'Graph', code: GraphExample}
+    {name: 'Input', code: InputExample}
 ];
 
 class Demo extends Component {
