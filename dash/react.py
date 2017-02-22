@@ -76,23 +76,20 @@ class Dash(object):
         # template in the necessary component suite JS bundles
         # add the version number of the package as a query parameter
         # for cache busting
-        scripts = ', '.join([
-            '"{}/js/component-suites/{}/bundle.js?v={}"'.format(
+        scripts = '\n'.join([
+            '<script type="text/javascript" src="{}/js/component-suites/{}/bundle.js?v={}"></script>'.format(
                 self.url_namespace,
                 suite,
                 importlib.import_module(suite).__version__
             )
-            for suite in self.component_suites
+            for suite in self.component_suites + ['dash_renderer']
         ])
         return ('''
         <!DOCTYPE html>
         <html>
             <head>
                 <meta charset="UTF-8" />
-                <script
-                    src="https://cdn.rawgit.com/ded/script.js/master/dist/script.min.js"
-                    type="text/javascript"
-                ></script>
+                <title>Dash</title>
             </head>
             <body>
                 <div id="react-entry-point"></div>
@@ -100,28 +97,13 @@ class Dash(object):
 
             <footer>
 
-                <!-- TODO: Move this logic into a bundle? -->
-                <script type="text/javascript">
-                    $script([
-                        "https://unpkg.com/react@15.4.2/dist/react.min.js",
-                        "https://unpkg.com/react-dom@15.4.2/dist/react-dom.min.js"
-                    ], function() {{
-
-                        $script([{}], function() {{
-
-                            $script("{}/js/component-suites/dash_renderer/bundle.js?v={}");
-
-                        }});
-
-                    }});
-                </script>
-
+                <script type="text/javascript" src="https://unpkg.com/react@15.4.2/dist/react.min.js"></script>
+                <script type="text/javascript" src="https://unpkg.com/react-dom@15.4.2/dist/react-dom.min.js"></script>
+                {}
             </footer>
         </html>
         '''.format(
-            scripts,
-            self.url_namespace,
-            importlib.import_module('dash_renderer').__version__
+            scripts
         ))
 
     def initialize(self):
