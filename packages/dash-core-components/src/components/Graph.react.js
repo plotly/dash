@@ -2,19 +2,30 @@ import React, {Component, PropTypes} from 'react';
 import Plotly from 'plotly.js';
 import {contains, filter, map, type} from 'ramda';
 
-const filterEventData = (eventData) => {
-    // Create a new object
-    return {
+const filterEventData = (eventData, event) => {
+    let filteredEventData;
+    if (contains(event, ['click', 'hover', 'selected'])) {
+        filteredEventData = {
+            /*
+             * remove `data`, `layout`, `xaxis`, etc
+             * objects from the event data since they're so big
+             * and cause JSON stringify ciricular structure errors.
+             */
+            points: eventData.points = map(
+                filter(function(o) {
+                    return !contains(type(o), ['Object', 'Array'])
+             }), eventData.points)
+        }
+    } else if (event === 'relayout') {
         /*
-         * remove `data`, `layout`, `xaxis`, etc
-         * objects from the event data since they're so big
-         * and cause JSON stringify ciricular structure errors.
+         * relayout shouldn't include any big objects
+         * it will usually just contain the ranges of the axes like
+         * "xaxis.range[0]": 0.7715822247381828,
+         * "xaxis.range[1]": 3.0095292008680063`
          */
-        points: map(
-            filter(function(o) {
-                return !contains(type(o), ['Object', 'Array'])
-         }), eventData.points)
-    };
+        filteredEventData = eventData;
+    }
+    return filteredEventData;
 };
 
 export default class PlotlyGraph extends Component {
@@ -37,23 +48,25 @@ export default class PlotlyGraph extends Component {
         const gd = document.getElementById(id);
 
         gd.on('plotly_click', (eventData) => {
-            const clickData = filterEventData(eventData);
-            if (valueChanged) {
-                valueChanged({clickData});
-            }
+            const clickData = filterEventData(eventData, 'click');
+            if (valueChanged) valueChanged({clickData});
             if (fireEvent) fireEvent({event: 'click'});
         });
         gd.on('plotly_hover', (eventData) => {
-            const hoverData = filterEventData(eventData);
+            const hoverData = filterEventData(eventData, 'hover');
             if (valueChanged) valueChanged({hoverData});
             if (fireEvent) fireEvent({event: 'hover'})
         });
         gd.on('plotly_selected', (eventData) => {
-            const selectedData = filterEventData(eventData);
+            const selectedData = filterEventData(eventData, 'selected');
             if (valueChanged) valueChanged({selectedData});
             if (fireEvent) fireEvent({event: 'selected'});
         });
-        // TODO - Is there a zoom event?
+        gd.on('plotly_relayout', (eventData) => {
+            const relayoutData = filterEventData(eventData, 'relayout');
+            if (valueChanged) valueChanged({relayoutData});
+            if (fireEvent) fireEvent({event: 'relayout'});
+        });
     }
 
     componentDidMount() {
