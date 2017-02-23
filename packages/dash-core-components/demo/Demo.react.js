@@ -9,11 +9,36 @@ import {
     RadioItems,
     RangeSlider,
     Slider,
-    SyntaxHighlighter
+    SyntaxHighlighter,
+    Interval
 } from '../src';
 
-const SyntaxHighlighterExample = `
 
+const SetTimeoutExample = `class Controller extends Component {
+    constructor() {
+        super();
+        this.state = {random: 0};
+    }
+
+    render() {
+        return (
+            <div>
+                <Interval interval={1000} fireEvent={() => {
+                    this.setState({random: Math.random()})
+                }}/>
+                <div>
+                	{this.state.random}
+                </div>
+            </div>
+        );
+    }
+}
+
+ReactDOM.render(<Controller/>, mountNode);
+`;
+
+
+const SyntaxHighlighterExample = `
 const properties = {
     language: 'python',
     theme: 'light',
@@ -60,26 +85,31 @@ const properties = {
 
 ReactDOM.render(<Dropdown {...properties}/>, mountNode);`
 
-const GraphExample = `
-const properties = {
+const GraphExample = `const properties = {
+    animate: true,
     id: 'my graph',
-    figure: {
-        data: [
-            {'x': [1, 2, 3], 'y': [4, 1, 6]}
-        ],
-        layout: {
-            title: 'Graph Component'
-        }
-    }
-};
+}
+
 
 class Controller extends Component {
     constructor() {
         super();
+        this.timer = this.timer.bind(this);
         this.state = {};
     }
 
+    timer() {
+    	this.setState({x: Math.random()});
+    }
+
+    componentDidMount() {
+        window.setInterval(this.timer, 1000);
+    }
+
     render() {
+        const newFigure = {
+            data: [{'x': [1, 2, 3], 'y': [1, this.state.x, 1]}]
+        };
         return (<div>
             <Graph
                 valueChanged={(props) => {
@@ -88,6 +118,7 @@ class Controller extends Component {
                 fireEvent={event => {
                     this.setState({event})
                 }}
+                figure={newFigure}
                 {...properties}
             />
             <pre>{JSON.stringify(this.state, null, 2)}</pre>
@@ -220,6 +251,7 @@ ReactDOM.render(<Controller/>, mountNode);`
 
 
 const examples = [
+    {name: 'Interval', code: SetTimeoutExample},
     {name: 'Graph', code: GraphExample},
     {name: 'SyntaxHighlighter', code: SyntaxHighlighterExample},
     {name: 'Radio', code: RadioExample},
@@ -242,7 +274,7 @@ class Demo extends Component {
                             <h3>{example.name}</h3>
                             <Playground
                                 codeText={example.code}
-                                scope={{Component, React, ReactDOM, Checklist, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter}}
+                                scope={{Component, React, ReactDOM, Checklist, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter, Interval}}
                                 noRender={false}
                                 theme={'xq-light'}
                             />
