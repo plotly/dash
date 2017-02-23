@@ -7,6 +7,7 @@ import Slider from './components/Slider.react';
 import RadioItems from './components/RadioItems.react';
 import Checklist from './components/Checklist.react';
 import SyntaxHighlighter from './components/SyntaxHighlighter.react';
+import Interval from './components/Interval.react';
 
 export {
     Checklist,
@@ -16,5 +17,6 @@ export {
     RadioItems,
     RangeSlider,
     Slider,
-    SyntaxHighlighter
+    SyntaxHighlighter,
+    Interval
 };
