@@ -32,13 +32,21 @@ export default class PlotlyGraph extends Component {
     constructor(props) {
         super(props);
         this.bindEvents = this.bindEvents.bind(this);
+        this.state = {hasPlotted: false};
     }
 
     plot(props) {
-        const {id, figure} = props;
-        return Plotly.newPlot(id, figure).then(() => {
-            this.bindEvents(props);
-        });
+        const {id, figure, animate, animation_options} = props;
+        const {hasPlotted} = this.state;
+        const gd = document.getElementById(id);
+        if (animate && hasPlotted && figure.data.length === gd.data.length) {
+            return Plotly.animate(id, figure, animation_options);
+        } else {
+            return  Plotly.newPlot(id, figure).then(() => {
+                this.bindEvents(props);
+                this.setState({hasPlotted: true});
+            });
+        }
     }
 
     bindEvents(props) {
@@ -153,6 +161,18 @@ PlotlyGraph.propTypes = {
     style: PropTypes.object,
 
     /**
+     * Beta: If true, animate between updates using
+     * plotly.js's `animate` function
+     */
+    animate: PropTypes.bool,
+
+    /**
+     * Beta: Transition object containing animation settings.
+     * Only applies if `animate` is `true`
+     */
+    transition: PropTypes.object,
+
+    /**
      * Function that updates the state tree.
      */
     valueChanged: PropTypes.func,
@@ -169,5 +189,15 @@ PlotlyGraph.defaultProps = {
     selectedData: null,
     zoomData: null,
     figure: {data: [], layout: {}},
+    animate: false,
+    animation_options: {
+        frame: {
+            redraw: false
+        },
+        transition: {
+            duration: 750,
+            ease: 'cubic-in-out'
+        }
+    },
     layout: {}
 };
