@@ -1,4 +1,5 @@
-import {crawlLayout, createTreePath} from './utils'
+import {crawlLayout} from './utils'
+import R from 'ramda'
 
 const initialPaths = {};
 
@@ -8,9 +9,14 @@ const paths = (state = initialPaths, action) => {
             const layout = action.payload;
             const newState = Object.assign({}, state);
 
-            crawlLayout(layout, (child, itempath) => {
-                if(child.props && child.props.id) {
-                    newState[child.props.id] = createTreePath(itempath);
+            crawlLayout(layout, function assignPath(child, itempath) {
+                if(R.type(child) === 'Object' &&
+                   R.has('props', child) &&
+                   R.has('id', child.props)
+                ) {
+
+                    newState[child.props.id] = itempath;
+
                 }
             });
 

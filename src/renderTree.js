@@ -4,27 +4,30 @@ import R from 'ramda';
 import React, {PropTypes} from 'react';
 import Registry from './registry';
 import NotifyObservers from './components/core/NotifyObservers.react';
-import {createTreePath} from './reducers/utils';
+
 
 export default function render(component, path=[]) {
+    if (R.contains(R.type(component), ['String', 'Number', 'Null'])) {
+        return component;
+    }
+
     // Create list of child elements
     let children;
 
     // TODO - Rename component.content to component.children
     const props = R.propOr({}, 'props', component);
     const content = props.content;
-    if (!content) {
+    if (!R.has('props', component) || !R.has('content', component.props)) {
 
         // No children
         children = [];
 
-    } else if (typeof content === 'string') {
+    } else if (R.contains(R.type(component.props.content), ['String', 'Number', 'Null'])) {
 
-        // Text node child
         children = [component.props.content];
 
     } else {
-        // One or multiple children
+        // One or multiple objects
 
         // Recursively render the tree
         const renderChild = (child, i) =>
@@ -39,7 +42,7 @@ export default function render(component, path=[]) {
 
     const parent = React.createElement(
         element,
-        Object.assign({}, component.props, {path: createTreePath(path)}),
+        R.omit(['content'], component.props),
         ...children
     );
 
