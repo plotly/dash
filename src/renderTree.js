@@ -14,10 +14,12 @@ export default function render(component, path=[]) {
     // Create list of child elements
     let children;
 
-    // TODO - Rename component.content to component.children
     const props = R.propOr({}, 'props', component);
-    const content = props.content;
-    if (!R.has('props', component) || !R.has('content', component.props)) {
+
+    // TODO - Rename component.content to component.children
+    if (!R.has('props', component) ||
+        !R.has('content', component.props) ||
+        typeof component.props.content === 'undefined') {
 
         // No children
         children = [];
