@@ -2,6 +2,14 @@ import collections
 import types
 
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
 class Component(collections.MutableMapping):
     def __init__(self, **kwargs):
         for k, v in kwargs.iteritems():
@@ -23,14 +31,14 @@ class Component(collections.MutableMapping):
             'type': self._type,
             'namespace': self._namespace
         }
-        if hasattr(self, 'dependencies'):
-            as_json['dependencies'] = self.dependencies
+
         return as_json
 
     def _check_if_has_indexable_content(self, item):
         if (not hasattr(item, 'content') or
-                item.content is None or
-                isinstance(item.content, basestring)):
+                (not isinstance(item.content, Component) and
+                 not isinstance(item.content, collections.MutableSequence))):
+
             raise KeyError
 
     def _get_set_or_delete(self, id, operation, new_item=None):
@@ -38,6 +46,7 @@ class Component(collections.MutableMapping):
 
         if isinstance(self.content, Component):
             if getattr(self.content, 'id', None) is not None:
+                # Woohoo! It's the item that we're looking for
                 if self.content.id == id:
                     if operation == 'get':
                         return self.content
@@ -47,35 +56,51 @@ class Component(collections.MutableMapping):
                     elif operation == 'delete':
                         self.content = None
                         return
-                else:
-                    raise KeyError
 
-        # if content is like a list
-        for (i, item) in enumerate(self.content):
-            # If the item itself is the one we're looking for
-            if getattr(item, 'id', None) == id:
-                if operation == 'get':
-                    return item
-                elif operation == 'set':
-                    self.content[i] = new_item
-                    return
-                elif operation == 'delete':
-                    del self.content[i]
-                    return
-
-            # Otherwise, recursively dig into that items subtree
+            # Recursively dig into its subtree
             try:
                 if operation == 'get':
-                    return item.__getitem__(id)
+                    return self.content.__getitem__(id)
                 elif operation == 'set':
-                    item.__setitem__(id, new_item)
+                    self.content.__setitem__(id, new_item)
                     return
                 elif operation == 'delete':
-                    item.__delitem__(id)
+                    self.content.__delitem__(id)
                     return
             except KeyError:
                 pass
 
+        # if content is like a list
+        if isinstance(self.content, collections.MutableSequence):
+            for (i, item) in enumerate(self.content):
+                # If the item itself is the one we're looking for
+                if getattr(item, 'id', None) == id:
+                    if operation == 'get':
+                        return item
+                    elif operation == 'set':
+                        self.content[i] = new_item
+                        return
+                    elif operation == 'delete':
+                        del self.content[i]
+                        return
+
+                # Otherwise, recursively dig into that item's subtree
+                # Make sure it's not like a string
+                elif isinstance(item, Component):
+                    try:
+                        if operation == 'get':
+                            return item.__getitem__(id)
+                        elif operation == 'set':
+                            item.__setitem__(id, new_item)
+                            return
+                        elif operation == 'delete':
+                            item.__delitem__(id)
+                            return
+                    except KeyError:
+                        pass
+
+        # The end of our branch
+        # If we were in a list, then this exception will get caught
         raise KeyError
 
     # Supply ABC methods for a MutableMapping:
@@ -95,25 +120,30 @@ class Component(collections.MutableMapping):
         return self._get_set_or_delete(id, 'get')
 
     def __setitem__(self, id, item):
+        '''Set an element by its ID
+        '''
         return self._get_set_or_delete(id, 'set', item)
 
     def __delitem__(self, id):
+        '''Delete items by ID in the tree of content
+        '''
         return self._get_set_or_delete(id, 'delete')
 
     def __iter__(self):
+        '''Yield IDs in the tree of content
+        '''
         content = getattr(self, 'content', None)
 
         # content is just a component
-        if (isinstance(content, Component) and
-                getattr(self.content, 'id', None) is not None):
+        if isinstance(content, Component):
+            if getattr(self.content, 'id', None) is not None:
+                yield self.content.id
 
-            yield self.content.id
+            for t in content.__iter__():
+                yield t
 
         # content is a list of components
-        # TODO - Stronger check for list?
-        if (not isinstance(content, basestring) and
-                not isinstance(content, Component) and
-                content is not None):
+        if isinstance(content, collections.MutableSequence):
 
             for i in content:
 
@@ -127,18 +157,25 @@ class Component(collections.MutableMapping):
     def __len__(self):
         '''Return the number of items in the tree
         '''
-        l = 0
+        # TODO - Should we return the number of items that have IDs
+        # or just the number of items?
+        # The number of items is more intuitive but returning the number
+        # of IDs matches __iter__ better.
+        length = 0
         if getattr(self, 'content', None) is None:
-            l = 0
-        elif isinstance(self.content, basestring):
-            l = 1
+            length = 0
         elif isinstance(self.content, Component):
-            l = 1
-        else:
+            length = 1
+            length += len(self.content)
+        elif isinstance(self.content, collections.MutableSequence):
             for c in self.content:
-                l += 1
-                l += len(c)
-        return l
+                length += 1
+                if isinstance(c, Component):
+                    length += len(c)
+        else:
+            # string or number
+            length = 1
+        return length
 
 
 def generate_class(typename, component_arguments, namespace):

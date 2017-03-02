@@ -7,6 +7,39 @@ import unittest
 
 
 Component._prop_names = ('id', 'a', 'content', 'style', )
+Component._type = 'TestComponent'
+Component._namespace = 'test_namespace'
+
+def nested_tree():
+    '''This tree has a few unique properties:
+    - Content is mixed strings and components (as in c2)
+    - Content is just components (as in c)
+    - Content is just strings (as in c1)
+    - Content is just a single component (as in c3, c4)
+    - Content contains numbers (as in c2)
+    - Content contains "None" items (as in c2)
+    '''
+    c1 = Component(
+        id='0.1.x.x.0',
+        content='string'
+    )
+    c2 = Component(
+        id='0.1.x.x',
+        content=[10, None, 'wrap string', c1, 'another string', 4.51]
+    )
+    c3 = Component(
+        id='0.1.x',
+        # content is just a component
+        content=c2
+    )
+    c4 = Component(
+        id='0.1',
+        content=c3
+    )
+    c5 = Component(id='0.0')
+    c = Component(id='0', content=[c5, c4])
+    return c, c1, c2, c3, c4, c5
+
 
 class TestComponent(unittest.TestCase):
     def test_init(self):
@@ -42,6 +75,132 @@ class TestComponent(unittest.TestCase):
         self.assertEqual(c5['4'], c4)
         self.assertEqual(c5['1'], c1)
         self.assertEqual(c5['3'], c3)
+
+    def test_get_item_with_nested_content_with_mixed_strings_and_without_lists(self):
+        c, c1, c2, c3, c4, c5 = nested_tree()
+        self.assertEqual(
+            c.keys(),
+            [
+                '0.0',
+                '0.1',
+                '0.1.x',
+                '0.1.x.x',
+                '0.1.x.x.0'
+            ]
+        )
+
+        # Try to get each item
+        for comp in [c1, c2, c3, c4, c5]:
+            self.assertEqual(c[comp.id], comp)
+
+        # Get an item that doesn't exist
+        with self.assertRaises(KeyError):
+            c['x']
+
+    def test_len_with_nested_content_with_mixed_strings_and_without_lists(self):
+        c = nested_tree()[0]
+        self.assertEqual(
+            len(c),
+            5 + # 5 components
+            5 + # c2 has 2 strings, 2 numbers, and a None
+            1# c1 has 1 string
+        )
+
+    def test_set_item_with_nested_content_with_mixed_strings_and_without_lists(self):
+        keys = [
+            '0.0',
+            '0.1',
+            '0.1.x',
+            '0.1.x.x',
+            '0.1.x.x.0'
+        ]
+        c = nested_tree()[0]
+
+        # Test setting items starting from the innermost item
+        for i, key in enumerate(reversed(keys)):
+            new_id = 'new {}'.format(key)
+            new_component = Component(
+                id=new_id,
+                content='new string'
+            )
+            c[key] = new_component
+            self.assertEqual(c[new_id], new_component)
+
+    def test_del_item_with_nested_content_with_mixed_strings_and_without_lists(self):
+        c = nested_tree()[0]
+        for key in reversed(c.keys()):
+            c[key]
+            del c[key]
+            with self.assertRaises(KeyError):
+                c[key]
+
+    def test_iter_with_nested_content_with_mixed_strings_and_without_lists(self):
+        c = nested_tree()[0]
+        keys = c.keys()
+        # get a list of ids that __iter__ provides
+        iter_keys = [i for i in c]
+        self.assertEqual(keys, iter_keys)
+
+    def test_to_plotly_json_with_nested_content_with_mixed_strings_and_without_lists(self):
+        c = nested_tree()[0]
+        n = Component._namespace
+        t = Component._type
+
+        self.assertEqual(json.loads(json.dumps(
+                c.to_plotly_json(),
+                cls=plotly.utils.PlotlyJSONEncoder
+            )), {
+            'type': 'TestComponent',
+            'namespace': 'test_namespace',
+            'props': {
+                'content': [
+                    {
+                        'type': 'TestComponent',
+                        'namespace': 'test_namespace',
+                        'props': {
+                            'id': '0.0'
+                        }
+                    },
+                    {
+                        'type': 'TestComponent',
+                        'namespace': 'test_namespace',
+                        'props': {
+                            'content': {
+                                'type': 'TestComponent',
+                                'namespace': 'test_namespace',
+                                'props': {
+                                    'content': {
+                                        'type': 'TestComponent',
+                                        'namespace': 'test_namespace',
+                                        'props': {
+                                            'content': [
+                                                10,
+                                                None,
+                                                'wrap string',
+                                                {
+                                                    'type': 'TestComponent',
+                                                    'namespace': 'test_namespace',
+                                                    'props': {
+                                                        'content': 'string',
+                                                        'id': '0.1.x.x.0'
+                                                    }
+                                                },
+                                                'another string',
+                                                4.51
+                                            ],
+                                            'id': '0.1.x.x'
+                                        }
+                                    },
+                                    'id': '0.1.x'
+                                }
+                            },
+                            'id': '0.1'
+                        }
+                    }
+                ],
+                'id': '0'
+            }
+        })
 
     def test_get_item_raises_key_if_id_doesnt_exist(self):
         c = Component()
