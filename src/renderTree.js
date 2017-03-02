@@ -29,8 +29,8 @@ export default function render(component) {
         children = [component.props.content];
 
     } else {
-        // One or multiple objects
 
+        // One or multiple objects
         // Recursively render the tree
         children = (Array.isArray(props.content) ? props.content : [props.content])
                    .map(render);
