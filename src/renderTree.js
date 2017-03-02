@@ -6,7 +6,7 @@ import Registry from './registry';
 import NotifyObservers from './components/core/NotifyObservers.react';
 
 
-export default function render(component, path=[]) {
+export default function render(component) {
     if (R.contains(R.type(component), ['String', 'Number', 'Null'])) {
         return component;
     }
@@ -32,11 +32,8 @@ export default function render(component, path=[]) {
         // One or multiple objects
 
         // Recursively render the tree
-        const renderChild = (child, i) =>
-            render(child, R.append(i, path))
-
-        children = (Array.isArray(content) ? content : [content])
-                   .map(renderChild);
+        children = (Array.isArray(props.content) ? props.content : [props.content])
+                   .map(render);
 
     }
 
