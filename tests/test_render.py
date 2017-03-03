@@ -443,27 +443,48 @@ class Tests(IntegrationTests):
         # call the callbacks immediately to set
         # the correct initial state
         wait_for(
-            lambda *args: (
+            lambda: (
                 self.driver.find_element_by_id('output')
-                 .get_attribute('innerHTML')) ==
-            '''
-            <div>
-                <input type="text/javascript" id="sub-input-1" value="sub input initial value">
-                <div id="sub-output-1">sub input inital value</div>
-            </div>'''.replace('\n', '').replace('    ', '')
+                    .get_attribute('innerHTML') == '''
+                <div>
+                    <input type="text/javascript" id="sub-input-1" value="sub input initial value">
+                    <div id="sub-output-1">
+                        sub input initial value
+                    </div>
+                </div>'''.replace('\n', '').replace('  ', '')
+        ))
+
+        # the paths should include these new output IDs
+        self.assertEqual(
+            self.driver.execute_script('return window.store.getState().paths'),
+            {
+                u'input': [
+                    u'props', u'content', 0
+                ],
+                u'output': [u'props', u'content', 1],
+                u'sub-input-1': [
+                    u'props', u'content', 1,
+                    u'props', u'content',
+                    u'props', u'content', 0
+                ],
+                u'sub-output-1': [
+                    u'props', u'content', 1,
+                    u'props', u'content',
+                    u'props', u'content', 1
+                ]
+            }
         )
 
         # editing the input should modify the sub output
         sub_input = self.driver.find_element_by_id('sub-input-1')
         sub_input.send_keys('a')
         wait_for(
-            lambda *args: (
-                self.driver.find_element_by_id('sub-output-1')
-                 .get_attribute('innerHTML')
-            ) == 'a'
+            lambda: (
+                self.driver.find_element_by_id('sub-output-1').text
+            ) == 'sub input initial valuea'
         )
 
-        self.assertEqual(call_count.value, 1)
+        self.assertEqual(call_count.value, 2)
 
         assert_clean_console(self)
 

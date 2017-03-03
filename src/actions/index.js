@@ -13,10 +13,12 @@ import {
     pick,
     reject,
     sort,
+    type,
     union,
     view
 } from 'ramda';
 import {createAction} from 'redux-actions';
+import {crawlLayout, hasId} from '../reducers/utils';
 // TODO - Use whatwg-fetch instead of window.fetch
 // import fetch from 'whatwg-fetch';
 
@@ -47,7 +49,7 @@ export const initialize = function() {
 
             // TODO - will need to recompute paths when the layout changes
             // from request responses
-            dispatch(computePaths(layout));
+            dispatch(computePaths({subTree: layout, startingPath: []}));
         })).then(function() {
             fetch('/dependencies', {method: 'GET'})
             .then(res => res.json().then(dependencies => {
@@ -211,9 +213,64 @@ export const notifyObservers = function(payload) {
                 };
                 dispatch(updateProps(observerUpdatePayload));
 
+
                 // fire an event that the props have changed
                 // TODO - Need to wait for updateProps to finish?
                 dispatch(notifyObservers({event: 'propChange', id: eventObserverId}));
+
+                /*
+                 * If the response includes content which includes or
+                 * or removes items with IDs, then we need to update our
+                 * paths store.
+                 * TODO - Do we need to wait for updateProps to finish?
+                 */
+                if (type(observerUpdatePayload.props.content) === 'Object' &&
+                    !isEmpty(observerUpdatePayload.props.content)) {
+
+                    dispatch(computePaths({
+                        subTree: observerUpdatePayload.props.content,
+                        startingPath: concat(
+                            getState().paths[eventObserverId],
+                            ['props', 'content']
+                        )
+                    }));
+
+                    /*
+                     * And then we need to dispatch
+                     * an initialization propChange for all
+                     *  of _these_ components!
+                     * TODO: We're just naively crawling
+                     * the _entire_ layout to recompute the
+                     * the dependency graphs.
+                     * We don't need to do this - just need
+                     * to compute the subtree
+                     */
+                    const newIds = [];
+                    crawlLayout(
+                        observerUpdatePayload.props.content,
+                        function appendIds(child) {
+                            if (hasId(child)) {
+                                newIds.push(child.props.id);
+                            }
+                        }
+                    );
+                    // TODO - We might need to reset the
+                    // request queue here.
+                    const depOrder = EventGraph.overallOrder();
+                    const sortedIds = sort(
+                        (a, b) => depOrder.indexOf(a) - depOrder.indexOf(b),
+                        newIds
+                    );
+
+                    sortedIds.forEach(function(newId) {
+                        dispatch(notifyObservers({
+                            event: 'propChange', id: newId
+                        }));
+                    })
+
+                }
+
+
             }));
 
         }

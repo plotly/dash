@@ -1,21 +1,19 @@
-import {crawlLayout} from './utils'
+import {crawlLayout, hasId} from './utils'
 import R from 'ramda'
 
 const initialPaths = {};
 
+
 const paths = (state = initialPaths, action) => {
     switch (action.type) {
         case 'COMPUTE_PATHS': {
-            const layout = action.payload;
+            const {subTree, startingPath} = action.payload;
             const newState = Object.assign({}, state);
 
-            crawlLayout(layout, function assignPath(child, itempath) {
-                if(R.type(child) === 'Object' &&
-                   R.has('props', child) &&
-                   R.has('id', child.props)
-                ) {
+            crawlLayout(subTree, function assignPath(child, itempath) {
+                if(hasId(child)) {
 
-                    newState[child.props.id] = itempath;
+                    newState[child.props.id] = R.concat(startingPath, itempath);
 
                 }
             });
