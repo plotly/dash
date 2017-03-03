@@ -74,12 +74,12 @@ class IntegrationTests(unittest.TestCase):
         };
 
         console.warn = function() {
-            window.tests.warn.push({method: 'warn', arguments: arguments});
+            window.tests.console.warn.push({method: 'warn', arguments: arguments});
             return _warn.apply(console, arguments);
         };
 
         console.error = function() {
-            window.tests.error.push({method: 'error', arguments: arguments});
+            window.tests.console.error.push({method: 'error', arguments: arguments});
             return _error.apply(console, arguments);
         };
         '''
