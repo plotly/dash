@@ -4,13 +4,14 @@ import dash_html_components as html
 import dash_core_components
 from IntegrationTests import IntegrationTests
 import mock
-from utils import wait_for
+from utils import assert_clean_console, wait_for
 from multiprocessing import Value
+import time
 
 
 class Tests(IntegrationTests):
 
-    def test_initial_state(s):
+    def test_initial_state(self):
         dash = Dash(__name__)
         dash.layout = html.Div([
             'Basic string',
@@ -45,9 +46,9 @@ class Tests(IntegrationTests):
             ], id='p.c.5')
         ])
 
-        s.startServer(dash)
+        self.startServer(dash)
 
-        el = s.driver.find_element_by_id('react-entry-point')
+        el = self.driver.find_element_by_id('react-entry-point')
 
         rendered_dom = '''
         <div data-reactroot="">
@@ -97,20 +98,20 @@ class Tests(IntegrationTests):
             </div>
         </div>
         '''
-        s.assertEqual(
+        self.assertEqual(
             el.get_attribute('innerHTML'),
             rendered_dom.replace('\n', '').replace('    ', '')
         )
 
         # Check that no errors or warnings were displayed
-        s.assertEqual(
-            s.driver.execute_script(
+        self.assertEqual(
+            self.driver.execute_script(
                 'return window.tests.console.error.length'
             ),
             0
         )
-        s.assertEqual(
-            s.driver.execute_script(
+        self.assertEqual(
+            self.driver.execute_script(
                 'return window.tests.console.warn.length'
             ),
             0
@@ -119,8 +120,8 @@ class Tests(IntegrationTests):
         # Check the initial stores
 
         # layout should just be the JSON-ified app.layout
-        s.assertEqual(
-            s.driver.execute_script(
+        self.assertEqual(
+            self.driver.execute_script(
                 'return JSON.parse(JSON.stringify('
                 'window.store.getState().layout'
                 '))'
@@ -247,8 +248,8 @@ class Tests(IntegrationTests):
         )
 
         # graphs should just be empty since there are no dependencies
-        s.assertEqual(
-            s.driver.execute_script(
+        self.assertEqual(
+            self.driver.execute_script(
                 'return JSON.parse(JSON.stringify('
                 'window.store.getState().graphs'
                 '))'
@@ -271,8 +272,8 @@ class Tests(IntegrationTests):
         # placement in the tree.
         # in this case the IDs are just abbreviations of the path to make
         # things easy to verify.
-        s.assertEqual(
-            s.driver.execute_script(
+        self.assertEqual(
+            self.driver.execute_script(
                 'return JSON.parse(JSON.stringify('
                 'window.store.getState().paths'
                 '))'
@@ -342,9 +343,11 @@ class Tests(IntegrationTests):
         )
 
         # Take a screenshot with percy
-        # s.percy_runner.snapshot(name='dash_core_components')
+        # self.percy_runner.snapshot(name='dash_core_components')
 
-    def test_simple_callback(s):
+        assert_clean_console(self)
+
+    def test_simple_callback(self):
         dash = Dash(__name__)
         dash.layout = html.Div([
             dash_core_components.Input(
@@ -368,22 +371,22 @@ class Tests(IntegrationTests):
             call_count.value = call_count.value + 1
             return {'content': input['value']}
 
-        s.startServer(dash)
+        self.startServer(dash)
 
-        wait_for(lambda: s.driver.find_element_by_id(
+        wait_for(lambda: self.driver.find_element_by_id(
             'output-1'
         ).text == 'initial value')
 
-        input1 = s.driver.find_element_by_id('input')
+        input1 = self.driver.find_element_by_id('input')
         input1.clear()
 
         input1.send_keys('hello world')
 
-        wait_for(lambda: s.driver.find_element_by_id(
+        wait_for(lambda: self.driver.find_element_by_id(
             'output-1'
         ).text == 'hello world')
 
-        s.assertEqual(
+        self.assertEqual(
             call_count.value,
             # an initial call to retrieve the first value
             1 +
@@ -391,7 +394,9 @@ class Tests(IntegrationTests):
             len('hello world')
         )
 
-    def test_callbacks_generating_content(s):
+        assert_clean_console(self)
+
+    def test_callbacks_generating_content(self):
         """ Modify the DOM tree by adding new
         components in the callbacks
         """
@@ -427,9 +432,9 @@ class Tests(IntegrationTests):
                 'content': input['value']
             }
 
-        s.startServer(dash)
+        self.startServer(dash)
 
-        output = s.driver.find_element_by_id('output')
+        output = self.driver.find_element_by_id('output')
         output_html = output.get_attribute('innerHTML')
 
         wait_for(lambda: call_count.value == 1)
@@ -439,7 +444,7 @@ class Tests(IntegrationTests):
         # the correct initial state
         wait_for(
             lambda *args: (
-                s.driver.find_element_by_id('output')
+                self.driver.find_element_by_id('output')
                  .get_attribute('innerHTML')) ==
             '''
             <div>
@@ -449,13 +454,60 @@ class Tests(IntegrationTests):
         )
 
         # editing the input should modify the sub output
-        sub_input = s.driver.find_element_by_id('sub-input-1')
+        sub_input = self.driver.find_element_by_id('sub-input-1')
         sub_input.send_keys('a')
         wait_for(
             lambda *args: (
-                s.driver.find_element_by_id
+                self.driver.find_element_by_id('sub-output-1')
                  .get_attribute('innerHTML')
             ) == 'a'
         )
 
-        s.assertEqual(call_count.value, 1)
+        self.assertEqual(call_count.value, 1)
+
+        assert_clean_console(self)
+
+    def test_dependencies_on_components_that_dont_exist(self):
+        dash = Dash(__name__)
+        dash.layout = html.Div([
+            dash_core_components.Input(id='input', value='initial value'),
+            html.Div(id='output-1')
+        ])
+
+        # standard callback
+        output_1_call_count = Value('i', 0)
+        @dash.react('output-1', ['input'])
+        def update_output(input):
+            output_1_call_count.value += 1
+            return {
+                'content': input['value']
+            }
+
+        # callback for component that doesn't yet exist in the dom
+        # in practice, it might get added by some other callback
+        output_2_call_count = Value('i', 0)
+        @dash.react('output-2', ['input'])
+        def update_output_2(input):
+            output_2_call_count.value += 1
+            return {
+                'content': input['value']
+            }
+
+        self.startServer(dash)
+
+        wait_for(lambda: self.driver.find_element_by_id('output-1').text
+                 == 'initial value')
+        time.sleep(1.0)
+        self.assertEqual(output_1_call_count.value, 1)
+        self.assertEqual(output_2_call_count.value, 0)
+
+        input = self.driver.find_element_by_id('input')
+
+        input.send_keys('a')
+        wait_for(lambda: self.driver.find_element_by_id('output-1').text
+                 == 'initial valuea')
+        time.sleep(1.0)
+        self.assertEqual(output_1_call_count.value, 2)
+        self.assertEqual(output_2_call_count.value, 0)
+
+        assert_clean_console(self)
