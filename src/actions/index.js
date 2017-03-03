@@ -1,6 +1,7 @@
 import {
     concat,
     contains,
+    has,
     intersection,
     isEmpty,
     isNil,
@@ -133,13 +134,23 @@ export const notifyObservers = function(payload) {
              * B is done updating. in this scenario, B is before C from the
              * overallOrder, so it'll get set in the requestQueue before C.
              */
-
             const dependenciesInQueue = intersection(
                 getState().requestQueue,
                 EventGraph.dependenciesOf(eventObserverId)
             );
 
             if (dependenciesInQueue.length !== 0) {
+                continue;
+            }
+
+            /*
+             * also check that this observer is actually in the current
+             * component tree.
+             * observers don't actually need to be rendered at the moment
+             * of a controller change.
+             * for example, perhaps the user has hidden one of the observers
+             */
+            if (!has(eventObserverId, getState().paths)) {
                 continue;
             }
 
