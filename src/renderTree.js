@@ -32,6 +32,7 @@ export default function render(component) {
 
         // One or multiple objects
         // Recursively render the tree
+        // TODO - I think we should pass in `key` here.
         children = (Array.isArray(props.content) ? props.content : [props.content])
                    .map(render);
 

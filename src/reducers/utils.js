@@ -29,6 +29,22 @@ export const crawlLayout = (object, func, path=[]) => {
                 newPath
             );
         }
+    }  else if (R.type(object) === 'Array') {
+
+        /*
+         * Sometimes when we're updating a sub-tree
+         * (like when we're responding to a callback)
+         * that returns `{content: [{...}, {...}]}`
+         * then we'll need to start crawling from
+         * an array instead of an object.
+         */
+
+        object.forEach((child, i) => {
+            crawlLayout(
+                child,
+                func,
+                R.append(i, path));
+        });
 
     }
 }

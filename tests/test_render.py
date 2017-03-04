@@ -274,9 +274,7 @@ class Tests(IntegrationTests):
         # things easy to verify.
         self.assertEqual(
             self.driver.execute_script(
-                'return JSON.parse(JSON.stringify('
-                'window.store.getState().paths'
-                '))'
+                'return window.store.getState().paths'
             ),
             {
                 "p.c.3": [
@@ -487,6 +485,298 @@ class Tests(IntegrationTests):
         self.assertEqual(call_count.value, 2)
 
         assert_clean_console(self)
+
+    def test_radio_buttons_callbacks_generating_content(self):
+        dash = Dash(__name__)
+        dash.layout = html.Div([
+            html.Link(
+                rel="stylesheet",
+                href="https://unpkg.com/react-select@1.0.0-rc.3/dist/react-select.css"
+            ),
+            dash_core_components.RadioItems(
+                options=[
+                    {'label': 'Chapter 1', 'value': 'chapter1'},
+                    {'label': 'Chapter 2', 'value': 'chapter2'},
+                    {'label': 'Chapter 3', 'value': 'chapter3'}
+                ],
+                value='chapter1',
+                id='toc'
+            ),
+            html.Div(id='body')
+        ])
+
+        chapters = {
+            'chapter1': html.Div([
+                html.H1('Chapter 1', id='chapter1-header'),
+                dash_core_components.Dropdown(
+                    options=[{'label': i, 'value': i} for i in ['NYC', 'MTL', 'SF']],
+                    value='NYC',
+                    id='chapter1-controls'
+                ),
+                html.Label(id='chapter1-label'),
+                dash_core_components.Graph(id='chapter1-graph')
+            ]),
+            # Chapter 2 has the some of the same components in the same order
+            # as Chapter 1. This means that they won't get remounted
+            # unless they set their own keys are differently.
+            # Switching back and forth between 1 and 2 implicitly
+            # tests how components update when they aren't remounted.
+            'chapter2': html.Div([
+                html.H1('Chapter 2', id='chapter2-header'),
+                dash_core_components.RadioItems(
+                    options=[{'label': i, 'value': i}
+                             for i in ['USA', 'Canada']],
+                    value='USA',
+                    id='chapter2-controls'
+                ),
+                html.Label(id='chapter2-label'),
+                dash_core_components.Graph(id='chapter2-graph')
+            ]),
+            # Chapter 3 has a different layout and so the components
+            # should get rewritten
+            'chapter3': [html.Div(
+                html.Div([
+                    html.H3('Chapter 3', id='chapter3-header'),
+                    html.Label(id='chapter3-label'),
+                    dash_core_components.Graph(id='chapter3-graph'),
+                    dash_core_components.RadioItems(
+                        options=[{'label': i, 'value': i}
+                                 for i in ['Summer', 'Winter']],
+                        value='Winter',
+                        id='chapter3-controls'
+                    )
+                ])
+            )]
+        }
+
+        call_counts = {
+            'body': Value('i', 0),
+            'chapter1-graph': Value('i', 0),
+            'chapter1-label': Value('i', 0),
+            'chapter2-graph': Value('i', 0),
+            'chapter2-label': Value('i', 0),
+            'chapter3-graph': Value('i', 0),
+            'chapter3-label': Value('i', 0)
+        }
+
+        @dash.react('body', ['toc'])
+        def display_chapter(toc):
+            call_counts['body'].value += 1
+            return {
+                'content': chapters[toc['value']]
+            }
+
+        def generate_graph_callback(counterId):
+            def callback(options):
+                call_counts[counterId].value += 1
+                return {
+                    'figure': {
+                        'data': [{
+                            'x': ['Call Counter'],
+                            'y': [call_counts[counterId].value],
+                            'type': 'bar'
+                        }],
+                        'layout': {'title': options['value']}
+                    }
+                }
+            return callback
+
+        def generate_label_callback(id):
+            def update_label(options):
+                call_counts[id].value += 1
+                return {'content': options['value']}
+            return update_label
+
+        for chapter in ['chapter1', 'chapter2', 'chapter3']:
+            dash.react(
+                '{}-graph'.format(chapter),
+                ['{}-controls'.format(chapter)]
+            )(generate_graph_callback('{}-graph'.format(chapter)))
+
+            dash.react(
+                '{}-label'.format(chapter),
+                ['{}-controls'.format(chapter)]
+            )(generate_label_callback('{}-label'.format(chapter)))
+
+
+        self.startServer(dash)
+        # import ipdb; ipdb.set_trace()
+        wait_for(lambda: call_counts['body'].value == 1)
+        wait_for(lambda: call_counts['chapter1-graph'].value == 1)
+        wait_for(lambda: call_counts['chapter1-label'].value == 1)
+        self.assertEqual(call_counts['chapter2-graph'].value, 0)
+        self.assertEqual(call_counts['chapter2-label'].value, 0)
+        self.assertEqual(call_counts['chapter3-graph'].value, 0)
+        self.assertEqual(call_counts['chapter3-label'].value, 0)
+
+        def generic_chapter_assertions(chapter):
+            # each element should exist in the dom
+            paths = self.driver.execute_script(
+                'return window.store.getState().paths'
+            )
+            for key in paths:
+                self.driver.find_element_by_id(key)
+
+            if chapter == 'chapter3':
+                value = chapters[chapter][0][
+                    '{}-controls'.format(chapter)
+                ].value
+            else:
+                value = chapters[chapter]['{}-controls'.format(chapter)].value
+            # check the actual values
+            wait_for(
+                lambda: (
+                    self.driver.find_element_by_id(
+                        '{}-label'.format(chapter)
+                    ).text
+                    == value
+                )
+            )
+            wait_for(
+                lambda: (
+                    self.driver.execute_script(
+                        'return document.'
+                        'getElementById("{}-graph").'.format(chapter) +
+                        'layout.title'
+                    ) == value
+                )
+            )
+
+        def chapter1_assertions():
+            paths = self.driver.execute_script(
+                'return window.store.getState().paths'
+            )
+            self.assertEqual(paths, {
+                'toc': ['props', 'content', 1],
+                'body': ['props', 'content', 2],
+                'chapter1-header': [
+                    'props', 'content', 2,
+                    'props', 'content',
+                    'props', 'content', 0
+                ],
+                'chapter1-controls': [
+                    'props', 'content', 2,
+                    'props', 'content',
+                    'props', 'content', 1
+                ],
+                'chapter1-label': [
+                    'props', 'content', 2,
+                    'props', 'content',
+                    'props', 'content', 2
+                ],
+                'chapter1-graph': [
+                    'props', 'content', 2,
+                    'props', 'content',
+                    'props', 'content', 3
+                ]
+            })
+            generic_chapter_assertions('chapter1')
+
+        chapter1_assertions()
+
+        # switch chapters
+        (self.driver.find_elements_by_css_selector(
+            'input[type="radio"]'
+        )[1]).click()
+
+        # sleep just to make sure that no calls happen after our check
+        time.sleep(2)
+        wait_for(lambda: call_counts['body'].value == 2)
+        wait_for(lambda: call_counts['chapter2-graph'].value == 1)
+        wait_for(lambda: call_counts['chapter2-label'].value == 1)
+        self.assertEqual(call_counts['chapter1-graph'].value, 1)
+        self.assertEqual(call_counts['chapter1-label'].value, 1)
+
+        def chapter2_assertions():
+            paths = self.driver.execute_script(
+                'return window.store.getState().paths'
+            )
+            self.assertEqual(paths, {
+                'toc': ['props', 'content', 1],
+                'body': ['props', 'content', 2],
+                'chapter2-header': [
+                    'props', 'content', 2,
+                    'props', 'content',
+                    'props', 'content', 0
+                ],
+                'chapter2-controls': [
+                    'props', 'content', 2,
+                    'props', 'content',
+                    'props', 'content', 1
+                ],
+                'chapter2-label': [
+                    'props', 'content', 2,
+                    'props', 'content',
+                    'props', 'content', 2
+                ],
+                'chapter2-graph': [
+                    'props', 'content', 2,
+                    'props', 'content',
+                    'props', 'content', 3
+                ]
+            })
+            generic_chapter_assertions('chapter2')
+
+        chapter2_assertions()
+
+        # switch to 3
+        (self.driver.find_elements_by_css_selector(
+            'input[type="radio"]'
+        )[2]).click()
+        # sleep just to make sure that no calls happen after our check
+        time.sleep(2)
+        wait_for(lambda: call_counts['body'].value == 3)
+        wait_for(lambda: call_counts['chapter3-graph'].value == 1)
+        wait_for(lambda: call_counts['chapter3-label'].value == 1)
+        self.assertEqual(call_counts['chapter2-graph'].value, 1)
+        self.assertEqual(call_counts['chapter2-label'].value, 1)
+        self.assertEqual(call_counts['chapter1-graph'].value, 1)
+        self.assertEqual(call_counts['chapter1-label'].value, 1)
+
+        def chapter3_assertions():
+            paths = self.driver.execute_script(
+                'return window.store.getState().paths'
+            )
+            self.assertEqual(paths, {
+                'toc': ['props', 'content', 1],
+                'body': ['props', 'content', 2],
+                'chapter3-header': [
+                    'props', 'content', 2,
+                    'props', 'content', 0,
+                    'props', 'content',
+                    'props', 'content', 0
+                ],
+                'chapter3-label': [
+                    'props', 'content', 2,
+                    'props', 'content', 0,
+                    'props', 'content',
+                    'props', 'content', 1
+                ],
+                'chapter3-graph': [
+                    'props', 'content', 2,
+                    'props', 'content', 0,
+                    'props', 'content',
+                    'props', 'content', 2
+                ],
+                'chapter3-controls': [
+                    'props', 'content', 2,
+                    'props', 'content', 0,
+                    'props', 'content',
+                    'props', 'content', 3
+                ]
+            })
+            generic_chapter_assertions('chapter3')
+
+        chapter3_assertions()
+
+        # switch back to 1
+        (self.driver.find_elements_by_css_selector(
+            'input[type="radio"]'
+        )[0]).click()
+        chapter1_assertions()
+
+        ## HEY!!! WELCOME BACK!!
+        # TODO - ADD A CHAPTER THAT IS JUST A STRING!
 
     def test_dependencies_on_components_that_dont_exist(self):
         dash = Dash(__name__)

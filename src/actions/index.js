@@ -195,7 +195,6 @@ export const notifyObservers = function(payload) {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(body)
             }).then(response => response.json().then(function handleResponse(data) {
-
                 // clear this item from the request queue
                 dispatch(setRequestQueue(
                     reject(
@@ -224,8 +223,10 @@ export const notifyObservers = function(payload) {
                  * paths store.
                  * TODO - Do we need to wait for updateProps to finish?
                  */
-                if (type(observerUpdatePayload.props.content) === 'Object' &&
-                    !isEmpty(observerUpdatePayload.props.content)) {
+                if (contains(
+                        type(observerUpdatePayload.props.content),
+                        ['Array', 'Object']
+                    ) && !isEmpty(observerUpdatePayload.props.content)) {
 
                     dispatch(computePaths({
                         subTree: observerUpdatePayload.props.content,
@@ -249,24 +250,30 @@ export const notifyObservers = function(payload) {
                     crawlLayout(
                         observerUpdatePayload.props.content,
                         function appendIds(child) {
-                            if (hasId(child)) {
+                            if (hasId(child) &&
+                                /*
+                                 * Not all nodes that have IDs
+                                 * are necessarily bound to events
+                                 * TODO - Are we making that assumption anywhere else?
+                                 */
+                                has(child.props.id, EventGraph.nodes)
+                            ) {
                                 newIds.push(child.props.id);
                             }
                         }
                     );
+
                     // TODO - We might need to reset the
                     // request queue here.
                     const depOrder = EventGraph.overallOrder();
-                    const sortedIds = sort(
-                        (a, b) => depOrder.indexOf(a) - depOrder.indexOf(b),
+                    const sortedIds = sort((a, b) => depOrder.indexOf(a) - depOrder.indexOf(b),
                         newIds
-                    );
-
+                    )
                     sortedIds.forEach(function(newId) {
                         dispatch(notifyObservers({
                             event: 'propChange', id: newId
                         }));
-                    })
+                    });
 
                 }
 
