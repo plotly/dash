@@ -3,6 +3,7 @@ import React, {PropTypes} from 'react';
 export default function Radio(props) {
     const {
         fireEvent,
+        id,
         inputClassName,
         inputStyle,
         labelClassName,
@@ -11,8 +12,12 @@ export default function Radio(props) {
         value,
         valueChanged
     } = props;
+    let ids = {};
+    if (id) {
+        ids = {id, key: id};
+    }
     return (
-        <div>
+        <div {...ids}>
             {options.map(option => (
                 <label style={labelStyle} className={labelClassName}>
                     <input
