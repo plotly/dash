@@ -91,12 +91,23 @@ export default class PlotlyGraph extends Component {
         }
     }
 
-    shouldComponentUpdate() {
-        // Never re-render after initialization, let Plotly.js own the DOM node.
-        return false;
+    shouldComponentUpdate(nextProps) {
+        return (
+            this.props.id !== nextProps.id ||
+            JSON.stringify(this.props.style) !== JSON.stringify(nextProps.style)
+        );
     }
 
     componentWillReceiveProps(nextProps) {
+        const idChanged = this.props.id !== nextProps.id;
+        if (idChanged) {
+            /*
+             * then the dom needs to get re-rendered with a new ID.
+             * the graph will get updated in componentDidUpdate
+             */
+            return;
+        }
+
         // TODO optimize this check
         const figureChanged = JSON.stringify(this.props.figure) !== JSON.stringify(nextProps.figure)
 
@@ -116,15 +127,23 @@ export default class PlotlyGraph extends Component {
         }
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.id !== this.props.id) {
+            this.plot(this.props);
+        }
+    }
+
     render(){
-        const {style, id} = this.props
+        const {style, id} = this.props;
 
         return (
             <div
+                key={id}
                 id={id}
                 style={style}
             />
         );
+
     }
 }
 
