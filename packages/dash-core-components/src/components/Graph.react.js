@@ -109,7 +109,7 @@ export default class PlotlyGraph extends Component {
         }
 
         // TODO optimize this check
-        const figureChanged = JSON.stringify(this.props.figure) !== JSON.stringify(nextProps.figure)
+        const figureChanged = this.props.figure !== nextProps.figure;
 
         /*
          * Rebind events in case fireEvent or valueChanged
