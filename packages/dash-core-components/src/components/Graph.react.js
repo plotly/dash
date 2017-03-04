@@ -108,7 +108,6 @@ export default class PlotlyGraph extends Component {
             return;
         }
 
-        // TODO optimize this check
         const figureChanged = this.props.figure !== nextProps.figure;
 
         /*
