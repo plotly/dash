@@ -19,8 +19,6 @@ import {
 } from 'ramda';
 import {createAction} from 'redux-actions';
 import {crawlLayout, hasId} from '../reducers/utils';
-// TODO - Use whatwg-fetch instead of window.fetch
-// import fetch from 'whatwg-fetch';
 
 export const ACTIONS = (action) => {
     const actionList = {
@@ -42,13 +40,11 @@ const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
 
 export const initialize = function() {
     return function (dispatch, getState) {
+        // TODO - Use whatwg-fetch
         fetch('/initialize', {method: 'GET'}) /* global fetch: true */
         .then(res => res.json().then(layout => {
             // TODO: error handling
             dispatch(setLayout(layout));
-
-            // TODO - will need to recompute paths when the layout changes
-            // from request responses
             dispatch(computePaths({subTree: layout, startingPath: []}));
         })).then(function() {
             fetch('/dependencies', {method: 'GET'})
@@ -58,7 +54,7 @@ export const initialize = function() {
                  * Fire an initial propChange event for each of the controllers
                  * so that the observer leaves can update
                  */
-                // TODO - Remove this setTimeout
+                // TODO - Use thunk instead of setTimeout
                 setTimeout(function(){
                     const {graphs} = getState();
                     const {EventGraph} = graphs;
