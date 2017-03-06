@@ -59,7 +59,13 @@ export const initialize = function() {
                     const {graphs} = getState();
                     const {EventGraph} = graphs;
                     EventGraph.overallOrder().forEach(nodeId => {
-                        dispatch(notifyObservers({event: 'propChange', id: nodeId}));
+                        // Only fire updates for the visible controllers
+                        if (has(nodeId, getState().paths)) {
+                            dispatch(notifyObservers({
+                                event: 'propChange', id: nodeId
+                            }));
+                        }
+
                     });
                 }, 50)
             }));

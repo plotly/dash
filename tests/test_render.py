@@ -340,6 +340,13 @@ class Tests(IntegrationTests):
             }
         )
 
+        self.assertEqual(
+            self.driver.execute_script(
+                'return window.store.getState().requestQueue'
+            ),
+            []
+        )
+
         # Take a screenshot with percy
         # self.percy_runner.snapshot(name='dash_core_components')
 
@@ -390,6 +397,13 @@ class Tests(IntegrationTests):
             1 +
             # one for each hello world character
             len('hello world')
+        )
+
+        self.assertEqual(
+            self.driver.execute_script(
+                'return window.store.getState().requestQueue'
+            ),
+            []
         )
 
         assert_clean_console(self)
@@ -483,6 +497,13 @@ class Tests(IntegrationTests):
         )
 
         self.assertEqual(call_count.value, 2)
+
+        self.assertEqual(
+            self.driver.execute_script(
+                'return window.store.getState().requestQueue'
+            ),
+            []
+        )
 
         assert_clean_console(self)
 
@@ -640,6 +661,13 @@ class Tests(IntegrationTests):
                         'layout.title'
                     ) == value
                 )
+            )
+
+            self.assertEqual(
+                self.driver.execute_script(
+                    'return window.store.getState().requestQueue'
+                ),
+                []
             )
 
         def chapter1_assertions():
@@ -820,5 +848,12 @@ class Tests(IntegrationTests):
         time.sleep(1.0)
         self.assertEqual(output_1_call_count.value, 2)
         self.assertEqual(output_2_call_count.value, 0)
+
+        self.assertEqual(
+            self.driver.execute_script(
+                'return window.store.getState().requestQueue'
+            ),
+            []
+        )
 
         assert_clean_console(self)
