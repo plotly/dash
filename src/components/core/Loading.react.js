@@ -2,8 +2,7 @@
 
 import { connect } from 'react-redux'
 import { isEmpty } from 'ramda'
-import React, {Component, PropTypes} from 'react'
-
+import {Component, PropTypes} from 'react'
 
 class Loading extends Component {
     constructor(props) {
