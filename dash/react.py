@@ -4,6 +4,7 @@ import plotly
 from flask import Flask, url_for, send_from_directory
 from flask.ext.cors import CORS
 from dependency_resolver import Resolver
+from flask_compress import Compress
 import os
 import importlib
 
@@ -26,6 +27,8 @@ class Dash(object):
             self.server = Flask(name)
 
         CORS(self.server)  # TODO: lock this down to dev node server port
+        # gzip
+        Compress(self.server)
 
         self.server.add_url_rule(
             '{}/'.format(url_namespace),
