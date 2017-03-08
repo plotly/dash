@@ -9,3 +9,26 @@
 # TODO - Understand this better
 from version import __version__
 __file__
+
+# Dash renderer's dependencies get loaded in a special order by the server:
+# React bundles first, the renderer bundle at the very end.
+_js_dist_dependencies = [
+    {
+        'external_url': [
+            'https://unpkg.com/react@15.4.2/dist/react.min.js',
+            'https://unpkg.com/react-dom@15.4.2/dist/react-dom.min.js'
+        ],
+        'relative_package_path': [
+            'react@15.4.2.min.js',
+            'react-dom@15.4.2.min.js'
+        ],
+        'namespace': 'dash_renderer'
+    }
+]
+
+_js_dist = [
+    {
+        'relative_package_path': 'bundle.js',
+        'namespace': 'dash_renderer'
+    }
+]
