@@ -169,8 +169,11 @@ class Dash(object):
                 component_json['props'] = new_component_props
 
                 response = {'response': component_json}
-                return flask.jsonify(json.loads(json.dumps(response,
-                                     cls=plotly.utils.PlotlyJSONEncoder)))
+                return flask.Response(
+                    json.dumps(response,
+                               cls=plotly.utils.PlotlyJSONEncoder),
+                    mimetype='application/json'
+                )
 
             self.react_map[component_id]['callback'] = add_context
 
