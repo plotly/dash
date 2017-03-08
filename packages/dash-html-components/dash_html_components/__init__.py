@@ -13,5 +13,14 @@ _components = _dash.development.component_loader.load_components(
 
 _this_module = _sys.modules[__name__]
 
+_js_dist = [{
+    "relative_package_path": "bundle.js",
+    "external_url": (
+        "https://unpkg.com/dash-html-components@{}"
+        "/dash_html_components/bundle.js"
+    ).format(__version__)
+}]
+
 for component in _components:
     setattr(_this_module, component.__name__, component)
+    setattr(component, '_js_dist', _js_dist)
