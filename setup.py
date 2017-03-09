@@ -13,8 +13,8 @@ setup(
         'Flask',
         'flask-cors',
         'plotly',
-        'dash-core-components>=0.2.6',
-        'dash-html-components>=0.3.6',
-        'dash-renderer>=0.2.4'
+        'dash-core-components>=0.2.11',
+        'dash-html-components>=0.3.8',
+        'dash-renderer>=0.2.9'
     ]
 )
