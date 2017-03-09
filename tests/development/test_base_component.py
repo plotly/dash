@@ -134,6 +134,14 @@ class TestComponent(unittest.TestCase):
             with self.assertRaises(KeyError):
                 c[key]
 
+    def test_traverse_with_nested_content_with_mixed_strings_and_without_lists(self):
+        c, c1, c2, c3, c4, c5 = nested_tree()
+        elements = [i for i in c.traverse()]
+        self.assertEqual(
+            elements,
+            c.content + [c3] + [c2] + c2.content
+        )
+
     def test_iter_with_nested_content_with_mixed_strings_and_without_lists(self):
         c = nested_tree()[0]
         keys = c.keys()

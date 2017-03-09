@@ -129,30 +129,35 @@ class Component(collections.MutableMapping):
         '''
         return self._get_set_or_delete(id, 'delete')
 
-    def __iter__(self):
-        '''Yield IDs in the tree of content
-        '''
+
+    def traverse(self):
+        '''Yield each item in the tree'''
         content = getattr(self, 'content', None)
 
         # content is just a component
         if isinstance(content, Component):
-            if getattr(self.content, 'id', None) is not None:
-                yield self.content.id
-
-            for t in content.__iter__():
+            yield content
+            for t in content.traverse():
                 yield t
 
         # content is a list of components
-        if isinstance(content, collections.MutableSequence):
-
+        elif isinstance(content, collections.MutableSequence):
             for i in content:
+                yield i
 
-                if getattr(i, 'id', None) is not None:
-                    yield i.id
-
-                if hasattr(i, 'content'):
-                    for t in i.__iter__():
+                if isinstance(i, Component):
+                    for t in i.traverse():
                         yield t
+
+    def __iter__(self):
+        '''Yield IDs in the tree of content
+        '''
+        for t in self.traverse():
+            if (isinstance(t, Component) and
+                getattr(t, 'id', None) is not None):
+
+                yield t.id
+
 
     def __len__(self):
         '''Return the number of items in the tree
