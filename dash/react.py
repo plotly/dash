@@ -305,6 +305,7 @@ class Dash(object):
     def run_server(self,
                    port=8050,
                    debug=True,
+                   threaded=True,
                    **flask_run_options):
         # TODO - If users run the server directly
         # through app.server, then this _setup_server won't get
