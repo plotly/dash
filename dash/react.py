@@ -302,8 +302,12 @@ class Dash(object):
         self._generate_scripts_html()
         self._generate_css_dist_html()
 
-    def run_server(self, port=8050,
+    def run_server(self,
+                   port=8050,
                    debug=True,
                    **flask_run_options):
+        # TODO - If users run the server directly
+        # through app.server, then this _setup_server won't get
+        # called unless they call it explicitly
         self._setup_server()
         self.server.run(port=port, debug=debug, **flask_run_options)
