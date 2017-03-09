@@ -11,7 +11,7 @@ setup(
     long_description=open('README.md').read(),
     install_requires=[
         'Flask',
-        'flask-cors',
+        'flask-compress',
         'plotly',
         'dash-core-components>=0.2.11',
         'dash-html-components>=0.3.8',
