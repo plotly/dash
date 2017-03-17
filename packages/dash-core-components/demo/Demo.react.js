@@ -10,9 +10,52 @@ import {
     RangeSlider,
     Slider,
     SyntaxHighlighter,
-    Interval
+    Interval,
+    Markdown
 } from '../src';
 
+const MarkdownExample = `
+
+const markdown = \`
+# Hello Dash
+
+Learn more in our [Dash user guide](https://dash-docs.herokuapp.com).
+
+![Image Alt Text](https://plot.ly/~chris/1638.png)
+
+***
+
+# H1
+## H2
+### H3
+#### H4
+##### H5
+###### H6
+
+*Italics* and **bold** are supported.
+
+***
+
+1. First item
+2. Second item
+3. Third item
+
+- Bullet 1
+- Bullet 2
+
+> Block quote
+
+
+\\\`\\\`\\\`
+Some code
+\\\`\\\`\\\`
+
+Inline \\\`code\\\` example.
+\`
+
+ReactDOM.render(<Markdown>{markdown}</Markdown>, mountNode);
+
+`;
 
 const SetTimeoutExample = `class Controller extends Component {
     constructor() {
@@ -251,6 +294,7 @@ ReactDOM.render(<Controller/>, mountNode);`
 
 
 const examples = [
+    {name: 'Markdown', code: MarkdownExample},
     {name: 'Interval', code: SetTimeoutExample},
     {name: 'Graph', code: GraphExample},
     {name: 'SyntaxHighlighter', code: SyntaxHighlighterExample},
@@ -274,7 +318,7 @@ class Demo extends Component {
                             <h3>{example.name}</h3>
                             <Playground
                                 codeText={example.code}
-                                scope={{Component, React, ReactDOM, Checklist, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter, Interval}}
+                                scope={{Component, React, ReactDOM, Checklist, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter, Interval, Markdown}}
                                 noRender={false}
                                 theme={'xq-light'}
                             />

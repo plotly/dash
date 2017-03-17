@@ -8,6 +8,7 @@ import RadioItems from './components/RadioItems.react';
 import Checklist from './components/Checklist.react';
 import SyntaxHighlighter from './components/SyntaxHighlighter.react';
 import Interval from './components/Interval.react';
+import Markdown from './components/Markdown.react';
 
 export {
     Checklist,
@@ -18,5 +19,6 @@ export {
     RangeSlider,
     Slider,
     SyntaxHighlighter,
-    Interval
+    Interval,
+    Markdown
 };
