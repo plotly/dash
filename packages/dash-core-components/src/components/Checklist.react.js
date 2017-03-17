@@ -11,7 +11,7 @@ export default function Radio(props) {
         labelStyle,
         options,
         values,
-        valueChanged
+        setProps
     } = props;
     return (
         <div>
@@ -24,14 +24,14 @@ export default function Radio(props) {
                         style={inputStyle}
                         type="checkbox"
                         onChange={() => {
-                            if (valueChanged) {
+                            if (setProps) {
                                 let newValues;
                                 if (contains(option.value, values)) {
                                     newValues = without([option.value], values);
                                 } else {
                                     newValues = append(option.value, values);
                                 }
-                                valueChanged({values: newValues});
+                                setProps({values: newValues});
                             }
                             if (fireEvent) fireEvent({event: 'onChange'});
                         }}
@@ -88,7 +88,7 @@ Radio.propTypes = {
     /**
      * Dash-assigned callback that gets fired when the value changes.
      */
-    valueChanged: PropTypes.func
+    setProps: PropTypes.func
 };
 
 Radio.defaultProps = {

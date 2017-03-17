@@ -6,7 +6,7 @@ export default class RangeSlider extends Component {
         return (
             <Range
                 onChange={value => {
-                    this.props.valueChanged({value});
+                    this.props.setProps({value});
                 }}
                 {...this.props}
             />
@@ -95,7 +95,7 @@ RangeSlider.propTypes = {
     /**
      * Dash-assigned callback that gets fired when the input changes
      */
-    valueChanged: PropTypes.func.isRequired,
+    setProps: PropTypes.func.isRequired,
 
     /**
      * If true, the slider will be vertical

@@ -6,7 +6,7 @@ const DELIMETER = ',';
 
 export default class Dropdown extends Component {
     render() {
-        const {id, multi, options, value, valueChanged} = this.props;
+        const {id, multi, options, value, setProps} = this.props;
         let selectedValue;
         if (R.type(value) === 'array') {
             selectedValue = value.join(DELIMETER);
@@ -21,9 +21,9 @@ export default class Dropdown extends Component {
                     onChange={selectedOption => {
                         if (multi) {
                             const values = R.pluck('value', selectedOption);
-                            valueChanged({value: values});
+                            setProps({value: values});
                         } else {
-                            valueChanged({value: selectedOption.value});
+                            setProps({value: selectedOption.value});
                         }
 
                     }}
@@ -35,6 +35,7 @@ export default class Dropdown extends Component {
 }
 
 Dropdown.propTypes = {
+    className: PropTypes.string,
     /**
      * If true, the option is disabled
      */
@@ -59,6 +60,11 @@ Dropdown.propTypes = {
     ),
 
     /**
+     * The grey, default text shown when no option is selected
+     */
+    placeholder: PropTypes.string,
+
+    /**
      * The value of the input
      */
     value: PropTypes.string, // TODO - or array
@@ -66,5 +72,5 @@ Dropdown.propTypes = {
     /**
      * Dash-assigned callback that gets fired when the input changes
      */
-    valueChanged: PropTypes.func
+    setProps: PropTypes.func
 };

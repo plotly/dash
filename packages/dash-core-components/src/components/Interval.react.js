@@ -60,7 +60,7 @@ Interval.propTypes = {
     /**
      * Dash assigned callback
      */
-    valueChanged: PropTypes.function
+    setProps: PropTypes.function
 };
 
 Interval.defaultProps = {

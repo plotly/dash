@@ -4,7 +4,7 @@ export default class Input extends Component {
     render() {
 
         const {className, id, fireEvent, placeholder,
-               style, value, valueChanged} = this.props;
+               style, value, setProps} = this.props;
 
         return (
             <input
@@ -15,7 +15,7 @@ export default class Input extends Component {
                 placeholder={placeholder}
                 style={style}
                 onChange={e => {
-                    if (valueChanged) valueChanged({value: e.target.value});
+                    if (setProps) setProps({value: e.target.value});
                     // TODO - Will valueChange finish propagating before
                     // fireEvent takes its state?? might need redux-thunk
                     if (fireEvent) fireEvent({event: 'onChange'});
@@ -62,6 +62,6 @@ Input.propTypes = {
     /**
      * Dash-assigned callback that gets fired when the value changes.
      */
-    valueChanged: PropTypes.func
+    setProps: PropTypes.func
 
 };

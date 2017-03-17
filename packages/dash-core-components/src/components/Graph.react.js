@@ -52,7 +52,6 @@ export default class PlotlyGraph extends Component {
     bindEvents(props) {
         const {id, fireEvent, valueChanged} = props;
 
-        // Get DOM node to call jQuery-provided `on` event binder.
         const gd = document.getElementById(id);
 
         gd.on('plotly_click', (eventData) => {
@@ -191,14 +190,22 @@ PlotlyGraph.propTypes = {
     transition: PropTypes.object,
 
     /**
+     *
+     */
+    dashEvents: PropTypes.oneOf([
+        'restyle',
+        'relayout'
+    ]),
+
+    /**
      * Function that updates the state tree.
      */
-    valueChanged: PropTypes.func,
+    dashValueChanged: PropTypes.func,
 
     /**
      * Function that fires events
      */
-    fireEvent: PropTypes.func
+    dashFireEvent: PropTypes.func
 }
 
 PlotlyGraph.defaultProps = {

@@ -155,7 +155,7 @@ class Controller extends Component {
         };
         return (<div>
             <Graph
-                valueChanged={(props) => {
+                setProps={(props) => {
                     this.setState({props});
                 }}
                 fireEvent={event => {
@@ -218,7 +218,7 @@ class Controller extends Component {
 
     render() {
         return (<RangeSlider
-            valueChanged={(props) => {
+            setProps={(props) => {
                 this.setState(props);
             }}
             fireEvent={event => console.warn(event)}
@@ -279,7 +279,7 @@ class Controller extends Component {
 
     render() {
         return (<Checklist
-            valueChanged={(props) => {
+            setProps={(props) => {
                 this.setState(props);
             }}
             fireEvent={event => console.warn(event)}

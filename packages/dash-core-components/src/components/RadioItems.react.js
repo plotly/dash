@@ -10,7 +10,7 @@ export default function Radio(props) {
         labelStyle,
         options,
         value,
-        valueChanged
+        setProps
     } = props;
     let ids = {};
     if (id) {
@@ -27,7 +27,7 @@ export default function Radio(props) {
                         style={inputStyle}
                         type="radio"
                         onChange={() => {
-                            if (valueChanged) valueChanged({value: option.value});
+                            if (setProps) setProps({value: option.value});
                             if (fireEvent) fireEvent({event: 'onChange'});
                         }}
                     />
@@ -83,7 +83,7 @@ Radio.propTypes = {
     /**
      * Dash-assigned callback that gets fired when the value changes.
      */
-    valueChanged: PropTypes.func
+    setProps: PropTypes.func
 };
 
 Radio.defaultProps = {

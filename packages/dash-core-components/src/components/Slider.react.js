@@ -6,7 +6,7 @@ export default class Slider extends Component {
         return (
             <ReactSlider
                 onChange={value => {
-                    this.props.valueChanged({value});
+                    this.props.setProps({value});
                 }}
                 {...this.props}
             />
@@ -76,7 +76,7 @@ Slider.propTypes = {
     /**
      * Dash-assigned callback that gets fired when the input changes
      */
-    valueChanged: PropTypes.func.isRequired,
+    setProps: PropTypes.func.isRequired,
 
     /**
      * If true, the slider will be vertical
