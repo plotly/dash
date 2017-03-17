@@ -4,7 +4,7 @@ import {notifyObservers, updateProps} from '../../actions';
 import React, {PropTypes} from 'react';
 
 /*
- * NotifyObservers passes a connected `valueChanged` handler down to
+ * NotifyObservers passes a connected `setProps` handler down to
  * its child as a prop
  */
 
@@ -31,7 +31,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
             dispatch(notifyObservers({event, id: ownProps.id}));
         },
 
-        valueChanged: function valueChanged(newProps) {
+        setProps: function setProps(newProps) {
             const payload = {
                 props: newProps,
                 id: ownProps.id,
@@ -58,7 +58,7 @@ function NotifyObserversComponent ({
     StateGraph,
 
     fireEvent,
-    valueChanged
+    setProps
 }) {
 
     // TODO - Check if it triggers this particular event
@@ -70,7 +70,7 @@ function NotifyObserversComponent ({
     );
     const extraProps = {};
     if (thisComponentSharesState) {
-        extraProps.valueChanged = valueChanged;
+        extraProps.setProps = setProps;
     }
     if (thisComponentTriggersEvents) {
         extraProps.fireEvent = fireEvent;
