@@ -1,5 +1,5 @@
 from copy import copy
-from dash.development.base_component import Component
+from development.base_component import Component
 import warnings
 
 

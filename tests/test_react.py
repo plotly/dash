@@ -3,11 +3,12 @@ from dash.development.base_component import generate_class
 import dash
 import json
 import plotly
-from dash_core_components import Input
+import dash_core_components as dcc
 from dash_html_components import Div
 import pkgutil
 import warnings
-
+from dash.dependencies import Event, Input, Output, State
+from dash import exceptions
 
 def generate_css(css_links):
     return '\n'.join([
@@ -29,8 +30,8 @@ class IntegrationTest(unittest.TestCase):
 
         self.app.layout = Div([
             Div('Hello World', id='header', style={'color': 'red'}),
-            Input(id='id1', placeholder='Type a value'),
-            Input(id='id2', placeholder='Type a value')
+            dcc.Input(id='id1', placeholder='Type a value'),
+            dcc.Input(id='id2', placeholder='Type a value')
         ])
 
         self.client = self.app.server.test_client()
@@ -430,4 +431,134 @@ class IntegrationTest(unittest.TestCase):
                 '/that',
                 "/component-suites/dash_renderer/bundle.js?v=0.2.9",
             ])
+        )
+
+
+class TestCallbacks(unittest.TestCase):
+    def test_callback_registry(self):
+        app = dash.Dash('')
+        app.layout = Div([
+            dcc.Input(id='input'),
+            Div(id='output')
+        ], id='body')
+
+        app.callback(
+            Output('output', 'content'),
+            [Input('input', 'value')]
+        )
+        app.callback(
+            Output('body', 'content'),
+            [Input('input', 'value')]
+        )
+        app.callback(
+            Output('body', 'content'),
+            [Input('input', 'value')],
+            state=[State('input', 'value')],
+        )
+
+        # TODO - Add events
+        app.callback(
+            Output('body', 'content'),
+            [Input('input', 'value')],
+            state=[State('input', 'value')],
+            events=[Event('input', 'blur')],
+        )
+
+    def test_no_layout_exception(self):
+        app = dash.Dash('')
+        self.assertRaises(
+            exceptions.LayoutIsNotDefined,
+            app.callback,
+            Output('body', 'content'),
+            [Input('input', 'value')]
+        )
+
+    def test_exception_id_not_in_layout(self):
+        app = dash.Dash('')
+        app.layout = Div('', id='test')
+        self.assertRaises(
+            exceptions.NonExistantIdException,
+            app.callback,
+            Output('output', 'content'),
+            [Input('input', 'value')]
+        )
+
+    def test_exception_prop_not_in_component(self):
+        app = dash.Dash('')
+        app.layout = Div([
+            dcc.Input(id='input'),
+            Div(id='output')
+        ], id='body')
+
+        self.assertRaises(
+            exceptions.NonExistantPropException,
+            app.callback,
+            Output('output', 'non-there'),
+            [Input('input', 'value')]
+        )
+
+        self.assertRaises(
+            exceptions.NonExistantPropException,
+            app.callback,
+            Output('output', 'content'),
+            [Input('input', 'valuez')]
+        )
+
+        self.assertRaises(
+            exceptions.NonExistantPropException,
+            app.callback,
+            Output('body', 'contentz'),
+            [Input('input', 'value')]
+        )
+
+    def test_exception_event_not_in_component(self):
+        pass
+
+    def test_exception_component_is_not_right_type(self):
+        app = dash.Dash('')
+        app.layout = Div([
+            dcc.Input(id='input'),
+            Div(id='output')
+        ], id='body')
+
+        test_args = [
+            ['asdf', ['asdf'], [], []],
+            [Output('output', 'content'), Input('input', 'value'), [], []],
+            [Output('output', 'content'), [], State('input', 'value'), []],
+            [Output('output', 'content'), [], [], Event('input', 'click')],
+        ]
+        for args in test_args:
+            self.assertRaises(
+                exceptions.IncorrectTypeException,
+                app.callback,
+                *args
+            )
+
+    def test_suppress_callback_exception(self):
+        app = dash.Dash('')
+        app.layout = Div([
+            dcc.Input(id='input'),
+            Div(id='output')
+        ], id='body')
+        self.assertRaises(
+            exceptions.NonExistantIdException,
+            app.callback,
+            Output('id-not-there', 'content'),
+            [Input('input', 'value')]
+        )
+        app.config.supress_callback_exceptions = True
+        app.callback(Output('id-not-there', 'content'),
+                     [Input('input', 'value')])
+
+    def test_missing_input_and_events(self):
+        app = dash.Dash('')
+        app.layout = Div([
+            dcc.Input(id='input')
+        ], id='body')
+        self.assertRaises(
+            exceptions.MissingEventsException,
+            app.callback,
+            Output('body', 'content'),
+            [],
+            [State('input', 'value')]
         )
