@@ -1,3 +1,4 @@
+import collections
 from dash.development.component_loader import load_components
 from dash.development.base_component import generate_class, Component
 import json
@@ -6,7 +7,7 @@ import unittest
 
 METADATA_PATH = 'metadata.json'
 
-METADATA = '''{
+METADATA_STRING = '''{
     "MyComponent.react.js": {
         "props": {
             "foo": {
@@ -24,7 +25,8 @@ METADATA = '''{
                 "type": {
                     "name": "object"
                 },
-                "description": "Content - children"
+                "description": "Content - children",
+                "required": false
             },
             "bar": {
                 "type": {
@@ -67,16 +69,25 @@ METADATA = '''{
                 "required": false,
                 "description": "The URL of a linked resource."
             },
-            "content": {}
+            "content": {
+                "type": {
+                    "name": "object"
+                },
+                "description": "Content - children",
+                "required": false
+            }
         }
     }
 }'''
+METADATA = json\
+    .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+    .decode(METADATA_STRING)
 
 
 class TestLoadComponents(unittest.TestCase):
     def setUp(self):
         with open(METADATA_PATH, 'w') as f:
-            f.write(METADATA)
+            f.write(METADATA_STRING)
 
     def tearDown(self):
         os.remove(METADATA_PATH)
@@ -84,12 +95,15 @@ class TestLoadComponents(unittest.TestCase):
     def test_loadcomponents(self):
         MyComponent = generate_class(
             'MyComponent',
-            ('content', 'style', 'foo', 'bar', 'baz',),
+            METADATA['MyComponent.react.js']['props'],
+            METADATA['MyComponent.react.js']['description'],
             'default_namespace'
         )
 
         A = generate_class(
             'A',
+            METADATA['A.react.js']['props'],
+            METADATA['A.react.js']['description'],
             'default_namespace'
         )
 
@@ -99,7 +113,6 @@ class TestLoadComponents(unittest.TestCase):
             'foo': 'Hello World',
             'bar': 'Lah Lah',
             'baz': 'Lemons',
-            'style': {'color': 'blue'},
             'content': 'Child'
         }
         AKwargs = {
