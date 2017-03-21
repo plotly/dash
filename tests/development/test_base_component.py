@@ -1,4 +1,10 @@
-from dash.development.base_component import generate_class, Component
+from collections import OrderedDict
+from dash.development.base_component import (
+    generate_class,
+    Component,
+    js_to_py_type,
+    create_docstring
+)
 import dash
 import inspect
 import json
@@ -566,3 +572,147 @@ class TestGenerateClass(unittest.TestCase):
             inspect.getargspec(self.ComponentClass.__init__).defaults,
             (None, )
         )
+
+
+class TestMetaDataConversions(unittest.TestCase):
+    def setUp(self):
+        import collections
+        import json
+        import os
+        path = os.path.join('tests', 'development', 'metadata_test.json')
+        with open(path) as data_file:
+            json_string = data_file.read()
+            data = json\
+                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .decode(json_string)
+            self.data = data
+
+        self.expected_arg_strings = OrderedDict([
+            ['content', 'a list of or a singular dash component, string or number'],
+
+            ['optionalArray', 'list'],
+
+            ['optionalBool', 'boolean'],
+
+            ['optionalFunc', ''],
+
+            ['optionalNumber', 'number'],
+
+            ['optionalObject', 'dict'],
+
+            ['optionalString', 'string'],
+
+            ['optionalSymbol', ''],
+
+            ['optionalElement', 'dash component'],
+
+            ['optionalNode', 'a list of or a singular dash component, string or number'],
+
+            ['optionalMessage', ''],
+
+            ['optionalEnum', 'a value equal to: \'News\', \'Photos\''],
+
+            ['optionalUnion', 'string | number'],
+
+            ['optionalArrayOf', 'list'],
+
+            ['optionalObjectOf', 'dict with strings as keys and values of type number'],
+
+            ['optionalObjectWithShapeAndNestedDescription', '\n'.join([
+
+                "dict containing keys 'color', 'fontSize', 'figure'.",
+                "Those keys have the following types: ",
+                "  - color (string; optional)",
+                "  - fontSize (number; optional)",
+                "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",
+                "Those keys have the following types: ",
+                "  - data (list; optional): data is a collection of traces",
+                "  - layout (dict; optional): layout describes the rest of the figure"
+
+            ])],
+
+            ['requiredFunc', ''],
+
+            ['requiredAny', 'boolean | number | string | dict | list'],
+
+            ['requiredArray', 'list'],
+
+            ['customProp', ''],
+
+            ['customArrayProp', 'list'],
+        ])
+
+
+    def test_docstring(self):
+        docstring = create_docstring(
+            'MyComponent',
+            self.data['props'],
+            self.data['description'],
+        )
+
+        for i, line in enumerate(docstring.split('\n')):
+            self.assertEqual(
+                line,
+                ([
+                "A MyComponent component.",
+                "This is a description of the component.",
+                "It's multiple lines long.",
+                '',
+                "Keyword arguments:",
+                "- content (a list of or a singular dash component, string or number; optional)",
+                "- optionalArray (list; optional): Description of optionalArray",
+                "- optionalBool (boolean; optional)",
+                "- optionalNumber (number; optional)",
+                "- optionalObject (dict; optional)",
+                "- optionalString (string; optional)",
+
+                "- optionalNode (a list of or a singular dash component, "
+                "string or number; optional)",
+
+                "- optionalElement (dash component; optional)",
+                "- optionalEnum (a value equal to: 'News', 'Photos'; optional)",
+                "- optionalUnion (string | number; optional)",
+                "- optionalArrayOf (list; optional)",
+
+                "- optionalObjectOf (dict with strings as keys and values "
+                "of type number; optional)",
+
+                "- optionalObjectWithShapeAndNestedDescription (optional): . "
+                "optionalObjectWithShapeAndNestedDescription has the "
+                "following type: dict containing keys "
+                "'color', 'fontSize', 'figure'.",
+
+                "Those keys have the following types: ",
+                "  - color (string; optional)",
+                "  - fontSize (number; optional)",
+
+                "  - figure (optional): Figure is a plotly graph object. "
+                "figure has the following type: dict containing "
+                "keys 'data', 'layout'.",
+
+                "Those keys have the following types: ",
+                "  - data (list; optional): data is a collection of traces",
+
+                "  - layout (dict; optional): layout describes "
+                "the rest of the figure",
+
+                "- requiredAny (boolean | number | string | dict | "
+                "list; required)",
+
+                "- requiredArray (list; required)",
+                "- customProp (optional)",
+                "- customArrayProp (list; optional)",
+                "",
+                ""
+                ])[i]
+            )
+
+    def test_docgen_to_python_args(self):
+
+        props = self.data['props']
+
+        for prop_name, prop in props.iteritems():
+            self.assertEqual(
+                js_to_py_type(prop['type']),
+                self.expected_arg_strings[prop_name]
+            )

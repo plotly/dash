@@ -1,4 +1,6 @@
 import collections
+import copy
+import sys
 import types
 
 
@@ -183,17 +185,17 @@ class Component(collections.MutableMapping):
         return length
 
 
-def generate_class(typename, component_arguments, namespace):
+def generate_class(typename, props, description, namespace):
     # Dynamically generate classes to have nicely formatted docstrings,
     # keyword arguments, and repr
     # Insired by http://jameso.be/2013/08/06/namedtuple.html
 
-    import sys
-
     # TODO - Tab out the repr for the repr of these components to make it
     # look more like a heirarchical tree
     # TODO - Include "description" "defaultValue" in the repr and docstring
+    #
     # TODO - Handle "required"
+    #
     # TODO - How to handle user-given `null` values? I want to include
     # an expanded docstring like Dropdown(value=None, id=None)
     # but by templating in those None values, I have no way of knowing
@@ -202,7 +204,7 @@ def generate_class(typename, component_arguments, namespace):
     # The solution might be to deal with default values better although
     # not all component authors will supply those.
     c = '''class {typename}(Component):
-        """A {typename} component.\nValid keys:\n{bullet_list_of_valid_keys}
+        """{docstring}
         """
         def __init__(self, {default_argtext}):
             self._prop_names = {list_of_valid_keys}
@@ -220,9 +222,9 @@ def generate_class(typename, component_arguments, namespace):
             else:
                 return '{typename}(' + repr(getattr(self, self._prop_names[0], None)) + ')'
     '''
-    list_of_valid_keys = repr(component_arguments)
+    list_of_valid_keys = repr(props.keys())
     bullet_list_of_valid_keys = ('- ' + '\n- '.join(
-        component_arguments
+        list_of_valid_keys
     ))
 
     if 'content' in component_arguments:
@@ -238,3 +240,121 @@ def generate_class(typename, component_arguments, namespace):
     exec d in scope
     result = scope[typename]
     return result
+
+def create_docstring(name, props, description):
+    if 'content' in props:
+        props = collections.OrderedDict(
+            [['content', props.pop('content')]] +
+            zip(props.keys(), props.values())
+        )
+    return '''A {name} component.{description}
+
+    Keyword arguments:
+    {args}
+
+    '''.format(
+        name=name,
+        description='\n{}'.format(description),
+        args='\n'.join(
+            ['- {}'.format(argument_doc(
+                p, prop['type'], prop['required'], prop['description']
+            )) for p, prop in filter_props(props).iteritems()]
+        )
+    ).replace('    ', '')
+
+def filter_props(args):
+    filtered_args = copy.deepcopy(args)
+    for arg_name in filtered_args:
+        arg_type =  args[arg_name]['type']['name']
+        if arg_type in ['func', 'symbol', 'instanceOf']:
+            filtered_args.pop(arg_name)
+    return filtered_args
+
+def js_to_py_type(type_object):
+    js_type_name = type_object['name']
+
+    js_to_py_types = {
+        'array': lambda: 'list',
+        'bool': lambda: 'boolean',
+        'number': lambda: 'number',
+        'string': lambda: 'string',
+        'object': lambda: 'dict',
+
+        'any': lambda: 'boolean | number | string | dict | list',
+        'element': lambda: 'dash component',
+        'node': lambda: (
+            'a list of or a singular dash component, string or number'
+        ),
+
+        # React's PropTypes.oneOf
+        'enum': lambda: 'a value equal to: {}'.format(', '.join([
+            '{}'.format(str(t['value'])) for t in type_object['value']
+        ])),
+
+        # React's PropTypes.oneOfType
+        'union': lambda: '{}'.format(' | '.join([
+            '{}'.format(js_to_py_type(subType))
+            for subType in type_object['value'] if js_to_py_type(subType) != ''
+        ])),
+
+        # React's PropTypes.arrayOf
+        'arrayOf': lambda: 'list'.format(
+            'of {}s'.format(js_to_py_type(type_object['value']))
+            if js_to_py_type(type_object['value']) != ''
+            else ''
+        ),
+
+        # React's PropTypes.objectOf
+        'objectOf': lambda: (
+            'dict with strings as keys and values of type {}'
+        ).format(js_to_py_type(type_object['value'])),
+
+        # React's PropTypes.shape
+        'shape': lambda: (
+            'dict containing keys {}.\n{}'.format(
+                ', '.join(
+                    ["'{}'".format(t) for t in type_object['value'].keys()]
+                ),
+                'Those keys have the following types: \n{}'.format(
+                    '\n'.join([
+                        '  - ' + argument_doc(
+                            prop_name,
+                            prop,
+                            prop['required'],
+                            prop.get('description', '')
+                        ) for
+                        prop_name, prop in type_object['value'].iteritems()
+                    ])
+                )
+            )
+        )
+
+    }
+    if 'computed' in type_object and type_object['computed']:
+        return ''
+    if js_type_name in js_to_py_types:
+        return js_to_py_types[js_type_name]()
+    else:
+        return ''
+
+def argument_doc(arg_name, type_object, required, description):
+    js_type_name = type_object['name']
+    py_type_name = js_to_py_type(type_object)
+    if '\n' in py_type_name:
+        return (
+            '{name} ({is_required}): {description}. '
+            '{name} has the following type: {type}'
+        ).format(
+            name=arg_name,
+            type=py_type_name,
+            description=description,
+            is_required='required' if required else 'optional'
+        )
+
+    else:
+        return '{name} ({type}{is_required}){description}'.format(
+            name=arg_name,
+            type='{}; '.format(py_type_name) if py_type_name else '',
+            description=': {}'.format(description) if description != '' else '',
+            is_required='required' if required else 'optional'
+        )

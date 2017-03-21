@@ -20,6 +20,12 @@ METADATA = '''{
                     "computed": false
                 }
             },
+            "content": {
+                "type": {
+                    "name": "object"
+                },
+                "description": "Content - children"
+            },
             "bar": {
                 "type": {
                     "name": "custom"
@@ -84,11 +90,10 @@ class TestLoadComponents(unittest.TestCase):
 
         A = generate_class(
             'A',
-            ('content', 'href',),
             'default_namespace'
         )
 
-        c = load_components(METADATA_PATH, ['content', 'style'])
+        c = load_components(METADATA_PATH)
 
         MyComponentKwargs = {
             'foo': 'Hello World',

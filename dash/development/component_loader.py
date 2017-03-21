@@ -4,7 +4,6 @@ import json
 
 
 def load_components(metadata_path,
-                    default_props=[],
                     namespace='default_namespace'):
     """Load React component metadata into a format Dash can parse.
 
@@ -39,21 +38,19 @@ def load_components(metadata_path,
         # the name of the component atm.
         name = componentPath.split('/').pop().split('.')[0]
 
-        # Extract props
-        prop_names = componentData.get('props', {}).keys()
-        for prop in default_props:
-            if prop not in prop_names:
-                prop_names.insert(0, prop)
-
         # If "content" is a prop, then move it to the front to respect
         # dash convention
-        if 'content' in prop_names:
-            prop_names.remove('content')
-            prop_names.insert(0, 'content')
+        props = componentData['props']
+        if 'content' in props:
+            props = OrderedDict(
+                [('content', props.pop('content'), )] +
+                zip(props.keys(), props.values())
+            )
 
         component = generate_class(
             name,
-            prop_names,
+            props,
+            description,
             namespace
         )
 
