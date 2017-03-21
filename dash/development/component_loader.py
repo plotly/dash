@@ -11,13 +11,11 @@ def load_components(metadata_path,
 
     Keyword arguments:
     metadata_path -- a path to a JSON file created by [`react-docgen`](https://github.com/reactjs/react-docgen).
-    default_props -- props not in component propTypes that should be considered valid.
 
     Returns:
     components -- a list of component objects with keys `type`, `valid_kwargs`, and `setup`.
     """
 
-    # This will be returned
     components = []
 
     # Start processing
@@ -37,25 +35,13 @@ def load_components(metadata_path,
         # will be on windows. Unfortunately react-docgen doesn't include
         # the name of the component atm.
         name = componentPath.split('/').pop().split('.')[0]
-
-        # If "content" is a prop, then move it to the front to respect
-        # dash convention
-        props = componentData['props']
-        if 'content' in props:
-            props = OrderedDict(
-                [('content', props.pop('content'), )] +
-                zip(props.keys(), props.values())
-            )
-
         component = generate_class(
             name,
-            props,
-            description,
+            componentData['props'],
+            componentData['description'],
             namespace
         )
 
-        # TODO - Remove this
-        # scope[component_spec['type']] = component
         components.append(component)
 
     return components

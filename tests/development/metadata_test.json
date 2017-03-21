@@ -59,13 +59,6 @@
       "required": false,
       "description": ""
     },
-    "content": {
-      "type": {
-        "name": "node"
-      },
-      "required": false,
-      "description": ""
-    },
     "optionalNode": {
       "type": {
         "name": "node"
@@ -217,6 +210,41 @@
           "name": "custom",
           "raw": "function(propValue, key, componentName, location, propFullName) {\n    if (!/matchme/.test(propValue[key])) {\n        return new Error(\n        'Invalid prop `' + propFullName + '` supplied to' +\n        ' `' + componentName + '`. Validation failed.'\n        );\n    }\n}"
         }
+      },
+      "required": false,
+      "description": ""
+    },
+    "content": {
+      "type": {
+        "name": "node"
+      },
+      "required": false,
+      "description": ""
+    },
+    "id": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    },
+    "dashEvents": {
+      "type": {
+        "name": "enum",
+        "value": [
+          {
+            "value": "'restyle'",
+            "computed": false
+          },
+          {
+            "value": "'relayout'",
+            "computed": false
+          },
+          {
+            "value": "'click'",
+            "computed": false
+          }
+        ]
       },
       "required": false,
       "description": ""

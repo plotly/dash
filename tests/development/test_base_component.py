@@ -3,18 +3,23 @@ from dash.development.base_component import (
     generate_class,
     Component,
     js_to_py_type,
-    create_docstring
+    create_docstring,
+    parse_events
 )
 import dash
 import inspect
 import json
 import plotly
 import unittest
+import collections
+import json
+import os
 
 
 Component._prop_names = ('id', 'a', 'content', 'style', )
 Component._type = 'TestComponent'
 Component._namespace = 'test_namespace'
+
 
 def nested_tree():
     '''This tree has a few unique properties:
@@ -464,11 +469,18 @@ class TestComponent(unittest.TestCase):
 
 class TestGenerateClass(unittest.TestCase):
     def setUp(self):
+        path = os.path.join('tests', 'development', 'metadata_test.json')
+        with open(path) as data_file:
+            json_string = data_file.read()
+            data = json\
+                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .decode(json_string)
+            self.data = data
+
         self.ComponentClass = generate_class(
             typename='Table',
-            component_arguments=(
-                'content', 'id', 'rows'
-            ),
+            props=data['props'],
+            description=data['description'],
             namespace='TableComponents'
         )
 
@@ -492,14 +504,14 @@ class TestGenerateClass(unittest.TestCase):
             }
         })
 
-        c = self.ComponentClass(id='my-id', rows=None)
+        c = self.ComponentClass(id='my-id', optionalArray=None)
         self.assertEqual(c.to_plotly_json(), {
             'namespace': 'TableComponents',
             'type': 'Table',
             'props': {
                 'content': None,
                 'id': 'my-id',
-                'rows': None
+                'optionalArray': None
             }
         })
 
@@ -507,7 +519,7 @@ class TestGenerateClass(unittest.TestCase):
         kwargs = {
             'id': 'my-id',
             'content': 'text content',
-            'rows': [[1, 2, 3]]
+            'optionalArray': [[1, 2, 3]]
         }
         component_instance = self.ComponentClass(**kwargs)
         for k, v in kwargs.iteritems():
@@ -533,10 +545,12 @@ class TestGenerateClass(unittest.TestCase):
         )
 
     def test_repr_multiple_arguments(self):
-        c = self.ComponentClass(id='my id', rows=[1, 2, 3])
+        # Note how the order in which keyword arguments are supplied is
+        # not always equal to the order in the repr of the component
+        c = self.ComponentClass(id='my id', optionalArray=[1, 2, 3])
         self.assertEqual(
             repr(c),
-            "Table(id='my id', rows=[1, 2, 3])"
+            "Table(optionalArray=[1, 2, 3], id='my id')"
         )
 
     def test_repr_nested_arguments(self):
@@ -549,16 +563,12 @@ class TestGenerateClass(unittest.TestCase):
         )
 
     def test_docstring(self):
+        assert_docstring(self.assertEqual, self.ComponentClass.__doc__)
+
+    def test_events(self):
         self.assertEqual(
-            self.ComponentClass.__doc__,
-            '\n'.join([
-                'A Table component.',
-                'Valid keys:',
-                '- content',
-                '- id',
-                '- rows',
-                '        '
-            ])
+            self.ComponentClass()._events,
+            ['restyle', 'relayout', 'click']
         )
 
     def test_call_signature(self):
@@ -576,9 +586,6 @@ class TestGenerateClass(unittest.TestCase):
 
 class TestMetaDataConversions(unittest.TestCase):
     def setUp(self):
-        import collections
-        import json
-        import os
         path = os.path.join('tests', 'development', 'metadata_test.json')
         with open(path) as data_file:
             json_string = data_file.read()
@@ -640,72 +647,20 @@ class TestMetaDataConversions(unittest.TestCase):
             ['customProp', ''],
 
             ['customArrayProp', 'list'],
-        ])
 
+            ['id', 'string'],
+
+            ['dashEvents', "a value equal to: 'restyle', 'relayout', 'click'"]
+        ])
 
     def test_docstring(self):
         docstring = create_docstring(
-            'MyComponent',
+            'Table',
             self.data['props'],
+            parse_events(self.data['props']),
             self.data['description'],
         )
-
-        for i, line in enumerate(docstring.split('\n')):
-            self.assertEqual(
-                line,
-                ([
-                "A MyComponent component.",
-                "This is a description of the component.",
-                "It's multiple lines long.",
-                '',
-                "Keyword arguments:",
-                "- content (a list of or a singular dash component, string or number; optional)",
-                "- optionalArray (list; optional): Description of optionalArray",
-                "- optionalBool (boolean; optional)",
-                "- optionalNumber (number; optional)",
-                "- optionalObject (dict; optional)",
-                "- optionalString (string; optional)",
-
-                "- optionalNode (a list of or a singular dash component, "
-                "string or number; optional)",
-
-                "- optionalElement (dash component; optional)",
-                "- optionalEnum (a value equal to: 'News', 'Photos'; optional)",
-                "- optionalUnion (string | number; optional)",
-                "- optionalArrayOf (list; optional)",
-
-                "- optionalObjectOf (dict with strings as keys and values "
-                "of type number; optional)",
-
-                "- optionalObjectWithShapeAndNestedDescription (optional): . "
-                "optionalObjectWithShapeAndNestedDescription has the "
-                "following type: dict containing keys "
-                "'color', 'fontSize', 'figure'.",
-
-                "Those keys have the following types: ",
-                "  - color (string; optional)",
-                "  - fontSize (number; optional)",
-
-                "  - figure (optional): Figure is a plotly graph object. "
-                "figure has the following type: dict containing "
-                "keys 'data', 'layout'.",
-
-                "Those keys have the following types: ",
-                "  - data (list; optional): data is a collection of traces",
-
-                "  - layout (dict; optional): layout describes "
-                "the rest of the figure",
-
-                "- requiredAny (boolean | number | string | dict | "
-                "list; required)",
-
-                "- requiredArray (list; required)",
-                "- customProp (optional)",
-                "- customArrayProp (list; optional)",
-                "",
-                ""
-                ])[i]
-            )
+        assert_docstring(self.assertEqual, docstring)
 
     def test_docgen_to_python_args(self):
 
@@ -716,3 +671,64 @@ class TestMetaDataConversions(unittest.TestCase):
                 js_to_py_type(prop['type']),
                 self.expected_arg_strings[prop_name]
             )
+
+
+def assert_docstring(assertEqual, docstring):
+    for i, line in enumerate(docstring.split('\n')):
+        assertEqual(
+            line,
+            ([
+            "A Table component.",
+            "This is a description of the component.",
+            "It's multiple lines long.",
+            '',
+            "Keyword arguments:",
+            "- content (a list of or a singular dash component, string or number; optional)",
+            "- optionalArray (list; optional): Description of optionalArray",
+            "- optionalBool (boolean; optional)",
+            "- optionalNumber (number; optional)",
+            "- optionalObject (dict; optional)",
+            "- optionalString (string; optional)",
+
+            "- optionalNode (a list of or a singular dash component, "
+            "string or number; optional)",
+
+            "- optionalElement (dash component; optional)",
+            "- optionalEnum (a value equal to: 'News', 'Photos'; optional)",
+            "- optionalUnion (string | number; optional)",
+            "- optionalArrayOf (list; optional)",
+
+            "- optionalObjectOf (dict with strings as keys and values "
+            "of type number; optional)",
+
+            "- optionalObjectWithShapeAndNestedDescription (optional): . "
+            "optionalObjectWithShapeAndNestedDescription has the "
+            "following type: dict containing keys "
+            "'color', 'fontSize', 'figure'.",
+
+            "Those keys have the following types: ",
+            "  - color (string; optional)",
+            "  - fontSize (number; optional)",
+
+            "  - figure (optional): Figure is a plotly graph object. "
+            "figure has the following type: dict containing "
+            "keys 'data', 'layout'.",
+
+            "Those keys have the following types: ",
+            "  - data (list; optional): data is a collection of traces",
+
+            "  - layout (dict; optional): layout describes "
+            "the rest of the figure",
+
+            "- requiredAny (boolean | number | string | dict | "
+            "list; required)",
+
+            "- requiredArray (list; required)",
+            "- customProp (optional)",
+            "- customArrayProp (list; optional)",
+            '- id (string; optional)',
+            '',
+            "Available events: 'restyle', 'relayout', 'click'",
+            '        '
+            ])[i]
+        )

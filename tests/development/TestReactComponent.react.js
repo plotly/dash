@@ -23,8 +23,6 @@ ReactComponent.propTypes = {
     optionalString: React.PropTypes.string,
     optionalSymbol: React.PropTypes.symbol,
 
-    content: React.PropTypes.node,
-
     // Anything that can be rendered: numbers, strings, elements or an array
     // (or fragment) containing these types.
     optionalNode: React.PropTypes.node,
@@ -97,7 +95,22 @@ ReactComponent.propTypes = {
             ' `' + componentName + '`. Validation failed.'
             );
         }
-    })
+    }),
+
+    // special dash events
+
+    // TODO - Rename to children
+    content: React.PropTypes.node,
+
+    id: React.PropTypes.string,
+
+
+    // dashEvents is a special prop that is used to events validation
+    dashEvents: React.PropTypes.oneOf([
+        'restyle',
+        'relayout',
+        'click'
+    ])
 };
 
 ReactComponent.defaultProps = {

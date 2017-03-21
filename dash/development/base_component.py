@@ -210,6 +210,7 @@ def generate_class(typename, props, description, namespace):
             self._prop_names = {list_of_valid_keys}
             self._type = '{typename}'
             self._namespace = '{namespace}'
+            self._events = {events}
             super({typename}, self).__init__({argtext})
 
         def __repr__(self):
@@ -222,12 +223,17 @@ def generate_class(typename, props, description, namespace):
             else:
                 return '{typename}(' + repr(getattr(self, self._prop_names[0], None)) + ')'
     '''
-    list_of_valid_keys = repr(props.keys())
-    bullet_list_of_valid_keys = ('- ' + '\n- '.join(
-        list_of_valid_keys
-    ))
 
-    if 'content' in component_arguments:
+    filtered_props = reorder_props(filter_props(props))
+    list_of_valid_keys = repr(filtered_props.keys())
+    docstring = create_docstring(
+        typename,
+        filtered_props,
+        parse_events(props),
+        description
+    )
+    events = "[" + ', '.join(parse_events(props)) + "]"
+    if 'content' in props:
         default_argtext = 'content=None, **kwargs'
         argtext = 'content=content, **kwargs'
     else:
@@ -241,7 +247,28 @@ def generate_class(typename, props, description, namespace):
     result = scope[typename]
     return result
 
-def create_docstring(name, props, description):
+
+def reorder_props(props):
+    # If "content" is a prop, then move it to the front to respect
+    # dash convention
+    if 'content' in props:
+        props = collections.OrderedDict(
+            [('content', props.pop('content'), )] +
+            zip(props.keys(), props.values())
+        )
+    return props
+
+
+def parse_events(props):
+    if ('dashEvents' in props and
+            props['dashEvents']['type']['name'] == 'enum'):
+        events = [v['value'] for v in props['dashEvents']['type']['value']]
+    else:
+        events = []
+    return events
+
+
+def create_docstring(name, props, events, description):
     if 'content' in props:
         props = collections.OrderedDict(
             [['content', props.pop('content')]] +
@@ -252,27 +279,40 @@ def create_docstring(name, props, description):
     Keyword arguments:
     {args}
 
-    '''.format(
+    Available events: {events}'''.format(
         name=name,
         description='\n{}'.format(description),
         args='\n'.join(
             ['- {}'.format(argument_doc(
                 p, prop['type'], prop['required'], prop['description']
             )) for p, prop in filter_props(props).iteritems()]
-        )
+        ),
+        events=', '.join(events)
     ).replace('    ', '')
+
 
 def filter_props(args):
     filtered_args = copy.deepcopy(args)
-    for arg_name in filtered_args:
-        arg_type =  args[arg_name]['type']['name']
+    for arg_name, arg in filtered_args.iteritems():
+        if 'type' not in arg:
+            filtered_args.pop(arg_name)
+            continue
+
+        arg_type = arg['type']['name']
         if arg_type in ['func', 'symbol', 'instanceOf']:
             filtered_args.pop(arg_name)
+
+        # dashEvents are a special oneOf property that is used for subscribing
+        # to events but it's never set as a property
+        if arg_name in ['dashEvents']:
+            filtered_args.pop(arg_name)
     return filtered_args
+
 
 def js_to_py_type(type_object):
     js_type_name = type_object['name']
 
+    # wrapping everything in lambda to prevent immediate execution
     js_to_py_types = {
         'array': lambda: 'list',
         'bool': lambda: 'boolean',
@@ -328,14 +368,15 @@ def js_to_py_type(type_object):
                 )
             )
         )
-
     }
+
     if 'computed' in type_object and type_object['computed']:
         return ''
     if js_type_name in js_to_py_types:
         return js_to_py_types[js_type_name]()
     else:
         return ''
+
 
 def argument_doc(arg_name, type_object, required, description):
     js_type_name = type_object['name']
@@ -355,6 +396,8 @@ def argument_doc(arg_name, type_object, required, description):
         return '{name} ({type}{is_required}){description}'.format(
             name=arg_name,
             type='{}; '.format(py_type_name) if py_type_name else '',
-            description=': {}'.format(description) if description != '' else '',
+            description=(
+                ': {}'.format(description) if description != '' else ''
+            ),
             is_required='required' if required else 'optional'
         )
