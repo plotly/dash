@@ -1,2 +1,2 @@
-from react import Dash
+from dash import Dash
 import development
