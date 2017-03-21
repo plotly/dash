@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='dash.ly',
-    version='0.12.6',
+    version='0.13.0',
     author='chris p',
     author_email='chris@plot.ly',
     packages=['dash', 'dash/development'],
@@ -12,9 +12,6 @@ setup(
     install_requires=[
         'Flask',
         'flask-compress',
-        'plotly',
-        'dash-core-components>=0.2.11',
-        'dash-html-components>=0.3.8',
-        'dash-renderer>=0.2.9'
+        'plotly'
     ]
 )
