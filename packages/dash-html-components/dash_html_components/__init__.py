@@ -7,7 +7,6 @@ _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
 _components = _dash.development.component_loader.load_components(
     _os.path.join(_current_path, 'metadata.json'),
-    ['content', 'id', 'key', 'className', 'style'],
     'dash_html_components'
 )
 
