@@ -1,16 +1,11 @@
 import React, {Component, PropTypes} from 'react';
 
 /**
- * A basic HTML input control.
- * Most of the HTML5 input types are supported, see the `type`
- * property for a full list of available types.
- * `text` and `number` are the common uses but
- * a variety of dates and time types are also supported as is
- * a password type which obscures the input.
+ * A basic HTML input control for entering text, numbers, or passwords.
  *
  * Note that checkbox and radio types are supported through
- * the Checklist and RadioItems component. File uploads
- * are also supported through a separate component.
+ * the Checklist and RadioItems component. Dates, times, and file uploads
+ * are also supported through separate components.
  */
 export default class Input extends Component {
     render() {
@@ -85,8 +80,7 @@ Input.propTypes = {
      * The type of control to render.
      */
     type: PropTypes.oneOf([
-        'text', 'number', 'date', 'datetime-local',
-        'time', 'month', 'week', 'password'
+        'text', 'number', 'password'
     ]),
 
     /**
