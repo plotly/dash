@@ -5,9 +5,9 @@ const Form = (props) => {
     if (props.fireEvent) {
         return (
             <form
-                onClick={() => props.fireEvent({event: 'onClick'})}
-                onMouseEnter={() => props.fireEvent({event: 'onMouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'onMouseLeave'})}
+                onClick={() => props.fireEvent({event: 'click'})}
+                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
+                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
@@ -105,11 +105,6 @@ Form.propTypes = {
     'hidden': PropTypes.string,
 
     /**
-     * Often used with CSS to style a specific element. The value of this attribute must be unique.
-     */
-    'id': PropTypes.string,
-
-    /**
      * Defines the language used in the element.
      */
     'lang': PropTypes.string,
@@ -135,9 +130,24 @@ Form.propTypes = {
     'title': PropTypes.string,
 
     /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    'id': PropTypes.string,
+
+    /**
+     * The children of this component
+     */
+    'children': PropTypes.node,
+
+    /**
      * A callback for firing events to dash.
      */
-    'fireEvent': PropTypes.func
+    'fireEvent': PropTypes.func,
+
+    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
+    
 };
 
 export default Form;

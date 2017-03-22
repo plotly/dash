@@ -43,7 +43,9 @@ function generatePropTypes(element, attributes) {
     return supportedAttributes.reduce((propTypes, attributeName) => {
         const attribute = attributes.attributes[attributeName];
         const propType = PROP_TYPES[attributeName] || PROP_TYPES._default;
-
+        if (attributeName === 'id') {
+            return propTypes;
+        }
         return propTypes + `
 
     /**
@@ -53,9 +55,24 @@ function generatePropTypes(element, attributes) {
     }, '') + `
 
     /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    'id': PropTypes.string,
+
+    /**
+     * The children of this component
+     */
+    'children': PropTypes.node,
+
+    /**
      * A callback for firing events to dash.
      */
-    'fireEvent': PropTypes.func`
+    'fireEvent': PropTypes.func,
+
+    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
+    `
 }
 
 function generateComponent(Component, element, attributes) {
@@ -68,9 +85,9 @@ const ${Component} = (props) => {
     if (props.fireEvent) {
         return (
             <${element}
-                onClick={() => props.fireEvent({event: 'onClick'})}
-                onMouseEnter={() => props.fireEvent({event: 'onMouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'onMouseLeave'})}
+                onClick={() => props.fireEvent({event: 'click'})}
+                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
+                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
