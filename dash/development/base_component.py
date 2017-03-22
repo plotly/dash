@@ -210,7 +210,8 @@ def generate_class(typename, props, description, namespace):
             self._prop_names = {list_of_valid_keys}
             self._type = '{typename}'
             self._namespace = '{namespace}'
-            self._events = {events}
+            self.available_events = {events}
+            self.available_properties = {list_of_valid_keys}
 
             for k in {required_args}:
                 if k not in kwargs:
