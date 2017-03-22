@@ -54,7 +54,7 @@ Dropdown.propTypes = {
     /**
      * The id of the component
      */
-    id: PropTypes.string.isRequired,
+    id: PropTypes.string,
 
     /**
      * If true, the user can select multiple values

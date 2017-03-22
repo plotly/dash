@@ -45,7 +45,7 @@ Input.propTypes = {
     /**
      * The value of the input
      */
-    value: PropTypes.string.isRequired,
+    value: PropTypes.string,
 
     /**
      * A hint to the user of what can be entered in the control.
@@ -74,7 +74,7 @@ Input.propTypes = {
     /**
      * The id of the input element
      */
-    id: PropTypes.string.isRequired,
+    id: PropTypes.string,
 
     /**
      * The type of control to render.
