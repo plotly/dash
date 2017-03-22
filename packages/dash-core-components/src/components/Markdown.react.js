@@ -1,6 +1,10 @@
 import React, {PropTypes} from 'react';
 import Markdown from 'react-markdown';
 
+/**
+ * A component that renders Markdown text as specified by the
+ * CommonMark spec.
+ */
 function DashMarkdown (props) {
     return (
         <Markdown

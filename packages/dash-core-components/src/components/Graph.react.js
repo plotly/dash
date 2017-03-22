@@ -50,28 +50,28 @@ export default class PlotlyGraph extends Component {
     }
 
     bindEvents(props) {
-        const {id, fireEvent, valueChanged} = props;
+        const {id, fireEvent, setProps} = props;
 
         const gd = document.getElementById(id);
 
         gd.on('plotly_click', (eventData) => {
             const clickData = filterEventData(eventData, 'click');
-            if (valueChanged) valueChanged({clickData});
+            if (setProps) setProps({clickData});
             if (fireEvent) fireEvent({event: 'click'});
         });
         gd.on('plotly_hover', (eventData) => {
             const hoverData = filterEventData(eventData, 'hover');
-            if (valueChanged) valueChanged({hoverData});
+            if (setProps) setProps({hoverData});
             if (fireEvent) fireEvent({event: 'hover'})
         });
         gd.on('plotly_selected', (eventData) => {
             const selectedData = filterEventData(eventData, 'selected');
-            if (valueChanged) valueChanged({selectedData});
+            if (setProps) setProps({selectedData});
             if (fireEvent) fireEvent({event: 'selected'});
         });
         gd.on('plotly_relayout', (eventData) => {
             const relayoutData = filterEventData(eventData, 'relayout');
-            if (valueChanged) valueChanged({relayoutData});
+            if (setProps) setProps({relayoutData});
             if (fireEvent) fireEvent({event: 'relayout'});
         });
     }
@@ -110,12 +110,12 @@ export default class PlotlyGraph extends Component {
         const figureChanged = this.props.figure !== nextProps.figure;
 
         /*
-         * Rebind events in case fireEvent or valueChanged
+         * Rebind events in case fireEvent or setProps
          * wasn't defined on initial render
          * TODO - Is it safe to rebind events?
          */
         const shouldBindEvents = (
-            (!this.props.valueChanged && nextProps.valueChanged) ||
+            (!this.props.setProps && nextProps.setProps) ||
             (!this.props.fireEvent && nextProps.fireEvent)
         );
         if (figureChanged) {
@@ -146,6 +146,7 @@ export default class PlotlyGraph extends Component {
 }
 
 PlotlyGraph.propTypes = {
+    id: PropTypes.string.isRequired,
     /**
      * Data from latest click event
      */
@@ -184,23 +185,25 @@ PlotlyGraph.propTypes = {
     animate: PropTypes.bool,
 
     /**
-     * Beta: Transition object containing animation settings.
+     * Beta: Object containing animation settings.
      * Only applies if `animate` is `true`
      */
-    transition: PropTypes.object,
+    animation_options: PropTypes.object,
 
     /**
      *
      */
     dashEvents: PropTypes.oneOf([
-        'restyle',
+        'click',
+        'hover',
+        'selected',
         'relayout'
     ]),
 
     /**
      * Function that updates the state tree.
      */
-    dashValueChanged: PropTypes.func,
+    setProps: PropTypes.func,
 
     /**
      * Function that fires events
@@ -223,6 +226,5 @@ PlotlyGraph.defaultProps = {
             duration: 750,
             ease: 'cubic-in-out'
         }
-    },
-    layout: {}
+    }
 };

@@ -1,5 +1,11 @@
 import React, {Component, PropTypes} from 'react'; // eslint-disable-line no-unused-vars
 
+/**
+ * A component that repeatedly fires an event ("interval")
+ * with a fixed time delay between each event.
+ * Interval is good for triggering a component on a recurring basis.
+ * The time delay is set with the property "interval" in milliseconds.
+ */
 export default class Interval extends Component {
     constructor(props) {
         super(props);
@@ -12,7 +18,7 @@ export default class Interval extends Component {
         this.setState({
             intervalId: window.setInterval(function intervalFunction(){
                 if (fireEvent) {
-                    fireEvent({event: 'setInterval'});
+                    fireEvent({event: 'interval'});
                 }
             }, interval)
         });
@@ -60,7 +66,9 @@ Interval.propTypes = {
     /**
      * Dash assigned callback
      */
-    setProps: PropTypes.function
+    setProps: PropTypes.function,
+
+    dashEvents: PropTypes.oneOf(['interval'])
 };
 
 Interval.defaultProps = {

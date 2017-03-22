@@ -1,12 +1,17 @@
 import React, {Component, PropTypes} from 'react';
 import ReactSlider from 'rc-slider';
 
+/**
+ * A numerical slider with a single handle.
+ */
 export default class Slider extends Component {
     render() {
+        const {setProps, fireEvent} = this.props;
         return (
             <ReactSlider
                 onChange={value => {
-                    this.props.setProps({value});
+                    if (setProps) setProps({value});
+                    if (fireEvent) fireEvent('change');
                 }}
                 {...this.props}
             />
@@ -74,12 +79,20 @@ Slider.propTypes = {
     value: PropTypes.number,
 
     /**
-     * Dash-assigned callback that gets fired when the input changes
-     */
-    setProps: PropTypes.func.isRequired,
-
-    /**
      * If true, the slider will be vertical
      */
-    vertical: PropTypes.bool
+    vertical: PropTypes.bool,
+
+    /**
+     * Dash-assigned callback that gets fired when the checkbox item gets selected.
+     */
+    fireEvent: PropTypes.func,
+
+    /**
+     * Dash-assigned callback that gets fired when the value changes.
+     */
+    setProps: PropTypes.func,
+
+    dashEvents: PropTypes.oneOf(['change'])
+
 };

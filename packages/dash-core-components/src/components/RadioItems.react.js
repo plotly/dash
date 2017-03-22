@@ -1,6 +1,13 @@
 import React, {PropTypes} from 'react';
 
-export default function Radio(props) {
+/**
+ * RadioItems is a component that encapsulates several radio item inputs.
+ * The values and labels of the RadioItems is specified in the `options`
+ * property and the seleced item is specified with the `value` property.
+ * Each radio item is rendered as an input with a surrounding label.
+ */
+
+export default function RadioItems(props) {
     const {
         fireEvent,
         id,
@@ -28,7 +35,7 @@ export default function Radio(props) {
                         type="radio"
                         onChange={() => {
                             if (setProps) setProps({value: option.value});
-                            if (fireEvent) fireEvent({event: 'onChange'});
+                            if (fireEvent) fireEvent({event: 'change'});
                         }}
                     />
                     {option.label}
@@ -38,7 +45,7 @@ export default function Radio(props) {
     );
 }
 
-Radio.propTypes = {
+RadioItems.propTypes = {
     /**
      * The style of the <input> radio element
      */
@@ -83,10 +90,12 @@ Radio.propTypes = {
     /**
      * Dash-assigned callback that gets fired when the value changes.
      */
-    setProps: PropTypes.func
+    setProps: PropTypes.func,
+
+    dashEvents: PropTypes.oneOf(['change'])    
 };
 
-Radio.defaultProps = {
+RadioItems.defaultProps = {
     inputStyle: {},
     inputClassName: '',
     labelStyle: {},

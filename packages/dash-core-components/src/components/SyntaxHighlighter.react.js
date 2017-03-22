@@ -3,6 +3,9 @@ import {omit} from 'ramda';
 import React, {PropTypes} from 'react';
 import ReactSyntaxHighlighter from 'react-syntax-highlighter';
 
+/**
+ * A component for pretty printing code.
+ */
 export default function SyntaxHighlighter(props) {
     const {theme} = props;
     let style;
@@ -21,6 +24,11 @@ export default function SyntaxHighlighter(props) {
 
 
 SyntaxHighlighter.propTypes = {
+    /**
+     * The text to display and highlight
+     */
+    children: PropTypes.string,
+
     /**
      * the language to highlight code in.
      */
