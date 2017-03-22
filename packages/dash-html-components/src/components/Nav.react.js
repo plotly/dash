@@ -10,13 +10,13 @@ const Nav = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </nav>
         );
     } else {
         return (
             <nav {...props}>
-                {props.children}
+                {props.content}
             </nav>
         );
     }
@@ -94,7 +94,7 @@ Nav.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

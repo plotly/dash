@@ -10,13 +10,13 @@ const H4 = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </h4>
         );
     } else {
         return (
             <h4 {...props}>
-                {props.children}
+                {props.content}
             </h4>
         );
     }
@@ -94,7 +94,7 @@ H4.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

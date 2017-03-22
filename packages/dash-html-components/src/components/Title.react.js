@@ -10,13 +10,13 @@ const Title = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </title>
         );
     } else {
         return (
             <title {...props}>
-                {props.children}
+                {props.content}
             </title>
         );
     }
@@ -94,7 +94,7 @@ Title.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

@@ -10,13 +10,13 @@ const Section = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </section>
         );
     } else {
         return (
             <section {...props}>
-                {props.children}
+                {props.content}
             </section>
         );
     }
@@ -94,7 +94,7 @@ Section.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

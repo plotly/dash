@@ -1,6 +1,5 @@
 base
 link
-meta
 title
 address
 article
@@ -82,7 +81,6 @@ button
 datalist
 fieldset
 form
-input
 label
 legend
 meter

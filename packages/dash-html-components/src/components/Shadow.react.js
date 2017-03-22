@@ -10,13 +10,13 @@ const Shadow = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </shadow>
         );
     } else {
         return (
             <shadow {...props}>
-                {props.children}
+                {props.content}
             </shadow>
         );
     }
@@ -94,7 +94,7 @@ Shadow.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

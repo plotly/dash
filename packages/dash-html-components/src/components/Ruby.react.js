@@ -10,13 +10,13 @@ const Ruby = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </ruby>
         );
     } else {
         return (
             <ruby {...props}>
-                {props.children}
+                {props.content}
             </ruby>
         );
     }
@@ -94,7 +94,7 @@ Ruby.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

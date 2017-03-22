@@ -10,13 +10,13 @@ const Cite = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </cite>
         );
     } else {
         return (
             <cite {...props}>
-                {props.children}
+                {props.content}
             </cite>
         );
     }
@@ -94,7 +94,7 @@ Cite.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

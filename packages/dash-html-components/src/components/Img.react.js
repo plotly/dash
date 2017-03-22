@@ -10,13 +10,13 @@ const Img = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </img>
         );
     } else {
         return (
             <img {...props}>
-                {props.children}
+                {props.content}
             </img>
         );
     }
@@ -129,7 +129,7 @@ Img.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

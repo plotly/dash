@@ -10,13 +10,13 @@ const MapEl = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </map>
         );
     } else {
         return (
             <map {...props}>
-                {props.children}
+                {props.content}
             </map>
         );
     }
@@ -99,7 +99,7 @@ MapEl.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

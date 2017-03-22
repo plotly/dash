@@ -10,13 +10,13 @@ const Basefont = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </basefont>
         );
     } else {
         return (
             <basefont {...props}>
-                {props.children}
+                {props.content}
             </basefont>
         );
     }
@@ -94,7 +94,7 @@ Basefont.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

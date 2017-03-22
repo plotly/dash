@@ -10,13 +10,13 @@ const Spacer = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </spacer>
         );
     } else {
         return (
             <spacer {...props}>
-                {props.children}
+                {props.content}
             </spacer>
         );
     }
@@ -94,7 +94,7 @@ Spacer.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

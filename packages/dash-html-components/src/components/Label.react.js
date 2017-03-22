@@ -10,13 +10,13 @@ const Label = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </label>
         );
     } else {
         return (
             <label {...props}>
-                {props.children}
+                {props.content}
             </label>
         );
     }
@@ -104,7 +104,7 @@ Label.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

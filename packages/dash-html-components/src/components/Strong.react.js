@@ -10,13 +10,13 @@ const Strong = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </strong>
         );
     } else {
         return (
             <strong {...props}>
-                {props.children}
+                {props.content}
             </strong>
         );
     }
@@ -94,7 +94,7 @@ Strong.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

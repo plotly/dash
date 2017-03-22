@@ -10,13 +10,13 @@ const Nextid = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </nextid>
         );
     } else {
         return (
             <nextid {...props}>
-                {props.children}
+                {props.content}
             </nextid>
         );
     }
@@ -94,7 +94,7 @@ Nextid.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

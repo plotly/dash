@@ -10,13 +10,13 @@ const Tr = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </tr>
         );
     } else {
         return (
             <tr {...props}>
-                {props.children}
+                {props.content}
             </tr>
         );
     }
@@ -94,7 +94,7 @@ Tr.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

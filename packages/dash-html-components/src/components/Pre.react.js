@@ -10,13 +10,13 @@ const Pre = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </pre>
         );
     } else {
         return (
             <pre {...props}>
-                {props.children}
+                {props.content}
             </pre>
         );
     }
@@ -94,7 +94,7 @@ Pre.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

@@ -10,13 +10,13 @@ const Ol = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </ol>
         );
     } else {
         return (
             <ol {...props}>
-                {props.children}
+                {props.content}
             </ol>
         );
     }
@@ -104,7 +104,7 @@ Ol.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

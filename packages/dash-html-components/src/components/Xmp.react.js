@@ -10,13 +10,13 @@ const Xmp = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </xmp>
         );
     } else {
         return (
             <xmp {...props}>
-                {props.children}
+                {props.content}
             </xmp>
         );
     }
@@ -94,7 +94,7 @@ Xmp.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

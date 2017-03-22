@@ -10,13 +10,13 @@ const Sup = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </sup>
         );
     } else {
         return (
             <sup {...props}>
-                {props.children}
+                {props.content}
             </sup>
         );
     }
@@ -94,7 +94,7 @@ Sup.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

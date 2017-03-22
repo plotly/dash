@@ -10,13 +10,13 @@ const Tbody = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </tbody>
         );
     } else {
         return (
             <tbody {...props}>
-                {props.children}
+                {props.content}
             </tbody>
         );
     }
@@ -94,7 +94,7 @@ Tbody.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

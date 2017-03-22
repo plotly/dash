@@ -10,13 +10,13 @@ const Param = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </param>
         );
     } else {
         return (
             <param {...props}>
-                {props.children}
+                {props.content}
             </param>
         );
     }
@@ -104,7 +104,7 @@ Param.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

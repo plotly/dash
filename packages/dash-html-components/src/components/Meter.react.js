@@ -10,13 +10,13 @@ const Meter = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </meter>
         );
     } else {
         return (
             <meter {...props}>
-                {props.children}
+                {props.content}
             </meter>
         );
     }
@@ -129,7 +129,7 @@ Meter.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

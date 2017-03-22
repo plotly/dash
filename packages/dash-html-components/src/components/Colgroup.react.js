@@ -10,13 +10,13 @@ const Colgroup = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </colgroup>
         );
     } else {
         return (
             <colgroup {...props}>
-                {props.children}
+                {props.content}
             </colgroup>
         );
     }
@@ -99,7 +99,7 @@ Colgroup.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

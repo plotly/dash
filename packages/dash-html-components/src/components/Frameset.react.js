@@ -10,13 +10,13 @@ const Frameset = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </frameset>
         );
     } else {
         return (
             <frameset {...props}>
-                {props.children}
+                {props.content}
             </frameset>
         );
     }
@@ -94,7 +94,7 @@ Frameset.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

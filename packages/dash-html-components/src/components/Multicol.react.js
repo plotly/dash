@@ -10,13 +10,13 @@ const Multicol = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </multicol>
         );
     } else {
         return (
             <multicol {...props}>
-                {props.children}
+                {props.content}
             </multicol>
         );
     }
@@ -94,7 +94,7 @@ Multicol.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

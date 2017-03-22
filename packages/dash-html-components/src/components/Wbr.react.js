@@ -10,13 +10,13 @@ const Wbr = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </wbr>
         );
     } else {
         return (
             <wbr {...props}>
-                {props.children}
+                {props.content}
             </wbr>
         );
     }
@@ -94,7 +94,7 @@ Wbr.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

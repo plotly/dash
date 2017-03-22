@@ -10,13 +10,13 @@ const Small = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </small>
         );
     } else {
         return (
             <small {...props}>
-                {props.children}
+                {props.content}
             </small>
         );
     }
@@ -94,7 +94,7 @@ Small.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

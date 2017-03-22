@@ -10,13 +10,13 @@ const Isindex = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </isindex>
         );
     } else {
         return (
             <isindex {...props}>
-                {props.children}
+                {props.content}
             </isindex>
         );
     }
@@ -94,7 +94,7 @@ Isindex.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

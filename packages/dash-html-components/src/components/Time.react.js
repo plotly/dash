@@ -10,13 +10,13 @@ const Time = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </time>
         );
     } else {
         return (
             <time {...props}>
-                {props.children}
+                {props.content}
             </time>
         );
     }
@@ -99,7 +99,7 @@ Time.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

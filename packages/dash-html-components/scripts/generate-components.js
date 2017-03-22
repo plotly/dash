@@ -64,7 +64,7 @@ function generatePropTypes(element, attributes) {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.
@@ -90,13 +90,13 @@ const ${Component} = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </${element}>
         );
     } else {
         return (
             <${element} {...props}>
-                {props.children}
+                {props.content}
             </${element}>
         );
     }

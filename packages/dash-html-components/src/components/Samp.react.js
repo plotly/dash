@@ -10,13 +10,13 @@ const Samp = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </samp>
         );
     } else {
         return (
             <samp {...props}>
-                {props.children}
+                {props.content}
             </samp>
         );
     }
@@ -94,7 +94,7 @@ Samp.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

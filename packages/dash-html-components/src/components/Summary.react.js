@@ -10,13 +10,13 @@ const Summary = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </summary>
         );
     } else {
         return (
             <summary {...props}>
-                {props.children}
+                {props.content}
             </summary>
         );
     }
@@ -94,7 +94,7 @@ Summary.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

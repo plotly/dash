@@ -10,13 +10,13 @@ const Dir = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </dir>
         );
     } else {
         return (
             <dir {...props}>
-                {props.children}
+                {props.content}
             </dir>
         );
     }
@@ -94,7 +94,7 @@ Dir.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

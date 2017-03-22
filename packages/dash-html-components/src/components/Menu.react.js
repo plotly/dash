@@ -10,13 +10,13 @@ const Menu = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </menu>
         );
     } else {
         return (
             <menu {...props}>
-                {props.children}
+                {props.content}
             </menu>
         );
     }
@@ -99,7 +99,7 @@ Menu.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

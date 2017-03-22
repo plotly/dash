@@ -10,13 +10,13 @@ const Thead = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </thead>
         );
     } else {
         return (
             <thead {...props}>
-                {props.children}
+                {props.content}
             </thead>
         );
     }
@@ -94,7 +94,7 @@ Thead.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

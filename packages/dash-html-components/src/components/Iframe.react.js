@@ -10,13 +10,13 @@ const Iframe = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </iframe>
         );
     } else {
         return (
             <iframe {...props}>
-                {props.children}
+                {props.content}
             </iframe>
         );
     }
@@ -129,7 +129,7 @@ Iframe.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

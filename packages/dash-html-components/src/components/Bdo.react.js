@@ -10,13 +10,13 @@ const Bdo = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </bdo>
         );
     } else {
         return (
             <bdo {...props}>
-                {props.children}
+                {props.content}
             </bdo>
         );
     }
@@ -94,7 +94,7 @@ Bdo.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

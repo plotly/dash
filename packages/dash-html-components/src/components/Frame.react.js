@@ -10,13 +10,13 @@ const Frame = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </frame>
         );
     } else {
         return (
             <frame {...props}>
-                {props.children}
+                {props.content}
             </frame>
         );
     }
@@ -94,7 +94,7 @@ Frame.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

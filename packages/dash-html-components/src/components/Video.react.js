@@ -10,13 +10,13 @@ const Video = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.children}
+                {props.content}
             </video>
         );
     } else {
         return (
             <video {...props}>
-                {props.children}
+                {props.content}
             </video>
         );
     }
@@ -139,7 +139,7 @@ Video.propTypes = {
     /**
      * The children of this component
      */
-    'children': PropTypes.node,
+    'content': PropTypes.node,
 
     /**
      * A callback for firing events to dash.
