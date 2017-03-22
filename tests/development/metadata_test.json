@@ -174,25 +174,11 @@
       "required": false,
       "description": ""
     },
-    "requiredFunc": {
-      "type": {
-        "name": "func"
-      },
-      "required": true,
-      "description": ""
-    },
-    "requiredAny": {
+    "optionalAny": {
       "type": {
         "name": "any"
       },
-      "required": true,
-      "description": ""
-    },
-    "requiredArray": {
-      "type": {
-        "name": "array"
-      },
-      "required": true,
+      "required": false,
       "description": ""
     },
     "customProp": {

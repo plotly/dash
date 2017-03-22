@@ -211,6 +211,13 @@ def generate_class(typename, props, description, namespace):
             self._type = '{typename}'
             self._namespace = '{namespace}'
             self._events = {events}
+
+            for k in {required_args}:
+                if k not in kwargs:
+                    raise Exception(
+                        'Required argument `' + k + '` was not specified.'
+                    )
+
             super({typename}, self).__init__({argtext})
 
         def __repr__(self):
@@ -240,12 +247,19 @@ def generate_class(typename, props, description, namespace):
         default_argtext = '**kwargs'
         argtext = '**kwargs'
 
+    required_args = required_props(props)
+
     d = c.format(**locals())
 
     scope = {'Component': Component}
     exec d in scope
     result = scope[typename]
     return result
+
+
+def required_props(props):
+    return [prop_name for prop_name, prop in props.iteritems()
+            if prop['required']]
 
 
 def reorder_props(props):

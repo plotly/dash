@@ -70,14 +70,8 @@ ReactComponent.propTypes = {
         })
     }),
 
-    // You can chain any of the above with `isRequired` to make sure a warning
-    // is shown if the prop isn't provided.
-    requiredFunc: React.PropTypes.func.isRequired,
-
     // A value of any data type
-    requiredAny: React.PropTypes.any.isRequired,
-
-    requiredArray: React.PropTypes.array.isRequired,
+    optionalAny: React.PropTypes.any,
 
     customProp: function(props, propName, componentName) {
         if (!/matchme/.test(props[propName])) {

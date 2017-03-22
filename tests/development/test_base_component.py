@@ -484,6 +484,23 @@ class TestGenerateClass(unittest.TestCase):
             namespace='TableComponents'
         )
 
+        path = os.path.join(
+            'tests', 'development', 'metadata_required_test.json'
+        )
+        with open(path) as data_file:
+            json_string = data_file.read()
+            required_data = json\
+                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .decode(json_string)
+            self.required_data = required_data
+
+        self.ComponentClassRequired = generate_class(
+            typename='TableRequired',
+            props=required_data['props'],
+            description=required_data['description'],
+            namespace='TableComponents'
+        )
+
     def test_to_plotly_json(self):
         c = self.ComponentClass()
         self.assertEqual(c.to_plotly_json(), {
@@ -567,7 +584,7 @@ class TestGenerateClass(unittest.TestCase):
 
     def test_events(self):
         self.assertEqual(
-            self.ComponentClass()._events,
+            self.ComponentClass().available_events,
             ['restyle', 'relayout', 'click']
         )
 
@@ -583,6 +600,15 @@ class TestGenerateClass(unittest.TestCase):
             (None, )
         )
 
+
+    def test_required_props(self):
+        with self.assertRaises(Exception):
+            self.ComponentClassRequired()
+        self.ComponentClassRequired(id='test')
+        with self.assertRaises(Exception):
+            self.ComponentClassRequired(id='test', lahlah='test')
+        with self.assertRaises(Exception):
+            self.ComponentClassRequired(content='test')
 
 class TestMetaDataConversions(unittest.TestCase):
     def setUp(self):
@@ -638,11 +664,7 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ])],
 
-            ['requiredFunc', ''],
-
-            ['requiredAny', 'boolean | number | string | dict | list'],
-
-            ['requiredArray', 'list'],
+            ['optionalAny', 'boolean | number | string | dict | list'],
 
             ['customProp', ''],
 
@@ -720,10 +742,9 @@ def assert_docstring(assertEqual, docstring):
             "  - layout (dict; optional): layout describes "
             "the rest of the figure",
 
-            "- requiredAny (boolean | number | string | dict | "
-            "list; required)",
+            "- optionalAny (boolean | number | string | dict | "
+            "list; optional)",
 
-            "- requiredArray (list; required)",
             "- customProp (optional)",
             "- customArrayProp (list; optional)",
             '- id (string; optional)',
