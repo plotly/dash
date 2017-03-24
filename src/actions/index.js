@@ -1,16 +1,12 @@
+/* global fetch:true */
 import {
     concat,
     contains,
     has,
     intersection,
     isEmpty,
-    isNil,
-    filter,
     keys,
     lensPath,
-    merge,
-    omit,
-    pick,
     reject,
     sort,
     type,
@@ -24,9 +20,10 @@ export const ACTIONS = (action) => {
     const actionList = {
         ON_PROP_CHANGE: 'ON_PROP_CHANGE',
         SET_REQUEST_QUEUE: 'SET_REQUEST_QUEUE',
-        SET_LAYOUT: 'SET_LAYOUT',
         COMPUTE_GRAPHS: 'COMPUTE_GRAPHS',
-        COMPUTE_PATHS: 'COMPUTE_PATHS'
+        COMPUTE_PATHS: 'COMPUTE_PATHS',
+        SET_LAYOUT: 'SET_LAYOUT',
+        SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE'
     };
     if (actionList[action]) return actionList[action];
     else throw new Error(`${action} is not defined.`)
@@ -34,116 +31,129 @@ export const ACTIONS = (action) => {
 
 export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
-const setLayout = createAction(ACTIONS('SET_LAYOUT'));
-const computeGraphs = createAction(ACTIONS('COMPUTE_GRAPHS'));
-const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
+export const computeGraphs = createAction(ACTIONS('COMPUTE_GRAPHS'));
+export const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
+export const setLayout = createAction(ACTIONS('SET_LAYOUT'));
+export const setAppLifecycle = createAction(ACTIONS('SET_APP_LIFECYCLE'));
 
-export const initialize = function() {
+export const hydrateInitialOutputs = function() {
     return function (dispatch, getState) {
-        // TODO - Use whatwg-fetch
-        fetch('/initialize', {method: 'GET'}) /* global fetch: true */
-        .then(res => res.json().then(layout => {
-            // TODO: error handling
-            dispatch(setLayout(layout));
-            dispatch(computePaths({subTree: layout, startingPath: []}));
-        })).then(function() {
-            fetch('/dependencies', {method: 'GET'})
-            .then(res => res.json().then(dependencies => {
-                dispatch(computeGraphs(dependencies));
-                /*
-                 * Fire an initial propChange event for each of the controllers
-                 * so that the observer leaves can update
-                 */
-                // TODO - Use thunk instead of setTimeout
-                setTimeout(function(){
-                    const {graphs} = getState();
-                    const {EventGraph} = graphs;
-                    EventGraph.overallOrder().forEach(nodeId => {
-                        // Only fire updates for the visible controllers
-                        if (has(nodeId, getState().paths)) {
-                            dispatch(notifyObservers({
-                                event: 'propChange', id: nodeId
-                            }));
-                        }
+        const {graphs} = getState();
+        const {InputGraph} = graphs;
+        InputGraph.overallOrder().forEach(nodeId => {
+            const [componentId, componentProp] = nodeId.split('.');
 
-                    });
-                }, 50)
-            }));
+            // Filter out the outputs and the invisible inputs
+            if (InputGraph.dependenciesOf(nodeId).length > 0 &&
+                has(componentId, getState().paths)
+            ) {
+
+                // Get the initial property
+                const propLens = lensPath(
+                    concat(getState().paths[componentId],
+                    ['props', componentProp]
+                ));
+                const propValue = view(
+                    propLens,
+                    getState().layout
+                );
+
+                dispatch(notifyObservers({
+                    id: componentId,
+                    props: {[componentProp]: propValue}
+                }));
+
+            }
         });
+        dispatch(setAppLifecycle('INITIALIZED'));
     }
 }
 
-/*
- * TODO: Consider moving side effects to reducers via
- * https://github.com/gregwebs/redux-side-effect
- */
 export const notifyObservers = function(payload) {
     return function (dispatch, getState) {
         const {
+            id,
             event,
-            id
+            props
         } = payload
 
         const {
             layout,
             graphs,
             paths,
-            requestQueue
+            requestQueue,
+            dependenciesRequest
         } = getState();
-        const {EventGraph, StateGraph} = graphs;
+        const {EventGraph, InputGraph} = graphs;
 
         /*
-         * Each observer may depend on a different set of events.
-         * Filter away the observers that are listening to different events.
+         * Figure out all of the output id's that depend on this
+         * event or input.
+         * This includes id's that are direct children as well as
+         * grandchildren.
+         * grandchildren will get filtered out in a later stage.
          */
-        const observersAndEventSubscriptions = EventGraph.getNodeData(id);
-        let eventObservers = keys(filter(function filterObservers(observerEventSubscriptions) {
-            return contains(event, observerEventSubscriptions);
-        }, observersAndEventSubscriptions));
+        let outputObservers;
+        if (event) {
+            outputObservers = EventGraph.dependenciesOf(`${id}.${event}`);
+        } else {
+            const changedProps = keys(props);
+            outputObservers = [];
+            changedProps.forEach(propName => {
+                InputGraph.dependenciesOf(`${id}.${propName}`).forEach(outputId =>
+                    outputObservers.push(outputId)
+                );
+            });
+        }
 
-        /*
-         * If no components have subscribed to these events,
-         * then we have no one else to tell about it.
-         */
-        if (isEmpty(eventObservers)) {
+        if (isEmpty(outputObservers)) {
             return;
         }
 
         /*
-         * There may be several components that depend on this event.
+         * There may be several components that depend on this input.
          * And some components may depend on other components before
          * updating. Get this update order straightened out.
          */
-        const depOrder = EventGraph.overallOrder();
-        eventObservers = sort(
+        const depOrder = InputGraph.overallOrder();
+        outputObservers = sort(
             (a, b) => depOrder.indexOf(a) - depOrder.indexOf(b),
-            eventObservers
+            outputObservers
         );
 
-        // record the set of requests in the queue
-        dispatch(setRequestQueue(union(eventObservers, requestQueue)));
+        /*
+         * record the set of output IDs that will eventually need to be
+         * updated in a queue. not all of these requests will be fired in this
+         * action
+         */
+        dispatch(setRequestQueue(union(outputObservers, requestQueue)));
 
-        // update each observer
-        for (let i = 0; i < eventObservers.length; i++) {
-            const eventObserverId = eventObservers[i];
+        // update each output observer through an API call
+        for (let i = 0; i < outputObservers.length; i++) {
+            const outputIdAndProp = outputObservers[i];
+            const [outputComponentId, outputProp] = outputIdAndProp.split('.');
 
             /*
-             * before we make the POST, check that none of its event dependencies
-             * are already in the queue. if they are in the queue, then don't update.
-             * when each dependency updates, it'll dispatch its own `notifyObservers`
-             * action which will allow this component to update.
+             * before we make the POST, check that none of its input
+             * dependencies are already in the queue.
+             * if they are in the queue, then don't update.
+             * when each dependency updates, it'll dispatch its own
+             * `notifyObservers` action which will allow this
+             * component to update.
              *
              * for example, if A updates B and C (A -> [B, C]) and B updates C
-             * (B -> C), then when A updates, we can update B but not C until
-             * B is done updating. in this scenario, B is before C from the
+             * (B -> C), then when A updates, the requestQueue becomes
+             * [B, C] we can't update C until B is done updating.
+             * in this scenario, B is before C from the
              * overallOrder, so it'll get set in the requestQueue before C.
+             *
              */
             const dependenciesInQueue = intersection(
                 getState().requestQueue,
-                EventGraph.dependenciesOf(eventObserverId)
+                InputGraph.dependenciesOf(outputIdAndProp)
             );
 
-            if (dependenciesInQueue.length !== 0) {
+            if (dependenciesInQueue.length > 0) {
                 continue;
             }
 
@@ -154,53 +164,76 @@ export const notifyObservers = function(payload) {
              * of a controller change.
              * for example, perhaps the user has hidden one of the observers
              */
-            if (!has(eventObserverId, getState().paths)) {
+            if (!has(outputComponentId, getState().paths)) {
                 continue;
             }
 
             /*
-             * Construct a payload of the subscribed state
-             * For example, if graph depends on `input1` value and style
-             * and `input2` value, the payload would look like:
-             * {input1: {value: ..., style: ...,}, input2: ...}
+             * Construct a payload of the input, state, and event.
+             * For example:
+             * If the input triggered this update, then:
+             * {
+             *      inputs: [{'id': 'input1', 'property': 'new value'}],
+             *      state: [{'id': 'state1', 'property': 'existing value'}]
+             * }
+             *
+             * If an event triggered this udpate, then:
+             * {
+             *      state: [{'id': 'state1', 'property': 'existing value'}],
+             *      event: {'id': 'graph', 'event': 'click'}
+             * }
+             *
              */
-            let state = {};
-            StateGraph.dependenciesOf(eventObserverId).forEach(function reduceState(controllerId) {
-                const observedProps = StateGraph.getNodeData(controllerId)[eventObserverId];
-                /*
-                 * StateGraph.dependenciesOf doesn't just return neighbors,
-                 * it also returns grandparents and other non-direct-neighbor
-                 * nodes. Dang!
-                 * If a controller doesn't have this eventObserverId in it's
-                 * node data, then it's not an immediate dependency.
-                 */
-                if (isEmpty(observedProps) || isNil(observedProps)) {
-                    return;
-                }
-                state[controllerId] = {};
+             const payload = {
+                 output: {id: outputComponentId, property: outputProp}
+             };
 
-                const propLens = lensPath(concat(paths[controllerId], ['props']));
-                const props = view(propLens, layout);
-                // TODO - Is * and omit the right pattern?
-                if (observedProps[0] === '*') {
-                    state[controllerId] = omit(['content'], props);
-                } else {
-                    state[controllerId] = pick(observedProps, props);
-                }
-            });
+             if (event) {
+                 payload.event = event;
+             }
 
-            const body = {id: eventObserverId, state};
+            const {inputs, state} = dependenciesRequest.content.find(
+                dependency => (
+                    dependency.output.id === outputComponentId &&
+                    dependency.output.property === outputProp
+                )
+            )
+            if (inputs.length > 0) {
+                payload.inputs = inputs.map(inputObject => {
+                    const propLens = lensPath(
+                        concat(paths[inputObject.id],
+                        ['props', inputObject.property]
+                    ));
+                    return {
+                        id: inputObject.id,
+                        property: inputObject.property,
+                        value: view(propLens, layout)
+                    };
+                });
+            }
+            if (state.length > 0) {
+                payload.state = state.map(stateObject => {
+                    const propLens = lensPath(
+                        concat(paths[stateObject.id],
+                        ['props', stateObject.property]
+                    ));
+                    return {
+                        id: stateObject.id,
+                        property: stateObject.property,
+                        value: view(propLens, layout)
+                    };
+                });
+            }
 
-            // make the /POST
-            fetch('/interceptor', {
+            fetch('/update-component', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body)
+                body: JSON.stringify(payload)
             }).then(response => response.json().then(function handleResponse(data) {
                 // clear this item from the request queue
                 dispatch(setRequestQueue(
                     reject(
-                        id => id === eventObserverId,
+                        id => id === outputComponentId,
                         // in an async loop so grab the state again
                         getState().requestQueue
                     )
@@ -208,16 +241,16 @@ export const notifyObservers = function(payload) {
 
                 // and update the props of the component
                 const observerUpdatePayload = {
-                    itempath: paths[eventObserverId],
-                    // new props from the server
-                    props: merge(data.response.props, {content: data.response.children})
+                    itempath: paths[outputComponentId],
+                    // new prop from the server
+                    props: data.response.props
                 };
                 dispatch(updateProps(observerUpdatePayload));
 
-
-                // fire an event that the props have changed
-                // TODO - Need to wait for updateProps to finish?
-                dispatch(notifyObservers({event: 'propChange', id: eventObserverId}));
+                dispatch(notifyObservers({
+                    id: outputComponentId,
+                    props: data.response.props
+                }));
 
                 /*
                  * If the response includes content which includes or
@@ -228,12 +261,13 @@ export const notifyObservers = function(payload) {
                 if (contains(
                         type(observerUpdatePayload.props.content),
                         ['Array', 'Object']
-                    ) && !isEmpty(observerUpdatePayload.props.content)) {
+                    ) && !isEmpty(observerUpdatePayload.props.content)
+                ) {
 
                     dispatch(computePaths({
                         subTree: observerUpdatePayload.props.content,
                         startingPath: concat(
-                            getState().paths[eventObserverId],
+                            getState().paths[outputComponentId],
                             ['props', 'content']
                         )
                     }));
@@ -248,33 +282,37 @@ export const notifyObservers = function(payload) {
                      * We don't need to do this - just need
                      * to compute the subtree
                      */
-                    const newIds = [];
+                    const newProps = [];
                     crawlLayout(
                         observerUpdatePayload.props.content,
                         function appendIds(child) {
-                            if (hasId(child) &&
-                                /*
-                                 * Not all nodes that have IDs
-                                 * are necessarily bound to events
-                                 * TODO - Are we making that assumption anywhere else?
-                                 */
-                                has(child.props.id, EventGraph.nodes)
-                            ) {
-                                newIds.push(child.props.id);
+                            if (hasId(child)) {
+                                keys(child.props).forEach(childProp => {
+                                    const inputId = (
+                                        `${child.props.id}.${childProp}`
+                                    );
+                                    if (has(inputId, InputGraph.nodes)) {
+                                        newProps.push({
+                                            id: child.props.id,
+                                            props: {
+                                                [childProp]: child.props[childProp]
+                                            }
+                                        });
+                                    }
+                                })
                             }
                         }
                     );
 
                     // TODO - We might need to reset the
                     // request queue here.
-                    const depOrder = EventGraph.overallOrder();
-                    const sortedIds = sort((a, b) => depOrder.indexOf(a) - depOrder.indexOf(b),
-                        newIds
+                    const depOrder = InputGraph.overallOrder();
+                    const sortedNewProps = sort((a, b) =>
+                        depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
+                        newProps
                     )
-                    sortedIds.forEach(function(newId) {
-                        dispatch(notifyObservers({
-                            event: 'propChange', id: newId
-                        }));
+                    sortedNewProps.forEach(function(propUpdate) {
+                        dispatch(notifyObservers(propUpdate));
                     });
 
                 }

@@ -1,5 +1,5 @@
 import {connect} from 'react-redux';
-import {isEmpty} from 'ramda';
+import {isEmpty, keys} from 'ramda';
 import {notifyObservers, updateProps} from '../../actions';
 import React, {PropTypes} from 'react';
 
@@ -9,7 +9,10 @@ import React, {PropTypes} from 'react';
  */
 
 function mapStateToProps (state) {
-    return {graphs: state.graphs, paths: state.paths};
+    return {
+        dependencies: state.dependenciesRequest.content,
+        paths: state.paths
+    };
 }
 
 function mapDispatchToProps (dispatch) {
@@ -22,9 +25,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
     return {
         id: ownProps.id,
         children: ownProps.children,
-
-        EventGraph: stateProps.graphs.EventGraph,
-        StateGraph: stateProps.graphs.StateGraph,
+        dependencies: stateProps.dependencies,
 
         fireEvent: function fireEvent({event}) {
             // Update this component's observers with the updated props
@@ -41,10 +42,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
             // Update this component's props
             dispatch(updateProps(payload));
 
-            // Fire an event that the props have changed.
-            // TODO - Will updateProps have finished by the time this is fired?
-            // TODO - Add support for subscribing to a particular prop change?
-            dispatch(notifyObservers({event: 'propChange', id: ownProps.id}));
+            dispatch(notifyObservers({id: ownProps.id, props: newProps}));
         }
     }
 
@@ -54,20 +52,37 @@ function NotifyObserversComponent ({
     children,
     id,
 
-    EventGraph,
-    StateGraph,
+    dependencies,
 
     fireEvent,
     setProps
 }) {
-
-    // TODO - Check if it triggers this particular event
     const thisComponentTriggersEvents = (
-        EventGraph.hasNode(id) && EventGraph.dependantsOf(id).length
+        dependencies && dependencies.find(dependency => (
+            dependency.events.find(event => event.id === id)
+        ))
     );
     const thisComponentSharesState = (
-        StateGraph.hasNode(id) && StateGraph.dependantsOf(id).length
+        dependencies && dependencies.find(dependency => (
+            dependency.inputs.find(input => input.id === id) ||
+            dependency.state.find(state => state.id === id)
+        ))
     );
+    /*
+     * Only pass in `setProps` and `fireEvent` if they are actually
+     * necessary.
+     * This allows component authors to skip computing data
+     * for `setProps` or `fireEvent` (which can be expensive)
+     * in the case when they aren't actually used.
+     * For example, consider `hoverData` for graphs. If it isn't
+     * actually used, then the component author can skip binding
+     * the events for the component.
+     *
+     * TODO - A nice enhancement would be to pass in the actual events
+     * and properties that are used into the component so that the
+     * component author can check for something like `subscribed_events`
+     * or `subscribed_properties` instead of `fireEvent` and `setProps`.
+     */
     const extraProps = {};
     if (thisComponentSharesState) {
         extraProps.setProps = setProps;
@@ -75,7 +90,7 @@ function NotifyObserversComponent ({
     if (thisComponentTriggersEvents) {
         extraProps.fireEvent = fireEvent;
     }
-
+    console.warn('extraProps: ', extraProps);
     if (!isEmpty(extraProps)) {
         return React.cloneElement(children, extraProps);
     } else {

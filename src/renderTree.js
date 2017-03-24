@@ -39,7 +39,6 @@ export default function render(component) {
     }
 
     const element = Registry.resolve(component.type, component.namespace);
-
     const parent = React.createElement(
         element,
         R.omit(['content'], component.props),

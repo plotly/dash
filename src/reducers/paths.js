@@ -1,14 +1,17 @@
 import {crawlLayout, hasId} from './utils'
 import R from 'ramda'
+import {ACTIONS} from '../actions/index.js';
 
-const initialPaths = {};
+const initialPaths = null;
 
 
 const paths = (state = initialPaths, action) => {
     switch (action.type) {
-        case 'COMPUTE_PATHS': {
+        case ACTIONS('COMPUTE_PATHS'): {
             const {subTree, startingPath} = action.payload;
-
+            if (R.isNil(state)) {
+                state = {};
+            }
             let newState;
 
             // if we're updating a subtree, clear out all of the existing items

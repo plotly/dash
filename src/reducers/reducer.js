@@ -5,7 +5,17 @@ import layout from './layout';
 import graphs from './dependencyGraph';
 import paths from './paths';
 import requestQueue from './requestQueue';
+import appLifecycle from './appLifecycle';
+import {layoutRequest, dependenciesRequest} from './api';
 
-const reducer = combineReducers({layout, graphs, paths, requestQueue});
+const reducer = combineReducers({
+    appLifecycle,
+    layout,
+    graphs,
+    paths,
+    requestQueue,
+    layoutRequest,
+    dependenciesRequest
+});
 
 export default reducer;
