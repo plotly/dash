@@ -43,7 +43,7 @@ class Dash(object):
 
         # TODO - Rename "initialize". Perhaps just "GET /components"
         self.server.add_url_rule(
-            '{}/initialize'.format(url_namespace),
+            '{}/layout'.format(url_namespace),
             view_func=self.serve_layout,
             endpoint='{}_{}'.format(url_namespace, 'initialize'))
 
@@ -52,11 +52,10 @@ class Dash(object):
             view_func=self.dependencies,
             endpoint='{}_{}'.format(url_namespace, 'dependencies'))
 
-        # TODO - A different name for "interceptor".
-        # TODO - Should the "interceptor"'s API be keyed by component ID?
+        # TODO - Should the this API be keyed by component ID?
         # For example: POST dash.com/components/my-id/update
         self.server.add_url_rule(
-            '{}/interceptor'.format(url_namespace),
+            '{}/update-component'.format(url_namespace),
             view_func=self.interceptor,
             methods=['POST'])
 
