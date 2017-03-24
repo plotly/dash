@@ -14,6 +14,10 @@ class NonExistantPropException(CallbackException):
     pass
 
 
+class NonExistantEventException(CallbackException):
+    pass
+
+
 class UndefinedLayoutException(CallbackException):
     pass
 
@@ -21,8 +25,14 @@ class UndefinedLayoutException(CallbackException):
 class IncorrectTypeException(CallbackException):
     pass
 
+
 class MissingEventsException(CallbackException):
     pass
 
+
 class LayoutIsNotDefined(CallbackException):
+    pass
+
+
+class IDsCantContainPeriods(CallbackException):
     pass

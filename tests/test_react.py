@@ -10,6 +10,7 @@ import warnings
 from dash.dependencies import Event, Input, Output, State
 from dash import exceptions
 
+
 def generate_css(css_links):
     return '\n'.join([
         '<link rel="stylesheet" href="{}"></link>'.format(l)
@@ -27,7 +28,6 @@ def generate_js(js_links):
 class IntegrationTest(unittest.TestCase):
     def setUp(self):
         self.app = dash.Dash('my-app')
-
         self.app.layout = Div([
             Div('Hello World', id='header', style={'color': 'red'}),
             dcc.Input(id='id1', placeholder='Type a value'),
@@ -416,7 +416,6 @@ class IntegrationTest(unittest.TestCase):
                     "/component-suites/dash_renderer/bundle.js?v=0.2.9"
                 ])
             )
-            print(len(w))
             assert len(w) == 1
 
         self.app.scripts.config.serve_locally = False
@@ -437,8 +436,11 @@ class IntegrationTest(unittest.TestCase):
 class TestCallbacks(unittest.TestCase):
     def test_callback_registry(self):
         app = dash.Dash('')
+        input = dcc.Input(id='input')
+        input._events = ['blur', 'change']
+
         app.layout = Div([
-            dcc.Input(id='input'),
+            input,
             Div(id='output')
         ], id='body')
 
@@ -512,7 +514,35 @@ class TestCallbacks(unittest.TestCase):
         )
 
     def test_exception_event_not_in_component(self):
-        pass
+        app = dash.Dash('')
+        app.layout = Div([
+            Div(id='button'),
+            Div(id='output'),
+            dcc.Graph(id='graph')
+        ], id='body')
+
+        for id in ['output', 'body']:
+            self.assertRaises(
+                exceptions.NonExistantEventException,
+                app.callback,
+                Output('output', 'content'),
+                events=[Event(id, 'style')]
+            )
+            app.callback(
+                Output('output', 'content'),
+                events=[Event(id, 'click')]
+            )
+
+        self.assertRaises(
+            exceptions.NonExistantEventException,
+            app.callback,
+            Output('output', 'content'),
+            events=[Event('graph', 'zoom')]
+        )
+        app.callback(
+            Output('output', 'content'),
+            events=[Event('graph', 'click')]
+        )
 
     def test_exception_component_is_not_right_type(self):
         app = dash.Dash('')

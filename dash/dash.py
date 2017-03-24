@@ -319,13 +319,15 @@ class Dash(object):
                     ).replace('    ', ''))
 
                 if not self.config.supress_callback_exceptions:
+
                     if getattr(self.layout, 'id', None) == arg.component_id:
                         component = self.layout
                     else:
                         component = self.layout[arg.component_id]
+
                     if (hasattr(arg, 'component_property') and
                             arg.component_property not in
-                            component._prop_names):
+                            component.available_properties):
                         raise exceptions.NonExistantPropException('''
                             Attempting to assign a callback with
                             the property "{}" but the component
@@ -336,23 +338,24 @@ class Dash(object):
                                    arg.component_id,
                                    arg.component_property,
                                    arg.component_id,
-                                   component._prop_names).replace('    ', ''))
+                                   component.available_properties
+                                   ).replace('    ', ''))
+
                     if (hasattr(arg, 'component_event') and
                             arg.component_event not in
-                            # TODO - Rename `_prop_names` to `available_props`
-                            # and add `available_events` to components
-                            getattr(component, 'available_events', ['click', 'blur'])):
-                        raise exceptions.NonExistantPropException('''
+                            component.available_events):
+                        raise exceptions.NonExistantEventException('''
                             Attempting to assign a callback with
-                            the property "{}" but the component
-                            "{}" doesn't have "{}" as a property.\n
-                            Here is a list of the available properties in "{}":
+                            the event "{}" but the component
+                            "{}" doesn't have "{}" as an event.\n
+                            Here is a list of the available events in "{}":
                             {}
-                        '''.format(arg.component_property,
+                        '''.format(arg.component_event,
                                    arg.component_id,
-                                   arg.component_property,
+                                   arg.component_event,
                                    arg.component_id,
-                                   component._prop_names).replace('    ', ''))
+                                   component.available_events
+                                   ).replace('    ', ''))
 
         if len(state) > 0 and len(events) == 0 and len(inputs) == 0:
             raise exceptions.MissingEventsException('''
