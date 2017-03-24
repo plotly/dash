@@ -10,13 +10,13 @@ const Strong = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </strong>
         );
     } else {
         return (
             <strong {...props}>
-                {props.content}
+                {props.children}
             </strong>
         );
     }

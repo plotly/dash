@@ -10,13 +10,13 @@ const Img = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </img>
         );
     } else {
         return (
             <img {...props}>
-                {props.content}
+                {props.children}
             </img>
         );
     }

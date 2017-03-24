@@ -10,13 +10,13 @@ const Video = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </video>
         );
     } else {
         return (
             <video {...props}>
-                {props.content}
+                {props.children}
             </video>
         );
     }

@@ -10,13 +10,13 @@ const Optgroup = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </optgroup>
         );
     } else {
         return (
             <optgroup {...props}>
-                {props.content}
+                {props.children}
             </optgroup>
         );
     }

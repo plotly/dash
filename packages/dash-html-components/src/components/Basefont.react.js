@@ -10,13 +10,13 @@ const Basefont = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </basefont>
         );
     } else {
         return (
             <basefont {...props}>
-                {props.content}
+                {props.children}
             </basefont>
         );
     }

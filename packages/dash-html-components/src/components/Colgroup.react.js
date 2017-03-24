@@ -10,13 +10,13 @@ const Colgroup = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </colgroup>
         );
     } else {
         return (
             <colgroup {...props}>
-                {props.content}
+                {props.children}
             </colgroup>
         );
     }

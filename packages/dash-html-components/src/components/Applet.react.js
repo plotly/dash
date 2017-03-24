@@ -10,13 +10,13 @@ const Applet = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </applet>
         );
     } else {
         return (
             <applet {...props}>
-                {props.content}
+                {props.children}
             </applet>
         );
     }

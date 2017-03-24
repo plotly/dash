@@ -10,13 +10,13 @@ const Div = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </div>
         );
     } else {
         return (
             <div {...props}>
-                {props.content}
+                {props.children}
             </div>
         );
     }
@@ -102,7 +102,7 @@ Div.propTypes = {
     'fireEvent': PropTypes.func,
 
     'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
-    
+
 };
 
 export default Div;

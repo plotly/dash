@@ -10,13 +10,13 @@ const Hgroup = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </hgroup>
         );
     } else {
         return (
             <hgroup {...props}>
-                {props.content}
+                {props.children}
             </hgroup>
         );
     }

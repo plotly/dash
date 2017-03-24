@@ -10,13 +10,13 @@ const Footer = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </footer>
         );
     } else {
         return (
             <footer {...props}>
-                {props.content}
+                {props.children}
             </footer>
         );
     }

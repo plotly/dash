@@ -10,13 +10,13 @@ const Dir = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </dir>
         );
     } else {
         return (
             <dir {...props}>
-                {props.content}
+                {props.children}
             </dir>
         );
     }

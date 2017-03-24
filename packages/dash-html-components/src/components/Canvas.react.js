@@ -10,13 +10,13 @@ const Canvas = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </canvas>
         );
     } else {
         return (
             <canvas {...props}>
-                {props.content}
+                {props.children}
             </canvas>
         );
     }

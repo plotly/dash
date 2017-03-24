@@ -10,13 +10,13 @@ const Audio = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </audio>
         );
     } else {
         return (
             <audio {...props}>
-                {props.content}
+                {props.children}
             </audio>
         );
     }

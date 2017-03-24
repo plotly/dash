@@ -10,13 +10,13 @@ const Fieldset = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </fieldset>
         );
     } else {
         return (
             <fieldset {...props}>
-                {props.content}
+                {props.children}
             </fieldset>
         );
     }

@@ -10,13 +10,13 @@ const Noscript = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </noscript>
         );
     } else {
         return (
             <noscript {...props}>
-                {props.content}
+                {props.children}
             </noscript>
         );
     }

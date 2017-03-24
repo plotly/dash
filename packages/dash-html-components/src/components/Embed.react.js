@@ -10,13 +10,13 @@ const Embed = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </embed>
         );
     } else {
         return (
             <embed {...props}>
-                {props.content}
+                {props.children}
             </embed>
         );
     }

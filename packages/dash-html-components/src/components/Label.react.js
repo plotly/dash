@@ -10,13 +10,13 @@ const Label = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </label>
         );
     } else {
         return (
             <label {...props}>
-                {props.content}
+                {props.children}
             </label>
         );
     }

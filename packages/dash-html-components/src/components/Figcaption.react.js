@@ -10,13 +10,13 @@ const Figcaption = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </figcaption>
         );
     } else {
         return (
             <figcaption {...props}>
-                {props.content}
+                {props.children}
             </figcaption>
         );
     }

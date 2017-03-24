@@ -10,13 +10,13 @@ const MapEl = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </map>
         );
     } else {
         return (
             <map {...props}>
-                {props.content}
+                {props.children}
             </map>
         );
     }

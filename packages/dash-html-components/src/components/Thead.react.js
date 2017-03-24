@@ -10,13 +10,13 @@ const Thead = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </thead>
         );
     } else {
         return (
             <thead {...props}>
-                {props.content}
+                {props.children}
             </thead>
         );
     }

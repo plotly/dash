@@ -10,13 +10,13 @@ const Acronym = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </acronym>
         );
     } else {
         return (
             <acronym {...props}>
-                {props.content}
+                {props.children}
             </acronym>
         );
     }

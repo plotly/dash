@@ -10,13 +10,13 @@ const Kbd = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </kbd>
         );
     } else {
         return (
             <kbd {...props}>
-                {props.content}
+                {props.children}
             </kbd>
         );
     }

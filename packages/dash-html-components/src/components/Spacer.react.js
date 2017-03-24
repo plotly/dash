@@ -10,13 +10,13 @@ const Spacer = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </spacer>
         );
     } else {
         return (
             <spacer {...props}>
-                {props.content}
+                {props.children}
             </spacer>
         );
     }

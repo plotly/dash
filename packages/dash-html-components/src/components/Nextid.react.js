@@ -10,13 +10,13 @@ const Nextid = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </nextid>
         );
     } else {
         return (
             <nextid {...props}>
-                {props.content}
+                {props.children}
             </nextid>
         );
     }

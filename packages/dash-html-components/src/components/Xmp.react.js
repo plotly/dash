@@ -10,13 +10,13 @@ const Xmp = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </xmp>
         );
     } else {
         return (
             <xmp {...props}>
-                {props.content}
+                {props.children}
             </xmp>
         );
     }

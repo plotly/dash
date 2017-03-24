@@ -10,13 +10,13 @@ const Track = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </track>
         );
     } else {
         return (
             <track {...props}>
-                {props.content}
+                {props.children}
             </track>
         );
     }

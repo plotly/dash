@@ -10,13 +10,13 @@ const Legend = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </legend>
         );
     } else {
         return (
             <legend {...props}>
-                {props.content}
+                {props.children}
             </legend>
         );
     }

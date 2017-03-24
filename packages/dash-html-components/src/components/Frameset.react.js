@@ -10,13 +10,13 @@ const Frameset = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </frameset>
         );
     } else {
         return (
             <frameset {...props}>
-                {props.content}
+                {props.children}
             </frameset>
         );
     }

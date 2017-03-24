@@ -10,13 +10,13 @@ const Cite = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </cite>
         );
     } else {
         return (
             <cite {...props}>
-                {props.content}
+                {props.children}
             </cite>
         );
     }

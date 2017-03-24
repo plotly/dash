@@ -10,13 +10,13 @@ const Abbr = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </abbr>
         );
     } else {
         return (
             <abbr {...props}>
-                {props.content}
+                {props.children}
             </abbr>
         );
     }

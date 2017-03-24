@@ -10,13 +10,13 @@ const Tfoot = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </tfoot>
         );
     } else {
         return (
             <tfoot {...props}>
-                {props.content}
+                {props.children}
             </tfoot>
         );
     }

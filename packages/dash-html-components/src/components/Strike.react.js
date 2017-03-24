@@ -10,13 +10,13 @@ const Strike = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </strike>
         );
     } else {
         return (
             <strike {...props}>
-                {props.content}
+                {props.children}
             </strike>
         );
     }

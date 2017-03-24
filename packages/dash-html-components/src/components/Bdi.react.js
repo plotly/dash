@@ -10,13 +10,13 @@ const Bdi = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </bdi>
         );
     } else {
         return (
             <bdi {...props}>
-                {props.content}
+                {props.children}
             </bdi>
         );
     }

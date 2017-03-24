@@ -10,13 +10,13 @@ const Blink = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </blink>
         );
     } else {
         return (
             <blink {...props}>
-                {props.content}
+                {props.children}
             </blink>
         );
     }

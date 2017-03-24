@@ -10,13 +10,13 @@ const Bdo = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </bdo>
         );
     } else {
         return (
             <bdo {...props}>
-                {props.content}
+                {props.children}
             </bdo>
         );
     }

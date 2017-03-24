@@ -10,13 +10,13 @@ const Rtc = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </rtc>
         );
     } else {
         return (
             <rtc {...props}>
-                {props.content}
+                {props.children}
             </rtc>
         );
     }

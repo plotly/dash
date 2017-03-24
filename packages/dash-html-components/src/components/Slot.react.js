@@ -10,13 +10,13 @@ const Slot = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </slot>
         );
     } else {
         return (
             <slot {...props}>
-                {props.content}
+                {props.children}
             </slot>
         );
     }

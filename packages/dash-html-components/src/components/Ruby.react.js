@@ -10,13 +10,13 @@ const Ruby = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </ruby>
         );
     } else {
         return (
             <ruby {...props}>
-                {props.content}
+                {props.children}
             </ruby>
         );
     }

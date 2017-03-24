@@ -10,13 +10,13 @@ const Center = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </center>
         );
     } else {
         return (
             <center {...props}>
-                {props.content}
+                {props.children}
             </center>
         );
     }

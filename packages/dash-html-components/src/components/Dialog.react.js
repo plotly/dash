@@ -10,13 +10,13 @@ const Dialog = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </dialog>
         );
     } else {
         return (
             <dialog {...props}>
-                {props.content}
+                {props.children}
             </dialog>
         );
     }

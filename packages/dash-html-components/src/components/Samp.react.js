@@ -10,13 +10,13 @@ const Samp = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </samp>
         );
     } else {
         return (
             <samp {...props}>
-                {props.content}
+                {props.children}
             </samp>
         );
     }

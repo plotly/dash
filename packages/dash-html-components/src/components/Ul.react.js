@@ -10,13 +10,13 @@ const Ul = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </ul>
         );
     } else {
         return (
             <ul {...props}>
-                {props.content}
+                {props.children}
             </ul>
         );
     }

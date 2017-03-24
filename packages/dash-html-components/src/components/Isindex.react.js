@@ -10,13 +10,13 @@ const Isindex = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </isindex>
         );
     } else {
         return (
             <isindex {...props}>
-                {props.content}
+                {props.children}
             </isindex>
         );
     }

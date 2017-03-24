@@ -10,13 +10,13 @@ const Marquee = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </marquee>
         );
     } else {
         return (
             <marquee {...props}>
-                {props.content}
+                {props.children}
             </marquee>
         );
     }

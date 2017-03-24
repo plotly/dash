@@ -10,13 +10,13 @@ const Textarea = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </textarea>
         );
     } else {
         return (
             <textarea {...props}>
-                {props.content}
+                {props.children}
             </textarea>
         );
     }

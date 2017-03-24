@@ -10,13 +10,13 @@ const Iframe = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </iframe>
         );
     } else {
         return (
             <iframe {...props}>
-                {props.content}
+                {props.children}
             </iframe>
         );
     }

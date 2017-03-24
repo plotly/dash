@@ -10,13 +10,13 @@ const Keygen = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </keygen>
         );
     } else {
         return (
             <keygen {...props}>
-                {props.content}
+                {props.children}
             </keygen>
         );
     }

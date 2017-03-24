@@ -10,13 +10,13 @@ const Plaintext = (props) => {
                 onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
-                {props.content}
+                {props.children}
             </plaintext>
         );
     } else {
         return (
             <plaintext {...props}>
-                {props.content}
+                {props.children}
             </plaintext>
         );
     }
