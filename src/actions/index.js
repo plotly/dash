@@ -120,19 +120,8 @@ export const notifyObservers = function(payload) {
             (a, b) => depOrder.indexOf(b) - depOrder.indexOf(a),
             outputObservers
         );
-
-        /*
-         * record the set of output IDs that will eventually need to be
-         * updated in a queue. not all of these requests will be fired in this
-         * action
-         */
-        dispatch(setRequestQueue(union(outputObservers, requestQueue)));
-
-        // update each output observer through an API call
-        for (let i = 0; i < outputObservers.length; i++) {
-            const outputIdAndProp = outputObservers[i];
-            const [outputComponentId, outputProp] = outputIdAndProp.split('.');
-
+        outputObservers = outputObservers.filter(function filterObservers(outputIdAndProp) {
+            const outputComponentId = outputIdAndProp.split('.')[0];
             /*
              * before we make the POST, check that none of its input
              * dependencies are already in the queue.
@@ -148,14 +137,16 @@ export const notifyObservers = function(payload) {
              * overallOrder, so it'll get set in the requestQueue before C.
              *
              */
-            const dependenciesInQueue = intersection(
+            const controllersInQueue = intersection(
                 getState().requestQueue,
-                InputGraph.dependenciesOf(outputIdAndProp)
-            );
 
-            if (dependenciesInQueue.length > 0) {
-                continue;
-            }
+                /*
+                 * if the output just listens to events, then it won't be in
+                 * the InputGraph
+                 */
+                InputGraph.hasNode(outputIdAndProp) &&
+                InputGraph.dependantsOf(outputIdAndProp)
+            );
 
             /*
              * also check that this observer is actually in the current
@@ -164,9 +155,21 @@ export const notifyObservers = function(payload) {
              * of a controller change.
              * for example, perhaps the user has hidden one of the observers
              */
-            if (!has(outputComponentId, getState().paths)) {
-                continue;
-            }
+             return (
+                 (controllersInQueue.length === 0) &&
+                 (has(outputComponentId, getState().paths))
+             );
+        });
+        /*
+         * record the set of output IDs that will eventually need to be
+         * updated in a queue. not all of these requests will be fired in this
+         * action
+         */
+        dispatch(setRequestQueue(union(outputObservers, requestQueue)));
+
+        for (let i = 0; i < outputObservers.length; i++) {
+            const outputIdAndProp = outputObservers[i];
+            const [outputComponentId, outputProp] = outputIdAndProp.split('.');
 
             /*
              * Construct a payload of the input, state, and event.
