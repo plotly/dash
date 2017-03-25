@@ -24,7 +24,10 @@ export default function render(component) {
         // No children
         children = [];
 
-    } else if (R.contains(R.type(component.props.content), ['String', 'Number', 'Null'])) {
+    } else if (R.contains(
+        R.type(component.props.content),
+        ['String', 'Number', 'Null'])
+    ) {
 
         children = [component.props.content];
 
