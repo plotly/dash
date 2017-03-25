@@ -236,8 +236,7 @@ export const notifyObservers = function(payload) {
                 // clear this item from the request queue
                 dispatch(setRequestQueue(
                     reject(
-                        id => id === outputComponentId,
-                        // in an async loop so grab the state again
+                        id => id === outputIdAndProp,
                         getState().requestQueue
                     )
                 ));
