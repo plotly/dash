@@ -41,7 +41,16 @@ export default function render(component) {
 
     }
 
+    if (!component.type) {
+        console.error(R.type(component), component);
+        throw new Error('component.type is undefined');
+    }
+    if (!component.namespace) {
+        console.error(R.type(component), component);
+        throw new Error('component.namespace is undefined');
+    }
     const element = Registry.resolve(component.type, component.namespace);
+
     const parent = React.createElement(
         element,
         R.omit(['content'], component.props),
