@@ -244,7 +244,7 @@ export const notifyObservers = function(payload) {
 
                 // and update the props of the component
                 const observerUpdatePayload = {
-                    itempath: paths[outputComponentId],
+                    itempath: getState().paths[outputComponentId],
                     // new prop from the server
                     props: data.response.props
                 };
