@@ -31,7 +31,7 @@ DashMarkdown.propTypes = {
     /**
      * A markdown string that adhreres to the CommonMark spec
      */
-    children: PropTypes.string
+    content: PropTypes.string
 }
 
 export default DashMarkdown;

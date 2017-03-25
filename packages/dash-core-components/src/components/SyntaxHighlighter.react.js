@@ -7,7 +7,7 @@ import ReactSyntaxHighlighter from 'react-syntax-highlighter';
  * A component for pretty printing code.
  */
 export default function SyntaxHighlighter(props) {
-    const {theme, content} = props;
+    const {theme} = props;
     let style;
     if(theme === 'dark') {
         style = monokai;
@@ -17,7 +17,6 @@ export default function SyntaxHighlighter(props) {
     return (
         <ReactSyntaxHighlighter
             style={style}
-            children={content}
             {...omit(['theme', 'content'], props)}
         />
     )
