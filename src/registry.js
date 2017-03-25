@@ -13,8 +13,6 @@ export default {
                 ${namespace}`);
         }
 
-        throw new Error(`${namespace} was not found, make sure to
-            \`pip install ${namespace}\` and pass it as string in the
-            \`component_suites\` kwarg to \`dash.run_server\`.`);
+        throw new Error(`${namespace} was not found.`);
     }
 };
