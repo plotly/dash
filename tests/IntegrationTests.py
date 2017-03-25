@@ -1,5 +1,3 @@
-from dash.react import Dash
-from dash.react import Dash
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import dash
@@ -41,13 +39,10 @@ class IntegrationTests(unittest.TestCase):
 
     def startServer(s, dash):
         def run():
+            dash.scripts.config.serve_locally = True
             dash.run_server(
                 port=8050,
                 debug=False,
-                component_suites=[
-                    'dash_core_components',
-                    'dash_html_components'
-                ],
                 threaded=True
             )
 

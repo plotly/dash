@@ -1,4 +1,5 @@
-from dash.react import Dash
+from dash import Dash
+from dash.dependencies import Input, Output, State, Event
 import dash
 import dash_html_components as html
 import dash_core_components
@@ -12,8 +13,8 @@ import time
 class Tests(IntegrationTests):
 
     def test_initial_state(self):
-        dash = Dash(__name__)
-        dash.layout = html.Div([
+        app = Dash(__name__)
+        app.layout = html.Div([
             'Basic string',
             3.14,
             None,
@@ -46,57 +47,70 @@ class Tests(IntegrationTests):
             ], id='p.c.5')
         ])
 
-        self.startServer(dash)
+        self.startServer(app)
 
         el = self.driver.find_element_by_id('react-entry-point')
 
         rendered_dom = '''
-        <div data-reactroot="">
-            <!-- react-text: 3 -->
-            Basic string
-            <!-- /react-text -->
+            <div data-reactroot="">
+                <div>
+                    <!-- react-text: 5 -->
+                        Basic string
+                    <!-- /react-text -->
 
-            <!-- react-text: 4 -->
-            3.14
-            <!-- /react-text -->
+                    <!-- react-text: 6 -->
+                        3.14
+                    <!-- /react-text -->
 
-            <div class="my-class" id="p.c.3" title="tooltip" style="color: red; font-size: 30px;">
-                Child div with basic string
-            </div>
-            <div id="p.c.4"></div>
-            <div id="p.c.5">
-                <div id="p.c.5.p.c.0">
-                    Grandchild div
-                </div>
-                <div id="p.c.5.p.c.1">
-                    <div id="p.c.5.p.c.1.p.c.0">
-                        Great grandchild
+                    <div class="my-class" id="p.c.3" title="tooltip" style="color: red; font-size: 30px;">
+                        Child div with basic string
                     </div>
 
-                    <!-- react-text: 11 -->
-                        3.14159
-                    <!-- /react-text -->
+                    <div id="p.c.4">
+                    </div>
 
-                    <!-- react-text: 12 -->
-                        another basic string
-                    <!-- /react-text -->
-                </div>
-                <div id="p.c.5.p.c.2">
-                    <div id="p.c.5.p.c.2.p.c.0">
-                        <div id="p.c.5.p.c.2.p.c.0.p.c">
-                            <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0">
-                                <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0">
-                                </div>
-                                <!-- react-text: 18 -->
-                                <!-- /react-text -->
-                                <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2">
+                    <div id="p.c.5">
+                        <div id="p.c.5.p.c.0">
+                            Grandchild div
+                        </div>
+
+                        <div id="p.c.5.p.c.1">
+                            <div id="p.c.5.p.c.1.p.c.0">
+                                Great grandchild
+                            </div>
+
+                            <!-- react-text: 13 -->
+                                3.14159
+                            <!-- /react-text -->
+
+                            <!-- react-text: 14 -->
+                                another basic string
+                            <!-- /react-text -->
+                        </div>
+
+                        <div id="p.c.5.p.c.2">
+                            <div id="p.c.5.p.c.2.p.c.0">
+                                <div id="p.c.5.p.c.2.p.c.0.p.c">
+                                    <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0">
+
+                                        <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0">
+                                        </div>
+
+                                        <!-- react-text: 20 -->
+                                        <!-- /react-text -->
+
+                                        <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2">
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
+                <!-- react-empty: 3 -->
             </div>
-        </div>
         '''
         self.assertEqual(
             el.get_attribute('innerHTML'),
@@ -255,7 +269,7 @@ class Tests(IntegrationTests):
                 '))'
             ),
             {
-              "StateGraph": {
+              "InputGraph": {
                 "nodes": {},
                 "outgoingEdges": {},
                 "incomingEdges": {}
@@ -353,8 +367,8 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_simple_callback(self):
-        dash = Dash(__name__)
-        dash.layout = html.Div([
+        app = Dash(__name__)
+        app.layout = html.Div([
             dash_core_components.Input(
                 id='input',
                 value='initial value'
@@ -371,12 +385,12 @@ class Tests(IntegrationTests):
 
         call_count = Value('i', 0)
 
-        @dash.react('output-1', ['input'])
-        def update_output(input):
+        @app.callback(Output('output-1', 'content'), [Input('input', 'value')])
+        def update_output(value):
             call_count.value = call_count.value + 1
-            return {'content': input['value']}
+            return value
 
-        self.startServer(dash)
+        self.startServer(app)
 
         wait_for(lambda: self.driver.find_element_by_id(
             'output-1'
@@ -413,8 +427,8 @@ class Tests(IntegrationTests):
         components in the callbacks
         """
 
-        dash = Dash(__name__)
-        dash.layout = html.Div([
+        app = Dash(__name__)
+        app.layout = html.Div([
             dash_core_components.Input(
                 id='input',
                 value='initial value'
@@ -422,29 +436,30 @@ class Tests(IntegrationTests):
             html.Div(id='output')
         ])
 
-        @dash.react('output', ['input'])
+        @app.callback(Output('output', 'content'), [Input('input', 'value')])
         def pad_output(input):
-            return {
-                'content': html.Div([
-                    dash_core_components.Input(
-                        id='sub-input-1',
-                        value='sub input initial value'
-                    ),
-                    html.Div(id='sub-output-1')
-                ])
-            }
+            return html.Div([
+                dash_core_components.Input(
+                    id='sub-input-1',
+                    value='sub input initial value'
+                ),
+                html.Div(id='sub-output-1')
+            ])
 
         call_count = Value('i', 0)
 
         # these components don't exist in the initial render
-        @dash.react('sub-output-1', ['sub-input-1'])
-        def update_input(input):
-            call_count.value = call_count.value + 1
-            return {
-                'content': input['value']
-            }
+        app.config.supress_callback_exceptions = True
 
-        self.startServer(dash)
+        @app.callback(
+            Output('sub-output-1', 'content'),
+            [Input('sub-input-1', 'value')]
+        )
+        def update_input(value):
+            call_count.value = call_count.value + 1
+            return value
+
+        self.startServer(app)
 
         output = self.driver.find_element_by_id('output')
         output_html = output.get_attribute('innerHTML')
@@ -457,14 +472,15 @@ class Tests(IntegrationTests):
         wait_for(
             lambda: (
                 self.driver.find_element_by_id('output')
-                    .get_attribute('innerHTML') == '''
+                .get_attribute('innerHTML') == '''
                 <div>
-                    <input type="text/javascript" id="sub-input-1" value="sub input initial value">
+                    <input id="sub-input-1" value="sub input initial value">
                     <div id="sub-output-1">
                         sub input initial value
                     </div>
                 </div>'''.replace('\n', '').replace('  ', '')
-        ))
+            )
+        )
 
         # the paths should include these new output IDs
         self.assertEqual(
@@ -508,12 +524,8 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_radio_buttons_callbacks_generating_content(self):
-        dash = Dash(__name__)
-        dash.layout = html.Div([
-            html.Link(
-                rel="stylesheet",
-                href="https://unpkg.com/react-select@1.0.0-rc.3/dist/react-select.css"
-            ),
+        app = Dash(__name__)
+        app.layout = html.Div([
             dash_core_components.RadioItems(
                 options=[
                     {'label': 'Chapter 1', 'value': 'chapter1'},
@@ -525,6 +537,8 @@ class Tests(IntegrationTests):
             ),
             html.Div(id='body')
         ])
+        for script in dash_core_components._js_dist:
+            app.scripts.append_script(script)
 
         chapters = {
             'chapter1': html.Div([
@@ -580,47 +594,44 @@ class Tests(IntegrationTests):
             'chapter3-label': Value('i', 0)
         }
 
-        @dash.react('body', ['toc'])
-        def display_chapter(toc):
+        @app.callback(Output('body', 'content'), [Input('toc', 'value')])
+        def display_chapter(toc_value):
             call_counts['body'].value += 1
-            return {
-                'content': chapters[toc['value']]
-            }
+            return chapters[toc_value]
+
+        app.config.supress_callback_exceptions = True
 
         def generate_graph_callback(counterId):
-            def callback(options):
+            def callback(value):
                 call_counts[counterId].value += 1
                 return {
-                    'figure': {
                         'data': [{
                             'x': ['Call Counter'],
                             'y': [call_counts[counterId].value],
                             'type': 'bar'
                         }],
-                        'layout': {'title': options['value']}
+                        'layout': {'title': value}
                     }
-                }
             return callback
 
         def generate_label_callback(id):
-            def update_label(options):
+            def update_label(value):
                 call_counts[id].value += 1
-                return {'content': options['value']}
+                return value
             return update_label
 
         for chapter in ['chapter1', 'chapter2', 'chapter3']:
-            dash.react(
-                '{}-graph'.format(chapter),
-                ['{}-controls'.format(chapter)]
+            app.callback(
+                Output('{}-graph'.format(chapter), 'figure'),
+                [Input('{}-controls'.format(chapter), 'value')]
             )(generate_graph_callback('{}-graph'.format(chapter)))
 
-            dash.react(
-                '{}-label'.format(chapter),
-                ['{}-controls'.format(chapter)]
+            app.callback(
+                Output('{}-label'.format(chapter), 'content'),
+                [Input('{}-controls'.format(chapter), 'value')]
             )(generate_label_callback('{}-label'.format(chapter)))
 
-
-        self.startServer(dash)
+        self.startServer(app)
         # import ipdb; ipdb.set_trace()
         wait_for(lambda: call_counts['body'].value == 1)
         wait_for(lambda: call_counts['chapter1-graph'].value == 1)
@@ -675,25 +686,25 @@ class Tests(IntegrationTests):
                 'return window.store.getState().paths'
             )
             self.assertEqual(paths, {
-                'toc': ['props', 'content', 1],
-                'body': ['props', 'content', 2],
+                'toc': ['props', 'content', 0],
+                'body': ['props', 'content', 1],
                 'chapter1-header': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content',
                     'props', 'content', 0
                 ],
                 'chapter1-controls': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content',
                     'props', 'content', 1
                 ],
                 'chapter1-label': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content',
                     'props', 'content', 2
                 ],
                 'chapter1-graph': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content',
                     'props', 'content', 3
                 ]
@@ -720,25 +731,25 @@ class Tests(IntegrationTests):
                 'return window.store.getState().paths'
             )
             self.assertEqual(paths, {
-                'toc': ['props', 'content', 1],
-                'body': ['props', 'content', 2],
+                'toc': ['props', 'content', 0],
+                'body': ['props', 'content', 1],
                 'chapter2-header': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content',
                     'props', 'content', 0
                 ],
                 'chapter2-controls': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content',
                     'props', 'content', 1
                 ],
                 'chapter2-label': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content',
                     'props', 'content', 2
                 ],
                 'chapter2-graph': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content',
                     'props', 'content', 3
                 ]
@@ -766,28 +777,28 @@ class Tests(IntegrationTests):
                 'return window.store.getState().paths'
             )
             self.assertEqual(paths, {
-                'toc': ['props', 'content', 1],
-                'body': ['props', 'content', 2],
+                'toc': ['props', 'content', 0],
+                'body': ['props', 'content', 1],
                 'chapter3-header': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content', 0,
                     'props', 'content',
                     'props', 'content', 0
                 ],
                 'chapter3-label': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content', 0,
                     'props', 'content',
                     'props', 'content', 1
                 ],
                 'chapter3-graph': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content', 0,
                     'props', 'content',
                     'props', 'content', 2
                 ],
                 'chapter3-controls': [
-                    'props', 'content', 2,
+                    'props', 'content', 1,
                     'props', 'content', 0,
                     'props', 'content',
                     'props', 'content', 3
@@ -807,32 +818,34 @@ class Tests(IntegrationTests):
         # TODO - ADD A CHAPTER THAT IS JUST A STRING!
 
     def test_dependencies_on_components_that_dont_exist(self):
-        dash = Dash(__name__)
-        dash.layout = html.Div([
+        app = Dash(__name__)
+        app.layout = html.Div([
             dash_core_components.Input(id='input', value='initial value'),
             html.Div(id='output-1')
         ])
 
         # standard callback
         output_1_call_count = Value('i', 0)
-        @dash.react('output-1', ['input'])
-        def update_output(input):
+
+        @app.callback(Output('output-1', 'content'), [Input('input', 'value')])
+        def update_output(value):
             output_1_call_count.value += 1
-            return {
-                'content': input['value']
-            }
+            return value
 
         # callback for component that doesn't yet exist in the dom
         # in practice, it might get added by some other callback
+        app.config.supress_callback_exceptions = True
         output_2_call_count = Value('i', 0)
-        @dash.react('output-2', ['input'])
-        def update_output_2(input):
-            output_2_call_count.value += 1
-            return {
-                'content': input['value']
-            }
 
-        self.startServer(dash)
+        @app.callback(
+            Output('output-2', 'content'),
+            [Input('input', 'value')]
+        )
+        def update_output_2(value):
+            output_2_call_count.value += 1
+            return value
+
+        self.startServer(app)
 
         wait_for(lambda: self.driver.find_element_by_id('output-1').text
                  == 'initial value')
