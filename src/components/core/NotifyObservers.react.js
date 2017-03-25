@@ -42,6 +42,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
             // Update this component's props
             dispatch(updateProps(payload));
 
+            // Update output components that depend on this input
             dispatch(notifyObservers({id: ownProps.id, props: newProps}));
         }
     }
