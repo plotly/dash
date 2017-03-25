@@ -117,7 +117,7 @@ export const notifyObservers = function(payload) {
          */
         const depOrder = InputGraph.overallOrder();
         outputObservers = sort(
-            (a, b) => depOrder.indexOf(a) - depOrder.indexOf(b),
+            (a, b) => depOrder.indexOf(b) - depOrder.indexOf(a),
             outputObservers
         );
 
