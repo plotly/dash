@@ -91,7 +91,6 @@ function NotifyObserversComponent ({
     if (thisComponentTriggersEvents) {
         extraProps.fireEvent = fireEvent;
     }
-    console.warn('extraProps: ', extraProps);
     if (!isEmpty(extraProps)) {
         return React.cloneElement(children, extraProps);
     } else {

@@ -44,9 +44,6 @@ class UnconnectedContainer extends Component {
         }
 
         if (isEmpty(dependenciesRequest)) {
-            console.warn(
-                `GET dependencies: ${JSON.stringify(dependenciesRequest)}`
-            );
             dispatch(getDependencies());
         } else if (dependenciesRequest.status === 200) {
             if (isEmpty(graphs)) {
