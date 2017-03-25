@@ -364,7 +364,6 @@ class Dash(object):
                 output.component_id
             ))
 
-
     # TODO - Update nomenclature.
     # "Parents" and "Children" should refer to the DOM tree
     # and not the dependency tree.
@@ -447,7 +446,6 @@ class Dash(object):
             ][0])
 
         return self.react_map[target_id]['callback'](*args)
-
 
     def _setup_server(self):
         self._generate_scripts_html()
