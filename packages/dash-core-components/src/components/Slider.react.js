@@ -20,6 +20,7 @@ export default class Slider extends Component {
 }
 
 Slider.propTypes = {
+    id: PropTypes.string,
     /**
      * Additional CSS class for the root DOM node
      */

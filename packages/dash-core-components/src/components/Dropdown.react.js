@@ -45,16 +45,13 @@ export default class Dropdown extends Component {
 }
 
 Dropdown.propTypes = {
+    id: PropTypes.string,
+
     className: PropTypes.string,
     /**
      * If true, the option is disabled
      */
     disabled: PropTypes.bool,
-
-    /**
-     * The id of the component
-     */
-    id: PropTypes.string,
 
     /**
      * If true, the user can select multiple values

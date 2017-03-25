@@ -52,6 +52,7 @@ export default class Interval extends Component {
 }
 
 Interval.propTypes = {
+    id: PropTypes.string,
     /**
      * This component will fire an event every `interval`
      * milliseconds with the event name `setInterval`

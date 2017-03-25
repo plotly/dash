@@ -46,6 +46,7 @@ export default function RadioItems(props) {
 }
 
 RadioItems.propTypes = {
+    id: PropTypes.string,
     /**
      * The style of the <input> radio element
      */
@@ -92,7 +93,7 @@ RadioItems.propTypes = {
      */
     setProps: PropTypes.func,
 
-    dashEvents: PropTypes.oneOf(['change'])    
+    dashEvents: PropTypes.oneOf(['change'])
 };
 
 RadioItems.defaultProps = {

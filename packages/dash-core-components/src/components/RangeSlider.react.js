@@ -21,6 +21,7 @@ export default class RangeSlider extends Component {
 }
 
 RangeSlider.propTypes = {
+    id: PropTypes.string,
     /**
      * allowCross could be set as true to allow those handles to cross.
      */

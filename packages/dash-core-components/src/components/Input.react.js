@@ -42,6 +42,7 @@ export default class Input extends Component {
 }
 
 Input.propTypes = {
+    id: PropTypes.string,
     /**
      * The value of the input
      */
@@ -70,11 +71,6 @@ Input.propTypes = {
      * The class of the input element
      */
     className: PropTypes.string,
-
-    /**
-     * The id of the input element
-     */
-    id: PropTypes.string,
 
     /**
      * The type of control to render.

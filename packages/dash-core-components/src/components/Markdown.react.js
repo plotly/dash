@@ -16,6 +16,7 @@ function DashMarkdown (props) {
 }
 
 DashMarkdown.propTypes = {
+    id: PropTypes.string,
     /**
      * Class name of the container element
      */

@@ -25,6 +25,7 @@ export default function SyntaxHighlighter(props) {
 
 
 SyntaxHighlighter.propTypes = {
+    id: PropTypes.string,
     /**
      * The text to display and highlight
      */
