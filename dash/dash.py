@@ -263,6 +263,8 @@ class Dash(object):
                 Attempting to assign a callback to the application but
                 the `layout` property has not been assigned.
                 Assign the `layout` property before assigning callbacks.
+                Alternatively, supress this warning by setting
+                `app.config.supress_callback_exceptions=True`
             '''.replace('    ', ''))
 
         for args, object, name in [([output], Output, 'Output'),
