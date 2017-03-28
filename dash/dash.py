@@ -75,6 +75,12 @@ class Dash(object):
     def layout(self):
         return self._layout
 
+    def _layout_value(self):
+        if callable(self._layout):
+            return self._layout()
+        else:
+            return self._layout
+
     @layout.setter
     def layout(self, value):
         if not isinstance(value, Component) and not callable(value):
@@ -95,10 +101,7 @@ class Dash(object):
         )
 
     def serve_layout(self):
-        if callable(self.layout):
-            layout = self.layout()
-        else:
-            layout = self.layout
+        layout = self._layout_value()
 
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
@@ -251,7 +254,9 @@ class Dash(object):
             'so make sure to call `help(app.callback)` to learn more.')
 
     def _validate_callback(self, output, inputs, state, events):
-        if self.layout is None:
+        layout = self._layout_value()
+        if (layout is None and
+                not self.config.supress_callback_exceptions):
             # Without a layout, we can't do validation on the IDs and
             # properties of the elements in the callback.
             raise exceptions.LayoutIsNotDefined('''
@@ -280,9 +285,9 @@ class Dash(object):
                             name.lower(), str(arg), name
                         ))
 
-                if (arg.component_id not in self.layout and
-                        arg.component_id != getattr(self.layout, 'id', None)
-                        and not self.config.supress_callback_exceptions):
+                if (not self.config.supress_callback_exceptions and
+                        arg.component_id not in layout and
+                        arg.component_id != getattr(layout, 'id', None)):
                     raise exceptions.NonExistantIdException('''
                         Attempting to assign a callback to the
                         component with the id "{}" but no
