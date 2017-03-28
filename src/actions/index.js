@@ -253,6 +253,18 @@ export const notifyObservers = function(payload) {
                     )
                 ));
 
+                /*
+                 * it's possible that this output item is no longer visible.
+                 * for example, the could still be request running when
+                 * the user switched the chapter
+                 *
+                 * if it's not visible, then ignore the rest of the updates
+                 * to the store
+                 */
+                if (!has(outputComponentId, getState().paths)) {
+                    return;
+                }
+
                 // and update the props of the component
                 const observerUpdatePayload = {
                     itempath: getState().paths[outputComponentId],

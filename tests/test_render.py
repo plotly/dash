@@ -524,6 +524,7 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_radio_buttons_callbacks_generating_content(self):
+        self.maxDiff = 100 * 1000
         app = Dash(__name__)
         app.layout = html.Div([
             dcc.RadioItems(
@@ -638,6 +639,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
+        time.sleep(0.5)
         wait_for(lambda: call_counts['body'].value == 1)
         wait_for(lambda: call_counts['chapter1-graph'].value == 1)
         wait_for(lambda: call_counts['chapter1-label'].value == 1)
@@ -817,26 +819,26 @@ class Tests(IntegrationTests):
         (self.driver.find_elements_by_css_selector(
             'input[type="radio"]'
         )[3]).click()
+        wait_for(lambda: (
+            self.driver.find_element_by_id('body').text ==
+            'Just a string'
+        ))
         # each element should exist in the dom
         paths = self.driver.execute_script(
             'return window.store.getState().paths'
         )
-
         for key in paths:
             self.driver.find_element_by_id(key)
         self.assertEqual(paths, {
             'toc': ['props', 'content', 0],
             'body': ['props', 'content', 1]
         })
-        self.assertEqual(
-            self.driver.find_element_by_id('body').text,
-            'Just a string'
-        )
 
         # switch back to 1
         (self.driver.find_elements_by_css_selector(
             'input[type="radio"]'
         )[0]).click()
+        time.sleep(0.5)
         chapter1_assertions()
 
     def test_dependencies_on_components_that_dont_exist(self):
@@ -1112,3 +1114,111 @@ class Tests(IntegrationTests):
         self.assertEqual(input1().get_attribute('value'), u'input 1x')
         self.assertEqual(input2().get_attribute('value'), u'<<input 1x>>y')
         self.assertEqual(output().text, 'input 1x + <<input 1x>>y')
+
+    def test_removing_component_while_its_getting_updated(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            dcc.RadioItems(
+                id='toc',
+                options=[
+                    {'label': i, 'value': i} for i in ['1', '2']
+                ],
+                value='1'
+            ),
+            html.Div(id='body')
+        ])
+        app.config.supress_callback_exceptions = True
+
+        call_counts = {
+            'body': Value('i', 0),
+            'button-output': Value('i', 0)
+        }
+
+        @app.callback(Output('body', 'content'), [Input('toc', 'value')])
+        def update_body(chapter):
+            call_counts['body'].value += 1
+            if chapter == '1':
+                return [
+                    html.Div('Chapter 1'),
+                    html.Button(
+                        'clicking this button takes forever',
+                        id='button'
+                    ),
+                    html.Div(id='button-output')
+                ]
+            elif chapter == '2':
+                return 'Chapter 2'
+            else:
+                raise Exception('chapter is {}'.format(chapter))
+
+        @app.callback(
+            Output('button-output', 'content'),
+            events=[Event('button', 'click')])
+        def this_callback_takes_forever():
+            time.sleep(5)
+            call_counts['button-output'].value += 1
+            return 'New value!'
+
+        body = lambda: self.driver.find_element_by_id('body')
+        self.startServer(app)
+
+        wait_for(lambda: call_counts['body'].value == 1)
+        time.sleep(0.5)
+        self.driver.find_element_by_id('button').click()
+
+        # while that callback is resolving, switch the chapter,
+        # hiding the `button-output` tag
+        def chapter2_assertions():
+            wait_for(lambda: body().text == 'Chapter 2')
+            self.assertEqual(
+                self.driver.execute_script(
+                    'return JSON.parse(JSON.stringify('
+                    'window.store.getState().layout'
+                    '))'
+                ),
+                {
+                    "namespace": "dash_html_components",
+                    "type": "Div",
+                    "props": {
+                        "content": [
+                            {
+                                "namespace": "dash_core_components",
+                                "type": "RadioItems",
+                                "props": {
+                                    "value": "2",
+                                    "options": app.layout['toc'].options,
+                                    "id": app.layout['toc'].id,
+                                }
+                            },
+                            {
+                                "namespace": "dash_html_components",
+                                "type": "Div",
+                                "props": {
+                                    "id": "body",
+                                    "content": "Chapter 2"
+                                }
+                            }
+                        ]
+                    }
+                }
+            )
+            self.assertEqual(
+                self.driver.execute_script(
+                    'return JSON.parse(JSON.stringify('
+                    'window.store.getState().paths'
+                    '))'
+                ),
+                {
+                    "toc": ["props", "content", 0],
+                    "body": ["props", "content", 1]
+                }
+            )
+        (self.driver.find_elements_by_css_selector(
+            'input[type="radio"]'
+        )[1]).click()
+        chapter2_assertions()
+        time.sleep(5)
+        wait_for(lambda: call_counts['button-output'].value == 1)
+        time.sleep(2)  # liberally wait for the front-end to process request
+        chapter2_assertions()
+        assert_clean_console(self)
