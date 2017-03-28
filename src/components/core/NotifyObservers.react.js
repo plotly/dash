@@ -1,5 +1,5 @@
 import {connect} from 'react-redux';
-import {isEmpty, keys} from 'ramda';
+import {isEmpty} from 'ramda';
 import {notifyObservers, updateProps} from '../../actions';
 import React, {PropTypes} from 'react';
 

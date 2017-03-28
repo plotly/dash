@@ -42,11 +42,15 @@ export default function render(component) {
     }
 
     if (!component.type) {
+        /* eslint-disable no-console */
         console.error(R.type(component), component);
+        /* eslint-enable no-console */
         throw new Error('component.type is undefined');
     }
     if (!component.namespace) {
+        /* eslint-disable no-console */
         console.error(R.type(component), component);
+        /* eslint-enable no-console */
         throw new Error('component.namespace is undefined');
     }
     const element = Registry.resolve(component.type, component.namespace);
