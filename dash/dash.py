@@ -19,7 +19,7 @@ class Dash(object):
         self.url_namespace = url_namespace
 
         # list of dependencies
-        self.react_map = {}
+        self.callback_map = {}
 
         # allow users to supply their own flask server
         if server is not None:
@@ -56,7 +56,7 @@ class Dash(object):
         # For example: POST dash.com/components/my-id/update
         self.server.add_url_rule(
             '{}/update-component'.format(url_namespace),
-            view_func=self.interceptor,
+            view_func=self.dispatch,
             methods=['POST'])
 
         self.server.add_url_rule(
@@ -241,7 +241,7 @@ class Dash(object):
                 'inputs': v['inputs'],
                 'state': v['state'],
                 'events': v['events']
-            } for k, v in self.react_map.iteritems()
+            } for k, v in self.callback_map.iteritems()
         ])
 
     def react(self, *args, **kwargs):
@@ -297,18 +297,18 @@ class Dash(object):
                     '''.format(
                         arg.component_id,
                         arg.component_id,
-                        self.layout.keys() + (
-                            [] if not hasattr(self.layout, 'id') else
-                            [self.layout.id]
+                        layout.keys() + (
+                            [] if not hasattr(layout, 'id') else
+                            [layout.id]
                         )
                     ).replace('    ', ''))
 
                 if not self.config.supress_callback_exceptions:
 
-                    if getattr(self.layout, 'id', None) == arg.component_id:
-                        component = self.layout
+                    if getattr(layout, 'id', None) == arg.component_id:
+                        component = layout
                     else:
-                        component = self.layout[arg.component_id]
+                        component = layout[arg.component_id]
 
                     if (hasattr(arg, 'component_property') and
                             arg.component_property not in
@@ -381,7 +381,7 @@ class Dash(object):
         callback_id = '{}.{}'.format(
             output.component_id, output.component_property
         )
-        self.react_map[callback_id] = {
+        self.callback_map[callback_id] = {
             'inputs': [
                 {'id': c.component_id, 'property': c.component_property}
                 for c in inputs
@@ -414,13 +414,13 @@ class Dash(object):
                     mimetype='application/json'
                 )
 
-            self.react_map[callback_id]['callback'] = add_context
+            self.callback_map[callback_id]['callback'] = add_context
 
             return add_context
 
         return wrap_func
 
-    def interceptor(self):
+    def dispatch(self):
         body = json.loads(flask.request.get_data())
         inputs = body.get('inputs', [])
         state = body.get('state', [])
@@ -429,15 +429,15 @@ class Dash(object):
 
         target_id = '{}.{}'.format(output['id'], output['property'])
         args = []
-        for component_registration in self.react_map[target_id]['inputs']:
+        for component_registration in self.callback_map[target_id]['inputs']:
             component_id = component_registration['id']
             args.append([
-                c['value'] for c in inputs if
+                c.get('value', None) for c in inputs if
                 c['property'] == component_registration['property'] and
                 c['id'] == component_registration['id']
             ][0])
 
-        for component_registration in self.react_map[target_id]['state']:
+        for component_registration in self.callback_map[target_id]['state']:
             component_id = component_registration['id']
             args.append([
                 c['value'] for c in state if
@@ -445,7 +445,7 @@ class Dash(object):
                 c['id'] == component_registration['id']
             ][0])
 
-        return self.react_map[target_id]['callback'](*args)
+        return self.callback_map[target_id]['callback'](*args)
 
     def _setup_server(self):
         self._generate_scripts_html()

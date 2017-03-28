@@ -67,7 +67,7 @@ class IntegrationTest(unittest.TestCase):
 
     @unittest.skip("")
     def test_dependencies_route(self):
-        self.app.react('header', ['id1'])
+        self.app.callback('header', ['id1'])
         response = self.client.get('/dependencies')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -79,7 +79,7 @@ class IntegrationTest(unittest.TestCase):
             }
         )
 
-        self.app.react('header',
+        self.app.callback('header',
                        state=[{'id': 'id1'}],
                        events=[{'id': 'id1'}])
         response = self.client.get('/dependencies')
@@ -106,7 +106,7 @@ class IntegrationTest(unittest.TestCase):
              {'id': 'id1', 'event': 'click'},
              {'id': 'id1', 'event': 'submit'}
          ]
-        self.app.react('header', state=state, events=events)
+        self.app.callback('header', state=state, events=events)
         response = self.client.get('/dependencies')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -125,7 +125,7 @@ class IntegrationTest(unittest.TestCase):
 
     @unittest.skip("")
     def test_single_observer_returning_a_dict(self):
-        @self.app.react('header', ['id1'])
+        @self.app.callback('header', ['id1'])
         def update_header(input1):
             self.assertEqual({'value': 'New Value'}, input1)
             new_value = input1['value']
@@ -175,7 +175,7 @@ class IntegrationTest(unittest.TestCase):
 
     @unittest.skip("")
     def test_single_observer_returning_a_component(self):
-        @self.app.react('header', ['id1'])
+        @self.app.callback('header', ['id1'])
         def update_header(input1):
             self.assertEqual({'value': 'New Value'}, input1)
             new_value = input1['value']
@@ -227,7 +227,7 @@ class IntegrationTest(unittest.TestCase):
         # It's possible to register callbacks for components that don't
         # exist in the initial layout because users could add them as
         # children in response to another callback
-        @self.app.react('doesnt-exist-yet', ['id1'])
+        @self.app.callback('doesnt-exist-yet', ['id1'])
         def update_header(input1):
             self.assertEqual({
                 'value': 'New Value'
@@ -273,7 +273,7 @@ class IntegrationTest(unittest.TestCase):
 
     @unittest.skip("")
     def test_single_observer_with_multiple_controllers(self):
-        @self.app.react('header', ['id1', 'id2'])
+        @self.app.callback('header', ['id1', 'id2'])
         def update_header(input1, input2):
             self.assertEqual({
                 'value': 'New Value'
