@@ -2,7 +2,7 @@ from dash import Dash
 from dash.dependencies import Input, Output, State, Event
 import dash
 import dash_html_components as html
-import dash_core_components
+import dash_core_components as dcc
 from IntegrationTests import IntegrationTests
 import mock
 from utils import assert_clean_console, wait_for
@@ -362,14 +362,14 @@ class Tests(IntegrationTests):
         )
 
         # Take a screenshot with percy
-        # self.percy_runner.snapshot(name='dash_core_components')
+        # self.percy_runner.snapshot(name='dcc')
 
         assert_clean_console(self)
 
     def test_simple_callback(self):
         app = Dash(__name__)
         app.layout = html.Div([
-            dash_core_components.Input(
+            dcc.Input(
                 id='input',
                 value='initial value'
             ),
@@ -429,7 +429,7 @@ class Tests(IntegrationTests):
 
         app = Dash(__name__)
         app.layout = html.Div([
-            dash_core_components.Input(
+            dcc.Input(
                 id='input',
                 value='initial value'
             ),
@@ -439,7 +439,7 @@ class Tests(IntegrationTests):
         @app.callback(Output('output', 'content'), [Input('input', 'value')])
         def pad_output(input):
             return html.Div([
-                dash_core_components.Input(
+                dcc.Input(
                     id='sub-input-1',
                     value='sub input initial value'
                 ),
@@ -526,30 +526,31 @@ class Tests(IntegrationTests):
     def test_radio_buttons_callbacks_generating_content(self):
         app = Dash(__name__)
         app.layout = html.Div([
-            dash_core_components.RadioItems(
+            dcc.RadioItems(
                 options=[
                     {'label': 'Chapter 1', 'value': 'chapter1'},
                     {'label': 'Chapter 2', 'value': 'chapter2'},
-                    {'label': 'Chapter 3', 'value': 'chapter3'}
+                    {'label': 'Chapter 3', 'value': 'chapter3'},
+                    {'label': 'Chapter 4', 'value': 'chapter4'}
                 ],
                 value='chapter1',
                 id='toc'
             ),
             html.Div(id='body')
         ])
-        for script in dash_core_components._js_dist:
+        for script in dcc._js_dist:
             app.scripts.append_script(script)
 
         chapters = {
             'chapter1': html.Div([
                 html.H1('Chapter 1', id='chapter1-header'),
-                dash_core_components.Dropdown(
+                dcc.Dropdown(
                     options=[{'label': i, 'value': i} for i in ['NYC', 'MTL', 'SF']],
                     value='NYC',
                     id='chapter1-controls'
                 ),
                 html.Label(id='chapter1-label'),
-                dash_core_components.Graph(id='chapter1-graph')
+                dcc.Graph(id='chapter1-graph')
             ]),
             # Chapter 2 has the some of the same components in the same order
             # as Chapter 1. This means that they won't get remounted
@@ -558,14 +559,14 @@ class Tests(IntegrationTests):
             # tests how components update when they aren't remounted.
             'chapter2': html.Div([
                 html.H1('Chapter 2', id='chapter2-header'),
-                dash_core_components.RadioItems(
+                dcc.RadioItems(
                     options=[{'label': i, 'value': i}
                              for i in ['USA', 'Canada']],
                     value='USA',
                     id='chapter2-controls'
                 ),
                 html.Label(id='chapter2-label'),
-                dash_core_components.Graph(id='chapter2-graph')
+                dcc.Graph(id='chapter2-graph')
             ]),
             # Chapter 3 has a different layout and so the components
             # should get rewritten
@@ -573,15 +574,19 @@ class Tests(IntegrationTests):
                 html.Div([
                     html.H3('Chapter 3', id='chapter3-header'),
                     html.Label(id='chapter3-label'),
-                    dash_core_components.Graph(id='chapter3-graph'),
-                    dash_core_components.RadioItems(
+                    dcc.Graph(id='chapter3-graph'),
+                    dcc.RadioItems(
                         options=[{'label': i, 'value': i}
                                  for i in ['Summer', 'Winter']],
                         value='Winter',
                         id='chapter3-controls'
                     )
                 ])
-            )]
+            )],
+
+            # Chapter 4 doesn't have an object to recursively
+            # traverse
+            'chapter4': 'Just a string'
         }
 
         call_counts = {
@@ -632,7 +637,7 @@ class Tests(IntegrationTests):
             )(generate_label_callback('{}-label'.format(chapter)))
 
         self.startServer(app)
-        # import ipdb; ipdb.set_trace()
+
         wait_for(lambda: call_counts['body'].value == 1)
         wait_for(lambda: call_counts['chapter1-graph'].value == 1)
         wait_for(lambda: call_counts['chapter1-label'].value == 1)
@@ -808,19 +813,36 @@ class Tests(IntegrationTests):
 
         chapter3_assertions()
 
+        # switch to 4
+        (self.driver.find_elements_by_css_selector(
+            'input[type="radio"]'
+        )[3]).click()
+        # each element should exist in the dom
+        paths = self.driver.execute_script(
+            'return window.store.getState().paths'
+        )
+
+        for key in paths:
+            self.driver.find_element_by_id(key)
+        self.assertEqual(paths, {
+            'toc': ['props', 'content', 0],
+            'body': ['props', 'content', 1]
+        })
+        self.assertEqual(
+            self.driver.find_element_by_id('body').text,
+            'Just a string'
+        )
+
         # switch back to 1
         (self.driver.find_elements_by_css_selector(
             'input[type="radio"]'
         )[0]).click()
         chapter1_assertions()
 
-        ## HEY!!! WELCOME BACK!!
-        # TODO - ADD A CHAPTER THAT IS JUST A STRING!
-
     def test_dependencies_on_components_that_dont_exist(self):
         app = Dash(__name__)
         app.layout = html.Div([
-            dash_core_components.Input(id='input', value='initial value'),
+            dcc.Input(id='input', value='initial value'),
             html.Div(id='output-1')
         ])
 
@@ -870,3 +892,223 @@ class Tests(IntegrationTests):
         )
 
         assert_clean_console(self)
+
+    def test_events(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            html.Button('Click Me', id='button'),
+            html.Div(id='output')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(Output('output', 'content'),
+                      events=[Event('button', 'click')])
+        def update_output():
+            call_count.value += 1
+            return 'Click'
+
+        self.startServer(app)
+        btn = self.driver.find_element_by_id('button')
+        output = lambda: self.driver.find_element_by_id('output')
+        self.assertEqual(call_count.value, 0)
+        self.assertEqual(output().text, '')
+
+        btn.click()
+        wait_for(lambda: output().text == 'Click')
+        self.assertEqual(call_count.value, 1)
+
+    def test_events_and_state(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            html.Button('Click Me', id='button'),
+            dcc.Input(value='Initial State', id='state'),
+            html.Div(id='output')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(Output('output', 'content'),
+                      state=[State('state', 'value')],
+                      events=[Event('button', 'click')])
+        def update_output(value):
+            call_count.value += 1
+            return value
+
+        self.startServer(app)
+        btn = self.driver.find_element_by_id('button')
+        output = lambda: self.driver.find_element_by_id('output')
+
+        self.assertEqual(call_count.value, 0)
+        self.assertEqual(output().text, '')
+
+        btn.click()
+        wait_for(lambda: output().text == 'Initial State')
+        self.assertEqual(call_count.value, 1)
+
+        # Changing state shouldn't fire the callback
+        state = self.driver.find_element_by_id('state')
+        state.send_keys('x')
+        time.sleep(0.75)
+        self.assertEqual(output().text, 'Initial State')
+        self.assertEqual(call_count.value, 1)
+
+        btn.click()
+        wait_for(lambda: output().text == 'Initial Statex')
+        self.assertEqual(call_count.value, 2)
+
+    def test_events_state_and_inputs(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            html.Button('Click Me', id='button'),
+            dcc.Input(value='Initial Input', id='input'),
+            dcc.Input(value='Initial State', id='state'),
+            html.Div(id='output')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(Output('output', 'content'),
+                      inputs=[Input('input', 'value')],
+                      state=[State('state', 'value')],
+                      events=[Event('button', 'click')])
+        def update_output(input, state):
+            call_count.value += 1
+            return 'input="{}", state="{}"'.format(input, state)
+
+        self.startServer(app)
+        btn = lambda: self.driver.find_element_by_id('button')
+        output = lambda: self.driver.find_element_by_id('output')
+        input = lambda: self.driver.find_element_by_id('input')
+        state = lambda: self.driver.find_element_by_id('state')
+
+        # callback gets called with initial input
+        self.assertEqual(call_count.value, 1)
+        self.assertEqual(
+            output().text,
+            'input="Initial Input", state="Initial State"'
+        )
+
+        btn().click()
+        wait_for(lambda: call_count.value == 2)
+        self.assertEqual(
+            output().text,
+            'input="Initial Input", state="Initial State"')
+
+        input().send_keys('x')
+        wait_for(lambda: call_count.value == 3)
+        self.assertEqual(
+            output().text,
+            'input="Initial Inputx", state="Initial State"')
+
+        state().send_keys('x')
+        time.sleep(0.75)
+        self.assertEqual(call_count.value, 3)
+        self.assertEqual(
+            output().text,
+            'input="Initial Inputx", state="Initial State"')
+
+        btn().click()
+        wait_for(lambda: call_count.value == 4)
+        self.assertEqual(
+            output().text,
+            'input="Initial Inputx", state="Initial Statex"')
+
+    def test_state_and_inputs(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(value='Initial Input', id='input'),
+            dcc.Input(value='Initial State', id='state'),
+            html.Div(id='output')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(Output('output', 'content'),
+                      inputs=[Input('input', 'value')],
+                      state=[State('state', 'value')])
+        def update_output(input, state):
+            call_count.value += 1
+            return 'input="{}", state="{}"'.format(input, state)
+
+        self.startServer(app)
+        output = lambda: self.driver.find_element_by_id('output')
+        input = lambda: self.driver.find_element_by_id('input')
+        state = lambda: self.driver.find_element_by_id('state')
+
+        # callback gets called with initial input
+        self.assertEqual(call_count.value, 1)
+        self.assertEqual(
+            output().text,
+            'input="Initial Input", state="Initial State"'
+        )
+
+        input().send_keys('x')
+        wait_for(lambda: call_count.value == 2)
+        self.assertEqual(
+            output().text,
+            'input="Initial Inputx", state="Initial State"')
+
+        state().send_keys('x')
+        time.sleep(0.75)
+        self.assertEqual(call_count.value, 2)
+        self.assertEqual(
+            output().text,
+            'input="Initial Inputx", state="Initial State"')
+
+        input().send_keys('y')
+        wait_for(lambda: call_count.value == 3)
+        self.assertEqual(
+            output().text,
+            'input="Initial Inputxy", state="Initial Statex"')
+
+    def test_chained_dependencies(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(id='input-1', value='input 1'),
+            dcc.Input(id='input-2'),
+            html.Div('test', id='output')
+        ])
+        input1 = lambda: self.driver.find_element_by_id('input-1')
+        input2 = lambda: self.driver.find_element_by_id('input-2')
+        output = lambda: self.driver.find_element_by_id('output')
+
+        call_counts = {
+            'output': Value('i', 0),
+            'input-2': Value('i', 0)
+        }
+
+        @app.callback(Output('input-2', 'value'), [Input('input-1', 'value')])
+        def update_input(input1):
+            call_counts['input-2'].value += 1
+            return '<<{}>>'.format(input1)
+
+        @app.callback(Output('output', 'content'), [
+            Input('input-1', 'value'),
+            Input('input-2', 'value')
+        ])
+        def update_output(input1, input2):
+            call_counts['output'].value += 1
+            return '{} + {}'.format(input1, input2)
+
+        self.startServer(app)
+
+        wait_for(lambda: call_counts['output'].value == 1)
+        wait_for(lambda: call_counts['input-2'].value == 1)
+        self.assertEqual(input1().get_attribute('value'), u'input 1')
+        self.assertEqual(input2().get_attribute('value'), u'<<input 1>>')
+        self.assertEqual(output().text, 'input 1 + <<input 1>>')
+
+        input1().send_keys('x')
+        wait_for(lambda: call_counts['output'].value == 2)
+        wait_for(lambda: call_counts['input-2'].value == 2)
+        self.assertEqual(input1().get_attribute('value'), u'input 1x')
+        self.assertEqual(input2().get_attribute('value'), u'<<input 1x>>')
+        self.assertEqual(output().text, 'input 1x + <<input 1x>>')
+
+        input2().send_keys('y')
+        wait_for(lambda: call_counts['output'].value == 3)
+        wait_for(lambda: call_counts['input-2'].value == 2)
+        self.assertEqual(input1().get_attribute('value'), u'input 1x')
+        self.assertEqual(input2().get_attribute('value'), u'<<input 1x>>y')
+        self.assertEqual(output().text, 'input 1x + <<input 1x>>y')
