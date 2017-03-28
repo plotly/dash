@@ -40,11 +40,18 @@ export const hydrateInitialOutputs = function() {
     return function (dispatch, getState) {
         const {graphs} = getState();
         const {InputGraph} = graphs;
-        InputGraph.overallOrder().forEach(nodeId => {
+        const allNodes = InputGraph.overallOrder();
+        allNodes.reverse();
+        allNodes.forEach(nodeId => {
             const [componentId, componentProp] = nodeId.split('.');
 
-            // Filter out the outputs and the invisible inputs
+            /*
+             * Filter out the outputs,
+             * inputs that aren't leaves,
+             * and the invisible inputs
+             */
             if (InputGraph.dependenciesOf(nodeId).length > 0 &&
+                InputGraph.dependantsOf(nodeId).length == 0 &&
                 has(componentId, getState().paths)
             ) {
 
@@ -120,7 +127,8 @@ export const notifyObservers = function(payload) {
             (a, b) => depOrder.indexOf(b) - depOrder.indexOf(a),
             outputObservers
         );
-        outputObservers = outputObservers.filter(function filterObservers(outputIdAndProp) {
+        const queuedObservers = [];
+        outputObservers.forEach(function filterObservers(outputIdAndProp) {
             const outputComponentId = outputIdAndProp.split('.')[0];
             /*
              * before we make the POST, check that none of its input
@@ -131,21 +139,23 @@ export const notifyObservers = function(payload) {
              * component to update.
              *
              * for example, if A updates B and C (A -> [B, C]) and B updates C
-             * (B -> C), then when A updates, the requestQueue becomes
-             * [B, C] we can't update C until B is done updating.
-             * in this scenario, B is before C from the
-             * overallOrder, so it'll get set in the requestQueue before C.
+             * (B -> C), then when A updates, this logic will
+             * reject C from the queue since it will end up getting updated
+             * by B.
              *
+             * in this case, B will already be in queuedObservers by the time
+             * this loop hits C because of the overallOrder sorting logic
              */
+
             const controllersInQueue = intersection(
-                getState().requestQueue,
+                queuedObservers,
 
                 /*
                  * if the output just listens to events, then it won't be in
                  * the InputGraph
                  */
-                InputGraph.hasNode(outputIdAndProp) &&
-                InputGraph.dependantsOf(outputIdAndProp)
+                InputGraph.hasNode(outputIdAndProp) ?
+                InputGraph.dependantsOf(outputIdAndProp) : []
             );
 
             /*
@@ -155,20 +165,22 @@ export const notifyObservers = function(payload) {
              * of a controller change.
              * for example, perhaps the user has hidden one of the observers
              */
-             return (
+             if (
                  (controllersInQueue.length === 0) &&
                  (has(outputComponentId, getState().paths))
-             );
+             ) {
+                 queuedObservers.push(outputIdAndProp)
+             }
         });
         /*
          * record the set of output IDs that will eventually need to be
          * updated in a queue. not all of these requests will be fired in this
          * action
          */
-        dispatch(setRequestQueue(union(outputObservers, requestQueue)));
+        dispatch(setRequestQueue(union(queuedObservers, requestQueue)));
 
-        for (let i = 0; i < outputObservers.length; i++) {
-            const outputIdAndProp = outputObservers[i];
+        for (let i = 0; i < queuedObservers.length; i++) {
+            const outputIdAndProp = queuedObservers[i];
             const [outputComponentId, outputProp] = outputIdAndProp.split('.');
 
             /*
@@ -255,16 +267,11 @@ export const notifyObservers = function(payload) {
                 }));
 
                 /*
-                 * If the response includes content which includes or
-                 * or removes items with IDs, then we need to update our
+                 * If the response includes content, then we need to update our
                  * paths store.
                  * TODO - Do we need to wait for updateProps to finish?
                  */
-                if (contains(
-                        type(observerUpdatePayload.props.content),
-                        ['Array', 'Object']
-                    ) && !isEmpty(observerUpdatePayload.props.content)
-                ) {
+                if (has('content', observerUpdatePayload.props)) {
 
                     dispatch(computePaths({
                         subTree: observerUpdatePayload.props.content,
@@ -275,48 +282,54 @@ export const notifyObservers = function(payload) {
                     }));
 
                     /*
-                     * And then we need to dispatch
-                     * an initialization propChange for all
-                     *  of _these_ components!
-                     * TODO: We're just naively crawling
-                     * the _entire_ layout to recompute the
-                     * the dependency graphs.
-                     * We don't need to do this - just need
-                     * to compute the subtree
+                     * if content contains objects with IDs, then we
+                     * need to dispatch a propChange for all of these
+                     * new children components
                      */
-                    const newProps = [];
-                    crawlLayout(
-                        observerUpdatePayload.props.content,
-                        function appendIds(child) {
-                            if (hasId(child)) {
-                                keys(child.props).forEach(childProp => {
-                                    const inputId = (
-                                        `${child.props.id}.${childProp}`
-                                    );
-                                    if (has(inputId, InputGraph.nodes)) {
-                                        newProps.push({
-                                            id: child.props.id,
-                                            props: {
-                                                [childProp]: child.props[childProp]
-                                            }
-                                        });
-                                    }
-                                })
+                    if (contains(
+                            type(observerUpdatePayload.props.content),
+                            ['Array', 'Object']
+                        ) && !isEmpty(observerUpdatePayload.props.content)
+                    ) {
+                        /*
+                         * TODO: We're just naively crawling
+                         * the _entire_ layout to recompute the
+                         * the dependency graphs.
+                         * We don't need to do this - just need
+                         * to compute the subtree
+                         */
+                        const newProps = [];
+                        crawlLayout(
+                            observerUpdatePayload.props.content,
+                            function appendIds(child) {
+                                if (hasId(child)) {
+                                    keys(child.props).forEach(childProp => {
+                                        const inputId = (
+                                            `${child.props.id}.${childProp}`
+                                        );
+                                        if (has(inputId, InputGraph.nodes)) {
+                                            newProps.push({
+                                                id: child.props.id,
+                                                props: {
+                                                    [childProp]: child.props[childProp]
+                                                }
+                                            });
+                                        }
+                                    })
+                                }
                             }
-                        }
-                    );
+                        );
 
-                    // TODO - We might need to reset the
-                    // request queue here.
-                    const depOrder = InputGraph.overallOrder();
-                    const sortedNewProps = sort((a, b) =>
-                        depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
-                        newProps
-                    )
-                    sortedNewProps.forEach(function(propUpdate) {
-                        dispatch(notifyObservers(propUpdate));
-                    });
+                        const depOrder = InputGraph.overallOrder();
+                        const sortedNewProps = sort((a, b) =>
+                            depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
+                            newProps
+                        )
+                        sortedNewProps.forEach(function(propUpdate) {
+                            dispatch(notifyObservers(propUpdate));
+                        });
 
+                    }
                 }
 
 
