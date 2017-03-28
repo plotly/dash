@@ -6,8 +6,6 @@ const Img = (props) => {
         return (
             <img
                 onClick={() => props.fireEvent({event: 'click'})}
-                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
@@ -28,6 +26,11 @@ Img.propTypes = {
      * Alternative text in case an image can't be displayed.
      */
     'alt': PropTypes.string,
+
+    /**
+     * How the element handles cross-origin requests
+     */
+    'crossOrigin': PropTypes.string,
 
     /**
      * Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
@@ -136,7 +139,7 @@ Img.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
+    'dashEvents': PropTypes.oneOf(['click'])
     
 };
 

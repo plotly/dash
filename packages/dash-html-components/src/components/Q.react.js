@@ -6,8 +6,6 @@ const Q = (props) => {
         return (
             <q
                 onClick={() => props.fireEvent({event: 'click'})}
-                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
@@ -106,7 +104,7 @@ Q.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
+    'dashEvents': PropTypes.oneOf(['click'])
     
 };
 

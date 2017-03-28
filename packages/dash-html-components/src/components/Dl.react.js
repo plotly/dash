@@ -6,8 +6,6 @@ const Dl = (props) => {
         return (
             <dl
                 onClick={() => props.fireEvent({event: 'click'})}
-                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
@@ -101,7 +99,7 @@ Dl.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
+    'dashEvents': PropTypes.oneOf(['click'])
     
 };
 

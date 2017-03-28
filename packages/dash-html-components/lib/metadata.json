@@ -164,14 +164,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -295,14 +287,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -428,14 +412,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -559,14 +535,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -698,14 +666,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -894,14 +854,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -1025,14 +977,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -1158,14 +1102,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -1191,6 +1127,13 @@
         },
         "required": false,
         "description": "Indicates whether the browser should show playback controls to the user."
+      },
+      "crossOrigin": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "How the element handles cross-origin requests"
       },
       "loop": {
         "type": {
@@ -1325,14 +1268,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -1456,14 +1391,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -1603,14 +1530,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -1734,14 +1653,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -1867,14 +1778,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -1998,14 +1901,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -2131,14 +2026,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -2263,14 +2150,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -2394,14 +2273,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -2576,14 +2447,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -2722,14 +2585,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -2853,14 +2708,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -2986,14 +2833,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -3118,14 +2957,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -3249,14 +3080,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -3389,14 +3212,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -3527,14 +3342,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -3695,14 +3502,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -3826,14 +3625,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -3959,14 +3750,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -4091,14 +3874,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -4222,14 +3997,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -4369,14 +4136,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -4508,14 +4267,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -4639,14 +4390,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -4772,14 +4515,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -4903,14 +4638,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -5036,14 +4763,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -5167,14 +4886,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -5300,14 +5011,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -5432,14 +5135,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -5563,14 +5258,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -5724,14 +5411,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -5877,14 +5556,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -6008,14 +5679,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -6141,14 +5804,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -6273,14 +5928,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -6404,14 +6051,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -6600,14 +6239,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -6731,14 +6362,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -6864,14 +6487,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -6995,14 +6610,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -7128,14 +6735,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -7259,14 +6858,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -7392,14 +6983,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -7523,14 +7106,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -7656,14 +7231,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -7787,14 +7354,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -7920,14 +7479,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -8052,14 +7603,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -8183,14 +7726,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -8365,14 +7900,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -8391,6 +7918,13 @@
         },
         "required": false,
         "description": "Alternative text in case an image can't be displayed."
+      },
+      "crossOrigin": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "How the element handles cross-origin requests"
       },
       "height": {
         "type": {
@@ -8546,14 +8080,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -8692,14 +8218,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -8824,14 +8342,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -8955,14 +8465,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -9130,14 +8632,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -9276,14 +8770,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -9407,14 +8893,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -9547,14 +9025,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -9567,6 +9037,13 @@
     "description": "",
     "methods": [],
     "props": {
+      "crossOrigin": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "How the element handles cross-origin requests"
+      },
       "href": {
         "type": {
           "name": "string"
@@ -9721,14 +9198,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -9853,14 +9322,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -9984,14 +9445,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -10124,14 +9577,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -10255,14 +9700,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -10395,14 +9832,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -10534,14 +9963,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -10665,14 +10086,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -10847,14 +10260,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -10978,14 +10383,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -11111,14 +10508,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -11242,14 +10631,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -11375,14 +10756,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -11506,14 +10879,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -11681,14 +11046,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -11827,14 +11184,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -11965,14 +11314,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -12119,14 +11460,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -12272,14 +11605,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -12403,14 +11728,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -12550,14 +11867,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -12682,14 +11991,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -12813,14 +12114,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -12967,14 +12260,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -13106,14 +12391,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -13237,14 +12514,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -13370,14 +12639,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -13501,14 +12762,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -13634,14 +12887,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -13765,14 +13010,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -13898,14 +13135,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -13931,6 +13160,13 @@
         },
         "required": false,
         "description": "Declares the character encoding of the page or script."
+      },
+      "crossOrigin": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "How the element handles cross-origin requests"
       },
       "defer": {
         "type": {
@@ -14072,14 +13308,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -14203,14 +13431,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -14385,14 +13605,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -14516,14 +13728,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -14649,14 +13853,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -14780,14 +13976,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -14941,14 +14129,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -15072,14 +14252,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -15205,14 +14377,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -15336,14 +14500,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -15469,14 +14625,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -15600,14 +14748,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -15733,14 +14873,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -15864,14 +14996,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -16004,14 +15128,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -16135,14 +15251,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -16289,14 +15397,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -16420,14 +15520,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -16630,14 +15722,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -16761,14 +15845,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -16922,14 +15998,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -17053,14 +16121,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -17193,14 +16253,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -17325,14 +16377,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -17456,14 +16500,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -17624,14 +16660,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -17755,14 +16783,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -17888,14 +16908,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -18019,14 +17031,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]
@@ -18152,14 +17156,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -18185,6 +17181,13 @@
         },
         "required": false,
         "description": "Indicates whether the browser should show playback controls to the user."
+      },
+      "crossOrigin": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "How the element handles cross-origin requests"
       },
       "height": {
         "type": {
@@ -18347,14 +17350,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -18479,14 +17474,6 @@
             {
               "value": "'click'",
               "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
-              "computed": false
             }
           ]
         },
@@ -18610,14 +17597,6 @@
           "value": [
             {
               "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'mouseEnter'",
-              "computed": false
-            },
-            {
-              "value": "'mouseLeave'",
               "computed": false
             }
           ]

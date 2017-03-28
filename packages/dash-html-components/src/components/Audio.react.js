@@ -6,8 +6,6 @@ const Audio = (props) => {
         return (
             <audio
                 onClick={() => props.fireEvent({event: 'click'})}
-                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
@@ -33,6 +31,11 @@ Audio.propTypes = {
      * Indicates whether the browser should show playback controls to the user.
      */
     'controls': PropTypes.string,
+
+    /**
+     * How the element handles cross-origin requests
+     */
+    'crossOrigin': PropTypes.string,
 
     /**
      * Indicates whether the media should start playing from the start when it's finished.
@@ -126,7 +129,7 @@ Audio.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
+    'dashEvents': PropTypes.oneOf(['click'])
     
 };
 

@@ -6,8 +6,6 @@ const H5 = (props) => {
         return (
             <h5
                 onClick={() => props.fireEvent({event: 'click'})}
-                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
@@ -101,7 +99,7 @@ H5.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
+    'dashEvents': PropTypes.oneOf(['click'])
     
 };
 

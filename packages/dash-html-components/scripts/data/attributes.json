@@ -143,6 +143,16 @@
             ],
             "description": "A set of values specifying the coordinates of the hot-spot region."
         },
+        "crossOrigin": {
+            "elements": [
+                "audio",
+                "img",
+                "link",
+                "script",
+                "video"
+            ],
+            "description": "How the element handles cross-origin requests"
+        },
         "dateTime": {
             "elements": [
                 "del",
@@ -783,6 +793,7 @@
         ],
         "img": [
             "alt",
+            "crossOrigin",
             "height",
             "sizes",
             "src",
@@ -793,6 +804,7 @@
         "script": [
             "async",
             "charSet",
+            "crossOrigin",
             "defer",
             "integrity",
             "src",
@@ -840,6 +852,7 @@
         "audio": [
             "autoPlay",
             "controls",
+            "crossOrigin",
             "loop",
             "preload",
             "src"
@@ -847,6 +860,7 @@
         "video": [
             "autoPlay",
             "controls",
+            "crossOrigin",
             "height",
             "loop",
             "muted",
@@ -892,6 +906,15 @@
             "headers",
             "rowSpan",
             "scope"
+        ],
+        "link": [
+            "crossOrigin",
+            "href",
+            "hrefLang",
+            "integrity",
+            "media",
+            "rel",
+            "sizes"
         ],
         "time": [
             "dateTime"
@@ -978,14 +1001,6 @@
         "base": [
             "href",
             "target"
-        ],
-        "link": [
-            "href",
-            "hrefLang",
-            "integrity",
-            "media",
-            "rel",
-            "sizes"
         ],
         "bgsound": [
             "loop"

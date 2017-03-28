@@ -6,8 +6,6 @@ const Link = (props) => {
         return (
             <link
                 onClick={() => props.fireEvent({event: 'click'})}
-                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
@@ -23,6 +21,11 @@ const Link = (props) => {
 };
 
 Link.propTypes = {
+
+    /**
+     * How the element handles cross-origin requests
+     */
+    'crossOrigin': PropTypes.string,
 
     /**
      * The URL of a linked resource.
@@ -131,7 +134,7 @@ Link.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
+    'dashEvents': PropTypes.oneOf(['click'])
     
 };
 

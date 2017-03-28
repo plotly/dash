@@ -6,8 +6,6 @@ const Script = (props) => {
         return (
             <script
                 onClick={() => props.fireEvent({event: 'click'})}
-                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
@@ -33,6 +31,11 @@ Script.propTypes = {
      * Declares the character encoding of the page or script.
      */
     'charSet': PropTypes.string,
+
+    /**
+     * How the element handles cross-origin requests
+     */
+    'crossOrigin': PropTypes.string,
 
     /**
      * Indicates that the script should be executed after the page has been parsed.
@@ -131,7 +134,7 @@ Script.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
+    'dashEvents': PropTypes.oneOf(['click'])
     
 };
 

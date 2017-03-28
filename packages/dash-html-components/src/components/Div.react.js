@@ -6,8 +6,6 @@ const Div = (props) => {
         return (
             <div
                 onClick={() => props.fireEvent({event: 'click'})}
-                onMouseEnter={() => props.fireEvent({event: 'mouseEnter'})}
-                onMouseLeave={() => props.fireEvent({event: 'mouseLeave'})}
                 {...props}
             >
                 {props.children}
@@ -101,8 +99,8 @@ Div.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click', 'mouseEnter', 'mouseLeave'])
-
+    'dashEvents': PropTypes.oneOf(['click'])
+    
 };
 
 export default Div;
