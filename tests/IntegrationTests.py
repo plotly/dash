@@ -43,7 +43,7 @@ class IntegrationTests(unittest.TestCase):
             dash.run_server(
                 port=8050,
                 debug=False,
-                threaded=True
+                processes=4
             )
 
         # Run on a separate process so that it doesn't block
