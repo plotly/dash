@@ -21,11 +21,11 @@ function mapDispatchToProps (dispatch) {
 
 function mergeProps(stateProps, dispatchProps, ownProps) {
     const {dispatch} = dispatchProps;
-
     return {
         id: ownProps.id,
         children: ownProps.children,
         dependencies: stateProps.dependencies,
+        paths: stateProps.paths,
 
         fireEvent: function fireEvent({event}) {
             // Update this component's observers with the updated props
@@ -52,6 +52,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
 function NotifyObserversComponent ({
     children,
     id,
+    paths,
 
     dependencies,
 
@@ -85,10 +86,18 @@ function NotifyObserversComponent ({
      * or `subscribed_properties` instead of `fireEvent` and `setProps`.
      */
     const extraProps = {};
-    if (thisComponentSharesState) {
+    if (thisComponentSharesState &&
+
+        // there is a bug with graphs right now where
+        // the restyle listener gets assigned with a
+        // setProps function that was created before
+        // the item was added. only pass in setProps
+        // if the item's path exists for now.
+        paths[id]
+    ) {
         extraProps.setProps = setProps;
     }
-    if (thisComponentTriggersEvents) {
+    if (thisComponentTriggersEvents && paths[id]) {
         extraProps.fireEvent = fireEvent;
     }
     if (!isEmpty(extraProps)) {
