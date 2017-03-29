@@ -182,9 +182,10 @@ PlotlyGraph.propTypes = {
     selectedData: PropTypes.object,
 
     /**
-     * Data from latest zoom event
+     * Data from latest relayout event which occurs
+     * when the user zooms or pans on the plot
      */
-    zoomData: PropTypes.object,
+    relayoutData: PropTypes.object,
 
     /**
      * Plotly `figure` object. See schema:
@@ -234,7 +235,7 @@ PlotlyGraph.defaultProps = {
     clickData: null,
     hoverData: null,
     selectedData: null,
-    zoomData: null,
+    relayoutData: null,
     figure: {data: [], layout: {}},
     animate: false,
     animation_options: {
