@@ -4,11 +4,11 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import AppContainer from './AppContainer.react';
+import AppProvider from './AppProvider.react';
 require('es6-promise').polyfill();
 
 
 ReactDOM.render(
-    <AppContainer/>,
+    <AppProvider/>,
     document.getElementById('react-entry-point')
 );

@@ -1,19 +1,24 @@
+import {connect} from 'react-redux';
 import React from 'react';
-import {Provider} from 'react-redux'
-
-import initializeStore from './store';
 import TreeContainer from './TreeContainer.react';
 import Loading from './components/core/Loading.react';
+import Toolbar from './components/core/Toolbar.react';
 
-const store = initializeStore();
-
-const AppContainer = () => (
-    <Provider store={store}>
+function UnconnectedAppContainer() {
+    return (
         <div>
+            <Toolbar/>
             <TreeContainer/>
             <Loading/>
         </div>
-    </Provider>
-);
+    );
+}
+
+const AppContainer = connect(
+    state => ({
+        history: state.history
+    }),
+    dispatch => ({dispatch})
+)(UnconnectedAppContainer);
 
 export default AppContainer;
