@@ -36,12 +36,7 @@ class Dash(object):
         self.registered_paths = {}
 
         # urls
-        self.server.add_url_rule(
-            '{}/'.format(url_namespace),
-            endpoint='{}_{}'.format(url_namespace, 'index'),
-            view_func=self.index)
 
-        # TODO - Rename "initialize". Perhaps just "GET /components"
         self.server.add_url_rule(
             '{}/layout'.format(url_namespace),
             view_func=self.serve_layout,
@@ -66,7 +61,23 @@ class Dash(object):
             '/<path:path_in_package_dist>'.format(url_namespace),
             view_func=self.serve_component_suites)
 
+        self.server.add_url_rule(
+            '{}/routes'.format(url_namespace),
+            view_func=self.serve_routes)
+
+        self.server.add_url_rule(
+            '{}/'.format(url_namespace),
+            endpoint='{}_{}'.format(url_namespace, 'index'),
+            view_func=self.index)
+
+        # catch-all for front-end routes
+        self.server.add_url_rule(
+            '{}/<path:path>'.format(url_namespace),
+            endpoint='{}_{}'.format(url_namespace, 'index'),
+            view_func=self.index)
+
         self._layout = None
+        self.routes = []
 
     class config:
         supress_callback_exceptions = False
@@ -106,6 +117,13 @@ class Dash(object):
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
             json.dumps(layout,
+                       cls=plotly.utils.PlotlyJSONEncoder),
+            mimetype='application/json'
+        )
+
+    def serve_routes(self):
+        return flask.Response(
+            json.dumps(self.routes,
                        cls=plotly.utils.PlotlyJSONEncoder),
             mimetype='application/json'
         )
@@ -213,7 +231,7 @@ class Dash(object):
             mimetype=mimetype
         )
 
-    def index(self):
+    def index(self, *args, **kwargs):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         return ('''
