@@ -1,8 +1,10 @@
 from setuptools import setup
 
+exec (open('dash_renderer/version.py').read())
+
 setup(
     name='dash.ly',
-    version='0.14.1',
+    version=__version__,
     author='chris p',
     author_email='chris@plot.ly',
     packages=['dash', 'dash/development'],
