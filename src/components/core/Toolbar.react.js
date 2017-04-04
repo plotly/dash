@@ -9,7 +9,11 @@ function UnconnectedToolbar(props) {
     const {dispatch, history} = props;
     const styles={
         parentSpanStyle: {
-            display: 'inline-block'
+            display: 'inline-block',
+            'opacity': '0.2',
+            ':hover': {
+                'opacity': 1
+            }
         },
         iconStyle: {
             fontSize: 20
@@ -48,10 +52,10 @@ function UnconnectedToolbar(props) {
             }, styles.parentSpanStyle)}
             onClick={() => dispatch(redo())}
         >
-        <div style={merge(
-            {transform: 'rotate(90deg)'},
-            styles.iconStyle
-        )}>
+            <div style={merge(
+                {transform: 'rotate(90deg)'},
+                styles.iconStyle
+            )}>
                 {'↻'}
             </div>
             <div style={styles.labelStyle}>
@@ -69,10 +73,6 @@ function UnconnectedToolbar(props) {
             'textAlign': 'center',
             'zIndex': '9999',
             'backgroundColor': 'rgba(255, 255, 255, 0.9)',
-            'opacity': '0.2',
-            ':hover': {
-                'opacity': 1
-            }
         }}>
             <div style={{
                 'position': 'relative'
