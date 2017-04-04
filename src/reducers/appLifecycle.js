@@ -1,13 +1,5 @@
-import {ACTIONS} from '../actions/index.js';
-
-export function APP_STATES(state) {
-    const stateList = {
-        'STARTED': 'STARTED',
-        'INITIALIZED': 'INITIALIZED'
-    }
-    if (stateList[state]) return stateList[state];
-    else throw new Error (`${state} is not a valid app state.`);
-}
+import {ACTIONS} from '../actions/constants';
+import {APP_STATES} from './constants';
 
 function appLifecycle(state=APP_STATES('STARTED'), action) {
     switch (action.type) {

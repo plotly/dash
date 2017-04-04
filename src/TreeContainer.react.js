@@ -1,20 +1,28 @@
-import { connect } from 'react-redux'
-import { contains, isEmpty, isNil } from 'ramda'
+/* global window: true */
+import {connect} from 'react-redux'
+import {contains, isEmpty, isNil} from 'ramda'
 import React, {Component, PropTypes} from 'react';
 import renderTree from './renderTree';
 import {
-    hydrateInitialOutputs,
     computeGraphs,
     computePaths,
+    hydrateInitialOutputs,
+    loadStateFromRoute,
     setLayout
 } from './actions/index';
-import {getLayout, getDependencies} from './actions/api';
-import {APP_STATES} from './reducers/appLifecycle';
+import {getLayout, getDependencies, getRoutes} from './actions/api';
+import {APP_STATES} from './reducers/constants';
+
 
 /**
  * Fire off API calls for initialization
  */
 class UnconnectedContainer extends Component {
+    constructor(props) {
+        super(props);
+        this.initialization = this.initialization.bind(this);
+        this.handleHistory = this.handleHistory.bind(this);
+    }
     componentDidMount() {
         this.initialization(this.props);
     }
@@ -31,7 +39,8 @@ class UnconnectedContainer extends Component {
             graphs,
             layout,
             layoutRequest,
-            paths
+            paths,
+            routesRequest
         } = props;
         if (isEmpty(layoutRequest)) {
             dispatch(getLayout());
@@ -45,11 +54,28 @@ class UnconnectedContainer extends Component {
 
         if (isEmpty(dependenciesRequest)) {
             dispatch(getDependencies());
-        } else if (dependenciesRequest.status === 200) {
-            if (isEmpty(graphs)) {
-                dispatch(computeGraphs(dependenciesRequest.content));
-            } else if (appLifecycle === APP_STATES('STARTED')) {
-                dispatch(hydrateInitialOutputs());
+        } else if (dependenciesRequest.status === 200 && isEmpty(graphs)) {
+            dispatch(computeGraphs(dependenciesRequest.content));
+        }
+
+        if (isEmpty(routesRequest)) {
+            dispatch(getRoutes());
+        }
+
+        if (dependenciesRequest.status === 200 &&
+            !isEmpty(graphs) &&
+            routesRequest.status === 200 &&
+            appLifecycle === APP_STATES('STARTED')
+        ) {
+            dispatch(hydrateInitialOutputs());
+            this.handleHistory();
+        }
+    }
+
+    handleHistory() {
+        window.onpopstate = () => {
+            if (this.props.routesRequest.status === 200) {
+                this.props.dispatch(loadStateFromRoute());
             }
         }
     }
@@ -59,7 +85,7 @@ class UnconnectedContainer extends Component {
             appLifecycle,
             dependenciesRequest,
             layoutRequest,
-            layout
+            layout,
         } = this.props;
         if (layoutRequest.status &&
             !contains(layoutRequest.status, [200, 'loading'])
@@ -70,11 +96,8 @@ class UnconnectedContainer extends Component {
             !contains(dependenciesRequest.status, [200, 'loading'])
         ) {
             return (<div>{'Error loading dependencies'}</div>);
-        } else if (appLifecycle === APP_STATES('INITIALIZED')) {
-            return renderTree(
-                layout,
-                dependenciesRequest.content
-            );
+        } else if (appLifecycle === APP_STATES('HYDRATED')) {
+            return renderTree(layout, dependenciesRequest.content);
         } else {
             return (<div>{'Loading...'}</div>);
         }
@@ -83,13 +106,15 @@ class UnconnectedContainer extends Component {
 UnconnectedContainer.propTypes = {
     appLifecycle: PropTypes.oneOf([
         APP_STATES('STARTED'),
-        APP_STATES('INITIALIZED')
+        APP_STATES('HYDRATED')
     ]),
     dispatch: PropTypes.function,
     dependenciesRequest: PropTypes.object,
+    routesRequest: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
-    paths: PropTypes.object
+    paths: PropTypes.object,
+    history: PropTypes.array
 }
 
 const Container = connect(
@@ -98,9 +123,11 @@ const Container = connect(
         appLifecycle: state.appLifecycle,
         layoutRequest: state.layoutRequest,
         dependenciesRequest: state.dependenciesRequest,
+        routesRequest: state.routesRequest,
         layout: state.layout,
         graphs: state.graphs,
-        paths: state.paths
+        paths: state.paths,
+        history: state.history
     }),
     dispatch => ({dispatch})
 )(UnconnectedContainer);

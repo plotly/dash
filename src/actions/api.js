@@ -75,3 +75,11 @@ export function getDependencies() {
         'dependenciesRequest'
     )
 }
+
+export function getRoutes() {
+    return apiThunk(
+        '/routes',
+        'GET',
+        'routesRequest'
+    )
+}

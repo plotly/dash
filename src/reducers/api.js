@@ -28,3 +28,4 @@ function createApiReducer(store) {
 
 export const layoutRequest = createApiReducer('layoutRequest');
 export const dependenciesRequest = createApiReducer('dependenciesRequest');
+export const routesRequest = createApiReducer('routesRequest');

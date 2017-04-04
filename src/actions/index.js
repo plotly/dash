@@ -1,4 +1,4 @@
-/* global fetch:true */
+/* global fetch:true, window:true, Promise:true */
 import {
     concat,
     contains,
@@ -7,6 +7,7 @@ import {
     isEmpty,
     keys,
     lensPath,
+    pluck,
     reject,
     sort,
     type,
@@ -15,19 +16,8 @@ import {
 } from 'ramda';
 import {createAction} from 'redux-actions';
 import {crawlLayout, hasId} from '../reducers/utils';
-
-export const ACTIONS = (action) => {
-    const actionList = {
-        ON_PROP_CHANGE: 'ON_PROP_CHANGE',
-        SET_REQUEST_QUEUE: 'SET_REQUEST_QUEUE',
-        COMPUTE_GRAPHS: 'COMPUTE_GRAPHS',
-        COMPUTE_PATHS: 'COMPUTE_PATHS',
-        SET_LAYOUT: 'SET_LAYOUT',
-        SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE'
-    };
-    if (actionList[action]) return actionList[action];
-    else throw new Error(`${action} is not defined.`)
-};
+import {APP_STATES} from '../reducers/constants';
+import {ACTIONS} from './constants';
 
 export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
@@ -38,43 +28,242 @@ export const setAppLifecycle = createAction(ACTIONS('SET_APP_LIFECYCLE'));
 
 export const hydrateInitialOutputs = function() {
     return function (dispatch, getState) {
-        const {graphs} = getState();
-        const {InputGraph} = graphs;
-        const allNodes = InputGraph.overallOrder();
-        allNodes.reverse();
-        allNodes.forEach(nodeId => {
-            const [componentId, componentProp] = nodeId.split('.');
+        const {routesRequest} = getState();
+        if (!isEmpty(routesRequest.content) &&
+            contains(
+                window.location.pathname,
+                pluck('pathname', routesRequest.content)
+            )
+        ) {
+            loadStateFromRoute()(dispatch, getState);
+        } else {
+            triggerDefaultState(dispatch, getState);
+        }
+        dispatch(setAppLifecycle(APP_STATES('HYDRATED')));
+    }
+};
 
-            /*
-             * Filter out the outputs,
-             * inputs that aren't leaves,
-             * and the invisible inputs
-             */
-            if (InputGraph.dependenciesOf(nodeId).length > 0 &&
-                InputGraph.dependantsOf(nodeId).length == 0 &&
-                has(componentId, getState().paths)
-            ) {
-
-                // Get the initial property
-                const propLens = lensPath(
-                    concat(getState().paths[componentId],
-                    ['props', componentProp]
-                ));
-                const propValue = view(
-                    propLens,
-                    getState().layout
-                );
-
-                dispatch(notifyObservers({
-                    id: componentId,
-                    props: {[componentProp]: propValue}
-                }));
-
-            }
-        });
-        dispatch(setAppLifecycle('INITIALIZED'));
+export function loadStateFromRoute() {
+    return (dispatch, getState) => {
+        const {routesRequest} = getState();
+        const routes = routesRequest.content;
+        const route = routes.find(route => (
+            route.pathname === window.location.pathname
+        ));
+        const initialState = route.state;
+        loadSavedState(initialState)(dispatch, getState)
     }
 }
+
+function loadSavedState(initialControls) {
+    return (dispatch, getState) => {
+        function recursivelyTriggerInputs(skipTheseInputs) {
+            const {
+                promises,
+                visibleInputsThatWereTriggered
+            } = loadSavedStateAndTriggerVisibleInputs(
+                dispatch, getState, skipTheseInputs, initialControls
+            );
+            if (promises.length === 0) {
+                return;
+            } else {
+                Promise.all(promises).then(function() {
+                    recursivelyTriggerInputs(union(
+                        skipTheseInputs,
+                        visibleInputsThatWereTriggered
+                    ));
+                });
+            }
+        }
+
+        recursivelyTriggerInputs([]);
+    }
+}
+
+function loadSavedStateAndTriggerVisibleInputs(dispatch, getState, skipTheseInputs, initialControls) {
+    const updatedInputs = [];
+    const {paths} = getState();
+
+    keys(initialControls).forEach((nodeId) => {
+        const [componentId, componentProp] = nodeId.split('.');
+
+        /*
+         * Don't update invisible inputs - they'll become visible
+         * as a result of a separate input on a later cycle
+         */
+        if (!(has(componentId, paths))) {
+            return;
+        }
+
+        // Some input nodes have already been updated in a previous cycle
+        if (contains(nodeId, skipTheseInputs)) {
+            return;
+        }
+
+        const payload = {
+            itempath: paths[componentId],
+            props: {[componentProp]: initialControls[nodeId]}
+        }
+        dispatch(updateProps(payload));
+        updatedInputs.push(nodeId);
+    });
+
+    const {graphs} = getState();
+    const InputGraph = graphs.InputGraph
+    const triggeredInputs = [];
+    const promises = [];
+
+    // Trigger an update for each of the output nodes
+    keys(InputGraph.nodes).forEach(nodeId => {
+        if (InputGraph.dependenciesOf(nodeId).length === 0) {
+            /*
+             * If the output has more than one input, then just
+             * trigger an update on one of the updates.
+             * All of the inputs are already updated, so we don't
+             * need to trigger it more than once.
+             */
+            const anInputNode = InputGraph.dependantsOf(nodeId)[0];
+
+            /*
+             * It's possible that this output has already been updated
+             * by a different output that shared the same input
+             */
+            if (contains(anInputNode, triggeredInputs)) {
+                return;
+            }
+
+            const [anInputId, anInputProp] = anInputNode.split('.');
+
+            /*
+             * Don't update invisible inputs - they'll become visible
+             * as a result of a separate input on a later cycle
+             */
+            if (!(has(anInputId, getState().paths))) {
+                return;
+            }
+
+            // Some input nodes have already been updated in a previous cycle
+            if (contains(anInputNode, skipTheseInputs)) {
+                return;
+            }
+
+            const propLens = lensPath(
+                concat(getState().paths[anInputId],
+                ['props', anInputProp]
+            ));
+            const propValue = view(
+                propLens,
+                getState().layout
+            );
+
+            /*
+             * We only want to update the nodes that aren't inputs -
+             * the input nodes have already been updated by the
+             * setProps action above
+             * (since the value of the inputs was saved)
+             */
+             const dontUpdateInputObservers = true;
+
+            promises.push(dispatch(notifyObservers({
+                id: anInputId,
+                props: {
+                    [anInputProp]: propValue
+                },
+                dontUpdateInputObservers
+            })));
+            triggeredInputs.push(anInputNode);
+        }
+    });
+
+    return {
+        promises,
+
+        // TODO - Do I really need to take the union?
+        // Isn't triggeredInputs just a subset of updatedInputs?
+        visibleInputsThatWereTriggered: union(triggeredInputs, updatedInputs)
+    };
+}
+
+function triggerDefaultState(dispatch, getState) {
+    const {graphs} = getState();
+    const {InputGraph} = graphs;
+    const allNodes = InputGraph.overallOrder();
+    allNodes.reverse();
+    allNodes.forEach(nodeId => {
+        const [componentId, componentProp] = nodeId.split('.');
+
+        /*
+         * Filter out the outputs,
+         * inputs that aren't leaves,
+         * and the invisible inputs
+         */
+        if (InputGraph.dependenciesOf(nodeId).length > 0 &&
+            InputGraph.dependantsOf(nodeId).length == 0 &&
+            has(componentId, getState().paths)
+        ) {
+
+            // Get the initial property
+            const propLens = lensPath(
+                concat(getState().paths[componentId],
+                ['props', componentProp]
+            ));
+            const propValue = view(
+                propLens,
+                getState().layout
+            );
+
+            dispatch(notifyObservers({
+                id: componentId,
+                props: {[componentProp]: propValue}
+            }));
+
+        }
+    });
+}
+
+export function redo() {
+    return function (dispatch, getState) {
+        const history = getState().history;
+        dispatch(createAction('REDO')());
+        const next = history.future[0];
+
+        // Update props
+        dispatch(createAction('REDO_PROP_CHANGE')({
+            itempath: getState().paths[next.id],
+            props: next.props
+        }));
+
+        // Notify observers
+        dispatch(notifyObservers({
+            id: next.id,
+            props: next.props
+        }));
+    }
+}
+
+
+export function undo() {
+    return function (dispatch, getState) {
+        const history = getState().history;
+        dispatch(createAction('UNDO')());
+        const previous = history.past[history.past.length - 1];
+
+        // Update props
+        dispatch(createAction('UNDO_PROP_CHANGE')({
+            itempath: getState().paths[previous.id],
+            props: previous.props
+        }));
+
+        // Notify observers
+        dispatch(notifyObservers({
+            id: previous.id,
+            props: previous.props
+        }));
+    }
+}
+
+
+
 
 export const notifyObservers = function(payload) {
     return function (dispatch, getState) {
@@ -83,6 +272,11 @@ export const notifyObservers = function(payload) {
             event,
             props
         } = payload
+
+        const dontUpdateInputObservers = (
+            has('dontUpdateInputObservers', payload) ?
+            payload.dontUpdateInputObservers : false
+        );
 
         const {
             layout,
@@ -107,9 +301,17 @@ export const notifyObservers = function(payload) {
             const changedProps = keys(props);
             outputObservers = [];
             changedProps.forEach(propName => {
-                InputGraph.dependenciesOf(`${id}.${propName}`).forEach(outputId =>
-                    outputObservers.push(outputId)
-                );
+                InputGraph.dependenciesOf(`${id}.${propName}`).forEach(outputId => {
+                    if (dontUpdateInputObservers) {
+                        // Only update output elements
+                        if (InputGraph.dependenciesOf(outputId).length === 0) {
+                            outputObservers.push(outputId);
+                        }
+                    } else {
+                        outputObservers.push(outputId);
+                    }
+
+                });
             });
         }
 
@@ -178,7 +380,7 @@ export const notifyObservers = function(payload) {
          * action
          */
         dispatch(setRequestQueue(union(queuedObservers, requestQueue)));
-
+        const promises = [];
         for (let i = 0; i < queuedObservers.length; i++) {
             const outputIdAndProp = queuedObservers[i];
             const [outputComponentId, outputProp] = outputIdAndProp.split('.');
@@ -240,7 +442,9 @@ export const notifyObservers = function(payload) {
                 });
             }
 
-            fetch('/update-component', {
+
+
+            promises.push(fetch('/update-component', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
@@ -269,7 +473,8 @@ export const notifyObservers = function(payload) {
                 const observerUpdatePayload = {
                     itempath: getState().paths[outputComponentId],
                     // new prop from the server
-                    props: data.response.props
+                    props: data.response.props,
+                    source: 'response'
                 };
                 dispatch(updateProps(observerUpdatePayload));
 
@@ -324,7 +529,8 @@ export const notifyObservers = function(payload) {
                                                 id: child.props.id,
                                                 props: {
                                                     [childProp]: child.props[childProp]
-                                                }
+                                                },
+                                                dontUpdateInputObservers
                                             });
                                         }
                                     })
@@ -337,16 +543,52 @@ export const notifyObservers = function(payload) {
                             depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
                             newProps
                         )
-                        sortedNewProps.forEach(function(propUpdate) {
-                            dispatch(notifyObservers(propUpdate));
-                        });
-
+                        if (!dontUpdateInputObservers) {
+                            sortedNewProps.forEach(function(propUpdate) {
+                                dispatch(notifyObservers(propUpdate));
+                            });
+                        }
                     }
+
+
                 }
 
-
-            }));
+            })));
 
         }
+
+        return Promise.all(promises);
     }
+}
+
+export function serialize(state) {
+    // Record minimal input state in the url
+    const {graphs, paths, layout} = state;
+    const {InputGraph} = graphs;
+    const allNodes = InputGraph.nodes;
+    const savedState = {};
+    keys(allNodes).forEach(nodeId => {
+        const [componentId, componentProp] = nodeId.split('.');
+        /*
+         * Filter out the outputs,
+         * and the invisible inputs
+         */
+        if (InputGraph.dependenciesOf(nodeId).length > 0 &&
+            has(componentId, paths)
+        ) {
+            // Get the property
+            const propLens = lensPath(
+                concat(paths[componentId],
+                ['props', componentProp]
+            ));
+            const propValue = view(
+                propLens,
+                layout
+            );
+            savedState[nodeId] = propValue;
+        }
+    });
+
+    return savedState;
+
 }

@@ -5,7 +5,6 @@ import React, {PropTypes} from 'react';
 import Registry from './registry';
 import NotifyObservers from './components/core/NotifyObservers.react';
 
-
 export default function render(component) {
     if (R.contains(R.type(component), ['String', 'Number', 'Null'])) {
         return component;

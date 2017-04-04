@@ -1,6 +1,6 @@
 import {crawlLayout, hasId} from './utils'
 import R from 'ramda'
-import {ACTIONS} from '../actions/index.js';
+import {ACTIONS} from '../actions/constants';
 
 const initialPaths = null;
 
