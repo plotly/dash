@@ -26,6 +26,7 @@
     "babel-preset-react": "^6.5.0",
     "clean-webpack-plugin": "^0.1.9",
     "dependency-graph": "^0.5.0",
+    "es6-promise": "^4.1.0",
     "immutable": "^3.8.1",
     "json-loader": "^0.5.4",
     "ramda": "^0.23.0",

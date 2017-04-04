@@ -5,6 +5,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import AppContainer from './AppContainer.react';
+require('es6-promise').polyfill();
+
 
 ReactDOM.render(
     <AppContainer/>,
