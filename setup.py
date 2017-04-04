@@ -1,6 +1,6 @@
 from setuptools import setup
 
-exec (open('dash_renderer/version.py').read())
+exec (open('dash/version.py').read())
 
 setup(
     name='dash.ly',
