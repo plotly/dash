@@ -29,6 +29,10 @@ _js_dist_dependencies = [
 _js_dist = [
     {
         'relative_package_path': 'bundle.js',
+        "external_url": (
+            'https://unpkg.com/dash-renderer@{}'
+            '/dash_renderer/bundle.js'
+        ).format(__version__),
         'namespace': 'dash_renderer'
     }
 ]
