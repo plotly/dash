@@ -101,4 +101,13 @@ export function getRoutes() {
     );
 }
 
+
+export function getConfig() {
+    return apiThunk(
+        '/_config',
+        'GET',
+        'configRequest'
+    );
+}
+
 }
