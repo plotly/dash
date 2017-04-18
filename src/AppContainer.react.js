@@ -1,16 +1,19 @@
 import {connect} from 'react-redux';
 import React from 'react';
+import Authentication from './Authentication.react';
 import APIController from './APIController.react';
 import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
 
 function UnconnectedAppContainer() {
     return (
-        <div>
-            <Toolbar/>
-            <Loading/>
-        </div>
+        <Authentication>
+            <div>
+                <Toolbar/>
                 <APIController/>
+                <Loading/>
+            </div>
+        </Authentication>
     );
 }
 
