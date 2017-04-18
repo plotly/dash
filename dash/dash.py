@@ -3,6 +3,7 @@ import json
 import plotly
 from flask import Flask, url_for, send_from_directory, Response
 from flask_compress import Compress
+from flask_seasurf import SeaSurf
 import os
 import importlib
 from resources import Scripts, Css
@@ -27,8 +28,18 @@ class Dash(object):
         else:
             self.server = Flask(name)
 
+        if self.server.secret_key is None:
+            # If user supplied their own server, they might've supplied a
+            # secret_key with it
+            secret_key_name = 'dash_{}_secret_key'.format(name)
+            secret_key = os.environ.get(secret_key_name, os.urandom(24))
+            self.server.secret_key = secret_key
+
         # gzip
         Compress(self.server)
+
+        # csrf protect
+        self._csrf = SeaSurf(self.server)
 
         # static files from the packages
         self.css = Css()
