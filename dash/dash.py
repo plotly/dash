@@ -16,12 +16,6 @@ import exceptions
 
 
 class Dash(object):
-
-        self.url_namespace = url_namespace
-
-        # list of dependencies
-        self.callback_map = {}
-
     def __init__(
         self,
         name=None,
@@ -57,6 +51,11 @@ class Dash(object):
         else:
             self.fid = None
             self.access_codes = None
+
+        self.url_namespace = url_namespace
+
+        # list of dependencies
+        self.callback_map = {}
 
         # gzip
         Compress(self.server)
