@@ -1,7 +1,6 @@
 /* global window:true, document:true */
 'use strict'
-import R from 'ramda';
-import {concat, lensPath, view} from 'ramda';
+import R, {concat, lensPath, view} from 'ramda';
 import {combineReducers} from 'redux';
 import layout from './layout';
 import graphs from './dependencyGraph';
