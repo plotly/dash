@@ -11,6 +11,7 @@ from development.base_component import Component
 import pkgutil
 import dash_renderer
 from dependencies import Event, Input, Output, State
+import authentication
 import exceptions
 
 
@@ -47,6 +48,11 @@ class Dash(object):
         self.registered_paths = {}
 
         # urls
+        self.server.add_url_rule(
+            '/_login',
+            view_func=authentication.login,
+            methods=['post']
+        )
 
         self.server.add_url_rule(
             '{}/layout'.format(url_namespace),
