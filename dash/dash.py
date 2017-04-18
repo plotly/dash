@@ -96,8 +96,42 @@ class Dash(object):
         self._layout = None
         self.routes = []
 
+    def _requires_auth(f):
+        def class_decorator(*args, **kwargs):
+            self = args[0]
+            self.auth_cookie_name = (
+                'dash_access_{}'.format(self.fid.replace(':', '_'))
+            ) if self.fid else ''
+            return authentication.create_requires_auth(
+                f,
+                # cookies don't allow comma, semicolon, white space
+                # those characters are already excluded from plotly usernames
+                self.fid,
+                self.access_codes,
+                self.create_access_codes,
+                self.auth_cookie_name,
+                *args,
+                **kwargs
+            )
+        class_decorator.func_name = f.func_name
+        return class_decorator
+
+    def create_access_codes(self):
+        token = SeaSurf()._generate_token()
+        new_access_codes = {
+            'access_granted': token,
+            'expiration': (
+                datetime.datetime.now() + datetime.timedelta(
+                    seconds=self.config.permissions_cache_expiry
+                )
+            )
+        }
+        self.access_codes = new_access_codes
+        return self.access_codes
+
     class config:
         supress_callback_exceptions = False
+        permissions_cache_expiry = 5 * 60
 
     @property
     def layout(self):
@@ -128,6 +162,7 @@ class Dash(object):
             self.css.get_all_css()
         )
 
+    @_requires_auth
     def serve_layout(self):
         layout = self._layout_value()
 
@@ -138,6 +173,7 @@ class Dash(object):
             mimetype='application/json'
         )
 
+    @_requires_auth
     def serve_routes(self):
         return flask.Response(
             json.dumps(self.routes,
@@ -269,6 +305,7 @@ class Dash(object):
         </html>
         '''.format(css, scripts))
 
+    @_requires_auth
     def dependencies(self):
         return flask.jsonify([
             {
@@ -462,6 +499,7 @@ class Dash(object):
 
         return wrap_func
 
+    @_requires_auth
     def dispatch(self):
         body = json.loads(flask.request.get_data())
         inputs = body.get('inputs', [])
