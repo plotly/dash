@@ -114,6 +114,10 @@ class Dash(object):
             endpoint='{}_{}'.format(url_namespace, 'index'),
             view_func=self.index)
 
+        self.server.add_url_rule(
+            '/_config',
+            view_func=self.serve_config)
+
         # catch-all for front-end routes
         self.server.add_url_rule(
             '{}/<path:path>'.format(url_namespace),
@@ -198,6 +202,13 @@ class Dash(object):
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
             json.dumps(layout,
+                       cls=plotly.utils.PlotlyJSONEncoder),
+            mimetype='application/json'
+        )
+
+    def serve_config(self):
+        return flask.Response(
+            json.dumps({'fid': self.fid},
                        cls=plotly.utils.PlotlyJSONEncoder),
             mimetype='application/json'
         )
