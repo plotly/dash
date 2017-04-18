@@ -23,6 +23,7 @@ const reducer = combineReducers({
     dependenciesRequest: API.dependenciesRequest,
     layoutRequest: API.layoutRequest,
     routesRequest: API.routesRequest,
+    lastUpdateComponentRequest: API.lastUpdateComponentRequest,
     loginRequest: API.loginRequest,
     history
 });

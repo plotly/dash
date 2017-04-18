@@ -454,6 +454,11 @@ export const notifyObservers = function(payload) {
                 credentials: 'same-origin',
                 body: JSON.stringify(payload)
             }).then(response => response.json().then(function handleResponse(data) {
+                dispatch({
+                    type: 'lastUpdateComponentRequest',
+                    payload: {status: response.status}
+                });
+
                 // clear this item from the request queue
                 dispatch(setRequestQueue(
                     reject(
