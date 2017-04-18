@@ -14,26 +14,29 @@ function GET(path) {
     });
 }
 
-function POST(path, body = {}) {
+function POST(path, body = {}, headers={}) {
     return fetch(`${path}`, {
         method: 'POST',
-        headers: {
         credentials: 'same-origin',
+        headers: merge({
             'Accept': 'application/json',
-        },
             'Content-Type': 'application/json',
             'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
+        }, headers),
         body: body ? JSON.stringify(body) : null
     });
 }
 
-function apiThunk(endpoint, method, store, id, body) {
+const request = {GET, POST};
+
+
+function apiThunk(endpoint, method, store, id, body, headers={}) {
     return dispatch => {
         dispatch({
             type: store,
             payload: {id, status: 'loading'}
         });
-        return request[method](endpoint, body)
+        return request[method](endpoint, body, headers)
         .then(res => {
             const contentType = res.headers.get("content-type");
             if(contentType && contentType.indexOf("application/json") !== -1) {
@@ -87,7 +90,7 @@ export function getDependencies() {
         '/dependencies',
         'GET',
         'dependenciesRequest'
-    )
+    );
 }
 
 export function getRoutes() {
@@ -95,5 +98,7 @@ export function getRoutes() {
         '/routes',
         'GET',
         'routesRequest'
-    )
+    );
+}
+
 }
