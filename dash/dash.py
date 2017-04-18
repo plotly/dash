@@ -16,17 +16,27 @@ import exceptions
 
 
 class Dash(object):
-    def __init__(self, name=None, url_namespace='', server=None):
 
         self.url_namespace = url_namespace
 
         # list of dependencies
         self.callback_map = {}
 
+    def __init__(
+        self,
+        name=None,
+        url_namespace='',
+        server=None,
+        filename=None,
+        sharing=None,
+        app_url=None
+    ):
         # allow users to supply their own flask server
         if server is not None:
             self.server = server
         else:
+            if name is None:
+                name = 'dash'
             self.server = Flask(name)
 
         if self.server.secret_key is None:
@@ -35,6 +45,18 @@ class Dash(object):
             secret_key_name = 'dash_{}_secret_key'.format(name)
             secret_key = os.environ.get(secret_key_name, os.urandom(24))
             self.server.secret_key = secret_key
+
+        if filename is not None:
+            fid = plotly_api.create_or_overwrite_dash_app(
+                filename, sharing, app_url
+            )
+            self.fid = fid
+            self.app_url = app_url
+            self.sharing = sharing
+            self.access_codes = self.create_access_codes()
+        else:
+            self.fid = None
+            self.access_codes = None
 
         # gzip
         Compress(self.server)
