@@ -1,5 +1,6 @@
 import flask
 import datetime
+import json
 import plotly
 import requests
 
@@ -17,7 +18,8 @@ def login():
     )
     res.raise_for_status()
     response = flask.Response(
-        res.json(),
+        json.dumps(res.json()),
+        mimetype='application/json',
         status=res.status_code
     )
     # TODO - set path appropriately
