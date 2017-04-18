@@ -120,6 +120,8 @@ class Dash(object):
             endpoint='{}_{}'.format(url_namespace, 'index'),
             view_func=self.index)
 
+        self.server.before_first_request(self._setup_server)
+
         self._layout = None
         self.routes = []
 
@@ -563,8 +565,4 @@ class Dash(object):
                    debug=True,
                    threaded=True,
                    **flask_run_options):
-        # TODO - If users run the server directly
-        # through app.server, then this _setup_server won't get
-        # called unless they call it explicitly
-        self._setup_server()
         self.server.run(port=port, debug=debug, **flask_run_options)
