@@ -1,14 +1,15 @@
-/* global fetch: true */
-
-const request = {GET, POST};
+/* global fetch: true, document: true */
+import cookie from 'cookie';
+import {merge} from 'ramda';
 
 function GET(path) {
     return fetch(`${path}`, {
         method: 'GET',
-        credentials: 'include',
+        credentials: 'same-origin',
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
         }
     });
 }
@@ -16,11 +17,12 @@ function GET(path) {
 function POST(path, body = {}) {
     return fetch(`${path}`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
+        credentials: 'same-origin',
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
         },
+            'Content-Type': 'application/json',
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
         body: body ? JSON.stringify(body) : null
     });
 }

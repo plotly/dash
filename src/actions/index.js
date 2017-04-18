@@ -1,4 +1,4 @@
-/* global fetch:true, window:true, Promise:true */
+/* global fetch:true, window:true, Promise:true, document:true */
 import {
     concat,
     contains,
@@ -18,6 +18,7 @@ import {createAction} from 'redux-actions';
 import {crawlLayout, hasId} from '../reducers/utils';
 import {APP_STATES} from '../reducers/constants';
 import {ACTIONS} from './constants';
+import cookie from 'cookie';
 
 export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
@@ -446,7 +447,11 @@ export const notifyObservers = function(payload) {
 
             promises.push(fetch('/update-component', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
+                },
+                credentials: 'same-origin',
                 body: JSON.stringify(payload)
             }).then(response => response.json().then(function handleResponse(data) {
                 // clear this item from the request queue
