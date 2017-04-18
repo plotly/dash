@@ -298,6 +298,6 @@ class LoginFlow(unittest.TestCase):
         })
         self.assertEqual(res.status_code, 200)
         self.assertEqual(
-            get_cookie(res, 'plotly_dash_oauth_token'),
+            get_cookie(res, 'plotly_oauth_token'),
             token
         )

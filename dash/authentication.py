@@ -24,7 +24,7 @@ def login():
     )
     # TODO - set path appropriately
     response.set_cookie(
-        'plotly_dash_oauth_token',
+        'plotly_oauth_token',
         value=oauth_token,
         max_age=None
     )
