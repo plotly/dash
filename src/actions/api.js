@@ -34,20 +34,32 @@ function apiThunk(endpoint, method, store, id, body) {
             payload: {id, status: 'loading'}
         });
         return request[method](endpoint, body)
-        .then(res => res.json().then(
-            json => {
+        .then(res => {
+            const contentType = res.headers.get("content-type");
+            if(contentType && contentType.indexOf("application/json") !== -1) {
+                return res.json().then(
+                    json => {
+                        dispatch({
+                            type: store,
+                            payload: {
+                                status: res.status,
+                                content: json,
+                                id
+                            }
+                        });
+                        return json;
+                    }
+                )
+            } else {
                 dispatch({
                     type: store,
                     payload: {
-                        status: res.status,
-                        content: json,
-                        id
+                        id,
+                        status: res.status
                     }
                 });
-                return json;
             }
-        ))
-        .catch(err => {
+        }).catch(err => {
             /* eslint-disable no-console */
             console.error(err);
             /* eslint-enable no-console */
@@ -67,7 +79,7 @@ export function getLayout() {
         '/layout',
         'GET',
         'layoutRequest'
-    )
+    );
 }
 
 export function getDependencies() {
