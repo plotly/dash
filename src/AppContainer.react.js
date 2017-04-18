@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 import React from 'react';
-import TreeContainer from './TreeContainer.react';
+import APIController from './APIController.react';
 import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
 
@@ -8,9 +8,9 @@ function UnconnectedAppContainer() {
     return (
         <div>
             <Toolbar/>
-            <TreeContainer/>
             <Loading/>
         </div>
+                <APIController/>
     );
 }
 

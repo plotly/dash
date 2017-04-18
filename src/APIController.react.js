@@ -1,6 +1,6 @@
 /* global window: true */
 import {connect} from 'react-redux'
-import {contains, isEmpty, isNil} from 'ramda'
+import {any, contains, equals, isEmpty, isNil} from 'ramda'
 import React, {Component, PropTypes} from 'react';
 import renderTree from './renderTree';
 import {
@@ -10,9 +10,9 @@ import {
     loadStateFromRoute,
     setLayout
 } from './actions/index';
-import {getLayout, getDependencies, getRoutes} from './actions/api';
+import {getDependencies, getLayout, getRoutes} from './actions/api';
 import {APP_STATES} from './reducers/constants';
-
+import AccessDenied from './AccessDenied.react';
 
 /**
  * Fire off API calls for initialization
@@ -42,6 +42,7 @@ class UnconnectedContainer extends Component {
             paths,
             routesRequest
         } = props;
+
         if (isEmpty(layoutRequest)) {
             dispatch(getLayout());
         } else if (layoutRequest.status === 200) {
@@ -83,22 +84,44 @@ class UnconnectedContainer extends Component {
     render () {
         const {
             appLifecycle,
+            configRequest,
             dependenciesRequest,
+            lastUpdateComponentRequest,
             layoutRequest,
             layout,
+            routesRequest
         } = this.props;
-        if (layoutRequest.status &&
+
+        // Auth protected routes
+        if (any(equals(true),
+                [dependenciesRequest, lastUpdateComponentRequest,
+                 layoutRequest, routesRequest].map(
+            request => (request.status && request.status === 403))
+        )) {
+            return (<AccessDenied configRequest={configRequest}/>);
+        }
+
+
+        else if (layoutRequest.status &&
             !contains(layoutRequest.status, [200, 'loading'])
         ) {
             return (<div>{'Error loading layout'}</div>);
-        } else if (
+        }
+
+
+        else if (
             dependenciesRequest.status &&
             !contains(dependenciesRequest.status, [200, 'loading'])
         ) {
             return (<div>{'Error loading dependencies'}</div>);
-        } else if (appLifecycle === APP_STATES('HYDRATED')) {
+        }
+
+
+        else if (appLifecycle === APP_STATES('HYDRATED')) {
             return renderTree(layout, dependenciesRequest.content);
-        } else {
+        }
+
+        else {
             return (<div>{'Loading...'}</div>);
         }
     }
@@ -109,8 +132,10 @@ UnconnectedContainer.propTypes = {
         APP_STATES('HYDRATED')
     ]),
     dispatch: PropTypes.function,
+    configRequest: PropTypes.object,
     dependenciesRequest: PropTypes.object,
     routesRequest: PropTypes.object,
+    lastUpdateComponentRequest: PropTypes.objec,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,
@@ -121,8 +146,10 @@ const Container = connect(
     // map state to props
     state => ({
         appLifecycle: state.appLifecycle,
-        layoutRequest: state.layoutRequest,
+        configRequest: state.configRequest,
         dependenciesRequest: state.dependenciesRequest,
+        lastUpdateComponentRequest: state.lastUpdateComponentRequest,
+        layoutRequest: state.layoutRequest,
         routesRequest: state.routesRequest,
         layout: state.layout,
         graphs: state.graphs,
