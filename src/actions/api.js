@@ -110,4 +110,13 @@ export function getConfig() {
     );
 }
 
+export function login(oauth_token) {
+    return apiThunk(
+        '/_login',
+        'POST',
+        'loginRequest',
+        undefined,
+        undefined,
+        {'Authorization': `Bearer ${oauth_token}`}
+    );
 }
