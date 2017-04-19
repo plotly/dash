@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { isEmpty } from 'ramda'
 import {Component, PropTypes} from 'react'
 
-class Loading extends Component {
+class DocumentTitle extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -29,7 +29,7 @@ class Loading extends Component {
     }
 }
 
-Loading.propTypes = {
+DocumentTitle.propTypes = {
     requestQueue: PropTypes.array.required
 }
 
@@ -37,4 +37,4 @@ export default connect(
     state => ({
         requestQueue: state.requestQueue
     })
-)(Loading);
+)(DocumentTitle);

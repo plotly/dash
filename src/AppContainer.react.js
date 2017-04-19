@@ -2,7 +2,7 @@ import {connect} from 'react-redux';
 import React from 'react';
 import Authentication from './Authentication.react';
 import APIController from './APIController.react';
-import Loading from './components/core/Loading.react';
+import DocumentTitle from './components/core/DocumentTitle.react';
 import Toolbar from './components/core/Toolbar.react';
 
 function UnconnectedAppContainer() {
@@ -11,7 +11,7 @@ function UnconnectedAppContainer() {
             <div>
                 <Toolbar/>
                 <APIController/>
-                <Loading/>
+                <DocumentTitle/>
             </div>
         </Authentication>
     );
