@@ -1,0 +1,17 @@
+machine:
+    python:
+        version: 2.7.11
+    node:
+        version: 6.9.2
+
+dependencies:
+    pre:
+        - pip install -r tests/requirements.txt
+        - npm install
+        - npm run build-prod
+
+
+test:
+    override:
+        - python -m unittest discover -s tests
+        - npm run test

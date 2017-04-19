@@ -1,51 +1,68 @@
-/* global fetch: true */
-
-const request = {GET, POST};
+/* global fetch: true, document: true */
+import cookie from 'cookie';
+import {merge} from 'ramda';
 
 function GET(path) {
     return fetch(`${path}`, {
         method: 'GET',
-        credentials: 'include',
+        credentials: 'same-origin',
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
         }
     });
 }
 
-function POST(path, body = {}) {
+function POST(path, body = {}, headers={}) {
     return fetch(`${path}`, {
         method: 'POST',
-        credentials: 'include',
-        headers: {
+        credentials: 'same-origin',
+        headers: merge({
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
+            'Content-Type': 'application/json',
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
+        }, headers),
         body: body ? JSON.stringify(body) : null
     });
 }
 
-function apiThunk(endpoint, method, store, id, body) {
+const request = {GET, POST};
+
+
+function apiThunk(endpoint, method, store, id, body, headers={}) {
     return dispatch => {
         dispatch({
             type: store,
             payload: {id, status: 'loading'}
         });
-        return request[method](endpoint, body)
-        .then(res => res.json().then(
-            json => {
+        return request[method](endpoint, body, headers)
+        .then(res => {
+            const contentType = res.headers.get("content-type");
+            if(contentType && contentType.indexOf("application/json") !== -1) {
+                return res.json().then(
+                    json => {
+                        dispatch({
+                            type: store,
+                            payload: {
+                                status: res.status,
+                                content: json,
+                                id
+                            }
+                        });
+                        return json;
+                    }
+                )
+            } else {
                 dispatch({
                     type: store,
                     payload: {
-                        status: res.status,
-                        content: json,
-                        id
+                        id,
+                        status: res.status
                     }
                 });
-                return json;
             }
-        ))
-        .catch(err => {
+        }).catch(err => {
             /* eslint-disable no-console */
             console.error(err);
             /* eslint-enable no-console */
@@ -65,7 +82,7 @@ export function getLayout() {
         '/layout',
         'GET',
         'layoutRequest'
-    )
+    );
 }
 
 export function getDependencies() {
@@ -73,7 +90,7 @@ export function getDependencies() {
         '/dependencies',
         'GET',
         'dependenciesRequest'
-    )
+    );
 }
 
 export function getRoutes() {
@@ -81,5 +98,25 @@ export function getRoutes() {
         '/routes',
         'GET',
         'routesRequest'
-    )
+    );
+}
+
+
+export function getConfig() {
+    return apiThunk(
+        '/_config',
+        'GET',
+        'configRequest'
+    );
+}
+
+export function login(oauth_token) {
+    return apiThunk(
+        '/_login',
+        'POST',
+        'loginRequest',
+        undefined,
+        undefined,
+        {'Authorization': `Bearer ${oauth_token}`}
+    );
 }

@@ -1,4 +1,4 @@
-/* global fetch:true, window:true, Promise:true */
+/* global fetch:true, window:true, Promise:true, document:true */
 import {
     concat,
     contains,
@@ -18,6 +18,7 @@ import {createAction} from 'redux-actions';
 import {crawlLayout, hasId} from '../reducers/utils';
 import {APP_STATES} from '../reducers/constants';
 import {ACTIONS} from './constants';
+import cookie from 'cookie';
 
 export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
@@ -446,114 +447,125 @@ export const notifyObservers = function(payload) {
 
             promises.push(fetch('/update-component', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
+                },
+                credentials: 'same-origin',
                 body: JSON.stringify(payload)
-            }).then(response => response.json().then(function handleResponse(data) {
-                // clear this item from the request queue
-                dispatch(setRequestQueue(
-                    reject(
-                        id => id === outputIdAndProp,
-                        getState().requestQueue
-                    )
-                ));
+            }).then(function handleResponse(res) {
+                dispatch({
+                    type: 'lastUpdateComponentRequest',
+                    payload: {status: res.status}
+                });
 
-                /*
-                 * it's possible that this output item is no longer visible.
-                 * for example, the could still be request running when
-                 * the user switched the chapter
-                 *
-                 * if it's not visible, then ignore the rest of the updates
-                 * to the store
-                 */
-                if (!has(outputComponentId, getState().paths)) {
-                    return;
-                }
+                return res.json().then(function handleJson(data) {
 
-                // and update the props of the component
-                const observerUpdatePayload = {
-                    itempath: getState().paths[outputComponentId],
-                    // new prop from the server
-                    props: data.response.props,
-                    source: 'response'
-                };
-                dispatch(updateProps(observerUpdatePayload));
-
-                dispatch(notifyObservers({
-                    id: outputComponentId,
-                    props: data.response.props
-                }));
-
-                /*
-                 * If the response includes content, then we need to update our
-                 * paths store.
-                 * TODO - Do we need to wait for updateProps to finish?
-                 */
-                if (has('content', observerUpdatePayload.props)) {
-
-                    dispatch(computePaths({
-                        subTree: observerUpdatePayload.props.content,
-                        startingPath: concat(
-                            getState().paths[outputComponentId],
-                            ['props', 'content']
+                    // clear this item from the request queue
+                    dispatch(setRequestQueue(
+                        reject(
+                            id => id === outputIdAndProp,
+                            getState().requestQueue
                         )
+                    ));
+
+                    /*
+                     * it's possible that this output item is no longer visible.
+                     * for example, the could still be request running when
+                     * the user switched the chapter
+                     *
+                     * if it's not visible, then ignore the rest of the updates
+                     * to the store
+                     */
+                    if (!has(outputComponentId, getState().paths)) {
+                        return;
+                    }
+
+                    // and update the props of the component
+                    const observerUpdatePayload = {
+                        itempath: getState().paths[outputComponentId],
+                        // new prop from the server
+                        props: data.response.props,
+                        source: 'response'
+                    };
+                    dispatch(updateProps(observerUpdatePayload));
+
+                    dispatch(notifyObservers({
+                        id: outputComponentId,
+                        props: data.response.props
                     }));
 
                     /*
-                     * if content contains objects with IDs, then we
-                     * need to dispatch a propChange for all of these
-                     * new children components
+                     * If the response includes content, then we need to update our
+                     * paths store.
+                     * TODO - Do we need to wait for updateProps to finish?
                      */
-                    if (contains(
-                            type(observerUpdatePayload.props.content),
-                            ['Array', 'Object']
-                        ) && !isEmpty(observerUpdatePayload.props.content)
-                    ) {
-                        /*
-                         * TODO: We're just naively crawling
-                         * the _entire_ layout to recompute the
-                         * the dependency graphs.
-                         * We don't need to do this - just need
-                         * to compute the subtree
-                         */
-                        const newProps = [];
-                        crawlLayout(
-                            observerUpdatePayload.props.content,
-                            function appendIds(child) {
-                                if (hasId(child)) {
-                                    keys(child.props).forEach(childProp => {
-                                        const inputId = (
-                                            `${child.props.id}.${childProp}`
-                                        );
-                                        if (has(inputId, InputGraph.nodes)) {
-                                            newProps.push({
-                                                id: child.props.id,
-                                                props: {
-                                                    [childProp]: child.props[childProp]
-                                                },
-                                                dontUpdateInputObservers
-                                            });
-                                        }
-                                    })
-                                }
-                            }
-                        );
+                    if (has('content', observerUpdatePayload.props)) {
 
-                        const depOrder = InputGraph.overallOrder();
-                        const sortedNewProps = sort((a, b) =>
-                            depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
-                            newProps
-                        )
-                        if (!dontUpdateInputObservers) {
-                            sortedNewProps.forEach(function(propUpdate) {
-                                dispatch(notifyObservers(propUpdate));
-                            });
+                        dispatch(computePaths({
+                            subTree: observerUpdatePayload.props.content,
+                            startingPath: concat(
+                                getState().paths[outputComponentId],
+                                ['props', 'content']
+                            )
+                        }));
+
+                        /*
+                         * if content contains objects with IDs, then we
+                         * need to dispatch a propChange for all of these
+                         * new children components
+                         */
+                        if (contains(
+                                type(observerUpdatePayload.props.content),
+                                ['Array', 'Object']
+                            ) && !isEmpty(observerUpdatePayload.props.content)
+                        ) {
+                            /*
+                             * TODO: We're just naively crawling
+                             * the _entire_ layout to recompute the
+                             * the dependency graphs.
+                             * We don't need to do this - just need
+                             * to compute the subtree
+                             */
+                            const newProps = [];
+                            crawlLayout(
+                                observerUpdatePayload.props.content,
+                                function appendIds(child) {
+                                    if (hasId(child)) {
+                                        keys(child.props).forEach(childProp => {
+                                            const inputId = (
+                                                `${child.props.id}.${childProp}`
+                                            );
+                                            if (has(inputId, InputGraph.nodes)) {
+                                                newProps.push({
+                                                    id: child.props.id,
+                                                    props: {
+                                                        [childProp]: child.props[childProp]
+                                                    },
+                                                    dontUpdateInputObservers
+                                                });
+                                            }
+                                        })
+                                    }
+                                }
+                            );
+
+                            const depOrder = InputGraph.overallOrder();
+                            const sortedNewProps = sort((a, b) =>
+                                depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
+                                newProps
+                            )
+                            if (!dontUpdateInputObservers) {
+                                sortedNewProps.forEach(function(propUpdate) {
+                                    dispatch(notifyObservers(propUpdate));
+                                });
+                            }
                         }
+
+
                     }
 
-
-                }
-
-            })));
+            })}));
 
         }
 

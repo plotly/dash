@@ -25,6 +25,7 @@ function UnconnectedToolbar(props) {
 
     const undoLink = (
         <span
+            key="undoLink"
             style={merge({
                 'color': history.past.length ? '#0074D9' : 'grey',
                 'cursor': history.past.length ? 'pointer' : 'default'
@@ -45,6 +46,7 @@ function UnconnectedToolbar(props) {
 
     const redoLink = (
         <span
+            key="redoLink"
             style={merge({
                 'color': history.future.length ? '#0074D9' : 'grey',
                 'cursor': history.future.length ? 'pointer' : 'default',
