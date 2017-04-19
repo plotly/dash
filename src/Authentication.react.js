@@ -1,16 +1,11 @@
-/* global window:true */
+/* global window:true, document:true */
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import queryString from 'query-string';
 import {getConfig, login} from './actions/api';
 import {contains, isEmpty, merge} from 'ramda'
 import * as styles from './styles/styles.js';
-import PageLoading from './PageLoading.react';
-
-// TODO - Somehow figure out a variable redirect_uri
-// and require app creators to set this
-const REDIRECT_URI_PATHNAME = '/oauth2/callback'
-const REDIRECT_URI = `http://localhost:9595${REDIRECT_URI_PATHNAME}`;
+import {REDIRECT_URI_PATHNAME} from './constants/constants';
 
 // http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
 const PopupCenter = (url, title, w, h) => {
@@ -41,7 +36,7 @@ const PopupCenter = (url, title, w, h) => {
  * - When the <OauthRedirect/> window is closed, <Login/> will call its
  *   `onClosed` prop
  */
-class Login extends Component {
+class UnconnectedLogin extends Component {
     constructor(props) {
         super(props);
         this.buildOauthUrl = this.buildOauthUrl.bind(this);
@@ -49,12 +44,13 @@ class Login extends Component {
     }
 
     buildOauthUrl() {
-        const oauthClientId = 'RcXzjux4DGfb8bWG9UNGpJUGsTaS0pUVHoEf7Ecl';
-        const plotlyDomain = 'https://plot.ly';
+        const {oauth_client_id, plotly_domain} = (
+            this.props.configRequest.content
+        );
         return (
-            `${plotlyDomain}/o/authorize/?response_type=token&` +
-            `client_id=${oauthClientId}&` +
-            `redirect_uri=${REDIRECT_URI}`
+            `${plotly_domain}/o/authorize/?response_type=token&` +
+            `client_id=${oauth_client_id}&` +
+            `redirect_uri=${window.location.origin}${REDIRECT_URI_PATHNAME}`
         );
     }
 
@@ -75,6 +71,7 @@ class Login extends Component {
     }
 
     render() {
+        const {plotly_domain} = this.props.configRequest.content;
         return (
             <div style={merge(styles.base.html, styles.base.container)}>
                 <div style={styles.base.h2}>Dash</div>
@@ -93,7 +90,7 @@ class Login extends Component {
                           Don't have an account yet?`}
                     </span>
                     <a style={styles.base.a}
-                       href="https://plot.ly/accounts/login/?action=signup">
+                       href={`${plotly_domain}/accounts/login/?action=signup`}>
                         {' Create an account '}
                     </a>
                     <span>
@@ -105,9 +102,13 @@ class Login extends Component {
         );
     }
 }
-Login.propTypes = {
-    onClosed: PropTypes.func
+UnconnectedLogin.propTypes = {
+    onClosed: PropTypes.func,
+    configRequest: PropTypes.func
 }
+const Login = connect(
+    state => ({configRequest: state.configRequest})
+)(UnconnectedLogin);
 
 /**
  * OAuth redirect component
@@ -236,7 +237,6 @@ class Authentication extends Component {
 
         else if (configRequest.content.fid) {
 
-            // TODO - different tokens for on-prem vs cloud
             if (contains('plotly_oauth_token=', document.cookie)) {
 
                 return children;
