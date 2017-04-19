@@ -208,8 +208,14 @@ class Dash(object):
 
     def serve_config(self):
         return flask.Response(
-            json.dumps({'fid': self.fid},
-                       cls=plotly.utils.PlotlyJSONEncoder),
+            json.dumps({
+                'fid': self.fid,
+                'plotly_domain': (
+                    plotly.config.get_config()['plotly_domain']
+                ),
+                'oauth_client_id': 'RcXzjux4DGfb8bWG9UNGpJUGsTaS0pUVHoEf7Ecl',
+                'redirect_uri': 'http://localhost:9595'
+            }, cls=plotly.utils.PlotlyJSONEncoder),
             mimetype='application/json'
         )
 
