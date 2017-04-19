@@ -49,7 +49,7 @@ class Dash(object):
             secret_key = os.environ.get(
                 secret_key_name, SeaSurf()._generate_token()
             )
-            os.environ[secret_key_name] = secret_key_name
+            os.environ[secret_key_name] = secret_key
             self.server.secret_key = secret_key
 
         if filename is not None:
