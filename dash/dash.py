@@ -42,7 +42,10 @@ class Dash(object):
         if self.server.secret_key is None:
             # If user supplied their own server, they might've supplied a
             # secret_key with it
-            secret_key_name = 'dash_{}_secret_key'.format(name)
+            secret_key_name = 'dash_{}_secret_key'.format(
+                # TODO - check for other illegal characters
+                name.replace('.', '_')
+            )
             secret_key = os.environ.get(
                 secret_key_name, SeaSurf()._generate_token()
             )
