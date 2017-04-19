@@ -9,7 +9,7 @@ dependencies:
         - sudo pip install -r tests/requirements.txt
         - npm install
         - npm run build-prod
-        - sudo python setup.py install --single-version-externally-managed --root=/
+        - python setup.py install --single-version-externally-managed --root=/
 
 
 test:
