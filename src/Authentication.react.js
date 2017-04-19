@@ -89,7 +89,7 @@ class Login extends Component {
 
                 <div style={styles.base.caption}>
                     <span>
-                        {`This dash app requires plotly log in to view.
+                        {`This dash app requires a plotly login to view.
                           Don't have an account yet?`}
                     </span>
                     <a style={styles.base.a}
