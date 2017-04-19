@@ -30,6 +30,7 @@
     "es6-promise": "^4.1.0",
     "json-loader": "^0.5.4",
     "query-string": "^4.3.2",
+    "radium": "^0.18.2",
     "ramda": "^0.23.0",
     "react": "^15.4.2",
     "react-dom": "^15.0.1",
