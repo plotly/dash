@@ -3,32 +3,71 @@ import json
 import plotly
 from flask import Flask, url_for, send_from_directory, Response
 from flask_compress import Compress
+from flask_seasurf import SeaSurf
 import os
 import importlib
+import requests
+import pkgutil
+from functools import wraps
+import datetime
+
+import dash_renderer
+
 from resources import Scripts, Css
 from development.base_component import Component
-import pkgutil
-import dash_renderer
 from dependencies import Event, Input, Output, State
+import authentication
 import exceptions
+import plotly_api
 
 
 class Dash(object):
-    def __init__(self, name=None, url_namespace='', server=None):
+    def __init__(
+        self,
+        name=None,
+        url_namespace='',
+        server=None,
+        filename=None,
+        sharing=None,
+        app_url=None
+    ):
+        # allow users to supply their own flask server
+        if server is not None:
+            self.server = server
+        else:
+            if name is None:
+                name = 'dash'
+            self.server = Flask(name)
+
+        if self.server.secret_key is None:
+            # If user supplied their own server, they might've supplied a
+            # secret_key with it
+            secret_key_name = 'dash_{}_secret_key'.format(name)
+            secret_key = os.environ.get(secret_key_name, os.urandom(24))
+            self.server.secret_key = secret_key
+
+        if filename is not None:
+            fid = plotly_api.create_or_overwrite_dash_app(
+                filename, sharing, app_url
+            )
+            self.fid = fid
+            self.app_url = app_url
+            self.sharing = sharing
+            self.access_codes = self.create_access_codes()
+        else:
+            self.fid = None
+            self.access_codes = None
 
         self.url_namespace = url_namespace
 
         # list of dependencies
         self.callback_map = {}
 
-        # allow users to supply their own flask server
-        if server is not None:
-            self.server = server
-        else:
-            self.server = Flask(name)
-
         # gzip
         Compress(self.server)
+
+        # csrf protect
+        self._csrf = SeaSurf(self.server)
 
         # static files from the packages
         self.css = Css()
@@ -36,6 +75,11 @@ class Dash(object):
         self.registered_paths = {}
 
         # urls
+        self.server.add_url_rule(
+            '/_login',
+            view_func=authentication.login,
+            methods=['post']
+        )
 
         self.server.add_url_rule(
             '{}/layout'.format(url_namespace),
@@ -70,17 +114,57 @@ class Dash(object):
             endpoint='{}_{}'.format(url_namespace, 'index'),
             view_func=self.index)
 
+        self.server.add_url_rule(
+            '/_config',
+            view_func=self.serve_config)
+
         # catch-all for front-end routes
         self.server.add_url_rule(
             '{}/<path:path>'.format(url_namespace),
             endpoint='{}_{}'.format(url_namespace, 'index'),
             view_func=self.index)
 
+        self.server.before_first_request(self._setup_server)
+
         self._layout = None
         self.routes = []
 
+    def _requires_auth(f):
+        def class_decorator(*args, **kwargs):
+            self = args[0]
+            self.auth_cookie_name = (
+                'dash_access_{}'.format(self.fid.replace(':', '_'))
+            ) if self.fid else ''
+            return authentication.create_requires_auth(
+                f,
+                # cookies don't allow comma, semicolon, white space
+                # those characters are already excluded from plotly usernames
+                self.fid,
+                self.access_codes,
+                self.create_access_codes,
+                self.auth_cookie_name,
+                *args,
+                **kwargs
+            )
+        class_decorator.func_name = f.func_name
+        return class_decorator
+
+    def create_access_codes(self):
+        token = SeaSurf()._generate_token()
+        new_access_codes = {
+            'access_granted': token,
+            'expiration': (
+                datetime.datetime.now() + datetime.timedelta(
+                    seconds=self.config.permissions_cache_expiry
+                )
+            )
+        }
+        self.access_codes = new_access_codes
+        return self.access_codes
+
     class config:
         supress_callback_exceptions = False
+        permissions_cache_expiry = 5 * 60
 
     @property
     def layout(self):
@@ -111,6 +195,7 @@ class Dash(object):
             self.css.get_all_css()
         )
 
+    @_requires_auth
     def serve_layout(self):
         layout = self._layout_value()
 
@@ -121,6 +206,20 @@ class Dash(object):
             mimetype='application/json'
         )
 
+    def serve_config(self):
+        return flask.Response(
+            json.dumps({
+                'fid': self.fid,
+                'plotly_domain': (
+                    plotly.config.get_config()['plotly_domain']
+                ),
+                'oauth_client_id': 'RcXzjux4DGfb8bWG9UNGpJUGsTaS0pUVHoEf7Ecl',
+                'redirect_uri': 'http://localhost:9595'
+            }, cls=plotly.utils.PlotlyJSONEncoder),
+            mimetype='application/json'
+        )
+
+    @_requires_auth
     def serve_routes(self):
         return flask.Response(
             json.dumps(self.routes,
@@ -252,6 +351,7 @@ class Dash(object):
         </html>
         '''.format(css, scripts))
 
+    @_requires_auth
     def dependencies(self):
         return flask.jsonify([
             {
@@ -445,6 +545,7 @@ class Dash(object):
 
         return wrap_func
 
+    @_requires_auth
     def dispatch(self):
         body = json.loads(flask.request.get_data())
         inputs = body.get('inputs', [])
@@ -481,8 +582,4 @@ class Dash(object):
                    debug=True,
                    threaded=True,
                    **flask_run_options):
-        # TODO - If users run the server directly
-        # through app.server, then this _setup_server won't get
-        # called unless they call it explicitly
-        self._setup_server()
         self.server.run(port=port, debug=debug, **flask_run_options)
