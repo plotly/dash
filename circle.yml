@@ -1,0 +1,17 @@
+machine:
+    python:
+        version: 2.7.11
+    node:
+        version: 6.9.2
+
+dependencies:
+    pre:
+        - sudo pip install -r tests/requirements.txt
+        - sudo pip uninstall dash-renderer
+        - npm run build-prod
+        - sudo python setup.py install --single-version-externally-managed --root=/
+
+test:
+    override:
+        - python -m unittest discover -s tests
+        - npm run test
