@@ -3,14 +3,9 @@ import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import queryString from 'query-string';
 import {getConfig, login} from './actions/api';
-import {contains, isEmpty} from 'ramda'
-
-const CLOUD = 'cloud';
-const ONPREM = 'onprem';
-const SERVER_TYPES = {
-    [CLOUD]: 'Plotly Cloud',
-    [ONPREM]: 'Plotly On-Premise'
-};
+import {contains, isEmpty, merge} from 'ramda'
+import * as styles from './styles/styles.js';
+import PageLoading from './PageLoading.react';
 
 // TODO - Somehow figure out a variable redirect_uri
 // and require app creators to set this
@@ -49,23 +44,13 @@ const PopupCenter = (url, title, w, h) => {
 class Login extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            domain: '',
-            statusMessasge: '',
-            serverType: CLOUD,
-            status: '',
-            username: ''
-        };
-        this.authenticateUser = this.authenticateUser.bind(this);
         this.buildOauthUrl = this.buildOauthUrl.bind(this);
         this.oauthPopUp = this.oauthPopUp.bind(this);
-        this.verifyAuthDone = this.verifyAuthDone.bind(this);
     }
 
     buildOauthUrl() {
         const oauthClientId = 'RcXzjux4DGfb8bWG9UNGpJUGsTaS0pUVHoEf7Ecl';
-        const isOnPrem = this.state.serverType === ONPREM;
-        const plotlyDomain = isOnPrem ? this.state.domain : 'https://plot.ly';
+        const plotlyDomain = 'https://plot.ly';
         return (
             `${plotlyDomain}/o/authorize/?response_type=token&` +
             `client_id=${oauthClientId}&` +
@@ -89,108 +74,32 @@ class Login extends Component {
         }, 100);
     }
 
-    verifyAuthDone() {
-        return false;
-    }
-
-    authenticateUser () {
-        if (!this.state.domain && this.state.serverType === ONPREM) {
-            this.setState({
-                status: 'failure',
-                statusMessasge: 'Enter your Plotly On Premise domain.'
-            });
-            return;
-        }
-        this.setState({statusMessasge: ''});
-        this.oauthPopUp();
-    }
-
     render() {
-        const renderOption = (value) => {
-            const selected = this.state.serverType === value;
-            return (
-                <span>
-                    <button
-                        className={selected ? 'button-primary' : 'button'}
-                        onClick={(e) => this.setState({serverType: e.target.value})}
-                        value={value}
-                        style={{margin: '10px'}}
-                    >{SERVER_TYPES[value]}</button>
-                </span>
-            );
-        };
-
-        const loginButton = (
-            <button
-                className="btn btn-large btn-primary"
-                style={{display: 'block', margin: 'auto'}}
-                onClick={() => this.authenticateUser()}
-            >{'Login'}</button>
-        );
-
-        const serverTypeOptions = (
-            <div className="control-group">
-            <h3 className="block-center-heading">
-                {'I am connecting to...'}
-            </h3>
-                <div className="controls" style={{padding: '20px'}}>
-                    {renderOption(CLOUD)}
-                    {renderOption(ONPREM)}
-                </div>
-                <span style={{borderBottom: '2px solid #E7E8E9', cursor: 'pointer'}}>
-                    <a href='https://plot.ly/products/cloud/'>
-                        Learn more about our products.
-                    </a>
-                </span>
-            </div>
-        );
-
-        const loginCloud = (
-            <div className="control-group">
-                <h3 className="block-center-heading">{'Plotly Log In'}</h3>
-                <div className="controls" style={{padding: '20px'}}>
-                    <div className="form-group">
-                        {loginButton}
-                    </div>
-                </div>
-            </div>
-        );
-
-        const loginOnPrem = (
-            <div className="control-group">
-                <h3 className="block-center-heading">{'Login Into Your Account'}</h3>
-                <div className="controls" style={{padding: '20px'}}>
-                    <div className="form-group">
-                        <label>Your On-Prem Plotly Domain</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="https://plotly.your-company.com"
-                            onChange={(e) => this.setState({domain: e.target.value})}
-                        ></input>
-                        {loginButton}
-                    </div>
-                </div>
-            </div>
-        );
-
-        const loginOptions = {
-            cloud: loginCloud,
-            onprem: loginOnPrem
-        };
-
         return (
-            <div className="container">
-                <div className="block-center">
-                    <div style={{textAlign: 'center'}}>
-                        {serverTypeOptions}
-                    </div>
-                    <div style={{textAlign: 'center'}}>
-                        {loginOptions[this.state.serverType]}
-                    </div>
-                    <div style={{textAlign: 'center'}}>
-                        {this.state.statusMessasge}
-                    </div>
+            <div style={merge(styles.base.html, styles.base.container)}>
+                <div style={styles.base.h2}>Dash</div>
+
+                <div style={styles.base.h4}>
+                    {'Log in to Plotly to continue'}
+                </div>
+
+                <button style={styles.base.button} onClick={this.oauthPopUp}>
+                    {'Log in'}
+                </button>
+
+                <div style={styles.base.caption}>
+                    <span>
+                        {`This dash app requires plotly log in to view.
+                          Don't have an account yet?`}
+                    </span>
+                    <a style={styles.base.a}
+                       href="https://plot.ly/accounts/login/?action=signup">
+                        {' Create an account '}
+                    </a>
+                    <span>
+                    {` (it's free)
+                      and then request access from the owner of this app.`}
+                    </span>
                 </div>
             </div>
         );
@@ -227,11 +136,11 @@ class UnconnectedOauthRedirect extends Component {
         let content;
         if (isEmpty(loginRequest) || loginRequest.status === 'loading') {
 
-            content = 'Loading...';
+            content = <div>Loading...</div>;
 
         } else if (loginRequest.status === 200) {
-            // TODO - close this window automatically
-            content = 'Logged in. You may now close this window.';
+
+            window.close();
 
         } else {
 
@@ -315,7 +224,7 @@ class Authentication extends Component {
 
         if (isEmpty(configRequest) || configRequest.status === 'loading') {
 
-            return <div>Loading...</div>
+            return <div>Loading...</div>;
 
         }
 
