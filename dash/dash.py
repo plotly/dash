@@ -43,7 +43,10 @@ class Dash(object):
             # If user supplied their own server, they might've supplied a
             # secret_key with it
             secret_key_name = 'dash_{}_secret_key'.format(name)
-            secret_key = os.environ.get(secret_key_name, os.urandom(24))
+            secret_key = os.environ.get(
+                secret_key_name, SeaSurf()._generate_token()
+            )
+            os.environ[secret_key_name] = secret_key_name
             self.server.secret_key = secret_key
 
         if filename is not None:
