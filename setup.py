@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 exec (open('dash/version.py').read())
 
@@ -7,7 +7,7 @@ setup(
     version=__version__,
     author='chris p',
     author_email='chris@plot.ly',
-    packages=['dash', 'dash/development'],
+    packages=find_packages(exclude=['tests*']),
     license='MIT',
     description='',
     long_description=open('README.md').read(),
