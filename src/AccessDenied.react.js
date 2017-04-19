@@ -2,6 +2,7 @@
 import React, {PropTypes} from 'react';
 import {merge} from 'ramda';
 import * as styles from './styles/styles.js';
+import * as constants from './constants/constants.js';
 
 function AccessDenied(props) {
     const {configRequest} = props;
@@ -28,7 +29,7 @@ function AccessDenied(props) {
 
             <a style={styles.base.a} onClick={() => {
                 document.cookie = (
-                    'plotly_oauth_token=; '+
+                    `${constants.OAUTH_COOKIE_NAME}=; `+
                     'expires=Thu, 01 Jan 1970 00:00:01 GMT;'
                 );
                 window.location.reload(true);
