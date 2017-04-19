@@ -11,6 +11,7 @@ dependencies:
         - npm run build-prod
         - sudo python setup.py install --single-version-externally-managed --root=/
 
+
 test:
     override:
         - python -m unittest discover -s tests
