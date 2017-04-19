@@ -1,6 +1,7 @@
 from copy import copy
-from development.base_component import Component
+from .development.base_component import Component
 import warnings
+import collections
 
 
 class Resources():
@@ -61,7 +62,7 @@ class Resources():
     def get_inferred_resources(self):
         namespaces = []
         resources = []
-        if callable(self.layout):
+        if isinstance(self.layout, collections.Callable):
             layout = self.layout()
         else:
             layout = self.layout

@@ -5,12 +5,13 @@ from flask import Flask, url_for, send_from_directory, Response
 from flask_compress import Compress
 import os
 import importlib
-from resources import Scripts, Css
-from development.base_component import Component
+from .resources import Scripts, Css
+from .development.base_component import Component
 import pkgutil
 import dash_renderer
-from dependencies import Event, Input, Output, State
-import exceptions
+from .dependencies import Event, Input, Output, State
+from . import exceptions
+import collections
 
 
 class Dash(object):
@@ -87,14 +88,14 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
-        if callable(self._layout):
+        if isinstance(self._layout, collections.Callable):
             return self._layout()
         else:
             return self._layout
 
     @layout.setter
     def layout(self, value):
-        if not isinstance(value, Component) and not callable(value):
+        if not isinstance(value, Component) and not isinstance(value, collections.Callable):
             raise Exception(
                 ''
                 'Layout must be a dash component '
@@ -150,7 +151,7 @@ class Dash(object):
         srcs = []
         for resource in resources:
             if 'relative_package_path' in resource:
-                if isinstance(resource['relative_package_path'], basestring):
+                if isinstance(resource['relative_package_path'], str):
                     srcs.append(_relative_url_path(**resource))
                 else:
                     for rel_path in resource['relative_package_path']:
@@ -159,7 +160,7 @@ class Dash(object):
                             namespace=resource['namespace']
                         ))
             elif 'external_url' in resource:
-                if isinstance(resource['external_url'], basestring):
+                if isinstance(resource['external_url'], str):
                     srcs.append(resource['external_url'])
                 else:
                     for url in resource['external_url']:
@@ -208,7 +209,7 @@ class Dash(object):
                 'Error loading dependency.\n'
                 '"{}" is not a registered library.\n'
                 'Registered libraries are: {}'
-                .format(package_name, self.registered_paths.keys()))
+                .format(package_name, list(self.registered_paths.keys())))
 
         elif (path_in_package_dist not in self.registered_paths[package_name]):
             raise Exception(
@@ -262,7 +263,7 @@ class Dash(object):
                 'inputs': v['inputs'],
                 'state': v['state'],
                 'events': v['events']
-            } for k, v in self.callback_map.iteritems()
+            } for k, v in list(self.callback_map.items())
         ])
 
     def react(self, *args, **kwargs):
@@ -322,7 +323,7 @@ class Dash(object):
                     '''.format(
                         arg.component_id,
                         arg.component_id,
-                        layout.keys() + (
+                        list(layout.keys()) + (
                             [] if not hasattr(layout, 'id') else
                             [layout.id]
                         )

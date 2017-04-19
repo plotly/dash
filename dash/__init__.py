@@ -1,3 +1,3 @@
-from dash import Dash
-import development
-from version import __version__
+from .dash import Dash
+from . import development
+from .version import __version__

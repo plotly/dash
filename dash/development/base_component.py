@@ -14,7 +14,7 @@ def is_number(s):
 
 class Component(collections.MutableMapping):
     def __init__(self, **kwargs):
-        for k, v in kwargs.iteritems():
+        for k, v in list(kwargs.items()):
             if k not in self._prop_names:
                 # TODO - What's the right exception here?
                 raise Exception(
@@ -233,7 +233,7 @@ def generate_class(typename, props, description, namespace):
     '''
 
     filtered_props = reorder_props(filter_props(props))
-    list_of_valid_keys = repr(filtered_props.keys())
+    list_of_valid_keys = repr(list(filtered_props.keys()))
     docstring = create_docstring(
         typename,
         filtered_props,
@@ -253,13 +253,13 @@ def generate_class(typename, props, description, namespace):
     d = c.format(**locals())
 
     scope = {'Component': Component}
-    exec d in scope
+    exec(d, scope)
     result = scope[typename]
     return result
 
 
 def required_props(props):
-    return [prop_name for prop_name, prop in props.iteritems()
+    return [prop_name for prop_name, prop in list(props.items())
             if prop['required']]
 
 
@@ -269,7 +269,7 @@ def reorder_props(props):
     if 'content' in props:
         props = collections.OrderedDict(
             [('content', props.pop('content'), )] +
-            zip(props.keys(), props.values())
+            list(zip(list(props.keys()), list(props.values())))
         )
     return props
 
@@ -287,7 +287,7 @@ def create_docstring(name, props, events, description):
     if 'content' in props:
         props = collections.OrderedDict(
             [['content', props.pop('content')]] +
-            zip(props.keys(), props.values())
+            list(zip(list(props.keys()), list(props.values())))
         )
     return '''A {name} component.{description}
 
@@ -300,7 +300,7 @@ def create_docstring(name, props, events, description):
         args='\n'.join(
             ['- {}'.format(argument_doc(
                 p, prop['type'], prop['required'], prop['description']
-            )) for p, prop in filter_props(props).iteritems()]
+            )) for p, prop in list(filter_props(props).items())]
         ),
         events=', '.join(events)
     ).replace('    ', '')
@@ -308,7 +308,7 @@ def create_docstring(name, props, events, description):
 
 def filter_props(args):
     filtered_args = copy.deepcopy(args)
-    for arg_name, arg in filtered_args.iteritems():
+    for arg_name, arg in list(filtered_args.items()):
         if 'type' not in arg:
             filtered_args.pop(arg_name)
             continue
@@ -368,7 +368,7 @@ def js_to_py_type(type_object):
         'shape': lambda: (
             'dict containing keys {}.\n{}'.format(
                 ', '.join(
-                    ["'{}'".format(t) for t in type_object['value'].keys()]
+                    ["'{}'".format(t) for t in list(type_object['value'].keys())]
                 ),
                 'Those keys have the following types: \n{}'.format(
                     '\n'.join([
@@ -378,7 +378,7 @@ def js_to_py_type(type_object):
                             prop['required'],
                             prop.get('description', '')
                         ) for
-                        prop_name, prop in type_object['value'].iteritems()
+                        prop_name, prop in list(type_object['value'].items())
                     ])
                 )
             )
