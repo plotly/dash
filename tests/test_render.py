@@ -36,9 +36,13 @@ class Tests(IntegrationTests):
                     html.Div(
                         html.Div([
                             html.Div([
-                                html.Div(id='p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0'),
+                                html.Div(
+                                    id='p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0'
+                                ),
                                 '',
-                                html.Div(id='p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2')
+                                html.Div(
+                                    id='p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2'
+                                )
                             ], id='p.c.5.p.c.2.p.c.0.p.c.p.c.0')
                         ], id='p.c.5.p.c.2.p.c.0.p.c'),
                         id='p.c.5.p.c.2.p.c.0'
