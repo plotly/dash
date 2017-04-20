@@ -140,3 +140,4 @@ See the [dash-components-archetype][] repo for more information.
 [Dash2]: https://github.com/plotly/dash2
 [NPM package authors]: https://www.npmjs.com/package/dash-core-components/access
 [PyPi]: https://pypi.python.org/pypi
+[dash-components-archetype]: https://github.com/plotly/dash-components-archetype
