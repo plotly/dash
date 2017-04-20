@@ -2,6 +2,6 @@ machine:
     python:
         version: 2.7.11
 
-dependencies:
-    pre:
-        - sudo pip install -r requirements.txt
+test:
+    override:
+        - tox
