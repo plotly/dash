@@ -118,7 +118,11 @@ class UnconnectedContainer extends Component {
 
 
         else if (appLifecycle === APP_STATES('HYDRATED')) {
-            return renderTree(layout, dependenciesRequest.content);
+            return (
+                <div id="_dash-app-content">
+                    {renderTree(layout, dependenciesRequest.content)}
+                </div>
+            );
         }
 
         else {

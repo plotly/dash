@@ -48,8 +48,7 @@ class Tests(IntegrationTests):
         ])
 
         self.startServer(app)
-
-        el = self.driver.find_element_by_id('react-entry-point')
+        el = self.driver.find_element_by_id('_dash-app-content')
 
         rendered_dom = '''
             <div data-reactroot="">
