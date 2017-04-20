@@ -8,6 +8,7 @@ import mock
 from utils import assert_clean_console, wait_for
 from multiprocessing import Value
 import time
+import re
 
 
 class Tests(IntegrationTests):
@@ -55,69 +56,63 @@ class Tests(IntegrationTests):
         el = self.driver.find_element_by_id('_dash-app-content')
 
         rendered_dom = '''
-            <div data-reactroot="">
-                <div>
-                    <!-- react-text: 5 -->
-                        Basic string
-                    <!-- /react-text -->
+            <div>
+                Basic string
 
-                    <!-- react-text: 6 -->
-                        3.14
-                    <!-- /react-text -->
+                3.14
 
-                    <div class="my-class" id="p.c.3" title="tooltip" style="color: red; font-size: 30px;">
-                        Child div with basic string
+                <div class="my-class" id="p.c.3" title="tooltip" style="color: red; font-size: 30px;">
+                    Child div with basic string
+                </div>
+
+                <div id="p.c.4">
+                </div>
+
+                <div id="p.c.5">
+                    <div id="p.c.5.p.c.0">
+                        Grandchild div
                     </div>
 
-                    <div id="p.c.4">
+                    <div id="p.c.5.p.c.1">
+                        <div id="p.c.5.p.c.1.p.c.0">
+                            Great grandchild
+                        </div>
+
+                        3.14159
+
+                        another basic string
                     </div>
 
-                    <div id="p.c.5">
-                        <div id="p.c.5.p.c.0">
-                            Grandchild div
-                        </div>
+                    <div id="p.c.5.p.c.2">
+                        <div id="p.c.5.p.c.2.p.c.0">
+                            <div id="p.c.5.p.c.2.p.c.0.p.c">
+                                <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0">
 
-                        <div id="p.c.5.p.c.1">
-                            <div id="p.c.5.p.c.1.p.c.0">
-                                Great grandchild
-                            </div>
-
-                            <!-- react-text: 13 -->
-                                3.14159
-                            <!-- /react-text -->
-
-                            <!-- react-text: 14 -->
-                                another basic string
-                            <!-- /react-text -->
-                        </div>
-
-                        <div id="p.c.5.p.c.2">
-                            <div id="p.c.5.p.c.2.p.c.0">
-                                <div id="p.c.5.p.c.2.p.c.0.p.c">
-                                    <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0">
-
-                                        <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0">
-                                        </div>
-
-                                        <!-- react-text: 20 -->
-                                        <!-- /react-text -->
-
-                                        <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2">
-                                        </div>
-
+                                    <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0">
                                     </div>
+
+
+                                    <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2">
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
-                <!-- react-empty: 3 -->
+
             </div>
         '''
+        # React wraps text and numbers with e.g. <!-- react-text: 20 -->
+        # Remove those
+        comment_regex = '<!--[^\[](.*?)-->'
         self.assertEqual(
-            el.get_attribute('innerHTML'),
-            rendered_dom.replace('\n', '').replace('    ', '')
+            re.sub(comment_regex, '', el.get_attribute('innerHTML')),
+            re.sub(
+                comment_regex,
+                '',
+                rendered_dom.replace('\n', '').replace('    ', '')
+            )
         )
 
         # Check that no errors or warnings were displayed
