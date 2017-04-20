@@ -1,6 +1,5 @@
 machine:
-    python:
-        version: 2.7.11
+    python
 
 test:
     override:
