@@ -4,4 +4,4 @@ machine:
 
 dependencies:
     pre:
-        - sudo pip install -r dash/requirements.txt
+        - sudo pip install -r requirements.txt
