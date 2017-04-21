@@ -302,7 +302,11 @@ export const notifyObservers = function(payload) {
             const changedProps = keys(props);
             outputObservers = [];
             changedProps.forEach(propName => {
-                InputGraph.dependenciesOf(`${id}.${propName}`).forEach(outputId => {
+                const node = `${id}.${propName}`
+                if (!InputGraph.hasNode(node)) {
+                    return;
+                }
+                InputGraph.dependenciesOf(node).forEach(outputId => {
                     if (dontUpdateInputObservers) {
                         // Only update output elements
                         if (InputGraph.dependenciesOf(outputId).length === 0) {
