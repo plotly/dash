@@ -13,5 +13,5 @@ dependencies:
 
 test:
     override:
-        - python -m unittest discover -s tests
+        - python -m unittest tests.test_render.Tests
         - npm run test

@@ -38,7 +38,8 @@ function getInputHistoryState(itempath, props, state) {
         historyEntry = {id, props: {}};
         R.keys(props).forEach(propKey => {
             const inputKey = `${id}.${propKey}`;
-            if (InputGraph.dependenciesOf(inputKey).length > 0) {
+            if (InputGraph.hasNode(inputKey) &&
+                InputGraph.dependenciesOf(inputKey).length > 0) {
                 historyEntry.props[propKey] = view(
                     lensPath(concat(paths[id], ['props', propKey])),
                     layout

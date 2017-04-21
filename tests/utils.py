@@ -2,7 +2,7 @@ import json
 import time
 
 
-TIMEOUT = 3  # Seconds
+TIMEOUT = 5  # Seconds
 
 
 class WaitForTimeout(Exception):

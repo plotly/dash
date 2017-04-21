@@ -35,7 +35,9 @@ class IntegrationTests(unittest.TestCase):
         pass
 
     def tearDown(s):
+        time.sleep(2)
         s.server_process.terminate()
+        time.sleep(2)
 
     def startServer(s, dash):
         def run():
@@ -53,6 +55,7 @@ class IntegrationTests(unittest.TestCase):
 
         # Visit the dash page
         s.driver.get('http://localhost:8050')
+        time.sleep(0.5)
 
         # Inject an error and warning logger
         logger = '''
