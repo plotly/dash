@@ -530,7 +530,8 @@ class Tests(IntegrationTests):
                     {'label': 'Chapter 1', 'value': 'chapter1'},
                     {'label': 'Chapter 2', 'value': 'chapter2'},
                     {'label': 'Chapter 3', 'value': 'chapter3'},
-                    {'label': 'Chapter 4', 'value': 'chapter4'}
+                    {'label': 'Chapter 4', 'value': 'chapter4'},
+                    {'label': 'Chapter 5', 'value': 'chapter5'}
                 ],
                 value='chapter1',
                 id='toc'
@@ -585,7 +586,13 @@ class Tests(IntegrationTests):
 
             # Chapter 4 doesn't have an object to recursively
             # traverse
-            'chapter4': 'Just a string'
+            'chapter4': 'Just a string',
+
+            # Chapter 5 contains elements that are bound with events
+            'chapter5': [html.Div([
+                html.Button(id='chapter5-button'),
+                html.Div(id='chapter5-output')
+            ])]
         }
 
         call_counts = {
@@ -595,7 +602,8 @@ class Tests(IntegrationTests):
             'chapter2-graph': Value('i', 0),
             'chapter2-label': Value('i', 0),
             'chapter3-graph': Value('i', 0),
-            'chapter3-label': Value('i', 0)
+            'chapter3-label': Value('i', 0),
+            'chapter5-output': Value('i', 0)
         }
 
         @app.callback(Output('body', 'content'), [Input('toc', 'value')])
@@ -634,6 +642,14 @@ class Tests(IntegrationTests):
                 Output('{}-label'.format(chapter), 'content'),
                 [Input('{}-controls'.format(chapter), 'value')]
             )(generate_label_callback('{}-label'.format(chapter)))
+
+        chapter5_output_content = 'Button clicked'
+
+        @app.callback(Output('chapter5-output', 'content'),
+                      events=[Event('chapter5-button', 'click')])
+        def display_output():
+            call_counts['chapter5-output'].value += 1
+            return chapter5_output_content
 
         self.startServer(app)
 
@@ -838,6 +854,24 @@ class Tests(IntegrationTests):
         )[0]).click()
         time.sleep(0.5)
         chapter1_assertions()
+
+        # switch to 5
+        (self.driver.find_elements_by_css_selector(
+            'input[type="radio"]'
+        )[4]).click()
+        time.sleep(1)
+        # click on the button and check the output div before and after
+        chapter5_div = lambda: self.driver.find_element_by_id(
+            'chapter5-output'
+        )
+        chapter5_button = lambda: self.driver.find_element_by_id(
+            'chapter5-button'
+        )
+        self.assertEqual(chapter5_div().text, '')
+        chapter5_button().click()
+        self.assertEqual(chapter5_div().text, chapter5_output_content)
+        time.sleep(0.5)
+        self.assertEqual(call_counts['chapter5-output'].value, 1)
 
     def test_dependencies_on_components_that_dont_exist(self):
         app = Dash(__name__)
