@@ -1096,6 +1096,59 @@ class Tests(IntegrationTests):
             output().text,
             'input="Initial Inputxy", state="Initial Statex"')
 
+    def test_event_creating_inputs(self):
+        app = Dash(__name__)
+
+        ids = {
+            k: k for k in ['button', 'button-output', 'input', 'input-output']
+        }
+        app.layout = html.Div([
+            html.Button(id=ids['button']),
+            html.Div(id=ids['button-output'])
+        ])
+        for script in dcc._js_dist:
+            script['namespace'] = 'dash_core_components'
+            app.scripts.append_script(script)
+
+        app.config.supress_callback_exceptions = True
+        call_counts = {
+            ids['input-output']: Value('i', 0),
+            ids['button-output']: Value('i', 0)
+        }
+
+        @app.callback(
+            Output(ids['button-output'], 'content'),
+            events=[Event(ids['button'], 'click')])
+        def display():
+            call_counts['button-output'].value += 1
+            return html.Div([
+                dcc.Input(id=ids['input'], value='initial state'),
+                html.Div(id=ids['input-output'])
+            ])
+
+        @app.callback(
+            Output(ids['input-output'], 'content'),
+            [Input(ids['input'], 'value')])
+        def update_input(value):
+            call_counts['input-output'].value += 1
+            return 'Input is equal to "{}"'.format(value)
+
+        self.startServer(app)
+        time.sleep(1)
+        self.assertEqual(call_counts[ids['button-output']].value, 0)
+        self.assertEqual(call_counts[ids['input-output']].value, 0)
+
+        btn = lambda: self.driver.find_element_by_id(ids['button'])
+        output = lambda: self.driver.find_element_by_id(ids['input-output'])
+        with self.assertRaises(Exception):
+            output()
+
+        btn().click()
+        wait_for(lambda: call_counts[ids['input-output']].value == 1)
+        self.assertEqual(call_counts[ids['button-output']].value, 1)
+        self.assertEqual(output().text, 'Input is equal to "initial state"')
+
+
     def test_chained_dependencies(self):
         app = Dash(__name__)
         app.layout = html.Div([
