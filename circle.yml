@@ -1,11 +1,10 @@
 machine:
-    python:
-        version: 2.7.11
     node:
         version: 6.9.2
 
 dependencies:
     pre:
+        - pip install tox
         - pip install -r tests/requirements.txt
         - npm install
         - npm run build-prod
@@ -13,5 +12,5 @@ dependencies:
 
 test:
     override:
-        - python -m unittest tests.test_render.Tests
+        - tox
         - npm run test
