@@ -14,6 +14,7 @@ setup(
     install_requires=[
         'Flask',
         'flask-compress',
+        'flask-seasurf',
         'plotly'
     ]
 )
