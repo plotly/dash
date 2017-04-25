@@ -42,6 +42,7 @@ install:
   - ps: Install-Product node $env:nodejs_version
   # install modules
   - npm install
+  - npm install --only=dev
   - ./node_modules/.bin/webpack --config=config/webpack.config.prod.js
 
 build: off
