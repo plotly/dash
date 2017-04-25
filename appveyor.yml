@@ -18,6 +18,8 @@ environment:
       PYTHON_VERSION: "2.7.8"
       PYTHON_ARCH: "64"
 
+  NODE_ENV: production
+
 install:
   # Download setup scripts and unzip
   - ps: "wget https://github.com/cloudify-cosmo/appveyor-utils/archive/master.zip -OutFile ./master.zip"
@@ -40,7 +42,7 @@ install:
   - ps: Install-Product node $env:nodejs_version
   # install modules
   - npm install
-  - npm run build-prod
+  - ./node_modules/.bin/webpack --config=config/webpack.config.prod.js
 
 build: off
 
