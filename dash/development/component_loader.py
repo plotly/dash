@@ -1,4 +1,4 @@
-from base_component import generate_class
+from .base_component import generate_class
 import collections
 import json
 

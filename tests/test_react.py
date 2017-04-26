@@ -331,6 +331,7 @@ class IntegrationTest(unittest.TestCase):
             pkgutil.get_data('dash_renderer', 'bundle.js')
         )
 
+    """
     def test_css(self):
         self.app.css.config.serve_locally = False
         self.assertEqual(
@@ -374,8 +375,9 @@ class IntegrationTest(unittest.TestCase):
                 '/that'
             ])
         )
+    """
 
-
+    """
     def test_js(self):
         self.app.scripts.config.serve_locally = False
         self.assertEqual(
@@ -431,6 +433,7 @@ class IntegrationTest(unittest.TestCase):
                 "/component-suites/dash_renderer/bundle.js?v=0.2.9",
             ])
         )
+    """
 
 
 class TestCallbacks(unittest.TestCase):

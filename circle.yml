@@ -1,7 +1,7 @@
-machine:
-    python:
-        version: 2.7.11
-
 dependencies:
-    pre:
-        - sudo pip install -r dash/requirements.txt
+   pre:
+     - pip install tox
+
+test:
+   override:
+     - tox

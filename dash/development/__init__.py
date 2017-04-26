@@ -1,2 +1,2 @@
-import base_component
-import component_loader
+from . import base_component
+from . import component_loader
