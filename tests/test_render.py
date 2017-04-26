@@ -5,13 +5,20 @@ import dash_html_components as html
 import dash_core_components as dcc
 from IntegrationTests import IntegrationTests
 import mock
-from utils import assert_clean_console, wait_for
+from utils import assert_clean_console, invincible, wait_for
 from multiprocessing import Value
 import time
 import re
 
 
 class Tests(IntegrationTests):
+    def setUp(self):
+        def wait_for_element_by_id(id):
+            wait_for(lambda: None is not invincible(
+                lambda: self.driver.find_element_by_id(id)
+            ))
+            return self.driver.find_element_by_id(id)
+        self.wait_for_element_by_id = wait_for_element_by_id
 
     def test_initial_state(self):
         app = Dash(__name__)
@@ -23,7 +30,7 @@ class Tests(IntegrationTests):
                      id='p.c.3',
                      className="my-class",
                      title='tooltip',
-                     style={'color': 'red', 'fontSize': 30, 'font-size': 10}
+                     style={'color': 'red', 'fontSize': 30}
                      ),
             html.Div(id='p.c.4'),
             html.Div([
@@ -53,15 +60,17 @@ class Tests(IntegrationTests):
         ])
 
         self.startServer(app)
-        el = self.driver.find_element_by_id('_dash-app-content')
 
+        el = self.wait_for_element_by_id('_dash-app-content')
+
+        # TODO - Why is `font-size` being used not `fontSize`?
         rendered_dom = '''
             <div>
                 Basic string
 
                 3.14
 
-                <div id="p.c.3" title="tooltip" class="my-class" style="color: red; font-size: 30px;">
+                <div class="my-class" id="p.c.3" title="tooltip" style="color: red; font-size: 30px;">
                     Child div with basic string
                 </div>
 
@@ -153,7 +162,7 @@ class Tests(IntegrationTests):
                          'className': "my-class",
                          'title': 'tooltip',
                          'style': {
-                            'color': 'red', 'fontSize': 30, 'font-size': 10
+                            'color': 'red', 'fontSize': 30
                          }
                       },
                       "type": "Div"
@@ -390,18 +399,16 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        wait_for(lambda: self.driver.find_element_by_id(
-            'output-1'
-        ).text == 'initial value')
+        output1 = self.wait_for_element_by_id('output-1')
+        wait_for(lambda: output1.text == 'initial value')
 
-        input1 = self.driver.find_element_by_id('input')
+        input1 = self.wait_for_element_by_id('input')
         input1.clear()
 
         input1.send_keys('hello world')
 
-        wait_for(lambda: self.driver.find_element_by_id(
-            'output-1'
-        ).text == 'hello world')
+        output1 = lambda: self.wait_for_element_by_id('output-1')
+        wait_for(lambda: output1().text == 'hello world')
 
         self.assertEqual(
             call_count.value,
@@ -869,7 +876,7 @@ class Tests(IntegrationTests):
         )
         self.assertEqual(chapter5_div().text, '')
         chapter5_button().click()
-        self.assertEqual(chapter5_div().text, chapter5_output_content)
+        wait_for(lambda: chapter5_div().text == chapter5_output_content)
         time.sleep(0.5)
         self.assertEqual(call_counts['chapter5-output'].value, 1)
 
@@ -903,8 +910,8 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        wait_for(lambda: self.driver.find_element_by_id('output-1').text
-                 == 'initial value')
+        el = self.wait_for_element_by_id('output-1')
+        wait_for(lambda: el.text == 'initial value')
         time.sleep(1.0)
         self.assertEqual(output_1_call_count.value, 1)
         self.assertEqual(output_2_call_count.value, 0)

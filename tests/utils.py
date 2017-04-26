@@ -5,6 +5,16 @@ import time
 TIMEOUT = 5  # Seconds
 
 
+def invincible(func):
+    def wrap():
+        try:
+            return func()
+        except:
+            pass
+    return wrap
+
+
+
 class WaitForTimeout(Exception):
     """This should only be raised inside the `wait_for` function."""
     pass
