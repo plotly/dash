@@ -64,13 +64,14 @@ class Tests(IntegrationTests):
         el = self.wait_for_element_by_id('_dash-app-content')
 
         # TODO - Why is `font-size` being used not `fontSize`?
+        # TODO - Make less fragile with http://lxml.de/lxmlhtml.html#html-diff
         rendered_dom = '''
             <div>
                 Basic string
 
                 3.14
 
-                <div class="my-class" id="p.c.3" title="tooltip" style="color: red; font-size: 30px;">
+                <div title="tooltip" class="my-class" id="p.c.3" style="color: red; font-size: 30px;">
                     Child div with basic string
                 </div>
 
