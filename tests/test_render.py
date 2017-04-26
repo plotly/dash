@@ -71,7 +71,7 @@ class Tests(IntegrationTests):
 
                 3.14
 
-                <div title="tooltip" class="my-class" id="p.c.3" style="color: red; font-size: 30px;">
+                <div id="p.c.3" title="tooltip" class="my-class" style="color: red; font-size: 30px;">
                     Child div with basic string
                 </div>
 
