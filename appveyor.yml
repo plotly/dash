@@ -2,8 +2,7 @@
 # https://github.com/PyCQA/pyflakes/blob/master/.appveyor.yml
 
 environment:
-  nodejs_version: "6.9.2"
-
+  - nodejs_version: "6.9.2"
 
 # To activate, change the Appveyor settings to use `.appveyor.yml`.
 install:
@@ -55,7 +54,7 @@ build: off
 test_script:
   - python -m tox
 
-    # Node
-    - node --version
-    - npm --version
-    - npm run test
+  # Node
+  - node --version
+  - npm --version
+  - npm run test
