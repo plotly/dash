@@ -5,10 +5,11 @@
   "main": "src/index.js",
   "scripts": {
     "build-dev": "./node_modules/.bin/webpack --config=config/webpack.config.dev.js",
-    "build-prod": "NODE_ENV=production ./node_modules/.bin/webpack --config=config/webpack.config.prod.js",
+    "build-prod": "cross-env NODE_ENV=production ./node_modules/.bin/webpack --config=config/webpack.config.prod.js",
     "dev": "./node_modules/.bin/webpack-dev-server --config=config/webpack.config.dev.js",
     "hot": "./node_modules/.bin/webpack-dev-server --hot --config=config/webpack.config.hot.js",
     "lint": "./node_modules/.bin/eslint --quiet --fix .",
+    "prepublish": "npm test && npm run build-prod",
     "publish-all": "npm publish && python setup.py sdist upload",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "server": "serv -p 8080 .",
