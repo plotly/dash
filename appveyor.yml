@@ -1,9 +1,6 @@
 # Adapted from
 # https://github.com/PyCQA/pyflakes/blob/master/.appveyor.yml
 
-environment:
-  - nodejs_version: "6.9.2"
-
 # To activate, change the Appveyor settings to use `.appveyor.yml`.
 install:
   - python -m pip install -r dev-requirements.txt
