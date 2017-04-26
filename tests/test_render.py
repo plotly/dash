@@ -9,6 +9,7 @@ from utils import assert_clean_console, invincible, wait_for
 from multiprocessing import Value
 import time
 import re
+import itertools
 
 
 class Tests(IntegrationTests):
@@ -71,7 +72,7 @@ class Tests(IntegrationTests):
 
                 3.14
 
-                <div id="p.c.3" class="my-class" title="tooltip" style="color: red; font-size: 30px;">
+                <div PERMUTE>
                     Child div with basic string
                 </div>
 
@@ -116,14 +117,36 @@ class Tests(IntegrationTests):
         # React wraps text and numbers with e.g. <!-- react-text: 20 -->
         # Remove those
         comment_regex = '<!--[^\[](.*?)-->'
-        self.assertEqual(
-            re.sub(comment_regex, '', el.get_attribute('innerHTML')),
-            re.sub(
-                comment_regex,
-                '',
-                rendered_dom.replace('\n', '').replace('    ', '')
+
+        # Somehow the html attributes are unordered.
+        # Try different combinations (they're all valid html)
+        permutations = itertools.permutations([
+            'id="p.c.3"',
+            'class="my-class"',
+            'title="tooltip"',
+            'style="color: red; font-size: 30px;"'
+        ], 4)
+        passed = False
+        for permutation in permutations:
+            passed = (
+                re.sub(comment_regex, '', el.get_attribute('innerHTML')) ==
+                re.sub(
+                    comment_regex,
+                    '',
+                    rendered_dom.replace('\n', '')
+                                .replace('    ', '')
+                                .replace('PERMUTE', ' '.join(permutation))
+                )
             )
-        )
+            if passed:
+                break
+        if not passed:
+            raise Exception(
+                'HTML does not match\nActual:\n{}\n\nExpected:\n{}'.format(
+                    el.get_attribute('innerHTML'),
+                    rendered_dom
+                )
+            )
 
         # Check that no errors or warnings were displayed
         self.assertEqual(
