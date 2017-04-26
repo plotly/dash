@@ -5,7 +5,7 @@ machine:
 dependencies:
     pre:
         - pip install tox
-        - pip install -r tests/requirements.txt
+        - pip install -r dev-requirements.txt
         - npm install
         - npm run build-prod
 

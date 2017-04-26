@@ -4,3 +4,4 @@ dash.ly==0.15.2
 percy
 selenium
 mock
+tox
