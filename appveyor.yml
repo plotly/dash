@@ -21,12 +21,6 @@ install:
   # pypy3 installer provides 'pypy.exe', not pypy3.exe.
   - copy C:\pypy3-2.4.0-win32\pypy.exe C:\pypy3-2.4.0-win32\pypy3.exe
 
-  # workaround https://github.com/pypa/virtualenv/issues/93
-  - mkdir C:\python33\tcl\tcl8.6
-  - mkdir C:\python33\tcl\tk8.6
-  - mkdir C:\pypy3-2.4.0-win32\tcl\tcl8.6
-  - mkdir C:\pypy3-2.4.0-win32\tcl\tk8.6
-
   # Only pypy2-5.3.1 is integrated into tox, as pypy3-2.4.0 fails and
   # a Windows distribution of pypy3-5.2 isnt available yet.
   - ps: $env:path = "$env:path;C:\pypy2-v5.3.1-win32"
