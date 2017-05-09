@@ -67,8 +67,9 @@ def create_race_conditions_test(endpoints):
 routes = [
     'layout',
     'dependencies',
+    'update-component',
     '_config'
-    # routes, component-suites, and update-component
+    # routes and component-suites
     # are other endpoints but are excluded to speed up tests
 ]
 
