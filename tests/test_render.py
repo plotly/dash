@@ -4,7 +4,6 @@ import dash
 import dash_html_components as html
 import dash_core_components as dcc
 from IntegrationTests import IntegrationTests
-import mock
 from utils import assert_clean_console, invincible, wait_for
 from multiprocessing import Value
 import time
