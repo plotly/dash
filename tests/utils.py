@@ -20,7 +20,7 @@ class WaitForTimeout(Exception):
     pass
 
 
-def wait_for(condition_function, *args, **kwargs):
+def wait_for(condition_function, get_message=lambda: '', *args, **kwargs):
     """
     Waits for condition_function to return True or raises WaitForTimeout.
     :param (function) condition_function: Should return True on success.
@@ -60,7 +60,7 @@ def wait_for(condition_function, *args, **kwargs):
             return True
         time.sleep(0.5)
 
-    raise WaitForTimeout
+    raise WaitForTimeout(get_message())
 
 
 def assert_clean_console(TestClass):

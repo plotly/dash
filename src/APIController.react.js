@@ -63,9 +63,18 @@ class UnconnectedContainer extends Component {
             dispatch(getRoutes());
         }
 
-        if (dependenciesRequest.status === 200 &&
+        if (
+            // dependenciesRequest and its computed stores
+            dependenciesRequest.status === 200 &&
             !isEmpty(graphs) &&
             routesRequest.status === 200 &&
+
+            // LayoutRequest and its computed stores
+            layoutRequest.status === 200 &&
+            !isEmpty(layout) &&
+            !isNil(paths) &&
+
+            // Hasn't already hydrated
             appLifecycle === APP_STATES('STARTED')
         ) {
             dispatch(hydrateInitialOutputs());
