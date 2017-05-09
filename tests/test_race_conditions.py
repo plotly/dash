@@ -78,7 +78,7 @@ for route_list in itertools.permutations(routes, len(routes)):
         Tests,
         'test_delayed_{}'.format(
             '_'.join([
-                r.replace('-', ')') for r in route_list
+                r.replace('-', '_') for r in route_list
             ])),
         create_race_conditions_test(route_list)
     )
