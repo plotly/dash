@@ -34,11 +34,9 @@ def create_race_conditions_test(endpoints):
             return value
 
         def delay():
-            print('Incoming {}'.format(flask.request.path))
             for i, route in enumerate(endpoints):
                 if route in flask.request.path:
                     time.sleep((DELAY_TIME * i) + DELAY_TIME)
-            print('Outgoing {}'.format(flask.request.path))
 
         def element_text(id):
             try:
