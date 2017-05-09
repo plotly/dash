@@ -5,3 +5,4 @@ percy
 selenium
 mock
 tox
+six
