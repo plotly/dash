@@ -18,7 +18,8 @@ _js_dist = [
         "external_url": (
             "https://unpkg.com/dash-core-components@{}"
             "/dash_core_components/bundle.js"
-        ).format(__version__)
+        ).format(__version__),
+        "namespace": "dash_core_components"
     }
 ]
 
@@ -31,7 +32,8 @@ _css_dist = [
         "external_url": [
             "https://unpkg.com/react-select@1.0.0-rc.3/dist/react-select.min.css",
             "https://unpkg.com/rc-slider@6.1.2/assets/index.css"
-        ]
+        ],
+        "namespace": "dash_core_components"
     }
 ]
 
