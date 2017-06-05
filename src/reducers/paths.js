@@ -21,7 +21,7 @@ const paths = (state = initialPaths, action) => {
                 ), R.keys(state));
                 newState = R.omit(removeKeys, state);
             } else {
-                newState = Object.assign({}, state);
+                newState = R.merge({}, state);
             }
 
             crawlLayout(subTree, function assignPath(child, itempath) {
