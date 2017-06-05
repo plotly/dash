@@ -16,3 +16,5 @@ dash_renderer/bundle.js
 dash_renderer/bundle.js.map
 simple*
 /.tox
+
+*.csv
