@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import {contains, filter, has, type} from 'ramda';
+/* global Plotly:true */
 
 const filterEventData = (gd, eventData, event) => {
     let filteredEventData;
