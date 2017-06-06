@@ -8,6 +8,8 @@
   },
   "main": "src/index.js",
   "scripts": {
+    "build-dev": "builder run clean-lib && builder run extract-metadata && webpack -w --config=./config/webpack/webpack.config.dev.js",
+    "build-dist": "builder run clean-lib && builder run extract-metadata && NODE_ENV=production webpack --config=./config/webpack/webpack.config.dist.js",
     "copy-lib": "cp lib/* dash_core_components",
     "demo": "./node_modules/.bin/builder run demo",
     "install-local": "npm run copy-lib && python setup.py install",
@@ -25,7 +27,6 @@
   "dependencies": {
     "builder": "2.10.1",
     "dash-components-archetype": "^0.2.4",
-    "plotly.js": "^1.14.2",
     "radium": "^0.17.1",
     "ramda": "^0.23.0",
     "rc-slider": "^6.1.0",

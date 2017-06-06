@@ -1,5 +1,4 @@
 import React, {Component, PropTypes} from 'react';
-import Plotly from 'plotly.js';
 import {contains, filter, has, type} from 'ramda';
 
 const filterEventData = (gd, eventData, event) => {
