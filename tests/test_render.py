@@ -173,14 +173,14 @@ class Tests(IntegrationTests):
             {
                 "namespace": "dash_html_components",
                 "props": {
-                  "content": [
+                  "children": [
                     "Basic string",
                     3.14,
                     None,
                     {
                       "namespace": "dash_html_components",
                       "props": {
-                        "content": "Child div with basic string",
+                        "children": "Child div with basic string",
                         "id": "p.c.3",
                          'className': "my-class",
                          'title': 'tooltip',
@@ -193,7 +193,7 @@ class Tests(IntegrationTests):
                     {
                       "namespace": "dash_html_components",
                       "props": {
-                        "content": None,
+                        "children": None,
                         "id": "p.c.4"
                       },
                       "type": "Div"
@@ -201,11 +201,11 @@ class Tests(IntegrationTests):
                     {
                       "namespace": "dash_html_components",
                       "props": {
-                        "content": [
+                        "children": [
                           {
                             "namespace": "dash_html_components",
                             "props": {
-                              "content": "Grandchild div",
+                              "children": "Grandchild div",
                               "id": "p.c.5.p.c.0"
                             },
                             "type": "Div"
@@ -213,11 +213,11 @@ class Tests(IntegrationTests):
                           {
                             "namespace": "dash_html_components",
                             "props": {
-                              "content": [
+                              "children": [
                                 {
                                   "namespace": "dash_html_components",
                                   "props": {
-                                    "content": "Great grandchild",
+                                    "children": "Great grandchild",
                                     "id": "p.c.5.p.c.1.p.c.0"
                                   },
                                   "type": "Div"
@@ -232,22 +232,22 @@ class Tests(IntegrationTests):
                           {
                             "namespace": "dash_html_components",
                             "props": {
-                              "content": [
+                              "children": [
                                 {
                                   "namespace": "dash_html_components",
                                   "props": {
-                                    "content": {
+                                    "children": {
                                       "namespace": "dash_html_components",
                                       "props": {
-                                        "content": [
+                                        "children": [
                                           {
                                             "namespace": "dash_html_components",
                                             "props": {
-                                              "content": [
+                                              "children": [
                                                 {
                                                   "namespace": "dash_html_components",
                                                   "props": {
-                                                    "content": None,
+                                                    "children": None,
                                                     "id": "p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0"
                                                   },
                                                   "type": "Div"
@@ -256,7 +256,7 @@ class Tests(IntegrationTests):
                                                 {
                                                   "namespace": "dash_html_components",
                                                   "props": {
-                                                    "content": None,
+                                                    "children": None,
                                                     "id": "p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2"
                                                   },
                                                   "type": "Div"
@@ -322,64 +322,64 @@ class Tests(IntegrationTests):
             ),
             {
                 "p.c.3": [
-                    "props",  "content",  3
+                    "props",  "children",  3
                 ],
                 "p.c.4": [
-                    "props",  "content",  4
+                    "props",  "children",  4
                 ],
                 "p.c.5": [
-                    "props",  "content",  5
+                    "props",  "children",  5
                 ],
                 "p.c.5.p.c.0": [
-                    "props",  "content",  5,
-                    "props",  "content",  0
+                    "props",  "children",  5,
+                    "props",  "children",  0
                 ],
                 "p.c.5.p.c.1": [
-                    "props",  "content",  5,
-                    "props",  "content",  1
+                    "props",  "children",  5,
+                    "props",  "children",  1
                 ],
                 "p.c.5.p.c.1.p.c.0": [
-                    "props",  "content",  5,
-                    "props",  "content",  1,
-                    "props",  "content",  0
+                    "props",  "children",  5,
+                    "props",  "children",  1,
+                    "props",  "children",  0
                 ],
                 "p.c.5.p.c.2": [
-                    "props",  "content",  5,
-                    "props",  "content",  2
+                    "props",  "children",  5,
+                    "props",  "children",  2
                 ],
                 "p.c.5.p.c.2.p.c.0": [
-                    "props",  "content",  5,
-                    "props",  "content",  2,
-                    "props",  "content",  0
+                    "props",  "children",  5,
+                    "props",  "children",  2,
+                    "props",  "children",  0
                 ],
                 "p.c.5.p.c.2.p.c.0.p.c": [
-                    "props",  "content",  5,
-                    "props",  "content",  2,
-                    "props",  "content",  0,
-                    "props",  "content"
+                    "props",  "children",  5,
+                    "props",  "children",  2,
+                    "props",  "children",  0,
+                    "props",  "children"
                 ],
                 "p.c.5.p.c.2.p.c.0.p.c.p.c.0": [
-                    "props",  "content",  5,
-                    "props",  "content",  2,
-                    "props",  "content",  0,
-                    "props",  "content",
-                    "props",  "content",  0
+                    "props",  "children",  5,
+                    "props",  "children",  2,
+                    "props",  "children",  0,
+                    "props",  "children",
+                    "props",  "children",  0
                 ],
                 "p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0": [
-                    "props",  "content",  5,
-                    "props",  "content",  2,
-                    "props",  "content",  0,
-                    "props",  "content",
-                    "props",  "content",  0,
-                    "props",  "content",  0
+                    "props",  "children",  5,
+                    "props",  "children",  2,
+                    "props",  "children",  0,
+                    "props",  "children",
+                    "props",  "children",  0,
+                    "props",  "children",  0
                 ],
                 "p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2": [
-                    "props",  "content",  5,
-                    "props",  "content",  2,
-                    "props",  "content",  0,
-                    "props",  "content",
-                    "props",  "content",  0,
-                    "props",  "content",  2
+                    "props",  "children",  5,
+                    "props",  "children",  2,
+                    "props",  "children",  0,
+                    "props",  "children",
+                    "props",  "children",  0,
+                    "props",  "children",  2
                 ]
             }
         )
@@ -415,7 +415,7 @@ class Tests(IntegrationTests):
 
         call_count = Value('i', 0)
 
-        @app.callback(Output('output-1', 'content'), [Input('input', 'value')])
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
         def update_output(value):
             call_count.value = call_count.value + 1
             return value
@@ -450,7 +450,7 @@ class Tests(IntegrationTests):
 
         assert_clean_console(self)
 
-    def test_callbacks_generating_content(self):
+    def test_callbacks_generating_children(self):
         """ Modify the DOM tree by adding new
         components in the callbacks
         """
@@ -464,7 +464,7 @@ class Tests(IntegrationTests):
             html.Div(id='output')
         ])
 
-        @app.callback(Output('output', 'content'), [Input('input', 'value')])
+        @app.callback(Output('output', 'children'), [Input('input', 'value')])
         def pad_output(input):
             return html.Div([
                 dcc.Input(
@@ -480,7 +480,7 @@ class Tests(IntegrationTests):
         app.config.supress_callback_exceptions = True
 
         @app.callback(
-            Output('sub-output-1', 'content'),
+            Output('sub-output-1', 'children'),
             [Input('sub-input-1', 'value')]
         )
         def update_input(value):
@@ -494,7 +494,7 @@ class Tests(IntegrationTests):
 
         wait_for(lambda: call_count.value == 1)
 
-        # Adding new content to the layout should
+        # Adding new children to the layout should
         # call the callbacks immediately to set
         # the correct initial state
         wait_for(
@@ -515,18 +515,18 @@ class Tests(IntegrationTests):
             self.driver.execute_script('return window.store.getState().paths'),
             {
                 u'input': [
-                    u'props', u'content', 0
+                    u'props', u'children', 0
                 ],
-                u'output': [u'props', u'content', 1],
+                u'output': [u'props', u'children', 1],
                 u'sub-input-1': [
-                    u'props', u'content', 1,
-                    u'props', u'content',
-                    u'props', u'content', 0
+                    u'props', u'children', 1,
+                    u'props', u'children',
+                    u'props', u'children', 0
                 ],
                 u'sub-output-1': [
-                    u'props', u'content', 1,
-                    u'props', u'content',
-                    u'props', u'content', 1
+                    u'props', u'children', 1,
+                    u'props', u'children',
+                    u'props', u'children', 1
                 ]
             }
         )
@@ -551,7 +551,7 @@ class Tests(IntegrationTests):
 
         assert_clean_console(self)
 
-    def test_radio_buttons_callbacks_generating_content(self):
+    def test_radio_buttons_callbacks_generating_children(self):
         self.maxDiff = 100 * 1000
         app = Dash(__name__)
         app.layout = html.Div([
@@ -636,7 +636,7 @@ class Tests(IntegrationTests):
             'chapter5-output': Value('i', 0)
         }
 
-        @app.callback(Output('body', 'content'), [Input('toc', 'value')])
+        @app.callback(Output('body', 'children'), [Input('toc', 'value')])
         def display_chapter(toc_value):
             call_counts['body'].value += 1
             return chapters[toc_value]
@@ -669,17 +669,17 @@ class Tests(IntegrationTests):
             )(generate_graph_callback('{}-graph'.format(chapter)))
 
             app.callback(
-                Output('{}-label'.format(chapter), 'content'),
+                Output('{}-label'.format(chapter), 'children'),
                 [Input('{}-controls'.format(chapter), 'value')]
             )(generate_label_callback('{}-label'.format(chapter)))
 
-        chapter5_output_content = 'Button clicked'
+        chapter5_output_children = 'Button clicked'
 
-        @app.callback(Output('chapter5-output', 'content'),
+        @app.callback(Output('chapter5-output', 'children'),
                       events=[Event('chapter5-button', 'click')])
         def display_output():
             call_counts['chapter5-output'].value += 1
-            return chapter5_output_content
+            return chapter5_output_children
 
         self.startServer(app)
 
@@ -737,27 +737,27 @@ class Tests(IntegrationTests):
                 'return window.store.getState().paths'
             )
             self.assertEqual(paths, {
-                'toc': ['props', 'content', 0],
-                'body': ['props', 'content', 1],
+                'toc': ['props', 'children', 0],
+                'body': ['props', 'children', 1],
                 'chapter1-header': [
-                    'props', 'content', 1,
-                    'props', 'content',
-                    'props', 'content', 0
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 0
                 ],
                 'chapter1-controls': [
-                    'props', 'content', 1,
-                    'props', 'content',
-                    'props', 'content', 1
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 1
                 ],
                 'chapter1-label': [
-                    'props', 'content', 1,
-                    'props', 'content',
-                    'props', 'content', 2
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 2
                 ],
                 'chapter1-graph': [
-                    'props', 'content', 1,
-                    'props', 'content',
-                    'props', 'content', 3
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 3
                 ]
             })
             generic_chapter_assertions('chapter1')
@@ -782,27 +782,27 @@ class Tests(IntegrationTests):
                 'return window.store.getState().paths'
             )
             self.assertEqual(paths, {
-                'toc': ['props', 'content', 0],
-                'body': ['props', 'content', 1],
+                'toc': ['props', 'children', 0],
+                'body': ['props', 'children', 1],
                 'chapter2-header': [
-                    'props', 'content', 1,
-                    'props', 'content',
-                    'props', 'content', 0
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 0
                 ],
                 'chapter2-controls': [
-                    'props', 'content', 1,
-                    'props', 'content',
-                    'props', 'content', 1
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 1
                 ],
                 'chapter2-label': [
-                    'props', 'content', 1,
-                    'props', 'content',
-                    'props', 'content', 2
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 2
                 ],
                 'chapter2-graph': [
-                    'props', 'content', 1,
-                    'props', 'content',
-                    'props', 'content', 3
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 3
                 ]
             })
             generic_chapter_assertions('chapter2')
@@ -828,31 +828,31 @@ class Tests(IntegrationTests):
                 'return window.store.getState().paths'
             )
             self.assertEqual(paths, {
-                'toc': ['props', 'content', 0],
-                'body': ['props', 'content', 1],
+                'toc': ['props', 'children', 0],
+                'body': ['props', 'children', 1],
                 'chapter3-header': [
-                    'props', 'content', 1,
-                    'props', 'content', 0,
-                    'props', 'content',
-                    'props', 'content', 0
+                    'props', 'children', 1,
+                    'props', 'children', 0,
+                    'props', 'children',
+                    'props', 'children', 0
                 ],
                 'chapter3-label': [
-                    'props', 'content', 1,
-                    'props', 'content', 0,
-                    'props', 'content',
-                    'props', 'content', 1
+                    'props', 'children', 1,
+                    'props', 'children', 0,
+                    'props', 'children',
+                    'props', 'children', 1
                 ],
                 'chapter3-graph': [
-                    'props', 'content', 1,
-                    'props', 'content', 0,
-                    'props', 'content',
-                    'props', 'content', 2
+                    'props', 'children', 1,
+                    'props', 'children', 0,
+                    'props', 'children',
+                    'props', 'children', 2
                 ],
                 'chapter3-controls': [
-                    'props', 'content', 1,
-                    'props', 'content', 0,
-                    'props', 'content',
-                    'props', 'content', 3
+                    'props', 'children', 1,
+                    'props', 'children', 0,
+                    'props', 'children',
+                    'props', 'children', 3
                 ]
             })
             generic_chapter_assertions('chapter3')
@@ -874,8 +874,8 @@ class Tests(IntegrationTests):
         for key in paths:
             self.driver.find_element_by_id(key)
         self.assertEqual(paths, {
-            'toc': ['props', 'content', 0],
-            'body': ['props', 'content', 1]
+            'toc': ['props', 'children', 0],
+            'body': ['props', 'children', 1]
         })
 
         # switch back to 1
@@ -899,7 +899,7 @@ class Tests(IntegrationTests):
         )
         self.assertEqual(chapter5_div().text, '')
         chapter5_button().click()
-        wait_for(lambda: chapter5_div().text == chapter5_output_content)
+        wait_for(lambda: chapter5_div().text == chapter5_output_children)
         time.sleep(0.5)
         self.assertEqual(call_counts['chapter5-output'].value, 1)
 
@@ -913,7 +913,7 @@ class Tests(IntegrationTests):
         # standard callback
         output_1_call_count = Value('i', 0)
 
-        @app.callback(Output('output-1', 'content'), [Input('input', 'value')])
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
         def update_output(value):
             output_1_call_count.value += 1
             return value
@@ -924,7 +924,7 @@ class Tests(IntegrationTests):
         output_2_call_count = Value('i', 0)
 
         @app.callback(
-            Output('output-2', 'content'),
+            Output('output-2', 'children'),
             [Input('input', 'value')]
         )
         def update_output_2(value):
@@ -966,7 +966,7 @@ class Tests(IntegrationTests):
 
         call_count = Value('i', 0)
 
-        @app.callback(Output('output', 'content'),
+        @app.callback(Output('output', 'children'),
                       events=[Event('button', 'click')])
         def update_output():
             call_count.value += 1
@@ -992,7 +992,7 @@ class Tests(IntegrationTests):
 
         call_count = Value('i', 0)
 
-        @app.callback(Output('output', 'content'),
+        @app.callback(Output('output', 'children'),
                       state=[State('state', 'value')],
                       events=[Event('button', 'click')])
         def update_output(value):
@@ -1032,7 +1032,7 @@ class Tests(IntegrationTests):
 
         call_count = Value('i', 0)
 
-        @app.callback(Output('output', 'content'),
+        @app.callback(Output('output', 'children'),
                       inputs=[Input('input', 'value')],
                       state=[State('state', 'value')],
                       events=[Event('button', 'click')])
@@ -1088,7 +1088,7 @@ class Tests(IntegrationTests):
 
         call_count = Value('i', 0)
 
-        @app.callback(Output('output', 'content'),
+        @app.callback(Output('output', 'children'),
                       inputs=[Input('input', 'value')],
                       state=[State('state', 'value')])
         def update_output(input, state):
@@ -1147,7 +1147,7 @@ class Tests(IntegrationTests):
         }
 
         @app.callback(
-            Output(ids['button-output'], 'content'),
+            Output(ids['button-output'], 'children'),
             events=[Event(ids['button'], 'click')])
         def display():
             call_counts['button-output'].value += 1
@@ -1157,7 +1157,7 @@ class Tests(IntegrationTests):
             ])
 
         @app.callback(
-            Output(ids['input-output'], 'content'),
+            Output(ids['input-output'], 'children'),
             [Input(ids['input'], 'value')])
         def update_input(value):
             call_counts['input-output'].value += 1
@@ -1200,7 +1200,7 @@ class Tests(IntegrationTests):
             call_counts['input-2'].value += 1
             return '<<{}>>'.format(input1)
 
-        @app.callback(Output('output', 'content'), [
+        @app.callback(Output('output', 'children'), [
             Input('input-1', 'value'),
             Input('input-2', 'value')
         ])
@@ -1249,7 +1249,7 @@ class Tests(IntegrationTests):
             'button-output': Value('i', 0)
         }
 
-        @app.callback(Output('body', 'content'), [Input('toc', 'value')])
+        @app.callback(Output('body', 'children'), [Input('toc', 'value')])
         def update_body(chapter):
             call_counts['body'].value += 1
             if chapter == '1':
@@ -1267,7 +1267,7 @@ class Tests(IntegrationTests):
                 raise Exception('chapter is {}'.format(chapter))
 
         @app.callback(
-            Output('button-output', 'content'),
+            Output('button-output', 'children'),
             events=[Event('button', 'click')])
         def this_callback_takes_forever():
             time.sleep(5)
@@ -1295,7 +1295,7 @@ class Tests(IntegrationTests):
                     "namespace": "dash_html_components",
                     "type": "Div",
                     "props": {
-                        "content": [
+                        "children": [
                             {
                                 "namespace": "dash_core_components",
                                 "type": "RadioItems",
@@ -1310,7 +1310,7 @@ class Tests(IntegrationTests):
                                 "type": "Div",
                                 "props": {
                                     "id": "body",
-                                    "content": "Chapter 2"
+                                    "children": "Chapter 2"
                                 }
                             }
                         ]
@@ -1324,8 +1324,8 @@ class Tests(IntegrationTests):
                     '))'
                 ),
                 {
-                    "toc": ["props", "content", 0],
-                    "body": ["props", "content", 1]
+                    "toc": ["props", "children", 0],
+                    "body": ["props", "children", 1]
                 }
             )
         (self.driver.find_elements_by_css_selector(

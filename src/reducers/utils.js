@@ -12,11 +12,11 @@ export const crawlLayout = (object, func, path=[]) => {
      */
     if (R.type(object) === 'Object' &&
         R.has('props', object) &&
-        R.has('content', object.props)
+        R.has('children', object.props)
     ) {
-        const newPath = extend(path, ['props', 'content']);
-        if (Array.isArray(object.props.content)) {
-            object.props.content.forEach((child, i) => {
+        const newPath = extend(path, ['props', 'children']);
+        if (Array.isArray(object.props.children)) {
+            object.props.children.forEach((child, i) => {
                 crawlLayout(
                     child,
                     func,
@@ -24,7 +24,7 @@ export const crawlLayout = (object, func, path=[]) => {
             });
         } else {
             crawlLayout(
-                object.props.content,
+                object.props.children,
                 func,
                 newPath
             );
@@ -34,7 +34,7 @@ export const crawlLayout = (object, func, path=[]) => {
         /*
          * Sometimes when we're updating a sub-tree
          * (like when we're responding to a callback)
-         * that returns `{content: [{...}, {...}]}`
+         * that returns `{children: [{...}, {...}]}`
          * then we'll need to start crawling from
          * an array instead of an object.
          */

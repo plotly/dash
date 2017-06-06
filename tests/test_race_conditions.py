@@ -28,7 +28,7 @@ def create_race_conditions_test(endpoints):
         app.scripts.config.serve_locally = True
 
         @app.callback(
-            Output('output', 'content'),
+            Output('output', 'children'),
             [Input('input', 'value')])
         def update(value):
             return value

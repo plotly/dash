@@ -15,27 +15,26 @@ export default function render(component) {
 
     const props = R.propOr({}, 'props', component);
 
-    // TODO - Rename component.content to component.children
     if (!R.has('props', component) ||
-        !R.has('content', component.props) ||
-        typeof component.props.content === 'undefined') {
+        !R.has('children', component.props) ||
+        typeof component.props.children === 'undefined') {
 
         // No children
         children = [];
 
     } else if (R.contains(
-        R.type(component.props.content),
+        R.type(component.props.children),
         ['String', 'Number', 'Null'])
     ) {
 
-        children = [component.props.content];
+        children = [component.props.children];
 
     } else {
 
         // One or multiple objects
         // Recursively render the tree
         // TODO - I think we should pass in `key` here.
-        children = (Array.isArray(props.content) ? props.content : [props.content])
+        children = (Array.isArray(props.children) ? props.children : [props.children])
                    .map(render);
 
     }
@@ -56,7 +55,7 @@ export default function render(component) {
 
     const parent = React.createElement(
         element,
-        R.omit(['content'], component.props),
+        R.omit(['children'], component.props),
         ...children
     );
 
@@ -68,6 +67,6 @@ export default function render(component) {
 }
 
 render.propTypes = {
-    content: PropTypes.object,
+    children: PropTypes.object,
     id: PropTypes.string
 }
