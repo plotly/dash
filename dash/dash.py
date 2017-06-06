@@ -555,7 +555,7 @@ class Dash(object):
 
     @_requires_auth
     def dispatch(self):
-        body = json.loads(flask.request.get_data())
+        body = flask.request.get_json()
         inputs = body.get('inputs', [])
         state = body.get('state', [])
         output = body['output']
