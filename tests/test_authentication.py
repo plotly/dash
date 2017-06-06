@@ -57,6 +57,7 @@ class ViewAccessTest(unittest.TestCase):
                 )
                 assertFunc(has_access, test_name)
 
+
 endpoints = {
     'protected': {
         'get': [
@@ -161,7 +162,8 @@ class ProtectedViewsTest(unittest.TestCase):
             test_name = '{} at {} as {} on {}'.format(
                 res.status_code, endpoint, oauth_token, app.fid
             )
-            if (app.fid is None or app.sharing == 'public' or
+            if (app.fid is None or
+                    app.sharing == 'public' or
                     oauth_token == users['creator']['oauth_token'] or
                     endpoint in endpoints['unprotected']['get'] or
                     all_200):
@@ -189,7 +191,7 @@ class ProtectedViewsTest(unittest.TestCase):
             app_url=au
         )
         app.layout = html.Div()
-        app.config.permissions_cache_expiry = 10
+        app.config.permissions_cache_expiry = 30
         app.create_access_codes()
         viewer = users['viewer']['oauth_token']
 
@@ -207,7 +209,7 @@ class ProtectedViewsTest(unittest.TestCase):
             self.assertEqual(wrapped.call_count, n_protected_endpoints * 2)
 
             # The last access granted response contained a cookie that grants
-            # the user access for 10 seconds (5 minutes by default)
+            # the user access for 30 seconds (5 minutes by default)
             # without making an API call to plotly.
             # Include this cookie in the response and verify that it grants
             # the user access up until the expiration date
@@ -229,12 +231,12 @@ class ProtectedViewsTest(unittest.TestCase):
             )
             self.assertEqual(wrapped.call_count, n_protected_endpoints * 2)
 
-            # But after 10 seconds, the auth token will expire,
+            # But after 30 seconds, the auth token will expire,
             # and the user will be denied access
             time.sleep(5)
             self.check_endpoints(app, viewer, access_cookie, all_200=True)
             self.assertEqual(wrapped.call_count, n_protected_endpoints * 2)
-            time.sleep(6)
+            time.sleep(26)
             self.check_endpoints(app, viewer, access_cookie)
             self.assertEqual(wrapped.call_count, n_protected_endpoints * 3)
 
