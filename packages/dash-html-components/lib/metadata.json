@@ -143,7 +143,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -267,7 +267,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -391,7 +391,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -515,7 +515,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -646,7 +646,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -833,7 +833,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -957,7 +957,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -1081,7 +1081,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -1247,7 +1247,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -1371,7 +1371,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -1509,7 +1509,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -1633,7 +1633,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -1757,7 +1757,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -1881,7 +1881,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -2005,7 +2005,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -2129,7 +2129,138 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": "The children of this component"
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'click'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Blockquote.react.js": {
+    "description": "",
+    "methods": [],
+    "props": {
+      "cite": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Contains a URI which points to the source of the quote or change."
+      },
+      "accessKey": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines a keyboard shortcut to activate or add focus to the element."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Often used with CSS to style elements with common properties."
+      },
+      "contentEditable": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether the element's content is editable."
+      },
+      "contextMenu": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
+      },
+      "dir": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)"
+      },
+      "draggable": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines whether the element can be dragged."
+      },
+      "hidden": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
+      },
+      "lang": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the language used in the element."
+      },
+      "spellCheck": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether spell checking is allowed for the element."
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Defines CSS styles which will override styles previously set."
+      },
+      "tabIndex": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Overrides the browser's default tab order and follows the one specified instead."
+      },
+      "title": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+      },
+      "children": {
         "type": {
           "name": "node"
         },
@@ -2253,7 +2384,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -2426,7 +2557,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -2564,7 +2695,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -2688,7 +2819,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -2812,7 +2943,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -2936,7 +3067,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -3060,7 +3191,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -3191,7 +3322,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -3322,7 +3453,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -3481,7 +3612,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -3605,7 +3736,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -3729,7 +3860,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -3853,7 +3984,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -3977,7 +4108,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -4115,7 +4246,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -4246,7 +4377,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -4370,7 +4501,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -4494,7 +4625,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -4618,7 +4749,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -4742,7 +4873,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -4866,7 +4997,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -4990,7 +5121,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -5114,7 +5245,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -5238,7 +5369,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -5390,7 +5521,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -5535,7 +5666,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -5659,7 +5790,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -5783,7 +5914,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -5907,7 +6038,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -6031,7 +6162,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -6218,7 +6349,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -6342,7 +6473,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -6466,7 +6597,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -6590,7 +6721,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -6714,7 +6845,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -6838,7 +6969,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -6962,7 +7093,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -7086,7 +7217,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -7210,7 +7341,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -7334,7 +7465,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -7458,7 +7589,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -7582,7 +7713,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -7706,7 +7837,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -7879,7 +8010,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -8059,7 +8190,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -8197,7 +8328,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -8321,7 +8452,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -8445,7 +8576,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -8611,7 +8742,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -8749,7 +8880,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -8873,7 +9004,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -9004,7 +9135,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -9177,7 +9308,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -9301,7 +9432,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -9425,7 +9556,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -9556,7 +9687,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -9680,7 +9811,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -9811,7 +9942,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -9942,7 +10073,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -10066,7 +10197,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -10239,7 +10370,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -10363,7 +10494,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -10487,7 +10618,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -10611,7 +10742,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -10735,7 +10866,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -10859,7 +10990,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -11025,7 +11156,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -11163,7 +11294,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -11294,7 +11425,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -11439,7 +11570,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -11584,7 +11715,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -11708,7 +11839,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -11846,7 +11977,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -11970,7 +12101,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -12094,7 +12225,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -12239,7 +12370,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -12370,7 +12501,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -12494,7 +12625,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -12618,7 +12749,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -12742,7 +12873,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -12866,7 +12997,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -12990,7 +13121,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -13114,7 +13245,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -13287,7 +13418,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -13411,7 +13542,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -13584,7 +13715,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -13708,7 +13839,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -13832,7 +13963,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -13956,7 +14087,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -14108,7 +14239,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -14232,7 +14363,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -14356,7 +14487,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -14480,7 +14611,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -14604,7 +14735,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -14728,7 +14859,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -14852,7 +14983,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -14976,7 +15107,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -15107,7 +15238,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -15231,7 +15362,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -15376,7 +15507,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -15500,7 +15631,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -15567,6 +15698,13 @@
         },
         "required": false,
         "description": "Defines the maximum number of characters allowed in the element."
+      },
+      "minLength": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the minimum number of characters allowed in the element."
       },
       "name": {
         "type": {
@@ -15701,7 +15839,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -15825,7 +15963,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -15977,7 +16115,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -16101,7 +16239,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -16232,7 +16370,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -16356,7 +16494,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -16480,7 +16618,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -16639,7 +16777,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -16763,7 +16901,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -16887,7 +17025,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -17011,7 +17149,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -17135,7 +17273,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -17329,7 +17467,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -17453,7 +17591,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },
@@ -17577,7 +17715,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
-      "content": {
+      "children": {
         "type": {
           "name": "node"
         },

@@ -136,4 +136,3 @@ request(htmlURL, (error, response, html) => {
     // http://stackoverflow.com/a/11276104
     fs.writeFileSync(dataPath, JSON.stringify(out, null, 4));
 });
-

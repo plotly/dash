@@ -92,7 +92,7 @@ Sup.propTypes = {
     /**
      * The children of this component
      */
-    'content': PropTypes.node,
+    'children': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

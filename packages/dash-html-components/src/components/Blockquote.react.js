@@ -1,26 +1,31 @@
 
 import React, {PropTypes} from 'react';
 
-const Div = (props) => {
+const Blockquote = (props) => {
     if (props.fireEvent) {
         return (
-            <div
+            <blockquote
                 onClick={() => props.fireEvent({event: 'click'})}
                 {...props}
             >
                 {props.children}
-            </div>
+            </blockquote>
         );
     } else {
         return (
-            <div {...props}>
+            <blockquote {...props}>
                 {props.children}
-            </div>
+            </blockquote>
         );
     }
 };
 
-Div.propTypes = {
+Blockquote.propTypes = {
+
+    /**
+     * Contains a URI which points to the source of the quote or change.
+     */
+    'cite': PropTypes.string,
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -103,4 +108,4 @@ Div.propTypes = {
     
 };
 
-export default Div;
+export default Blockquote;

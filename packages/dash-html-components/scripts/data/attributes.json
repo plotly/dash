@@ -381,6 +381,13 @@
             ],
             "description": "Defines the maximum number of characters allowed in the element."
         },
+        "minLength": {
+            "elements": [
+                "input",
+                "textarea"
+            ],
+            "description": "Defines the minimum number of characters allowed in the element."
+        },
         "media": {
             "elements": [
                 "a",
@@ -747,6 +754,7 @@
             "list",
             "max",
             "maxLength",
+            "minLength",
             "min",
             "multiple",
             "name",
@@ -842,6 +850,7 @@
             "disabled",
             "form",
             "maxLength",
+            "minLength",
             "name",
             "placeholder",
             "readOnly",

@@ -48,6 +48,11 @@ Textarea.propTypes = {
     'maxLength': PropTypes.string,
 
     /**
+     * Defines the minimum number of characters allowed in the element.
+     */
+    'minLength': PropTypes.string,
+
+    /**
      * Name of the element. For example used by the server to identify the fields in form submits.
      */
     'name': PropTypes.string,
@@ -147,7 +152,7 @@ Textarea.propTypes = {
     /**
      * The children of this component
      */
-    'content': PropTypes.node,
+    'children': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

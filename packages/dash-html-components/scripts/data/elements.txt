@@ -9,6 +9,7 @@ header
 hgroup
 nav
 section
+blockquote
 dd
 div
 dl
@@ -95,6 +96,8 @@ dialog
 menu
 menuitem
 summary
+content
+element
 shadow
 slot
 template

@@ -17,7 +17,8 @@ _js_dist = [{
     "external_url": (
         "https://unpkg.com/dash-html-components@{}"
         "/dash_html_components/bundle.js"
-    ).format(__version__)
+    ).format(__version__),
+    "namespace": "dash_html_components"
 }]
 
 for component in _components:
