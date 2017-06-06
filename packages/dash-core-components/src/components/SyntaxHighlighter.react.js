@@ -17,7 +17,7 @@ export default function SyntaxHighlighter(props) {
     return (
         <ReactSyntaxHighlighter
             style={style}
-            {...omit(['theme', 'content'], props)}
+            {...omit(['theme'], props)}
         />
     )
 }
@@ -28,7 +28,7 @@ SyntaxHighlighter.propTypes = {
     /**
      * The text to display and highlight
      */
-    content: PropTypes.string,
+    children: PropTypes.string,
 
     /**
      * the language to highlight code in.

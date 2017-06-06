@@ -55,7 +55,7 @@ Input.propTypes = {
      * The Label attribute describes the role of the form element
      * (i.e. it indicates what kind of information is expected),
      * and the placeholder attribute is a hint about the format
-     * that the content should take.
+     * that the value should take.
      * There are cases in which the placeholder attribute is
      * never displayed to the user, so the form must be understandable
      * without it.
