@@ -13,6 +13,7 @@ import datetime
 import collections
 
 import dash_renderer
+
 from .dependencies import Event, Input, Output, State
 from .resources import Scripts, Css
 from .development.base_component import Component
@@ -153,7 +154,7 @@ class Dash(object):
                 *args,
                 **kwargs
             )
-        class_decorator.func_name = f.func_name
+        class_decorator.__name__ = f.__name__
         return class_decorator
 
     def create_access_codes(self):

@@ -1,4 +1,5 @@
 import plotly
+from six import iteritems
 
 
 def create_or_overwrite_dash_app(filename, sharing, app_url):
@@ -7,7 +8,7 @@ def create_or_overwrite_dash_app(filename, sharing, app_url):
         'sharing': sharing,
         'app_url': app_url
     }
-    for arg_name, arg_value in required_args.iteritems():
+    for arg_name, arg_value in iteritems(required_args):
         if arg_value is None:
             raise Exception('{} is required'.format(arg_name))
     if sharing not in ['private', 'secret', 'public']:

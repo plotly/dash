@@ -1,0 +1,12 @@
+dash_core_components>=0.4.0
+dash_html_components>=0.5.0
+dash_renderer
+percy
+selenium
+mock
+tox
+tox-pyenv
+mock
+six
+plotly>=2.0.8
+requests[security]

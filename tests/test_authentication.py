@@ -4,8 +4,14 @@ import dash
 import plotly
 import dash_html_components as html
 from dash import authentication, plotly_api
-import Cookie
-import mock
+import six
+from six.moves import http_cookies
+from six import iteritems
+
+if six.PY3:
+    from unittest import mock
+else:
+    import mock
 
 
 # This is a real live access token associated with the
@@ -41,8 +47,8 @@ class ViewAccessTest(unittest.TestCase):
             )
 
     def test_check_view_access(self):
-        for user_type, user_attributes in users.iteritems():
-            for permission, fid in self.fids.iteritems():
+        for user_type, user_attributes in iteritems(users):
+            for permission, fid in iteritems(self.fids):
                 if permission == 'public' or user_type == 'creator':
                     assertFunc = self.assertTrue
                 else:
@@ -81,8 +87,8 @@ def get_cookie(res, cookie_name):
     cookie_string = [h for h in headers if (
         h[0] == 'Set-Cookie' and cookie_name in h[1]
     )][0][1]
-    cookie = Cookie.SimpleCookie(cookie_string)
-    access_granted_cookie = cookie[cookie.keys()[0]].value
+    cookie = http_cookies.SimpleCookie(cookie_string)
+    access_granted_cookie = cookie[list(cookie.keys())[0]].value
     return access_granted_cookie
 
 
@@ -172,8 +178,8 @@ class ProtectedViewsTest(unittest.TestCase):
 
     def test_protected_endpoints_with_auth_cookie(self):
         apps = self.create_apps()
-        for user_type, user_attributes in users.iteritems():
-            for app_name, app in apps.iteritems():
+        for user_type, user_attributes in iteritems(users):
+            for app_name, app in iteritems(apps):
                 app.layout = html.Div()
                 self.check_endpoints(
                     app,
