@@ -500,29 +500,29 @@ export const notifyObservers = function(payload) {
                     }));
 
                     /*
-                     * If the response includes content, then we need to update our
+                     * If the response includes children, then we need to update our
                      * paths store.
                      * TODO - Do we need to wait for updateProps to finish?
                      */
-                    if (has('content', observerUpdatePayload.props)) {
+                    if (has('children', observerUpdatePayload.props)) {
 
                         dispatch(computePaths({
-                            subTree: observerUpdatePayload.props.content,
+                            subTree: observerUpdatePayload.props.children,
                             startingPath: concat(
                                 getState().paths[outputComponentId],
-                                ['props', 'content']
+                                ['props', 'children']
                             )
                         }));
 
                         /*
-                         * if content contains objects with IDs, then we
+                         * if children contains objects with IDs, then we
                          * need to dispatch a propChange for all of these
                          * new children components
                          */
                         if (contains(
-                                type(observerUpdatePayload.props.content),
+                                type(observerUpdatePayload.props.children),
                                 ['Array', 'Object']
-                            ) && !isEmpty(observerUpdatePayload.props.content)
+                            ) && !isEmpty(observerUpdatePayload.props.children)
                         ) {
                             /*
                              * TODO: We're just naively crawling
@@ -533,7 +533,7 @@ export const notifyObservers = function(payload) {
                              */
                             const newProps = [];
                             crawlLayout(
-                                observerUpdatePayload.props.content,
+                                observerUpdatePayload.props.children,
                                 function appendIds(child) {
                                     if (hasId(child)) {
                                         keys(child.props).forEach(childProp => {
