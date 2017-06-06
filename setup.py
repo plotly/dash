@@ -12,7 +12,7 @@ setup(
     description='',
     long_description=open('README.md').read(),
     install_requires=[
-        'Flask',
+        'Flask>=0.12',
         'flask-compress',
         'flask-seasurf',
         'plotly'

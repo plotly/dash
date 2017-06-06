@@ -1,7 +1,8 @@
 from copy import copy
-from .development.base_component import Component
 import warnings
 import collections
+
+from .development.base_component import Component
 
 
 class Resources():

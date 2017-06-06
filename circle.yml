@@ -1,7 +1,17 @@
+machine:
+  post:
+    - pyenv global 2.7.10 3.3.3 3.4.3 3.5.0
+  environment:
+    TOX_PYTHON_27: python2.7
+    TOX_PYTHON_33: python3.3
+    TOX_PYTHON_34: python3.4
+    TOX_PYTHON_35: python3.5
+
+
 dependencies:
-   pre:
-     - pip install tox
+  pre:
+    - pip install tox
 
 test:
-   override:
-     - tox
+  override:
+    - tox
