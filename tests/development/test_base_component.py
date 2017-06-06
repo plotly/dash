@@ -16,39 +16,39 @@ import json
 import os
 
 
-Component._prop_names = ('id', 'a', 'content', 'style', )
+Component._prop_names = ('id', 'a', 'children', 'style', )
 Component._type = 'TestComponent'
 Component._namespace = 'test_namespace'
 
 
 def nested_tree():
     '''This tree has a few unique properties:
-    - Content is mixed strings and components (as in c2)
-    - Content is just components (as in c)
-    - Content is just strings (as in c1)
-    - Content is just a single component (as in c3, c4)
-    - Content contains numbers (as in c2)
-    - Content contains "None" items (as in c2)
+    - children is mixed strings and components (as in c2)
+    - children is just components (as in c)
+    - children is just strings (as in c1)
+    - children is just a single component (as in c3, c4)
+    - children contains numbers (as in c2)
+    - children contains "None" items (as in c2)
     '''
     c1 = Component(
         id='0.1.x.x.0',
-        content='string'
+        children='string'
     )
     c2 = Component(
         id='0.1.x.x',
-        content=[10, None, 'wrap string', c1, 'another string', 4.51]
+        children=[10, None, 'wrap string', c1, 'another string', 4.51]
     )
     c3 = Component(
         id='0.1.x',
-        # content is just a component
-        content=c2
+        # children is just a component
+        children=c2
     )
     c4 = Component(
         id='0.1',
-        content=c3
+        children=c3
     )
     c5 = Component(id='0.0')
-    c = Component(id='0', content=[c5, c4])
+    c = Component(id='0', children=[c5, c4])
     return c, c1, c2, c3, c4, c5
 
 
@@ -56,30 +56,30 @@ class TestComponent(unittest.TestCase):
     def test_init(self):
         c = Component(a=3)
 
-    def test_get_item_with_content(self):
+    def test_get_item_with_children(self):
         c1 = Component(id='1')
-        c2 = Component(content=[c1])
+        c2 = Component(children=[c1])
         self.assertEqual(c2['1'], c1)
 
-    def test_get_item_with_content_as_component_instead_of_list(self):
+    def test_get_item_with_children_as_component_instead_of_list(self):
         c1 = Component(id='1')
-        c2 = Component(id='2', content=c1)
+        c2 = Component(id='2', children=c1)
         self.assertEqual(c2['1'], c1)
 
-    def test_get_item_with_nested_content_one_branch(self):
+    def test_get_item_with_nested_children_one_branch(self):
         c1 = Component(id='1')
-        c2 = Component(id='2', content=[c1])
-        c3 = Component(content=[c2])
+        c2 = Component(id='2', children=[c1])
+        c3 = Component(children=[c2])
         self.assertEqual(c2['1'], c1)
         self.assertEqual(c3['2'], c2)
         self.assertEqual(c3['1'], c1)
 
-    def test_get_item_with_nested_content_two_branches(self):
+    def test_get_item_with_nested_children_two_branches(self):
         c1 = Component(id='1')
-        c2 = Component(id='2', content=[c1])
+        c2 = Component(id='2', children=[c1])
         c3 = Component(id='3')
-        c4 = Component(id='4', content=[c3])
-        c5 = Component(content=[c2, c4])
+        c4 = Component(id='4', children=[c3])
+        c5 = Component(children=[c2, c4])
         self.assertEqual(c2['1'], c1)
         self.assertEqual(c4['3'], c3)
         self.assertEqual(c5['2'], c2)
@@ -87,7 +87,7 @@ class TestComponent(unittest.TestCase):
         self.assertEqual(c5['1'], c1)
         self.assertEqual(c5['3'], c3)
 
-    def test_get_item_with_nested_content_with_mixed_strings_and_without_lists(self):
+    def test_get_item_with_nested_children_with_mixed_strings_and_without_lists(self):
         c, c1, c2, c3, c4, c5 = nested_tree()
         self.assertEqual(
             list(c.keys()),
@@ -108,7 +108,7 @@ class TestComponent(unittest.TestCase):
         with self.assertRaises(KeyError):
             c['x']
 
-    def test_len_with_nested_content_with_mixed_strings_and_without_lists(self):
+    def test_len_with_nested_children_with_mixed_strings_and_without_lists(self):
         c = nested_tree()[0]
         self.assertEqual(
             len(c),
@@ -117,7 +117,7 @@ class TestComponent(unittest.TestCase):
             1# c1 has 1 string
         )
 
-    def test_set_item_with_nested_content_with_mixed_strings_and_without_lists(self):
+    def test_set_item_with_nested_children_with_mixed_strings_and_without_lists(self):
         keys = [
             '0.0',
             '0.1',
@@ -132,12 +132,12 @@ class TestComponent(unittest.TestCase):
             new_id = 'new {}'.format(key)
             new_component = Component(
                 id=new_id,
-                content='new string'
+                children='new string'
             )
             c[key] = new_component
             self.assertEqual(c[new_id], new_component)
 
-    def test_del_item_with_nested_content_with_mixed_strings_and_without_lists(self):
+    def test_del_item_with_nested_children_with_mixed_strings_and_without_lists(self):
         c = nested_tree()[0]
         for key in reversed(list(c.keys())):
             c[key]
@@ -145,22 +145,22 @@ class TestComponent(unittest.TestCase):
             with self.assertRaises(KeyError):
                 c[key]
 
-    def test_traverse_with_nested_content_with_mixed_strings_and_without_lists(self):
+    def test_traverse_with_nested_children_with_mixed_strings_and_without_lists(self):
         c, c1, c2, c3, c4, c5 = nested_tree()
         elements = [i for i in c.traverse()]
         self.assertEqual(
             elements,
-            c.content + [c3] + [c2] + c2.content
+            c.children + [c3] + [c2] + c2.children
         )
 
-    def test_iter_with_nested_content_with_mixed_strings_and_without_lists(self):
+    def test_iter_with_nested_children_with_mixed_strings_and_without_lists(self):
         c = nested_tree()[0]
         keys = list(c.keys())
         # get a list of ids that __iter__ provides
         iter_keys = [i for i in c]
         self.assertEqual(keys, iter_keys)
 
-    def test_to_plotly_json_with_nested_content_with_mixed_strings_and_without_lists(self):
+    def test_to_plotly_json_with_nested_children_with_mixed_strings_and_without_lists(self):
         c = nested_tree()[0]
         n = Component._namespace
         t = Component._type
@@ -172,7 +172,7 @@ class TestComponent(unittest.TestCase):
             'type': 'TestComponent',
             'namespace': 'test_namespace',
             'props': {
-                'content': [
+                'children': [
                     {
                         'type': 'TestComponent',
                         'namespace': 'test_namespace',
@@ -184,15 +184,15 @@ class TestComponent(unittest.TestCase):
                         'type': 'TestComponent',
                         'namespace': 'test_namespace',
                         'props': {
-                            'content': {
+                            'children': {
                                 'type': 'TestComponent',
                                 'namespace': 'test_namespace',
                                 'props': {
-                                    'content': {
+                                    'children': {
                                         'type': 'TestComponent',
                                         'namespace': 'test_namespace',
                                         'props': {
-                                            'content': [
+                                            'children': [
                                                 10,
                                                 None,
                                                 'wrap string',
@@ -200,7 +200,7 @@ class TestComponent(unittest.TestCase):
                                                     'type': 'TestComponent',
                                                     'namespace': 'test_namespace',
                                                     'props': {
-                                                        'content': 'string',
+                                                        'children': 'string',
                                                         'id': '0.1.x.x.0'
                                                     }
                                                 },
@@ -230,11 +230,11 @@ class TestComponent(unittest.TestCase):
         with self.assertRaises(KeyError):
             c1['1']
 
-        c2 = Component(id='2', content=[c1])
+        c2 = Component(id='2', children=[c1])
         with self.assertRaises(KeyError):
             c2['0']
 
-        c3 = Component(content='string with no id')
+        c3 = Component(children='string with no id')
         with self.assertRaises(KeyError):
             c3['0']
 
@@ -245,32 +245,32 @@ class TestComponent(unittest.TestCase):
         self.assertTrue(Component() is not Component())
 
         c1 = Component(id='1')
-        c2 = Component(id='2', content=[Component()])
+        c2 = Component(id='2', children=[Component()])
         self.assertTrue(c1 == c2)
         self.assertTrue(c1 is not c2)
 
     def test_set_item(self):
-        c1a = Component(id='1', content='Hello world')
-        c2 = Component(id='2', content=c1a)
+        c1a = Component(id='1', children='Hello world')
+        c2 = Component(id='2', children=c1a)
         self.assertEqual(c2['1'], c1a)
-        c1b = Component(id='1', content='Brave new world')
+        c1b = Component(id='1', children='Brave new world')
         c2['1'] = c1b
         self.assertEqual(c2['1'], c1b)
 
-    def test_set_item_with_content_as_list(self):
+    def test_set_item_with_children_as_list(self):
         c1 = Component(id='1')
-        c2 = Component(id='2', content=[c1])
+        c2 = Component(id='2', children=[c1])
         self.assertEqual(c2['1'], c1)
         c3 = Component(id='3')
         c2['1'] = c3
         self.assertEqual(c2['3'], c3)
 
-    def test_set_item_with_nested_content(self):
+    def test_set_item_with_nested_children(self):
         c1 = Component(id='1')
-        c2 = Component(id='2', content=[c1])
+        c2 = Component(id='2', children=[c1])
         c3 = Component(id='3')
-        c4 = Component(id='4', content=[c3])
-        c5 = Component(id='5', content=[c2, c4])
+        c4 = Component(id='4', children=[c3])
+        c5 = Component(id='5', children=[c2, c4])
 
         c3b = Component(id='3')
         self.assertEqual(c5['3'], c3)
@@ -291,37 +291,37 @@ class TestComponent(unittest.TestCase):
 
     def test_set_item_raises_key_error(self):
         c1 = Component(id='1')
-        c2 = Component(id='2', content=[c1])
+        c2 = Component(id='2', children=[c1])
         with self.assertRaises(KeyError):
             c2['3'] = Component(id='3')
 
     def test_del_item_from_list(self):
         c1 = Component(id='1')
         c2 = Component(id='2')
-        c3 = Component(id='3', content=[c1, c2])
+        c3 = Component(id='3', children=[c1, c2])
         self.assertEqual(c3['1'], c1)
         self.assertEqual(c3['2'], c2)
         del c3['2']
         with self.assertRaises(KeyError):
             c3['2']
-        self.assertEqual(c3.content, [c1])
+        self.assertEqual(c3.children, [c1])
 
         del c3['1']
         with self.assertRaises(KeyError):
             c3['1']
-        self.assertEqual(c3.content, [])
+        self.assertEqual(c3.children, [])
 
     def test_del_item_from_class(self):
         c1 = Component(id='1')
-        c2 = Component(id='2', content=c1)
+        c2 = Component(id='2', children=c1)
         self.assertEqual(c2['1'], c1)
         del c2['1']
         with self.assertRaises(KeyError):
             c2['1']
 
-        self.assertEqual(c2.content, None)
+        self.assertEqual(c2.children, None)
 
-    def test_to_plotly_json_without_content(self):
+    def test_to_plotly_json_without_children(self):
         c = Component(id='a')
         c._prop_names = ('id',)
         c._type = 'MyComponent'
@@ -353,9 +353,9 @@ class TestComponent(unittest.TestCase):
             }
         )
 
-    def test_to_plotly_json_with_content(self):
-        c = Component(id='a', content='Hello World')
-        c._prop_names = ('id', 'content',)
+    def test_to_plotly_json_with_children(self):
+        c = Component(id='a', children='Hello World')
+        c._prop_names = ('id', 'children',)
         c._type = 'MyComponent'
         c._namespace = 'basic'
         self.assertEqual(
@@ -364,40 +364,40 @@ class TestComponent(unittest.TestCase):
                 'namespace': 'basic',
                 'props': {
                     'id': 'a',
-                    # TODO - Rename 'content' to 'children'
-                    'content': 'Hello World'
+                    # TODO - Rename 'children' to 'children'
+                    'children': 'Hello World'
                 },
                 'type': 'MyComponent'
             }
         )
 
-    def test_to_plotly_json_with_nested_content(self):
-        c1 = Component(id='1', content='Hello World')
-        c1._prop_names = ('id', 'content',)
+    def test_to_plotly_json_with_nested_children(self):
+        c1 = Component(id='1', children='Hello World')
+        c1._prop_names = ('id', 'children',)
         c1._type = 'MyComponent'
         c1._namespace = 'basic'
 
-        c2 = Component(id='2', content=c1)
-        c2._prop_names = ('id', 'content',)
+        c2 = Component(id='2', children=c1)
+        c2._prop_names = ('id', 'children',)
         c2._type = 'MyComponent'
         c2._namespace = 'basic'
 
-        c3 = Component(id='3', content='Hello World')
-        c3._prop_names = ('id', 'content',)
+        c3 = Component(id='3', children='Hello World')
+        c3._prop_names = ('id', 'children',)
         c3._type = 'MyComponent'
         c3._namespace = 'basic'
 
-        c4 = Component(id='4', content=[c2, c3])
-        c4._prop_names = ('id', 'content',)
+        c4 = Component(id='4', children=[c2, c3])
+        c4._prop_names = ('id', 'children',)
         c4._type = 'MyComponent'
         c4._namespace = 'basic'
 
-        def to_dict(id, content):
+        def to_dict(id, children):
             return {
                 'namespace': 'basic',
                 'props': {
                     'id': id,
-                    'content': content
+                    'children': children
                 },
                 'type': 'MyComponent'
             }
@@ -415,11 +415,11 @@ class TestComponent(unittest.TestCase):
 
     def test_len(self):
         self.assertEqual(len(Component()), 0)
-        self.assertEqual(len(Component(content='Hello World')), 1)
-        self.assertEqual(len(Component(content=Component())), 1)
-        self.assertEqual(len(Component(content=[Component(), Component()])), 2)
-        self.assertEqual(len(Component(content=[
-            Component(content=Component()),
+        self.assertEqual(len(Component(children='Hello World')), 1)
+        self.assertEqual(len(Component(children=Component())), 1)
+        self.assertEqual(len(Component(children=[Component(), Component()])), 2)
+        self.assertEqual(len(Component(children=[
+            Component(children=Component()),
             Component()
         ])), 3)
 
@@ -430,17 +430,17 @@ class TestComponent(unittest.TestCase):
 
         c = Component(
             id='1',
-            content=[
-                Component(id='2', content=[
-                    Component(id='3', content=Component(id='4'))
+            children=[
+                Component(id='2', children=[
+                    Component(id='3', children=Component(id='4'))
                 ]),
-                Component(id='5', content=[
-                    Component(id='6', content='Hello World')
+                Component(id='5', children=[
+                    Component(id='6', children='Hello World')
                 ]),
                 Component(),
-                Component(content='Hello World'),
-                Component(content=Component(id='7')),
-                Component(content=[Component(id='8')]),
+                Component(children='Hello World'),
+                Component(children=Component(id='7')),
+                Component(children=[Component(id='8')]),
             ]
         )
         # test keys()
@@ -463,7 +463,7 @@ class TestComponent(unittest.TestCase):
 
     def test_pop(self):
         c2 = Component(id='2')
-        c = Component(id='1', content=c2)
+        c = Component(id='1', children=c2)
         c2_popped = c.pop('2')
         self.assertTrue('2' not in c)
         self.assertTrue(c2_popped is c2)
@@ -509,7 +509,7 @@ class TestGenerateClass(unittest.TestCase):
             'namespace': 'TableComponents',
             'type': 'Table',
             'props': {
-                'content': None
+                'children': None
             }
         })
 
@@ -518,7 +518,7 @@ class TestGenerateClass(unittest.TestCase):
             'namespace': 'TableComponents',
             'type': 'Table',
             'props': {
-                'content': None,
+                'children': None,
                 'id': 'my-id'
             }
         })
@@ -528,7 +528,7 @@ class TestGenerateClass(unittest.TestCase):
             'namespace': 'TableComponents',
             'type': 'Table',
             'props': {
-                'content': None,
+                'children': None,
                 'id': 'my-id',
                 'optionalArray': None
             }
@@ -537,7 +537,7 @@ class TestGenerateClass(unittest.TestCase):
     def test_arguments_become_attributes(self):
         kwargs = {
             'id': 'my-id',
-            'content': 'text content',
+            'children': 'text children',
             'optionalArray': [[1, 2, 3]]
         }
         component_instance = self.ComponentClass(**kwargs)
@@ -545,15 +545,15 @@ class TestGenerateClass(unittest.TestCase):
             self.assertEqual(getattr(component_instance, k), v)
 
     def test_repr_single_default_argument(self):
-        c1 = self.ComponentClass('text content')
-        c2 = self.ComponentClass(content='text content')
+        c1 = self.ComponentClass('text children')
+        c2 = self.ComponentClass(children='text children')
         self.assertEqual(
             repr(c1),
-            "Table('text content')"
+            "Table('text children')"
         )
         self.assertEqual(
             repr(c2),
-            "Table('text content')"
+            "Table('text children')"
         )
 
     def test_repr_single_non_default_argument(self):
@@ -574,11 +574,11 @@ class TestGenerateClass(unittest.TestCase):
 
     def test_repr_nested_arguments(self):
         c1 = self.ComponentClass(id='1')
-        c2 = self.ComponentClass(id='2', content=c1)
-        c3 = self.ComponentClass(content=c2)
+        c2 = self.ComponentClass(id='2', children=c1)
+        c3 = self.ComponentClass(children=c2)
         self.assertEqual(
             repr(c3),
-            "Table(Table(content=Table(id='1'), id='2'))"
+            "Table(Table(children=Table(id='1'), id='2'))"
         )
 
     def test_docstring(self):
@@ -595,7 +595,7 @@ class TestGenerateClass(unittest.TestCase):
         # http://stackoverflow.com/questions/2677185/
         self.assertEqual(
             inspect.getargspec(self.ComponentClass.__init__).args,
-            ['self', 'content']
+            ['self', 'children']
         )
         self.assertEqual(
             inspect.getargspec(self.ComponentClass.__init__).defaults,
@@ -610,7 +610,7 @@ class TestGenerateClass(unittest.TestCase):
         with self.assertRaises(Exception):
             self.ComponentClassRequired(id='test', lahlah='test')
         with self.assertRaises(Exception):
-            self.ComponentClassRequired(content='test')
+            self.ComponentClassRequired(children='test')
 
 class TestMetaDataConversions(unittest.TestCase):
     def setUp(self):
@@ -623,7 +623,7 @@ class TestMetaDataConversions(unittest.TestCase):
             self.data = data
 
         self.expected_arg_strings = OrderedDict([
-            ['content', 'a list of or a singular dash component, string or number'],
+            ['children', 'a list of or a singular dash component, string or number'],
 
             ['optionalArray', 'list'],
 
@@ -707,7 +707,7 @@ def assert_docstring(assertEqual, docstring):
             "It's multiple lines long.",
             '',
             "Keyword arguments:",
-            "- content (a list of or a singular dash component, string or number; optional)",
+            "- children (a list of or a singular dash component, string or number; optional)",
             "- optionalArray (list; optional): Description of optionalArray",
             "- optionalBool (boolean; optional)",
             "- optionalNumber (number; optional)",

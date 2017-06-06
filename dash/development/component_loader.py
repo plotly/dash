@@ -7,7 +7,7 @@ def load_components(metadata_path,
                     namespace='default_namespace'):
     """Load React component metadata into a format Dash can parse.
 
-    Usage: load_components('../../component-suites/lib/metadata.json', ['content', 'id', 'key', 'className', 'style', 'dependencies'])
+    Usage: load_components('../../component-suites/lib/metadata.json')
 
     Keyword arguments:
     metadata_path -- a path to a JSON file created by [`react-docgen`](https://github.com/reactjs/react-docgen).

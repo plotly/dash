@@ -93,8 +93,7 @@ ReactComponent.propTypes = {
 
     // special dash events
 
-    // TODO - Rename to children
-    content: React.PropTypes.node,
+    children: React.PropTypes.node,
 
     id: React.PropTypes.string,
 

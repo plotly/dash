@@ -5,9 +5,9 @@ import warnings
 
 
 def generate_components():
-    Div = generate_class('Div', ('content', 'id',), 'dash_html_components')
-    Span = generate_class('Span', ('content', 'id',), 'dash_html_components')
-    Input = generate_class('Input', ('content', 'id',), 'dash_core_components')
+    Div = generate_class('Div', ('children', 'id',), 'dash_html_components')
+    Span = generate_class('Span', ('children', 'id',), 'dash_html_components')
+    Input = generate_class('Input', ('children', 'id',), 'dash_core_components')
     return Div, Span, Input
 
 

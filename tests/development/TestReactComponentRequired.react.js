@@ -12,7 +12,7 @@ class ReactComponent extends Component {
 }
 
 ReactComponent.propTypes = {
-    content: React.PropTypes.node,
+    children: React.PropTypes.node,
     id: React.PropTypes.string.isRequired,
 };
 

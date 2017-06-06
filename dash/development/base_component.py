@@ -36,54 +36,54 @@ class Component(collections.MutableMapping):
 
         return as_json
 
-    def _check_if_has_indexable_content(self, item):
-        if (not hasattr(item, 'content') or
-                (not isinstance(item.content, Component) and
-                 not isinstance(item.content, collections.MutableSequence))):
+    def _check_if_has_indexable_children(self, item):
+        if (not hasattr(item, 'children') or
+                (not isinstance(item.children, Component) and
+                 not isinstance(item.children, collections.MutableSequence))):
 
             raise KeyError
 
     def _get_set_or_delete(self, id, operation, new_item=None):
-        self._check_if_has_indexable_content(self)
+        self._check_if_has_indexable_children(self)
 
-        if isinstance(self.content, Component):
-            if getattr(self.content, 'id', None) is not None:
+        if isinstance(self.children, Component):
+            if getattr(self.children, 'id', None) is not None:
                 # Woohoo! It's the item that we're looking for
-                if self.content.id == id:
+                if self.children.id == id:
                     if operation == 'get':
-                        return self.content
+                        return self.children
                     elif operation == 'set':
-                        self.content = new_item
+                        self.children = new_item
                         return
                     elif operation == 'delete':
-                        self.content = None
+                        self.children = None
                         return
 
             # Recursively dig into its subtree
             try:
                 if operation == 'get':
-                    return self.content.__getitem__(id)
+                    return self.children.__getitem__(id)
                 elif operation == 'set':
-                    self.content.__setitem__(id, new_item)
+                    self.children.__setitem__(id, new_item)
                     return
                 elif operation == 'delete':
-                    self.content.__delitem__(id)
+                    self.children.__delitem__(id)
                     return
             except KeyError:
                 pass
 
-        # if content is like a list
-        if isinstance(self.content, collections.MutableSequence):
-            for (i, item) in enumerate(self.content):
+        # if children is like a list
+        if isinstance(self.children, collections.MutableSequence):
+            for (i, item) in enumerate(self.children):
                 # If the item itself is the one we're looking for
                 if getattr(item, 'id', None) == id:
                     if operation == 'get':
                         return item
                     elif operation == 'set':
-                        self.content[i] = new_item
+                        self.children[i] = new_item
                         return
                     elif operation == 'delete':
-                        del self.content[i]
+                        del self.children[i]
                         return
 
                 # Otherwise, recursively dig into that item's subtree
@@ -114,10 +114,10 @@ class Component(collections.MutableMapping):
 
     def __getitem__(self, id):
         '''Recursively find the element with the given ID through the tree
-        of content.
+        of children.
         '''
-        # TODO - Rename content to children
-        # A component's content can be undefined, a string, another component,
+
+        # A component's children can be undefined, a string, another component,
         # or a list of components.
         return self._get_set_or_delete(id, 'get')
 
@@ -127,24 +127,24 @@ class Component(collections.MutableMapping):
         return self._get_set_or_delete(id, 'set', item)
 
     def __delitem__(self, id):
-        '''Delete items by ID in the tree of content
+        '''Delete items by ID in the tree of children
         '''
         return self._get_set_or_delete(id, 'delete')
 
 
     def traverse(self):
         '''Yield each item in the tree'''
-        content = getattr(self, 'content', None)
+        children = getattr(self, 'children', None)
 
-        # content is just a component
-        if isinstance(content, Component):
-            yield content
-            for t in content.traverse():
+        # children is just a component
+        if isinstance(children, Component):
+            yield children
+            for t in children.traverse():
                 yield t
 
-        # content is a list of components
-        elif isinstance(content, collections.MutableSequence):
-            for i in content:
+        # children is a list of components
+        elif isinstance(children, collections.MutableSequence):
+            for i in children:
                 yield i
 
                 if isinstance(i, Component):
@@ -152,7 +152,7 @@ class Component(collections.MutableMapping):
                         yield t
 
     def __iter__(self):
-        '''Yield IDs in the tree of content
+        '''Yield IDs in the tree of children
         '''
         for t in self.traverse():
             if (isinstance(t, Component) and
@@ -169,13 +169,13 @@ class Component(collections.MutableMapping):
         # The number of items is more intuitive but returning the number
         # of IDs matches __iter__ better.
         length = 0
-        if getattr(self, 'content', None) is None:
+        if getattr(self, 'children', None) is None:
             length = 0
-        elif isinstance(self.content, Component):
+        elif isinstance(self.children, Component):
             length = 1
-            length += len(self.content)
-        elif isinstance(self.content, collections.MutableSequence):
-            for c in self.content:
+            length += len(self.children)
+        elif isinstance(self.children, collections.MutableSequence):
+            for c in self.children:
                 length += 1
                 if isinstance(c, Component):
                     length += len(c)
@@ -241,9 +241,9 @@ def generate_class(typename, props, description, namespace):
         description
     )
     events = "[" + ', '.join(parse_events(props)) + "]"
-    if 'content' in props:
-        default_argtext = 'content=None, **kwargs'
-        argtext = 'content=content, **kwargs'
+    if 'children' in props:
+        default_argtext = 'children=None, **kwargs'
+        argtext = 'children=children, **kwargs'
     else:
         default_argtext = '**kwargs'
         argtext = '**kwargs'
@@ -264,11 +264,11 @@ def required_props(props):
 
 
 def reorder_props(props):
-    # If "content" is a prop, then move it to the front to respect
+    # If "children" is a prop, then move it to the front to respect
     # dash convention
-    if 'content' in props:
+    if 'children' in props:
         props = collections.OrderedDict(
-            [('content', props.pop('content'), )] +
+            [('children', props.pop('children'), )] +
             list(zip(list(props.keys()), list(props.values())))
         )
     return props
@@ -284,9 +284,9 @@ def parse_events(props):
 
 
 def create_docstring(name, props, events, description):
-    if 'content' in props:
+    if 'children' in props:
         props = collections.OrderedDict(
-            [['content', props.pop('content')]] +
+            [['children', props.pop('children')]] +
             list(zip(list(props.keys()), list(props.values())))
         )
     return '''A {name} component.{description}

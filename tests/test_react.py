@@ -130,7 +130,7 @@ class IntegrationTest(unittest.TestCase):
             self.assertEqual({'value': 'New Value'}, input1)
             new_value = input1['value']
             return {
-                'content': new_value,
+                'children': new_value,
                 'style.color': 'red',
                 'className': 'active',
                 'width': None
@@ -180,7 +180,7 @@ class IntegrationTest(unittest.TestCase):
             self.assertEqual({'value': 'New Value'}, input1)
             new_value = input1['value']
             return {
-                'content': Div('New Component')
+                'children': Div('New Component')
             }
 
         response = self.client.post(
@@ -215,7 +215,7 @@ class IntegrationTest(unittest.TestCase):
                         'type': 'Div',
                         'namespace': 'html_components',
                         'props': {
-                            'content': 'New Component'
+                            'children': 'New Component'
                         }
                     }
                 }
@@ -448,22 +448,22 @@ class TestCallbacks(unittest.TestCase):
         ], id='body')
 
         app.callback(
-            Output('output', 'content'),
+            Output('output', 'children'),
             [Input('input', 'value')]
         )
         app.callback(
-            Output('body', 'content'),
+            Output('body', 'children'),
             [Input('input', 'value')]
         )
         app.callback(
-            Output('body', 'content'),
+            Output('body', 'children'),
             [Input('input', 'value')],
             state=[State('input', 'value')],
         )
 
         # TODO - Add events
         app.callback(
-            Output('body', 'content'),
+            Output('body', 'children'),
             [Input('input', 'value')],
             state=[State('input', 'value')],
             events=[Event('input', 'blur')],
@@ -474,7 +474,7 @@ class TestCallbacks(unittest.TestCase):
         self.assertRaises(
             exceptions.LayoutIsNotDefined,
             app.callback,
-            Output('body', 'content'),
+            Output('body', 'children'),
             [Input('input', 'value')]
         )
 
@@ -484,7 +484,7 @@ class TestCallbacks(unittest.TestCase):
         self.assertRaises(
             exceptions.NonExistantIdException,
             app.callback,
-            Output('output', 'content'),
+            Output('output', 'children'),
             [Input('input', 'value')]
         )
 
@@ -505,14 +505,14 @@ class TestCallbacks(unittest.TestCase):
         self.assertRaises(
             exceptions.NonExistantPropException,
             app.callback,
-            Output('output', 'content'),
+            Output('output', 'children'),
             [Input('input', 'valuez')]
         )
 
         self.assertRaises(
             exceptions.NonExistantPropException,
             app.callback,
-            Output('body', 'contentz'),
+            Output('body', 'childrenz'),
             [Input('input', 'value')]
         )
 
@@ -528,22 +528,22 @@ class TestCallbacks(unittest.TestCase):
             self.assertRaises(
                 exceptions.NonExistantEventException,
                 app.callback,
-                Output('output', 'content'),
+                Output('output', 'children'),
                 events=[Event(id, 'style')]
             )
             app.callback(
-                Output('output', 'content'),
+                Output('output', 'children'),
                 events=[Event(id, 'click')]
             )
 
         self.assertRaises(
             exceptions.NonExistantEventException,
             app.callback,
-            Output('output', 'content'),
+            Output('output', 'children'),
             events=[Event('graph', 'zoom')]
         )
         app.callback(
-            Output('output', 'content'),
+            Output('output', 'children'),
             events=[Event('graph', 'click')]
         )
 
@@ -556,9 +556,9 @@ class TestCallbacks(unittest.TestCase):
 
         test_args = [
             ['asdf', ['asdf'], [], []],
-            [Output('output', 'content'), Input('input', 'value'), [], []],
-            [Output('output', 'content'), [], State('input', 'value'), []],
-            [Output('output', 'content'), [], [], Event('input', 'click')],
+            [Output('output', 'children'), Input('input', 'value'), [], []],
+            [Output('output', 'children'), [], State('input', 'value'), []],
+            [Output('output', 'children'), [], [], Event('input', 'click')],
         ]
         for args in test_args:
             self.assertRaises(
@@ -576,11 +576,11 @@ class TestCallbacks(unittest.TestCase):
         self.assertRaises(
             exceptions.NonExistantIdException,
             app.callback,
-            Output('id-not-there', 'content'),
+            Output('id-not-there', 'children'),
             [Input('input', 'value')]
         )
         app.config.supress_callback_exceptions = True
-        app.callback(Output('id-not-there', 'content'),
+        app.callback(Output('id-not-there', 'children'),
                      [Input('input', 'value')])
 
     def test_missing_input_and_events(self):
@@ -591,7 +591,7 @@ class TestCallbacks(unittest.TestCase):
         self.assertRaises(
             exceptions.MissingEventsException,
             app.callback,
-            Output('body', 'content'),
+            Output('body', 'children'),
             [],
             [State('input', 'value')]
         )

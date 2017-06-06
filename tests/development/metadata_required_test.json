@@ -2,7 +2,7 @@
   "description": "This is a description of the component.\nIt's multiple lines long.",
   "methods": [],
   "props": {
-    "content": {
+    "children": {
       "type": {
         "name": "node"
       },

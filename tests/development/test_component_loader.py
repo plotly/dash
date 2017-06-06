@@ -21,11 +21,11 @@ METADATA_STRING = '''{
                     "computed": false
                 }
             },
-            "content": {
+            "children": {
                 "type": {
                     "name": "object"
                 },
-                "description": "Content - children",
+                "description": "Children",
                 "required": false
             },
             "bar": {
@@ -69,11 +69,11 @@ METADATA_STRING = '''{
                 "required": false,
                 "description": "The URL of a linked resource."
             },
-            "content": {
+            "children": {
                 "type": {
                     "name": "object"
                 },
-                "description": "Content - children",
+                "description": "Children",
                 "required": false
             }
         }
@@ -113,10 +113,10 @@ class TestLoadComponents(unittest.TestCase):
             'foo': 'Hello World',
             'bar': 'Lah Lah',
             'baz': 'Lemons',
-            'content': 'Child'
+            'children': 'Child'
         }
         AKwargs = {
-            'content': 'Child',
+            'children': 'Child',
             'href': 'Hello World'
         }
 

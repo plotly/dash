@@ -200,7 +200,7 @@
       "required": false,
       "description": ""
     },
-    "content": {
+    "children": {
       "type": {
         "name": "node"
       },
