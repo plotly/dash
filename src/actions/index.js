@@ -157,20 +157,11 @@ function loadSavedStateAndTriggerVisibleInputs(dispatch, getState, skipTheseInpu
                 getState().layout
             );
 
-            /*
-             * We only want to update the nodes that aren't inputs -
-             * the input nodes have already been updated by the
-             * setProps action above
-             * (since the value of the inputs was saved)
-             */
-             const dontUpdateInputObservers = true;
-
             promises.push(dispatch(notifyObservers({
                 id: anInputId,
                 props: {
                     [anInputProp]: propValue
-                },
-                dontUpdateInputObservers
+                }
             })));
             triggeredInputs.push(anInputNode);
         }
@@ -274,11 +265,6 @@ export const notifyObservers = function(payload) {
             props
         } = payload
 
-        const dontUpdateInputObservers = (
-            has('dontUpdateInputObservers', payload) ?
-            payload.dontUpdateInputObservers : false
-        );
-
         const {
             layout,
             graphs,
@@ -307,15 +293,7 @@ export const notifyObservers = function(payload) {
                     return;
                 }
                 InputGraph.dependenciesOf(node).forEach(outputId => {
-                    if (dontUpdateInputObservers) {
-                        // Only update output elements
-                        if (InputGraph.dependenciesOf(outputId).length === 0) {
-                            outputObservers.push(outputId);
-                        }
-                    } else {
-                        outputObservers.push(outputId);
-                    }
-
+                    outputObservers.push(outputId);
                 });
             });
         }
@@ -545,8 +523,7 @@ export const notifyObservers = function(payload) {
                                                     id: child.props.id,
                                                     props: {
                                                         [childProp]: child.props[childProp]
-                                                    },
-                                                    dontUpdateInputObservers
+                                                    }
                                                 });
                                             }
                                         })
@@ -558,12 +535,12 @@ export const notifyObservers = function(payload) {
                             const sortedNewProps = sort((a, b) =>
                                 depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
                                 newProps
-                            )
-                            if (!dontUpdateInputObservers) {
-                                sortedNewProps.forEach(function(propUpdate) {
-                                    dispatch(notifyObservers(propUpdate));
-                                });
-                            }
+                            );
+
+                            sortedNewProps.forEach(function(propUpdate) {
+                                dispatch(notifyObservers(propUpdate));
+                            });
+
                         }
 
 
