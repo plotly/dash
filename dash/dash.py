@@ -574,7 +574,7 @@ class Dash(object):
         for component_registration in self.callback_map[target_id]['state']:
             component_id = component_registration['id']
             args.append([
-                c['value'] for c in state if
+                c.get('value', None) for c in state if
                 c['property'] == component_registration['property'] and
                 c['id'] == component_registration['id']
             ][0])
