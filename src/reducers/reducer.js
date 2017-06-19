@@ -100,6 +100,7 @@ function updateUrlPath(reducer) {
         if (nextState.routesRequest.status === 200 &&
             nextState.appLifecycle == APP_STATES('HYDRATED')
         ) {
+
             const serialized = serialize(nextState);
             const matchingRoute = R.filter(route => R.equals(
                 route.state,
@@ -138,6 +139,7 @@ function updateUrlPath(reducer) {
                     );
                 }
             }
+
         }
         return nextState;
     }
