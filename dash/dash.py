@@ -498,15 +498,17 @@ class Dash(object):
                 output.component_id
             ))
 
-        if ('{}.{}'.format(output.component_id, output.component_property)
-                in self.callback_map):
-
+        callback_id = '{}.{}'.format(output.component_id, output.component_property)
+        if (callback_id in self.callback_map):
             raise exceptions.CantHaveMultipleOutputs('''
                 You have already assigned a callback to the output
                 with ID "{}" and property "{}". An output can only have
                 a single callback function. Try combining your inputs and
                 callback functions together into one function.
-            '''.format(output.component_id, output.component_property))
+            '''.format(
+                output.component_id,
+                output.component_property).replace('    ', ''))
+
 
     # TODO - Update nomenclature.
     # "Parents" and "Children" should refer to the DOM tree
