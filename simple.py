@@ -12,7 +12,7 @@ app.layout = html.Div([
 
 
 @app.callback(
-    dash.dependencies.Output('my-output', 'content'),
+    dash.dependencies.Output('my-output', 'children'),
     [dash.dependencies.Input('my-input', 'value')]
 )
 def update(value):
