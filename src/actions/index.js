@@ -30,10 +30,12 @@ export const readConfig = createAction(ACTIONS('READ_CONFIG'));
 
 export const hydrateInitialOutputs = function() {
     return function (dispatch, getState) {
-        const {routesRequest} = getState();
+        const {config, routesRequest} = getState();
+        const {url_base_pathname} = config;
+        const relativePathname = window.location.pathname.slice(url_base_pathname.length);
         if (!isEmpty(routesRequest.content) &&
             contains(
-                window.location.pathname,
+                relativePathname,
                 pluck('pathname', routesRequest.content)
             )
         ) {
@@ -47,10 +49,12 @@ export const hydrateInitialOutputs = function() {
 
 export function loadStateFromRoute() {
     return (dispatch, getState) => {
-        const {routesRequest} = getState();
+        const {config, routesRequest} = getState();
         const routes = routesRequest.content;
+        const {url_base_pathname} = config;
+        const relativePathname = window.location.pathname.slice(url_base_pathname.length);
         const route = routes.find(route => (
-            route.pathname === window.location.pathname
+            route.pathname === relativePathname
         ));
         const initialState = route.state;
         loadSavedState(initialState)(dispatch, getState)
@@ -267,6 +271,7 @@ export const notifyObservers = function(payload) {
         } = payload
 
         const {
+            config,
             layout,
             graphs,
             paths,
@@ -426,9 +431,7 @@ export const notifyObservers = function(payload) {
                 });
             }
 
-
-
-            promises.push(fetch('/update-component', {
+            promises.push(fetch(`${config.url_base_pathname}_dash-update-component`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

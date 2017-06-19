@@ -105,12 +105,18 @@ function updateUrlPath(reducer) {
                 route.state,
                 R.pick(R.keys(route.state), serialized)
             ), nextState.routesRequest.content);
+            const {url_base_pathname} = state.config;
+            const relativePathname = window.location.pathname.slice(
+                url_base_pathname.length
+            );
+
             if (matchingRoute.length === 1 &&
-                window.location.pathname !== matchingRoute[0].pathname
+                relativePathname !== matchingRoute[0].pathname
             ) {
                 window.history.pushState(
                     {},
-                    document.title,matchingRoute[0].pathname
+                    document.title,
+                    `${url_base_pathname}${matchingRoute[0].pathname}`
                 );
             } else if (matchingRoute.length > 1) {
                 const nMostMatchedKeys = R.reduce(
@@ -128,7 +134,7 @@ function updateUrlPath(reducer) {
                     window.history.pushState(
                         {},
                         document.title,
-                        bestMatchedRoute[0].pathname
+                        `${url_base_pathname}${bestMatchedRoute[0].pathname}`
                     );
                 }
             }

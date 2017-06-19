@@ -1,9 +1,9 @@
 /* global fetch: true, document: true */
 import cookie from 'cookie';
-import {merge} from 'ramda';
+import {has, merge, type} from 'ramda';
 
 function GET(path) {
-    return fetch(`${path}`, {
+    return fetch(path, {
         method: 'GET',
         credentials: 'same-origin',
         headers: {
@@ -15,7 +15,7 @@ function GET(path) {
 }
 
 function POST(path, body = {}, headers={}) {
-    return fetch(`${path}`, {
+    return fetch(path, {
         method: 'POST',
         credentials: 'same-origin',
         headers: merge({
@@ -31,12 +31,19 @@ const request = {GET, POST};
 
 
 function apiThunk(endpoint, method, store, id, body, headers={}) {
-    return dispatch => {
+    return (dispatch, getState) => {
+        const config = getState().config;
+        if (type(config) === "Null" ||
+            (type(config) === "Object") && !has('url_base_pathname', config)) {
+            throw new Error(`
+                Trying to make an API request to ${endpoint} but "url_base_pathname"
+                is not in \`config\`. \`config\` is: `, config);
+        }
         dispatch({
             type: store,
             payload: {id, status: 'loading'}
         });
-        return request[method](endpoint, body, headers)
+        return request[method](`${config.url_base_pathname}${endpoint}`, body, headers)
         .then(res => {
             const contentType = res.headers.get("content-type");
             if(contentType && contentType.indexOf("application/json") !== -1) {
