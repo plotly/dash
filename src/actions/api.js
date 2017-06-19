@@ -86,7 +86,7 @@ function apiThunk(endpoint, method, store, id, body, headers={}) {
 
 export function getLayout() {
     return apiThunk(
-        '/layout',
+        '_dash-layout',
         'GET',
         'layoutRequest'
     );
@@ -94,7 +94,7 @@ export function getLayout() {
 
 export function getDependencies() {
     return apiThunk(
-        '/dependencies',
+        '_dash-dependencies',
         'GET',
         'dependenciesRequest'
     );
@@ -102,7 +102,7 @@ export function getDependencies() {
 
 export function getRoutes() {
     return apiThunk(
-        '/routes',
+        '_dash-routes',
         'GET',
         'routesRequest'
     );
@@ -111,7 +111,7 @@ export function getRoutes() {
 
 export function login(oauth_token) {
     return apiThunk(
-        '/_login',
+        '_dash-login',
         'POST',
         'loginRequest',
         undefined,
