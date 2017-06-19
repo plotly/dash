@@ -102,14 +102,6 @@ export function getRoutes() {
 }
 
 
-export function getConfig() {
-    return apiThunk(
-        '/_config',
-        'GET',
-        'configRequest'
-    );
-}
-
 export function login(oauth_token) {
     return apiThunk(
         '/_login',

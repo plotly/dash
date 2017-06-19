@@ -2,8 +2,9 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import queryString from 'query-string';
-import {getConfig, login} from './actions/api';
-import {contains, isEmpty, merge} from 'ramda'
+import {login} from './actions/api';
+import {readConfig} from './actions/index';
+import {contains, isEmpty, merge, type} from 'ramda'
 import * as styles from './styles/styles.js';
 import {REDIRECT_URI_PATHNAME} from './constants/constants';
 
@@ -45,7 +46,7 @@ class UnconnectedLogin extends Component {
 
     buildOauthUrl() {
         const {oauth_client_id, plotly_domain} = (
-            this.props.configRequest.content
+            this.props.config
         );
         return (
             `${plotly_domain}/o/authorize/?response_type=token&` +
@@ -71,7 +72,7 @@ class UnconnectedLogin extends Component {
     }
 
     render() {
-        const {plotly_domain} = this.props.configRequest.content;
+        const {plotly_domain} = this.props.config;
         return (
             <div style={merge(styles.base.html, styles.base.container)}>
                 <div style={styles.base.h2}>Dash</div>
@@ -104,10 +105,10 @@ class UnconnectedLogin extends Component {
 }
 UnconnectedLogin.propTypes = {
     onClosed: PropTypes.func,
-    configRequest: PropTypes.func
+    config: PropTypes.object
 }
 const Login = connect(
-    state => ({configRequest: state.configRequest})
+    state => ({config: state.config})
 )(UnconnectedLogin);
 
 /**
@@ -205,16 +206,15 @@ class Authentication extends Component {
     }
 
     initialization(props) {
-        const {configRequest, dispatch} = props
-        if (isEmpty(configRequest)) {
-            // TODO - Could do request in parallel
-            dispatch(getConfig());
+        const {config, dispatch} = props;
+        if (type(config) === "Null") {
+            dispatch(readConfig());
         }
     }
 
     render() {
 
-        const {children, configRequest} = this.props;
+        const {children, config} = this.props;
 
         // OAuth redirect
         if (window.location.pathname === REDIRECT_URI_PATHNAME) {
@@ -223,19 +223,13 @@ class Authentication extends Component {
             );
         }
 
-        if (isEmpty(configRequest) || configRequest.status === 'loading') {
+        if (type(config) === "Null") {
 
             return <div>Loading...</div>;
 
         }
 
-        else if (configRequest.status !== 200) {
-
-            return <div>Error loading configuration.</div>
-
-        }
-
-        else if (configRequest.content.fid) {
+        else if (config.fid) {
 
             if (contains('plotly_oauth_token=', document.cookie)) {
 
@@ -268,12 +262,12 @@ class Authentication extends Component {
 
 Authentication.propTypes = {
     children: PropTypes.object,
-    configRequest: PropTypes.object
+    config: PropTypes.object
 }
 
 export default connect(
     state => ({
-        configRequest: state.configRequest,
+        config: state.config,
     }),
     dispatch => ({dispatch})
 )(Authentication);

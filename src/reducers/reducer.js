@@ -9,6 +9,7 @@ import requestQueue from './requestQueue';
 import appLifecycle from './appLifecycle';
 import history from './history';
 import * as API from './api';
+import config from './config';
 import {serialize} from '../actions/index';
 import {APP_STATES} from './constants';
 
@@ -18,7 +19,7 @@ const reducer = combineReducers({
     graphs,
     paths,
     requestQueue,
-    configRequest: API.configRequest,
+    config,
     dependenciesRequest: API.dependenciesRequest,
     layoutRequest: API.layoutRequest,
     routesRequest: API.routesRequest,

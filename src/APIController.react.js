@@ -93,7 +93,7 @@ class UnconnectedContainer extends Component {
     render () {
         const {
             appLifecycle,
-            configRequest,
+            config,
             dependenciesRequest,
             lastUpdateComponentRequest,
             layoutRequest,
@@ -107,7 +107,7 @@ class UnconnectedContainer extends Component {
                  layoutRequest, routesRequest].map(
             request => (request.status && request.status === 403))
         )) {
-            return (<AccessDenied configRequest={configRequest}/>);
+            return (<AccessDenied config={config}/>);
         }
 
 
@@ -135,7 +135,7 @@ class UnconnectedContainer extends Component {
         }
 
         else {
-            return (<div>{'Loading...'}</div>);
+            return (<div className="_dash-loading">{'Loading...'}</div>);
         }
     }
 }
@@ -145,7 +145,7 @@ UnconnectedContainer.propTypes = {
         APP_STATES('HYDRATED')
     ]),
     dispatch: PropTypes.function,
-    configRequest: PropTypes.object,
+    config: PropTypes.object,
     dependenciesRequest: PropTypes.object,
     routesRequest: PropTypes.object,
     lastUpdateComponentRequest: PropTypes.objec,
@@ -159,7 +159,7 @@ const Container = connect(
     // map state to props
     state => ({
         appLifecycle: state.appLifecycle,
-        configRequest: state.configRequest,
+        config: state.config,
         dependenciesRequest: state.dependenciesRequest,
         lastUpdateComponentRequest: state.lastUpdateComponentRequest,
         layoutRequest: state.layoutRequest,

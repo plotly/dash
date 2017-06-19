@@ -26,7 +26,6 @@ function createApiReducer(store) {
     };
 }
 
-export const configRequest = createApiReducer('configRequest');
 export const dependenciesRequest = createApiReducer('dependenciesRequest');
 export const lastUpdateComponentRequest = createApiReducer(
     'lastUpdateComponentRequest'

@@ -5,8 +5,8 @@ import * as styles from './styles/styles.js';
 import * as constants from './constants/constants.js';
 
 function AccessDenied(props) {
-    const {configRequest} = props;
-    const fid = configRequest.content.fid;
+    const {config} = props;
+    const fid = config.fid;
     const owner_username = fid.split(':')[0];
     return (
         <div style={merge(styles.base.html, styles.base.container)}>
@@ -40,6 +40,6 @@ function AccessDenied(props) {
     )
 }
 AccessDenied.propTypes = {
-    configRequest: PropTypes.object
+    config: PropTypes.object
 }
 export default AccessDenied;
