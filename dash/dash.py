@@ -97,8 +97,6 @@ class Dash(object):
             '{}_dash-dependencies'.format(self.url_base_pathname),
             view_func=self.dependencies)
 
-        # TODO - Should the this API be keyed by component ID?
-        # For example: POST dash.com/components/my-id/update
         self.server.add_url_rule(
             '{}_dash-update-component'.format(self.url_base_pathname),
             view_func=self.dispatch,
