@@ -27,11 +27,11 @@ class Dash(object):
     def __init__(
         self,
         name=None,
-        url_namespace='',
         server=None,
         filename=None,
         sharing=None,
-        app_url=None
+        app_url=None,
+        url_base_pathname='/'
     ):
         # allow users to supply their own flask server
         if server is not None:
@@ -66,7 +66,7 @@ class Dash(object):
             self.fid = None
             self.access_codes = None
 
-        self.url_namespace = url_namespace
+        self.url_base_pathname = url_base_pathname
 
         # list of dependencies
         self.callback_map = {}
@@ -84,53 +84,48 @@ class Dash(object):
 
         # urls
         self.server.add_url_rule(
-            '/_login',
+            '{}_dash-login'.format(self.url_base_pathname),
             view_func=authentication.login,
             methods=['post']
         )
 
         self.server.add_url_rule(
-            '{}/layout'.format(url_namespace),
-            view_func=self.serve_layout,
-            endpoint='{}_{}'.format(url_namespace, 'initialize'))
+            '{}_dash-layout'.format(self.url_base_pathname),
+            view_func=self.serve_layout)
 
         self.server.add_url_rule(
-            '{}/dependencies'.format(url_namespace),
-            view_func=self.dependencies,
-            endpoint='{}_{}'.format(url_namespace, 'dependencies'))
+            '{}_dash-dependencies'.format(self.url_base_pathname),
+            view_func=self.dependencies)
 
         # TODO - Should the this API be keyed by component ID?
         # For example: POST dash.com/components/my-id/update
         self.server.add_url_rule(
-            '{}/update-component'.format(url_namespace),
+            '{}_dash-update-component'.format(self.url_base_pathname),
             view_func=self.dispatch,
             methods=['POST'])
 
-        self.server.add_url_rule(
-            '{}'
-            '/component-suites'
+        self.server.add_url_rule((
+            '{}_dash-component-suites'
             '/<string:package_name>'
-            '/<path:path_in_package_dist>'.format(url_namespace),
+            '/<path:path_in_package_dist>').format(self.url_base_pathname),
             view_func=self.serve_component_suites)
 
         self.server.add_url_rule(
-            '{}/routes'.format(url_namespace),
-            view_func=self.serve_routes)
+            '{}_dash-routes'.format(self.url_base_pathname),
+            view_func=self.serve_routes
+        )
 
-        self.server.add_url_rule(
-            '{}/'.format(url_namespace),
-            endpoint='{}_{}'.format(url_namespace, 'index'),
-            view_func=self.index)
 
         self.server.add_url_rule(
             '/_config',
             view_func=self.serve_config)
+        self.server.add_url_rule(self.url_base_pathname, view_func=self.index)
 
         # catch-all for front-end routes
         self.server.add_url_rule(
-            '{}/<path:path>'.format(url_namespace),
-            endpoint='{}_{}'.format(url_namespace, 'index'),
-            view_func=self.index)
+            '{}<path:path>'.format(self.url_base_pathname),
+            view_func=self.index
+        )
 
         self.server.before_first_request(self._setup_server)
 
@@ -247,8 +242,8 @@ class Dash(object):
             else:
                 self.registered_paths[namespace] = [relative_package_path]
 
-            return '{}/component-suites/{}/{}?v={}'.format(
-                self.url_namespace,
+            return '{}_dash-component-suites/{}/{}?v={}'.format(
+                self.url_base_pathname,
                 namespace,
                 relative_package_path,
                 importlib.import_module(namespace).__version__
