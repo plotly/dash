@@ -293,7 +293,7 @@ class Dash(object):
         )
 
         return '\n'.join([
-            '<script type="text/javascript" src="{}"></script>'.format(src)
+            '<script type="text/JavaScript" src="{}"></script>'.format(src)
             for src in srcs
         ])
 
@@ -326,7 +326,7 @@ class Dash(object):
             )
 
         mimetype = ({
-            'js': 'application/javascript',
+            'js': 'application/JavaScript',
             'css': 'text/css'
         })[path_in_package_dist.split('.')[-1]]
         return Response(
