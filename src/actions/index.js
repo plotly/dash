@@ -45,7 +45,7 @@ export function hydrateInitialOutputs() {
         }
         dispatch(setAppLifecycle(APP_STATES('HYDRATED')));
     }
-};
+}
 
 export function loadStateFromRoute() {
     return (dispatch, getState) => {

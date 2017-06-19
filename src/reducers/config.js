@@ -1,3 +1,4 @@
+/* global document:true */
 import {ACTIONS} from '../actions/constants';
 
 export default function config (state = null, action) {
