@@ -36,3 +36,6 @@ class LayoutIsNotDefined(CallbackException):
 
 class IDsCantContainPeriods(CallbackException):
     pass
+
+class CantHaveMultipleOutputs(CallbackException):
+    pass

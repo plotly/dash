@@ -334,6 +334,7 @@ class Dash(object):
             mimetype=mimetype
         )
 
+
     def index(self, *args, **kwargs):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
@@ -498,6 +499,16 @@ class Dash(object):
             Periods are not allowed in IDs right now.'''.format(
                 output.component_id
             ))
+
+        if ('{}.{}'.format(output.component_id, output.component_property)
+                in self.callback_map):
+
+            raise exceptions.CantHaveMultipleOutputs('''
+                You have already assigned a callback to the output
+                with ID "{}" and property "{}". An output can only have
+                a single callback function. Try combining your inputs and
+                callback functions together into one function.
+            '''.format(output.component_id, output.component_property))
 
     # TODO - Update nomenclature.
     # "Parents" and "Children" should refer to the DOM tree
