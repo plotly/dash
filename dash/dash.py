@@ -115,10 +115,6 @@ class Dash(object):
             view_func=self.serve_routes
         )
 
-
-        self.server.add_url_rule(
-            '/_config',
-            view_func=self.serve_config)
         self.server.add_url_rule(self.url_base_pathname, view_func=self.index)
 
         # catch-all for front-end routes
@@ -209,18 +205,16 @@ class Dash(object):
             mimetype='application/json'
         )
 
-    def serve_config(self):
-        return flask.Response(
-            json.dumps({
-                'fid': self.fid,
-                'plotly_domain': (
-                    plotly.config.get_config()['plotly_domain']
-                ),
-                'oauth_client_id': 'RcXzjux4DGfb8bWG9UNGpJUGsTaS0pUVHoEf7Ecl',
-                'redirect_uri': 'http://localhost:9595'
-            }, cls=plotly.utils.PlotlyJSONEncoder),
-            mimetype='application/json'
-        )
+    def _config(self):
+        return {
+            'fid': self.fid,
+            'plotly_domain': (
+                plotly.config.get_config()['plotly_domain']
+            ),
+            'oauth_client_id': 'RcXzjux4DGfb8bWG9UNGpJUGsTaS0pUVHoEf7Ecl',
+            'redirect_uri': 'http://localhost:9595',
+            'url_base_pathname': self.url_base_pathname
+        }
 
     @_requires_auth
     def serve_routes(self):
@@ -303,6 +297,13 @@ class Dash(object):
             for src in srcs
         ])
 
+    def _generate_config_html(self):
+        return (
+            '<script id="_dash-config" type="application/json">'
+            '{}'
+            '</script>'
+        ).format(json.dumps(self._config()))
+
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
         if (package_name not in self.registered_paths):
@@ -336,6 +337,7 @@ class Dash(object):
     def index(self, *args, **kwargs):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
+        config = self._generate_config_html()
         return ('''
         <!DOCTYPE html>
         <html>
@@ -350,9 +352,10 @@ class Dash(object):
 
             <footer>
                 {}
+                {}
             </footer>
         </html>
-        '''.format(css, scripts))
+        '''.format(css, config, scripts))
 
     @_requires_auth
     def dependencies(self):
