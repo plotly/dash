@@ -26,6 +26,7 @@ export const computeGraphs = createAction(ACTIONS('COMPUTE_GRAPHS'));
 export const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
 export const setLayout = createAction(ACTIONS('SET_LAYOUT'));
 export const setAppLifecycle = createAction(ACTIONS('SET_APP_LIFECYCLE'));
+export const readConfig = createAction(ACTIONS('READ_CONFIG'));
 
 export const hydrateInitialOutputs = function() {
     return function (dispatch, getState) {
