@@ -138,7 +138,7 @@ class UnconnectedOauthRedirect extends Component {
         let content;
         if (isEmpty(loginRequest) || loginRequest.status === 'loading') {
 
-            content = <div>Loading...</div>;
+            content = <div className="_dash-loading">Loading...</div>;
 
         } else if (loginRequest.status === 200) {
 
@@ -225,7 +225,7 @@ class Authentication extends Component {
 
         if (type(config) === "Null") {
 
-            return <div>Loading...</div>;
+            return <div className="_dash-loading">Loading...</div>;
 
         }
 
