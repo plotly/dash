@@ -28,7 +28,7 @@ export const setLayout = createAction(ACTIONS('SET_LAYOUT'));
 export const setAppLifecycle = createAction(ACTIONS('SET_APP_LIFECYCLE'));
 export const readConfig = createAction(ACTIONS('READ_CONFIG'));
 
-export const hydrateInitialOutputs = function() {
+export function hydrateInitialOutputs() {
     return function (dispatch, getState) {
         const {config, routesRequest} = getState();
         const {url_base_pathname} = config;
@@ -262,7 +262,7 @@ export function undo() {
 
 
 
-export const notifyObservers = function(payload) {
+export function notifyObservers(payload) {
     return function (dispatch, getState) {
         const {
             id,
