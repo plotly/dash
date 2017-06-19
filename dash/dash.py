@@ -31,7 +31,8 @@ class Dash(object):
         filename=None,
         sharing=None,
         app_url=None,
-        url_base_pathname='/'
+        url_base_pathname='/',
+        csrf_protect=True
     ):
         # allow users to supply their own flask server
         if server is not None:
@@ -75,7 +76,8 @@ class Dash(object):
         Compress(self.server)
 
         # csrf protect
-        self._csrf = SeaSurf(self.server)
+        if csrf_protect:
+            self._csrf = SeaSurf(self.server)
 
         # static files from the packages
         self.css = Css()
