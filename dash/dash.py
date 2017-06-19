@@ -347,7 +347,11 @@ class Dash(object):
                 {}
             </head>
             <body>
-                <div id="react-entry-point">Loading...</div>
+                <div id="react-entry-point">
+                    <div class="_dash-loading">
+                        Loading...
+                    </div>
+                </div>
             </body>
 
             <footer>
