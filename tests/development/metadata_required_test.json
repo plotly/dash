@@ -1,0 +1,20 @@
+{
+  "description": "This is a description of the component.\nIt's multiple lines long.",
+  "methods": [],
+  "props": {
+    "children": {
+      "type": {
+        "name": "node"
+      },
+      "required": false,
+      "description": ""
+    },
+    "id": {
+      "type": {
+        "name": "string"
+      },
+      "required": true,
+      "description": ""
+    }
+  }
+}
