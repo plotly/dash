@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 exec (open('dash/version.py').read())
 
 setup(
-    name='dash.ly',
+    name='dash',
     version=__version__,
     author='chris p',
     author_email='chris@plot.ly',
