@@ -67,15 +67,18 @@ function UnconnectedToolbar(props) {
     );
 
     return (
-        <div style={{
-            'position': 'fixed',
-            'bottom': '30px',
-            'left': '30px',
-            'fontSize': '20px',
-            'textAlign': 'center',
-            'zIndex': '9999',
-            'backgroundColor': 'rgba(255, 255, 255, 0.9)',
-        }}>
+        <div
+            className="_dash-undo-redo" 
+            style={{
+                'position': 'fixed',
+                'bottom': '30px',
+                'left': '30px',
+                'fontSize': '20px',
+                'textAlign': 'center',
+                'zIndex': '9999',
+                'backgroundColor': 'rgba(255, 255, 255, 0.9)',
+            }}
+        >
             <div style={{
                 'position': 'relative'
             }}>
