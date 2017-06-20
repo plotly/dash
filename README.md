@@ -1,94 +1,33 @@
-## Testing
+# Dash
 
-```
-$ ag -l --python | entr python -m unittest discover -s tests/
-```
+### Reactive Web Apps for Python
 
-***
+Dash is a Python library for creating reactive, Web-based applications. Dash started as a public proof-of-concept on GitHub 2 years ago.
 
-## Dash python backend
+We kept a prototype online, but subsequent work on Dash occurred behind closed curtains. In June of 2017 we released a new version of Dash that is both enterprise-ready and a first-class member of Plotly's open-source tools.
 
-The backend doesn't serve files (yet), it only responds to HTTP calls from the web cloent. See [main README.md](../README.md) for instructions on running a local development web server.
+Dash is a user interface library for creating analytical web applications. Those who use Python for data analysis, data exploration, visualization, modelling, instrument control, and reporting will find immediate use for Dash.
 
-### running a python example
+Dash makes it dead-simple to build a GUI around your data analysis code. Here’s a 43-line example of a Dash App that ties a Dropdown to a D3.js Plotly Graph. As the user selects a value in the Dropdown, the application code dynamically exports data from Google Finance into a Pandas DataFrame. This app was written in just 43 lines of code ([view the source](https://gist.github.com/chriddyp/3d2454905d8f01886d651f207e2419f0)).
 
-```
-(dash2) $ cd dash
-(dash2/dash) $ pip install -r requirements.txt
-Collecting click==6.6 (from -r requirements.txt (line 1))
-Collecting Flask==0.11 (from -r requirements.txt (line 2))
-...
-Successfully installed Flask-0.11 Flask-Cors-2.1.2 Jinja2-2.8 MarkupSafe-0.23 Werkzeug-0.11.10 click-6.6 itsdangerous-0.24 numpy-1.11.0 pandas-0.18.1 plotly-1.11.0 python-dateutil-2.5.3 pytz-2016.4 requests-2.10.0 six-1.10.0
+![Sample Dash App](https://cdn-images-1.medium.com/max/800/1*j7xvjvK6h5sKI7z_eITHdg.png)
 
-(dash2/dash) $ python helloworld.py
+Dash app code is declarative and reactive, which makes it easy to build complex apps that contain many interactive elements. Here’s an example with 5 inputs, 3 outputs, and cross filtering. This app was composed in just 160 lines of code, all of which were Python.
 
- * Running on http://127.0.0.1:8050/ (Press CTRL+C to quit)
- * Debugger is active!
- * Debugger pin code: 254-379-279
-```
+![](https://cdn-images-1.medium.com/max/800/1*DETAQq6W-pytlNoHzLIaDA.png)
 
+To learn more about Dash, read the [extensive announcement letter](https://medium.com/@plotlygraphs/introducing-dash-reactive-web-apps-for-python-5ecf7191b503)
 
-### Python Developer guide
+### Documentation
 
-#### Use `virtualenv`
+View the [Dash User Guide](https://plot.ly/dash). It's chock-full of examples, pro tips, and guiding principles.
 
-Running everything in the same virtual environment ensures that you don't have
-conflicts with other globally installed python packages, and in general makes
-for a much more consistent development environment. You could also create
-multiple virtualenvs for different versions of Dash, for instance.
+### Licensing
 
-##### Install the goods
+Dash is licensed under MIT.
 
-```sh
-$ pip install virtualenv
-$ pip install virtualenvwrapper
-```
+Plotly offers an enterprise-ready deployment and permissioning server teams that are working with Dash apps behind-the-firewall. [Learn more about Dash Enterprise](https://plot.ly/products/on-premise).
 
-##### Add to your shell's configuration
+### Contact and Support
 
-```sh
-# The actual file to edit will vary depending
-# on your OS, shell, and setup.
-$ vi ~/.bash_profile
-
-# Add these lines
-export WORKON_HOME=$HOME/.py_virtualenvs
-source /usr/local/bin/virtualenvwrapper.sh
-```
-
-##### Create a virtual environment
-
-`my-dash-env` is a name of your choosing.
-
-```sh
-$ mkvirtualenv my-dash-env
-```
-
-##### Now you can switch to this virtual environment:
-
-```sh
-$ workon my-dash-env
-```
-
-More reading
-- http://docs.python-guide.org/en/latest/dev/virtualenvs/
-
-
-#### Debugging
-
-Install `ipdb`:
-
-```sh
-$ pip install ipdb
-```
-
-Insert a breakpoint in your Python code:
-
-```py
-import ipdb; ipdb.set_trace()
-```
-
-More reading
-- Intro: https://www.safaribooksonline.com/blog/2014/11/18/intro-python-debugger/
-- Cheat sheet: http://georgejhunt.com/olpc/pydebug/pydebug/ipdb.html
-- API: https://pypi.python.org/pypi/ipdb
+See [https://plot.ly/dash/support](https://plot.ly/dash/support) for ways to get in touch.
