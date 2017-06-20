@@ -339,12 +339,13 @@ class Dash(object):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
+        title = getattr(self, 'title', 'Dash')
         return ('''
         <!DOCTYPE html>
         <html>
             <head>
                 <meta charset="UTF-8"/>
-                <title>Dash</title>
+                <title>{}</title>
                 {}
             </head>
             <body>
@@ -360,7 +361,7 @@ class Dash(object):
                 {}
             </footer>
         </html>
-        '''.format(css, config, scripts))
+        '''.format(title, css, config, scripts))
 
     @_requires_auth
     def dependencies(self):
