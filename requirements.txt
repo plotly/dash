@@ -1,5 +1,0 @@
-flask==0.10.1
-Flask-SocketIO
-plotly
-gunicorn
-pandas
