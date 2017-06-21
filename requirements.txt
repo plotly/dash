@@ -1,30 +1,27 @@
-certifi (2017.4.17)
-chardet (3.0.4)
-click (6.7)
-dash (0.17.5)
-dash-core-components (0.5.0)
-dash-html-components (0.6.1)
-dash-renderer (0.7.3)
-dash.ly (0.17.3)
-decorator (4.0.11)
-Flask (0.12.2)
-Flask-Compress (1.4.0)
-Flask-SeaSurf (0.2.2)
-idna (2.5)
-ipython-genutils (0.2.0)
-itsdangerous (0.24)
-Jinja2 (2.9.6)
-jsonschema (2.6.0)
-jupyter-core (4.3.0)
-MarkupSafe (1.0)
-nbformat (4.3.0)
-pip (9.0.1)
-plotly (2.0.11)
-pytz (2017.2)
-requests (2.18.1)
-setuptools (27.2.0)
-six (1.10.0)
-traitlets (4.3.2)
-urllib3 (1.21.1)
-Werkzeug (0.12.2)
-wheel (0.29.0)
+certifi==2017.4.17
+chardet==3.0.4
+click==6.7
+dash==0.17.5
+dash-core-components==0.5.0
+dash-html-components==0.6.1
+dash-renderer==0.7.3
+dash.ly==0.17.3
+decorator==4.0.11
+Flask==0.12.2
+Flask-Compress==1.4.0
+Flask-SeaSurf==0.2.2
+idna==2.5
+ipython-genutils==0.2.0
+itsdangerous==0.24
+Jinja2==2.9.6
+jsonschema==2.6.0
+jupyter-core==4.3.0
+MarkupSafe==1.0
+nbformat==4.3.0
+plotly==2.0.11
+pytz==2017.2
+requests==2.18.1
+six==1.10.0
+traitlets==4.3.2
+urllib3==1.21.1
+Werkzeug==0.12.2
