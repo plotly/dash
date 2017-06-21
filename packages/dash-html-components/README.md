@@ -1,10 +1,7 @@
 # dash-html-components
 
-Vanilla HTML components for Dash
+Vanilla HTML components for [Dash][]
 
-## Dash
-
-Go to this link to learn about [Dash][].
 
 ## Contributing
 
