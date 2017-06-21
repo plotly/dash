@@ -1,0 +1,11 @@
+{
+  "name": "dash_tests",
+  "version": "1.0.0",
+  "description": "Utilities to help with dash tests",
+  "main": "na",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "chris@plot.ly",
+  "license": "ISC"
+}
