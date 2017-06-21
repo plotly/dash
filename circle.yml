@@ -1,6 +1,6 @@
 machine:
   post:
-    - pyenv global 2.7.10 3.3.3 3.4.3 3.5.0
+    - pyenv global 2.7.10 3.3.6 3.4.3 3.5.1
   environment:
     TOX_PYTHON_27: python2.7
     TOX_PYTHON_33: python3.3
