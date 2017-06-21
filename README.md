@@ -16,7 +16,7 @@ Dash app code is declarative and reactive, which makes it easy to build complex 
 
 ![](https://cdn-images-1.medium.com/max/800/1*DETAQq6W-pytlNoHzLIaDA.png)
 
-To learn more about Dash, read the [extensive announcement letter](https://medium.com/@plotlygraphs/introducing-dash-reactive-web-apps-for-python-5ecf7191b503)
+To learn more about Dash, read the [extensive announcement letter](https://medium.com/@plotlygraphs/introducing-dash-5ecf7191b503)
 
 ### Documentation
 
