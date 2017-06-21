@@ -1,6 +1,6 @@
-# Dash Components Core
+# Dash Core Components
 
-This package provides the core React component suite for [Dash2][].
+This package provides the core React component suite for [Dash][].
 
 ## Development
 
@@ -137,7 +137,7 @@ $ builder help
 See the [dash-components-archetype][] repo for more information.
 
 [Builder]: https://github.com/FormidableLabs/builder
-[Dash2]: https://github.com/plotly/dash2
+[Dash]: https://plot.ly/dash
 [NPM package authors]: https://www.npmjs.com/package/dash-core-components/access
 [PyPi]: https://pypi.python.org/pypi
 [dash-components-archetype]: https://github.com/plotly/dash-components-archetype
