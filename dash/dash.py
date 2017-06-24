@@ -5,6 +5,7 @@ from flask import Flask, url_for, send_from_directory, Response
 from flask_compress import Compress
 from flask_seasurf import SeaSurf
 import os
+import re
 import importlib
 import requests
 import pkgutil
@@ -46,8 +47,8 @@ class Dash(object):
             # If user supplied their own server, they might've supplied a
             # secret_key with it
             secret_key_name = 'dash_{}_secret_key'.format(
-                # TODO - check for other illegal characters
-                name.replace('.', '_')
+                # replace any invalid characters
+                re.sub('[\W_]+', '_', name)
             )
             secret_key = os.environ.get(
                 secret_key_name, SeaSurf()._generate_token()
