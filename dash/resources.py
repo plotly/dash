@@ -1,6 +1,7 @@
 from copy import copy
 import warnings
 import collections
+import json
 
 from .development.base_component import Component
 
