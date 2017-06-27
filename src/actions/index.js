@@ -540,7 +540,14 @@ export function notifyObservers(payload) {
                                 depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
                                 newProps
                             );
-
+                            
+                            /*
+                             * TODO - As in the case of Jack Luo's indicator app,
+                             * all of these inputs could update a _single_ output.
+                             * If that is the case, then we can collect all of their 
+                             * values and make a single request instead of making a 
+                             * different request for each input
+                             */
                             sortedNewProps.forEach(function(propUpdate) {
                                 dispatch(notifyObservers(propUpdate));
                             });
