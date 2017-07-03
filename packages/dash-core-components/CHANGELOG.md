@@ -2,20 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
-- Dropdown component
-- PlotlyJS component
-
-## [0.1.2] - 2016-07-17
-### Fixed
-- Metadata path for dynamic component generation
-
-## [0.1.1] - 2016-07-17
+## [0.5.2] - 2017-07-03
 ### Added
-- Dev server to demo components: `npm run demo`
-
-## 0.1.0 - 2016-06-30
-- Initial release
-
-[0.1.2]: https://github.com/plotly/dash-core-components/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/plotly/dash-core-components/compare/v0.1.0...v0.1.1
+- A new property `clear_on_unhover` on the `Graph` component will clear the
+  `hoverData` property when the user "unhovers" from a point if True. If False,
+  then the `hoverData` property will be equal to the data from the last point
+  that was hovered over. The default is False.

@@ -1,0 +1,1122 @@
+{
+  "src/components/Checklist.react.js": {
+    "description": "Checklist is a component that encapsulates several checkboxes.\nThe values and labels of the checklist is specified in the `options`\nproperty and the checked items are specified with the `values` property.\nEach checkbox is rendered as an input with a surrounding label.",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "inputStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the <input> checkbox element",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "inputClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the <input> checkbox element",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
+      "labelStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the <label> that wraps the checkbox input\n and the option's label",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "labelClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the <label> that wraps the checkbox input\n and the option's label",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
+      "options": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "label": {
+              "name": "string",
+              "description": "The checkbox's label",
+              "required": false
+            },
+            "value": {
+              "name": "string",
+              "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
+              "required": false
+            },
+            "disabled": {
+              "name": "bool",
+              "description": "If true, this checkbox is disabled and can't be clicked on.",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "An array of options",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "values": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "The currently selected value"
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the checkbox item gets selected."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Dropdown.react.js": {
+    "description": "Dropdown is an interactive dropdown element for selecting one or more\nitems.\nThe values and labels of the dropdown items are specified in the `options`\nproperty and the selected item(s) are specified with the `value` property.\n\nUse a dropdown when you have many options (more than 5) or when you are\nconstrained for space. Otherwise, you can use RadioItems or a Checklist,\nwhich have the benefit of showing the users all of the items at once.",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the option is disabled"
+      },
+      "multi": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the user can select multiple values"
+      },
+      "options": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "disabled": {
+                "name": "bool",
+                "required": false
+              },
+              "label": {
+                "name": "string",
+                "required": false
+              },
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": ""
+      },
+      "placeholder": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The grey, default text shown when no option is selected"
+      },
+      "value": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The value of the input. If `multi` is false (the default)\nthen value is just a string that corresponds to the values\nprovided in the `options` property. If `multi` is true, then\nmultiple values can be selected at once, and `value` is an\narray of items with values corresponding to those in the\n`options` prop."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the input changes"
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Graph.react.js": {
+    "description": "",
+    "methods": [
+      {
+        "name": "plot",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "bindEvents",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": true,
+        "description": ""
+      },
+      "clickData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest click event",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "hoverData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest hover event",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "clear_on_unhover": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, `clear_on_unhover` will clear the `hoverData` property\nwhen the user \"unhovers\" from a point.\nIf False, then the `hoverData` property will be equal to the\ndata from the last point that was hovered over.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "selectedData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest select event",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "relayoutData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest relayout event which occurs\nwhen the user zooms or pans on the plot",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "figure": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Plotly `figure` object. See schema:\nhttps://plot.ly/javascript/reference",
+        "defaultValue": {
+          "value": "{data: [], layout: {}}",
+          "computed": false
+        }
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Generic style overrides on the plot div"
+      },
+      "animate": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Beta: If true, animate between updates using\nplotly.js's `animate` function",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "animation_options": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Beta: Object containing animation settings.\nOnly applies if `animate` is `true`",
+        "defaultValue": {
+          "value": "{\n    frame: {\n        redraw: false\n    },\n    transition: {\n        duration: 750,\n        ease: 'cubic-in-out'\n    }\n}",
+          "computed": false
+        }
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'click'",
+              "computed": false
+            },
+            {
+              "value": "'hover'",
+              "computed": false
+            },
+            {
+              "value": "'selected'",
+              "computed": false
+            },
+            {
+              "value": "'relayout'",
+              "computed": false
+            },
+            {
+              "value": "'unhover'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Function that updates the state tree."
+      },
+      "dashFireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Function that fires events"
+      }
+    }
+  },
+  "src/components/Input.react.js": {
+    "description": "A basic HTML input control for entering text, numbers, or passwords.\n\nNote that checkbox and radio types are supported through\nthe Checklist and RadioItems component. Dates, times, and file uploads\nare also supported through separate components.",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "value": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The value of the input"
+      },
+      "placeholder": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A hint to the user of what can be entered in the control.\nNote: Do not use the placeholder attribute instead of a Label element,\ntheir purposes are different.\nThe Label attribute describes the role of the form element\n(i.e. it indicates what kind of information is expected),\nand the placeholder attribute is a hint about the format\nthat the value should take.\nThere are cases in which the placeholder attribute is\nnever displayed to the user, so the form must be understandable\nwithout it."
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The input's inline styles"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the input element"
+      },
+      "type": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'text'",
+              "computed": false
+            },
+            {
+              "value": "'number'",
+              "computed": false
+            },
+            {
+              "value": "'password'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "The type of control to render."
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If disabled, then the input can not be edited"
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the input changes."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'blur'",
+              "computed": false
+            },
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Interval.react.js": {
+    "description": "A component that repeatedly fires an event (\"interval\")\nwith a fixed time delay between each event.\nInterval is good for triggering a component on a recurring basis.\nThe time delay is set with the property \"interval\" in milliseconds.",
+    "methods": [
+      {
+        "name": "setInterval",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "interval": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "This component will fire an event every `interval`\nmilliseconds with the event name `setInterval`",
+        "defaultValue": {
+          "value": "1000",
+          "computed": false
+        }
+      },
+      "fireEvent": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.function"
+        },
+        "required": false,
+        "description": "Dash assigned callback"
+      },
+      "setProps": {
+        "type": {
+          "name": "custom",
+          "raw": "PropTypes.function"
+        },
+        "required": false,
+        "description": "Dash assigned callback"
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'interval'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Markdown.react.js": {
+    "description": "A component that renders Markdown text as specified by the\nCommonMark spec.",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Class name of the container element"
+      },
+      "containerProps": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "An object containing custom element props to put on the container\nelement such as id or style"
+      },
+      "children": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A markdown string that adhreres to the CommonMark spec"
+      }
+    }
+  },
+  "src/components/RadioItems.react.js": {
+    "description": "RadioItems is a component that encapsulates several radio item inputs.\nThe values and labels of the RadioItems is specified in the `options`\nproperty and the seleced item is specified with the `value` property.\nEach radio item is rendered as an input with a surrounding label.",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "inputStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the <input> radio element",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "inputClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the <input> radio element",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
+      "labelStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the <label> that wraps the radio input\n and the option's label",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "labelClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the <label> that wraps the radio input\n and the option's label",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
+      "options": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "label": {
+              "name": "string",
+              "required": false
+            },
+            "value": {
+              "name": "string",
+              "required": false
+            },
+            "disabled": {
+              "name": "bool",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "An array of options",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "value": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The currently selected value"
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the radio item gets selected."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/RangeSlider.react.js": {
+    "description": "A double slider with two handles.\nUsed for specifying a range of numerical values.",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "allowCross": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "allowCross could be set as true to allow those handles to cross."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Additional CSS class for the root DOM node"
+      },
+      "count": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Determine how many ranges to render, and multiple handles\nwill be rendered (number + 1)."
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the handles can't be moved."
+      },
+      "dots": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots."
+      },
+      "included": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
+      },
+      "marks": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "number": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "shape",
+                  "value": {
+                    "style": {
+                      "name": "object",
+                      "required": false
+                    },
+                    "label": {
+                      "name": "string",
+                      "required": false
+                    }
+                  }
+                }
+              ],
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
+      },
+      "min": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Minimum allowed value of the slider"
+      },
+      "max": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Maximum allowed value of the slider"
+      },
+      "pushable": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "bool"
+            },
+            {
+              "name": "number"
+            }
+          ]
+        },
+        "required": false,
+        "description": "pushable could be set as true to allow pushing of\nsurrounding handles when moving an handle.\nWhen set to a number, the number will be the\nminimum ensured distance between handles."
+      },
+      "step": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Value by which increments or decrements are made"
+      },
+      "labels": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Key-values pairs describing the labels"
+      },
+      "value": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": "The value of the input"
+      },
+      "vertical": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the slider will be vertical"
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the checkbox item gets selected."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Slider.react.js": {
+    "description": "A numerical slider with a single handle.",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Additional CSS class for the root DOM node"
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the handles can't be moved."
+      },
+      "dots": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots."
+      },
+      "included": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
+      },
+      "marks": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "number": {
+              "name": "string",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
+      },
+      "min": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Minimum allowed value of the slider"
+      },
+      "max": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Maximum allowed value of the slider"
+      },
+      "step": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Value by which increments or decrements are made"
+      },
+      "labels": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Key-values pairs describing the labels"
+      },
+      "value": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The value of the input"
+      },
+      "vertical": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the slider will be vertical"
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the checkbox item gets selected."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/SyntaxHighlighter.react.js": {
+    "description": "A component for pretty printing code.",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "children": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The text to display and highlight"
+      },
+      "language": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "the language to highlight code in."
+      },
+      "theme": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'light'",
+              "computed": false
+            },
+            {
+              "value": "'dark'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "theme: light or dark"
+      },
+      "customStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "prop that will be combined with the top level style on the pre tag, styles here will overwrite earlier styles."
+      },
+      "codeTagProps": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "props that will be spread into the <code> tag that is the direct parent of the highlighted code elements. Useful for styling/assigning classNames."
+      },
+      "useInlineStyles": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "if this prop is passed in as false, react syntax highlighter will not add style objects to elements, and will instead append classNames. You can then style the code block by using one of the CSS files provided by highlight.js."
+      },
+      "showLineNumbers": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "if this is enabled line numbers will be shown next to the code block."
+      },
+      "startingLineNumber": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "if showLineNumbers is enabled the line numbering will start from here."
+      },
+      "lineNumberContainerStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "the line numbers container default to appearing to the left with 10px of right padding. You can use this to override those styles."
+      },
+      "lineNumberStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "inline style to be passed to the span wrapping each number. Can be either an object or a function that recieves current line number as argument and returns style object."
+      },
+      "wrapLines": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "a boolean value that determines whether or not each line of code should be wrapped in a parent element. defaults to false, when false one can not take action on an element on the line level. You can see an example of what this enables here"
+      },
+      "lineStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "inline style to be passed to the span wrapping each line if wrapLines is true. Can be either an object or a function that recieves current line number as argument and returns style object."
+      }
+    }
+  }
+}

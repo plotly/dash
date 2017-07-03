@@ -69,7 +69,7 @@ export default class PlotlyGraph extends Component {
     }
 
     bindEvents(props) {
-        const {id, fireEvent, setProps} = props;
+        const {id, fireEvent, setProps, clear_on_unhover} = props;
 
         const gd = document.getElementById(id);
 
@@ -92,6 +92,12 @@ export default class PlotlyGraph extends Component {
             const relayoutData = filterEventData(gd, eventData, 'relayout');
             if (setProps) setProps({relayoutData});
             if (fireEvent) fireEvent({event: 'relayout'});
+        });
+        gd.on('plotly_unhover', () => {
+            if (clear_on_unhover) {
+                if (setProps) setProps({hoverData: null});
+                if (fireEvent) fireEvent({event: 'unhover'});
+            }
         });
     }
 
@@ -177,6 +183,14 @@ PlotlyGraph.propTypes = {
     hoverData: PropTypes.object,
 
     /**
+     * If True, `clear_on_unhover` will clear the `hoverData` property
+     * when the user "unhovers" from a point.
+     * If False, then the `hoverData` property will be equal to the
+     * data from the last point that was hovered over.
+     */
+    clear_on_unhover: PropTypes.bool,
+
+    /**
      * Data from latest select event
      */
     selectedData: PropTypes.object,
@@ -217,7 +231,8 @@ PlotlyGraph.propTypes = {
         'click',
         'hover',
         'selected',
-        'relayout'
+        'relayout',
+        'unhover'
     ]),
 
     /**
@@ -246,5 +261,6 @@ PlotlyGraph.defaultProps = {
             duration: 750,
             ease: 'cubic-in-out'
         }
-    }
+    },
+    clear_on_unhover: false
 };
