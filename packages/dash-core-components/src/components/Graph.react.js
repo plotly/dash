@@ -44,6 +44,12 @@ const filterEventData = (gd, eventData, event) => {
          */
         filteredEventData = eventData;
     }
+    if (has('range', eventData)) {
+        filteredEventData.range = eventData.range;
+    }
+    if (has('lassoPoints', eventData)) {
+        filteredEventData.lassoPoints = eventData.lassoPoints;
+    }
     return filteredEventData;
 };
 
