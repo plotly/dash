@@ -32,6 +32,7 @@ class Dash(object):
         filename=None,
         sharing=None,
         app_url=None,
+        app_path='',
         url_base_pathname='/',
         csrf_protect=True
     ):
@@ -69,6 +70,7 @@ class Dash(object):
             self.access_codes = None
 
         self.url_base_pathname = url_base_pathname
+        self.app_path = app_path
 
         # list of dependencies
         self.callback_map = {}
@@ -214,7 +216,7 @@ class Dash(object):
             ),
             'oauth_client_id': 'RcXzjux4DGfb8bWG9UNGpJUGsTaS0pUVHoEf7Ecl',
             'redirect_uri': 'http://localhost:9595',
-            'url_base_pathname': self.url_base_pathname
+            'url_base_pathname': self.app_path + self.url_base_pathname
         }
 
     @_requires_auth
@@ -238,7 +240,7 @@ class Dash(object):
                 self.registered_paths[namespace] = [relative_package_path]
 
             return '{}_dash-component-suites/{}/{}?v={}'.format(
-                self.url_base_pathname,
+                self.app_path + self.url_base_pathname,
                 namespace,
                 relative_package_path,
                 importlib.import_module(namespace).__version__
