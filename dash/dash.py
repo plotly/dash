@@ -94,34 +94,47 @@ class Dash(object):
 
         self.server.add_url_rule(
             '{}_dash-layout'.format(self.url_base_pathname),
-            view_func=self.serve_layout)
+            view_func=self.serve_layout,
+            endpoint='{}_dash-layout'.format(self.url_base_pathname)
+        )
 
         self.server.add_url_rule(
             '{}_dash-dependencies'.format(self.url_base_pathname),
-            view_func=self.dependencies)
+            view_func=self.dependencies,
+            endpoint='{}_dash-dependencies'.format(self.url_base_pathname)
+        )
 
         self.server.add_url_rule(
             '{}_dash-update-component'.format(self.url_base_pathname),
             view_func=self.dispatch,
+            endpoint='{}_dash-update-component'.format(self.url_base_pathname),
             methods=['POST'])
 
         self.server.add_url_rule((
             '{}_dash-component-suites'
             '/<string:package_name>'
             '/<path:path_in_package_dist>').format(self.url_base_pathname),
-            view_func=self.serve_component_suites)
+            view_func=self.serve_component_suites,
+            endpoint='{}_dash-component-suites'.format(self.url_base_pathname)
+        )
 
         self.server.add_url_rule(
             '{}_dash-routes'.format(self.url_base_pathname),
-            view_func=self.serve_routes
+            view_func=self.serve_routes,
+            endpoint='{}_dash-routes'.format(self.url_base_pathname)
         )
 
-        self.server.add_url_rule(self.url_base_pathname, view_func=self.index)
+        self.server.add_url_rule(
+            self.url_base_pathname, 
+            view_func=self.index,
+            endpoint=self.url_base_pathname
+        )
 
         # catch-all for front-end routes
         self.server.add_url_rule(
             '{}<path:path>'.format(self.url_base_pathname),
-            view_func=self.index
+            view_func=self.index,
+            endpoint='{}<path:path>'.format(self.url_base_pathname)
         )
 
         self.server.before_first_request(self._setup_server)
