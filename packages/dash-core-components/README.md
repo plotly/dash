@@ -4,6 +4,39 @@ This package provides the core React component suite for [Dash][].
 
 ## Development
 
+### Testing Locally
+
+1. Install the dependencies with:
+
+```
+$ npm i
+```
+
+2. Build the code:
+
+```
+$ npm run build-dev
+```
+
+3. Install the library
+
+```
+$ cd dash-core-components
+$ npm run copy-lib
+$ python setup.py install
+```
+
+I recommend installing the library and running the examples in a fresh virtualenv in a separate folder:
+
+```
+$ mkdir dash_examples # create a new folder to test examples
+$ cd dash_examples
+$ virtualenv venv # create a virtual env
+$ source venv/bin/activate # use the virtual env
+```
+
+(and then repeat step 3).
+
 ### Demo server
 
 You can start up a demo development server to see a demo of the rendered
