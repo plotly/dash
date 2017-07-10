@@ -37,6 +37,11 @@ $ source venv/bin/activate # use the virtual env
 
 (and then repeat step 3).
 
+4. Add the following line to your Dash app
+```
+app.scripts.config.serve_locally = True
+```
+
 ### Demo server
 
 You can start up a demo development server to see a demo of the rendered
