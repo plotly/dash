@@ -16,7 +16,7 @@ class Component(collections.MutableMapping):
     def __init__(self, **kwargs):
         for k, v in list(kwargs.items()):
             if k[:5] in ["data_", "aria_"]:
-                k = k.replace('_','-')
+                k = k.replace('_','-',1)
                 self._prop_names.append(k)
             elif k not in self._prop_names:
                 # TODO - What's the right exception here?
