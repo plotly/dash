@@ -1,4 +1,4 @@
-/* global fetch:true, window:true, Promise:true, document:true */
+/* global fetch:true, Promise:true, document:true */
 import {
     concat,
     contains,
@@ -7,7 +7,6 @@ import {
     isEmpty,
     keys,
     lensPath,
-    pluck,
     reject,
     sort,
     type,
@@ -30,156 +29,11 @@ export const readConfig = createAction(ACTIONS('READ_CONFIG'));
 
 export function hydrateInitialOutputs() {
     return function (dispatch, getState) {
-        const {config, routesRequest} = getState();
-        const {url_base_pathname} = config;
-        const relativePathname = window.location.pathname.slice(url_base_pathname.length);
-        if (!isEmpty(routesRequest.content) &&
-            contains(
-                relativePathname,
-                pluck('pathname', routesRequest.content)
-            )
-        ) {
-            loadStateFromRoute()(dispatch, getState);
-        } else {
-            triggerDefaultState(dispatch, getState);
-        }
+        triggerDefaultState(dispatch, getState);
         dispatch(setAppLifecycle(APP_STATES('HYDRATED')));
     }
 }
 
-export function loadStateFromRoute() {
-    return (dispatch, getState) => {
-        const {config, routesRequest} = getState();
-        const routes = routesRequest.content;
-        const {url_base_pathname} = config;
-        const relativePathname = window.location.pathname.slice(url_base_pathname.length);
-        const route = routes.find(route => (
-            route.pathname === relativePathname
-        ));
-        const initialState = route.state;
-        loadSavedState(initialState)(dispatch, getState)
-    }
-}
-
-function loadSavedState(initialControls) {
-    return (dispatch, getState) => {
-        function recursivelyTriggerInputs(skipTheseInputs) {
-            const {
-                promises,
-                visibleInputsThatWereTriggered
-            } = loadSavedStateAndTriggerVisibleInputs(
-                dispatch, getState, skipTheseInputs, initialControls
-            );
-            if (promises.length === 0) {
-                return;
-            } else {
-                Promise.all(promises).then(function() {
-                    recursivelyTriggerInputs(union(
-                        skipTheseInputs,
-                        visibleInputsThatWereTriggered
-                    ));
-                });
-            }
-        }
-
-        recursivelyTriggerInputs([]);
-    }
-}
-
-function loadSavedStateAndTriggerVisibleInputs(dispatch, getState, skipTheseInputs, initialControls) {
-    const updatedInputs = [];
-    const {paths} = getState();
-
-    keys(initialControls).forEach((nodeId) => {
-        const [componentId, componentProp] = nodeId.split('.');
-
-        /*
-         * Don't update invisible inputs - they'll become visible
-         * as a result of a separate input on a later cycle
-         */
-        if (!(has(componentId, paths))) {
-            return;
-        }
-
-        // Some input nodes have already been updated in a previous cycle
-        if (contains(nodeId, skipTheseInputs)) {
-            return;
-        }
-
-        const payload = {
-            itempath: paths[componentId],
-            props: {[componentProp]: initialControls[nodeId]}
-        }
-        dispatch(updateProps(payload));
-        updatedInputs.push(nodeId);
-    });
-
-    const {graphs} = getState();
-    const InputGraph = graphs.InputGraph
-    const triggeredInputs = [];
-    const promises = [];
-
-    // Trigger an update for each of the output nodes
-    keys(InputGraph.nodes).forEach(nodeId => {
-        if (InputGraph.dependenciesOf(nodeId).length === 0) {
-            /*
-             * If the output has more than one input, then just
-             * trigger an update on one of the updates.
-             * All of the inputs are already updated, so we don't
-             * need to trigger it more than once.
-             */
-            const anInputNode = InputGraph.dependantsOf(nodeId)[0];
-
-            /*
-             * It's possible that this output has already been updated
-             * by a different output that shared the same input
-             */
-            if (contains(anInputNode, triggeredInputs)) {
-                return;
-            }
-
-            const [anInputId, anInputProp] = anInputNode.split('.');
-
-            /*
-             * Don't update invisible inputs - they'll become visible
-             * as a result of a separate input on a later cycle
-             */
-            if (!(has(anInputId, getState().paths))) {
-                return;
-            }
-
-            // Some input nodes have already been updated in a previous cycle
-            if (contains(anInputNode, skipTheseInputs)) {
-                return;
-            }
-
-            const propLens = lensPath(
-                concat(getState().paths[anInputId],
-                ['props', anInputProp]
-            ));
-            const propValue = view(
-                propLens,
-                getState().layout
-            );
-
-            promises.push(dispatch(notifyObservers({
-                id: anInputId,
-                props: {
-                    [anInputProp]: propValue
-                }
-            })));
-            triggeredInputs.push(anInputNode);
-        }
-    });
-
-    return {
-        promises,
-
-        // TODO - Do I really need to take the union?
-        // Isn't triggeredInputs just a subset of updatedInputs?
-        visibleInputsThatWereTriggered: union(triggeredInputs, updatedInputs)
-    };
-}
 
 function triggerDefaultState(dispatch, getState) {
     const {graphs} = getState();

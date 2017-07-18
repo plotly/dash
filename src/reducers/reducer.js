@@ -1,4 +1,3 @@
-/* global window:true, document:true */
 'use strict'
 import R, {concat, lensPath, view} from 'ramda';
 import {combineReducers} from 'redux';
@@ -10,8 +9,6 @@ import appLifecycle from './appLifecycle';
 import history from './history';
 import * as API from './api';
 import config from './config';
-import {serialize} from '../actions/index';
-import {APP_STATES} from './constants';
 
 const reducer = combineReducers({
     appLifecycle,
@@ -22,7 +19,6 @@ const reducer = combineReducers({
     config,
     dependenciesRequest: API.dependenciesRequest,
     layoutRequest: API.layoutRequest,
-    routesRequest: API.routesRequest,
     lastUpdateComponentRequest: API.lastUpdateComponentRequest,
     loginRequest: API.loginRequest,
     history
@@ -94,55 +90,4 @@ function recordHistory(reducer) {
     }
 }
 
-function updateUrlPath(reducer) {
-    return function(state, action) {
-        const nextState = reducer(state, action);
-        if (nextState.routesRequest.status === 200 &&
-            nextState.appLifecycle == APP_STATES('HYDRATED')
-        ) {
-
-            const serialized = serialize(nextState);
-            const matchingRoute = R.filter(route => R.equals(
-                route.state,
-                R.pick(R.keys(route.state), serialized)
-            ), nextState.routesRequest.content);
-            const {url_base_pathname} = state.config;
-            const relativePathname = window.location.pathname.slice(
-                url_base_pathname.length
-            );
-
-            if (matchingRoute.length === 1 &&
-                relativePathname !== matchingRoute[0].pathname
-            ) {
-                window.history.pushState(
-                    {},
-                    document.title,
-                    `${url_base_pathname}${matchingRoute[0].pathname}`
-                );
-            } else if (matchingRoute.length > 1) {
-                const nMostMatchedKeys = R.reduce(
-                    (n, route) => R.max(n, R.keys(route.state).length),
-                    0, matchingRoute
-                );
-                const bestMatchedRoute = matchingRoute.filter(route =>
-                    R.keys(route.state).length === nMostMatchedKeys
-                );
-                if (bestMatchedRoute.length > 1) {
-                    /* eslint-disable no-console */
-                    console.error('Multiple URLs matched?', matchingRoute);
-                    /* eslint-enable no-console */
-                } else {
-                    window.history.pushState(
-                        {},
-                        document.title,
-                        `${url_base_pathname}${bestMatchedRoute[0].pathname}`
-                    );
-                }
-            }
-
-        }
-        return nextState;
-    }
-}
-
-export default updateUrlPath(recordHistory(reducer));
+export default recordHistory(reducer);

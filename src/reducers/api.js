@@ -31,5 +31,4 @@ export const lastUpdateComponentRequest = createApiReducer(
     'lastUpdateComponentRequest'
 );
 export const layoutRequest = createApiReducer('layoutRequest');
-export const routesRequest = createApiReducer('routesRequest');
 export const loginRequest = createApiReducer('loginRequest');

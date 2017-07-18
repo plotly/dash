@@ -100,15 +100,6 @@ export function getDependencies() {
     );
 }
 
-export function getRoutes() {
-    return apiThunk(
-        '_dash-routes',
-        'GET',
-        'routesRequest'
-    );
-}
-
-
 export function login(oauth_token) {
     return apiThunk(
         '_dash-login',

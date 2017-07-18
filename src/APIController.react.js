@@ -1,4 +1,3 @@
-/* global window: true */
 import {connect} from 'react-redux'
 import {any, contains, equals, isEmpty, isNil} from 'ramda'
 import React, {Component, PropTypes} from 'react';
@@ -7,10 +6,9 @@ import {
     computeGraphs,
     computePaths,
     hydrateInitialOutputs,
-    loadStateFromRoute,
     setLayout
 } from './actions/index';
-import {getDependencies, getLayout, getRoutes} from './actions/api';
+import {getDependencies, getLayout} from './actions/api';
 import {APP_STATES} from './reducers/constants';
 import AccessDenied from './AccessDenied.react';
 
@@ -21,7 +19,6 @@ class UnconnectedContainer extends Component {
     constructor(props) {
         super(props);
         this.initialization = this.initialization.bind(this);
-        this.handleHistory = this.handleHistory.bind(this);
     }
     componentDidMount() {
         this.initialization(this.props);
@@ -39,8 +36,7 @@ class UnconnectedContainer extends Component {
             graphs,
             layout,
             layoutRequest,
-            paths,
-            routesRequest
+            paths
         } = props;
 
         if (isEmpty(layoutRequest)) {
@@ -59,15 +55,10 @@ class UnconnectedContainer extends Component {
             dispatch(computeGraphs(dependenciesRequest.content));
         }
 
-        if (isEmpty(routesRequest)) {
-            dispatch(getRoutes());
-        }
-
         if (
             // dependenciesRequest and its computed stores
             dependenciesRequest.status === 200 &&
             !isEmpty(graphs) &&
-            routesRequest.status === 200 &&
 
             // LayoutRequest and its computed stores
             layoutRequest.status === 200 &&
@@ -78,15 +69,6 @@ class UnconnectedContainer extends Component {
             appLifecycle === APP_STATES('STARTED')
         ) {
             dispatch(hydrateInitialOutputs());
-            this.handleHistory();
-        }
-    }
-
-    handleHistory() {
-        window.onpopstate = () => {
-            if (this.props.routesRequest.status === 200) {
-                this.props.dispatch(loadStateFromRoute());
-            }
         }
     }
 
@@ -97,14 +79,13 @@ class UnconnectedContainer extends Component {
             dependenciesRequest,
             lastUpdateComponentRequest,
             layoutRequest,
-            layout,
-            routesRequest
+            layout
         } = this.props;
 
         // Auth protected routes
         if (any(equals(true),
                 [dependenciesRequest, lastUpdateComponentRequest,
-                 layoutRequest, routesRequest].map(
+                 layoutRequest].map(
             request => (request.status && request.status === 403))
         )) {
             return (<AccessDenied config={config}/>);
@@ -147,7 +128,6 @@ UnconnectedContainer.propTypes = {
     dispatch: PropTypes.function,
     config: PropTypes.object,
     dependenciesRequest: PropTypes.object,
-    routesRequest: PropTypes.object,
     lastUpdateComponentRequest: PropTypes.objec,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
@@ -163,7 +143,6 @@ const Container = connect(
         dependenciesRequest: state.dependenciesRequest,
         lastUpdateComponentRequest: state.lastUpdateComponentRequest,
         layoutRequest: state.layoutRequest,
-        routesRequest: state.routesRequest,
         layout: state.layout,
         graphs: state.graphs,
         paths: state.paths,
