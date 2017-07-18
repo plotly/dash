@@ -15,8 +15,18 @@ const DELIMETER = ',';
  * which have the benefit of showing the users all of the items at once.
  */
 export default class Dropdown extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {value: props.value};
+    }
+
+    componentWillReceiveProps(newProps) {
+        this.setState({value: newProps.value});
+    }
+
     render() {
-        const {id, fireEvent, multi, options, value, setProps} = this.props;
+        const {id, fireEvent, multi, options, setProps} = this.props;
+        const {value} = this.state;
         let selectedValue;
         if (R.type(value) === 'array') {
             selectedValue = value.join(DELIMETER);
@@ -31,9 +41,11 @@ export default class Dropdown extends Component {
                     onChange={selectedOption => {
                         if (multi) {
                             const values = R.pluck('value', selectedOption);
-                            setProps({value: values});
+                            this.setState({value: values});
+                            if (setProps) setProps({value: values});
                         } else {
-                            setProps({value: selectedOption.value});
+                            this.setState({value: selectedOption.value});
+                            if (setProps) setProps({value: selectedOption.value});
                         }
                         if (fireEvent) fireEvent('change');
                     }}

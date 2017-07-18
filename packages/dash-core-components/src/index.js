@@ -9,6 +9,8 @@ import Checklist from './components/Checklist.react';
 import SyntaxHighlighter from './components/SyntaxHighlighter.react';
 import Interval from './components/Interval.react';
 import Markdown from './components/Markdown.react';
+import Location from './components/Location.react';
+import Link from './components/Link.react';
 
 export {
     Checklist,
@@ -20,5 +22,7 @@ export {
     Slider,
     SyntaxHighlighter,
     Interval,
-    Markdown
+    Markdown,
+    Location,
+    Link
 };

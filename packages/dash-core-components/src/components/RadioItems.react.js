@@ -1,4 +1,4 @@
-import React, {PropTypes} from 'react';
+import React, {Component, PropTypes} from 'react';
 
 /**
  * RadioItems is a component that encapsulates several radio item inputs.
@@ -7,42 +7,55 @@ import React, {PropTypes} from 'react';
  * Each radio item is rendered as an input with a surrounding label.
  */
 
-export default function RadioItems(props) {
-    const {
-        fireEvent,
-        id,
-        inputClassName,
-        inputStyle,
-        labelClassName,
-        labelStyle,
-        options,
-        value,
-        setProps
-    } = props;
-    let ids = {};
-    if (id) {
-        ids = {id, key: id};
+export default class RadioItems extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {value: props.value};
     }
-    return (
-        <div {...ids}>
-            {options.map(option => (
-                <label style={labelStyle} className={labelClassName}>
-                    <input
-                        checked={option.value === value}
-                        className={inputClassName}
-                        disabled={Boolean(option.disabled)}
-                        style={inputStyle}
-                        type="radio"
-                        onChange={() => {
-                            if (setProps) setProps({value: option.value});
-                            if (fireEvent) fireEvent({event: 'change'});
-                        }}
-                    />
-                    {option.label}
-                </label>
-            ))}
-        </div>
-    );
+
+    componentWillReceiveProps(newProps) {
+        this.setState({value: newProps.value});
+    }
+
+    render() {
+        const {
+            fireEvent,
+            id,
+            inputClassName,
+            inputStyle,
+            labelClassName,
+            labelStyle,
+            options,
+            setProps
+        } = this.props;
+        const {value} = this.state;
+
+        let ids = {};
+        if (id) {
+            ids = {id, key: id};
+        }
+        return (
+            <div {...ids}>
+                {options.map(option => (
+                    <label style={labelStyle} className={labelClassName}>
+                        <input
+                            checked={option.value === value}
+                            className={inputClassName}
+                            disabled={Boolean(option.disabled)}
+                            style={inputStyle}
+                            type="radio"
+                            onChange={() => {
+                                this.setState({value: option.value});
+                                if (setProps) setProps({value: option.value});
+                                if (fireEvent) fireEvent({event: 'change'});
+                            }}
+                        />
+                        {option.label}
+                    </label>
+                ))}
+            </div>
+        );
+    }
 }
 
 RadioItems.propTypes = {

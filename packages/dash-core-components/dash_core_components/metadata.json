@@ -566,6 +566,110 @@
       }
     }
   },
+  "src/components/Link.react.js": {
+    "description": "",
+    "methods": [
+      {
+        "name": "updateLocation",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      }
+    ],
+    "props": {
+      "href": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "refresh": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": ""
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Location.react.js": {
+    "description": "",
+    "methods": [
+      {
+        "name": "updateLocation",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": true,
+        "description": ""
+      },
+      "pathname": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "refresh": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      }
+    }
+  },
   "src/components/Markdown.react.js": {
     "description": "A component that renders Markdown text as specified by the\nCommonMark spec.",
     "methods": [],
@@ -860,6 +964,27 @@
         "required": false,
         "description": "If true, the slider will be vertical"
       },
+      "updatemode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'mouseup'",
+              "computed": false
+            },
+            {
+              "value": "'drag'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Determines when the component should update\nits value. If `mouseup`, then the slider\nwill only trigger its value when the user has\nfinished dragging the slider. If `drag`, then\nthe slider will update its value continuously\nas it is being dragged.\nOnly use `drag` if your updates are fast.",
+        "defaultValue": {
+          "value": "'mouseup'",
+          "computed": false
+        }
+      },
       "fireEvent": {
         "type": {
           "name": "func"
@@ -890,7 +1015,7 @@
     }
   },
   "src/components/Slider.react.js": {
-    "description": "A numerical slider with a single handle.",
+    "description": "A slider component with a single handle.",
     "methods": [],
     "props": {
       "id": {
@@ -982,6 +1107,27 @@
         },
         "required": false,
         "description": "If true, the slider will be vertical"
+      },
+      "updatemode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'mouseup'",
+              "computed": false
+            },
+            {
+              "value": "'drag'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Determines when the component should update\nits value. If `mouseup`, then the slider\nwill only trigger its value when the user has\nfinished dragging the slider. If `drag`, then\nthe slider will update its value continuously\nas it is being dragged.\nOnly use `drag` if your updates are fast.",
+        "defaultValue": {
+          "value": "'mouseup'",
+          "computed": false
+        }
       },
       "fireEvent": {
         "type": {

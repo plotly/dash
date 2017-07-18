@@ -8,18 +8,26 @@ import React, {Component, PropTypes} from 'react';
  * are also supported through separate components.
  */
 export default class Input extends Component {
-    render() {
+    constructor(props) {
+        super(props);
+        this.state = {value: props.value};
+    }
 
+    componentWillReceiveProps(nextProps) {
+        this.setState({value: nextProps.value});
+    }
+
+    render() {
         const {
             className,
             id,
             fireEvent,
             placeholder,
             style,
-            value,
             type,
             setProps
         } = this.props;
+        const {value} = this.state;
 
         return (
             <input
@@ -30,6 +38,7 @@ export default class Input extends Component {
                 placeholder={placeholder}
                 style={style}
                 onChange={e => {
+                    this.setState({value: e.target.value});
                     if (setProps) setProps({value: e.target.value});
                     if (fireEvent) fireEvent({event: 'change'});
                 }}

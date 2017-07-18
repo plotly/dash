@@ -1,19 +1,40 @@
 import React, {Component, PropTypes} from 'react';
 import ReactSlider from 'rc-slider';
+import {omit} from 'ramda';
 
 /**
- * A numerical slider with a single handle.
+ * A slider component with a single handle.
  */
 export default class Slider extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {value: props.value};
+    }
+
+    componentWillReceiveProps(newProps) {
+        this.setState({value: newProps.value});
+    }
+
     render() {
-        const {setProps, fireEvent} = this.props;
+        const {setProps, fireEvent, updatemode} = this.props;
+        const {value} = this.state;
         return (
             <ReactSlider
                 onChange={value => {
-                    if (setProps) setProps({value});
-                    if (fireEvent) fireEvent('change');
+                    this.setState({value});
+                    if (updatemode === 'drag') {
+                        if (setProps) setProps({value});
+                        if (fireEvent) fireEvent('change');
+                    }
                 }}
-                {...this.props}
+                onAfterChange={value => {
+                    if (updatemode === 'mouseup') {
+                        if (setProps) setProps({value});
+                        if (fireEvent) fireEvent('change');
+                    }
+                }}
+                value={value}
+                {...omit('value', this.props)}
             />
         );
     }
@@ -85,6 +106,17 @@ Slider.propTypes = {
     vertical: PropTypes.bool,
 
     /**
+     * Determines when the component should update
+     * its value. If `mouseup`, then the slider
+     * will only trigger its value when the user has
+     * finished dragging the slider. If `drag`, then
+     * the slider will update its value continuously
+     * as it is being dragged.
+     * Only use `drag` if your updates are fast.
+     */
+    updatemode: PropTypes.oneOf(['mouseup', 'drag']),
+
+    /**
      * Dash-assigned callback that gets fired when the checkbox item gets selected.
      */
     fireEvent: PropTypes.func,
@@ -96,4 +128,8 @@ Slider.propTypes = {
 
     dashEvents: PropTypes.oneOf(['change'])
 
+};
+
+Slider.defaultProps = {
+    updatemode: 'mouseup'
 };

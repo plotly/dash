@@ -1,5 +1,5 @@
 import {append, contains, without} from 'ramda';
-import React, {PropTypes} from 'react';
+import React, {Component, PropTypes} from 'react';
 
 /**
  * Checklist is a component that encapsulates several checkboxes.
@@ -7,50 +7,61 @@ import React, {PropTypes} from 'react';
  * property and the checked items are specified with the `values` property.
  * Each checkbox is rendered as an input with a surrounding label.
  */
-export default function Checklist(props) {
-    const {
-        fireEvent,
-        id,
-        inputClassName,
-        inputStyle,
-        labelClassName,
-        labelStyle,
-        options,
-        values,
-        setProps
-    } = props;
-    return (
-        <div id={id}>
-            {options.map(option => (
-                <label
-                    key={option.value}
-                    style={labelStyle}
-                    className={labelClassName}
-                >
-                    <input
-                        checked={contains(option.value, values)}
-                        className={inputClassName}
-                        disabled={Boolean(option.disabled)}
-                        style={inputStyle}
-                        type="checkbox"
-                        onChange={() => {
-                            if (setProps) {
+export default class Checklist extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {values: props.values};
+    }
+
+    componentWillReceiveProps(newProps) {
+        this.setState({values: newProps.values});
+    }
+
+    render() {
+        const {
+            fireEvent,
+            id,
+            inputClassName,
+            inputStyle,
+            labelClassName,
+            labelStyle,
+            options,
+            setProps
+        } = this.props;
+        const {values} = this.state;
+
+        return (
+            <div id={id}>
+                {options.map(option => (
+                    <label
+                        key={option.value}
+                        style={labelStyle}
+                        className={labelClassName}
+                    >
+                        <input
+                            checked={contains(option.value, values)}
+                            className={inputClassName}
+                            disabled={Boolean(option.disabled)}
+                            style={inputStyle}
+                            type="checkbox"
+                            onChange={() => {
                                 let newValues;
                                 if (contains(option.value, values)) {
                                     newValues = without([option.value], values);
                                 } else {
                                     newValues = append(option.value, values);
                                 }
-                                setProps({values: newValues});
-                            }
-                            if (fireEvent) fireEvent({event: 'change'});
-                        }}
-                    />
-                    {option.label}
-                </label>
-            ))}
-        </div>
-    );
+                                this.setState({values: newValues});
+                                if (setProps) setProps({values: newValues});
+                                if (fireEvent) fireEvent({event: 'change'});
+                            }}
+                        />
+                        {option.label}
+                    </label>
+                ))}
+            </div>
+        );
+    }
 }
 
 Checklist.propTypes = {
