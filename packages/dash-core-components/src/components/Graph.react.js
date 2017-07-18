@@ -21,10 +21,9 @@ const filterEventData = (gd, eventData, event) => {
             const pointData = filter(function(o) {
                 return !contains(type(o), ['Object', 'Array'])
             }, fullPoint);
-
-            if (has('customdata', data[pointData.curveNumber]) &&
+            if (has('curveNumber', fullPoint) &&
                 has('pointNumber', fullPoint) &&
-                has('curveNumber', fullPoint)
+                has('customdata', data[pointData.curveNumber])
             ) {
                 pointData['customdata'] = data[
                     pointData.curveNumber
