@@ -40,7 +40,27 @@ function generatePropTypes(element, attributes) {
         elements[element].concat(elements.Globalattribute) :
         elements.Globalattribute;
 
-    return supportedAttributes.reduce((propTypes, attributeName) => {
+    return `
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    'id': PropTypes.string,
+
+    /**
+     * The children of this component
+     */
+    'children': PropTypes.node,
+
+    /**
+     * An integer that represents the number of times
+     * that this element has been clicked on.
+     */
+    'n_clicks': PropTypes.integer,
+    ` +
+
+    supportedAttributes.reduce((propTypes, attributeName) => {
         const attribute = attributes.attributes[attributeName];
         const propType = PROP_TYPES[attributeName] || PROP_TYPES._default;
         if (attributeName === 'id') {
@@ -53,18 +73,6 @@ function generatePropTypes(element, attributes) {
      */
     '${attributeName}': PropTypes.${propType},`;
     }, '') + `
-
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    'id': PropTypes.string,
-
-    /**
-     * The children of this component
-     */
-    'children': PropTypes.node,
 
     /**
      * A callback for firing events to dash.
@@ -82,10 +90,13 @@ function generateComponent(Component, element, attributes) {
 import React, {PropTypes} from 'react';
 
 const ${Component} = (props) => {
-    if (props.fireEvent) {
+    if (props.fireEvent || props.setProps) {
         return (
             <${element}
-                onClick={() => props.fireEvent({event: 'click'})}
+                onClick={() => {
+                    if (props.setProps) props.setProps({n_clicks: props.n_clicks + 1});
+                    if (props.fireEvent) props.fireEvent({event: 'click'});
+                }}
                 {...props}
             >
                 {props.children}
@@ -98,6 +109,10 @@ const ${Component} = (props) => {
             </${element}>
         );
     }
+};
+
+${Component}.defaultProps = {
+    n_clicks: 0
 };
 
 ${Component}.propTypes = {${propTypes}

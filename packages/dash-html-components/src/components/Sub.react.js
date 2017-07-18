@@ -2,10 +2,13 @@
 import React, {PropTypes} from 'react';
 
 const Sub = (props) => {
-    if (props.fireEvent) {
+    if (props.fireEvent || props.setProps) {
         return (
             <sub
-                onClick={() => props.fireEvent({event: 'click'})}
+                onClick={() => {
+                    if (props.setProps) props.setProps({n_clicks: props.n_clicks + 1});
+                    if (props.fireEvent) props.fireEvent({event: 'click'});
+                }}
                 {...props}
             >
                 {props.children}
@@ -20,7 +23,29 @@ const Sub = (props) => {
     }
 };
 
+Sub.defaultProps = {
+    n_clicks: 0
+};
+
 Sub.propTypes = {
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    'id': PropTypes.string,
+
+    /**
+     * The children of this component
+     */
+    'children': PropTypes.node,
+
+    /**
+     * An integer that represents the number of times
+     * that this element has been clicked on.
+     */
+    'n_clicks': PropTypes.integer,
+    
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -81,18 +106,6 @@ Sub.propTypes = {
      * Text to be displayed in a tooltip when hovering over the element.
      */
     'title': PropTypes.string,
-
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    'id': PropTypes.string,
-
-    /**
-     * The children of this component
-     */
-    'children': PropTypes.node,
 
     /**
      * A callback for firing events to dash.

@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.7.0] - 2017-07-18
+## Added
+- A `n_clicks` property has been added to every component that gets incremented automatically when the element has been clicked on
+
 ## [0.2.3] - 2016-07-20
 ## Fixed
 - `style` propType is now correctly set to object, not string

@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -26,6 +26,8 @@
     "test": "./node_modules/.bin/builder run lint",
     "uninstall-local": "pip uninstall dash-html-components -y"
   },
+  "author": "Chris Parmer <chris@plot.ly>",
+  "license": "MIT",
   "dependencies": {
     "builder": "3.2.1",
     "dash-components-archetype": "^0.2.4",

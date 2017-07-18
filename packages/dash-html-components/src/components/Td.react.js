@@ -2,10 +2,13 @@
 import React, {PropTypes} from 'react';
 
 const Td = (props) => {
-    if (props.fireEvent) {
+    if (props.fireEvent || props.setProps) {
         return (
             <td
-                onClick={() => props.fireEvent({event: 'click'})}
+                onClick={() => {
+                    if (props.setProps) props.setProps({n_clicks: props.n_clicks + 1});
+                    if (props.fireEvent) props.fireEvent({event: 'click'});
+                }}
                 {...props}
             >
                 {props.children}
@@ -20,7 +23,29 @@ const Td = (props) => {
     }
 };
 
+Td.defaultProps = {
+    n_clicks: 0
+};
+
 Td.propTypes = {
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    'id': PropTypes.string,
+
+    /**
+     * The children of this component
+     */
+    'children': PropTypes.node,
+
+    /**
+     * An integer that represents the number of times
+     * that this element has been clicked on.
+     */
+    'n_clicks': PropTypes.integer,
+    
 
     /**
      * The colspan attribute defines the number of columns a cell should span.
@@ -96,18 +121,6 @@ Td.propTypes = {
      * Text to be displayed in a tooltip when hovering over the element.
      */
     'title': PropTypes.string,
-
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    'id': PropTypes.string,
-
-    /**
-     * The children of this component
-     */
-    'children': PropTypes.node,
 
     /**
      * A callback for firing events to dash.
