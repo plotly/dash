@@ -67,5 +67,6 @@ export const base = {
         width: '90%',
         maxWidth: '300px',
     }
-
 }
+
+export default base;
