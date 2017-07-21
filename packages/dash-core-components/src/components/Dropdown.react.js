@@ -40,12 +40,23 @@ export default class Dropdown extends Component {
                     value={selectedValue}
                     onChange={selectedOption => {
                         if (multi) {
-                            const values = R.pluck('value', selectedOption);
-                            this.setState({value: values});
-                            if (setProps) setProps({value: values});
+                            let value;
+                            if (R.isNil(selectedOption)) {
+                                value = []
+                            } else {
+                                value = R.pluck('value', selectedOption);
+                            }
+                            this.setState({value});
+                            if (setProps) setProps({value});
                         } else {
-                            this.setState({value: selectedOption.value});
-                            if (setProps) setProps({value: selectedOption.value});
+                            let value;
+                            if (R.isNil(selectedOption)) {
+                                value = null
+                            } else {
+                                value = selectedOption.value;
+                            }
+                            this.setState({value});
+                            if (setProps) setProps({value});
                         }
                         if (fireEvent) fireEvent('change');
                     }}
@@ -60,6 +71,14 @@ Dropdown.propTypes = {
     id: PropTypes.string,
 
     className: PropTypes.string,
+
+    /**
+     * Whether or not the dropdown is "clearable", that is, whether or
+     * not a small "x" appears on the right of the dropdown that removes
+     * the selected value.
+     */
+    clearable: PropTypes.bool,
+
     /**
      * If true, the option is disabled
      */
@@ -84,6 +103,11 @@ Dropdown.propTypes = {
     placeholder: PropTypes.string,
 
     /**
+     * Whether to enable the searching feature or not
+     */
+    searchable: PropTypes.bool,
+
+    /**
      * The value of the input. If `multi` is false (the default)
      * then value is just a string that corresponds to the values
      * provided in the `options` property. If `multi` is true, then
@@ -103,3 +127,10 @@ Dropdown.propTypes = {
 
     dashEvents: PropTypes.oneOf(['change'])
 };
+
+Dropdown.defaultProps = {
+    clearable: true,
+    disabled: false,
+    multi: false,
+    searchable: true
+}

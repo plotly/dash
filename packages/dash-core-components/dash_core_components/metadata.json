@@ -139,19 +139,38 @@
         "required": false,
         "description": ""
       },
+      "clearable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      },
       "disabled": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If true, the option is disabled"
+        "description": "If true, the option is disabled",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "multi": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If true, the user can select multiple values"
+        "description": "If true, the user can select multiple values",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "options": {
         "type": {
@@ -183,6 +202,17 @@
         },
         "required": false,
         "description": "The grey, default text shown when no option is selected"
+      },
+      "searchable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Whether to enable the searching feature or not",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
       },
       "value": {
         "type": {
