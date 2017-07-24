@@ -1,11 +1,15 @@
 import React, {Component, PropTypes} from 'react';
-import {contains, filter, has, type} from 'ramda';
+import {contains, filter, has, isNil, type} from 'ramda';
 /* global Plotly:true */
 
 const filterEventData = (gd, eventData, event) => {
     let filteredEventData;
     if (contains(event, ['click', 'hover', 'selected'])) {
         const points = [];
+
+        if (isNil(eventData)) {
+            return null;
+        }
 
         /*
          * remove `data`, `layout`, `xaxis`, etc
@@ -80,23 +84,35 @@ export default class PlotlyGraph extends Component {
 
         gd.on('plotly_click', (eventData) => {
             const clickData = filterEventData(gd, eventData, 'click');
-            if (setProps) setProps({clickData});
-            if (fireEvent) fireEvent({event: 'click'});
+            if (!isNil(clickData)) {
+                if (setProps) setProps({clickData});
+                if (fireEvent) fireEvent({event: 'click'});
+            }
         });
         gd.on('plotly_hover', (eventData) => {
             const hoverData = filterEventData(gd, eventData, 'hover');
-            if (setProps) setProps({hoverData});
-            if (fireEvent) fireEvent({event: 'hover'})
+            if (!isNil(hoverData)) {
+                if (setProps) setProps({hoverData});
+                if (fireEvent) fireEvent({event: 'hover'})
+            }
         });
         gd.on('plotly_selected', (eventData) => {
             const selectedData = filterEventData(gd, eventData, 'selected');
-            if (setProps) setProps({selectedData});
+            if (!isNil(selectedData)) {
+                if (setProps) setProps({selectedData});
+                if (fireEvent) fireEvent({event: 'selected'});
+            }
+        });
+        gd.on('plotly_deselect', () => {
+            if (setProps) setProps({selectedData: null});
             if (fireEvent) fireEvent({event: 'selected'});
         });
         gd.on('plotly_relayout', (eventData) => {
             const relayoutData = filterEventData(gd, eventData, 'relayout');
-            if (setProps) setProps({relayoutData});
-            if (fireEvent) fireEvent({event: 'relayout'});
+            if (!isNil(relayoutData)) {
+                if (setProps) setProps({relayoutData});
+                if (fireEvent) fireEvent({event: 'relayout'});
+            }
         });
         gd.on('plotly_unhover', () => {
             if (clear_on_unhover) {
