@@ -2,6 +2,28 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9.0] - 2017-07-28
+### Added
+- A `config` property of the `Graph` component that exposes the [plotly.js config properties](https://plot.ly/javascript/configuration-options/). Here's an example that hides 2 buttons and makes the elements in the graph "editable":
+```
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+
+app = dash.Dash()
+
+app.layout = html.Div([
+    dcc.Graph(
+        id='my-graph',
+        figure={'data': [{'x': [1, 2, 3]}]},
+        config={'editable': True, 'modeBarButtonsToRemove': ['pan2d', 'lasso2d']}
+    )
+])
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+```
+
 ## [0.8.0] - 2017-07-27
 ### Added
 - A new `Textarea` component for displaying the simple Textarea HTML element. The content of the `Textarea` is controlled through the `value` property:

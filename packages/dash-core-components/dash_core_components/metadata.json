@@ -385,6 +385,212 @@
           "computed": false
         }
       },
+      "config": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "staticPlot": {
+              "name": "bool",
+              "description": "no interactivity, for export or image generation",
+              "required": false
+            },
+            "editable": {
+              "name": "bool",
+              "description": "we can edit titles, move annotations, etc - sets all pieces of `edits`\nunless a separate `edits` config item overrides individual parts",
+              "required": false
+            },
+            "edits": {
+              "name": "shape",
+              "value": {
+                "annotationPosition": {
+                  "name": "bool",
+                  "description": "annotationPosition: the main anchor of the annotation, which is the\ntext (if no arrow) or the arrow (which drags the whole thing leaving\nthe arrow length & direction unchanged)",
+                  "required": false
+                },
+                "annotationTail": {
+                  "name": "bool",
+                  "description": "just for annotations with arrows, change the length and direction of the arrow",
+                  "required": false
+                },
+                "annotationText": {
+                  "name": "bool",
+                  "required": false
+                },
+                "axisTitleText": {
+                  "name": "bool",
+                  "required": false
+                },
+                "colorbarPosition": {
+                  "name": "bool",
+                  "required": false
+                },
+                "colorbarTitleText": {
+                  "name": "bool",
+                  "required": false
+                },
+                "legendPosition": {
+                  "name": "bool",
+                  "required": false
+                },
+                "legendText": {
+                  "name": "bool",
+                  "description": "edit the trace name fields from the legend",
+                  "required": false
+                },
+                "shapePosition": {
+                  "name": "bool",
+                  "required": false
+                },
+                "titleText": {
+                  "name": "bool",
+                  "description": "the global `layout.title`",
+                  "required": false
+                }
+              },
+              "description": "a set of editable properties",
+              "required": false
+            },
+            "autosizable": {
+              "name": "bool",
+              "description": "DO autosize once regardless of layout.autosize\n(use default width or height values otherwise)",
+              "required": false
+            },
+            "queueLength": {
+              "name": "number",
+              "description": "set the length of the undo/redo queue",
+              "required": false
+            },
+            "fillFrame": {
+              "name": "bool",
+              "description": "if we DO autosize, do we fill the container or the screen?",
+              "required": false
+            },
+            "frameMargins": {
+              "name": "number",
+              "description": "if we DO autosize, set the frame margins in percents of plot size",
+              "required": false
+            },
+            "scrollZoom": {
+              "name": "bool",
+              "description": "mousewheel or two-finger scroll zooms the plot",
+              "required": false
+            },
+            "doubleClick": {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "false",
+                  "computed": false
+                },
+                {
+                  "value": "'reset'",
+                  "computed": false
+                },
+                {
+                  "value": "'autosize'",
+                  "computed": false
+                },
+                {
+                  "value": "'reset+autosize'",
+                  "computed": false
+                }
+              ],
+              "description": "double click interaction (false, 'reset', 'autosize' or 'reset+autosize')",
+              "required": false
+            },
+            "showTips": {
+              "name": "bool",
+              "description": "new users see some hints about interactivity",
+              "required": false
+            },
+            "showAxisDragHandles": {
+              "name": "bool",
+              "description": "enable axis pan/zoom drag handles",
+              "required": false
+            },
+            "showAxisRangeEntryBoxes": {
+              "name": "bool",
+              "description": "enable direct range entry at the pan/zoom drag points\n(drag handles must be enabled above)",
+              "required": false
+            },
+            "showLink": {
+              "name": "bool",
+              "description": "link to open this plot in plotly",
+              "required": false
+            },
+            "sendData": {
+              "name": "bool",
+              "description": "if we show a link, does it contain data or just link to a plotly file?",
+              "required": false
+            },
+            "linkText": {
+              "name": "string",
+              "description": "text appearing in the sendData link",
+              "required": false
+            },
+            "displayModeBar": {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "true",
+                  "computed": false
+                },
+                {
+                  "value": "false",
+                  "computed": false
+                },
+                {
+                  "value": "'hover'",
+                  "computed": false
+                }
+              ],
+              "description": "display the mode bar (true, false, or 'hover')",
+              "required": false
+            },
+            "modeBarButtonsToRemove": {
+              "name": "array",
+              "description": "remove mode bar button by name.\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\nCommon names include:\n - sendDataToCloud\n- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d\n- (Cartesian): hoverClosestCartesian, hoverCompareCartesian\n- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d\n- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo\n- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews",
+              "required": false
+            },
+            "modeBarButtonsToAdd": {
+              "name": "array",
+              "description": "add mode bar button using config objects",
+              "required": false
+            },
+            "modeBarButtons": {
+              "name": "any",
+              "description": "fully custom mode bar buttons as nested array,\nwhere the outer arrays represents button groups, and\nthe inner arrays have buttons config objects or names of default buttons",
+              "required": false
+            },
+            "displaylogo": {
+              "name": "bool",
+              "description": "add the plotly logo on the end of the mode bar",
+              "required": false
+            },
+            "plotGlPixelRatio": {
+              "name": "number",
+              "description": "increase the pixel ratio for Gl plot images",
+              "required": false
+            },
+            "topojsonURL": {
+              "name": "string",
+              "description": "URL to topojson files used in geo charts",
+              "required": false
+            },
+            "mapboxAccessToken": {
+              "name": "any",
+              "description": "Mapbox access token (required to plot mapbox trace types)\nIf using an Mapbox Atlas server, set this option to '',\nso that plotly.js won't attempt to authenticate to the public Mapbox server.",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Plotly.js config options.\nSee https://plot.ly/javascript/configuration-options/\nfor more info.",
+        "defaultValue": {
+          "value": "{\n    staticPlot: false,\n    editable: false,\n    edits: {\n        annotationPosition: false,\n        annotationTail: false,\n        annotationText: false,\n        axisTitleText: false,\n        colorbarPosition: false,\n        colorbarTitleText: false,\n        legendPosition: false,\n        legendText: false,\n        shapePosition: false,\n        titleText: false\n    },\n    autosizable: false,\n    queueLength: 0,\n    fillFrame: false,\n    frameMargins: 0,\n    scrollZoom: false,\n    doubleClick: 'reset+autosize',\n    showTips: true,\n    showAxisDragHandles: true,\n    showAxisRangeEntryBoxes: true,\n    showLink: false,\n    sendData: true,\n    linkText: 'Edit chart',\n    showSources: false,\n    displayModeBar: 'hover',\n    modeBarButtonsToRemove: [],\n    modeBarButtonsToAdd: [],\n    modeBarButtons: false,\n    displaylogo: true,\n    plotGlPixelRatio: 2,\n    topojsonURL: 'https://cdn.plot.ly/',\n    mapboxAccessToken: null\n}",
+          "computed": false
+        }
+      },
       "dashEvents": {
         "type": {
           "name": "enum",
