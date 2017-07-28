@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -15,7 +15,7 @@
     "install-local": "npm run copy-lib && python setup.py install",
     "prepublish": "npm test && builder run build-dist && npm run copy-lib",
     "publish-all": "npm publish && python setup.py sdist upload",
-    "publish-pypi": "npm run prepublish && python setup.py sdist upload",
+    "publish-pypi": "npm run prepublish && python setup.py sdist && twine upload --sign --skip-existing",
     "start": "./node_modules/.bin/builder run build-dev",
     "test": "./node_modules/.bin/eslint --fix --ignore-path .gitignore --ext *.js src",
     "test-watch": "./node_modules/.bin/builder run test-frontend-watch",
