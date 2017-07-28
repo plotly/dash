@@ -1,6 +1,7 @@
 import R from 'ramda';
 import React, {Component, PropTypes} from 'react';
-import ReactDropdown from 'react-select';
+import ReactDropdown from 'react-virtualized-select';
+import createFilterOptions from 'react-select-fast-filter-options';
 
 const DELIMETER = ',';
 
@@ -17,11 +18,19 @@ const DELIMETER = ',';
 export default class Dropdown extends Component {
     constructor(props) {
         super(props);
-        this.state = {value: props.value};
+        this.state = {
+            value: props.value,
+            filterOptions: createFilterOptions({options: props.options})
+        };
     }
 
     componentWillReceiveProps(newProps) {
         this.setState({value: newProps.value});
+        if (newProps.options !== this.props.options) {
+            this.setState({
+                filterOptions: createFilterOptions(newProps.options)
+            });
+        }
     }
 
     render() {
@@ -36,6 +45,7 @@ export default class Dropdown extends Component {
         return (
             <div id={id}>
                 <ReactDropdown
+                    filterOptions={this.state.filterOptions}
                     options={options}
                     value={selectedValue}
                     onChange={selectedOption => {

@@ -31,11 +31,15 @@ _js_dist = [
 _css_dist = [
     {
         "relative_package_path": [
+            "rc-slider@6.1.2.css",
             "react-select@1.0.0-rc.3.min.css",
-            "rc-slider@6.1.2.css"
+            "react-virtualized@9.9.0/styles.css",
+            "react-virtualized-select@3.1.0/styles.css"
         ],
         "external_url": [
             "https://unpkg.com/react-select@1.0.0-rc.3/dist/react-select.min.css",
+            "https://unpkg.com/react-virtualized@9.9.0/styles.css",
+            "https://unpkg.com/react-virtualized-select@3.1.0/styles.css",
             "https://unpkg.com/rc-slider@6.1.2/assets/index.css"
         ],
         "namespace": "dash_core_components"
