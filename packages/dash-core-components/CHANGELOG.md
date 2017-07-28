@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.8.0] - 2017-07-27
+### Added
+- A new `Textarea` component for displaying the simple Textarea HTML element. The content of the `Textarea` is controlled through the `value` property:
+```
+dcc.Textarea(id='my-text-area' value='''
+SELECT * FROM MY_TABLES
+LIMIT 10;
+''')
+```
+
 ## [0.7.1] - 2017-07-24
 ### Fixed
 - Clearing a Graph selection box sets the `selectedData` value to `None` (`null` in JavaScript). Before, it didn't change the `selectedData` property, preventing the user and the Dash developer from clearing selections. Fixes https://github.com/plotly/dash/issues/97, thanks to @pmbaumgartner for reporting.
