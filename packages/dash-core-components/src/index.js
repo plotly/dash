@@ -11,6 +11,7 @@ import Interval from './components/Interval.react';
 import Markdown from './components/Markdown.react';
 import Location from './components/Location.react';
 import Link from './components/Link.react';
+import Textarea from './components/Textarea.react';
 
 export {
     Checklist,
@@ -24,5 +25,6 @@ export {
     Interval,
     Markdown,
     Location,
-    Link
+    Link,
+    Textarea
 };
