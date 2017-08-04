@@ -33,8 +33,8 @@ _css_dist = [
         "relative_package_path": [
             "rc-slider@6.1.2.css",
             "react-select@1.0.0-rc.3.min.css",
-            "react-virtualized@9.9.0/styles.css",
-            "react-virtualized-select@3.1.0/styles.css"
+            "react-virtualized@9.9.0.css",
+            "react-virtualized-select@3.1.0.css"
         ],
         "external_url": [
             "https://unpkg.com/react-select@1.0.0-rc.3/dist/react-select.min.css",

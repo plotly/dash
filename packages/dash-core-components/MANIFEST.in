@@ -4,5 +4,7 @@ include dash_core_components/metadata.json
 include dash_core_components/rc-slider@6.1.2.css
 include dash_core_components/react-select@1.0.0-rc.3.min.css
 include dash_core_components/plotly-1.29.3.min.js
+include dash_core_components/react-virtualized-select@3.1.0.css
+include dash_core_components/react-virtualized@9.9.0.css
 include README.md
 include LICENSE.md
