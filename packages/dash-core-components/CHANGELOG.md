@@ -2,6 +2,37 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.10.0] - 2017-08-03
+### Added
+- Upgrade [plotly.js](https://github.com/plotly/plotly.js) (the library behind the `Graph` component) from 1.27.0 to 1.29.3. This includes TONS of fixes and improvements, see https://github.com/plotly/plotly.js/releases for more details. Notable improvements include:
+    - Add touch interactions to cartesian, gl2d and ternary subplots including for
+    select and lasso drag modes
+    - Add support for contour line labels in contour and contourcarpet traces
+    - Add support for select and lasso drag modes on scattermapbox traces
+    - Add reset view and toggle hover mode bar buttons to mapbox subplots
+    - Add support for array marker.opacity settings in scattermapbox traces
+    - Add namelength layout and trace attribute to control the trace name's
+    visible length in hover labels
+    - Add cliponaxis attribute to scatter and scatterternary traces to allow
+    markers and text nodes to be displayed above their subplot's axes
+    - Add axis layer attribute with 'above traces' and 'below traces' values
+
+    And fixes include:
+    - Fix axis line width, length, and positioning for coupled subplots
+    - Fix alignment of cartesian tick labels
+    - Fix rendering and updates of overlaying axis lines
+    - Fix hover for 2D traces with custom colorbar tickvals
+    - Fix hover and event data for heatmapgl and contourgl traces
+    - Fix event data for pie and sankey traces
+    - Fix drag mode 'pan' in IE and Edge
+    - Fix bar, error bar and box point scaling on scroll zoom
+    - Fix shading issue in surface trace in iOS
+    - Fix lasso and select drag modes for `scatterternary` traces
+    - Fix cases of intersecting contour lines on log axes
+    - Fix animation of annotations, shapes and images
+    - Fix histogram bin computation when more than 5000 bins are needed
+    - Fix tick label rendering when more than 1000 labels are present
+
 ## [0.9.0] - 2017-07-28
 ### Added
 - A `config` property of the `Graph` component that exposes the [plotly.js config properties](https://plot.ly/javascript/configuration-options/). Here's an example that hides 2 buttons and makes the elements in the graph "editable":
