@@ -76,8 +76,10 @@ Input.propTypes = {
     /**
      * The type of control to render.
      */
-    type: PropTypes.oneOf([
-        'text', 'number', 'password'
+    'type': PropTypes.oneOf([
+        // Only allowing the input types with wide browser compatability
+        'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url'
+    ]),
 
     /**
      * This attribute indicates whether the value of the control can be automatically completed by the browser.
