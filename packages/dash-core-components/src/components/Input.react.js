@@ -78,7 +78,7 @@ Input.propTypes = {
      */
     'type': PropTypes.oneOf([
         // Only allowing the input types with wide browser compatability
-        'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url'
+        'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden'
     ]),
 
     /**
