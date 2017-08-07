@@ -2,7 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.11.0] - 2017-08-4
+## [0.11.1] - 2017-08-07
+### Fixed
+- Added support for all of the valid HTML attributes of the `Input` component.
+- Added support for a few more `type` values of the `Input` component. The
+  full list of valid types are 'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden'.
+  Note that type values that don't have cross-browser support are not included (such as `datetime`)
+
+## [0.11.0] - 2017-08-04
 ### Added
 - The `Dropdown` component renders `options` much, much faster. It can render 50,000 options (client-side) without crashing! This fixes https://github.com/plotly/dash/issues/103
 
