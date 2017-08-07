@@ -15,7 +15,7 @@ export default class DatePickerRange extends Component {
       super(props);
       this.props.startDate = this.props.start_date;
       this.props.endDate = this.props.end_date;
-      this.props.initialVisibleMonth = this.props.iniital_visible_month;
+      this.props.initialVisibleMonth = this.props.initial_visible_month;
       this.props.minDateRange = this.props.min_date_range;
       this.props.maxDateRange = this.props.max_date_range;
       const momentProps = this.convertPropsToMoment(props);
@@ -32,6 +32,7 @@ export default class DatePickerRange extends Component {
         initialMinDateRange: this.props.min_date_range,
         initialMaxDateRange: this.props.max_date_range
       };
+
     }
 
     convertPropsToMoment(props) {
@@ -80,13 +81,13 @@ export default class DatePickerRange extends Component {
           initialVisibleMonth: momentProps.initialVisibleMonth
         })
       }
-      if(this.props.initialMinDateRange != newProps.min_date_range){
+      if(this.state.initialMinDateRange != newProps.min_date_range){
         this.setState({
           initialMinDateRange: newProps.min_date_range,
           minDateRange: momentProps.minDateRange
         })
       }
-      if(this.props.initialMaxDateRange != newProps.max_date_range){
+      if(this.state.initialMaxDateRange != newProps.max_date_range){
         this.setState({
           initialMaxDateRange: newProps.max_date_range,
           maxDateRange: momentProps.maxDateRange
@@ -99,9 +100,9 @@ export default class DatePickerRange extends Component {
         return (
           <DateRangePicker
             startDate={ this.state.startDate }
-            startDatePlaceholderText={ this.props.startDatePlaceholderText }
+            startDatePlaceholderText={ this.props.start_date_placeholder_text }
             endDate={ this.state.endDate }
-            endDatePlaceholderText={ this.props.endDatePlaceholderText }
+            endDatePlaceholderText={ this.props.end_date_placeholder_text }
             onDatesChange={({ startDate, endDate }) => {
               this.setState({ startDate, endDate });
               if (startDate != null) {
@@ -135,7 +136,7 @@ export default class DatePickerRange extends Component {
             }
             showClearDates={ this.props.clearable }
             disabled={ this.props.disabled }
-            keepOpenOnDateSelect={ this.props.stay_open_on_Select }
+            keepOpenOnDateSelect={ this.props.stay_open_on_select }
             reopenPickerOnClearDates={ this.props.open_calendar_on_clear }
             initialVisibleMonth={() => {
               if(this.state.startDate != null) {

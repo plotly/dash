@@ -3,6 +3,7 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 import json
+import datetime as dt
 
 app = dash.Dash(__name__)
 
@@ -28,6 +29,34 @@ app.layout = html.Div([
 	SELECT YOLO FROM ****
 
     '''),
+
+    dcc.DatePickerSingle(
+        id='date-picker-single',
+        initial_visible_month=dt.datetime(1997, 5, 5),
+        min_date_range=dt.datetime(1997, 4, 29),
+        max_date_range=dt.datetime(1997, 6, 3),
+        show_outside_days=True,
+        with_portal=True,
+        number_of_months_shown=1,
+        placeholder='Try it out!'
+    ),
+
+    dcc.DatePickerRange(
+        id='date-picker-range',
+        start_date=dt.datetime(1997, 5, 10),
+        end_date_placeholder_text="Clear the date!",
+        initial_visible_month=dt.datetime(1997, 5, 10),
+        min_date_range=dt.datetime(1997, 4, 29),
+        max_date_range=dt.datetime(1997, 6, 3),
+        show_outside_days=True,
+        with_portal=True,
+        number_of_months_shown=2,
+        clearable=True,
+        stay_open_on_select=True,
+        open_calendar_on_clear=True,
+        month_format='MM YY',
+        display_format='MMMM D, Y'
+    ),
 
     html.Div(id='output-textarea'),
     dcc.Graph(

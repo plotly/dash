@@ -185,7 +185,11 @@
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the date that is initially presented when the user\nopens the calendar, best practice is to pass value via datetime\nobject"
+        "description": "Specifies the date that is initially presented when the user\nopens the calendar, best practice is to pass value via datetime\nobject",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "start_date_placeholder_text": {
         "type": {
@@ -536,7 +540,11 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true the calendar will display days that rollover into\nthe next month"
+        "description": "If true the calendar will display days that rollover into\nthe next month",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
       },
       "month_format": {
         "type": {

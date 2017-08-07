@@ -14,7 +14,7 @@ import moment from 'moment';
 export default class DatePickerSingle extends Component {
     constructor(props) {
       super(props);
-      this.props.initialVisibleMonth = this.props.iniital_visible_month;
+      this.props.initialVisibleMonth = this.props.initial_visible_month;
       this.props.minDateRange = this.props.min_date_range;
       this.props.maxDateRange = this.props.max_date_range;
       const momentProps = this.convertPropsToMoment(props);
@@ -54,16 +54,16 @@ export default class DatePickerSingle extends Component {
           initialVisibleMonth: momentProps.initialVisibleMonth
         })
       }
-      if(this.props.initialMinDateRange != newProps.min_date_range){
+      if(this.state.initialMinDateRange != newProps.min_date_range){
         this.setState({
-          initialMinDateRange: newProps.initialMinDateRange,
-          minDateRange: momentProps.min_date_range
+          initialMinDateRange: newProps.min_date_range,
+          minDateRange: momentProps.minDateRange
         })
       }
-      if(this.props.initialMaxDateRange != newProps.max_date_range){
+      if(this.state.initialMaxDateRange != newProps.max_date_range){
         this.setState({
-          initialMaxDateRange: newProps.initialMaxDateRange,
-          maxDateRange: momentProps.max_date_range
+          initialMaxDateRange: newProps.max_date_range,
+          maxDateRange: momentProps.maxDateRange
         })
       }
     }
@@ -92,8 +92,8 @@ export default class DatePickerSingle extends Component {
             focused={ this.state.focused }
             onFocusChange={({ focused }) => this.setState({ focused })}
             initialVisibleMonth={() => {
-              if(this.state.startDate != null) {
-                return this.state.startDate
+              if(this.state.date != null) {
+                return this.state.date
               } else {
                 return this.state.initialVisibleMonth
               }
@@ -101,18 +101,18 @@ export default class DatePickerSingle extends Component {
             isOutsideRange={date =>
               date < this.state.minDateRange || date >= this.state.maxDateRange
             }
-            numberOfMonths={ this.props.numberOfMonthsShown }
-            withPortal={ this.props.withPortal }
-            withFullScreenPortal={ this.props.withFullScreenPortal }
-            firstDayOfWeek={ this.props.firstDayOfWeek }
-            enableOutSideDays={ this.props.showOutsideDays }
-            monthFormat={ this.props.monthFormat }
-            displayFormat={ this.props.displayFormat }
+            numberOfMonths={ this.props.number_of_months_shown }
+            withPortal={ this.props.with_portal }
+            withFullScreenPortal={ this.props.with_full_screen_portal }
+            firstDayOfWeek={ this.props.first_day_of_week }
+            enableOutSideDays={ this.props.show_outside_days }
+            monthFormat={ this.props.month_format }
+            displayFormat={ this.props.display_format }
             placeholder={ this.props.placeholder }
             showClearDate={ this.props.clearable }
             disabled={ this.props.disabled }
-            keepOpenOnDateSelect={ this.props.stayOpenOnSelect }
-            reopenPickerOnClearDates={ this.props.openCalendarOnClear }
+            keepOpenOnDateSelect={ this.props.stay_open_on_select }
+            reopenPickerOnClearDates={ this.props.open_calendar_on_clear }
           />
         );
     }
