@@ -51,11 +51,10 @@ export default class Input extends Component {
 }
 
 Input.propTypes = {
-    id: PropTypes.string,
     /**
      * The value of the input
      */
-    value: PropTypes.string,
+    'id': PropTypes.string,
 
     /**
      * A hint to the user of what can be entered in the control.
@@ -70,16 +69,17 @@ Input.propTypes = {
      * without it.
      */
     placeholder: PropTypes.string,
+    'value': PropTypes.string,
 
     /**
      * The input's inline styles
      */
-    style: PropTypes.object,
+    'style': PropTypes.object,
 
     /**
      * The class of the input element
      */
-    className: PropTypes.string,
+    'className': PropTypes.string,
 
     /**
      * The type of control to render.
