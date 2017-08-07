@@ -52,7 +52,9 @@ export default class Input extends Component {
 
 Input.propTypes = {
     /**
-     * The value of the input
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
      */
     'id': PropTypes.string,
 
