@@ -12,6 +12,8 @@ import Markdown from './components/Markdown.react';
 import Location from './components/Location.react';
 import Link from './components/Link.react';
 import Textarea from './components/Textarea.react';
+import DatePickerSingle from './components/DatePickerSingle.react';
+import DatePickerRange from './components/DatePickerRange.react';
 
 export {
     Checklist,
@@ -26,5 +28,7 @@ export {
     Markdown,
     Location,
     Link,
-    Textarea
+    Textarea,
+    DatePickerSingle,
+    DatePickerRange
 };

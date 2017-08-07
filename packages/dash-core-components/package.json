@@ -27,10 +27,12 @@
   "dependencies": {
     "builder": "2.10.1",
     "dash-components-archetype": "^0.2.4",
+    "moment": "^2.18.1",
     "radium": "^0.17.1",
     "ramda": "^0.23.0",
     "rc-slider": "^6.1.0",
     "react": "^15.4.0",
+    "react-dates": "^12.3.0",
     "react-dom": "^15.4.0",
     "react-markdown": "^2.4.5",
     "react-select": "^1.0.0-rc.3",

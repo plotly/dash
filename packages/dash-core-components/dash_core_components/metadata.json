@@ -121,6 +121,481 @@
       }
     }
   },
+  "src/components/DatePickerRange.react.js": {
+    "description": "DatePickerRange is a tailor made component designed for selecting\ntimespan across multiple days off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.",
+    "methods": [
+      {
+        "name": "convertPropsToMoment",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Additional CSS class for the root DOM node"
+      },
+      "start_date": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the starting date for the component, best practice is to pass\nvalue via datetime object"
+      },
+      "end_date": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the ending date for the component, best practice is to pass\nvalue via datetime object"
+      },
+      "min_date_range": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the lowest selectable date for the component,\nbest practice is to pass value via datetime object"
+      },
+      "max_date_range": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the highest selectable date for the component,\nbest practice is to pass value via datetime object"
+      },
+      "initial_visible_month": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the date that is initially presented when the user\nopens the calendar, best practice is to pass value via datetime\nobject"
+      },
+      "start_date_placeholder_text": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Text that will be displayed in place of 'Start Date'"
+      },
+      "end_date_placeholder_text": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "open_calendar_on_clear": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the calendar will automatically open when cleared",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "number_of_months_shown": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of calendar months that are shown when calendar is opened",
+        "defaultValue": {
+          "value": "1",
+          "computed": false
+        }
+      },
+      "with_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, calendar will open in a screen overlay portal",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "with_full_screen_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "first_day_of_week": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "0",
+              "computed": false
+            },
+            {
+              "value": "1",
+              "computed": false
+            },
+            {
+              "value": "2",
+              "computed": false
+            },
+            {
+              "value": "3",
+              "computed": false
+            },
+            {
+              "value": "4",
+              "computed": false
+            },
+            {
+              "value": "5",
+              "computed": false
+            },
+            {
+              "value": "6",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6]",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "minimum_nights": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Specifies a minimum number of nights that must be selected between\nthe startDate and the endDate"
+      },
+      "stay_open_on_select": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "show_outside_days": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true the calendar will display days that rollover into\nthe next month"
+      },
+      "month_format": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\""
+      },
+      "display_format": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\""
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, no dates can be selected.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "clearable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, there will be a button that allows for clearing the dates",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      }
+    }
+  },
+  "src/components/DatePickerSingle.react.js": {
+    "description": "DatePickerRange is a tailor made component designed for selecting\na single day off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.",
+    "methods": [
+      {
+        "name": "convertPropsToMoment",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Additional CSS class for the root DOM node"
+      },
+      "date": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the starting date for the component, best practice is to pass\nvalue via datetime object"
+      },
+      "min_date_range": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the lowest selectable date for the component,\nbest practice is to pass value via datetime object"
+      },
+      "max_date_range": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the highest selectable date for the component,\nbest practice is to pass value via datetime object"
+      },
+      "initial_visible_month": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the date that is initially presented when the user\nopens the calendar, best practice is to pass value via datetime\nobject"
+      },
+      "placeholder": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Text that will be displayed in place of 'Start Date'"
+      },
+      "open_calendar_on_clear": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the calendar will automatically open when cleared",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "number_of_months_shown": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of calendar months that are shown when calendar is opened",
+        "defaultValue": {
+          "value": "1",
+          "computed": false
+        }
+      },
+      "with_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, calendar will open in a screen overlay portal",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "with_full_screen_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "first_day_of_week": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "0",
+              "computed": false
+            },
+            {
+              "value": "1",
+              "computed": false
+            },
+            {
+              "value": "2",
+              "computed": false
+            },
+            {
+              "value": "3",
+              "computed": false
+            },
+            {
+              "value": "4",
+              "computed": false
+            },
+            {
+              "value": "5",
+              "computed": false
+            },
+            {
+              "value": "6",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6]",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "stay_open_on_select": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "show_outside_days": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true the calendar will display days that rollover into\nthe next month"
+      },
+      "month_format": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\""
+      },
+      "display_format": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\""
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, no dates can be selected.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "clearable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, there will be a button that allows for clearing the dates",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      }
+    }
+  },
   "src/components/Dropdown.react.js": {
     "description": "Dropdown is an interactive dropdown element for selecting one or more\nitems.\nThe values and labels of the dropdown items are specified in the `options`\nproperty and the selected item(s) are specified with the `value` property.\n\nUse a dropdown when you have many options (more than 5) or when you are\nconstrained for space. Otherwise, you can use RadioItems or a Checklist,\nwhich have the benefit of showing the users all of the items at once.",
     "methods": [],
