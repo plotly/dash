@@ -36,8 +36,12 @@ export default class DatePickerSingle extends Component {
     convertPropsToMoment(props) {
       let date = null;
       let initialVisibleMonth = moment(props.date);
-      if(typeof props.date !== 'undefined') { date = moment(props.date); }
-      if(typeof props.initialVisibleMonth != 'undefined') { initialVisibleMonth = moment(props.initialVisibleMonth); }
+      if(typeof props.date !== 'undefined') {
+        date = moment(props.date);
+      }
+      if(typeof props.initialVisibleMonth != 'undefined') {
+        initialVisibleMonth = moment(props.initialVisibleMonth);
+      }
       let min, max;
       if(typeof props.minDateRange !== 'undefined' &&
          typeof props.maxDateRange !== 'undefined') {
