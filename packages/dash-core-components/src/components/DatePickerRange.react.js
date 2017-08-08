@@ -9,6 +9,9 @@ import moment from 'moment';
  * The DatePicker integrates well with the Python datetime module with the
  * startDate and endDate being returned in a string format suitable for
  * creating datetime objects.
+ *
+ * This component is based off of Airbnb's react-dates react component
+ * which can be found here: https://github.com/airbnb/react-dates
  */
 export default class DatePickerRange extends Component {
     constructor(props) {
@@ -32,21 +35,28 @@ export default class DatePickerRange extends Component {
         initialMinDateRange: this.props.min_date_range,
         initialMaxDateRange: this.props.max_date_range
       };
-
     }
 
     convertPropsToMoment(props) {
-      let startDate, endDate=null; let initialVisibleMonth = moment(props.startDate);
-      if(props.startDate != undefined) { startDate = moment(props.startDate); }
-      if(props.endDate != undefined) { endDate = moment(props.endDate); }
-      if(props.initialVisibleMonth != undefined) { initialVisibleMonth = moment(props.initialVisibleMonth); }
+      let startDate, endDate=null;
+      let initialVisibleMonth = moment(props.startDate);
+      if (typeof props.startDate !== 'undefined') {
+        startDate = moment(props.startDate);
+      }
+      if (typeof props.endDate != 'undefined') {
+        endDate = moment(props.endDate);
+      }
+      if (typeof props.initialVisibleMonth != 'undefined') {
+        initialVisibleMonth = moment(props.initialVisibleMonth);
+      }
       let min, max;
-      if(props.minDateRange != undefined && props.maxDateRange != undefined) {
+      if (typeof props.minDateRange !== 'undefined' &&
+          typeof props.maxDateRange !== 'undefined') {
         min = moment(props.minDateRange);
         max = moment(props.maxDateRange);
       }
-      try{
-        if(startDate.isAfter(endDate)){
+      try {
+        if (startDate.isAfter(endDate)) {
           endDate = null;
         }
       } catch (TypeError) {
@@ -57,37 +67,39 @@ export default class DatePickerRange extends Component {
     }
 
     componentWillReceiveProps(newProps) {
-      newProps.startDate = newProps.start_date;
-      newProps.endDate = newProps.end_date;
-      newProps.initialVisibleMonth = newProps.initial_visible_month;
-      newProps.minDateRange = newProps.min_date_range;
-      newProps.maxDateRange = newProps.max_date_range;
-      const momentProps = this.convertPropsToMoment(newProps);
-      if(this.state.initialStartDate != newProps.start_date) {
+      let propObj = {
+        startDate: newProps.start_date,
+        endDate: newProps.end_date,
+        initialVisibleMonth: newProps.initial_visible_month,
+        minDateRange: newProps.min_date_range,
+        maxDateRange: newProps.max_date_range
+      }
+      const momentProps = this.convertPropsToMoment(propObj);
+      if (this.state.initialStartDate != newProps.start_date) {
         this.setState({
           initialStartDate: newProps.start_date,
           startDate: momentProps.startDate
         });
       }
-      if(this.state.initialEndDate != newProps.end_date) {
+      if (this.state.initialEndDate != newProps.end_date) {
         this.setState({
           initialEndDate: newProps.end_date,
           endDate: momentProps.endDate
         });
       }
-      if(this.state.firstInitialVisibleMonth != newProps.initial_visible_month){
+      if (this.state.firstInitialVisibleMonth != newProps.initial_visible_month){
         this.setState({
           firstInitialVisibleMonth: newProps.initial_visible_month,
           initialVisibleMonth: momentProps.initialVisibleMonth
         })
       }
-      if(this.state.initialMinDateRange != newProps.min_date_range){
+      if (this.state.initialMinDateRange != newProps.min_date_range){
         this.setState({
           initialMinDateRange: newProps.min_date_range,
           minDateRange: momentProps.minDateRange
         })
       }
-      if(this.state.initialMaxDateRange != newProps.max_date_range){
+      if (this.state.initialMaxDateRange != newProps.max_date_range){
         this.setState({
           initialMaxDateRange: newProps.max_date_range,
           maxDateRange: momentProps.maxDateRange
@@ -137,9 +149,9 @@ export default class DatePickerRange extends Component {
             showClearDates={ this.props.clearable }
             disabled={ this.props.disabled }
             keepOpenOnDateSelect={ this.props.stay_open_on_select }
-            reopenPickerOnClearDates={ this.props.open_calendar_on_clear }
+            reopenPickerOnClearDates={ this.props.reopen_calendar_on_clear }
             initialVisibleMonth={() => {
-              if(this.state.startDate != null) {
+              if (this.state.startDate != null) {
                 return this.state.startDate
               } else {
                 return this.state.initialVisibleMonth
@@ -160,11 +172,6 @@ export default class DatePickerRange extends Component {
 
 DatePickerRange.propTypes = {
     id: PropTypes.string,
-
-    /**
-     * Additional CSS class for the root DOM node
-     */
-    className: PropTypes.string,
 
     /**
      * Specifies the starting date for the component, best practice is to pass
@@ -198,19 +205,21 @@ DatePickerRange.propTypes = {
     initial_visible_month: PropTypes.string,
 
     /**
-     * Text that will be displayed in place of 'Start Date'
+     * Text that will be displayed in the first input
+     * box of the date picker when no date is selected - replaces 'Start Date'
      */
     start_date_placeholder_text: PropTypes.string,
 
     /**
-     * Dash-assigned callback that gets fired when the value changes.
+     * Text that will be displayed in the second input
+     * box of the date picker when no date is selected - replaces 'End Date'
      */
     end_date_placeholder_text: PropTypes.string,
 
     /**
      * If true, the calendar will automatically open when cleared
      */
-    open_calendar_on_clear: PropTypes.bool,
+    reopen_calendar_on_clear: PropTypes.bool,
 
     /**
      * Number of calendar months that are shown when calendar is opened
@@ -218,12 +227,12 @@ DatePickerRange.propTypes = {
     number_of_months_shown: PropTypes.number,
 
     /**
-     * If true, calendar will open in a screen overlay portal
+     * If True, calendar will open in a screen overlay portal
      */
     with_portal: PropTypes.bool,
 
     /**
-     * If true, calendar will open in a full screen overlay portal, will
+     * If True, calendar will open in a full screen overlay portal, will
      * take precedent over 'withPortal' if both are set to true
      */
     with_full_screen_portal: PropTypes.bool,
@@ -241,13 +250,13 @@ DatePickerRange.propTypes = {
     minimum_nights: PropTypes.number,
 
     /**
-     * If true the calendar will not close when the user has selected a value
+     * If True the calendar will not close when the user has selected a value
      * and will wait until the user clicks off the calendar
      */
     stay_open_on_select: PropTypes.bool,
 
     /**
-     * If true the calendar will display days that rollover into
+     * If True the calendar will display days that rollover into
      * the next month
      */
     show_outside_days: PropTypes.bool,
@@ -265,12 +274,12 @@ DatePickerRange.propTypes = {
     display_format: PropTypes.string,
 
     /**
-     * If true, no dates can be selected.
+     * If True, no dates can be selected.
      */
     disabled: PropTypes.bool,
 
     /**
-     * If true, there will be a button that allows for clearing the dates
+     * If True, there will be a button that allows for clearing the dates
      */
     clearable: PropTypes.bool,
 
@@ -288,11 +297,10 @@ DatePickerRange.propTypes = {
 DatePickerRange.defaultProps = {
     with_portal: false,
     with_full_screen_portal: false,
-    initial_visible_month: false,
     first_day_of_week: 0,
     number_of_months_shown: 1,
     stay_open_on_select: false,
-    open_calendar_on_clear: false,
+    reopen_calendar_on_clear: false,
     clearable: false,
     disabled: false
 };

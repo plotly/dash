@@ -10,6 +10,9 @@ import moment from 'moment';
  * The DatePicker integrates well with the Python datetime module with the
  * startDate and endDate being returned in a string format suitable for
  * creating datetime objects.
+ *
+ * This component is based off of Airbnb's react-dates react component
+ * which can be found here: https://github.com/airbnb/react-dates
  */
 export default class DatePickerSingle extends Component {
     constructor(props) {
@@ -31,11 +34,13 @@ export default class DatePickerSingle extends Component {
     }
 
     convertPropsToMoment(props) {
-      let date = null; let initialVisibleMonth = moment(props.date);
-      if(props.date != undefined) { date = moment(props.date); }
-      if(props.initialVisibleMonth != undefined) { initialVisibleMonth = moment(props.initialVisibleMonth); }
+      let date = null;
+      let initialVisibleMonth = moment(props.date);
+      if(typeof props.date !== 'undefined') { date = moment(props.date); }
+      if(typeof props.initialVisibleMonth != 'undefined') { initialVisibleMonth = moment(props.initialVisibleMonth); }
       let min, max;
-      if(props.minDateRange != undefined && props.maxDateRange != undefined) {
+      if(typeof props.minDateRange !== 'undefined' &&
+         typeof props.maxDateRange !== 'undefined') {
         min = moment(props.minDateRange);
         max = moment(props.maxDateRange);
       }
@@ -43,24 +48,28 @@ export default class DatePickerSingle extends Component {
     }
 
     componentWillReceiveProps(newProps) {
-      newProps.initialVisibleMonth = newProps.initial_visible_month;
-      newProps.minDateRange = newProps.min_date_range;
-      newProps.maxDateRange = newProps.max_date_range;
-      const momentProps = this.convertPropsToMoment(newProps);
-      if(this.props.date != momentProps.date) { this.setState({ date: momentProps.date }); }
-      if(this.state.firstInitialVisibleMonth != newProps.initial_visible_month){
+      let propObj = {
+        initialVisibleMonth: newProps.initial_visible_month,
+        minDateRange: newProps.min_date_range,
+        maxDateRange: newProps.max_date_range
+      }
+      const momentProps = this.convertPropsToMoment(propObj);
+      if (this.props.date != momentProps.date) {
+        this.setState({ date: momentProps.date });
+      }
+      if (this.state.firstInitialVisibleMonth != newProps.initial_visible_month){
         this.setState({
           firstInitialVisibleMonth: newProps.initial_visible_month,
           initialVisibleMonth: momentProps.initialVisibleMonth
         })
       }
-      if(this.state.initialMinDateRange != newProps.min_date_range){
+      if (this.state.initialMinDateRange != newProps.min_date_range){
         this.setState({
           initialMinDateRange: newProps.min_date_range,
           minDateRange: momentProps.minDateRange
         })
       }
-      if(this.state.initialMaxDateRange != newProps.max_date_range){
+      if (this.state.initialMaxDateRange != newProps.max_date_range){
         this.setState({
           initialMaxDateRange: newProps.max_date_range,
           maxDateRange: momentProps.maxDateRange
@@ -92,7 +101,7 @@ export default class DatePickerSingle extends Component {
             focused={ this.state.focused }
             onFocusChange={({ focused }) => this.setState({ focused })}
             initialVisibleMonth={() => {
-              if(this.state.date != null) {
+              if (this.state.date != null) {
                 return this.state.date
               } else {
                 return this.state.initialVisibleMonth
@@ -112,7 +121,7 @@ export default class DatePickerSingle extends Component {
             showClearDate={ this.props.clearable }
             disabled={ this.props.disabled }
             keepOpenOnDateSelect={ this.props.stay_open_on_select }
-            reopenPickerOnClearDates={ this.props.open_calendar_on_clear }
+            reopenPickerOnClearDates={ this.props.reopen_calendar_on_clear }
           />
         );
     }
@@ -120,11 +129,6 @@ export default class DatePickerSingle extends Component {
 
 DatePickerSingle.propTypes = {
     id: PropTypes.string,
-
-    /**
-     * Additional CSS class for the root DOM node
-     */
-    className: PropTypes.string,
 
     /**
      * Specifies the starting date for the component, best practice is to pass
@@ -152,14 +156,15 @@ DatePickerSingle.propTypes = {
     initial_visible_month: PropTypes.string,
 
     /**
-     * Text that will be displayed in place of 'Start Date'
+     * Text that will be displayed in the first input
+     * box of the date picker when no date is selected
      */
     placeholder: PropTypes.string,
 
     /**
      * If true, the calendar will automatically open when cleared
      */
-    open_calendar_on_clear: PropTypes.bool,
+    reopen_calendar_on_clear: PropTypes.bool,
 
    /**
     * Number of calendar months that are shown when calendar is opened
@@ -235,7 +240,7 @@ DatePickerSingle.defaultProps = {
   first_day_of_week: 0,
   number_of_months_shown: 1,
   stay_open_on_select: false,
-  open_calendar_on_clear: false,
+  reopen_calendar_on_clear: false,
   clearable: false,
   disabled: false
 };
