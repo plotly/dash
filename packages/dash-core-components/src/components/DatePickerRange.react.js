@@ -38,7 +38,7 @@ export default class DatePickerRange extends Component {
     }
 
     convertPropsToMoment(props) {
-      let startDate, endDate=null;
+      let startDate, endDate = null;
       let initialVisibleMonth = moment(props.startDate);
       if (typeof props.startDate !== 'undefined') {
         startDate = moment(props.startDate);
