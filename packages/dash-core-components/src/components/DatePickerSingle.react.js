@@ -162,7 +162,7 @@ DatePickerSingle.propTypes = {
     placeholder: PropTypes.string,
 
     /**
-     * If true, the calendar will automatically open when cleared
+     * If True, the calendar will automatically open when cleared
      */
     reopen_calendar_on_clear: PropTypes.bool,
 
@@ -172,12 +172,12 @@ DatePickerSingle.propTypes = {
     number_of_months_shown: PropTypes.number,
 
    /**
-    * If true, calendar will open in a screen overlay portal
+    * If True, calendar will open in a screen overlay portal
     */
     with_portal: PropTypes.bool,
 
    /**
-    * If true, calendar will open in a full screen overlay portal, will
+    * If True, calendar will open in a full screen overlay portal, will
     * take precedent over 'withPortal' if both are set to true
     */
     with_full_screen_portal: PropTypes.bool,
@@ -189,13 +189,13 @@ DatePickerSingle.propTypes = {
    first_day_of_week: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6]),
 
    /**
-    * If true the calendar will not close when the user has selected a value
+    * If True the calendar will not close when the user has selected a value
     * and will wait until the user clicks off the calendar
     */
    stay_open_on_select: PropTypes.bool,
 
    /**
-    * If true the calendar will display days that rollover into
+    * If True the calendar will display days that rollover into
     * the next month
     */
    show_outside_days: PropTypes.bool,
@@ -213,12 +213,12 @@ DatePickerSingle.propTypes = {
    display_format: PropTypes.string,
 
    /**
-    * If true, no dates can be selected.
+    * If True, no dates can be selected.
     */
    disabled: PropTypes.bool,
 
    /**
-    * If true, there will be a button that allows for clearing the dates
+    * If True, there will be a button that allows for clearing the dates
     */
    clearable: PropTypes.bool,
 

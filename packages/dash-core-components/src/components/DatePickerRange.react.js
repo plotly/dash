@@ -217,7 +217,7 @@ DatePickerRange.propTypes = {
     end_date_placeholder_text: PropTypes.string,
 
     /**
-     * If true, the calendar will automatically open when cleared
+     * If True, the calendar will automatically open when cleared
      */
     reopen_calendar_on_clear: PropTypes.bool,
 
