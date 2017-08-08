@@ -43,10 +43,10 @@ export default class DatePickerRange extends Component {
       if (typeof props.startDate !== 'undefined') {
         startDate = moment(props.startDate);
       }
-      if (typeof props.endDate != 'undefined') {
+      if (typeof props.endDate !== 'undefined') {
         endDate = moment(props.endDate);
       }
-      if (typeof props.initialVisibleMonth != 'undefined') {
+      if (typeof props.initialVisibleMonth !== 'undefined') {
         initialVisibleMonth = moment(props.initialVisibleMonth);
       }
       let min, max;
