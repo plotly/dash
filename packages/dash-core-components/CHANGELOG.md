@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.0] - 2017-08-09
+### Added
+- Added two new date picker components: `dcc.DatePickerSingle` and `dcc.DatePickerRange`
+
 ## [0.11.1] - 2017-08-07
 ### Fixed
 - Added support for all of the valid HTML attributes of the `Input` component.
