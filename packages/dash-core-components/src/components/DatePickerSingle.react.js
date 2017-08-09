@@ -17,6 +17,7 @@ export default class DatePickerSingle extends Component {
   constructor(props) {
     super(props);
     const propObj = {
+      date: this.props.date,
       initialVisibleMonth: this.props.initial_visible_month,
       minDateAllowed: this.props.min_date_allowed,
       maxDateAllowed: this.props.max_date_allowed
@@ -59,12 +60,13 @@ export default class DatePickerSingle extends Component {
 
   componentWillReceiveProps(newProps) {
     const propObj = {
+      date: newProps.date,
       initialVisibleMonth: newProps.initial_visible_month,
       minDateAllowed: newProps.min_date_allowed,
       maxDateAllowed: newProps.max_date_allowed
     };
     const momentProps = this.convertPropsToMoment(propObj);
-    if (this.props.date !== momentProps.date) {
+    if (this.state.date !== momentProps.date) {
       this.setState({ date: momentProps.date });
     }
 
@@ -95,8 +97,7 @@ export default class DatePickerSingle extends Component {
     return (
       <SingleDatePicker
         date={this.state.date}
-        onDateChange={date => this.setState({ date })}
-        onDatesChange={({ date }) => {
+        onDateChange={(date) => {
             this.setState({ date });
             if (date !== null) {
               const dateStr = date.format('YYYY-MM-DD');
@@ -105,7 +106,6 @@ export default class DatePickerSingle extends Component {
                   date: dateStr
                 });
               }
-
               if (fireEvent) {
                 fireEvent('change');
               }
@@ -149,6 +149,9 @@ export default class DatePickerSingle extends Component {
         disabled={this.props.disabled}
         keepOpenOnDateSelect={this.props.stay_open_on_select}
         reopenPickerOnClearDates={this.props.reopen_calendar_on_clear}
+        isRTL={this.props.is_RTL}
+        orientation={this.props.calendar_orientation}
+        daySize={this.props.day_size}
       />
     );
   }
@@ -185,6 +188,23 @@ DatePickerSingle.propTypes = {
      */
     initial_visible_month: PropTypes.string,
 
+    /**
+     * Size of rendered calendar days, higher number
+     * means bigger day size and larger calendar overall
+     */
+    day_size: PropTypes.number,
+
+    /**
+     * Orientation of calendar, either vertical or horizontal.
+     * Valid options are 'vertical' or 'horizontal'.
+     */
+    calendar_orientation: PropTypes.oneOf(['vertical', 'horizontal']),
+
+    /**
+     * Determines whether the calendar and days operate
+     * from left to right or from right to left
+     */
+    is_RTL: PropTypes.bool,
     /**
      * Text that will be displayed in the input
      * box of the date picker when no date is selected.
@@ -272,6 +292,9 @@ DatePickerSingle.propTypes = {
   };
 
 DatePickerSingle.defaultProps = {
+  calendar_orientation: 'horizontal',
+  is_RTL: false,
+  day_size: 39,
   with_portal: false,
   with_full_screen_portal: false,
   show_outside_days: true,

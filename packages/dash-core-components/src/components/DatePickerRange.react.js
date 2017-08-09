@@ -118,6 +118,16 @@ export default class DatePickerRange extends Component {
         maxDateRange: momentProps.maxDateRange
       });
     }
+
+    try {
+      if (this.state.startDate.isAfter(this.state.endDate)) {
+        this.setState({
+          endDate: null
+        });
+      }
+    } catch (TypeError) {
+      // Continue regardless of error
+    }
   }
 
   render() {
@@ -134,7 +144,7 @@ export default class DatePickerRange extends Component {
             const startDateStr = startDate.format('YYYY-MM-DD');
             if (setProps) {
               setProps({
-                startDate: startDateStr
+                start_date: startDateStr
               });
             }
 
@@ -143,12 +153,11 @@ export default class DatePickerRange extends Component {
             }
           }
 
-          this.props.start_date = startDate;
           if (endDate !== null) {
             const endDateStr = endDate.format('YYYY-MM-DD');
             if (setProps) {
               setProps({
-                endDate: endDateStr
+                end_date: endDateStr
               });
             }
 
@@ -195,6 +204,9 @@ export default class DatePickerRange extends Component {
         enableOutsideDays={this.props.show_outside_days}
         monthFormat={this.props.month_format}
         displayFormat={this.props.display_format}
+        isRTL={this.props.is_RTL}
+        orientation={this.props.calendar_orientation}
+        daySize={this.props.day_size}
       />
     );
   }
@@ -250,6 +262,24 @@ DatePickerRange.propTypes = {
      * box of the date picker when no date is selected. Default value is 'End Date'
      */
     end_date_placeholder_text: PropTypes.string,
+
+    /**
+     * Size of rendered calendar days, higher number
+     * means bigger day size and larger calendar overall
+     */
+    day_size: PropTypes.number,
+
+    /**
+     * Orientation of calendar, either vertical or horizontal.
+     * Valid options are 'vertical' or 'horizontal'.
+     */
+    calendar_orientation: PropTypes.oneOf(['vertical', 'horizontal']),
+
+    /**
+     * Determines whether the calendar and days operate
+     * from left to right or from right to left
+     */
+    is_RTL: PropTypes.bool,
 
     /**
      * If True, the calendar will automatically open when cleared
@@ -337,6 +367,9 @@ DatePickerRange.propTypes = {
   };
 
 DatePickerRange.defaultProps = {
+    calendar_orientation: 'horizontal',
+    is_RTL: false,
+    day_size: 39,
     with_portal: false,
     with_full_screen_portal: false,
     first_day_of_week: 0,
