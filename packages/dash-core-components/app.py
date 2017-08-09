@@ -1,4 +1,3 @@
-import dash_date_picker as dp
 import dash_html_components as html
 from dash.dependencies import *
 import dash_core_components as dcc
@@ -8,10 +7,10 @@ import datetime as dt
 app = dash.Dash('')
 
 app.layout = html.Div([
-     dp.DatePickerRange(id='hello', calendar_orientation='vertical', is_RTL=True),
-     dp.DatePickerSingle(id='nah', calendar_orientation='horizontal',
+     dcc.DatePickerRange(id='hello', calendar_orientation='vertical', is_RTL=True),
+     dcc.DatePickerSingle(id='nah', calendar_orientation='horizontal',
                          day_size=50),
-     dp.DatePickerSingle(id='blah', calendar_orientation='horizontal',
+     dcc.DatePickerSingle(id='blah', calendar_orientation='horizontal',
                          day_size=50),
      dcc.Graph(id='testing', figure=dict(data=[dict(type='scatter', y=[1, 2, 3, 4])])),
      dcc.Slider(min=0, max=100, step=1, id='slider', value=5),
