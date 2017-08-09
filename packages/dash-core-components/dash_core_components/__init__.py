@@ -42,7 +42,7 @@ _css_dist = [
             "https://unpkg.com/react-virtualized@9.9.0/styles.css",
             "https://unpkg.com/react-virtualized-select@3.1.0/styles.css",
             "https://unpkg.com/rc-slider@6.1.2/assets/index.css",
-            "https://unpkg.com/dash-date-picker@0.0.221/dash_date_picker/react-dates@12.3.0.css"
+            "https://unpkg.com/dash-core-components@{}/dash_core_components/react-dates@12.3.0.css".format(__version__)
         ],
         "namespace": "dash_core_components"
     }
