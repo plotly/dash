@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.1] - 2017-08-09
+### Fixed
+- Disabled portal settings on `dcc.DatePickerSingle` and `dcc.DatePickerRange` when `vertical=True`. `with_portal` and `with_full_screen_portal` will only apply if `vertical=False`.
+
 ## [0.12.0] - 2017-08-09
 ### Added
 - Added two new date picker components: `dcc.DatePickerSingle` and `dcc.DatePickerRange`
