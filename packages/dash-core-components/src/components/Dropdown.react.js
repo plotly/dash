@@ -28,7 +28,7 @@ export default class Dropdown extends Component {
         this.setState({value: newProps.value});
         if (newProps.options !== this.props.options) {
             this.setState({
-                filterOptions: createFilterOptions(newProps.options)
+                filterOptions: createFilterOptions({options: newProps.options})
             });
         }
     }
