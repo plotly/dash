@@ -122,7 +122,7 @@
     }
   },
   "src/components/DatePickerRange.react.js": {
-    "description": "DatePickerRange is a tailor made component designed for selecting\ntimespan across multiple days off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.",
+    "description": "DatePickerRange is a tailor made component designed for selecting\ntimespan across multiple days off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates",
     "methods": [
       {
         "name": "convertPropsToMoment",
@@ -145,72 +145,104 @@
         "required": false,
         "description": ""
       },
-      "className": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Additional CSS class for the root DOM node"
-      },
       "start_date": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the starting date for the component, best practice is to pass\nvalue via datetime object"
+        "description": "Specifies the starting date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "end_date": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the ending date for the component, best practice is to pass\nvalue via datetime object"
+        "description": "Specifies the ending date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
-      "min_date_range": {
+      "min_date_allowed": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the lowest selectable date for the component,\nbest practice is to pass value via datetime object"
+        "description": "Specifies the lowest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
-      "max_date_range": {
+      "max_date_allowed": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the highest selectable date for the component,\nbest practice is to pass value via datetime object"
+        "description": "Specifies the highest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "initial_visible_month": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the date that is initially presented when the user\nopens the calendar, best practice is to pass value via datetime\nobject",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
+        "description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "start_date_placeholder_text": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Text that will be displayed in place of 'Start Date'"
+        "description": "Text that will be displayed in the first input\nbox of the date picker when no date is selected. Default value is 'Start Date'"
       },
       "end_date_placeholder_text": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Dash-assigned callback that gets fired when the value changes."
+        "description": "Text that will be displayed in the second input\nbox of the date picker when no date is selected. Default value is 'End Date'"
       },
-      "open_calendar_on_clear": {
+      "day_size": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
+        "defaultValue": {
+          "value": "39",
+          "computed": false
+        }
+      },
+      "calendar_orientation": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'vertical'",
+              "computed": false
+            },
+            {
+              "value": "'horizontal'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
+        "defaultValue": {
+          "value": "'horizontal'",
+          "computed": false
+        }
+      },
+      "is_RTL": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If true, the calendar will automatically open when cleared",
+        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "reopen_calendar_on_clear": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, the calendar will automatically open when cleared",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -232,7 +264,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true, calendar will open in a screen overlay portal",
+        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -243,7 +275,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true",
+        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true,\nnot supported on vertical calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -284,7 +316,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6]",
+        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday",
         "defaultValue": {
           "value": "0",
           "computed": false
@@ -302,7 +334,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
+        "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -313,28 +345,28 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true the calendar will display days that rollover into\nthe next month"
+        "description": "If True the calendar will display days that rollover into\nthe next month"
       },
       "month_format": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\""
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
       },
       "display_format": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\""
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
       },
       "disabled": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If true, no dates can be selected.",
+        "description": "If True, no dates can be selected.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -345,7 +377,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true, there will be a button that allows for clearing the dates",
+        "description": "If True, there will be a button that allows for clearing the dates",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -374,7 +406,7 @@
     }
   },
   "src/components/DatePickerSingle.react.js": {
-    "description": "DatePickerRange is a tailor made component designed for selecting\na single day off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.",
+    "description": "DatePickerRange is a tailor made component designed for selecting\na single day off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates",
     "methods": [
       {
         "name": "convertPropsToMoment",
@@ -397,13 +429,6 @@
         "required": false,
         "description": ""
       },
-      "className": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Additional CSS class for the root DOM node"
-      },
       "date": {
         "type": {
           "name": "string"
@@ -411,40 +436,83 @@
         "required": false,
         "description": "Specifies the starting date for the component, best practice is to pass\nvalue via datetime object"
       },
-      "min_date_range": {
+      "min_date_allowed": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the lowest selectable date for the component,\nbest practice is to pass value via datetime object"
+        "description": "Specifies the lowest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
-      "max_date_range": {
+      "max_date_allowed": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the highest selectable date for the component,\nbest practice is to pass value via datetime object"
+        "description": "Specifies the highest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "initial_visible_month": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the date that is initially presented when the user\nopens the calendar, best practice is to pass value via datetime\nobject"
+        "description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+      },
+      "day_size": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
+        "defaultValue": {
+          "value": "39",
+          "computed": false
+        }
+      },
+      "calendar_orientation": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'vertical'",
+              "computed": false
+            },
+            {
+              "value": "'horizontal'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
+        "defaultValue": {
+          "value": "'horizontal'",
+          "computed": false
+        }
+      },
+      "is_RTL": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "placeholder": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Text that will be displayed in place of 'Start Date'"
+        "description": "Text that will be displayed in the input\nbox of the date picker when no date is selected.\nDefault value is 'Start Date'"
       },
-      "open_calendar_on_clear": {
+      "reopen_calendar_on_clear": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If true, the calendar will automatically open when cleared",
+        "description": "If True, the calendar will automatically open when cleared",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -466,7 +534,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true, calendar will open in a screen overlay portal",
+        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -477,7 +545,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true",
+        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to True,\nnot supported on vertical calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -518,7 +586,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6]",
+        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday",
         "defaultValue": {
           "value": "0",
           "computed": false
@@ -529,7 +597,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
+        "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -540,7 +608,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true the calendar will display days that rollover into\nthe next month",
+        "description": "If True the calendar will display days that rollover into\nthe next month",
         "defaultValue": {
           "value": "true",
           "computed": false
@@ -551,21 +619,21 @@
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\""
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
       },
       "display_format": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\""
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
       },
       "disabled": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If true, no dates can be selected.",
+        "description": "If True, no dates can be selected.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -576,7 +644,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true, there will be a button that allows for clearing the dates",
+        "description": "If True, there will be a button that allows for clearing the dates",
         "defaultValue": {
           "value": "false",
           "computed": false
