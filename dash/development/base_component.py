@@ -15,7 +15,10 @@ def is_number(s):
 class Component(collections.MutableMapping):
     def __init__(self, **kwargs):
         for k, v in list(kwargs.items()):
-            if k not in self._prop_names:
+            if k[:5] in ["data_", "aria_"]:
+                k = k.replace('_','-',1)
+                self._prop_names.append(k)
+            elif k not in self._prop_names:
                 # TODO - What's the right exception here?
                 raise Exception(
                     'Unexpected keyword argument `{}`'.format(k) +
@@ -223,7 +226,7 @@ def generate_class(typename, props, description, namespace):
 
         def __repr__(self):
             if(any(getattr(self, c, None) is not None for c in self._prop_names
-                   if c is not self._prop_names[0])):
+                   if (c is not self._prop_names[0] and (not c[:5] in ['data_', 'aria_'])))):
 
                 return '{typename}('+', '.join([c+'='+repr(getattr(self, c, None))
                                                 for c in self._prop_names
