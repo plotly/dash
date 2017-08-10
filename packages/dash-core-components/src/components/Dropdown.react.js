@@ -35,7 +35,7 @@ export default class Dropdown extends Component {
 
     render() {
         const {id, fireEvent, multi, options, setProps} = this.props;
-        const {value} = this.state;
+        const {filterOptions, value} = this.state;
         let selectedValue;
         if (R.type(value) === 'array') {
             selectedValue = value.join(DELIMETER);
@@ -45,7 +45,7 @@ export default class Dropdown extends Component {
         return (
             <div id={id}>
                 <ReactDropdown
-                    filterOptions={this.state.filterOptions}
+                    filterOptions={filterOptions}
                     options={options}
                     value={selectedValue}
                     onChange={selectedOption => {
