@@ -132,6 +132,11 @@ export default class DatePickerRange extends Component {
 
   render() {
     const { setProps, fireEvent } = this.props;
+    let verticalFlag = true;
+    if (this.props.calendar_orientation === 'vertical') {
+      verticalFlag = false;
+    }
+
     return (
       <DateRangePicker
         startDate={this.state.startDate}
@@ -197,8 +202,8 @@ export default class DatePickerRange extends Component {
         }
         }
         numberOfMonths={this.props.number_of_months_shown}
-        withPortal={this.props.with_portal}
-        withFullScreenPortal={this.props.with_full_screen_portal}
+        withPortal={this.props.with_portal && verticalFlag}
+        withFullScreenPortal={this.props.with_full_screen_portal && verticalFlag}
         firstDayOfWeek={this.props.first_day_of_week}
         minimumNights={this.props.minimum_nights}
         enableOutsideDays={this.props.show_outside_days}
@@ -292,13 +297,15 @@ DatePickerRange.propTypes = {
     number_of_months_shown: PropTypes.number,
 
     /**
-     * If True, calendar will open in a screen overlay portal
+     * If True, calendar will open in a screen overlay portal,
+     * not supported on vertical calendar
      */
     with_portal: PropTypes.bool,
 
     /**
      * If True, calendar will open in a full screen overlay portal, will
-     * take precedent over 'withPortal' if both are set to true
+     * take precedent over 'withPortal' if both are set to true,
+     * not supported on vertical calendar
      */
     with_full_screen_portal: PropTypes.bool,
 
