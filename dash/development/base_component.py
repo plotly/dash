@@ -228,7 +228,8 @@ def generate_class(typename, props, description, namespace):
             if(any(getattr(self, c, None) is not None for c in self._prop_names
                    if (c is not self._prop_names[0] and (not c[:5] in ['data_', 'aria_'])))):
 
-                return '{typename}('+', '.join([c+'='+repr(getattr(self, c, None))
+                return '{typename}('+', '.join([c.replace('-','_',1)+'='+repr(getattr(self, c, None)) 
+                                                if c[:5] in ['data-', 'aria-'] else c+'='+repr(getattr(self, c, None))
                                                 for c in self._prop_names if getattr(self, c, None) is not None])+')'
 
             else:
