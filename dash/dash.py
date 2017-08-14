@@ -53,6 +53,8 @@ class Dash(object):
             self.server.secret_key = secret_key
 
         self.url_base_pathname = url_base_pathname
+        self.config.routes_pathname_prefix = url_base_pathname
+        self.config.requests_pathname_prefix = url_base_pathname
 
         # list of dependencies
         self.callback_map = {}
@@ -72,34 +74,34 @@ class Dash(object):
         # urls
 
         self.server.add_url_rule(
-            '{}_dash-layout'.format(self.url_base_pathname),
+            '{}_dash-layout'.format(self.config.routes_pathname_prefix),
             view_func=self.serve_layout)
 
         self.server.add_url_rule(
-            '{}_dash-dependencies'.format(self.url_base_pathname),
+            '{}_dash-dependencies'.format(self.config.routes_pathname_prefix),
             view_func=self.dependencies)
 
         self.server.add_url_rule(
-            '{}_dash-update-component'.format(self.url_base_pathname),
+            '{}_dash-update-component'.format(self.config.routes_pathname_prefix),
             view_func=self.dispatch,
             methods=['POST'])
 
         self.server.add_url_rule((
             '{}_dash-component-suites'
             '/<string:package_name>'
-            '/<path:path_in_package_dist>').format(self.url_base_pathname),
+            '/<path:path_in_package_dist>').format(self.config.routes_pathname_prefix),
             view_func=self.serve_component_suites)
 
         self.server.add_url_rule(
-            '{}_dash-routes'.format(self.url_base_pathname),
+            '{}_dash-routes'.format(self.config.routes_pathname_prefix),
             view_func=self.serve_routes
         )
 
-        self.server.add_url_rule(self.url_base_pathname, view_func=self.index)
+        self.server.add_url_rule(self.config.routes_pathname_prefix, view_func=self.index)
 
         # catch-all for front-end routes
         self.server.add_url_rule(
-            '{}<path:path>'.format(self.url_base_pathname),
+            '{}<path:path>'.format(self.config.routes_pathname_prefix),
             view_func=self.index
         )
 
@@ -152,7 +154,8 @@ class Dash(object):
 
     def _config(self):
         return {
-            'url_base_pathname': self.url_base_pathname
+            'url_base_pathname': self.url_base_pathname,
+            'requests_pathname_prefix': self.config.requests_pathname_prefix
         }
 
     def serve_routes(self):
@@ -175,7 +178,7 @@ class Dash(object):
                 self.registered_paths[namespace] = [relative_package_path]
 
             return '{}_dash-component-suites/{}/{}?v={}'.format(
-                self.url_base_pathname,
+                self.config.routes_pathname_prefix,
                 namespace,
                 relative_package_path,
                 importlib.import_module(namespace).__version__
