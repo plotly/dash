@@ -103,7 +103,7 @@ class Component(collections.MutableMapping):
 
         # The end of our branch
         # If we were in a list, then this exception will get caught
-        raise KeyError
+        raise KeyError(id)
 
     # Supply ABC methods for a MutableMapping:
     # - __getitem__
