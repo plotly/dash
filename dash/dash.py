@@ -5,7 +5,6 @@ from flask import Flask, url_for, send_from_directory, Response
 from flask_compress import Compress
 from flask_seasurf import SeaSurf
 import os
-import re
 import importlib
 import requests
 import pkgutil
@@ -20,7 +19,6 @@ from .resources import Scripts, Css
 from .development.base_component import Component
 from .dependencies import Event, Input, Output, State
 from . import plotly_api
-from . import authentication
 from . import exceptions
 
 
@@ -29,9 +27,7 @@ class Dash(object):
         self,
         name=None,
         server=None,
-        filename=None,
-        sharing=None,
-        app_url=None,
+        static_folder=None,
         url_base_pathname='/',
         csrf_protect=True
     ):
@@ -41,32 +37,20 @@ class Dash(object):
         else:
             if name is None:
                 name = 'dash'
-            self.server = Flask(name)
+            self.server = Flask(name, static_folder=static_folder)
 
         if self.server.secret_key is None:
             # If user supplied their own server, they might've supplied a
             # secret_key with it
             secret_key_name = 'dash_{}_secret_key'.format(
-                # replace any invalid characters
-                re.sub('[\W_]+', '_', name)
+                # TODO - check for other illegal characters
+                name.replace('.', '_')
             )
             secret_key = os.environ.get(
                 secret_key_name, SeaSurf()._generate_token()
             )
             os.environ[secret_key_name] = secret_key
             self.server.secret_key = secret_key
-
-        if filename is not None:
-            fid = plotly_api.create_or_overwrite_dash_app(
-                filename, sharing, app_url
-            )
-            self.fid = fid
-            self.app_url = app_url
-            self.sharing = sharing
-            self.access_codes = self.create_access_codes()
-        else:
-            self.fid = None
-            self.access_codes = None
 
         self.url_base_pathname = url_base_pathname
 
@@ -86,55 +70,37 @@ class Dash(object):
         self.registered_paths = {}
 
         # urls
-        self.server.add_url_rule(
-            '{}_dash-login'.format(self.url_base_pathname),
-            view_func=authentication.login,
-            methods=['post']
-        )
 
         self.server.add_url_rule(
             '{}_dash-layout'.format(self.url_base_pathname),
-            view_func=self.serve_layout,
-            endpoint='{}_dash-layout'.format(self.url_base_pathname)
-        )
+            view_func=self.serve_layout)
 
         self.server.add_url_rule(
             '{}_dash-dependencies'.format(self.url_base_pathname),
-            view_func=self.dependencies,
-            endpoint='{}_dash-dependencies'.format(self.url_base_pathname)
-        )
+            view_func=self.dependencies)
 
         self.server.add_url_rule(
             '{}_dash-update-component'.format(self.url_base_pathname),
             view_func=self.dispatch,
-            endpoint='{}_dash-update-component'.format(self.url_base_pathname),
             methods=['POST'])
 
         self.server.add_url_rule((
             '{}_dash-component-suites'
             '/<string:package_name>'
             '/<path:path_in_package_dist>').format(self.url_base_pathname),
-            view_func=self.serve_component_suites,
-            endpoint='{}_dash-component-suites'.format(self.url_base_pathname)
-        )
+            view_func=self.serve_component_suites)
 
         self.server.add_url_rule(
             '{}_dash-routes'.format(self.url_base_pathname),
-            view_func=self.serve_routes,
-            endpoint='{}_dash-routes'.format(self.url_base_pathname)
+            view_func=self.serve_routes
         )
 
-        self.server.add_url_rule(
-            self.url_base_pathname, 
-            view_func=self.index,
-            endpoint=self.url_base_pathname
-        )
+        self.server.add_url_rule(self.url_base_pathname, view_func=self.index)
 
         # catch-all for front-end routes
         self.server.add_url_rule(
             '{}<path:path>'.format(self.url_base_pathname),
-            view_func=self.index,
-            endpoint='{}<path:path>'.format(self.url_base_pathname)
+            view_func=self.index
         )
 
         self.server.before_first_request(self._setup_server)
@@ -142,42 +108,8 @@ class Dash(object):
         self._layout = None
         self.routes = []
 
-    def _requires_auth(f):
-        def class_decorator(*args, **kwargs):
-            self = args[0]
-            self.auth_cookie_name = (
-                'dash_access_{}'.format(self.fid.replace(':', '_'))
-            ) if self.fid else ''
-            return authentication.create_requires_auth(
-                f,
-                # cookies don't allow comma, semicolon, white space
-                # those characters are already excluded from plotly usernames
-                self.fid,
-                self.access_codes,
-                self.create_access_codes,
-                self.auth_cookie_name,
-                *args,
-                **kwargs
-            )
-        class_decorator.__name__ = f.__name__
-        return class_decorator
-
-    def create_access_codes(self):
-        token = SeaSurf()._generate_token()
-        new_access_codes = {
-            'access_granted': token,
-            'expiration': (
-                datetime.datetime.now() + datetime.timedelta(
-                    seconds=self.config.permissions_cache_expiry
-                )
-            )
-        }
-        self.access_codes = new_access_codes
-        return self.access_codes
-
     class config:
         supress_callback_exceptions = False
-        permissions_cache_expiry = 5 * 60
 
     @property
     def layout(self):
@@ -208,7 +140,6 @@ class Dash(object):
             self.css.get_all_css()
         )
 
-    @_requires_auth
     def serve_layout(self):
         layout = self._layout_value()
 
@@ -221,16 +152,9 @@ class Dash(object):
 
     def _config(self):
         return {
-            'fid': self.fid,
-            'plotly_domain': (
-                plotly.config.get_config()['plotly_domain']
-            ),
-            'oauth_client_id': 'RcXzjux4DGfb8bWG9UNGpJUGsTaS0pUVHoEf7Ecl',
-            'redirect_uri': 'http://localhost:9595',
             'url_base_pathname': self.url_base_pathname
         }
 
-    @_requires_auth
     def serve_routes(self):
         return flask.Response(
             json.dumps(self.routes,
@@ -377,7 +301,6 @@ class Dash(object):
         </html>
         '''.format(title, css, config, scripts))
 
-    @_requires_auth
     def dependencies(self):
         return flask.jsonify([
             {
@@ -419,7 +342,7 @@ class Dash(object):
             if not isinstance(args, list):
                 raise exceptions.IncorrectTypeException(
                     'The {} argument `{}` is '
-                    'not a list of `dash.{}`s.'.format(
+                    'not a list of `dash.dependencies.{}`s.'.format(
                         name.lower(), str(arg), name
                     ))
 
@@ -583,18 +506,15 @@ class Dash(object):
 
         return wrap_func
 
-    @_requires_auth
     def dispatch(self):
         body = flask.request.get_json()
         inputs = body.get('inputs', [])
         state = body.get('state', [])
         output = body['output']
-        event = body.get('event', {})
 
         target_id = '{}.{}'.format(output['id'], output['property'])
         args = []
         for component_registration in self.callback_map[target_id]['inputs']:
-            component_id = component_registration['id']
             args.append([
                 c.get('value', None) for c in inputs if
                 c['property'] == component_registration['property'] and
@@ -602,7 +522,6 @@ class Dash(object):
             ][0])
 
         for component_registration in self.callback_map[target_id]['state']:
-            component_id = component_registration['id']
             args.append([
                 c.get('value', None) for c in state if
                 c['property'] == component_registration['property'] and
@@ -617,7 +536,6 @@ class Dash(object):
 
     def run_server(self,
                    port=8050,
-                   debug=False,
-                   threaded=True,
+                   debug=True,
                    **flask_run_options):
         self.server.run(port=port, debug=debug, **flask_run_options)
