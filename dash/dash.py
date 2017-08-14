@@ -36,13 +36,8 @@ class Dash(object):
         csrf_protect=True
     ):
         # allow users to supply their own flask server
-        if server is not None:
-            self.server = server
-        else:
-            if name is None:
-                name = 'dash'
-            self.server = Flask(name)
-
+        name = name or 'dash'
+        self.server = server or Flask(name)
         if self.server.secret_key is None:
             # If user supplied their own server, they might've supplied a
             # secret_key with it
@@ -56,7 +51,7 @@ class Dash(object):
             os.environ[secret_key_name] = secret_key
             self.server.secret_key = secret_key
 
-        if filename is not None:
+        if filename:
             fid = plotly_api.create_or_overwrite_dash_app(
                 filename, sharing, app_url
             )
