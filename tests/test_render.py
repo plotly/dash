@@ -63,7 +63,6 @@ class Tests(IntegrationTests):
 
         el = self.wait_for_element_by_id('_dash-app-content')
 
-        # TODO - Why is `font-size` being used not `fontSize`?
         # TODO - Make less fragile with http://lxml.de/lxmlhtml.html#html-diff
         rendered_dom = '''
             <div>
@@ -119,31 +118,32 @@ class Tests(IntegrationTests):
 
         # Somehow the html attributes are unordered.
         # Try different combinations (they're all valid html)
+        style_permutations = [
+            'style="color: red; font-size: 30px;"',
+            'style="font-size: 30px; color: red;"'
+        ]
         permutations = itertools.permutations([
             'id="p.c.3"',
             'class="my-class"',
             'title="tooltip"',
-            'style="color: red; font-size: 30px;"'
-        ], 4)
+        ], 3)
         passed = False
         for permutation in permutations:
-            passed = (
-                re.sub(comment_regex, '', el.get_attribute('innerHTML')) ==
-                re.sub(
+            for style in style_permutations:
+                actual_cleaned = re.sub(comment_regex, '', el.get_attribute('innerHTML'))
+                expected_cleaned = re.sub(
                     comment_regex,
                     '',
                     rendered_dom.replace('\n', '')
                                 .replace('    ', '')
-                                .replace('PERMUTE', ' '.join(permutation))
+                                .replace('PERMUTE', ' '.join(list(permutation) + [style]))
                 )
-            )
-            if passed:
-                break
+                passed = passed or (actual_cleaned == expected_cleaned)
         if not passed:
             raise Exception(
                 'HTML does not match\nActual:\n{}\n\nExpected:\n{}'.format(
-                    el.get_attribute('innerHTML'),
-                    rendered_dom
+                    actual_cleaned,
+                    expected_cleaned
                 )
             )
 
