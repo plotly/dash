@@ -8,8 +8,8 @@ import dash
 import dash_html_components as html
 import dash_core_components as dcc
 
-from IntegrationTests import IntegrationTests
-from utils import assert_clean_console, wait_for
+from .IntegrationTests import IntegrationTests
+from .utils import assert_clean_console, wait_for
 
 
 class Tests(IntegrationTests):

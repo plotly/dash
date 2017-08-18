@@ -3,8 +3,8 @@ from dash.dependencies import Input, Output, State, Event
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
-from IntegrationTests import IntegrationTests
-from utils import assert_clean_console, invincible, wait_for
+from .IntegrationTests import IntegrationTests
+from .utils import assert_clean_console, invincible, wait_for
 from multiprocessing import Value
 import time
 import re
@@ -514,19 +514,19 @@ class Tests(IntegrationTests):
         self.assertEqual(
             self.driver.execute_script('return window.store.getState().paths'),
             {
-                u'input': [
-                    u'props', u'children', 0
+                'input': [
+                    'props', 'children', 0
                 ],
-                u'output': [u'props', u'children', 1],
-                u'sub-input-1': [
-                    u'props', u'children', 1,
-                    u'props', u'children',
-                    u'props', u'children', 0
+                'output': ['props', 'children', 1],
+                'sub-input-1': [
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 0
                 ],
-                u'sub-output-1': [
-                    u'props', u'children', 1,
-                    u'props', u'children',
-                    u'props', u'children', 1
+                'sub-output-1': [
+                    'props', 'children', 1,
+                    'props', 'children',
+                    'props', 'children', 1
                 ]
             }
         )
@@ -1212,22 +1212,22 @@ class Tests(IntegrationTests):
 
         wait_for(lambda: call_counts['output'].value == 1)
         wait_for(lambda: call_counts['input-2'].value == 1)
-        self.assertEqual(input1().get_attribute('value'), u'input 1')
-        self.assertEqual(input2().get_attribute('value'), u'<<input 1>>')
+        self.assertEqual(input1().get_attribute('value'), 'input 1')
+        self.assertEqual(input2().get_attribute('value'), '<<input 1>>')
         self.assertEqual(output().text, 'input 1 + <<input 1>>')
 
         input1().send_keys('x')
         wait_for(lambda: call_counts['output'].value == 2)
         wait_for(lambda: call_counts['input-2'].value == 2)
-        self.assertEqual(input1().get_attribute('value'), u'input 1x')
-        self.assertEqual(input2().get_attribute('value'), u'<<input 1x>>')
+        self.assertEqual(input1().get_attribute('value'), 'input 1x')
+        self.assertEqual(input2().get_attribute('value'), '<<input 1x>>')
         self.assertEqual(output().text, 'input 1x + <<input 1x>>')
 
         input2().send_keys('y')
         wait_for(lambda: call_counts['output'].value == 3)
         wait_for(lambda: call_counts['input-2'].value == 2)
-        self.assertEqual(input1().get_attribute('value'), u'input 1x')
-        self.assertEqual(input2().get_attribute('value'), u'<<input 1x>>y')
+        self.assertEqual(input1().get_attribute('value'), 'input 1x')
+        self.assertEqual(input2().get_attribute('value'), '<<input 1x>>y')
         self.assertEqual(output().text, 'input 1x + <<input 1x>>y')
 
     def test_removing_component_while_its_getting_updated(self):
