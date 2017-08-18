@@ -1,5 +1,7 @@
-import dash_core_components
-from dash.react import Dash
+# -*- coding: utf-8 -*-
+import dash_core_components as dcc
+import dash_html_components as html
+import dash
 import importlib
 import percy
 from selenium import webdriver
@@ -7,6 +9,10 @@ from selenium.webdriver.common.keys import Keys
 import time
 import multiprocessing
 import unittest
+import os
+
+from .IntegrationTests import IntegrationTests
+from .utils import assert_clean_console, invincible, wait_for
 
 # Download geckodriver: https://github.com/mozilla/geckodriver/releases
 # And add to path:
@@ -17,59 +23,100 @@ import unittest
 # export PERCY_TOKEN=...
 
 
-class IntegrationTests(unittest.TestCase):
+class Tests(IntegrationTests):
+    def setUp(self):
+        self.driver = webdriver.Chrome()
+        def wait_for_element_by_id(id):
+            wait_for(lambda: None is not invincible(
+                lambda: self.driver.find_element_by_id(id)
+            ))
+            return self.driver.find_element_by_id(id)
+        self.wait_for_element_by_id = wait_for_element_by_id
 
-    @classmethod
-    def setUpClass(cls):
-        super(IntegrationTests, cls).setUpClass()
-        cls.driver = webdriver.Firefox()
+        def wait_for_element_by_css_selector(css_selector):
+            wait_for(lambda: None is not invincible(
+                lambda: self.driver.find_element_by_css_selector(css_selector)
+            ))
+            return self.driver.find_element_by_css_selector(css_selector)
+        self.wait_for_element_by_css_selector = wait_for_element_by_css_selector
 
-        loader = percy.ResourceLoader(
-          webdriver=cls.driver
-        )
-        cls.percy_runner = percy.Runner(loader=loader)
 
-        cls.percy_runner.initialize_build()
+    def test_integration(self):
+        app = dash.Dash(__name__)
 
-    @classmethod
-    def tearDownClass(cls):
-        super(IntegrationTests, cls).tearDownClass()
-        cls.driver.quit()
-        cls.percy_runner.finalize_build()
-
-    def setUp(s):
-        pass
-
-    def tearDown(s):
-        s.server_process.terminate()
-
-    def startServer(s, dash):
-        def run():
-            dash.run_server(
-                port=8050,
-                debug=False,
-                component_suites=[
-                    'dash_core_components'
+        app.layout = html.Div([
+            html.Div(id='waitfor'),
+            html.Label('Dropdown'),
+            dcc.Dropdown(
+                options=[
+                    {'label': 'New York City', 'value': 'NYC'},
+                    {'label': u'Montréal', 'value': 'MTL'},
+                    {'label': 'San Francisco', 'value': 'SF'}
                 ],
-                threaded=True
+                value='MTL'
+            ),
+
+            html.Label('Multi-Select Dropdown'),
+            dcc.Dropdown(
+                options=[
+                    {'label': 'New York City', 'value': 'NYC'},
+                    {'label': u'Montréal', 'value': 'MTL'},
+                    {'label': 'San Francisco', 'value': 'SF'}
+                ],
+                value=['MTL', 'SF'],
+                multi=True
+            ),
+
+            html.Label('Radio Items'),
+            dcc.RadioItems(
+                options=[
+                    {'label': 'New York City', 'value': 'NYC'},
+                    {'label': u'Montréal', 'value': 'MTL'},
+                    {'label': 'San Francisco', 'value': 'SF'}
+                ],
+                value='MTL'
+            ),
+
+            html.Label('Checkboxes'),
+            dcc.Checklist(
+                options=[
+                    {'label': 'New York City', 'value': 'NYC'},
+                    {'label': u'Montréal', 'value': 'MTL'},
+                    {'label': 'San Francisco', 'value': 'SF'}
+                ],
+                values=['MTL', 'SF']
+            ),
+
+            html.Label('Text Input'),
+            dcc.Input(value='MTL', type='text'),
+
+            html.Label('Slider'),
+            dcc.Slider(
+                min=0,
+                max=9,
+                marks={i: 'Label {}'.format(i) if i == 1 else str(i) for i in range(1, 6)},
+                value=5,
+            ),
+
+            html.Label('Graph'),
+            dcc.Graph(
+                id='graph',
+                figure={
+                    'data': [{
+                        'x': [1, 2, 3],
+                        'y': [4, 1, 4]
+                    }]
+                }
             )
+        ])
+        self.startServer(app)
 
-        # Run on a separate process so that it doesn't block
-        s.server_process = multiprocessing.Process(target=run)
-        s.server_process.start()
-        time.sleep(0.5)
+        try:
+            self.wait_for_element_by_id('waitfor')
+        except Exception as e:
+            print(self.wait_for_element_by_id(
+                '_dash-app-content').get_attribute('innerHTML'))
+            raise e
 
-    def test_integration(s):
-        dash = Dash(__name__)
-
-        dash.layout = dash_core_components.Input(
-            id='hello-world'
-        )
-
-        s.startServer(dash)
-        s.driver.get('http://localhost:8050')
-
-        el = s.driver.find_element_by_id('hello-world')
-
-        # Take a screenshot with percy
-        s.percy_runner.snapshot(name='dash_core_components')
+        if 'PERCY_PROJECT' in os.environ and 'PERCY_TOKEN' in os.environ:
+            self.percy_runner.snapshot(name='dash_core_components')

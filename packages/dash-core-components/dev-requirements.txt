@@ -1,0 +1,12 @@
+dash_html_components
+dash_renderer
+dash
+percy
+selenium
+mock
+tox
+tox-pyenv
+six
+plotly>=2.0.8
+requests[security]
+ipdb

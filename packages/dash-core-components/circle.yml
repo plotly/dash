@@ -1,8 +1,21 @@
 machine:
-  node:
-    version: 4.4.7
+    node:
+        version: 6.9.2
+    post:
+        - pyenv global 2.7.10
+    environment:
+        TOX_PYTHON_27: python2.7
+
+dependencies:
+    pre:
+        - npm install -g eslint
+        - pip install tox
+        - pip install -r dev-requirements.txt
+        - npm install
+        - node_modules/.bin/builder run build-dist
+        - node_modules/.bin/builder run copy-lib
 
 test:
-  post:
-    # Ensure steps leading up to publishing work.
-    - node_modules/.bin/builder run build-dist
+    override:
+        - tox
+        - npm run test
