@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.12.2",
+  "version": "0.12.3",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -32,6 +32,7 @@
     "ramda": "^0.23.0",
     "rc-slider": "^6.1.0",
     "react": "^15.4.0",
+    "react-addons-shallow-compare": "^15.6.0",
     "react-dates": "^12.3.0",
     "react-dom": "^15.4.0",
     "react-markdown": "^2.4.5",

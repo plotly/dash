@@ -53,6 +53,7 @@ export default class DatePickerSingle extends Component {
 
     if (typeof props.maxDateAllowed !== 'undefined') {
       max = moment(props.maxDateAllowed);
+      max.add(1, 'days');
     }
 
     return { date, initialVisibleMonth, min, max };
@@ -282,9 +283,11 @@ DatePickerSingle.propTypes = {
     */
     disabled: PropTypes.bool,
 
-    /**
-    * If True, there will be a button that allows for clearing the dates
-    */
+   /**
+   * Whether or not the dropdown is "clearable", that is, whether or
+   * not a small "x" appears on the right of the dropdown that removes
+   * the selected value.
+   */
     clearable: PropTypes.bool,
 
     /**
