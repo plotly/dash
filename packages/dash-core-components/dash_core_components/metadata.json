@@ -377,7 +377,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, there will be a button that allows for clearing the dates",
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -644,7 +644,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, there will be a button that allows for clearing the dates",
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
         "defaultValue": {
           "value": "false",
           "computed": false
