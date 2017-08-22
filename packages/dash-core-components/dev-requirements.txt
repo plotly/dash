@@ -1,7 +1,7 @@
 dash_html_components
 dash_renderer
 dash
-percy
+git+git://github.com/chriddyp/python-percy-client.git@print-request
 selenium
 mock
 tox

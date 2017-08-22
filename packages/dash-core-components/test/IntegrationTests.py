@@ -13,8 +13,8 @@ class IntegrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super(IntegrationTests, cls).setUpClass()
-        cls.driver = webdriver.Chrome()
 
+        cls.driver = webdriver.Chrome()
         loader = percy.ResourceLoader(webdriver=cls.driver)
         cls.percy_runner = percy.Runner(loader=loader)
         cls.percy_runner.initialize_build()
@@ -49,7 +49,7 @@ class IntegrationTests(unittest.TestCase):
         # Run on a separate process so that it doesn't block
         self.server_process = multiprocessing.Process(target=run)
         self.server_process.start()
-        time.sleep(0.5)
+        time.sleep(5)
 
         # Visit the dash page
         self.driver.get('http://localhost:8050')

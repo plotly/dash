@@ -21,6 +21,8 @@ export default class RadioItems extends Component {
         const {
             fireEvent,
             id,
+            className,
+            style,
             inputClassName,
             inputStyle,
             labelClassName,
@@ -35,7 +37,7 @@ export default class RadioItems extends Component {
             ids = {id, key: id};
         }
         return (
-            <div {...ids}>
+            <div {...ids} className={className} style={style}>
                 {options.map(option => (
                     <label style={labelStyle} className={labelClassName}>
                         <input
@@ -60,6 +62,44 @@ export default class RadioItems extends Component {
 
 RadioItems.propTypes = {
     id: PropTypes.string,
+
+    /**
+     * An array of options
+     */
+    options: PropTypes.shape({
+        /**
+         * The radio item's label
+         */
+        label: PropTypes.string,
+
+        /**
+         * The value of the radio item. This value
+         * corresponds to the items specified in the
+         * `values` property.
+         */
+        value: PropTypes.string,
+
+        /**
+         * If true, this radio item is disabled and can't be clicked on.
+         */
+        disabled: PropTypes.bool
+    }),
+
+    /**
+     * The currently selected value
+     */
+    value: PropTypes.string,
+
+    /**
+     * The style of the container (div)
+     */
+    style: PropTypes.object,
+
+    /**
+     * The class of the container (div)
+     */
+    className: PropTypes.string,
+
     /**
      * The style of the <input> radio element
      */
@@ -81,20 +121,6 @@ RadioItems.propTypes = {
      *  and the option's label
      */
     labelClassName: PropTypes.string,
-
-    /**
-     * An array of options
-     */
-    options: PropTypes.shape({
-        label: PropTypes.string,
-        value: PropTypes.string,
-        disabled: PropTypes.bool
-    }),
-
-    /**
-     * The currently selected value
-     */
-    value: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the radio item gets selected.

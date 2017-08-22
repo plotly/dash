@@ -34,7 +34,7 @@ export default class Slider extends Component {
                     }
                 }}
                 value={value}
-                {...omit('value', this.props)}
+                {...omit(['fireEvent', 'setProps', 'updatemode', 'value'], this.props)}
             />
         );
     }
@@ -42,6 +42,22 @@ export default class Slider extends Component {
 
 Slider.propTypes = {
     id: PropTypes.string,
+
+    /**
+     * Marks on the slider.
+     * The key determines the position,
+     * and the value determines what will show.
+     * If you want to set the style of a specific mark point,
+     * the value should be an object which
+     * contains style and label properties.
+     */
+    marks: PropTypes.shape({number: PropTypes.string}),
+
+    /**
+     * The value of the input
+     */
+    value: PropTypes.number,
+
     /**
      * Additional CSS class for the root DOM node
      */
@@ -66,16 +82,6 @@ Slider.propTypes = {
     included: PropTypes.bool,
 
     /**
-     * Marks on the slider.
-     * The key determines the position,
-     * and the value determines what will show.
-     * If you want to set the style of a specific mark point,
-     * the value should be an object which
-     * contains style and label properties.
-     */
-    marks: PropTypes.shape({number: PropTypes.string}),
-
-    /**
      * Minimum allowed value of the slider
      */
     min: PropTypes.number,
@@ -94,11 +100,6 @@ Slider.propTypes = {
      * Key-values pairs describing the labels
      */
     labels: PropTypes.object,
-
-    /**
-     * The value of the input
-     */
-    value: PropTypes.number,
 
     /**
      * If true, the slider will be vertical

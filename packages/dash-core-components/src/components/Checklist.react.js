@@ -19,6 +19,7 @@ export default class Checklist extends Component {
 
     render() {
         const {
+            className,
             fireEvent,
             id,
             inputClassName,
@@ -26,12 +27,13 @@ export default class Checklist extends Component {
             labelClassName,
             labelStyle,
             options,
-            setProps
+            setProps,
+            style
         } = this.props;
         const {values} = this.state;
 
         return (
-            <div id={id}>
+            <div id={id} style={style} className={className}>
                 {options.map(option => (
                     <label
                         key={option.value}
@@ -66,27 +68,6 @@ export default class Checklist extends Component {
 
 Checklist.propTypes = {
     id: PropTypes.string,
-    /**
-     * The style of the <input> checkbox element
-     */
-    inputStyle: PropTypes.object,
-
-    /**
-     * The class of the <input> checkbox element
-     */
-    inputClassName: PropTypes.string,
-
-    /**
-     * The style of the <label> that wraps the checkbox input
-     *  and the option's label
-     */
-    labelStyle: PropTypes.object,
-
-    /**
-     * The class of the <label> that wraps the checkbox input
-     *  and the option's label
-     */
-    labelClassName: PropTypes.string,
 
     /**
      * An array of options
@@ -114,6 +95,39 @@ Checklist.propTypes = {
      * The currently selected value
      */
     values: PropTypes.arrayOf(PropTypes.string),
+
+    /**
+     * The class of the container (div)
+     */
+    className: PropTypes.string,
+
+    /**
+     * The style of the container (div)
+     */
+    style: PropTypes.object,
+
+
+    /**
+     * The style of the <input> checkbox element
+     */
+    inputStyle: PropTypes.object,
+
+    /**
+     * The class of the <input> checkbox element
+     */
+    inputClassName: PropTypes.string,
+
+    /**
+     * The style of the <label> that wraps the checkbox input
+     *  and the option's label
+     */
+    labelStyle: PropTypes.object,
+
+    /**
+     * The class of the <label> that wraps the checkbox input
+     *  and the option's label
+     */
+    labelClassName: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the checkbox item gets selected.

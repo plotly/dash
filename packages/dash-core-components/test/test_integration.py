@@ -2,14 +2,17 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash
+from datetime import datetime as dt
 import importlib
 import percy
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 import multiprocessing
+import sys
 import unittest
 import os
+from urlparse import urlparse
 
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
@@ -25,7 +28,6 @@ from .utils import assert_clean_console, invincible, wait_for
 
 class Tests(IntegrationTests):
     def setUp(self):
-        self.driver = webdriver.Chrome()
         def wait_for_element_by_id(id):
             wait_for(lambda: None is not invincible(
                 lambda: self.driver.find_element_by_id(id)
@@ -107,7 +109,38 @@ class Tests(IntegrationTests):
                         'y': [4, 1, 4]
                     }]
                 }
-            )
+            ),
+
+            html.Label('DatePickerSingle'),
+            dcc.DatePickerSingle(
+                id='date-picker-single',
+                date=dt(1997, 5, 10)
+            ),
+
+            html.Label('DatePickerRange'),
+            dcc.DatePickerRange(
+                id='date-picker-range',
+                start_date=dt(1997, 5, 3),
+                end_date_placeholder_text='Select a date!'
+            ),
+
+            html.Label('TextArea'),
+            dcc.Textarea(
+                placeholder='Enter a value...',
+                style={'width': '100%'}
+            ),
+
+            html.Label('Markdown'),
+            dcc.Markdown('''
+                #### Dash and Markdown
+
+                Dash supports [Markdown](http://commonmark.org/help).
+
+                Markdown is a simple way to write and format text.
+                It includes a syntax for things like **bold text** and *italics*,
+                [links](http://commonmark.org/help), inline `code` snippets, lists,
+                quotes, and more.
+            '''.replace('    ', ''))
         ])
         self.startServer(app)
 
@@ -119,4 +152,6 @@ class Tests(IntegrationTests):
             raise e
 
         if 'PERCY_PROJECT' in os.environ and 'PERCY_TOKEN' in os.environ:
-            self.percy_runner.snapshot(name='dash_core_components')
+            python_version = sys.version.split(' ')[0]
+            print('Percy Snapshot {}'.format(python_version))
+            self.percy_runner.snapshot()

@@ -178,13 +178,14 @@ export default class PlotlyGraph extends Component {
     }
 
     render(){
-        const {style, id} = this.props;
+        const {className, id, style} = this.props;
 
         return (
             <div
                 key={id}
                 id={id}
                 style={style}
+                className={className}
             />
         );
 
@@ -232,6 +233,12 @@ PlotlyGraph.propTypes = {
      * Generic style overrides on the plot div
      */
     style: PropTypes.object,
+
+    /**
+     * className of the parent div
+     */
+    className: PropTypes.string,
+
 
     /**
      * Beta: If true, animate between updates using

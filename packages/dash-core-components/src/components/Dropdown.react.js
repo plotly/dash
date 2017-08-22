@@ -1,4 +1,4 @@
-import R from 'ramda';
+import R, {omit} from 'ramda';
 import React, {Component, PropTypes} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
@@ -34,7 +34,9 @@ export default class Dropdown extends Component {
     }
 
     render() {
-        const {id, fireEvent, multi, options, setProps} = this.props;
+        const {
+            id, fireEvent, multi, options, setProps, style
+        } = this.props;
         const {filterOptions, value} = this.state;
         let selectedValue;
         if (R.type(value) === 'array') {
@@ -43,7 +45,7 @@ export default class Dropdown extends Component {
             selectedValue = value;
         }
         return (
-            <div id={id}>
+            <div id={id} style={style}>
                 <ReactDropdown
                     filterOptions={filterOptions}
                     options={options}
@@ -70,7 +72,7 @@ export default class Dropdown extends Component {
                         }
                         if (fireEvent) fireEvent('change');
                     }}
-                    {...this.props}
+                    {...omit(['fireEvent', 'setProps', 'value'], this.props)}
                 />
             </div>
         );
@@ -80,7 +82,46 @@ export default class Dropdown extends Component {
 Dropdown.propTypes = {
     id: PropTypes.string,
 
+    /**
+     * An array of options
+     */
+    options: PropTypes.shape({
+        /**
+         * The checkbox's label
+         */
+        label: PropTypes.string,
+
+        /**
+         * The value of the checkbox. This value
+         * corresponds to the items specified in the
+         * `values` property.
+         */
+        value: PropTypes.string,
+
+        /**
+         * If true, this checkbox is disabled and can't be clicked on.
+         */
+        disabled: PropTypes.bool
+    }),
+
+    /**
+     * The value of the input. If `multi` is false (the default)
+     * then value is just a string that corresponds to the values
+     * provided in the `options` property. If `multi` is true, then
+     * multiple values can be selected at once, and `value` is an
+     * array of items with values corresponding to those in the
+     * `options` prop.
+     */
+    value: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.arrayOf(PropTypes.string)
+    ]),
+
+    /**
+     * className of the dropdown element
+     */
     className: PropTypes.string,
+
 
     /**
      * Whether or not the dropdown is "clearable", that is, whether or
@@ -99,14 +140,6 @@ Dropdown.propTypes = {
      */
     multi: PropTypes.bool,
 
-    options: PropTypes.arrayOf(
-        PropTypes.shape({
-            disabled: PropTypes.bool,
-            label: PropTypes.string,
-            value: PropTypes.string
-        })
-    ),
-
     /**
      * The grey, default text shown when no option is selected
      */
@@ -116,19 +149,6 @@ Dropdown.propTypes = {
      * Whether to enable the searching feature or not
      */
     searchable: PropTypes.bool,
-
-    /**
-     * The value of the input. If `multi` is false (the default)
-     * then value is just a string that corresponds to the values
-     * provided in the `options` property. If `multi` is true, then
-     * multiple values can be selected at once, and `value` is an
-     * array of items with values corresponding to those in the
-     * `options` prop.
-     */
-    value: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.arrayOf(PropTypes.string)
-    ]),
 
     /**
      * Dash-assigned callback that gets fired when the input changes

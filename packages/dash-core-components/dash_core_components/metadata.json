@@ -10,6 +10,58 @@
         "required": false,
         "description": ""
       },
+      "options": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "label": {
+              "name": "string",
+              "description": "The checkbox's label",
+              "required": false
+            },
+            "value": {
+              "name": "string",
+              "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
+              "required": false
+            },
+            "disabled": {
+              "name": "bool",
+              "description": "If true, this checkbox is disabled and can't be clicked on.",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "An array of options",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "values": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "The currently selected value"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the container (div)"
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the container (div)"
+      },
       "inputStyle": {
         "type": {
           "name": "object"
@@ -53,44 +105,6 @@
           "value": "''",
           "computed": false
         }
-      },
-      "options": {
-        "type": {
-          "name": "shape",
-          "value": {
-            "label": {
-              "name": "string",
-              "description": "The checkbox's label",
-              "required": false
-            },
-            "value": {
-              "name": "string",
-              "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
-              "required": false
-            },
-            "disabled": {
-              "name": "bool",
-              "description": "If true, this checkbox is disabled and can't be clicked on.",
-              "required": false
-            }
-          }
-        },
-        "required": false,
-        "description": "An array of options",
-        "defaultValue": {
-          "value": "[]",
-          "computed": false
-        }
-      },
-      "values": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "string"
-          }
-        },
-        "required": false,
-        "description": "The currently selected value"
       },
       "fireEvent": {
         "type": {
@@ -683,12 +697,54 @@
         "required": false,
         "description": ""
       },
+      "options": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "label": {
+              "name": "string",
+              "description": "The checkbox's label",
+              "required": false
+            },
+            "value": {
+              "name": "string",
+              "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
+              "required": false
+            },
+            "disabled": {
+              "name": "bool",
+              "description": "If true, this checkbox is disabled and can't be clicked on.",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "An array of options"
+      },
+      "value": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The value of the input. If `multi` is false (the default)\nthen value is just a string that corresponds to the values\nprovided in the `options` property. If `multi` is true, then\nmultiple values can be selected at once, and `value` is an\narray of items with values corresponding to those in the\n`options` prop."
+      },
       "className": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": ""
+        "description": "className of the dropdown element"
       },
       "clearable": {
         "type": {
@@ -723,30 +779,6 @@
           "computed": false
         }
       },
-      "options": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "shape",
-            "value": {
-              "disabled": {
-                "name": "bool",
-                "required": false
-              },
-              "label": {
-                "name": "string",
-                "required": false
-              },
-              "value": {
-                "name": "string",
-                "required": false
-              }
-            }
-          }
-        },
-        "required": false,
-        "description": ""
-      },
       "placeholder": {
         "type": {
           "name": "string"
@@ -764,24 +796,6 @@
           "value": "true",
           "computed": false
         }
-      },
-      "value": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "string"
-            },
-            {
-              "name": "arrayOf",
-              "value": {
-                "name": "string"
-              }
-            }
-          ]
-        },
-        "required": false,
-        "description": "The value of the input. If `multi` is false (the default)\nthen value is just a string that corresponds to the values\nprovided in the `options` property. If `multi` is true, then\nmultiple values can be selected at once, and `value` is an\narray of items with values corresponding to those in the\n`options` prop."
       },
       "setProps": {
         "type": {
@@ -913,6 +927,13 @@
         },
         "required": false,
         "description": "Generic style overrides on the plot div"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "className of the parent div"
       },
       "animate": {
         "type": {
@@ -1698,6 +1719,55 @@
         "required": false,
         "description": ""
       },
+      "options": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "label": {
+              "name": "string",
+              "description": "The radio item's label",
+              "required": false
+            },
+            "value": {
+              "name": "string",
+              "description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`values` property.",
+              "required": false
+            },
+            "disabled": {
+              "name": "bool",
+              "description": "If true, this radio item is disabled and can't be clicked on.",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "An array of options",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "value": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The currently selected value"
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the container (div)"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the container (div)"
+      },
       "inputStyle": {
         "type": {
           "name": "object"
@@ -1742,38 +1812,6 @@
           "computed": false
         }
       },
-      "options": {
-        "type": {
-          "name": "shape",
-          "value": {
-            "label": {
-              "name": "string",
-              "required": false
-            },
-            "value": {
-              "name": "string",
-              "required": false
-            },
-            "disabled": {
-              "name": "bool",
-              "required": false
-            }
-          }
-        },
-        "required": false,
-        "description": "An array of options",
-        "defaultValue": {
-          "value": "[]",
-          "computed": false
-        }
-      },
-      "value": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The currently selected value"
-      },
       "fireEvent": {
         "type": {
           "name": "func"
@@ -1813,6 +1851,47 @@
         },
         "required": false,
         "description": ""
+      },
+      "marks": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "number": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "shape",
+                  "value": {
+                    "style": {
+                      "name": "object",
+                      "required": false
+                    },
+                    "label": {
+                      "name": "string",
+                      "required": false
+                    }
+                  }
+                }
+              ],
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
+      },
+      "value": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": "The value of the input"
       },
       "allowCross": {
         "type": {
@@ -1856,37 +1935,6 @@
         "required": false,
         "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
       },
-      "marks": {
-        "type": {
-          "name": "shape",
-          "value": {
-            "number": {
-              "name": "union",
-              "value": [
-                {
-                  "name": "string"
-                },
-                {
-                  "name": "shape",
-                  "value": {
-                    "style": {
-                      "name": "object",
-                      "required": false
-                    },
-                    "label": {
-                      "name": "string",
-                      "required": false
-                    }
-                  }
-                }
-              ],
-              "required": false
-            }
-          }
-        },
-        "required": false,
-        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
-      },
       "min": {
         "type": {
           "name": "number"
@@ -1929,16 +1977,6 @@
         },
         "required": false,
         "description": "Key-values pairs describing the labels"
-      },
-      "value": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "number"
-          }
-        },
-        "required": false,
-        "description": "The value of the input"
       },
       "vertical": {
         "type": {
@@ -2008,6 +2046,26 @@
         "required": false,
         "description": ""
       },
+      "marks": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "number": {
+              "name": "string",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
+      },
+      "value": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The value of the input"
+      },
       "className": {
         "type": {
           "name": "string"
@@ -2036,19 +2094,6 @@
         "required": false,
         "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
       },
-      "marks": {
-        "type": {
-          "name": "shape",
-          "value": {
-            "number": {
-              "name": "string",
-              "required": false
-            }
-          }
-        },
-        "required": false,
-        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
-      },
       "min": {
         "type": {
           "name": "number"
@@ -2076,13 +2121,6 @@
         },
         "required": false,
         "description": "Key-values pairs describing the labels"
-      },
-      "value": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "The value of the input"
       },
       "vertical": {
         "type": {

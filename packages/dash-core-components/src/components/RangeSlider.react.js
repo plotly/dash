@@ -35,7 +35,10 @@ export default class RangeSlider extends Component {
                     }
                 }}
                 value={value}
-                {...omit('value', this.props)}
+                {...omit(
+                    ['value', 'fireEvent', 'setProps', 'updatemode'],
+                     this.props
+                 )}
             />
         );
     }
@@ -43,6 +46,37 @@ export default class RangeSlider extends Component {
 
 RangeSlider.propTypes = {
     id: PropTypes.string,
+
+    /**
+     * Marks on the slider.
+     * The key determines the position,
+     * and the value determines what will show.
+     * If you want to set the style of a specific mark point,
+     * the value should be an object which
+     * contains style and label properties.
+     */
+    marks: PropTypes.shape({
+        number: PropTypes.oneOfType([
+            /**
+             * The label of the mark
+             */
+            PropTypes.string,
+
+            /**
+             * The style and label of the mark
+             */
+            PropTypes.shape({
+                style: PropTypes.object,
+                label: PropTypes.string
+            })
+        ])
+    }),
+
+    /**
+     * The value of the input
+     */
+    value: PropTypes.arrayOf(PropTypes.number),
+
     /**
      * allowCross could be set as true to allow those handles to cross.
      */
@@ -78,31 +112,6 @@ RangeSlider.propTypes = {
     included: PropTypes.bool,
 
     /**
-     * Marks on the slider.
-     * The key determines the position,
-     * and the value determines what will show.
-     * If you want to set the style of a specific mark point,
-     * the value should be an object which
-     * contains style and label properties.
-     */
-    marks: PropTypes.shape({
-        number: PropTypes.oneOfType([
-            /**
-             * The label of the mark
-             */
-            PropTypes.string,
-
-            /**
-             * The style and label of the mark
-             */
-            PropTypes.shape({
-                style: PropTypes.object,
-                label: PropTypes.string
-            })
-        ])
-    }),
-
-    /**
      * Minimum allowed value of the slider
      */
     min: PropTypes.number,
@@ -129,11 +138,6 @@ RangeSlider.propTypes = {
      * Key-values pairs describing the labels
      */
     labels: PropTypes.object,
-
-    /**
-     * The value of the input
-     */
-    value: PropTypes.arrayOf(PropTypes.number),
 
     /**
      * If true, the slider will be vertical
