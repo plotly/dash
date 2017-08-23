@@ -97,11 +97,6 @@ Slider.propTypes = {
     step: PropTypes.number,
 
     /**
-     * Key-values pairs describing the labels
-     */
-    labels: PropTypes.object,
-
-    /**
      * If true, the slider will be vertical
      */
     vertical: PropTypes.bool,
