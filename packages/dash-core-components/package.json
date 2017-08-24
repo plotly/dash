@@ -25,12 +25,12 @@
   "author": "Chris Parmer <chris@plot.ly>",
   "license": "MIT",
   "dependencies": {
-    "builder": "2.10.1",
+    "builder": "3.2.2",
     "dash-components-archetype": "^0.2.11",
     "moment": "^2.18.1",
-    "radium": "^0.17.1",
-    "ramda": "^0.23.0",
-    "rc-slider": "^6.1.0",
+    "radium": "^0.19.4",
+    "ramda": "^0.24.1",
+    "rc-slider": "^8.3.1",
     "react": "^15.4.0",
     "react-addons-shallow-compare": "^15.6.0",
     "react-dates": "^12.3.0",
@@ -42,7 +42,7 @@
     "react-virtualized-select": "^3.1.0"
   },
   "devDependencies": {
-    "component-playground": "^1.3.2",
+    "component-playground": "^2.0.0",
     "dash-components-archetype-dev": "^0.2.11",
     "enzyme": "^2.4.1"
   }
