@@ -17,7 +17,7 @@ export default class Interval extends Component {
         const {interval, fireEvent} = props;
         this.setState({
             intervalId: window.setInterval(function intervalFunction(){
-                if (fireEvent) {
+                if (fireEvent && !props.disabled) {
                     fireEvent({event: 'interval'});
                 }
             }, interval)
@@ -58,6 +58,12 @@ Interval.propTypes = {
      * milliseconds with the event name `setInterval`
      */
     interval: PropTypes.number,
+
+    /**
+    * If True, the interval will no longer trigger
+    * an event.
+    */
+    disabled: PropTypes.bool,
 
     /**
      * Dash assigned callback
