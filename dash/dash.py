@@ -539,6 +539,6 @@ class Dash(object):
 
     def run_server(self,
                    port=8050,
-                   debug=True,
+                   debug=False,
                    **flask_run_options):
         self.server.run(port=port, debug=debug, **flask_run_options)
