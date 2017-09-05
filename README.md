@@ -1,11 +1,15 @@
 # Dash
 
+[![CircleCI](https://circleci.com/gh/plotly/dash.svg?style=svg)](https://circleci.com/gh/plotly/dash)
+
+![dash-logo-by-plotly-stripe 3x](https://user-images.githubusercontent.com/1280389/30083997-93d3c21a-925e-11e7-8b76-a27687591eb7.png)
+
 ### Reactive Web Apps for Python
 
 Dash is a Python library for creating analytical web-based applications.
-Dash is a user interface library for creating analytical web applications. Those who use Python for data analysis, data exploration, visualization, modelling, instrument control, and reporting will find immediate use for Dash.
-
-Dash makes it dead-simple to build a GUI around your data analysis code. Here’s a 43-line example of a Dash App that ties a Dropdown to a D3.js Plotly Graph. As the user selects a value in the Dropdown, the application code dynamically exports data from Google Finance into a Pandas DataFrame. This app was written in just 43 lines of code ([view the source](https://gist.github.com/chriddyp/3d2454905d8f01886d651f207e2419f0)).
+ Here’s a 43-line example of a Dash App that ties a Dropdown to a D3.js Plotly Graph.
+ As the user selects a value in the Dropdown, the application code dynamically
+ exports data from Google Finance into a Pandas DataFrame. This app was written in just 43 lines of code ([view the source](https://gist.github.com/chriddyp/3d2454905d8f01886d651f207e2419f0)).
 
 ![Sample Dash App](https://cdn-images-1.medium.com/max/800/1*j7xvjvK6h5sKI7z_eITHdg.png)
 
@@ -28,3 +32,5 @@ Plotly offers an enterprise-ready deployment and permissioning server teams that
 ### Contact and Support
 
 See [https://plot.ly/dash/support](https://plot.ly/dash/support) for ways to get in touch.
+
+![image](https://user-images.githubusercontent.com/1280389/30084008-9fbc68fc-925e-11e7-891c-18a9b8f6ac6b.png)

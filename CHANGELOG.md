@@ -1,6 +1,2 @@
-# 0.18.0
-## Changed
-
-## Fixed
-
-## Added
+# 0.17.3
+This is the initial open-source release of Dash
