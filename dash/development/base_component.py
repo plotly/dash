@@ -1,7 +1,5 @@
 import collections
 import copy
-import sys
-import types
 
 
 def is_number(s):
@@ -131,7 +129,6 @@ class Component(collections.MutableMapping):
         '''
         return self._get_set_or_delete(id, 'delete')
 
-
     def traverse(self):
         '''Yield each item in the tree'''
         children = getattr(self, 'children', None)
@@ -156,10 +153,9 @@ class Component(collections.MutableMapping):
         '''
         for t in self.traverse():
             if (isinstance(t, Component) and
-                getattr(t, 'id', None) is not None):
+                    getattr(t, 'id', None) is not None):
 
                 yield t.id
-
 
     def __len__(self):
         '''Return the number of items in the tree
@@ -225,12 +221,16 @@ def generate_class(typename, props, description, namespace):
             if(any(getattr(self, c, None) is not None for c in self._prop_names
                    if c is not self._prop_names[0])):
 
-                return '{typename}('+', '.join([c+'='+repr(getattr(self, c, None))
-                                                for c in self._prop_names
-                                                if getattr(self, c, None) is not None])+')'
+                return (
+                    '{typename}(' +
+                    ', '.join([c+'='+repr(getattr(self, c, None))
+                               for c in self._prop_names
+                               if getattr(self, c, None) is not None])+')')
 
             else:
-                return '{typename}(' + repr(getattr(self, self._prop_names[0], None)) + ')'
+                return (
+                    '{typename}(' +
+                    repr(getattr(self, self._prop_names[0], None)) + ')')
     '''
 
     filtered_props = reorder_props(filter_props(props))
@@ -369,7 +369,8 @@ def js_to_py_type(type_object):
         'shape': lambda: (
             'dict containing keys {}.\n{}'.format(
                 ', '.join(
-                    ["'{}'".format(t) for t in list(type_object['value'].keys())]
+                    ["'{}'".format(t) for t in
+                     list(type_object['value'].keys())]
                 ),
                 'Those keys have the following types: \n{}'.format(
                     '\n'.join([
@@ -395,7 +396,6 @@ def js_to_py_type(type_object):
 
 
 def argument_doc(arg_name, type_object, required, description):
-    js_type_name = type_object['name']
     py_type_name = js_to_py_type(type_object)
     if '\n' in py_type_name:
         return (

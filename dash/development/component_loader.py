@@ -10,10 +10,12 @@ def load_components(metadata_path,
     Usage: load_components('../../component-suites/lib/metadata.json')
 
     Keyword arguments:
-    metadata_path -- a path to a JSON file created by [`react-docgen`](https://github.com/reactjs/react-docgen).
+    metadata_path -- a path to a JSON file created by
+    [`react-docgen`](https://github.com/reactjs/react-docgen).
 
     Returns:
-    components -- a list of component objects with keys `type`, `valid_kwargs`, and `setup`.
+    components -- a list of component objects with keys
+    `type`, `valid_kwargs`, and `setup`.
     """
 
     components = []

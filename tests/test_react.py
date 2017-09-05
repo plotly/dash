@@ -1,5 +1,4 @@
 import unittest
-from dash.development.base_component import generate_class
 import dash
 import json
 import plotly
@@ -7,7 +6,6 @@ import dash_core_components as dcc
 from dash_html_components import Div
 import dash_renderer
 import pkgutil
-import warnings
 
 from dash.dependencies import Event, Input, Output, State
 from dash import exceptions
@@ -81,9 +79,10 @@ class IntegrationTest(unittest.TestCase):
             }
         )
 
-        self.app.callback('header',
-                       state=[{'id': 'id1'}],
-                       events=[{'id': 'id1'}])
+        self.app.callback(
+            'header',
+            state=[{'id': 'id1'}],
+            events=[{'id': 'id1'}])
         response = self.client.get('/dependencies')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -180,7 +179,6 @@ class IntegrationTest(unittest.TestCase):
         @self.app.callback('header', ['id1'])
         def update_header(input1):
             self.assertEqual({'value': 'New Value'}, input1)
-            new_value = input1['value']
             return {
                 'children': Div('New Component')
             }
