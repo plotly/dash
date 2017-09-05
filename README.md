@@ -1,4 +1,4 @@
-![Dash](https://user-images.githubusercontent.com/1280389/30086008-2187a2d6-9267-11e7-82dc-cf6fa0c32ce2.png)
+# Dash
 
 [![CircleCI](https://circleci.com/gh/plotly/dash.svg?style=svg)](https://circleci.com/gh/plotly/dash)
 
