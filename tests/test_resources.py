@@ -7,7 +7,9 @@ import warnings
 def generate_components():
     Div = generate_class('Div', ('children', 'id',), 'dash_html_components')
     Span = generate_class('Span', ('children', 'id',), 'dash_html_components')
-    Input = generate_class('Input', ('children', 'id',), 'dash_core_components')
+    Input = generate_class(
+        'Input', ('children', 'id',),
+        'dash_core_components')
     return Div, Span, Input
 
 
@@ -154,9 +156,9 @@ class TestResources(unittest.TestCase):
                 ) in str(w[-1].message)
 
     def test_js_resources(self):
-        #self.resource_test('js')
+        # self.resource_test('js')
         pass
 
     def test_css_resources(self):
-        #self.resource_test('css')
+        # self.resource_test('css')
         pass

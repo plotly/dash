@@ -5,12 +5,13 @@ exec (open('dash/version.py').read())
 
 setup(
     name='dash',
-    version=__version__,
+    version=__version__,  # noqa: F821
     author='chris p',
     author_email='chris@plot.ly',
     packages=find_packages(exclude=['tests*']),
     license='MIT',
-    description='A Python framework for building reactive web-apps. Developed by Plotly.',
+    description=('A Python framework for building reactive web-apps.'
+                 'Developed by Plotly.'),
     long_description=io.open('README.md', encoding='utf-8').read(),
     install_requires=[
         'Flask>=0.12',

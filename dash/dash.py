@@ -1,15 +1,12 @@
 import flask
 import json
 import plotly
-from flask import Flask, url_for, send_from_directory, Response
+from flask import Flask, Response
 from flask_compress import Compress
 from flask_seasurf import SeaSurf
 import os
 import importlib
-import requests
 import pkgutil
-from functools import wraps
-import datetime
 import collections
 
 import dash_renderer
@@ -17,8 +14,6 @@ import dash_renderer
 from .dependencies import Event, Input, Output, State
 from .resources import Scripts, Css
 from .development.base_component import Component
-from .dependencies import Event, Input, Output, State
-from . import plotly_api
 from . import exceptions
 
 
@@ -82,14 +77,18 @@ class Dash(object):
             view_func=self.dependencies)
 
         self.server.add_url_rule(
-            '{}_dash-update-component'.format(self.config.routes_pathname_prefix),
+            '{}_dash-update-component'.format(
+                self.config.routes_pathname_prefix
+            ),
             view_func=self.dispatch,
             methods=['POST'])
 
         self.server.add_url_rule((
             '{}_dash-component-suites'
             '/<string:package_name>'
-            '/<path:path_in_package_dist>').format(self.config.routes_pathname_prefix),
+            '/<path:path_in_package_dist>').format(
+                self.config.routes_pathname_prefix
+            ),
             view_func=self.serve_component_suites)
 
         self.server.add_url_rule(
@@ -97,7 +96,8 @@ class Dash(object):
             view_func=self.serve_routes
         )
 
-        self.server.add_url_rule(self.config.routes_pathname_prefix, view_func=self.index)
+        self.server.add_url_rule(
+            self.config.routes_pathname_prefix, view_func=self.index)
 
         # catch-all for front-end routes
         self.server.add_url_rule(
@@ -125,7 +125,8 @@ class Dash(object):
 
     @layout.setter
     def layout(self, value):
-        if not isinstance(value, Component) and not isinstance(value, collections.Callable):
+        if (not isinstance(value, Component) and
+                not isinstance(value, collections.Callable)):
             raise Exception(
                 ''
                 'Layout must be a dash component '
@@ -275,7 +276,6 @@ class Dash(object):
             mimetype=mimetype
         )
 
-
     def index(self, *args, **kwargs):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
@@ -318,7 +318,7 @@ class Dash(object):
         ])
 
     def react(self, *args, **kwargs):
-        raise DashException(
+        raise exceptions.DashException(
             'Yo! `react` is no longer used. \n'
             'Use `callback` instead. `callback` has a new syntax too, '
             'so make sure to call `help(app.callback)` to learn more.')
@@ -346,7 +346,7 @@ class Dash(object):
                 raise exceptions.IncorrectTypeException(
                     'The {} argument `{}` is '
                     'not a list of `dash.dependencies.{}`s.'.format(
-                        name.lower(), str(arg), name
+                        name.lower(), str(args), name
                     ))
 
             for arg in args:
@@ -441,7 +441,8 @@ class Dash(object):
                 output.component_id
             ))
 
-        callback_id = '{}.{}'.format(output.component_id, output.component_property)
+        callback_id = '{}.{}'.format(
+            output.component_id, output.component_property)
         if (callback_id in self.callback_map):
             raise exceptions.CantHaveMultipleOutputs('''
                 You have already assigned a callback to the output
@@ -451,7 +452,6 @@ class Dash(object):
             '''.format(
                 output.component_id,
                 output.component_property).replace('    ', ''))
-
 
     # TODO - Update nomenclature.
     # "Parents" and "Children" should refer to the DOM tree

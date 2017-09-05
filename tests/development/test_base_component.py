@@ -1,4 +1,11 @@
 from collections import OrderedDict
+import inspect
+import json
+import plotly
+import unittest
+import collections
+import os
+
 from dash.development.base_component import (
     generate_class,
     Component,
@@ -6,15 +13,6 @@ from dash.development.base_component import (
     create_docstring,
     parse_events
 )
-import dash
-import inspect
-import json
-import plotly
-import unittest
-import collections
-import json
-import os
-
 
 Component._prop_names = ('id', 'a', 'children', 'style', )
 Component._type = 'TestComponent'
@@ -54,7 +52,7 @@ def nested_tree():
 
 class TestComponent(unittest.TestCase):
     def test_init(self):
-        c = Component(a=3)
+        Component(a=3)
 
     def test_get_item_with_children(self):
         c1 = Component(id='1')
@@ -87,7 +85,7 @@ class TestComponent(unittest.TestCase):
         self.assertEqual(c5['1'], c1)
         self.assertEqual(c5['3'], c3)
 
-    def test_get_item_with_nested_children_with_mixed_strings_and_without_lists(self):
+    def test_get_item_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c, c1, c2, c3, c4, c5 = nested_tree()
         self.assertEqual(
             list(c.keys()),
@@ -108,16 +106,16 @@ class TestComponent(unittest.TestCase):
         with self.assertRaises(KeyError):
             c['x']
 
-    def test_len_with_nested_children_with_mixed_strings_and_without_lists(self):
+    def test_len_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
         self.assertEqual(
             len(c),
-            5 + # 5 components
-            5 + # c2 has 2 strings, 2 numbers, and a None
-            1# c1 has 1 string
+            5 +  # 5 components
+            5 +  # c2 has 2 strings, 2 numbers, and a None
+            1    # c1 has 1 string
         )
 
-    def test_set_item_with_nested_children_with_mixed_strings_and_without_lists(self):
+    def test_set_item_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         keys = [
             '0.0',
             '0.1',
@@ -137,7 +135,7 @@ class TestComponent(unittest.TestCase):
             c[key] = new_component
             self.assertEqual(c[new_id], new_component)
 
-    def test_del_item_with_nested_children_with_mixed_strings_and_without_lists(self):
+    def test_del_item_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
         for key in reversed(list(c.keys())):
             c[key]
@@ -145,7 +143,7 @@ class TestComponent(unittest.TestCase):
             with self.assertRaises(KeyError):
                 c[key]
 
-    def test_traverse_with_nested_children_with_mixed_strings_and_without_lists(self):
+    def test_traverse_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c, c1, c2, c3, c4, c5 = nested_tree()
         elements = [i for i in c.traverse()]
         self.assertEqual(
@@ -153,17 +151,17 @@ class TestComponent(unittest.TestCase):
             c.children + [c3] + [c2] + c2.children
         )
 
-    def test_iter_with_nested_children_with_mixed_strings_and_without_lists(self):
+    def test_iter_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
         keys = list(c.keys())
         # get a list of ids that __iter__ provides
         iter_keys = [i for i in c]
         self.assertEqual(keys, iter_keys)
 
-    def test_to_plotly_json_with_nested_children_with_mixed_strings_and_without_lists(self):
+    def test_to_plotly_json_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
-        n = Component._namespace
-        t = Component._type
+        Component._namespace
+        Component._type
 
         self.assertEqual(json.loads(json.dumps(
                 c.to_plotly_json(),
@@ -198,7 +196,7 @@ class TestComponent(unittest.TestCase):
                                                 'wrap string',
                                                 {
                                                     'type': 'TestComponent',
-                                                    'namespace': 'test_namespace',
+                                                    'namespace': 'test_namespace',  # noqa: E501
                                                     'props': {
                                                         'children': 'string',
                                                         'id': '0.1.x.x.0'
@@ -417,7 +415,8 @@ class TestComponent(unittest.TestCase):
         self.assertEqual(len(Component()), 0)
         self.assertEqual(len(Component(children='Hello World')), 1)
         self.assertEqual(len(Component(children=Component())), 1)
-        self.assertEqual(len(Component(children=[Component(), Component()])), 2)
+        self.assertEqual(len(Component(children=[Component(), Component()])),
+                         2)
         self.assertEqual(len(Component(children=[
             Component(children=Component()),
             Component()
@@ -602,7 +601,6 @@ class TestGenerateClass(unittest.TestCase):
             (None, )
         )
 
-
     def test_required_props(self):
         with self.assertRaises(Exception):
             self.ComponentClassRequired()
@@ -611,6 +609,7 @@ class TestGenerateClass(unittest.TestCase):
             self.ComponentClassRequired(id='test', lahlah='test')
         with self.assertRaises(Exception):
             self.ComponentClassRequired(children='test')
+
 
 class TestMetaDataConversions(unittest.TestCase):
     def setUp(self):
@@ -623,7 +622,8 @@ class TestMetaDataConversions(unittest.TestCase):
             self.data = data
 
         self.expected_arg_strings = OrderedDict([
-            ['children', 'a list of or a singular dash component, string or number'],
+            ['children',
+             'a list of or a singular dash component, string or number'],
 
             ['optionalArray', 'list'],
 
@@ -641,7 +641,8 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['optionalElement', 'dash component'],
 
-            ['optionalNode', 'a list of or a singular dash component, string or number'],
+            ['optionalNode',
+             'a list of or a singular dash component, string or number'],
 
             ['optionalMessage', ''],
 
@@ -651,7 +652,8 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['optionalArrayOf', 'list'],
 
-            ['optionalObjectOf', 'dict with strings as keys and values of type number'],
+            ['optionalObjectOf',
+             'dict with strings as keys and values of type number'],
 
             ['optionalObjectWithShapeAndNestedDescription', '\n'.join([
 
@@ -659,10 +661,10 @@ class TestMetaDataConversions(unittest.TestCase):
                 "Those keys have the following types: ",
                 "  - color (string; optional)",
                 "  - fontSize (number; optional)",
-                "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",
+                "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
                 "Those keys have the following types: ",
                 "  - data (list; optional): data is a collection of traces",
-                "  - layout (dict; optional): layout describes the rest of the figure"
+                "  - layout (dict; optional): layout describes the rest of the figure"  # noqa: E501
 
             ])],
 
@@ -699,15 +701,13 @@ class TestMetaDataConversions(unittest.TestCase):
 
 def assert_docstring(assertEqual, docstring):
     for i, line in enumerate(docstring.split('\n')):
-        assertEqual(
-            line,
-            ([
+        assertEqual(line, ([
             "A Table component.",
             "This is a description of the component.",
             "It's multiple lines long.",
             '',
             "Keyword arguments:",
-            "- children (a list of or a singular dash component, string or number; optional)",
+            "- children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
             "- optionalArray (list; optional): Description of optionalArray",
             "- optionalBool (boolean; optional)",
             "- optionalNumber (number; optional)",
