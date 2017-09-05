@@ -1,6 +1,6 @@
-# Dash
-
 [![CircleCI](https://circleci.com/gh/plotly/dash.svg?style=svg)](https://circleci.com/gh/plotly/dash)
+
+# Dash
 
 ## Analytical Web Apps for Python
 
