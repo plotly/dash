@@ -5,8 +5,10 @@ import json
 import plotly
 import dash_core_components as dcc
 from dash_html_components import Div
+import dash_renderer
 import pkgutil
 import warnings
+
 from dash.dependencies import Event, Input, Output, State
 from dash import exceptions
 
@@ -324,116 +326,15 @@ class IntegrationTest(unittest.TestCase):
     def test_serving_scripts(self):
         self.app.scripts.config.serve_locally = True
         self.app._setup_server()
-        response = self.client.get('/component-suites/dash_renderer/bundle.js?v=0.2.9')
+        response = self.client.get(
+            ('/component-suites/'
+             'dash_renderer/bundle.js?v={}').format(dash_renderer.__version__)
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.data,
             pkgutil.get_data('dash_renderer', 'bundle.js')
         )
-
-    """
-    def test_css(self):
-        self.app.css.config.serve_locally = False
-        self.assertEqual(
-            self.app._generate_css_dist_html(),
-            generate_css([
-                "https://unpkg.com/react-select@1.0.0-rc.3/dist/react-select.min.css",
-                "https://unpkg.com/rc-slider@6.1.2/assets/index.css"
-            ])
-        )
-
-        self.app.css.config.serve_locally = True
-        self.assertEqual(
-            self.app._generate_css_dist_html(),
-            generate_css([
-                "/component-suites/dash_core_components/react-select@1.0.0-rc.3.min.css?v=0.2.11",
-                "/component-suites/dash_core_components/rc-slider@6.1.2.css?v=0.2.11"
-            ])
-        )
-
-        self.app.css.append_css({
-            'external_url': ['/this', '/that']
-        })
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            self.assertEqual(
-                self.app._generate_css_dist_html(),
-                generate_css([
-                    "/component-suites/dash_core_components/react-select@1.0.0-rc.3.min.css?v=0.2.11",
-                    "/component-suites/dash_core_components/rc-slider@6.1.2.css?v=0.2.11"
-                ])
-            )
-            assert len(w) == 1
-
-        self.app.css.config.serve_locally = False
-        self.assertEqual(
-            self.app._generate_css_dist_html(),
-            generate_css([
-                "https://unpkg.com/react-select@1.0.0-rc.3/dist/react-select.min.css",
-                "https://unpkg.com/rc-slider@6.1.2/assets/index.css",
-                '/this',
-                '/that'
-            ])
-        )
-    """
-
-    """
-    def test_js(self):
-        self.app.scripts.config.serve_locally = False
-        self.assertEqual(
-            self.app._generate_scripts_html(),
-            generate_js([
-                "https://unpkg.com/react@15.4.2/dist/react.min.js",
-                "https://unpkg.com/react-dom@15.4.2/dist/react-dom.min.js",
-                "https://unpkg.com/dash-html-components@0.3.8/dash_html_components/bundle.js",
-                "https://unpkg.com/dash-core-components@0.2.11/dash_core_components/bundle.js",
-                "/component-suites/dash_renderer/bundle.js?v=0.2.9"
-            ])
-        )
-
-        self.app.scripts.config.serve_locally = True
-        self.assertEqual(
-            self.app._generate_scripts_html(),
-            generate_js([
-                "/component-suites/dash_renderer/react@15.4.2.min.js?v=0.2.9",
-                "/component-suites/dash_renderer/react-dom@15.4.2.min.js?v=0.2.9",
-                "/component-suites/dash_html_components/bundle.js?v=0.3.8",
-                "/component-suites/dash_core_components/bundle.js?v=0.2.11",
-                "/component-suites/dash_renderer/bundle.js?v=0.2.9"
-            ])
-        )
-
-        self.app.scripts.append_script({
-            'external_url': ['/this', '/that']
-        })
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            self.assertEqual(
-                self.app._generate_scripts_html(),
-                generate_js([
-                    "/component-suites/dash_renderer/react@15.4.2.min.js?v=0.2.9",
-                    "/component-suites/dash_renderer/react-dom@15.4.2.min.js?v=0.2.9",
-                    "/component-suites/dash_html_components/bundle.js?v=0.3.8",
-                    "/component-suites/dash_core_components/bundle.js?v=0.2.11",
-                    "/component-suites/dash_renderer/bundle.js?v=0.2.9"
-                ])
-            )
-            assert len(w) == 1
-
-        self.app.scripts.config.serve_locally = False
-        self.assertEqual(
-            self.app._generate_scripts_html(),
-            generate_js([
-                "https://unpkg.com/react@15.4.2/dist/react.min.js",
-                "https://unpkg.com/react-dom@15.4.2/dist/react-dom.min.js",
-                "https://unpkg.com/dash-html-components@0.3.8/dash_html_components/bundle.js",
-                "https://unpkg.com/dash-core-components@0.2.11/dash_core_components/bundle.js",
-                '/this',
-                '/that',
-                "/component-suites/dash_renderer/bundle.js?v=0.2.9",
-            ])
-        )
-    """
 
 
 class TestCallbacks(unittest.TestCase):
@@ -444,26 +345,26 @@ class TestCallbacks(unittest.TestCase):
 
         app.layout = Div([
             input,
-            Div(id='output')
+            Div(id='output-1'),
+            Div(id='output-2'),
+            Div(id='output-3')
         ], id='body')
 
         app.callback(
-            Output('output', 'children'),
-            [Input('input', 'value')]
-        )
-        app.callback(
             Output('body', 'children'),
             [Input('input', 'value')]
         )
         app.callback(
-            Output('body', 'children'),
+            Output('output-1', 'children'),
+            [Input('input', 'value')]
+        )
+        app.callback(
+            Output('output-2', 'children'),
             [Input('input', 'value')],
             state=[State('input', 'value')],
         )
-
-        # TODO - Add events
         app.callback(
-            Output('body', 'children'),
+            Output('output-3', 'children'),
             [Input('input', 'value')],
             state=[State('input', 'value')],
             events=[Event('input', 'blur')],
@@ -521,6 +422,7 @@ class TestCallbacks(unittest.TestCase):
         app.layout = Div([
             Div(id='button'),
             Div(id='output'),
+            Div(id='graph-output'),
             dcc.Graph(id='graph')
         ], id='body')
 
@@ -528,11 +430,11 @@ class TestCallbacks(unittest.TestCase):
             self.assertRaises(
                 exceptions.NonExistantEventException,
                 app.callback,
-                Output('output', 'children'),
+                Output(id, 'children'),
                 events=[Event(id, 'style')]
             )
             app.callback(
-                Output('output', 'children'),
+                Output(id, 'children'),
                 events=[Event(id, 'click')]
             )
 
@@ -543,7 +445,7 @@ class TestCallbacks(unittest.TestCase):
             events=[Event('graph', 'zoom')]
         )
         app.callback(
-            Output('output', 'children'),
+            Output('graph-output', 'children'),
             events=[Event('graph', 'click')]
         )
 
