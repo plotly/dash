@@ -2,8 +2,6 @@
 
 [![CircleCI](https://circleci.com/gh/plotly/dash.svg?style=svg)](https://circleci.com/gh/plotly/dash)
 
-![dash-logo-by-plotly-stripe 3x](https://user-images.githubusercontent.com/1280389/30083997-93d3c21a-925e-11e7-8b76-a27687591eb7.png)
-
 ### Reactive Web Apps for Python
 
 Dash is a Python library for creating analytical web-based applications.
