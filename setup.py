@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 import io
-exec (open('dash/version.py').read())
+exec(open('dash/version.py').read())
 
 setup(
     name='dash',
