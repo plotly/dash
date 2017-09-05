@@ -32,4 +32,6 @@ Plotly offers an enterprise-ready deployment and permissioning server teams that
 
 See [https://plot.ly/dash/support](https://plot.ly/dash/support) for ways to get in touch.
 
+***
+
 ![image](https://user-images.githubusercontent.com/1280389/30084008-9fbc68fc-925e-11e7-891c-18a9b8f6ac6b.png)
