@@ -10,7 +10,7 @@ setup(
     author_email='chris@plot.ly',
     packages=find_packages(exclude=['tests*']),
     license='MIT',
-    description=('A Python framework for building reactive web-apps.'
+    description=('A Python framework for building reactive web-apps.' asdf
                  'Developed by Plotly.'),
     long_description=io.open('README.md', encoding='utf-8').read(),
     install_requires=[
