@@ -226,7 +226,8 @@ def generate_class(typename, props, description, namespace):
                    if c is not self._prop_names[0])):
 
                 return '{typename}('+', '.join([c+'='+repr(getattr(self, c, None))
-                                                for c in self._prop_names if getattr(self, c, None) is not None])+')'
+                                                for c in self._prop_names
+                                                if getattr(self, c, None) is not None])+')'
 
             else:
                 return '{typename}(' + repr(getattr(self, self._prop_names[0], None)) + ')'
