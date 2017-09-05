@@ -20,7 +20,7 @@ class Component(collections.MutableMapping):
                 raise Exception(
                     'Unexpected keyword argument `{}`'.format(k) +
                     '\nAllowed arguments: {}'.format(
-                        ', '.join(self._prop_names)
+                        ', '.join(sorted(self._prop_names))
                     )
                 )
             setattr(self, k, v)
