@@ -344,10 +344,10 @@ class Dash(object):
 
             if not isinstance(args, list):
                 raise exceptions.IncorrectTypeException(
-                    'The {} argument `{}` is '
+                    'The {} argument `{}` is                                         '
                     'not a list of `dash.dependencies.{}`s.'.format(
                         name.lower(), str(args), name
-                    )) asdf
+                    ))
 
             for arg in args:
                 if not isinstance(arg, object):
