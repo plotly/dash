@@ -327,7 +327,7 @@ class IntegrationTest(unittest.TestCase):
         self.app.scripts.config.serve_locally = True
         self.app._setup_server()
         response = self.client.get(
-            ('/component-suites/'
+            ('/_dash-component-suites/'
              'dash_renderer/bundle.js?v={}').format(dash_renderer.__version__)
         )
         self.assertEqual(response.status_code, 200)
