@@ -223,7 +223,6 @@ export function notifyObservers(payload) {
              * the change for Child. if this update has already been queued up,
              * then skip the update for the other component
              */
-            const isAlreadyInQueue = contains(outputIdAndProp, requestQueue);
             const controllersInExistingQueue = intersection(
                 requestQueue, controllers
             );
@@ -238,8 +237,7 @@ export function notifyObservers(payload) {
              if (
                  (controllersInFutureQueue.length === 0) &&
                  (has(outputComponentId, getState().paths)) &&
-                 (controllersInExistingQueue.length === 0) &&
-                 !isAlreadyInQueue
+                 (controllersInExistingQueue.length === 0)
              ) {
                  queuedObservers.push(outputIdAndProp)
              }
@@ -337,6 +335,7 @@ export function notifyObservers(payload) {
                 ));
 
                 return res.json().then(function handleJson(data) {
+
                     /*
                      * it's possible that this output item is no longer visible.
                      * for example, the could still be request running when
