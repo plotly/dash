@@ -100,6 +100,7 @@ function NotifyObserversComponent ({
     if (thisComponentTriggersEvents && paths[id]) {
         extraProps.fireEvent = fireEvent;
     }
+
     if (!isEmpty(extraProps)) {
         return React.cloneElement(children, extraProps);
     } else {
