@@ -1,5 +1,10 @@
 import {has, type} from 'ramda';
 
+
+/*
+ * requests_pathname_prefix is the new config parameter introduced in
+ * dash==0.18.0. The previous versions just had url_base_pathname
+ */
 export function urlBase(config) {
     if (type(config) === "Null" ||
         (type(config) === "Object") &&
