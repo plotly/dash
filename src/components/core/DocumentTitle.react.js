@@ -1,7 +1,7 @@
 /* global document:true */
 
-import { connect } from 'react-redux'
-import { isEmpty } from 'ramda'
+import {connect} from 'react-redux'
+import {isEmpty} from 'ramda'
 import {Component, PropTypes} from 'react'
 
 class DocumentTitle extends Component {
