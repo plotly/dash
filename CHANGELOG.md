@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.8.0] - 2017-09-07
+### Added
+- 🔧 Added support for the `requests_pathname_prefix` config parameter introduced in `dash==0.18.0`
+
 ## [0.7.4] - 2017-07-20
 ### Removed
 - Remove unofficial support for `/routes`. This was never officially supported and was an antipattern in Dash. URLs and multi-page apps can be specified natively through the `dash_core_components.Link` and `dash_core_components.Location` components. See [https://plot.ly/dash/urls](https://plot.ly/dash/urls) for more details.
