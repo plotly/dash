@@ -1240,6 +1240,71 @@ class Tests(IntegrationTests):
         self.assertEqual(input2().get_attribute('value'), '<<input 1x>>y')
         self.assertEqual(output().text, 'input 1x + <<input 1x>>y')
 
+
+    def test_chained_dependencies_branched_lineage(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(id='grandparent', value='input 1'),
+            dcc.Input(id='parent-a'),
+            dcc.Input(id='parent-b'),
+            html.Div(id='child-a'),
+            html.Div(id='child-b')
+        ])
+        grandparent = lambda: self.driver.find_element_by_id('grandparent')
+        parenta = lambda: self.driver.find_element_by_id('parent-a')
+        parentb = lambda: self.driver.find_element_by_id('parent-b')
+        childa = lambda: self.driver.find_element_by_id('child-a')
+        childb = lambda: self.driver.find_element_by_id('child-b')
+
+        call_counts = {
+            'parent-a': Value('i', 0),
+            'parent-b': Value('i', 0),
+            'child-a': Value('i', 0),
+            'child-b': Value('i', 0)
+        }
+
+        @app.callback(Output('parent-a', 'value'),
+                      [Input('grandparent', 'value')])
+        def update_parenta(value):
+            call_counts['parent-a'].value += 1
+            return 'a: {}'.format(value)
+
+        @app.callback(Output('parent-b', 'value'),
+                      [Input('grandparent', 'value')])
+        def update_parentb(value):
+            call_counts['parent-b'].value += 1
+            return 'b: {}'.format(value)
+
+        @app.callback(Output('child-a', 'children'),
+                      [Input('parent-a', 'value'),
+                       Input('parent-b', 'value')])
+        def update_childa(parenta_value, parentb_value):
+            call_counts['child-a'].value += 1
+            return '{} + {}'.format(parenta_value, parentb_value)
+
+        @app.callback(Output('child-b', 'children'),
+                      [Input('parent-a', 'value'),
+                       Input('parent-b', 'value'),
+                       Input('grandparent', 'value')])
+        def update_childb(parenta_value, parentb_value, grandparent_value):
+            call_counts['child-b'].value += 1
+            return '{} + {} + {}'.format(
+                parenta_value,
+                parentb_value,
+                grandparent_value
+            )
+
+        self.startServer(app)
+
+        wait_for(lambda: childa().text == 'a: input 1 + b: input 1')
+        wait_for(lambda: childb().text == 'a: input 1 + b: input 1 + input 1')
+        self.assertEqual(parenta().get_attribute('value'), 'a: input 1')
+        self.assertEqual(parentb().get_attribute('value'), 'b: input 1')
+        self.assertEqual(call_counts['parent-a'].value, 1)
+        self.assertEqual(call_counts['parent-b'].value, 1)
+        self.assertEqual(call_counts['child-a'].value, 1)
+        self.assertEqual(call_counts['child-b'].value, 1)
+
     def test_removing_component_while_its_getting_updated(self):
         app = Dash(__name__)
         app.layout = html.Div([
