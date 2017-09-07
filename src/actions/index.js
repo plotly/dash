@@ -18,6 +18,7 @@ import {crawlLayout, hasId} from '../reducers/utils';
 import {APP_STATES} from '../reducers/constants';
 import {ACTIONS} from './constants';
 import cookie from 'cookie';
+import {urlBase} from '../utils';
 
 export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
@@ -285,7 +286,7 @@ export function notifyObservers(payload) {
                 });
             }
 
-            promises.push(fetch(`${config.url_base_pathname}_dash-update-component`, {
+            promises.push(fetch(`${urlBase(config)}_dash-update-component`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -394,12 +395,12 @@ export function notifyObservers(payload) {
                                 depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
                                 newProps
                             );
-                            
+
                             /*
                              * TODO - As in the case of Jack Luo's indicator app,
                              * all of these inputs could update a _single_ output.
-                             * If that is the case, then we can collect all of their 
-                             * values and make a single request instead of making a 
+                             * If that is the case, then we can collect all of their
+                             * values and make a single request instead of making a
                              * different request for each input
                              */
                             sortedNewProps.forEach(function(propUpdate) {
