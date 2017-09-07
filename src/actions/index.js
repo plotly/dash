@@ -336,7 +336,7 @@ export function notifyObservers(payload) {
                     )
                 ));
 
-
+                return res.json().then(function handleJson(data) {
                     /*
                      * it's possible that this output item is no longer visible.
                      * for example, the could still be request running when
