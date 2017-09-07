@@ -1,3 +1,7 @@
+0.18.1 - 2017-09-07
+## Fixed
+- 🐛 If `app.layout` was supplied a function, then it used to be called excessively. Now it is called just once on startup and just once on page load. https://github.com/plotly/dash/pull/128
+
 0.18.0 - 2017-09-07
 ## Changed
 - 🔒  Removes the `/static/` folder and endpoint that is implicitly initialized by flask. This is too implicit for my comfort level: I worry that users will not be aware that their files in their `static` folder are accessible
@@ -13,7 +17,7 @@
 - ✏️  Fix a typo in an exception
 - 🔧 Replaced all illegal characters in environment variable
 
-## Maintenance
+##🔧 Maintenance
 - 📝  Update README.md
 - ✅  Fix CircleCI tests. Note that the the [`dash-renderer`](https://github.com/plotly/dash-renderer) contains the bulk of the integration tests.
 - 💄 Flake8 fixes and tests (fixes #99 )
