@@ -136,6 +136,7 @@ export function notifyObservers(payload) {
         const {EventGraph, InputGraph} = graphs;
 
         /*
+
          * Figure out all of the output id's that depend on this
          * event or input.
          * This includes id's that are direct children as well as
@@ -176,10 +177,13 @@ export function notifyObservers(payload) {
         const queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
             const outputComponentId = outputIdAndProp.split('.')[0];
+
             /*
-             * before we make the POST, check that none of its input
-             * dependencies are already in the queue.
-             * if they are in the queue, then don't update.
+             * before we make the POST to update the output, check
+             * that the output doesn't depend on any other inputs that
+             * that depend on the same controller.
+             * if the output has another input with a shared controller,
+             * then don't update this output yet.
              * when each dependency updates, it'll dispatch its own
              * `notifyObservers` action which will allow this
              * component to update.
@@ -193,15 +197,35 @@ export function notifyObservers(payload) {
              * this loop hits C because of the overallOrder sorting logic
              */
 
-            const controllersInQueue = intersection(
-                queuedObservers,
 
-                /*
-                 * if the output just listens to events, then it won't be in
-                 * the InputGraph
-                 */
-                InputGraph.hasNode(outputIdAndProp) ?
-                InputGraph.dependantsOf(outputIdAndProp) : []
+             /*
+              * if the output just listens to events, then it won't be in
+              * the InputGraph
+              */
+            const controllers = (InputGraph.hasNode(outputIdAndProp) ?
+                InputGraph.dependantsOf(outputIdAndProp) : []);
+
+            const controllersInFutureQueue = intersection(
+                queuedObservers,
+                controllers
+            );
+
+            /*
+             * check that the output hasn't been triggered to update already
+             * by a different input.
+             *
+             * for example:
+             * Grandparent -> [Parent A, Parent B] -> Child
+             *
+             * when Grandparent changes, it will trigger Parent A and Parent B
+             * to each update Child.
+             * one of the components (Parent A or Parent B) will queue up
+             * the change for Child. if this update has already been queued up,
+             * then skip the update for the other component
+             */
+            const isAlreadyInQueue = contains(outputIdAndProp, requestQueue);
+            const controllersInExistingQueue = intersection(
+                requestQueue, controllers
             );
 
             /*
@@ -212,18 +236,22 @@ export function notifyObservers(payload) {
              * for example, perhaps the user has hidden one of the observers
              */
              if (
-                 (controllersInQueue.length === 0) &&
-                 (has(outputComponentId, getState().paths))
+                 (controllersInFutureQueue.length === 0) &&
+                 (has(outputComponentId, getState().paths)) &&
+                 (controllersInExistingQueue.length === 0) &&
+                 !isAlreadyInQueue
              ) {
                  queuedObservers.push(outputIdAndProp)
              }
         });
+
         /*
          * record the set of output IDs that will eventually need to be
          * updated in a queue. not all of these requests will be fired in this
          * action
          */
         dispatch(setRequestQueue(union(queuedObservers, requestQueue)));
+
         const promises = [];
         for (let i = 0; i < queuedObservers.length; i++) {
             const outputIdAndProp = queuedObservers[i];
@@ -300,15 +328,14 @@ export function notifyObservers(payload) {
                     payload: {status: res.status}
                 });
 
-                return res.json().then(function handleJson(data) {
+                // clear this item from the request queue
+                dispatch(setRequestQueue(
+                    reject(
+                        id => id === outputIdAndProp,
+                        getState().requestQueue
+                    )
+                ));
 
-                    // clear this item from the request queue
-                    dispatch(setRequestQueue(
-                        reject(
-                            id => id === outputIdAndProp,
-                            getState().requestQueue
-                        )
-                    ));
 
                     /*
                      * it's possible that this output item is no longer visible.

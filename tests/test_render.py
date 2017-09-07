@@ -1272,6 +1272,7 @@ class Tests(IntegrationTests):
         @app.callback(Output('parent-b', 'value'),
                       [Input('grandparent', 'value')])
         def update_parentb(value):
+            time.sleep(0.5)
             call_counts['parent-b'].value += 1
             return 'b: {}'.format(value)
 
@@ -1279,6 +1280,7 @@ class Tests(IntegrationTests):
                       [Input('parent-a', 'value'),
                        Input('parent-b', 'value')])
         def update_childa(parenta_value, parentb_value):
+            time.sleep(1)
             call_counts['child-a'].value += 1
             return '{} + {}'.format(parenta_value, parentb_value)
 
@@ -1298,6 +1300,7 @@ class Tests(IntegrationTests):
 
         wait_for(lambda: childa().text == 'a: input 1 + b: input 1')
         wait_for(lambda: childb().text == 'a: input 1 + b: input 1 + input 1')
+        time.sleep(1)  # wait for potential requests of app to settle down
         self.assertEqual(parenta().get_attribute('value'), 'a: input 1')
         self.assertEqual(parentb().get_attribute('value'), 'b: input 1')
         self.assertEqual(call_counts['parent-a'].value, 1)
