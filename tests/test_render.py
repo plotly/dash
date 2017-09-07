@@ -391,7 +391,7 @@ class Tests(IntegrationTests):
             []
         )
 
-        self.percy_runner.snapshot('layout')
+        self.percy_runner.snapshot(name='layout')
 
         assert_clean_console(self)
 
@@ -423,7 +423,7 @@ class Tests(IntegrationTests):
 
         output1 = self.wait_for_element_by_id('output-1')
         wait_for(lambda: output1.text == 'initial value')
-        self.percy_runner.snapshot('simple-callback-1')
+        self.percy_runner.snapshot(name='simple-callback-1')
 
         input1 = self.wait_for_element_by_id('input')
         input1.clear()
@@ -432,7 +432,7 @@ class Tests(IntegrationTests):
 
         output1 = lambda: self.wait_for_element_by_id('output-1')
         wait_for(lambda: output1().text == 'hello world')
-        self.percy_runner.snapshot('simple-callback-2')
+        self.percy_runner.snapshot(name='simple-callback-2')
 
         self.assertEqual(
             call_count.value,
@@ -510,7 +510,7 @@ class Tests(IntegrationTests):
                 </div>'''.replace('\n', '').replace('  ', '')
             )
         )
-        self.percy_runner.snapshot('callback-generating-function-1')
+        self.percy_runner.snapshot(name='callback-generating-function-1')
 
         # the paths should include these new output IDs
         self.assertEqual(
@@ -550,7 +550,7 @@ class Tests(IntegrationTests):
             ),
             []
         )
-        self.percy_runner.snapshot('callback-generating-function-2')
+        self.percy_runner.snapshot(name='callback-generating-function-2')
 
         assert_clean_console(self)
 
@@ -766,7 +766,7 @@ class Tests(IntegrationTests):
             generic_chapter_assertions('chapter1')
 
         chapter1_assertions()
-        self.percy_runner.snapshot('chapter-1')
+        self.percy_runner.snapshot(name='chapter-1')
 
         # switch chapters
         (self.driver.find_elements_by_css_selector(
@@ -775,7 +775,7 @@ class Tests(IntegrationTests):
 
         # sleep just to make sure that no calls happen after our check
         time.sleep(2)
-        self.percy_runner.snapshot('chapter-2')
+        self.percy_runner.snapshot(name='chapter-2')
         wait_for(lambda: call_counts['body'].value == 2)
         wait_for(lambda: call_counts['chapter2-graph'].value == 1)
         wait_for(lambda: call_counts['chapter2-label'].value == 1)
@@ -820,7 +820,7 @@ class Tests(IntegrationTests):
         )[2]).click()
         # sleep just to make sure that no calls happen after our check
         time.sleep(2)
-        self.percy_runner.snapshot('chapter-3')
+        self.percy_runner.snapshot(name='chapter-3')
         wait_for(lambda: call_counts['body'].value == 3)
         wait_for(lambda: call_counts['chapter3-graph'].value == 1)
         wait_for(lambda: call_counts['chapter3-label'].value == 1)
@@ -873,7 +873,7 @@ class Tests(IntegrationTests):
             self.driver.find_element_by_id('body').text ==
             'Just a string'
         ))
-        self.percy_runner.snapshot('chapter-4')
+        self.percy_runner.snapshot(name='chapter-4')
 
         # each element should exist in the dom
         paths = self.driver.execute_script(
@@ -892,7 +892,7 @@ class Tests(IntegrationTests):
         )[0]).click()
         time.sleep(0.5)
         chapter1_assertions()
-        self.percy_runner.snapshot('chapter-1-again')
+        self.percy_runner.snapshot(name='chapter-1-again')
 
         # switch to 5
         (self.driver.find_elements_by_css_selector(
@@ -910,7 +910,7 @@ class Tests(IntegrationTests):
         chapter5_button().click()
         wait_for(lambda: chapter5_div().text == chapter5_output_children)
         time.sleep(0.5)
-        self.percy_runner.snapshot('chapter-5')
+        self.percy_runner.snapshot(name='chapter-5')
         self.assertEqual(call_counts['chapter5-output'].value, 1)
 
     def test_dependencies_on_components_that_dont_exist(self):
@@ -945,7 +945,7 @@ class Tests(IntegrationTests):
 
         el = self.wait_for_element_by_id('output-1')
         wait_for(lambda: el.text == 'initial value')
-        self.percy_runner.snapshot('dependencies')
+        self.percy_runner.snapshot(name='dependencies')
         time.sleep(1.0)
         self.assertEqual(output_1_call_count.value, 1)
         self.assertEqual(output_2_call_count.value, 0)
