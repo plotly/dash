@@ -108,6 +108,7 @@ class Dash(object):
         self.server.before_first_request(self._setup_server)
 
         self._layout = None
+        self._cached_layout = None
         self.routes = []
 
     class config:
@@ -119,9 +120,10 @@ class Dash(object):
 
     def _layout_value(self):
         if isinstance(self._layout, collections.Callable):
-            return self._layout()
+            self._cached_layout = self._layout()
         else:
-            return self._layout
+            self._cached_layout = self._layout
+        return self._cached_layout
 
     @layout.setter
     def layout(self, value):
@@ -134,8 +136,10 @@ class Dash(object):
                 'a dash component.')
 
         self._layout = value
-        self.css._update_layout(value)
-        self.scripts._update_layout(value)
+
+        layout_value = self._layout_value()
+        self.css._update_layout(layout_value)
+        self.scripts._update_layout(layout_value)
         self._collect_and_register_resources(
             self.scripts.get_all_scripts()
         )
@@ -324,7 +328,8 @@ class Dash(object):
             'so make sure to call `help(app.callback)` to learn more.')
 
     def _validate_callback(self, output, inputs, state, events):
-        layout = self._layout_value()
+        layout = self._cached_layout or self._layout_value()
+
         if (layout is None and
                 not self.config.supress_callback_exceptions):
             # Without a layout, we can't do validation on the IDs and

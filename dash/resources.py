@@ -64,10 +64,7 @@ class Resources():
     def get_inferred_resources(self):
         namespaces = []
         resources = []
-        if isinstance(self.layout, collections.Callable):
-            layout = self.layout()
-        else:
-            layout = self.layout
+        layout = self.layout
 
         def extract_resource_from_component(component):
             if (isinstance(component, Component) and
