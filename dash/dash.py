@@ -67,43 +67,44 @@ class Dash(object):
         self.registered_paths = {}
 
         # urls
+        def add_url(name, view_func, methods=['GET']):
+            self.server.add_url_rule(
+                name,
+                view_func=view_func,
+                endpoint=name,
+                methds=methods
+            )
 
-        self.server.add_url_rule(
+        add_url(
             '{}_dash-layout'.format(self.config.routes_pathname_prefix),
-            view_func=self.serve_layout)
+            self.serve_layout)
 
-        self.server.add_url_rule(
+        add_url(
             '{}_dash-dependencies'.format(self.config.routes_pathname_prefix),
-            view_func=self.dependencies)
+            self.dependencies)
 
-        self.server.add_url_rule(
+        add_url(
             '{}_dash-update-component'.format(
                 self.config.routes_pathname_prefix
             ),
-            view_func=self.dispatch,
-            methods=['POST'])
+            self.dispatch,
+            ['POST'])
 
-        self.server.add_url_rule((
+        add_url((
             '{}_dash-component-suites'
             '/<string:package_name>'
             '/<path:path_in_package_dist>').format(
                 self.config.routes_pathname_prefix
             ),
-            view_func=self.serve_component_suites)
+            self.serve_component_suites)
 
-        self.server.add_url_rule(
+        add_url(
             '{}_dash-routes'.format(self.config.routes_pathname_prefix),
-            view_func=self.serve_routes
-        )
-
-        self.server.add_url_rule(
-            self.config.routes_pathname_prefix, view_func=self.index)
+            self.serve_routes)
 
         # catch-all for front-end routes
-        self.server.add_url_rule(
-            '{}<path:path>'.format(self.config.routes_pathname_prefix),
-            view_func=self.index
-        )
+        add_url(
+            self.config.routes_pathname_prefix, self.index)
 
         self.server.before_first_request(self._setup_server)
 
