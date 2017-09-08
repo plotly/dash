@@ -72,7 +72,7 @@ class Dash(object):
                 name,
                 view_func=view_func,
                 endpoint=name,
-                methds=methods
+                methods=methods
             )
 
         add_url(
