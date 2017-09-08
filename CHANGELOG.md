@@ -1,3 +1,20 @@
+# 0.18.3rc1 - 2017-09-07
+## Added
+- `app.config` is now a `dict` instead of a class. You can set config variables with
+  `app.config['suppress_callback_exceptions'] = True` now. The previous class-based
+  syntax (e.g. `app.config.suppress_callback_exceptions`) has been maintained for
+  backwards compatability
+
+## Fixed
+- 0.18.2 introduced a bug that removed the ability for dash to serve the app on
+  any route besides `/`. This has been fixed.
+- 0.18.0 introduced a bug with the new config variables when used in a multi-app setting.
+  These variables would be shared across apps. This issue has been fixed.
+  Originally reported in https://community.plot.ly/t/flask-endpoint-error/5691/7
+- The config setting `supress_callback_exceptions` has been renamed to
+  `suppress_callback_exceptions`. Previouslly, `suppress` was spelled wrong.
+  The original config variable is kept for backwards compatability.
+
 # 0.18.2 - 2017-09-07
 ## Added
 - 🔧 Added an `endpoint` to each of the URLs to allow for multiple routes (https://github.com/plotly/dash/pull/70)
