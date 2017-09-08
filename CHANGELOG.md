@@ -1,4 +1,4 @@
-# 0.18.3rc1 - 2017-09-08
+# 0.18.3 - 2017-09-08
 ## Added
 - `app.config` is now a `dict` instead of a class. You can set config variables with
   `app.config['suppress_callback_exceptions'] = True` now. The previous class-based
@@ -14,6 +14,9 @@
 - The config setting `supress_callback_exceptions` has been renamed to
   `suppress_callback_exceptions`. Previouslly, `suppress` was spelled wrong.
   The original config variable is kept for backwards compatability.
+
+# 0.18.3rc1 - 2017-09-08
+The prerelease for 0.18.3
 
 # 0.18.2 - 2017-09-07
 ## Added
