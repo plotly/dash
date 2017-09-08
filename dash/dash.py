@@ -8,6 +8,7 @@ import os
 import importlib
 import pkgutil
 import collections
+import re
 
 import dash_renderer
 
@@ -38,8 +39,8 @@ class Dash(object):
             # If user supplied their own server, they might've supplied a
             # secret_key with it
             secret_key_name = 'dash_{}_secret_key'.format(
-                # TODO - check for other illegal characters
-                name.replace('.', '_')
+                # replace any invalid characters
+                re.sub('[\W_]+', '_', name)
             )
             secret_key = os.environ.get(
                 secret_key_name, SeaSurf()._generate_token()
