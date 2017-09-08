@@ -85,7 +85,8 @@ class Dash(object):
             self.serve_layout)
 
         add_url(
-            '{}_dash-dependencies'.format(self.config['routes_pathname_prefix']),
+            '{}_dash-dependencies'.format(
+                self.config['routes_pathname_prefix']),
             self.dependencies)
 
         add_url(
