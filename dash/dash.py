@@ -107,9 +107,14 @@ class Dash(object):
             '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
             self.serve_routes)
 
+        add_url(
+            self.config['routes_pathname_prefix'],
+            self.index)
+
         # catch-all for front-end routes
         add_url(
-            self.config.routes_pathname_prefix, self.index)
+            '{}<path:path>'.format(self.config['routes_pathname_prefix']),
+            self.index)
 
         self.server.before_first_request(self._setup_server)
 
