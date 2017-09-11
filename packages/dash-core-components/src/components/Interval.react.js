@@ -34,7 +34,7 @@ export default class Interval extends Component {
         if (!this.props.fireEvent && nextProps.fireEvent) {
             this.setInterval(nextProps);
         } else if (
-            !this.props.interval !== nextProps.interval &&
+            this.props.interval !== nextProps.interval &&
             this.state.intervalId
         ) {
             window.clearInterval(this.state.intervalId);

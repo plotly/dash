@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.5] - 2017-09-11
+### :bug: Fixed
+-  The `Interval` component was constantly resetting its interval on every update. Initially reported in https://community.plot.ly/t/multiple-interval-object-in-a-single-page/5699/3
+- Removed the used `label` property from the `Slider` component
+- Provide a more descriptive documention for the `marks` property of the `Slider` component
+
+### :stars: Added
+- A `disabled` property on the `Interval` component will disable the interval component from firing its updates.
+
 ## [0.12.4] - 2017-08-18
 ### Added
 - Added `className` and `style` properties to the parent `div`s of the `Checklist`, `Dropdown`, `Graph` and `RadioItems` component. As requested in https://github.com/plotly/dash-core-components/issues/57, solved in https://github.com/plotly/dash-core-components/pull/60

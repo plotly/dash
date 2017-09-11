@@ -40,6 +40,7 @@ class IntegrationTests(unittest.TestCase):
     def startServer(self, app):
         def run():
             app.scripts.config.serve_locally = True
+            app.css.config.serve_locally = True
             app.run_server(
                 port=8050,
                 debug=False,
