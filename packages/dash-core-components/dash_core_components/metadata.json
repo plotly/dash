@@ -1539,6 +1539,13 @@
           "computed": false
         }
       },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, the interval will no longer trigger\nan event."
+      },
       "fireEvent": {
         "type": {
           "name": "custom",
@@ -1971,13 +1978,6 @@
         "required": false,
         "description": "Value by which increments or decrements are made"
       },
-      "labels": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "Key-values pairs describing the labels"
-      },
       "vertical": {
         "type": {
           "name": "bool"
@@ -2051,7 +2051,25 @@
           "name": "shape",
           "value": {
             "number": {
-              "name": "string",
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "shape",
+                  "value": {
+                    "style": {
+                      "name": "object",
+                      "required": false
+                    },
+                    "label": {
+                      "name": "string",
+                      "required": false
+                    }
+                  }
+                }
+              ],
               "required": false
             }
           }
@@ -2114,13 +2132,6 @@
         },
         "required": false,
         "description": "Value by which increments or decrements are made"
-      },
-      "labels": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "Key-values pairs describing the labels"
       },
       "vertical": {
         "type": {
