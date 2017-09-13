@@ -1,8 +1,8 @@
 # Dash
 
 #### 📢 Announcement!
-#### Seats are still available for a 2 day, Plotly.js master class in NYC, November 16-17. 
-#### [Registration here](https://plotcon.plot.ly/workshops) 🎨 📈 🗽
+#### Seats are still available for a 2 day, Dash master class in NYC, November 16-17. 
+#### [Registration here](https://plotcon.plot.ly/workshops) 🎚 📈 🗽
 
 ***
 
