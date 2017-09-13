@@ -1,5 +1,11 @@
 # Dash
 
+#### 📢 Announcement!
+#### Seats are still available for a 2 day, Plotly.js master class in NYC, November 16-17. 
+#### [Registration here](https://plotcon.plot.ly/workshops) 🎨 📈 🗽
+
+***
+
 #### Dash is a Python framework for building analytical web applications. No JavaScript required.
 
 Build on top of Plotly.js, React, and Flask, Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical python code.
