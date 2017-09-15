@@ -1417,6 +1417,40 @@ class Tests(IntegrationTests):
         chapter2_assertions()
         assert_clean_console(self)
 
+    def test_rendering_layout_calls_callback_once_per_output(self):
+        app = Dash(__name__)
+        call_count = Value('i', 0)
+
+        app.config['suppress_callback_exceptions'] = True
+        app.layout = html.Div([
+            html.Div([
+                dcc.Input(
+                    value='Input {}'.format(i),
+                    id='input-{}'.format(i)
+                )
+                for i in range(10)
+            ]),
+            html.Div(id='container'),
+            dcc.RadioItems()
+        ])
+
+        @app.callback(
+            Output('container', 'children'),
+            [Input('input-{}'.format(i), 'value') for i in range(10)])
+        def dynamic_output(*args):
+            call_count.value += 1
+            return json.dumps(args, indent=2)
+
+        self.startServer(app)
+
+        time.sleep(5)
+
+        self.percy_runner.snapshot(name='layout')
+
+        self.assertEqual(call_count.value, 1)
+
+
+
     def test_rendering_new_content_calls_callback_once_per_output(self):
         app = Dash(__name__)
         call_count = Value('i', 0)
