@@ -15,7 +15,6 @@ import {
     union,
     view
 } from 'ramda';
-import R from 'ramda';
 import {createAction} from 'redux-actions';
 import {crawlLayout, hasId} from '../reducers/utils';
 import {APP_STATES} from '../reducers/constants';
