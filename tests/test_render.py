@@ -9,6 +9,7 @@ from multiprocessing import Value
 import time
 import re
 import itertools
+import json
 
 
 class Tests(IntegrationTests):
@@ -1415,3 +1416,53 @@ class Tests(IntegrationTests):
         time.sleep(2)  # liberally wait for the front-end to process request
         chapter2_assertions()
         assert_clean_console(self)
+
+    def test_rendering_new_content_calls_callback_once_per_output(self):
+        app = Dash(__name__)
+        call_count = Value('i', 0)
+
+        app.config['suppress_callback_exceptions'] = True
+        app.layout = html.Div([
+            html.Button(
+                id='display-content',
+                children='Display Content',
+                n_clicks=0
+            ),
+            html.Div(id='container'),
+            dcc.RadioItems()
+        ])
+
+        @app.callback(
+            Output('container', 'children'),
+            [Input('display-content', 'n_clicks')])
+        def display_output(n_clicks):
+            print('display_output ' + str(n_clicks))
+            if n_clicks == 0:
+                return ''
+            return html.Div([
+                html.Div([
+                    dcc.Input(
+                        value='Input {}'.format(i),
+                        id='input-{}'.format(i)
+                    )
+                    for i in range(10)
+                ]),
+                html.Div(id='dynamic-output')
+            ])
+
+        @app.callback(
+            Output('dynamic-output', 'children'),
+            [Input('input-{}'.format(i), 'value') for i in range(10)])
+        def dynamic_output(*args):
+            call_count.value += 1
+            return json.dumps(args, indent=2)
+
+        self.startServer(app)
+
+        self.wait_for_element_by_id('display-content').click()
+
+        time.sleep(5)
+
+        self.percy_runner.snapshot(name='layout')
+
+        self.assertEqual(call_count.value, 1)
