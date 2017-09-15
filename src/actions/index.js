@@ -7,12 +7,15 @@ import {
     isEmpty,
     keys,
     lensPath,
+    pluck,
     reject,
+    slice,
     sort,
     type,
     union,
     view
 } from 'ramda';
+import R from 'ramda';
 import {createAction} from 'redux-actions';
 import {crawlLayout, hasId} from '../reducers/utils';
 import {APP_STATES} from '../reducers/constants';
@@ -40,10 +43,10 @@ function triggerDefaultState(dispatch, getState) {
     const {graphs} = getState();
     const {InputGraph} = graphs;
     const allNodes = InputGraph.overallOrder();
+    const inputNodeIds = [];
     allNodes.reverse();
     allNodes.forEach(nodeId => {
-        const [componentId, componentProp] = nodeId.split('.');
-
+        const componentId = nodeId.split('.')[0];
         /*
          * Filter out the outputs,
          * inputs that aren't leaves,
@@ -53,24 +56,28 @@ function triggerDefaultState(dispatch, getState) {
             InputGraph.dependantsOf(nodeId).length == 0 &&
             has(componentId, getState().paths)
         ) {
-
-            // Get the initial property
-            const propLens = lensPath(
-                concat(getState().paths[componentId],
-                ['props', componentProp]
-            ));
-            const propValue = view(
-                propLens,
-                getState().layout
-            );
-
-            dispatch(notifyObservers({
-                id: componentId,
-                props: {[componentProp]: propValue}
-            }));
-
+            inputNodeIds.push(nodeId);
         }
     });
+
+    reduceInputIds(inputNodeIds, InputGraph).forEach(nodeId => {
+        const [componentId, componentProp] = nodeId.split('.');
+        // Get the initial property
+        const propLens = lensPath(
+            concat(getState().paths[componentId],
+            ['props', componentProp]
+        ));
+        const propValue = view(
+            propLens,
+            getState().layout
+        );
+
+        dispatch(notifyObservers({
+            id: componentId,
+            props: {[componentProp]: propValue}
+        }));
+    });
+
 }
 
 export function redo() {
@@ -116,6 +123,31 @@ export function undo() {
 
 
 
+function reduceInputIds(nodeIds, InputGraph) {
+    /*
+     * Create input-output(s) pairs,
+     * sort by number of outputs,
+     * and remove redudant inputs (inputs that update the same output)
+     */
+    const inputOutputPairs = nodeIds.map(nodeId => ({
+        input: nodeId,
+        outputs: InputGraph.dependenciesOf(nodeId)
+    }));
+
+    const sortedInputOutputPairs = sort(
+        (a, b) => b.outputs.length - a.outputs.length,
+        inputOutputPairs
+    );
+
+    const uniquePairs = sortedInputOutputPairs.filter((pair, i) => !contains(
+        pair.outputs,
+        pluck('outputs', slice(i + 1, Infinity, sortedInputOutputPairs))
+    ));
+
+    return pluck('input', uniquePairs);
+}
+
+
 
 export function notifyObservers(payload) {
     return function (dispatch, getState) {
@@ -136,7 +168,6 @@ export function notifyObservers(payload) {
         const {EventGraph, InputGraph} = graphs;
 
         /*
-
          * Figure out all of the output id's that depend on this
          * event or input.
          * This includes id's that are direct children as well as
@@ -394,7 +425,7 @@ export function notifyObservers(payload) {
                              * We don't need to do this - just need
                              * to compute the subtree
                              */
-                            const newProps = [];
+                            const newProps = {};
                             crawlLayout(
                                 observerUpdatePayload.props.children,
                                 function appendIds(child) {
@@ -404,7 +435,7 @@ export function notifyObservers(payload) {
                                                 `${child.props.id}.${childProp}`
                                             );
                                             if (has(inputId, InputGraph.nodes)) {
-                                                newProps.push({
+                                                newProps[inputId] = ({
                                                     id: child.props.id,
                                                     props: {
                                                         [childProp]: child.props[childProp]
@@ -416,21 +447,20 @@ export function notifyObservers(payload) {
                                 }
                             );
 
+                            /*
+                             * Organize props by shared outputs so that we
+                             * only make one request per output component
+                             * (even if there are multiple inputs).
+                             */
+                            const reducedNodeIds = reduceInputIds(
+                                keys(newProps), InputGraph);
                             const depOrder = InputGraph.overallOrder();
                             const sortedNewProps = sort((a, b) =>
-                                depOrder.indexOf(a.id) - depOrder.indexOf(b.id),
-                                newProps
+                                depOrder.indexOf(a) - depOrder.indexOf(b),
+                                reducedNodeIds
                             );
-
-                            /*
-                             * TODO - As in the case of Jack Luo's indicator app,
-                             * all of these inputs could update a _single_ output.
-                             * If that is the case, then we can collect all of their
-                             * values and make a single request instead of making a
-                             * different request for each input
-                             */
-                            sortedNewProps.forEach(function(propUpdate) {
-                                dispatch(notifyObservers(propUpdate));
+                            sortedNewProps.forEach(function(nodeId) {
+                                dispatch(notifyObservers(newProps[nodeId]));
                             });
 
                         }
