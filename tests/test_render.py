@@ -1445,7 +1445,9 @@ class Tests(IntegrationTests):
 
         time.sleep(5)
 
-        self.percy_runner.snapshot(name='layout')
+        self.percy_runner.snapshot(
+            name='test_rendering_layout_calls_callback_once_per_output'
+        )
 
         self.assertEqual(call_count.value, 1)
 
@@ -1497,6 +1499,8 @@ class Tests(IntegrationTests):
 
         time.sleep(5)
 
-        self.percy_runner.snapshot(name='layout')
+        self.percy_runner.snapshot(
+            name='test_rendering_new_content_calls_callback_once_per_output'
+        )
 
         self.assertEqual(call_count.value, 1)
