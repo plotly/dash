@@ -1451,8 +1451,6 @@ class Tests(IntegrationTests):
 
         self.assertEqual(call_count.value, 1)
 
-
-
     def test_rendering_new_content_calls_callback_once_per_output(self):
         app = Dash(__name__)
         call_count = Value('i', 0)
@@ -1472,7 +1470,6 @@ class Tests(IntegrationTests):
             Output('container', 'children'),
             [Input('display-content', 'n_clicks')])
         def display_output(n_clicks):
-            print('display_output ' + str(n_clicks))
             if n_clicks == 0:
                 return ''
             return html.Div([
