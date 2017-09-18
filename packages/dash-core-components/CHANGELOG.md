@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.6] - 2017-09-11
+### :bug: Fixed
+-  Non-ascii characters, like chinese characters, are now supported as
+   search strings in the `dcc.Dropdown` component (https://github.com/plotly/dash-core-components/pull/75)
+
+
 ## [0.12.5] - 2017-09-11
 ### :bug: Fixed
 -  The `Interval` component was constantly resetting its interval on every update. Initially reported in https://community.plot.ly/t/multiple-interval-object-in-a-single-page/5699/3
