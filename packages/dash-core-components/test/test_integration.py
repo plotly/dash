@@ -42,6 +42,11 @@ class Tests(IntegrationTests):
             return self.driver.find_element_by_css_selector(css_selector)
         self.wait_for_element_by_css_selector = wait_for_element_by_css_selector
 
+    def snapshot(self, name):
+        if 'PERCY_PROJECT' in os.environ and 'PERCY_TOKEN' in os.environ:
+            python_version = sys.version.split(' ')[0]
+            print('Percy Snapshot {}'.format(python_version))
+            self.percy_runner.snapshot(name=name)
 
     def test_integration(self):
         app = dash.Dash(__name__)
@@ -57,7 +62,7 @@ class Tests(IntegrationTests):
                     {'label': u'北京', 'value': u'北京'}
                 ],
                 value='MTL',
-                id={'dropdown'}
+                id='dropdown'
             ),
 
             html.Label('Multi-Select Dropdown'),
@@ -161,7 +166,9 @@ class Tests(IntegrationTests):
                 '_dash-app-content').get_attribute('innerHTML'))
             raise e
 
-        if 'PERCY_PROJECT' in os.environ and 'PERCY_TOKEN' in os.environ:
-            python_version = sys.version.split(' ')[0]
-            print('Percy Snapshot {}'.format(python_version))
-            self.percy_runner.snapshot()
+        self.snapshot('gallery')
+
+        self.driver.find_element_by_css_selector(
+            '#dropdown .Select-input input'
+        ).send_keys(u'北')
+        self.snapshot('gallery - chinese character')
