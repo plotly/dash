@@ -53,9 +53,11 @@ class Tests(IntegrationTests):
                 options=[
                     {'label': 'New York City', 'value': 'NYC'},
                     {'label': u'Montréal', 'value': 'MTL'},
-                    {'label': 'San Francisco', 'value': 'SF'}
+                    {'label': 'San Francisco', 'value': 'SF'},
+                    {'label': u'北京', 'value': u'北京'}
                 ],
-                value='MTL'
+                value='MTL',
+                id={'dropdown'}
             ),
 
             html.Label('Multi-Select Dropdown'),
@@ -63,7 +65,8 @@ class Tests(IntegrationTests):
                 options=[
                     {'label': 'New York City', 'value': 'NYC'},
                     {'label': u'Montréal', 'value': 'MTL'},
-                    {'label': 'San Francisco', 'value': 'SF'}
+                    {'label': 'San Francisco', 'value': 'SF'},
+                    {'label': u'北京', 'value': u'北京'}
                 ],
                 value=['MTL', 'SF'],
                 multi=True
@@ -74,7 +77,8 @@ class Tests(IntegrationTests):
                 options=[
                     {'label': 'New York City', 'value': 'NYC'},
                     {'label': u'Montréal', 'value': 'MTL'},
-                    {'label': 'San Francisco', 'value': 'SF'}
+                    {'label': 'San Francisco', 'value': 'SF'},
+                    {'label': u'北京', 'value': u'北京'}
                 ],
                 value='MTL'
             ),
@@ -84,7 +88,8 @@ class Tests(IntegrationTests):
                 options=[
                     {'label': 'New York City', 'value': 'NYC'},
                     {'label': u'Montréal', 'value': 'MTL'},
-                    {'label': 'San Francisco', 'value': 'SF'}
+                    {'label': 'San Francisco', 'value': 'SF'},
+                    {'label': u'北京', 'value': u'北京'}
                 ],
                 values=['MTL', 'SF']
             ),
@@ -107,7 +112,10 @@ class Tests(IntegrationTests):
                     'data': [{
                         'x': [1, 2, 3],
                         'y': [4, 1, 4]
-                    }]
+                    }],
+                    'layout': {
+                        'title': u'北京'
+                    }
                 }
             ),
 
@@ -126,7 +134,7 @@ class Tests(IntegrationTests):
 
             html.Label('TextArea'),
             dcc.Textarea(
-                placeholder='Enter a value...',
+                placeholder='Enter a value... 北京',
                 style={'width': '100%'}
             ),
 
@@ -140,6 +148,8 @@ class Tests(IntegrationTests):
                 It includes a syntax for things like **bold text** and *italics*,
                 [links](http://commonmark.org/help), inline `code` snippets, lists,
                 quotes, and more.
+
+                北京
             '''.replace('    ', ''))
         ])
         self.startServer(app)
