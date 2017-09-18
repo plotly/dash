@@ -32,7 +32,10 @@ export default class Dropdown extends Component {
         super(props);
         this.state = {
             value: props.value,
-            filterOptions: createFilterOptions({options: props.options})
+            filterOptions: createFilterOptions({
+                options: props.options,
+                tokenizer: TOKENIZER
+            })
         };
     }
 
