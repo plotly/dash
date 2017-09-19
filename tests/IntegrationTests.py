@@ -26,8 +26,6 @@ class IntegrationTests(unittest.TestCase):
     def setUpClass(cls):
         print('PERCY_PARALLEL_NONCE')
         print(os.environ['PERCY_PARALLEL_NONCE'])
-        print('PERCY_PARALLEL_TOTAL')
-        print(os.environ['PERCY_PARALLEL_TOTAL'])
         super(IntegrationTests, cls).setUpClass()
         cls.driver = webdriver.Chrome()
 
