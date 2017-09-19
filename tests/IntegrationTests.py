@@ -10,9 +10,15 @@ import percy
 import time
 import unittest
 import os
+import sys
 
 
 class IntegrationTests(unittest.TestCase):
+
+    def percy_snapshot(name=''):
+        self.percy_snapshot(
+            name='{} - {}'.format(name, sys.version_info)
+        )
 
     @classmethod
     def setUpClass(cls):
