@@ -26,6 +26,8 @@ class IntegrationTests(unittest.TestCase):
     def setUpClass(cls):
         print('PERCY_PARALLEL_NONCE')
         print(os.environ['PERCY_PARALLEL_NONCE'])
+        print('PERCY_PARALLEL_TOTAL')
+        print(os.environ['PERCY_PARALLEL_TOTAL'])
         super(IntegrationTests, cls).setUpClass()
         cls.driver = webdriver.Chrome()
 
@@ -34,16 +36,14 @@ class IntegrationTests(unittest.TestCase):
         )
         cls.percy_runner = percy.Runner(loader=loader)
 
-        if sys.version_info.major == 2:
-            cls.percy_runner.initialize_build()
+        cls.percy_runner.initialize_build()
 
 
     @classmethod
     def tearDownClass(cls):
         super(IntegrationTests, cls).tearDownClass()
         cls.driver.quit()
-        if sys.version_info.major == 3:
-            cls.percy_runner.finalize_build()
+        cls.percy_runner.finalize_build()
 
     def setUp(s):
         pass
