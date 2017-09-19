@@ -36,12 +36,17 @@ class IntegrationTests(unittest.TestCase):
         )
         cls.percy_runner = percy.Runner(loader=loader)
 
-        cls.percy_runner.initialize_build()
+        if sys.version_info.major == 2:
+            cls.percy_runner.initialize_build()
+
 
     @classmethod
     def tearDownClass(cls):
         super(IntegrationTests, cls).tearDownClass()
         cls.driver.quit()
+        if sys.version_info.major == 3:
+            cls.percy_runner.initialize_build()
+
         cls.percy_runner.finalize_build()
 
     def setUp(s):
