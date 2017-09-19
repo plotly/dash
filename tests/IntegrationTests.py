@@ -43,9 +43,7 @@ class IntegrationTests(unittest.TestCase):
         super(IntegrationTests, cls).tearDownClass()
         cls.driver.quit()
         if sys.version_info.major == 3:
-            cls.percy_runner.initialize_build()
-
-        cls.percy_runner.finalize_build()
+            cls.percy_runner.finalize_build()
 
     def setUp(s):
         pass
