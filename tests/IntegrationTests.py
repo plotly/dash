@@ -15,8 +15,8 @@ import sys
 
 class IntegrationTests(unittest.TestCase):
 
-    def percy_snapshot(name=''):
-        self.percy_snapshot(
+    def percy_snapshot(cls, name=''):
+        cls.percy_runner.snapshot(
             name='{} - {}'.format(name, sys.version_info)
         )
 
