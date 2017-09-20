@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.10.0] - 2017-09-19
+### Fixed
+- Fixed an issue where a callback would be fired on page load and when dynamically generated excessively. Previously, the callback would be called as many times as it had inputs. Now, it is called less. https://github.com/plotly/dash-renderer/pull/21
+### Maintenance
+- Add percy screenshot tests
+
+
 ## [0.9.0] - 2017-09-07
 ### Fixed
 - 🐞 Fixed a bug where Dash would fire updates for each parent of a grandchild node that shared the same grandparent. Originally reported in https://community.plot.ly/t/specifying-dependency-tree-traversal/5080/5
