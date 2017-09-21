@@ -214,30 +214,30 @@ export default class DatePickerRange extends Component {
 
         return (
             <DateRangePicker
-                startDate={startDate}
-                startDatePlaceholderText={start_date_placeholder_text}
+                daySize={day_size}
+                disabled={disabled}
+                displayFormat={display_format}
+                enableOutsideDays={show_outside_days}
                 endDate={end_date}
                 endDatePlaceholderText={end_date_placeholder_text}
-                onDatesChange={this.onDatesChange}
-                focusedInput={focusedInput}
-                onFocusChange={focusedInput => this.setState({ focusedInput })}
-                isOutsideRange={this.isOutsideRange}
-                showClearDates={clearable}
-                disabled={disabled}
-                keepOpenOnDateSelect={stay_open_on_select}
-                reopenPickerOnClearDates={reopen_calendar_on_clear}
-                initialVisibleMonth={startDate || initialVisibleMonth}
-                numberOfMonths={number_of_months_shown}
-                withPortal={with_portal && verticalFlag}
-                withFullScreenPortal={with_full_screen_portal && verticalFlag}
                 firstDayOfWeek={first_day_of_week}
-                minimumNights={minimum_nights}
-                enableOutsideDays={show_outside_days}
-                monthFormat={month_format}
-                displayFormat={display_format}
+                focusedInput={focusedInput}
+                initialVisibleMonth={startDate || initialVisibleMonth}
+                isOutsideRange={this.isOutsideRange}
                 isRTL={is_RTL}
+                keepOpenOnDateSelect={stay_open_on_select}
+                minimumNights={minimum_nights}
+                monthFormat={month_format}
+                numberOfMonths={number_of_months_shown}
+                onDatesChange={this.onDatesChange}
+                onFocusChange={focusedInput => this.setState({ focusedInput })}
                 orientation={calendar_orientation}
-                daySize={day_size}
+                reopenPickerOnClearDates={reopen_calendar_on_clear}
+                showClearDates={clearable}
+                startDate={startDate}
+                startDatePlaceholderText={start_date_placeholder_text}
+                withFullScreenPortal={with_full_screen_portal && verticalFlag}
+                withPortal={with_portal && verticalFlag}
             />
         );
     }
