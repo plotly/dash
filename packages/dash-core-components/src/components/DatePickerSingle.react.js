@@ -17,9 +17,9 @@ import React, {Component, PropTypes} from 'react';
 export default class DatePickerSingle extends Component {
     constructor() {
         super();
-        this.onDateChange = this.onDateChange.bind(this);
-        this.isOutsideRange = this.isOutsideRange.bind(this);
         this.propsToState = this.propsToState.bind(this);
+        this.isOutsideRange = this.isOutsideRange.bind(this);
+        this.onDateChange = this.onDateChange.bind(this);
     }
 
     propsToState(newProps) {

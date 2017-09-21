@@ -15,11 +15,11 @@ import React, {Component, PropTypes} from 'react';
  * which can be found here: https://github.com/airbnb/react-dates
  */
 export default class DatePickerRange extends Component {
-    constructor(props) {
-        super(props);
-        this.isOutsideRange = this.isOutsideRange.bind(this);
-        this.onDatesChange = this.onDatesChange.bind(this);
+    constructor() {
+        super();
         this.propsToState = this.propsToState.bind(this);
+        this.onDatesChange = this.onDatesChange.bind(this);
+        this.isOutsideRange = this.isOutsideRange.bind(this);
     }
 
     propsToState(newProps) {
