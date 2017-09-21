@@ -33,6 +33,8 @@ export default class DatePickerSingle extends Component {
             prevMinDateAllowed: props.min_date_allowed,
             prevMaxDateAllowed: props.max_date_allowed
         };
+        this.onDateChange = this.onDateChange.bind(this);
+        this.isOutsideRange = this.isOutsideRange.bind(this);
     }
 
     convertPropsToMoment(props) {
@@ -46,17 +48,18 @@ export default class DatePickerSingle extends Component {
             initialVisibleMonth = moment(props.initialVisibleMonth);
         }
 
-        let min; let max;
+        let minDateAllowed;
+        let maxDateAllowed;
         if (typeof props.minDateAllowed !== 'undefined') {
-            min = moment(props.minDateAllowed);
+            minDateAllowed = moment(props.minDateAllowed);
         }
 
         if (typeof props.maxDateAllowed !== 'undefined') {
-            max = moment(props.maxDateAllowed);
-            max.add(1, 'days');
+            maxDateAllowed = moment(props.maxDateAllowed);
+            maxDateAllowed.add(1, 'days');
         }
 
-        return { date, initialVisibleMonth, min, max };
+        return {date, initialVisibleMonth, minDateAllowed, maxDateAllowed};
     }
 
     componentWillReceiveProps(newProps) {
@@ -93,71 +96,90 @@ export default class DatePickerSingle extends Component {
         }
     }
 
-    render() {
-        const { setProps, fireEvent } = this.props;
-        let verticalFlag = true;
-        if (this.props.calendar_orientation === 'vertical') {
-            verticalFlag = false;
+    isOutsideRange(date) {
+        if (typeof this.state.minDateAllowed !== 'undefined' &&
+                typeof this.state.maxDateAllowed !== 'undefined') {
+            return date < this.state.minDateAllowed || date >= this.state.maxDateAllowed;
+        } else if (typeof this.state.minDateAllowed === 'undefined' &&
+                             typeof this.state.maxDateAllowed !== 'undefined') {
+            return date >= this.state.maxDateAllowed;
+        } else if (typeof this.state.minDateAllowed !== 'undefined' &&
+                             typeof this.state.maxDateAllowed === 'undefined') {
+            return date < this.state.minDateAllowed;
+        } else {
+            return false;
         }
+    }
+
+
+    onDateChange(date) {
+        this.setState({ date });
+        if (date !== null) {
+            const dateStr = date.format('YYYY-MM-DD');
+            if (setProps) {
+                setProps({
+                    date: dateStr
+                });
+            }
+            if (fireEvent) {
+                fireEvent('change');
+            }
+        }
+    }
+
+    render() {
+        const {
+            date,
+            focused,
+            initialVisibleMonth
+        } = this.state;
+
+        const {
+            calendar_orientation,
+            clearable,
+            day_size,
+            disabled,
+            display_format,
+            fireEvent,
+            first_day_of_week,
+            is_RTL,
+            minimum_nights,
+            month_format,
+            number_of_months_shown,
+            placeholder,
+            reopen_calendar_on_clear,
+            setProps,
+            show_outside_days,
+            stay_open_on_select,
+            with_full_screen_portal,
+            with_portal,
+        } = this.props;
+
+        const verticalFlag = (calendar_orientation !== 'vertical');
 
         return (
             <SingleDatePicker
-                date={this.state.date}
-                onDateChange={(date) => {
-                        this.setState({ date });
-                        if (date !== null) {
-                            const dateStr = date.format('YYYY-MM-DD');
-                            if (setProps) {
-                                setProps({
-                                    date: dateStr
-                                });
-                            }
-                            if (fireEvent) {
-                                fireEvent('change');
-                            }
-                        }
-                    }
-                }
-                focused={this.state.focused}
-                onFocusChange={({ focused }) => this.setState({ focused })}
-                initialVisibleMonth={() => {
-                    if (this.state.date !== null) {
-                        return this.state.date;
-                    } else {
-                        return this.state.initialVisibleMonth;
-                    }
-                }
-                }
-                isOutsideRange={(date) => {
-                    if (typeof this.state.minDateAllowed !== 'undefined' &&
-                            typeof this.state.maxDateAllowed !== 'undefined') {
-                        return date < this.state.minDateAllowed || date >= this.state.maxDateAllowed;
-                    } else if (typeof this.state.minDateAllowed === 'undefined' &&
-                                         typeof this.state.maxDateAllowed !== 'undefined') {
-                        return date >= this.state.maxDateAllowed;
-                    } else if (typeof this.state.minDateAllowed !== 'undefined' &&
-                                         typeof this.state.maxDateAllowed === 'undefined') {
-                        return date < this.state.minDateAllowed;
-                    } else {
-                        return false;
-                    }
-                }
-                }
-                numberOfMonths={this.props.number_of_months_shown}
-                withPortal={this.props.with_portal && verticalFlag}
-                withFullScreenPortal={this.props.with_full_screen_portal && verticalFlag}
-                firstDayOfWeek={this.props.first_day_of_week}
-                enableOutSideDays={this.props.show_outside_days}
-                monthFormat={this.props.month_format}
-                displayFormat={this.props.display_format}
-                placeholder={this.props.placeholder}
-                showClearDate={this.props.clearable}
-                disabled={this.props.disabled}
-                keepOpenOnDateSelect={this.props.stay_open_on_select}
-                reopenPickerOnClearDates={this.props.reopen_calendar_on_clear}
-                isRTL={this.props.is_RTL}
-                orientation={this.props.calendar_orientation}
-                daySize={this.props.day_size}
+                date={date}
+                onDateChange={this.onDateChange}
+                focused={focused}
+                onFocusChange={({focused}) => this.setState({focused})}
+                initialVisibleMonth={date || initialVisibleMonth}
+                isOutsideRange={this.isOutsideRange}
+                numberOfMonths={number_of_months_shown}
+                withPortal={with_portal && verticalFlag}
+                withFullScreenPortal={with_full_screen_portal && verticalFlag}
+                firstDayOfWeek={first_day_of_week}
+                enableOutSideDays={show_outside_days}
+                monthFormat={month_format}
+                displayFormat={display_format}
+                placeholder={placeholder}
+                showClearDate={clearable}
+                disabled={disabled}
+                keepOpenOnDateSelect={stay_open_on_select}
+                reopenPickerOnClearDates={reopen_calendar_on_clear}
+                isRTL={is_RTL}
+                orientation={calendar_orientation}
+                daySize={day_size}
             />
         );
     }
