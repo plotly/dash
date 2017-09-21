@@ -73,6 +73,8 @@ export default class DatePickerRange extends Component {
         if (fireEvent) {
             fireEvent('change');
         }
+
+        this.setState(newState);
     }
 
     isOutsideRange(date) {
