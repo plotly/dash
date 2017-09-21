@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.7rc1] - 2017-09-21
+### :bug: Fixed
+- Fixed issues related to updating the `max_date_allowed` property of `DatePickerSingle` and `DatePickerRange`  programatically through callbacks
+
+### Maintenance
+- Cleaned up `DatePickerSingle` and `DatePickerRange`
+
 ## [0.12.6] - 2017-09-11
 ### :bug: Fixed
 -  Non-ascii characters, like chinese characters, are now supported as
