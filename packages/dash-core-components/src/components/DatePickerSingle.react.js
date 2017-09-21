@@ -1,7 +1,7 @@
-import React, { Component, PropTypes } from 'react';
-import { SingleDatePicker } from 'react-dates';
+import {SingleDatePicker} from 'react-dates';
 import moment from 'moment';
 import R from 'ramda';
+import React, {Component, PropTypes} from 'react';
 
 /**
  * DatePickerSingle is a tailor made component designed for selecting
