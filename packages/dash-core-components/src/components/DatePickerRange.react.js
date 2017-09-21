@@ -37,6 +37,9 @@ export default class DatePickerRange extends Component {
             prevMinDateAllowed: this.props.min_date_allowed,
             prevMaxDateAllowed: this.props.max_date_allowed
         };
+
+        this.isOutsideRange = this.isOutsideRange.bind(this);
+        this.onDatesChange = this.onDatesChange.bind(this);
     }
 
     convertPropsToMoment(props) {
@@ -84,7 +87,7 @@ export default class DatePickerRange extends Component {
                 maxDateAllowed: newProps.max_date_allowed
             };
 
-        const momentProps = this.convertPropsToMoment(propObj);
+        const momentProps = this.(propObj);
         if (this.state.prevStartDate !== newProps.start_date) {
             this.setState({
                 prevStartDate: newProps.start_date,
@@ -131,86 +134,110 @@ export default class DatePickerRange extends Component {
         }
     }
 
-    render() {
-        const { setProps, fireEvent } = this.props;
-        let verticalFlag = true;
-        if (this.props.calendar_orientation === 'vertical') {
-            verticalFlag = false;
+    onDatesChange({startDate, endDate}) {
+        this.setState({ startDate, endDate });
+        if (startDate !== null) {
+            const startDateStr = startDate.format('YYYY-MM-DD');
+            if (setProps) {
+                setProps({
+                    start_date: startDateStr
+                });
+            }
+
+            if (fireEvent) {
+                fireEvent('change');
+            }
         }
+
+        if (endDate !== null) {
+            const endDateStr = endDate.format('YYYY-MM-DD');
+            if (setProps) {
+                setProps({
+                    end_date: endDateStr
+                });
+            }
+
+            if (fireEvent) {
+                fireEvent('change');
+            }
+        }
+    }
+
+    isOutsideRange(date) {
+        if (typeof this.state.minDateAllowed !== 'undefined' &&
+                typeof this.state.maxDateAllowed !== 'undefined') {
+            return date < this.state.minDateAllowed ||
+                         date >= this.state.maxDateAllowed;
+        } else if (typeof this.state.minDateAllowed === 'undefined' &&
+                             typeof this.state.maxDateAllowed !== 'undefined') {
+            return date >= this.state.maxDateAllowed;
+        } else if (typeof this.state.minDateAllowed !== 'undefined' &&
+                             typeof this.state.maxDateAllowed === 'undefined') {
+            return date < this.state.minDateAllowed;
+        } else {
+            return false;
+        }
+    }
+
+    render() {
+        const {
+            startDate,
+            endDate,
+            focusedInput,
+            initialVisibleMonth
+        } = this.state;
+
+        const {
+            calendar_orientation,
+            clearable,
+            day_size,
+            disabled,
+            display_format,
+            end_date_placeholder_text,
+            fireEvent,
+            first_day_of_week,
+            is_RTL,
+            minimum_nights,
+            month_format,
+            number_of_months_shown,
+            reopen_calendar_on_clear,
+            setProps,
+            show_outside_days,
+            start_date_placeholder_text,
+            stay_open_on_select,
+            with_full_screen_portal,
+            with_portal,
+        } = this.props;
+
+
+        const verticalFlag = (calendar_orientation !== 'vertical');
 
         return (
             <DateRangePicker
-                startDate={this.state.startDate}
-                startDatePlaceholderText={this.props.start_date_placeholder_text}
-                endDate={this.state.endDate}
-                endDatePlaceholderText={this.props.end_date_placeholder_text}
-                onDatesChange={({ startDate, endDate }) => {
-                    this.setState({ startDate, endDate });
-                    if (startDate !== null) {
-                        const startDateStr = startDate.format('YYYY-MM-DD');
-                        if (setProps) {
-                            setProps({
-                                start_date: startDateStr
-                            });
-                        }
-
-                        if (fireEvent) {
-                            fireEvent('change');
-                        }
-                    }
-
-                    if (endDate !== null) {
-                        const endDateStr = endDate.format('YYYY-MM-DD');
-                        if (setProps) {
-                            setProps({
-                                end_date: endDateStr
-                            });
-                        }
-
-                        if (fireEvent) {
-                            fireEvent('change');
-                        }
-                    }
-                }}
-                focusedInput={this.state.focusedInput}
+                startDate={startDate}
+                startDatePlaceholderText={start_date_placeholder_text}
+                endDate={end_date}
+                endDatePlaceholderText={end_date_placeholder_text}
+                onDatesChange={this.onDatesChange}
+                focusedInput={focusedInput}
                 onFocusChange={focusedInput => this.setState({ focusedInput })}
-                isOutsideRange={(date) => {
-                    if (typeof this.state.minDateAllowed !== 'undefined' &&
-                            typeof this.state.maxDateAllowed !== 'undefined') {
-                        return date < this.state.minDateAllowed ||
-                                     date >= this.state.maxDateAllowed;
-                    } else if (typeof this.state.minDateAllowed === 'undefined' &&
-                                         typeof this.state.maxDateAllowed !== 'undefined') {
-                        return date >= this.state.maxDateAllowed;
-                    } else if (typeof this.state.minDateAllowed !== 'undefined' &&
-                                         typeof this.state.maxDateAllowed === 'undefined') {
-                        return date < this.state.minDateAllowed;
-                    } else {
-                        return false;
-                    }
-                }}
-                showClearDates={this.props.clearable}
-                disabled={this.props.disabled}
-                keepOpenOnDateSelect={this.props.stay_open_on_select}
-                reopenPickerOnClearDates={this.props.reopen_calendar_on_clear}
-                initialVisibleMonth={() => {
-                    if (this.state.startDate !== null) {
-                        return this.state.startDate;
-                    } else {
-                        return this.state.initialVisibleMonth;
-                    }
-                }}
-                numberOfMonths={this.props.number_of_months_shown}
-                withPortal={this.props.with_portal && verticalFlag}
-                withFullScreenPortal={this.props.with_full_screen_portal && verticalFlag}
-                firstDayOfWeek={this.props.first_day_of_week}
-                minimumNights={this.props.minimum_nights}
-                enableOutsideDays={this.props.show_outside_days}
-                monthFormat={this.props.month_format}
-                displayFormat={this.props.display_format}
-                isRTL={this.props.is_RTL}
-                orientation={this.props.calendar_orientation}
-                daySize={this.props.day_size}
+                isOutsideRange={this.isOutsideRange}
+                showClearDates={clearable}
+                disabled={disabled}
+                keepOpenOnDateSelect={stay_open_on_select}
+                reopenPickerOnClearDates={reopen_calendar_on_clear}
+                initialVisibleMonth={startDate || initialVisibleMonth}
+                numberOfMonths={number_of_months_shown}
+                withPortal={with_portal && verticalFlag}
+                withFullScreenPortal={with_full_screen_portal && verticalFlag}
+                firstDayOfWeek={first_day_of_week}
+                minimumNights={minimum_nights}
+                enableOutsideDays={show_outside_days}
+                monthFormat={month_format}
+                displayFormat={display_format}
+                isRTL={is_RTL}
+                orientation={calendar_orientation}
+                daySize={day_size}
             />
         );
     }
