@@ -109,7 +109,7 @@ export default class DatePickerSingle extends Component {
                 onDateChange={this.onDateChange}
                 focused={focused}
                 onFocusChange={({focused}) => this.setState({focused})}
-                initialVisibleMonth={date || initial_visible_month}
+                initialVisibleMonth={() => date || initial_visible_month}
                 isOutsideRange={this.isOutsideRange}
                 numberOfMonths={number_of_months_shown}
                 withPortal={with_portal && verticalFlag}
