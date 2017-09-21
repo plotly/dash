@@ -3,7 +3,7 @@ import { SingleDatePicker } from 'react-dates';
 import moment from 'moment';
 
 /**
- * DatePickerRange is a tailor made component designed for selecting
+ * DatePickerSingle is a tailor made component designed for selecting
  * a single day off of a calendar.
  *
  * The DatePicker integrates well with the Python datetime module with the
