@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { SingleDatePicker } from 'react-dates';
 import moment from 'moment';
+import R from 'ramda';
 
 /**
  * DatePickerSingle is a tailor made component designed for selecting
@@ -14,116 +15,64 @@ import moment from 'moment';
  * which can be found here: https://github.com/airbnb/react-dates
  */
 export default class DatePickerSingle extends Component {
-    constructor(props) {
-        super(props);
-        const propObj = {
-            date: this.props.date,
-            initialVisibleMonth: this.props.initial_visible_month,
-            minDateAllowed: this.props.min_date_allowed,
-            maxDateAllowed: this.props.max_date_allowed
-        };
-        const momentProps = this.convertPropsToMoment(propObj);
-        this.state = {
-            date: momentProps.date,
-            focused: props.autoFocus,
-            initialVisibleMonth: momentProps.initialVisibleMonth,
-            minDateAllowed: momentProps.min,
-            maxDateAllowed: momentProps.max,
-            prevInitialVisibleMonth: props.initial_visible_month,
-            prevMinDateAllowed: props.min_date_allowed,
-            prevMaxDateAllowed: props.max_date_allowed
-        };
+    constructor() {
+        super();
         this.onDateChange = this.onDateChange.bind(this);
         this.isOutsideRange = this.isOutsideRange.bind(this);
+        this.propsToState = this.propsToState.bind(this);
     }
 
-    convertPropsToMoment(props) {
-        let date = null;
-        let initialVisibleMonth = moment(props.date);
-        if (typeof props.date !== 'undefined') {
-            date = moment(props.date);
-        }
-
-        if (typeof props.initialVisibleMonth !== 'undefined') {
-            initialVisibleMonth = moment(props.initialVisibleMonth);
-        }
-
-        let minDateAllowed;
-        let maxDateAllowed;
-        if (typeof props.minDateAllowed !== 'undefined') {
-            minDateAllowed = moment(props.minDateAllowed);
-        }
-
-        if (typeof props.maxDateAllowed !== 'undefined') {
-            maxDateAllowed = moment(props.maxDateAllowed);
-            maxDateAllowed.add(1, 'days');
-        }
-
-        return {date, initialVisibleMonth, minDateAllowed, maxDateAllowed};
+    propsToState(newProps) {
+        /*
+         * state includes:
+         * - user modifiable attributes
+         * - moment converted attributes
+         */
+        const newState = {};
+        const momentProps = [
+            'date',
+            'initial_visible_month',
+            'max_date_allowed',
+            'min_date_allowed'
+        ]
+        momentProps.forEach(prop => {
+            if (R.type(newProps[prop]) !== 'Undefined') {
+                newState[prop] = moment(newProps[prop]);
+            }
+            if (prop === 'max_date_allowed' && R.has(prop, newState)) {
+                newState[prop].add(1, 'days');
+            }
+        });
+        this.setState(newState);
     }
 
     componentWillReceiveProps(newProps) {
-        const propObj = {
-            date: newProps.date,
-            initialVisibleMonth: newProps.initial_visible_month,
-            minDateAllowed: newProps.min_date_allowed,
-            maxDateAllowed: newProps.max_date_allowed
-        };
-        const momentProps = this.convertPropsToMoment(propObj);
-        if (this.state.date !== momentProps.date) {
-            this.setState({ date: momentProps.date });
-        }
+        this.propsToState(newProps)
+    }
 
-        if (this.state.prevInitialVisibleMonth !== newProps.initial_visible_month) {
-            this.setState({
-                    prevInitialVisibleMonth: newProps.initial_visible_month,
-                    initialVisibleMonth: momentProps.initialVisibleMonth
-                });
-        }
-
-        if (this.state.prevMinDateAllowed !== newProps.min_date_allowed) {
-            this.setState({
-                prevMinDateAllowed: newProps.min_date_allowed,
-                minDateAllowed: momentProps.minDateAllowed
-            });
-        }
-
-        if (this.state.prevMaxDateAllowed !== newProps.max_date_allowed) {
-            this.setState({
-                prevMaxDateAllowed: newProps.max_date_allowed,
-                maxDateAllowed: momentProps.maxDateAllowed
-            });
-        }
+    componentWillMount() {
+        this.propsToState(this.props);
     }
 
     isOutsideRange(date) {
-        if (typeof this.state.minDateAllowed !== 'undefined' &&
-                typeof this.state.maxDateAllowed !== 'undefined') {
-            return date < this.state.minDateAllowed || date >= this.state.maxDateAllowed;
-        } else if (typeof this.state.minDateAllowed === 'undefined' &&
-                             typeof this.state.maxDateAllowed !== 'undefined') {
-            return date >= this.state.maxDateAllowed;
-        } else if (typeof this.state.minDateAllowed !== 'undefined' &&
-                             typeof this.state.maxDateAllowed === 'undefined') {
-            return date < this.state.minDateAllowed;
-        } else {
-            return false;
-        }
+        const {min_date_allowed, max_date_allowed} = this.state;
+        const notUndefined = R.complement(R.pipe(R.type, R.equals('Undefined')));
+        return (
+            (notUndefined(min_date_allowed) && date < min_date_allowed) ||
+            (notUndefined(max_date_allowed) && date >= min_date_allowed)
+        );
     }
 
 
     onDateChange(date) {
-        this.setState({ date });
-        if (date !== null) {
-            const dateStr = date.format('YYYY-MM-DD');
-            if (setProps) {
-                setProps({
-                    date: dateStr
-                });
-            }
-            if (fireEvent) {
-                fireEvent('change');
-            }
+        const {setProps, fireEvent} = this.props;
+        if (setProps && date !== null) {
+            setProps({date: date.format('YYYY-MM-DD')});
+        } else {
+            this.setState({date});
+        }
+        if (fireEvent) {
+            fireEvent('change');
         }
     }
 
@@ -131,7 +80,7 @@ export default class DatePickerSingle extends Component {
         const {
             date,
             focused,
-            initialVisibleMonth
+            initial_visible_month
         } = this.state;
 
         const {
@@ -140,19 +89,16 @@ export default class DatePickerSingle extends Component {
             day_size,
             disabled,
             display_format,
-            fireEvent,
             first_day_of_week,
             is_RTL,
-            minimum_nights,
             month_format,
             number_of_months_shown,
             placeholder,
             reopen_calendar_on_clear,
-            setProps,
             show_outside_days,
             stay_open_on_select,
             with_full_screen_portal,
-            with_portal,
+            with_portal
         } = this.props;
 
         const verticalFlag = (calendar_orientation !== 'vertical');
@@ -163,13 +109,14 @@ export default class DatePickerSingle extends Component {
                 onDateChange={this.onDateChange}
                 focused={focused}
                 onFocusChange={({focused}) => this.setState({focused})}
-                initialVisibleMonth={date || initialVisibleMonth}
+                initialVisibleMonth={date || initial_visible_month}
                 isOutsideRange={this.isOutsideRange}
                 numberOfMonths={number_of_months_shown}
                 withPortal={with_portal && verticalFlag}
                 withFullScreenPortal={with_full_screen_portal && verticalFlag}
                 firstDayOfWeek={first_day_of_week}
                 enableOutSideDays={show_outside_days}
+
                 monthFormat={month_format}
                 displayFormat={display_format}
                 placeholder={placeholder}
