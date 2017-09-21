@@ -171,8 +171,7 @@ export default class DatePickerRange extends Component {
               fireEvent('change');
             }
           }
-        }
-        }
+        }}
         focusedInput={this.state.focusedInput}
         onFocusChange={focusedInput => this.setState({ focusedInput })}
         isOutsideRange={(date) => {
@@ -189,8 +188,7 @@ export default class DatePickerRange extends Component {
           } else {
             return false;
           }
-        }
-        }
+        }}
         showClearDates={this.props.clearable}
         disabled={this.props.disabled}
         keepOpenOnDateSelect={this.props.stay_open_on_select}
@@ -201,8 +199,7 @@ export default class DatePickerRange extends Component {
           } else {
             return this.state.initialVisibleMonth;
           }
-        }
-        }
+        }}
         numberOfMonths={this.props.number_of_months_shown}
         withPortal={this.props.with_portal && verticalFlag}
         withFullScreenPortal={this.props.with_full_screen_portal && verticalFlag}
