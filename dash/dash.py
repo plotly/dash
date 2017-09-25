@@ -2,6 +2,7 @@ import flask
 import json
 import plotly
 from flask import Flask, Response
+from flask_login import login_required
 from flask_compress import Compress
 from flask_seasurf import SeaSurf
 import os
@@ -26,7 +27,8 @@ class Dash(object):
         server=None,
         static_folder=None,
         url_base_pathname='/',
-        csrf_protect=True
+        csrf_protect=True,
+        loginSupported=False
     ):
         # allow users to supply their own flask server
         if server is not None:
@@ -79,21 +81,20 @@ class Dash(object):
                 endpoint=name,
                 methods=methods
             )
-
         add_url(
             '{}_dash-layout'.format(self.config['routes_pathname_prefix']),
-            self.serve_layout)
+            self.serve_layout if not loginSupported else login_required(self.serve_layout))
 
         add_url(
             '{}_dash-dependencies'.format(
                 self.config['routes_pathname_prefix']),
-            self.dependencies)
+            self.dependencies if not loginSupported else login_required(self.dependencies))
 
         add_url(
             '{}_dash-update-component'.format(
                 self.config['routes_pathname_prefix']
             ),
-            self.dispatch,
+            self.dispatch if not loginSupported else login_required(self.dispatch),
             ['POST'])
 
         add_url((
@@ -102,20 +103,20 @@ class Dash(object):
             '/<path:path_in_package_dist>').format(
                 self.config['routes_pathname_prefix']
             ),
-            self.serve_component_suites)
+            self.serve_component_suites if not loginSupported else login_required(self.serve_component_suites))
 
         add_url(
             '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
-            self.serve_routes)
+            self.serve_routes if not loginSupported else login_required(self.serve_routes))
 
         add_url(
             self.config['routes_pathname_prefix'],
-            self.index)
+            self.index if not loginSupported else login_required(self.index))
 
         # catch-all for front-end routes
         add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
-            self.index)
+            self.index if not loginSupported else login_required(self.index))
 
         self.server.before_first_request(self._setup_server)
 
