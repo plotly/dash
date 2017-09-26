@@ -2,9 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.12.7rc1] - 2017-09-21
+## [0.12.7] - 2017-09-26
 ### :bug: Fixed
 - Fixed issues related to updating the `max_date_allowed` property of `DatePickerSingle` and `DatePickerRange`  programatically through callbacks
+- Clicking on the end date in the `DatePickerRange` will now open up the calendar to the end date (https://github.com/plotly/dash-core-components/issues/80)
 
 ### Maintenance
 - Cleaned up `DatePickerSingle` and `DatePickerRange`
