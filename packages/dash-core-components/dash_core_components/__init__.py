@@ -1,7 +1,7 @@
 import os as _os
 import dash as _dash
 import sys as _sys
-__version__ = '0.12.7-rc1'
+__version__ = '0.12.7-rc2'
 
 _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
