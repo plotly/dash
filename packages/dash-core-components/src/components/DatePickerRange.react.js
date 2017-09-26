@@ -144,7 +144,7 @@ export default class DatePickerRange extends Component {
                 monthFormat={month_format}
                 numberOfMonths={number_of_months_shown}
                 onDatesChange={this.onDatesChange}
-                onFocusChange={focusedInput => this.setState({ focusedInput })}
+                onFocusChange={focusedInput => this.setState({focusedInput})}
                 orientation={calendar_orientation}
                 reopenPickerOnClearDates={reopen_calendar_on_clear}
                 showClearDates={clearable}
