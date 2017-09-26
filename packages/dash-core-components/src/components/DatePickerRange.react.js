@@ -82,7 +82,7 @@ export default class DatePickerRange extends Component {
         const notUndefined = R.complement(R.pipe(R.type, R.equals('Undefined')));
         return (
             (notUndefined(min_date_allowed) && date < min_date_allowed) ||
-            (notUndefined(max_date_allowed) && date >= min_date_allowed)
+            (notUndefined(max_date_allowed) && date >= max_date_allowed)
         );
     }
 
