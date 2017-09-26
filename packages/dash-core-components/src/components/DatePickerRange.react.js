@@ -126,7 +126,17 @@ export default class DatePickerRange extends Component {
                 endDatePlaceholderText={end_date_placeholder_text}
                 firstDayOfWeek={first_day_of_week}
                 focusedInput={focusedInput}
-                initialVisibleMonth={() => start_date || initial_visible_month}
+                initialVisibleMonth={() => {
+                    if (initial_visible_month) {
+                        return initial_visible_month
+                    } else {
+                        if (focusedInput === 'endDate') {
+                            return end_date;
+                        } else {
+                            return start_date;
+                        }
+                    }
+                }}
                 isOutsideRange={this.isOutsideRange}
                 isRTL={is_RTL}
                 keepOpenOnDateSelect={stay_open_on_select}
