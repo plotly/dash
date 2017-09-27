@@ -1,18 +1,23 @@
 /* global fetch:true, Promise:true, document:true */
 import {
+    adjust,
+    any,
     concat,
     contains,
+    findIndex,
+    findLastIndex,
     has,
     intersection,
     isEmpty,
     keys,
     lensPath,
+    lensProp,
     pluck,
-    reject,
+    propEq,
+    set,
     slice,
     sort,
     type,
-    union,
     view
 } from 'ramda';
 import {createAction} from 'redux-actions';
@@ -20,7 +25,7 @@ import {crawlLayout, hasId} from '../reducers/utils';
 import {APP_STATES} from '../reducers/constants';
 import {ACTIONS} from './constants';
 import cookie from 'cookie';
-import {urlBase} from '../utils';
+import {uid, urlBase} from '../utils';
 
 export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
@@ -253,8 +258,9 @@ export function notifyObservers(payload) {
              * the change for Child. if this update has already been queued up,
              * then skip the update for the other component
              */
-            const controllersInExistingQueue = intersection(
-                requestQueue, controllers
+            const controllerIsInExistingQueue = any(r =>
+                contains(r.controllerId, controllers) && r.status === 'loading',
+                requestQueue
             );
 
             /*
@@ -267,7 +273,7 @@ export function notifyObservers(payload) {
              if (
                  (controllersInFutureQueue.length === 0) &&
                  (has(outputComponentId, getState().paths)) &&
-                 (controllersInExistingQueue.length === 0)
+                 !controllerIsInExistingQueue
              ) {
                  queuedObservers.push(outputIdAndProp)
              }
@@ -278,7 +284,15 @@ export function notifyObservers(payload) {
          * updated in a queue. not all of these requests will be fired in this
          * action
          */
-        dispatch(setRequestQueue(union(queuedObservers, requestQueue)));
+        const newRequestQueue = queuedObservers.map(
+            i => ({controllerId: i, status: 'loading', uid: uid()})
+        )
+        dispatch(setRequestQueue(
+            concat(
+                requestQueue,
+                newRequestQueue
+            )
+        ));
 
         const promises = [];
         for (let i = 0; i < queuedObservers.length; i++) {
@@ -356,13 +370,33 @@ export function notifyObservers(payload) {
                     payload: {status: res.status}
                 });
 
-                // clear this item from the request queue
-                dispatch(setRequestQueue(
-                    reject(
-                        id => id === outputIdAndProp,
-                        getState().requestQueue
-                    )
-                ));
+                // update the status of this request
+                const postRequestQueue = getState().requestQueue;
+                const requestUid = newRequestQueue[i].uid;
+                const thisRequestIndex = findIndex(
+                    propEq('uid', requestUid),
+                    postRequestQueue
+                );
+                const updatedQueue = adjust(
+                    set(lensProp('status'), res.status),
+                    thisRequestIndex,
+                    postRequestQueue
+                );
+                dispatch(setRequestQueue(updatedQueue));
+
+                /*
+                 * Check to see if another request has already come back
+                 * _after_ this one.
+                 * If so, ignore this request.
+                 */
+                const latestRequestIndex = findLastIndex(
+                    propEq('controllerId', newRequestQueue[i].controllerId),
+                    updatedQueue
+                );
+                if (latestRequestIndex > thisRequestIndex &&
+                    updatedQueue[latestRequestIndex].status === 200) {
+                    return;
+                }
 
                 return res.json().then(function handleJson(data) {
 

@@ -25,3 +25,13 @@ export function urlBase(config) {
              requests_pathname_prefix from config`, config);
     }
 }
+
+export function uid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
