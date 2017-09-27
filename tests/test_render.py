@@ -1501,3 +1501,35 @@ class Tests(IntegrationTests):
         )
 
         self.assertEqual(call_count.value, 1)
+
+    def test_callbacks_called_multiple_times_and_out_of_order(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            html.Button(id='input', n_clicks=0),
+            html.Div(id='output')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(
+            Output('output', 'children'),
+            [Input('input', 'n_clicks')])
+        def update_output(n_clicks):
+            call_count.value = call_count.value + 1
+            if n_clicks == 1:
+                time.sleep(4)
+            return n_clicks
+
+        self.startServer(app)
+        button = self.wait_for_element_by_id('input')
+        button.click()
+        button.click()
+        time.sleep(8)
+        self.percy_snapshot(
+            name='test_callbacks_called_multiple_times_and_out_of_order'
+        )
+        self.assertEqual(call_count.value, 3)
+        self.assertEqual(
+            self.driver.find_element_by_id('output').text,
+            '2'
+        )
