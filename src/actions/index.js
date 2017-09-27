@@ -264,6 +264,19 @@ export function notifyObservers(payload) {
             );
 
             /*
+             * TODO - Place throttling logic here?
+             *
+             * Only process the last two requests for a _single_ output
+             * at a time.
+             *
+             * For example, if A -> B, and A is changed 10 times, then:
+             * 1 - processing the first two requests
+             * 2 - if more than 2 requests come in while the first two
+             *     are being processed, then skip updating all of the
+             *     requests except for the last 2
+             */
+
+            /*
              * also check that this observer is actually in the current
              * component tree.
              * observers don't actually need to be rendered at the moment
