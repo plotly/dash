@@ -27,8 +27,5 @@ function createApiReducer(store) {
 }
 
 export const dependenciesRequest = createApiReducer('dependenciesRequest');
-export const lastUpdateComponentRequest = createApiReducer(
-    'lastUpdateComponentRequest'
-);
 export const layoutRequest = createApiReducer('layoutRequest');
 export const loginRequest = createApiReducer('loginRequest');

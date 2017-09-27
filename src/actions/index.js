@@ -365,10 +365,6 @@ export function notifyObservers(payload) {
                 credentials: 'same-origin',
                 body: JSON.stringify(payload)
             }).then(function handleResponse(res) {
-                dispatch({
-                    type: 'lastUpdateComponentRequest',
-                    payload: {status: res.status}
-                });
 
                 // update the status of this request
                 const postRequestQueue = getState().requestQueue;
