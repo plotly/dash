@@ -1,5 +1,6 @@
 /* global fetch:true, Promise:true, document:true */
 import {
+    __,
     adjust,
     any,
     concat,
@@ -11,10 +12,9 @@ import {
     isEmpty,
     keys,
     lensPath,
-    lensProp,
+    merge,
     pluck,
     propEq,
-    set,
     slice,
     sort,
     type,
@@ -298,7 +298,12 @@ export function notifyObservers(payload) {
          * action
          */
         const newRequestQueue = queuedObservers.map(
-            i => ({controllerId: i, status: 'loading', uid: uid()})
+            i => ({
+                controllerId: i,
+                status: 'loading',
+                uid: uid(),
+                requestTime: Date.now()
+            })
         )
         dispatch(setRequestQueue(
             concat(
@@ -379,35 +384,58 @@ export function notifyObservers(payload) {
                 body: JSON.stringify(payload)
             }).then(function handleResponse(res) {
 
-                // update the status of this request
-                const postRequestQueue = getState().requestQueue;
-                const requestUid = newRequestQueue[i].uid;
-                const thisRequestIndex = findIndex(
-                    propEq('uid', requestUid),
-                    postRequestQueue
-                );
-                const updatedQueue = adjust(
-                    set(lensProp('status'), res.status),
-                    thisRequestIndex,
-                    postRequestQueue
-                );
-                dispatch(setRequestQueue(updatedQueue));
+                const getThisRequestIndex = () => {
+                    const postRequestQueue = getState().requestQueue;
+                    const requestUid = newRequestQueue[i].uid;
+                    const thisRequestIndex = findIndex(
+                        propEq('uid', requestUid),
+                        postRequestQueue
+                    );
+                    return thisRequestIndex;
+                }
 
-                /*
-                 * Check to see if another request has already come back
-                 * _after_ this one.
-                 * If so, ignore this request.
-                 */
-                const latestRequestIndex = findLastIndex(
-                    propEq('controllerId', newRequestQueue[i].controllerId),
-                    updatedQueue
-                );
-                if (latestRequestIndex > thisRequestIndex &&
-                    updatedQueue[latestRequestIndex].status === 200) {
+                const updateRequestQueue = rejected => {
+                    const postRequestQueue = getState().requestQueue
+                    const thisRequestIndex = getThisRequestIndex();
+                    const updatedQueue = adjust(
+                        merge(__, {
+                            status: res.status,
+                            responseTime: Date.now(),
+                            rejected
+                        }),
+                        thisRequestIndex,
+                        postRequestQueue
+                    );
+
+                    dispatch(setRequestQueue(updatedQueue));
+                }
+
+                if (res.status !== 200) {
+                    // update the status of this request
+                    updateRequestQueue(true);
                     return;
                 }
 
                 return res.json().then(function handleJson(data) {
+                    /*
+                     * Check to see if another request has already come back
+                     * _after_ this one.
+                     * If so, ignore this request.
+                     */
+                    const latestRequestIndex = findLastIndex(
+                        propEq('controllerId', newRequestQueue[i].controllerId),
+                        getState().requestQueue
+                    );
+                    let rejected = latestRequestIndex > getThisRequestIndex();
+
+                    updateRequestQueue(rejected);
+
+                    if (rejected) {
+                        /* eslint-disable */
+                        console.warn('--> update rejected');
+                        /* eslint-enable */
+                        return;
+                    }
 
                     /*
                      * it's possible that this output item is no longer visible.
@@ -510,7 +538,8 @@ export function notifyObservers(payload) {
 
                     }
 
-            })}));
+                });
+            }));
 
         }
 
