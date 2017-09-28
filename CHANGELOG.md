@@ -2,11 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.11.0rc1] - 2017-09-27
+## [0.11.0rc1] - 2017-09-28
 ### Fixed
 - 🐞 Previously, old requests could override new requests if their response was longer than the new one.
 This caused subtle bugs when apps are deployed on multiple processes or threads with component
-callbacks that update at varying rates like urls. Originally reported in github.com/plotly/dash/issues/133
+callbacks that update at varying rates like urls. Originally reported in github.com/plotly/dash/issues/133. This fix should also improve performance when many updates happen at once as outdated requests will get dropped instead of updating the UI.
 
 
 ## [0.9.0] - 2017-09-07
