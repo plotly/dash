@@ -1,7 +1,7 @@
 /* global document:true */
 
 import {connect} from 'react-redux'
-import {isEmpty} from 'ramda'
+import {any} from 'ramda'
 import {Component, PropTypes} from 'react'
 
 class DocumentTitle extends Component {
@@ -13,7 +13,7 @@ class DocumentTitle extends Component {
     }
 
     componentWillReceiveProps(props) {
-        if (!isEmpty(props.requestQueue)) {
+        if (any(r => r.status === 'loading', props.requestQueue)) {
             document.title = 'Updating...';
         } else {
             document.title = this.state.initialTitle;

@@ -21,6 +21,29 @@ class Tests(IntegrationTests):
             return self.driver.find_element_by_id(id)
         self.wait_for_element_by_id = wait_for_element_by_id
 
+    def request_queue_assertions(
+            self, check_rejected=True, expected_length=None):
+        request_queue = self.driver.execute_script(
+            'return window.store.getState().requestQueue'
+        )
+        self.assertTrue(
+            all([
+                (r['status'] == 200)
+                for r in request_queue
+            ])
+        )
+
+        if check_rejected:
+            self.assertTrue(
+                all([
+                    (r['rejected'] is False)
+                    for r in request_queue
+                ])
+            )
+
+        if expected_length is not None:
+            self.assertEqual(len(request_queue), expected_length)
+
     def test_initial_state(self):
         app = Dash(__name__)
         app.layout = html.Div([
@@ -385,12 +408,7 @@ class Tests(IntegrationTests):
             }
         )
 
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.store.getState().requestQueue'
-            ),
-            []
-        )
+        self.request_queue_assertions(0)
 
         self.percy_snapshot(name='layout')
 
@@ -443,12 +461,8 @@ class Tests(IntegrationTests):
             len('hello world')
         )
 
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.store.getState().requestQueue'
-            ),
-            []
-        )
+        self.request_queue_assertions(
+            expected_length=call_count.value, check_rejected=False)
 
         assert_clean_console(self)
 
@@ -545,12 +559,7 @@ class Tests(IntegrationTests):
 
         self.assertEqual(call_count.value, 2)
 
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.store.getState().requestQueue'
-            ),
-            []
-        )
+        self.request_queue_assertions(call_count.value + 1)
         self.percy_snapshot(name='callback-generating-function-2')
 
         assert_clean_console(self)
@@ -728,13 +737,7 @@ class Tests(IntegrationTests):
                     ) == value
                 )
             )
-
-            self.assertEqual(
-                self.driver.execute_script(
-                    'return window.store.getState().requestQueue'
-                ),
-                []
-            )
+            self.request_queue_assertions()
 
         def chapter1_assertions():
             paths = self.driver.execute_script(
@@ -960,12 +963,7 @@ class Tests(IntegrationTests):
         self.assertEqual(output_1_call_count.value, 2)
         self.assertEqual(output_2_call_count.value, 0)
 
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.store.getState().requestQueue'
-            ),
-            []
-        )
+        self.request_queue_assertions(2)
 
         assert_clean_console(self)
 
@@ -1501,3 +1499,41 @@ class Tests(IntegrationTests):
         )
 
         self.assertEqual(call_count.value, 1)
+
+    def test_callbacks_called_multiple_times_and_out_of_order(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            html.Button(id='input', n_clicks=0),
+            html.Div(id='output')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(
+            Output('output', 'children'),
+            [Input('input', 'n_clicks')])
+        def update_output(n_clicks):
+            call_count.value = call_count.value + 1
+            if n_clicks == 1:
+                time.sleep(4)
+            return n_clicks
+
+        self.startServer(app)
+        button = self.wait_for_element_by_id('input')
+        button.click()
+        button.click()
+        time.sleep(8)
+        self.percy_snapshot(
+            name='test_callbacks_called_multiple_times_and_out_of_order'
+        )
+        self.assertEqual(call_count.value, 3)
+        self.assertEqual(
+            self.driver.find_element_by_id('output').text,
+            '2'
+        )
+        request_queue = self.driver.execute_script(
+            'return window.store.getState().requestQueue'
+        )
+        self.assertFalse(request_queue[0]['rejected'])
+        self.assertTrue(request_queue[1]['rejected'])
+        self.assertFalse(request_queue[2]['rejected'])

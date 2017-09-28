@@ -1,7 +1,7 @@
 import {connect} from 'react-redux'
-import {any, contains, equals, isEmpty, isNil} from 'ramda'
+import {contains, isEmpty, isNil} from 'ramda'
 import React, {Component, PropTypes} from 'react';
-import renderTree from './renderTree';
+import TreeContainer from './TreeContainer';
 import {
     computeGraphs,
     computePaths,
@@ -10,7 +10,6 @@ import {
 } from './actions/index';
 import {getDependencies, getLayout} from './actions/api';
 import {APP_STATES} from './reducers/constants';
-import AccessDenied from './AccessDenied.react';
 
 /**
  * Fire off API calls for initialization
@@ -75,24 +74,12 @@ class UnconnectedContainer extends Component {
     render () {
         const {
             appLifecycle,
-            config,
             dependenciesRequest,
-            lastUpdateComponentRequest,
             layoutRequest,
             layout
         } = this.props;
 
-        // Auth protected routes
-        if (any(equals(true),
-                [dependenciesRequest, lastUpdateComponentRequest,
-                 layoutRequest].map(
-            request => (request.status && request.status === 403))
-        )) {
-            return (<AccessDenied config={config}/>);
-        }
-
-
-        else if (layoutRequest.status &&
+        if (layoutRequest.status &&
             !contains(layoutRequest.status, [200, 'loading'])
         ) {
             return (<div>{'Error loading layout'}</div>);
@@ -110,7 +97,7 @@ class UnconnectedContainer extends Component {
         else if (appLifecycle === APP_STATES('HYDRATED')) {
             return (
                 <div id="_dash-app-content">
-                    {renderTree(layout, dependenciesRequest.content)}
+                    <TreeContainer layout={layout}/>
                 </div>
             );
         }
@@ -126,9 +113,7 @@ UnconnectedContainer.propTypes = {
         APP_STATES('HYDRATED')
     ]),
     dispatch: PropTypes.function,
-    config: PropTypes.object,
     dependenciesRequest: PropTypes.object,
-    lastUpdateComponentRequest: PropTypes.objec,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,
@@ -139,9 +124,7 @@ const Container = connect(
     // map state to props
     state => ({
         appLifecycle: state.appLifecycle,
-        config: state.config,
         dependenciesRequest: state.dependenciesRequest,
-        lastUpdateComponentRequest: state.lastUpdateComponentRequest,
         layoutRequest: state.layoutRequest,
         layout: state.layout,
         graphs: state.graphs,

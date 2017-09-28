@@ -1,18 +1,23 @@
 /* global fetch:true, Promise:true, document:true */
 import {
+    __,
+    adjust,
+    any,
     concat,
     contains,
+    findIndex,
+    findLastIndex,
     has,
     intersection,
     isEmpty,
     keys,
     lensPath,
+    merge,
     pluck,
-    reject,
+    propEq,
     slice,
     sort,
     type,
-    union,
     view
 } from 'ramda';
 import {createAction} from 'redux-actions';
@@ -20,7 +25,7 @@ import {crawlLayout, hasId} from '../reducers/utils';
 import {APP_STATES} from '../reducers/constants';
 import {ACTIONS} from './constants';
 import cookie from 'cookie';
-import {urlBase} from '../utils';
+import {uid, urlBase} from '../utils';
 
 export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
@@ -253,9 +258,23 @@ export function notifyObservers(payload) {
              * the change for Child. if this update has already been queued up,
              * then skip the update for the other component
              */
-            const controllersInExistingQueue = intersection(
-                requestQueue, controllers
+            const controllerIsInExistingQueue = any(r =>
+                contains(r.controllerId, controllers) && r.status === 'loading',
+                requestQueue
             );
+
+            /*
+             * TODO - Place throttling logic here?
+             *
+             * Only process the last two requests for a _single_ output
+             * at a time.
+             *
+             * For example, if A -> B, and A is changed 10 times, then:
+             * 1 - processing the first two requests
+             * 2 - if more than 2 requests come in while the first two
+             *     are being processed, then skip updating all of the
+             *     requests except for the last 2
+             */
 
             /*
              * also check that this observer is actually in the current
@@ -267,7 +286,7 @@ export function notifyObservers(payload) {
              if (
                  (controllersInFutureQueue.length === 0) &&
                  (has(outputComponentId, getState().paths)) &&
-                 (controllersInExistingQueue.length === 0)
+                 !controllerIsInExistingQueue
              ) {
                  queuedObservers.push(outputIdAndProp)
              }
@@ -278,7 +297,20 @@ export function notifyObservers(payload) {
          * updated in a queue. not all of these requests will be fired in this
          * action
          */
-        dispatch(setRequestQueue(union(queuedObservers, requestQueue)));
+        const newRequestQueue = queuedObservers.map(
+            i => ({
+                controllerId: i,
+                status: 'loading',
+                uid: uid(),
+                requestTime: Date.now()
+            })
+        )
+        dispatch(setRequestQueue(
+            concat(
+                requestQueue,
+                newRequestQueue
+            )
+        ));
 
         const promises = [];
         for (let i = 0; i < queuedObservers.length; i++) {
@@ -351,20 +383,71 @@ export function notifyObservers(payload) {
                 credentials: 'same-origin',
                 body: JSON.stringify(payload)
             }).then(function handleResponse(res) {
-                dispatch({
-                    type: 'lastUpdateComponentRequest',
-                    payload: {status: res.status}
-                });
 
-                // clear this item from the request queue
-                dispatch(setRequestQueue(
-                    reject(
-                        id => id === outputIdAndProp,
+                const getThisRequestIndex = () => {
+                    const postRequestQueue = getState().requestQueue;
+                    const requestUid = newRequestQueue[i].uid;
+                    const thisRequestIndex = findIndex(
+                        propEq('uid', requestUid),
+                        postRequestQueue
+                    );
+                    return thisRequestIndex;
+                }
+
+                const updateRequestQueue = rejected => {
+                    const postRequestQueue = getState().requestQueue
+                    const thisRequestIndex = getThisRequestIndex();
+                    const updatedQueue = adjust(
+                        merge(__, {
+                            status: res.status,
+                            responseTime: Date.now(),
+                            rejected
+                        }),
+                        thisRequestIndex,
+                        postRequestQueue
+                    );
+
+                    dispatch(setRequestQueue(updatedQueue));
+                }
+
+                const isRejected = () => {
+                    const latestRequestIndex = findLastIndex(
+                        propEq('controllerId', newRequestQueue[i].controllerId),
                         getState().requestQueue
-                    )
-                ));
+                    );
+                    const rejected = latestRequestIndex > getThisRequestIndex();
+                    return rejected;
+                }
+
+                if (res.status !== 200) {
+                    // update the status of this request
+                    updateRequestQueue(true);
+                    return;
+                }
+
+                /*
+                 * Check to see if another request has already come back
+                 * _after_ this one.
+                 * If so, ignore this request.
+                 */
+                if (isRejected()) {
+                    updateRequestQueue(true);
+                    return;
+                }
 
                 return res.json().then(function handleJson(data) {
+                    /*
+                     * Even if the `res` was received in the correct order,
+                     * the remainder of the response (res.json()) could happen
+                     * at different rates causing the parsed responses to
+                     * get out of order
+                     */
+                     if (isRejected()) {
+                         updateRequestQueue(true);
+                         return;
+                     }
+
+                    updateRequestQueue(false);
 
                     /*
                      * it's possible that this output item is no longer visible.
@@ -467,7 +550,8 @@ export function notifyObservers(payload) {
 
                     }
 
-            })}));
+                });
+            }));
 
         }
 

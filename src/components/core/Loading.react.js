@@ -1,12 +1,12 @@
 import {connect} from 'react-redux'
-import {isEmpty} from 'ramda'
+import {any} from 'ramda'
 import React, {PropTypes} from 'react'
 
 function Loading(props) {
-    if (!isEmpty(props.requestQueue)) {
+    if (any(r => r.status === 'loading', props.requestQueue)) {
         return (
             <div className="_dash-loading-callback"/>
-        )
+        );
     } else {
         return null;
     }
