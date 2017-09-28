@@ -431,9 +431,6 @@ export function notifyObservers(payload) {
                  * If so, ignore this request.
                  */
                 if (isRejected()) {
-                    /* eslint-disable */
-                    console.warn('---> rejecting old response (upon receiving headers)');
-                    /* eslint-enable */
                     updateRequestQueue(true);
                     return;
                 }
@@ -446,9 +443,6 @@ export function notifyObservers(payload) {
                      * get out of order
                      */
                      if (isRejected()) {
-                         /* eslint-disable */
-                         console.warn('---> rejecting old response (upon receiving json)');
-                         /* eslint-enable */
                          updateRequestQueue(true);
                          return;
                      }
