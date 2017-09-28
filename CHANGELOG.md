@@ -2,11 +2,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.11.0rc1] - 2017-09-27
+## [0.11.0] - 2017-09-27
 ### Fixed
 - 🐞 Previously, old requests could override new requests if their response was longer than the new one.
 This caused subtle bugs when apps are deployed on multiple processes or threads with component
 callbacks that update at varying rates like urls. Originally reported in github.com/plotly/dash/issues/133
+
+## [0.10.0] - 2017-09-19
+### Fixed
+- Fixed an issue where a callback would be fired on page load and when dynamically generated excessively. Previously, the callback would be called as many times as it had inputs. Now, it is called less. https://github.com/plotly/dash-renderer/pull/21
+### Maintenance
+- Add percy screenshot tests
+
 
 
 ## [0.9.0] - 2017-09-07
