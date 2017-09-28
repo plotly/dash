@@ -410,32 +410,50 @@ export function notifyObservers(payload) {
                     dispatch(setRequestQueue(updatedQueue));
                 }
 
+                const isRejected = () => {
+                    const latestRequestIndex = findLastIndex(
+                        propEq('controllerId', newRequestQueue[i].controllerId),
+                        getState().requestQueue
+                    );
+                    const rejected = latestRequestIndex > getThisRequestIndex();
+                    return rejected;
+                }
+
                 if (res.status !== 200) {
                     // update the status of this request
                     updateRequestQueue(true);
                     return;
                 }
 
+                /*
+                 * Check to see if another request has already come back
+                 * _after_ this one.
+                 * If so, ignore this request.
+                 */
+                if (isRejected()) {
+                    /* eslint-disable */
+                    console.warn('---> rejecting old response (upon receiving headers)');
+                    /* eslint-enable */
+                    updateRequestQueue(true);
+                    return;
+                }
+
                 return res.json().then(function handleJson(data) {
                     /*
-                     * Check to see if another request has already come back
-                     * _after_ this one.
-                     * If so, ignore this request.
+                     * Even if the `res` was received in the correct order,
+                     * the remainder of the response (res.json()) could happen
+                     * at different rates causing the parsed responses to
+                     * get out of order
                      */
-                    const latestRequestIndex = findLastIndex(
-                        propEq('controllerId', newRequestQueue[i].controllerId),
-                        getState().requestQueue
-                    );
-                    let rejected = latestRequestIndex > getThisRequestIndex();
+                     if (isRejected()) {
+                         /* eslint-disable */
+                         console.warn('---> rejecting old response (upon receiving json)');
+                         /* eslint-enable */
+                         updateRequestQueue(true);
+                         return;
+                     }
 
-                    updateRequestQueue(rejected);
-
-                    if (rejected) {
-                        /* eslint-disable */
-                        console.warn('--> update rejected');
-                        /* eslint-enable */
-                        return;
-                    }
+                    updateRequestQueue(false);
 
                     /*
                      * it's possible that this output item is no longer visible.
