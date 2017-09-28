@@ -1,11 +1,25 @@
 'use strict'
 
 import R from 'ramda';
-import React, {PropTypes} from 'react';
+import React, {Component, PropTypes} from 'react';
 import Registry from './registry';
 import NotifyObservers from './components/core/NotifyObservers.react';
 
-export default function render(component) {
+export default class TreeContainer extends Component {
+    shouldComponentUpdate(nextProps) {
+        return nextProps.layout !== this.props.layout;
+    }
+
+    render() {
+        return render(this.props.layout);
+    }
+}
+
+TreeContainer.propTypes = {
+    layout: PropTypes.object,
+}
+
+function render(component) {
     if (R.contains(R.type(component), ['String', 'Number', 'Null'])) {
         return component;
     }
@@ -13,7 +27,7 @@ export default function render(component) {
     // Create list of child elements
     let children;
 
-    const props = R.propOr({}, 'props', component);
+    const componentProps = R.propOr({}, 'props', component);
 
     if (!R.has('props', component) ||
         !R.has('children', component.props) ||
@@ -34,8 +48,9 @@ export default function render(component) {
         // One or multiple objects
         // Recursively render the tree
         // TODO - I think we should pass in `key` here.
-        children = (Array.isArray(props.children) ? props.children : [props.children])
-                   .map(render);
+        children = (Array.isArray(componentProps.children) ?
+                    componentProps.children : [componentProps.children])
+                    .map(render);
 
     }
 
@@ -60,13 +75,12 @@ export default function render(component) {
     );
 
     return (
-        <NotifyObservers id={props.id}>
+        <NotifyObservers id={componentProps.id}>
             {parent}
         </NotifyObservers>
     );
 }
 
 render.propTypes = {
-    children: PropTypes.object,
-    id: PropTypes.string
+    children: PropTypes.object
 }

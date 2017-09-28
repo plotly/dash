@@ -1,7 +1,7 @@
 import {connect} from 'react-redux'
 import {contains, isEmpty, isNil} from 'ramda'
 import React, {Component, PropTypes} from 'react';
-import renderTree from './renderTree';
+import TreeContainer from './TreeContainer';
 import {
     computeGraphs,
     computePaths,
@@ -97,7 +97,7 @@ class UnconnectedContainer extends Component {
         else if (appLifecycle === APP_STATES('HYDRATED')) {
             return (
                 <div id="_dash-app-content">
-                    {renderTree(layout, dependenciesRequest.content)}
+                    <TreeContainer layout={layout}/>
                 </div>
             );
         }
