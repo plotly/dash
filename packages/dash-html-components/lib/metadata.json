@@ -29,6 +29,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "download": {
         "type": {
           "name": "string"
@@ -214,6 +221,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -349,6 +363,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -486,6 +507,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -621,6 +649,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "alt": {
         "type": {
@@ -764,6 +799,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "alt": {
         "type": {
@@ -964,6 +1006,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -1100,6 +1149,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -1235,6 +1291,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "autoPlay": {
         "type": {
@@ -1414,6 +1477,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -1549,6 +1619,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "href": {
         "type": {
@@ -1700,6 +1777,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -1835,6 +1919,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -1972,6 +2063,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -2107,6 +2205,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -2244,6 +2349,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -2379,6 +2491,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "cite": {
         "type": {
@@ -2523,6 +2642,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -2658,6 +2784,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "autoFocus": {
         "type": {
@@ -2844,6 +2977,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "height": {
         "type": {
           "name": "string"
@@ -2994,6 +3134,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -3129,6 +3276,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -3266,6 +3420,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -3402,6 +3563,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -3537,6 +3705,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "span": {
         "type": {
@@ -3681,6 +3856,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "span": {
         "type": {
           "name": "string"
@@ -3823,6 +4005,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "checked": {
         "type": {
@@ -3995,6 +4184,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -4130,6 +4326,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -4267,6 +4470,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -4403,6 +4613,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -4538,6 +4755,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "cite": {
         "type": {
@@ -4689,6 +4913,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "open": {
         "type": {
           "name": "string"
@@ -4832,6 +5063,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -4967,6 +5205,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -5104,6 +5349,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -5239,6 +5491,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -5376,6 +5635,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -5511,6 +5777,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -5648,6 +5921,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -5784,6 +6064,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -5919,6 +6206,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "height": {
         "type": {
@@ -6084,6 +6378,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "disabled": {
         "type": {
           "name": "string"
@@ -6241,6 +6542,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -6376,6 +6684,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -6513,6 +6828,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -6649,6 +6971,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -6784,6 +7113,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accept": {
         "type": {
@@ -6984,6 +7320,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -7119,6 +7462,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -7256,6 +7606,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -7391,6 +7748,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -7528,6 +7892,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -7663,6 +8034,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -7800,6 +8178,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -7935,6 +8320,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -8072,6 +8464,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -8207,6 +8606,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -8344,6 +8750,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -8480,6 +8893,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -8615,6 +9035,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "height": {
         "type": {
@@ -8800,6 +9227,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "alt": {
         "type": {
@@ -8993,6 +9427,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "cite": {
         "type": {
           "name": "string"
@@ -9143,6 +9584,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -9279,6 +9727,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -9414,6 +9869,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "autoFocus": {
         "type": {
@@ -9593,6 +10055,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "htmlFor": {
         "type": {
           "name": "string"
@@ -9743,6 +10212,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -9878,6 +10354,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "value": {
         "type": {
@@ -10021,6 +10504,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "crossOrigin": {
         "type": {
@@ -10207,6 +10697,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -10343,6 +10840,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -10478,6 +10982,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "name": {
         "type": {
@@ -10622,6 +11133,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -10757,6 +11275,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "loop": {
         "type": {
@@ -10901,6 +11426,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "type": {
         "type": {
           "name": "string"
@@ -11044,6 +11576,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -11179,6 +11718,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "charSet": {
         "type": {
@@ -11343,6 +11889,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "form": {
         "type": {
@@ -11529,6 +12082,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -11664,6 +12224,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -11801,6 +12368,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -11936,6 +12510,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -12073,6 +12654,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -12208,6 +12796,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "form": {
         "type": {
@@ -12387,6 +12982,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "reversed": {
         "type": {
           "name": "string"
@@ -12537,6 +13139,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "disabled": {
         "type": {
           "name": "string"
@@ -12679,6 +13288,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "disabled": {
         "type": {
@@ -12837,6 +13453,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "htmlFor": {
         "type": {
           "name": "string"
@@ -12994,6 +13617,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -13129,6 +13759,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "name": {
         "type": {
@@ -13280,6 +13917,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -13416,6 +14060,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -13551,6 +14202,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "form": {
         "type": {
@@ -13709,6 +14367,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "cite": {
         "type": {
           "name": "string"
@@ -13852,6 +14517,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -13987,6 +14659,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -14124,6 +14803,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -14259,6 +14945,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -14396,6 +15089,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -14532,6 +15232,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -14667,6 +15374,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "async": {
         "type": {
@@ -14853,6 +15567,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -14988,6 +15709,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "autoFocus": {
         "type": {
@@ -15174,6 +15902,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -15309,6 +16044,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -15446,6 +16188,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -15581,6 +16330,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "media": {
         "type": {
@@ -15746,6 +16502,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -15881,6 +16644,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -16018,6 +16788,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -16153,6 +16930,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -16290,6 +17074,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -16425,6 +17216,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -16562,6 +17360,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -16697,6 +17502,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "summary": {
         "type": {
@@ -16841,6 +17653,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -16976,6 +17795,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "colSpan": {
         "type": {
@@ -17134,6 +17960,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -17269,6 +18102,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "autoFocus": {
         "type": {
@@ -17490,6 +18330,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -17625,6 +18472,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "colSpan": {
         "type": {
@@ -17790,6 +18644,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -17925,6 +18786,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "dateTime": {
         "type": {
@@ -18069,6 +18937,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -18205,6 +19080,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -18340,6 +19222,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "default": {
         "type": {
@@ -18512,6 +19401,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -18647,6 +19543,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
@@ -18784,6 +19687,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -18920,6 +19830,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -19055,6 +19972,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "autoPlay": {
         "type": {
@@ -19262,6 +20186,13 @@
           "computed": false
         }
       },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -19397,6 +20328,13 @@
           "value": "0",
           "computed": false
         }
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A unique identifier for the component, used to improve\nperformance by React.js while rendering components\nSee https://reactjs.org/docs/lists-and-keys.html for more info"
       },
       "accessKey": {
         "type": {
