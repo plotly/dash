@@ -4,16 +4,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.8.0] - 2017-09-29
+### Added
+- A `key` property has been added to every component. See https://reactjs.org/docs/lists-and-keys.html for more about this attribute.
+
 ## [0.7.0] - 2017-07-18
-## Added
+### Added
 - A `n_clicks` property has been added to every component that gets incremented automatically when the element has been clicked on
 
 ## [0.2.3] - 2016-07-20
-## Fixed
+### Fixed
 - `style` propType is now correctly set to object, not string
 
 ## [0.2.2] - 2016-07-17
-## Fixed
+### Fixed
 - Issue with component metadata path in pypi package
 
 ## [0.2.0] - 2016-07-07
