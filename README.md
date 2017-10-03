@@ -1,7 +1,7 @@
 # Dash
 
 #### 📢 Announcement!
-#### Seats are still available for a 2 day, Dash master class in NYC, November 16-17. 
+#### Seats are still available for a 2 day, Dash master class in NYC, November 18-19. 
 #### [Registration here](https://plotcon.plot.ly/workshops) 🎚 📈 🗽
 
 ***
