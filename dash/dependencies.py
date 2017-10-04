@@ -20,3 +20,15 @@ class Event:
     def __init__(self, component_id, component_event):
         self.component_id = component_id
         self.component_event = component_event
+
+
+class PrevInput:
+    def __init__(self, component_id, component_property):
+        self.component_id = component_id
+        self.component_property = component_property
+
+
+class PrevState:
+    def __init__(self, component_id, component_property):
+        self.component_id = component_id
+        self.component_property = component_property

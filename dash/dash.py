@@ -12,7 +12,7 @@ import re
 
 import dash_renderer
 
-from .dependencies import Event, Input, Output, State
+from .dependencies import Event, Input, Output, State, PrevInput, PrevState
 from .resources import Scripts, Css
 from .development.base_component import Component
 from . import exceptions
@@ -481,7 +481,14 @@ class Dash(object):
     # the dropdown.
     # TODO - Check this map for recursive or other ill-defined non-tree
     # relationships
-    def callback(self, output, inputs=[], state=[], events=[]):
+    def callback(
+        self,
+        output,
+        inputs=[],
+        state=[],
+        events=[],
+        prev_state=[],
+            prev_inputs=[]):
         self._validate_callback(output, inputs, state, events)
 
         callback_id = '{}.{}'.format(
@@ -499,6 +506,14 @@ class Dash(object):
             'events': [
                 {'id': c.component_id, 'event': c.component_event}
                 for c in events
+            ],
+            'prev_inputs':  [
+                {'id': c.component_id, 'property': c.component_property}
+                for c in prev_inputs
+            ],
+            'prev_state':  [
+                {'id': c.component_id, 'property': c.component_property}
+                for c in prev_state
             ]
         }
 
@@ -530,23 +545,28 @@ class Dash(object):
         body = flask.request.get_json()
         inputs = body.get('inputs', [])
         state = body.get('state', [])
+        prev_inputs = body.get('prevInputs', [])
+        prev_state = body.get('prevState', [])
         output = body['output']
 
         target_id = '{}.{}'.format(output['id'], output['property'])
         args = []
-        for component_registration in self.callback_map[target_id]['inputs']:
-            args.append([
-                c.get('value', None) for c in inputs if
-                c['property'] == component_registration['property'] and
-                c['id'] == component_registration['id']
-            ][0])
-
-        for component_registration in self.callback_map[target_id]['state']:
-            args.append([
-                c.get('value', None) for c in state if
-                c['property'] == component_registration['property'] and
-                c['id'] == component_registration['id']
-            ][0])
+        for types in [
+            ['inputs', inputs],
+            ['state', state],
+            ['prev_inputs', prev_inputs],
+                ['prev_state', prev_state]]:
+            for component_registration in self.callback_map[target_id][types[0]]:
+                try:
+                    args.append([
+                        c.get('value', None) for c in types[1] if
+                        c['property'] == component_registration['property'] and
+                        c['id'] == component_registration['id']
+                    ][0])
+                except Exception as e:
+                    print(types)
+                    print(component_registration)
+                    print(e)
 
         return self.callback_map[target_id]['callback'](*args)
 
