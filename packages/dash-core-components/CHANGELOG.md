@@ -2,6 +2,44 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.13.0] - 2017-10-05
+### Added
+- Bumped [plotly.js](https://github.com/plotly/plotly.js) from `v1.29.3` to `v1.30.0`.
+This was a huge release by the plotly.js team! :clap:
+See the full changelog here: https://github.com/plotly/plotly.js/releases/tag/v1.31.0.
+The following improvements from this version update apply to dash:
+    - Add `table` trace type [2030](https://github.com/plotly/plotly.js/issue/2030)
+    - Add `geo.center` making geo views fully reproducible using layout attributes [2030](https://github.com/plotly/plotly.js/issue/2030)
+    - Add lasso and select-box drag modes to `scattergeo` and `choropleth` traces [2030](https://github.com/plotly/plotly.js/issue/2030)
+    - Add lasso and select-box drag modes to `bar` and `histogram` traces [2045](https://github.com/plotly/plotly.js/issue/2045)
+    - Throttle lasso and select-box events for smoother behavior [2040](https://github.com/plotly/plotly.js/issue/2040)
+    - Add constraintext attribute for bar traces [1931](https://github.com/plotly/plotly.js/1931)
+    - Add axis layer attribute to ternary axes [1952](https://github.com/plotly/plotly.js/1952)
+    - Add cross-trace matching auto-binning logic to histogram traces [1944](https://github.com/plotly/plotly.js/1944)
+    - Harmonize gl3d and gl2d zoom speed with cartesian behavior [2041](https://github.com/plotly/plotly.js/issue/2041)
+    - Fix handling of extreme off-plot data points in scatter lines [2060](https://github.com/plotly/plotly.js/issue/2060)
+    - Fix `hoverinfo` array support for `scattergeo`, `choropleth`, `scatterternary` and `scattermapbox` traces [2055](https://github.com/plotly/plotly.js/issue/2055)
+    - Fix single-bin histogram edge case [2028](https://github.com/plotly/plotly.js/issue/2028)
+    - Fix autorange for bar with base zero [2050](https://github.com/plotly/plotly.js/issue/2050)
+    - Fix annotations arrow rendering when graph div is off the DOM [2046](https://github.com/plotly/plotly.js/issue/2046)
+    - Fix hover for graphs with `scattergeo` markers outside 'usa' scope [2030](https://github.com/plotly/plotly.js/issue/2030)
+    - Fix handling of cross anti-meridian geo `lonaxis` ranges [2030](https://github.com/plotly/plotly.js/issue/2030)
+    - Fix miter limit for lines on geo subplots [2030](https://github.com/plotly/plotly.js/issue/2030)
+    - Fix `marker.opacity` handling for `scattergeo` bubbles [2030](https://github.com/plotly/plotly.js/issue/2030)
+    - Fix layout animation of secondary axes [1999](https://github.com/plotly/plotly.js/issue/1999)
+    - Fix `sankey` hover text placement for empty `link.label` items [2016](https://github.com/plotly/plotly.js/issue/2016)
+    - Fix `sankey` rendering of nodes with very small values [2017](https://github.com/plotly/plotly.js/issue/2017,2021] https://github.com/plotly/plotly.js/issue/2021)
+    - Fix `sankey` hover label positioning on pages that style the 'svg-container' div node [2027](https://github.com/plotly/plotly.js/issue/2027)
+    - Fix hover label exponents [1932](https://github.com/plotly/plotly.js/issue/1932)
+    - Fix scatter fill with isolated endpoints [1933](https://github.com/plotly/plotly.js/issue/1933)
+    - Fix parcoords axis tick scale when ticktext is unordered [1945](https://github.com/plotly/plotly.js/issue/1945)
+    - Fix sankey with 4 multi-links or more [1934](https://github.com/plotly/plotly.js/issue/1934)
+    - Fix exponent labels beyond SI prefixes [1930](https://github.com/plotly/plotly.js/issue/1930)
+    - Fix image generation for marker gradient legend items [1928](https://github.com/plotly/plotly.js/issue/1928)
+    - Fix parcoords image generation when multiple parcoords graphs are present on page [1947](https://github.com/plotly/plotly.js/issue/1947)
+    - Ignore bare closing tags in pseudo-html string inputs [1926](https://github.com/plotly/plotly.js/issue/1926)
+
+
 ## [0.12.7] - 2017-09-26
 ### :bug: Fixed
 - Fixed issues related to updating the `max_date_allowed` property of `DatePickerSingle` and `DatePickerRange`  programatically through callbacks
