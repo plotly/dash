@@ -11,8 +11,15 @@ import {
     Slider,
     SyntaxHighlighter,
     Interval,
-    Markdown
+    Markdown,
+    Upload
 } from '../src';
+
+
+const UploadExample = `
+const properties = {};
+
+ReactDOM.render(<Upload {...properties}/>, mountNode);`
 
 const MarkdownExample = `
 
@@ -294,6 +301,7 @@ ReactDOM.render(<Controller/>, mountNode);`
 
 
 const examples = [
+    {name: 'Upload', code: UploadExample},
     {name: 'Markdown', code: MarkdownExample},
     {name: 'Interval', code: SetTimeoutExample},
     {name: 'Graph', code: GraphExample},
@@ -318,7 +326,7 @@ class Demo extends Component {
                             <h3>{example.name}</h3>
                             <Playground
                                 codeText={example.code}
-                                scope={{Component, React, ReactDOM, Checklist, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter, Interval, Markdown}}
+                                scope={{Component, React, ReactDOM, Checklist, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter, Interval, Markdown, Upload}}
                                 noRender={false}
                                 theme={'xq-light'}
                             />

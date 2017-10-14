@@ -14,6 +14,7 @@ import Link from './components/Link.react';
 import Textarea from './components/Textarea.react';
 import DatePickerSingle from './components/DatePickerSingle.react';
 import DatePickerRange from './components/DatePickerRange.react';
+import Upload from './components/Upload.react';
 
 export {
     Checklist,
@@ -30,5 +31,6 @@ export {
     Link,
     Textarea,
     DatePickerSingle,
-    DatePickerRange
+    DatePickerRange,
+    Upload
 };

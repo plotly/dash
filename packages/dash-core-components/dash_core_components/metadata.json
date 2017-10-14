@@ -2567,5 +2567,241 @@
         "description": ""
       }
     }
+  },
+  "src/components/Upload.react.js": {
+    "description": "",
+    "methods": [
+      {
+        "name": "onDrop",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "files",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "ID of the component. Used to identify component\nin Dash callback functions."
+      },
+      "contents": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The contents of the uploaded file as a binary string"
+      },
+      "filename": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The name of the file(s) that was(were) uploaded.\nNote that this does not include the path of the file\n(for security reasons)."
+      },
+      "last_modified": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "number"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "number"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The last modified date of the file that was uploaded in unix time\n(seconds since 1970)."
+      },
+      "children": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "node"
+            },
+            {
+              "name": "string"
+            }
+          ]
+        },
+        "required": false,
+        "description": "Contents of the upload component"
+      },
+      "accept": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Allow specific types of files.\nSee https://github.com/okonet/attr-accept for more information.\nKeep in mind that mime type determination is not reliable across\nplatforms. CSV files, for example, are reported as text/plain\nunder macOS but as application/vnd.ms-excel under Windows.\nIn some cases there might not be a mime type set at all.\nSee: https://github.com/react-dropzone/react-dropzone/issues/276"
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Enable/disable the upload component entirely",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "disable_click": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Disallow clicking on the component to open the file dialog",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "max_size": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Maximum file size. If `-1`, then infinite",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "min_size": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Minimum file size",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "multiple": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Allow dropping multiple files",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "HTML class name of the component"
+      },
+      "className_active": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "HTML class name of the component while active"
+      },
+      "className_reject": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "HTML class name of the component if rejected"
+      },
+      "className_disabled": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "HTML class name of the component if disabled"
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "CSS styles to apply",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "style_active": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "CSS styles to apply while active",
+        "defaultValue": {
+          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#6c6',\n    backgroundColor: '#eee'\n}",
+          "computed": false
+        }
+      },
+      "style_reject": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "CSS styles if rejected",
+        "defaultValue": {
+          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#c66',\n    backgroundColor: '#eee'\n}",
+          "computed": false
+        }
+      },
+      "style_disabled": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "CSS styles if disabled",
+        "defaultValue": {
+          "value": "{\n    opacity: 0.5\n}",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-supplied function for updating props"
+      }
+    }
   }
 }

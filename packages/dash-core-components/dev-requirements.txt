@@ -1,7 +1,7 @@
 dash_html_components
 dash_renderer
 dash
-git+git://github.com/chriddyp/python-percy-client.git@print-request
+percy
 selenium
 mock
 tox
@@ -10,3 +10,6 @@ six
 plotly>=2.0.8
 requests[security]
 ipdb
+dash-table-experiments
+xlrd
+pandas

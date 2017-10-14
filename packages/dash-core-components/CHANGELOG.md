@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.14.0] - 2017-10-13
+### :sparkles: Added
+- An `Upload` component! :tada:
+
 ## [0.13.0] - 2017-10-05
 ### Added
 - Bumped [plotly.js](https://github.com/plotly/plotly.js) from `v1.29.3` to `v1.30.0`.
@@ -52,7 +56,6 @@ The following improvements from this version update apply to dash:
 ### :bug: Fixed
 -  Non-ascii characters, like chinese characters, are now supported as
    search strings in the `dcc.Dropdown` component (https://github.com/plotly/dash-core-components/pull/75)
-
 
 ## [0.12.5] - 2017-09-11
 ### :bug: Fixed
