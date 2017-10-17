@@ -1,14 +1,12 @@
-import flask
-import json
-import plotly
 from flask import Flask, Response
 from flask_compress import Compress
-from flask_seasurf import SeaSurf
-import os
-import importlib
-import pkgutil
 import collections
-import re
+import flask
+import importlib
+import json
+import pkgutil
+import plotly
+import warnings
 
 import dash_renderer
 
@@ -26,8 +24,17 @@ class Dash(object):
         server=None,
         static_folder=None,
         url_base_pathname='/',
-        csrf_protect=True
+        **kwargs
     ):
+
+        if 'csrf_protect' in kwargs:
+            warnings.warn('''
+                `csrf_protect` is no longer used,
+                CSRF protection has been removed as it is no longer
+                necessary.
+                See https://github.com/plotly/dash/issues/141 for details.
+                ''', DeprecationWarning)
+
         # allow users to supply their own flask server
         if server is not None:
             self.server = server
@@ -35,19 +42,6 @@ class Dash(object):
             if name is None:
                 name = 'dash'
             self.server = Flask(name, static_folder=static_folder)
-
-        if self.server.secret_key is None:
-            # If user supplied their own server, they might've supplied a
-            # secret_key with it
-            secret_key_name = 'dash_{}_secret_key'.format(
-                # replace any invalid characters
-                re.sub('[\W_]+', '_', name)
-            )
-            secret_key = os.environ.get(
-                secret_key_name, SeaSurf()._generate_token()
-            )
-            os.environ[secret_key_name] = secret_key
-            self.server.secret_key = secret_key
 
         self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict({
@@ -61,10 +55,6 @@ class Dash(object):
 
         # gzip
         Compress(self.server)
-
-        # csrf protect
-        if csrf_protect:
-            self._csrf = SeaSurf(self.server)
 
         # static files from the packages
         self.css = Css()

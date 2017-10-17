@@ -16,7 +16,6 @@ setup(
     install_requires=[
         'Flask>=0.12',
         'flask-compress',
-        'flask-seasurf',
         'plotly'
     ],
     url='https://plot.ly/dash',
