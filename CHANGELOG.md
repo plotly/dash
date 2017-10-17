@@ -1,3 +1,14 @@
+# 0.19.0 - 2017-10-16
+## Changed
+- 🔒  CSRF protection measures were removed as CSRF style attacks are not relevant
+to Dash apps. Dash's API uses `POST` requests with content type
+`application/json` which are not susceptible to unwanted requests from 3rd
+party sites. See https://github.com/plotly/dash/issues/141 for more.
+- 🔒  Setting `app.server.secret_key` is no longer required since CSRF protection was
+removed. Setting `app.server.secret_key` was difficult to document and
+a very common source of confusion, so it's great that users won't get bitten
+by this anymore :tada:
+
 # 0.18.3 - 2017-09-08
 ## Added
 - `app.config` is now a `dict` instead of a class. You can set config variables with
