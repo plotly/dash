@@ -397,6 +397,10 @@ export function notifyObservers(payload) {
                 const updateRequestQueue = rejected => {
                     const postRequestQueue = getState().requestQueue
                     const thisRequestIndex = getThisRequestIndex();
+                    if (thisRequestIndex === -1) {
+                        // It was already pruned away
+                        return;
+                    }
                     const updatedQueue = adjust(
                         merge(__, {
                             status: res.status,
@@ -406,8 +410,19 @@ export function notifyObservers(payload) {
                         thisRequestIndex,
                         postRequestQueue
                     );
+                    // We don't need to store any requests before this one
+                    const thisControllerId = postRequestQueue[
+                        thisRequestIndex].controllerId;
+                    const prunedQueue = updatedQueue.filter(
+                        (queueItem, index) => {
+                            return (
+                                queueItem.controllerId !== thisControllerId ||
+                                index >= thisRequestIndex
+                            );
+                        }
+                    );
 
-                    dispatch(setRequestQueue(updatedQueue));
+                    dispatch(setRequestQueue(prunedQueue));
                 }
 
                 const isRejected = () => {
@@ -415,6 +430,12 @@ export function notifyObservers(payload) {
                         propEq('controllerId', newRequestQueue[i].controllerId),
                         getState().requestQueue
                     );
+                    /*
+                     * Note that if the latest request is still `loading`
+                     * or even if the latest request failed,
+                     * we still reject this response in favor of waiting
+                     * for the latest request to finish.
+                     */
                     const rejected = latestRequestIndex > getThisRequestIndex();
                     return rejected;
                 }

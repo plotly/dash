@@ -462,7 +462,8 @@ class Tests(IntegrationTests):
         )
 
         self.request_queue_assertions(
-            expected_length=call_count.value, check_rejected=False)
+            expected_length=1,
+            check_rejected=False)
 
         assert_clean_console(self)
 
@@ -1535,5 +1536,4 @@ class Tests(IntegrationTests):
             'return window.store.getState().requestQueue'
         )
         self.assertFalse(request_queue[0]['rejected'])
-        self.assertTrue(request_queue[1]['rejected'])
-        self.assertFalse(request_queue[2]['rejected'])
+        self.assertEqual(len(request_queue), 1)
