@@ -320,8 +320,8 @@ class Demo extends Component {
             <div style={{'fontFamily': 'Sans-Serif'}}>
                 <h1>Dash Core Component Suite Demo</h1>
 
-                {examples.map(example =>
-                    <div>
+                {examples.map((example, index) =>
+                    <div key={index}>
                         <div style={{'marginBottom': 150}}>
                             <h3>{example.name}</h3>
                             <Playground

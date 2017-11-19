@@ -58,7 +58,7 @@ SyntaxHighlighter.propTypes = {
     /**
      * if showLineNumbers is enabled the line numbering will start from here.
      */
-    startingLineNumber: PropTypes.bool,
+    startingLineNumber: PropTypes.number,
     /**
      * the line numbers container default to appearing to the left with 10px of right padding. You can use this to override those styles.
      */

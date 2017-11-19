@@ -68,12 +68,12 @@ Interval.propTypes = {
     /**
      * Dash assigned callback
      */
-    fireEvent: PropTypes.function,
+    fireEvent: PropTypes.func,
 
     /**
      * Dash assigned callback
      */
-    setProps: PropTypes.function,
+    setProps: PropTypes.func,
 
     dashEvents: PropTypes.oneOf(['interval'])
 };

@@ -39,7 +39,7 @@ export default class RadioItems extends Component {
         return (
             <div {...ids} className={className} style={style}>
                 {options.map(option => (
-                    <label style={labelStyle} className={labelClassName}>
+                    <label style={labelStyle} className={labelClassName} key={option.value}>
                         <input
                             checked={option.value === value}
                             className={inputClassName}
@@ -66,24 +66,26 @@ RadioItems.propTypes = {
     /**
      * An array of options
      */
-    options: PropTypes.shape({
-        /**
-         * The radio item's label
-         */
-        label: PropTypes.string,
+    options: PropTypes.arrayOf(
+        PropTypes.shape({
+            /**
+             * The radio item's label
+             */
+            label: PropTypes.string,
 
-        /**
-         * The value of the radio item. This value
-         * corresponds to the items specified in the
-         * `values` property.
-         */
-        value: PropTypes.string,
+            /**
+             * The value of the radio item. This value
+             * corresponds to the items specified in the
+             * `values` property.
+             */
+            value: PropTypes.string,
 
-        /**
-         * If true, this radio item is disabled and can't be clicked on.
-         */
-        disabled: PropTypes.bool
-    }),
+            /**
+             * If true, this radio item is disabled and can't be clicked on.
+             */
+            disabled: PropTypes.bool
+        })
+    ),
 
     /**
      * The currently selected value
