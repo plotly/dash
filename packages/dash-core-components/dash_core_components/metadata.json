@@ -12,22 +12,25 @@
       },
       "options": {
         "type": {
-          "name": "shape",
+          "name": "arrayOf",
           "value": {
-            "label": {
-              "name": "string",
-              "description": "The checkbox's label",
-              "required": false
-            },
+            "name": "shape",
             "value": {
-              "name": "string",
-              "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
-              "required": false
-            },
-            "disabled": {
-              "name": "bool",
-              "description": "If true, this checkbox is disabled and can't be clicked on.",
-              "required": false
+              "label": {
+                "name": "string",
+                "description": "The checkbox's label",
+                "required": false
+              },
+              "value": {
+                "name": "string",
+                "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
+                "required": false
+              },
+              "disabled": {
+                "name": "bool",
+                "description": "If true, this checkbox is disabled and can't be clicked on.",
+                "required": false
+              }
             }
           }
         },
@@ -747,22 +750,25 @@
       },
       "options": {
         "type": {
-          "name": "shape",
+          "name": "arrayOf",
           "value": {
-            "label": {
-              "name": "string",
-              "description": "The checkbox's label",
-              "required": false
-            },
+            "name": "shape",
             "value": {
-              "name": "string",
-              "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
-              "required": false
-            },
-            "disabled": {
-              "name": "bool",
-              "description": "If true, this checkbox is disabled and can't be clicked on.",
-              "required": false
+              "label": {
+                "name": "string",
+                "description": "The checkbox's label",
+                "required": false
+              },
+              "value": {
+                "name": "string",
+                "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
+                "required": false
+              },
+              "disabled": {
+                "name": "bool",
+                "description": "If true, this checkbox is disabled and can't be clicked on.",
+                "required": false
+              }
             }
           }
         },
@@ -1594,18 +1600,27 @@
         "required": false,
         "description": "If True, the interval will no longer trigger\nan event."
       },
+      "n_intervals": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the interval has passed",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
       "fireEvent": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.function"
+          "name": "func"
         },
         "required": false,
         "description": "Dash assigned callback"
       },
       "setProps": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.function"
+          "name": "func"
         },
         "required": false,
         "description": "Dash assigned callback"
@@ -1776,22 +1791,25 @@
       },
       "options": {
         "type": {
-          "name": "shape",
+          "name": "arrayOf",
           "value": {
-            "label": {
-              "name": "string",
-              "description": "The radio item's label",
-              "required": false
-            },
+            "name": "shape",
             "value": {
-              "name": "string",
-              "description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`values` property.",
-              "required": false
-            },
-            "disabled": {
-              "name": "bool",
-              "description": "If true, this radio item is disabled and can't be clicked on.",
-              "required": false
+              "label": {
+                "name": "string",
+                "description": "The radio item's label",
+                "required": false
+              },
+              "value": {
+                "name": "string",
+                "description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`values` property.",
+                "required": false
+              },
+              "disabled": {
+                "name": "bool",
+                "description": "If true, this radio item is disabled and can't be clicked on.",
+                "required": false
+              }
             }
           }
         },
@@ -2310,7 +2328,7 @@
       },
       "startingLineNumber": {
         "type": {
-          "name": "bool"
+          "name": "number"
         },
         "required": false,
         "description": "if showLineNumbers is enabled the line numbering will start from here."

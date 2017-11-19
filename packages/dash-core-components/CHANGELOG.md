@@ -2,9 +2,37 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.0] - 2017-11-19
+### :sweat_smile: Added
+- The `Interval` component has a new property: `n_intervals`. This is an
+integer that increases every time that the interval passes. This allows you
+to use the `Interval` component without using the `events=[Event(...)]` pattern
+inside the callback.
+
+This is similar to the `n_clicks` property of the `dash_html_components`
+components.
+This was the last use case for `events=[Event(...)]` inside the
+`dash_core_components` library. Ultimately, we may be able to deprecate this
+pattern.
+
+### Changed
+- The `dash_core_components.Input(type='number')` component actually converts
+the values to floats or integers, instead of passing the numbers back as strings.
+https://github.com/plotly/dash-core-components/pull/100
+Big thanks to community contributor @Madhu94!
+
+### Fixed
+- The `disable_click` property in the `dcc.Upload` component now works.
+https://github.com/plotly/dash-core-components/pull/106.
+Big thanks to community contributor @Akronix!
+- Several properties in several components had the wrong `propTypes`.
+This has been fixed, improving the documentation for the Dash python classes
+(and removing warnings in JS development).
+Big thanks to community contributor @Akronix!
+
 ## [0.14.0] - 2017-10-17
 ### :sparkles: Added
-- An `Upload` component! :tada:
+- An `Upload` component! :tada: See [https://plot.ly/dash/dash-core-components/upload](https://plot.ly/dash/dash-core-components/upload) for docs.
 
 ## [0.13.0] - 2017-10-05
 ### Added

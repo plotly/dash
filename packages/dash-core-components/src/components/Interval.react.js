@@ -14,24 +14,28 @@ export default class Interval extends Component {
     }
 
     setInterval(props) {
-        const {interval, fireEvent} = props;
+        const {interval, fireEvent, setProps} = props;
         this.setState({
-            intervalId: window.setInterval(function intervalFunction(){
+            intervalId: window.setInterval(() => {
                 if (fireEvent && !props.disabled) {
                     fireEvent({event: 'interval'});
+                }
+                if (setProps && !props.disabled) {
+                    setProps({n_intervals: this.props.n_intervals + 1})
                 }
             }, interval)
         });
     }
 
     componentDidMount() {
-        if (this.props.fireEvent) {
+        if (this.props.fireEvent || this.props.setProps) {
             this.setInterval(this.props);
         }
     }
 
     componentWillReceiveProps(nextProps) {
-        if (!this.props.fireEvent && nextProps.fireEvent) {
+        if ((!this.props.fireEvent && nextProps.fireEvent) ||
+            (!this.props.setProps && nextProps.setProps)) {
             this.setInterval(nextProps);
         } else if (
             this.props.interval !== nextProps.interval &&
@@ -66,6 +70,11 @@ Interval.propTypes = {
     disabled: PropTypes.bool,
 
     /**
+     * Number of times the interval has passed
+     */
+    n_intervals: PropTypes.number,
+
+    /**
      * Dash assigned callback
      */
     fireEvent: PropTypes.func,
@@ -79,5 +88,6 @@ Interval.propTypes = {
 };
 
 Interval.defaultProps = {
-    interval: 1000
+    interval: 1000,
+    n_intervals: 0
 };
