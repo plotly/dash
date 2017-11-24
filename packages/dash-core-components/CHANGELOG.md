@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.15.0] - 2017-11-19
+## [0.15.2] - 2017-11-24
 ### :sweat_smile: Added
 - The `Interval` component has a new property: `n_intervals`. This is an
 integer that increases every time that the interval passes. This allows you
@@ -29,6 +29,13 @@ Big thanks to community contributor @Akronix!
 This has been fixed, improving the documentation for the Dash python classes
 (and removing warnings in JS development).
 Big thanks to community contributor @Akronix!
+
+## [0.15.1] - 2017-11-23
+### Fixed
+- Attempt to fix the JS builds from 0.15.0 but actually nothing changed.
+
+## [0.15.0] - 2017-11-19
+- Bad build. See 0.15.2 for the correct build
 
 ## [0.14.0] - 2017-10-17
 ### :sparkles: Added

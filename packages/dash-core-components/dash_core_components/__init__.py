@@ -21,9 +21,9 @@ _js_dist = [
     {
         "relative_package_path": "bundle.js",
         "external_url": (
-            "https://unpkg.com/dash-core-components@0.13.0-rc3"
+            "https://unpkg.com/dash-core-components@{}"
             "/dash_core_components/bundle.js"
-        ),
+        ).format(__version__),
         "namespace": "dash_core_components"
     }
 ]
