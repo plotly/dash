@@ -13,7 +13,7 @@ from dash import exceptions
 
 def generate_css(css_links):
     return '\n'.join([
-        '<link rel="stylesheet" href="{}"></link>'.format(l)
+        '<link rel="stylesheet" href="{}">'.format(l)
         for l in css_links
     ])
 
