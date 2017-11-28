@@ -1,9 +1,5 @@
 # Dash
 
-#### 📢 Announcement!
-#### Seats are still available for a 2 day, Dash master class in NYC, November 18-19. 
-#### [Registration here](https://plotcon.plot.ly/workshops) 🎚 📈 🗽
-
 ***
 
 #### Dash is a Python framework for building analytical web applications. No JavaScript required.
