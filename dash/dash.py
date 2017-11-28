@@ -298,12 +298,11 @@ class Dash(object):
                         Loading...
                     </div>
                 </div>
+                <footer>
+                    {}
+                    {}
+                </footer>
             </body>
-
-            <footer>
-                {}
-                {}
-            </footer>
         </html>
         '''.format(title, css, config, scripts))
 
