@@ -216,7 +216,7 @@ class Dash(object):
             self.css.get_all_css()
         )
         return '\n'.join([
-            '<link rel="stylesheet" href="{}"></link>'.format(link)
+            '<link rel="stylesheet" href="{}">'.format(link)
             for link in links
         ])
 
