@@ -251,14 +251,14 @@ class Dash(object):
 
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
-        if (package_name not in self.registered_paths):
+        if package_name not in self.registered_paths:
             raise Exception(
                 'Error loading dependency.\n'
                 '"{}" is not a registered library.\n'
                 'Registered libraries are: {}'
                 .format(package_name, list(self.registered_paths.keys())))
 
-        elif (path_in_package_dist not in self.registered_paths[package_name]):
+        elif path_in_package_dist not in self.registered_paths[package_name]:
             raise Exception(
                 '"{}" is registered but the path requested is not valid.\n'
                 'The path requested: "{}"\n'
@@ -449,7 +449,7 @@ class Dash(object):
 
         callback_id = '{}.{}'.format(
             output.component_id, output.component_property)
-        if (callback_id in self.callback_map):
+        if callback_id in self.callback_map:
             raise exceptions.CantHaveMultipleOutputs('''
                 You have already assigned a callback to the output
                 with ID "{}" and property "{}". An output can only have
