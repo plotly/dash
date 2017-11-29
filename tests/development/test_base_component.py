@@ -20,14 +20,14 @@ Component._namespace = 'test_namespace'
 
 
 def nested_tree():
-    '''This tree has a few unique properties:
+    """This tree has a few unique properties:
     - children is mixed strings and components (as in c2)
     - children is just components (as in c)
     - children is just strings (as in c1)
     - children is just a single component (as in c3, c4)
     - children contains numbers (as in c2)
     - children contains "None" items (as in c2)
-    '''
+    """
     c1 = Component(
         id='0.1.x.x.0',
         children='string'
