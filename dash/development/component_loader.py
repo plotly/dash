@@ -1,6 +1,6 @@
-from .base_component import generate_class
 import collections
 import json
+from .base_component import generate_class
 
 
 def load_components(metadata_path,
