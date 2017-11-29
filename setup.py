@@ -1,6 +1,7 @@
+import io
 from setuptools import setup, find_packages
 
-import io
+
 exec(open('dash/version.py').read())
 
 setup(
@@ -11,7 +12,7 @@ setup(
     packages=find_packages(exclude=['tests*']),
     license='MIT',
     description=('A Python framework for building reactive web-apps. '
-        'Developed by Plotly.'),
+                 'Developed by Plotly.'),
     long_description=io.open('README.md', encoding='utf-8').read(),
     install_requires=[
         'Flask>=0.12',
