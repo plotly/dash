@@ -1,10 +1,10 @@
 from collections import OrderedDict
 import inspect
 import json
-import plotly
 import unittest
 import collections
 import os
+import plotly
 
 from dash.development.base_component import (
     generate_class,
@@ -126,7 +126,7 @@ class TestComponent(unittest.TestCase):
         c = nested_tree()[0]
 
         # Test setting items starting from the innermost item
-        for i, key in enumerate(reversed(keys)):
+        for key in reversed(keys):
             new_id = 'new {}'.format(key)
             new_component = Component(
                 id=new_id,
