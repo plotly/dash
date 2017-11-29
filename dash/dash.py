@@ -1,12 +1,12 @@
-from flask import Flask, Response
-from flask_compress import Compress
 import collections
-import flask
 import importlib
 import json
 import pkgutil
-import plotly
 import warnings
+from flask import Flask, Response
+from flask_compress import Compress
+import flask
+import plotly
 
 import dash_renderer
 
