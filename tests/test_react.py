@@ -1,11 +1,11 @@
 import unittest
-import dash
 import json
+import pkgutil
+import dash
 import plotly
 import dash_core_components as dcc
 from dash_html_components import Div
 import dash_renderer
-import pkgutil
 
 from dash.dependencies import Event, Input, Output, State
 from dash import exceptions
@@ -95,18 +95,18 @@ class IntegrationTest(unittest.TestCase):
         )
 
         state = [
-             {'id': 'id1', 'prop': 'value'},
+            {'id': 'id1', 'prop': 'value'},
 
-             # Multiple properties from a single component
-             {'id': 'id1', 'prop': 'className'},
+            # Multiple properties from a single component
+            {'id': 'id1', 'prop': 'className'},
 
-             # Nested state
-             {'id': 'id1', 'prop': ['style', 'color']}
+            # Nested state
+            {'id': 'id1', 'prop': ['style', 'color']}
         ]
         events = [
-             {'id': 'id1', 'event': 'click'},
-             {'id': 'id1', 'event': 'submit'}
-         ]
+            {'id': 'id1', 'event': 'click'},
+            {'id': 'id1', 'event': 'submit'}
+        ]
         self.app.callback('header', state=state, events=events)
         response = self.client.get('/dependencies')
         self.assertEqual(response.status_code, 200)
