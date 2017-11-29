@@ -1,7 +1,7 @@
-from dash.resources import Scripts, Css
-from dash.development.base_component import generate_class
 import unittest
 import warnings
+from dash.resources import Scripts, Css
+from dash.development.base_component import generate_class
 
 
 def generate_components():
