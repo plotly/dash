@@ -5,7 +5,7 @@ import warnings
 from .development.base_component import Component
 
 
-class Resources():
+class Resources:
     def __init__(self, resource_name, layout):
         self._resources = []
         self.resource_name = resource_name
@@ -86,7 +86,7 @@ class Resources():
         return resources
 
 
-class Css():
+class Css:
     def __init__(self, layout=None):
         self._resources = Resources('_css_dist', layout)
         self._resources.config = self.config
@@ -108,7 +108,7 @@ class Css():
         serve_locally = False
 
 
-class Scripts():
+class Scripts:
     def __init__(self, layout=None):
         self._resources = Resources('_js_dist', layout)
         self._resources.config = self.config
