@@ -284,7 +284,7 @@ class Dash(object):
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
         title = getattr(self, 'title', 'Dash')
-        return ('''
+        return '''
         <!DOCTYPE html>
         <html>
             <head>
@@ -304,7 +304,7 @@ class Dash(object):
                 </footer>
             </body>
         </html>
-        '''.format(title, css, config, scripts))
+        '''.format(title, css, config, scripts)
 
     def dependencies(self):
         return flask.jsonify([
