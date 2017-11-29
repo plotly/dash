@@ -1,9 +1,9 @@
 import collections
-from dash.development.component_loader import load_components
-from dash.development.base_component import generate_class, Component
 import json
 import os
 import unittest
+from dash.development.component_loader import load_components
+from dash.development.base_component import generate_class, Component
 
 METADATA_PATH = 'metadata.json'
 
