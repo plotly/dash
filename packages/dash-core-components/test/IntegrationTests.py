@@ -1,11 +1,9 @@
 from __future__ import absolute_import
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import importlib
 import multiprocessing
-import percy
 import time
 import unittest
+import percy
+from selenium import webdriver
 
 
 class IntegrationTests(unittest.TestCase):
