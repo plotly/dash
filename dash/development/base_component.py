@@ -72,7 +72,7 @@ class Component(collections.MutableMapping):
 
         # if children is like a list
         if isinstance(self.children, collections.MutableSequence):
-            for (i, item) in enumerate(self.children):
+            for i, item in enumerate(self.children):
                 # If the item itself is the one we're looking for
                 if getattr(item, 'id', None) == id:
                     if operation == 'get':
