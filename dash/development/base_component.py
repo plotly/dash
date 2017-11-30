@@ -120,17 +120,15 @@ class Component(collections.MutableMapping):
         return self._get_set_or_delete(id, 'get')
 
     def __setitem__(self, id, item):
-        """Set an element by its ID
-        """
+        """Set an element by its ID."""
         return self._get_set_or_delete(id, 'set', item)
 
     def __delitem__(self, id):
-        """Delete items by ID in the tree of children
-        """
+        """Delete items by ID in the tree of children."""
         return self._get_set_or_delete(id, 'delete')
 
     def traverse(self):
-        """Yield each item in the tree"""
+        """Yield each item in the tree."""
         children = getattr(self, 'children', None)
 
         # children is just a component
@@ -149,8 +147,7 @@ class Component(collections.MutableMapping):
                         yield t
 
     def __iter__(self):
-        """Yield IDs in the tree of children
-        """
+        """Yield IDs in the tree of children."""
         for t in self.traverse():
             if (isinstance(t, Component) and
                     getattr(t, 'id', None) is not None):
@@ -158,8 +155,7 @@ class Component(collections.MutableMapping):
                 yield t.id
 
     def __len__(self):
-        """Return the number of items in the tree
-        """
+        """Return the number of items in the tree."""
         # TODO - Should we return the number of items that have IDs
         # or just the number of items?
         # The number of items is more intuitive but returning the number
