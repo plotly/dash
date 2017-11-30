@@ -1,6 +1,6 @@
 from setuptools import setup
 
-exec (open('dash_core_components/version.py').read())
+exec(open('dash_core_components/version.py').read())
 
 setup(
     name='dash_core_components',
