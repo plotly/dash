@@ -1,6 +1,7 @@
 class AttributeDict(dict):
     """
     Dictionary subclass enabling attribute lookup/assignment of keys/values.
+
     For example::
         >>> m = AttributeDict({'foo': 'bar'})
         >>> m.foo
