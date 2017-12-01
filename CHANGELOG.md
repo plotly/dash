@@ -14,7 +14,7 @@ by this anymore :tada:
 - `app.config` is now a `dict` instead of a class. You can set config variables with
   `app.config['suppress_callback_exceptions'] = True` now. The previous class-based
   syntax (e.g. `app.config.suppress_callback_exceptions`) has been maintained for
-  backwards compatability
+  backwards compatibility
 
 ## Fixed
 - 0.18.2 introduced a bug that removed the ability for dash to serve the app on
@@ -23,8 +23,8 @@ by this anymore :tada:
   These variables would be shared across apps. This issue has been fixed.
   Originally reported in https://community.plot.ly/t/flask-endpoint-error/5691/7
 - The config setting `supress_callback_exceptions` has been renamed to
-  `suppress_callback_exceptions`. Previouslly, `suppress` was spelled wrong.
-  The original config variable is kept for backwards compatability.
+  `suppress_callback_exceptions`. Previously, `suppress` was spelled wrong.
+  The original config variable is kept for backwards compatibility.
 
 # 0.18.3rc1 - 2017-09-08
 The prerelease for 0.18.3
@@ -54,7 +54,7 @@ The prerelease for 0.18.3
 
 ##🔧 Maintenance
 - 📝  Update README.md
-- ✅  Fix CircleCI tests. Note that the the [`dash-renderer`](https://github.com/plotly/dash-renderer) contains the bulk of the integration tests.
+- ✅  Fix CircleCI tests. Note that the [`dash-renderer`](https://github.com/plotly/dash-renderer) contains the bulk of the integration tests.
 - 💄 Flake8 fixes and tests (fixes #99 )
 - ✨ Added this CHANGELOG.md
 
