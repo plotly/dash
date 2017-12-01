@@ -112,6 +112,8 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self.routes = []
+        self.head = None
+        self.footer = None
 
     @property
     def layout(self):
