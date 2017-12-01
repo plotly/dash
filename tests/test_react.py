@@ -38,7 +38,7 @@ class IntegrationTest(unittest.TestCase):
 
         self.maxDiff = 100*1000
 
-    @unittest.skip("")
+    @unittest.skip('')
     def test_route_list(self):
         urls = [rule.rule for rule in self.app.server.url_map.iter_rules()]
 
@@ -54,7 +54,7 @@ class IntegrationTest(unittest.TestCase):
             ])
         )
 
-    @unittest.skip("")
+    @unittest.skip('')
     def test_initialize_route(self):
         response = self.client.get('/initialize')
         self.assertEqual(response.status_code, 200)
@@ -65,7 +65,7 @@ class IntegrationTest(unittest.TestCase):
             )
         )
 
-    @unittest.skip("")
+    @unittest.skip('')
     def test_dependencies_route(self):
         self.app.callback('header', ['id1'])
         response = self.client.get('/dependencies')
@@ -119,12 +119,12 @@ class IntegrationTest(unittest.TestCase):
             }
         )
 
-    @unittest.skip("")
+    @unittest.skip('')
     def test_index_html(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
-    @unittest.skip("")
+    @unittest.skip('')
     def test_single_observer_returning_a_dict(self):
         @self.app.callback('header', ['id1'])
         def update_header(input1):
@@ -174,7 +174,7 @@ class IntegrationTest(unittest.TestCase):
             }
         )
 
-    @unittest.skip("")
+    @unittest.skip('')
     def test_single_observer_returning_a_component(self):
         @self.app.callback('header', ['id1'])
         def update_header(input1):
@@ -222,7 +222,7 @@ class IntegrationTest(unittest.TestCase):
             }
         )
 
-    @unittest.skip("")
+    @unittest.skip('')
     def test_single_observer_updating_component_that_doesnt_exist(self):
         # It's possible to register callbacks for components that don't
         # exist in the initial layout because users could add them as
@@ -271,7 +271,7 @@ class IntegrationTest(unittest.TestCase):
             }
         )
 
-    @unittest.skip("")
+    @unittest.skip('')
     def test_single_observer_with_multiple_controllers(self):
         @self.app.callback('header', ['id1', 'id2'])
         def update_header(input1, input2):

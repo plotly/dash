@@ -134,14 +134,14 @@ class TestResources(unittest.TestCase):
 
         resources.config.serve_locally = True
         with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+            warnings.simplefilter('always')
             if css_or_js == 'css':
                 self.assertEqual(
                     resources.get_all_css(),
                     expected_filtered_relative_resources
                 )
                 assert len(w) == 1
-                assert "A local version of {} is not available".format(
+                assert 'A local version of {} is not available'.format(
                     extra_resource['external_url']
                 ) in str(w[-1].message)
 
@@ -151,7 +151,7 @@ class TestResources(unittest.TestCase):
                     expected_filtered_relative_resources
                 )
                 assert len(w) == 1
-                assert "A local version of {} is not available".format(
+                assert 'A local version of {} is not available'.format(
                     extra_resource['external_url']
                 ) in str(w[-1].message)
 
