@@ -237,7 +237,7 @@ def generate_class(typename, props, description, namespace):
         parse_events(props),
         description
     )
-    events = "[" + ', '.join(parse_events(props)) + "]"
+    events = '[' + ', '.join(parse_events(props)) + ']'
     if 'children' in props:
         default_argtext = 'children=None, **kwargs'
         argtext = 'children=children, **kwargs'
