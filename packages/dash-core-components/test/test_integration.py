@@ -63,8 +63,7 @@ class Tests(IntegrationTests):
 
         pre_style = {
             'whiteSpace': 'pre-wrap',
-            'wordBreak': 'break-all',
-            'whiteSpace': 'normal'
+            'wordBreak': 'break-all'
         }
 
         app.layout = html.Div([
