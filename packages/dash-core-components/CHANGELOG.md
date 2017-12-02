@@ -81,7 +81,7 @@ The following improvements from this version update apply to dash:
 
 ## [0.12.7] - 2017-09-26
 ### :bug: Fixed
-- Fixed issues related to updating the `max_date_allowed` property of `DatePickerSingle` and `DatePickerRange`  programatically through callbacks
+- Fixed issues related to updating the `max_date_allowed` property of `DatePickerSingle` and `DatePickerRange`  programmatically through callbacks
 - Clicking on the end date in the `DatePickerRange` will now open up the calendar to the end date (https://github.com/plotly/dash-core-components/issues/80)
 
 ### Maintenance
@@ -96,7 +96,7 @@ The following improvements from this version update apply to dash:
 ### :bug: Fixed
 -  The `Interval` component was constantly resetting its interval on every update. Initially reported in https://community.plot.ly/t/multiple-interval-object-in-a-single-page/5699/3
 - Removed the used `label` property from the `Slider` component
-- Provide a more descriptive documention for the `marks` property of the `Slider` component
+- Provide a more descriptive documentation for the `marks` property of the `Slider` component
 
 ### :stars: Added
 - A `disabled` property on the `Interval` component will disable the interval component from firing its updates.
