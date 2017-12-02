@@ -13,7 +13,6 @@ def invincible(func):
     return wrap
 
 
-
 class WaitForTimeout(Exception):
     """This should only be raised inside the `wait_for` function."""
     pass
