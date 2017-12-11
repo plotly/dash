@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.3] - 2017-12-11
+### Fixed
+- Upgrade the version of [plotly.js](https://github.com/plotly/plotly.js) from 1.31.0 to 1.31.2. See the list of fixes here: https://github.com/plotly/plotly.js/blob/master/CHANGELOG.md
+
+
 ## [0.15.2] - 2017-11-24
 ### :sweat_smile: Added
 - The `Interval` component has a new property: `n_intervals`. This is an
