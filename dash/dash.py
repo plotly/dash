@@ -35,13 +35,9 @@ class Dash(object):
                 See https://github.com/plotly/dash/issues/141 for details.
                 ''', DeprecationWarning)
 
+        name = name or 'dash'
         # allow users to supply their own flask server
-        if server is not None:
-            self.server = server
-        else:
-            if name is None:
-                name = 'dash'
-            self.server = Flask(name, static_folder=static_folder)
+        self.server = server or Flask(name, static_folder=static_folder)
 
         self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict({
