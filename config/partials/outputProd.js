@@ -11,6 +11,7 @@ module.exports = function (config) {
         output: {
             path: BUILD,
             publicPath: '/dash_renderer/',
+            library: 'dash_renderer',
             // TODO: Bundle filename should be hashed (#10)
             filename: '[name].js'
         }
