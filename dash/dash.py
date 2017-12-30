@@ -23,6 +23,7 @@ from flask_compress import Compress
 
 from .dependencies import Event, Input, Output, State
 from .resources import Scripts, Css
+from .response import DashResponse
 from .development.base_component import Component
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
@@ -900,6 +901,11 @@ class Dash(object):
             def add_context(*args, **kwargs):
 
                 output_value = func(*args, **kwargs)
+
+                if isinstance(output_value, DashResponse):
+                    output_value.jsonify_response(output)
+                    return output_value
+
                 response = {
                     'response': {
                         'props': {
