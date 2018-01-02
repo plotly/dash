@@ -10,7 +10,7 @@ dependencies:
     pre:
         - npm install -g eslint
         - pip install tox
-        - pip install -r dev-requirements.txt
+        - pip install -r requirements-locked.txt
         - npm install
         - node_modules/.bin/builder run build-dist
         - node_modules/.bin/builder run copy-lib
