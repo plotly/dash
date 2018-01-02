@@ -6,6 +6,12 @@ import Markdown from 'react-markdown';
  * CommonMark spec.
  */
 function DashMarkdown (props) {
+
+    // must be a string or an array of strings
+    if(typeof props.children !== 'string') {
+        props.children = props.children.join('\n');
+    }
+
     return (
         <Markdown
             source={props.children}
@@ -29,9 +35,9 @@ DashMarkdown.propTypes = {
     containerProps: PropTypes.object,
 
     /**
-     * A markdown string that adhreres to the CommonMark spec
+     * A markdown string (or array of strings) that adhreres to the CommonMark spec
      */
-    children: PropTypes.string
+    children: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)])
 }
 
 export default DashMarkdown;

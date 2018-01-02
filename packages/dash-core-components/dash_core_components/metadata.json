@@ -1802,10 +1802,21 @@
       },
       "children": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
         },
         "required": false,
-        "description": "A markdown string that adhreres to the CommonMark spec"
+        "description": "A markdown string (or array of strings) that adhreres to the CommonMark spec"
       }
     }
   },
@@ -2304,7 +2315,18 @@
       },
       "children": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
         },
         "required": false,
         "description": "The text to display and highlight"

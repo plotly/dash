@@ -14,6 +14,12 @@ export default function SyntaxHighlighter(props) {
     } else {
         style = arduinoLight;
     }
+
+    // must be a string or an array of strings
+    if(typeof props.children !== 'string') {
+        props.children = props.children.join('\n');
+    }
+
     return (
         <ReactSyntaxHighlighter
             style={style}
@@ -28,7 +34,7 @@ SyntaxHighlighter.propTypes = {
     /**
      * The text to display and highlight
      */
-    children: PropTypes.string,
+    children: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
 
     /**
      * the language to highlight code in.
