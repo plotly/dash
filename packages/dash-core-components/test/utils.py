@@ -61,6 +61,27 @@ def wait_for(condition_function, get_message=lambda: '', *args, **kwargs):
     raise WaitForTimeout(get_message())
 
 
+def waiter(waiter_func, waitfor_string='waitfor'):
+    """
+    Wait for an
+    :param waiter_func: Function that takes a string and waits
+    :param waitfor_string: String to wait for (an id or class name, e.g., dependeing on waiter_func).
+        Defaults to 'waitfor'
+    Usage:
+        def get_element(selector):
+            # some code to get some element or return a `False`-y value.
+        selector = '.js-plotly-plot'
+        waiter(my_waiting_function, selector)  # Throws an error if the selector is not found
+        plot = get_element(selector)  # we know it exists.
+    """
+    time.sleep(1)
+    try:
+        waiter_func(waitfor_string)
+    except Exception as e:
+        print(waiter_func('_dash-app-content').get_attribute('innerHTML'))
+        raise e
+
+
 def assert_clean_console(TestClass):
     def assert_no_console_errors(TestClass):
         TestClass.assertEqual(

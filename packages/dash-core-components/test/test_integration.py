@@ -3,12 +3,15 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table_experiments as dt
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 import base64
 import importlib
 import io
@@ -21,7 +24,7 @@ import time
 import unittest
 
 from .IntegrationTests import IntegrationTests
-from .utils import assert_clean_console, invincible, wait_for
+from .utils import assert_clean_console, invincible, wait_for, waiter
 
 # Download geckodriver: https://github.com/mozilla/geckodriver/releases
 # And add to path:
@@ -324,3 +327,129 @@ class Tests(IntegrationTests):
             '#dropdown .Select-input input'
         ).send_keys(u'北')
         self.snapshot('gallery - chinese character')
+
+    def test_location_link(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Div(id='waitfor'),
+            dcc.Location(id='test-location', refresh=False),
+
+            dcc.Link(
+                html.Button('I am a clickable button'),
+                id='test-link',
+                href='/test/pathname'),
+            dcc.Link(
+                html.Button('I am a clickable hash button'),
+                id='test-link-hash',
+                href='#test'),
+            dcc.Link(
+                html.Button('I am a clickable search button'),
+                id='test-link-search',
+                href='?testQuery=testValue',
+                refresh=False),
+            html.Button('I am a magic button that updates pathname', id='test-button'),
+            html.A('link to click', href='/test/pathname/a', id='test-a'),
+            html.A('link to click', href='#test-hash', id='test-a-hash'),
+            html.A('link to click', href='?queryA=valueA', id='test-a-query'),
+            html.Div(id='test-pathname', children=[]),
+            html.Div(id='test-hash', children=[]),
+            html.Div(id='test-search', children=[]),
+        ])
+
+        @app.callback(
+            output=Output(component_id='test-pathname', component_property='children'),
+            inputs=[Input(component_id='test-location', component_property='pathname')])
+        def update_location_on_page(pathname):
+            return pathname
+
+        @app.callback(
+            output=Output(component_id='test-hash', component_property='children'),
+            inputs=[Input(component_id='test-location', component_property='hash')])
+        def update_location_on_page(hash_val):
+            if hash_val is None:
+                return ''
+
+            return hash_val
+
+        @app.callback(
+            output=Output(component_id='test-search', component_property='children'),
+            inputs=[Input(component_id='test-location', component_property='search')])
+        def update_location_on_page(search):
+            if search is None:
+                return ''
+
+            return search
+
+        @app.callback(
+            output=Output(component_id='test-location', component_property='pathname'),
+            inputs=[Input(component_id='test-button', component_property='n_clicks')],
+            state=[State(component_id='test-location', component_property='pathname')])
+        def update_pathname(n_clicks, current_pathname):
+            if n_clicks is not None:
+                return '/new/pathname'
+
+            return current_pathname
+
+        self.startServer(app=app)
+
+        self.snapshot('link -- location')
+
+        # Check that link updates pathname
+        self.driver.find_element_by_id('test-link').click()
+
+        self.snapshot('link --- /test/pathname')
+        self.assertEqual(
+            self.driver.current_url.replace('http://localhost:8050', ''),
+            '/test/pathname')
+        self.assertEqual(
+            self.driver.find_element_by_id('test-pathname').text,
+            '/test/pathname')
+
+        # Check that hash is updated in the Location
+        self.driver.find_element_by_id('test-link-hash').click()
+
+        self.snapshot('link -- /test/pathname#test')
+        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/test/pathname')
+        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '#test')
+
+        # Check that search is updated in the Location -- note that this goes through href and therefore wipes the hash
+        self.driver.find_element_by_id('test-link-search').click()
+
+        self.snapshot('link -- /test/pathname?testQuery=testValue')
+        self.assertEqual(self.driver.find_element_by_id('test-search').text, '?testQuery=testValue')
+        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '')
+
+        # Check that pathname is updated through a Button click via props
+        self.driver.find_element_by_id('test-button').click()
+        time.sleep(1)  # Need to wait for the callback to fire TODO is there a better way to wait?
+
+        self.snapshot('link -- /new/pathname?testQuery=testValue')
+        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/new/pathname')
+        self.assertEqual(self.driver.find_element_by_id('test-search').text, '?testQuery=testValue')
+
+        # Check that pathname is updated through an a tag click via props
+        self.driver.find_element_by_id('test-a').click()
+        waiter(self.wait_for_element_by_id)
+        
+        self.snapshot('link -- /test/pathname/a')
+        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/test/pathname/a')
+        self.assertEqual(self.driver.find_element_by_id('test-search').text, '')
+        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '')
+
+        # Check that hash is updated through an a tag click via props
+        self.driver.find_element_by_id('test-a-hash').click()
+
+        self.snapshot('link -- /test/pathname/a#test-hash')
+        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/test/pathname/a')
+        self.assertEqual(self.driver.find_element_by_id('test-search').text, '')
+        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '#test-hash')
+
+        # Check that hash is updated through an a tag click via props
+        self.driver.find_element_by_id('test-a-query').click()
+        waiter(self.wait_for_element_by_id)
+
+        self.snapshot('link -- /test/pathname/a?queryA=valueA')
+        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/test/pathname/a')
+        self.assertEqual(self.driver.find_element_by_id('test-search').text, '?queryA=valueA')
+        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '')

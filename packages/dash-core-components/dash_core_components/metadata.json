@@ -1,6 +1,7 @@
 {
   "src/components/Checklist.react.js": {
     "description": "Checklist is a component that encapsulates several checkboxes.\nThe values and labels of the checklist is specified in the `options`\nproperty and the checked items are specified with the `values` property.\nEach checkbox is rendered as an input with a surrounding label.",
+    "displayName": "Checklist",
     "methods": [],
     "props": {
       "id": {
@@ -140,6 +141,7 @@
   },
   "src/components/DatePickerRange.react.js": {
     "description": "DatePickerRange is a tailor made component designed for selecting\ntimespan across multiple days off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates",
+    "displayName": "DatePickerRange",
     "methods": [
       {
         "name": "propsToState",
@@ -448,6 +450,7 @@
   },
   "src/components/DatePickerSingle.react.js": {
     "description": "DatePickerSingle is a tailor made component designed for selecting\na single day off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates",
+    "displayName": "DatePickerSingle",
     "methods": [
       {
         "name": "propsToState",
@@ -739,6 +742,7 @@
   },
   "src/components/Dropdown.react.js": {
     "description": "Dropdown is an interactive dropdown element for selecting one or more\nitems.\nThe values and labels of the dropdown items are specified in the `options`\nproperty and the selected item(s) are specified with the `value` property.\n\nUse a dropdown when you have many options (more than 5) or when you are\nconstrained for space. Otherwise, you can use RadioItems or a Checklist,\nwhich have the benefit of showing the users all of the items at once.",
+    "displayName": "Dropdown",
     "methods": [],
     "props": {
       "id": {
@@ -875,6 +879,7 @@
   },
   "src/components/Graph.react.js": {
     "description": "",
+    "displayName": "PlotlyGraph",
     "methods": [
       {
         "name": "plot",
@@ -1264,6 +1269,7 @@
   },
   "src/components/Input.react.js": {
     "description": "A basic HTML input control for entering text, numbers, or passwords.\n\nNote that checkbox and radio types are supported through\nthe Checklist and RadioItems component. Dates, times, and file uploads\nare also supported through separate components.",
+    "displayName": "Input",
     "methods": [],
     "props": {
       "id": {
@@ -1560,6 +1566,7 @@
   },
   "src/components/Interval.react.js": {
     "description": "A component that repeatedly fires an event (\"interval\")\nwith a fixed time delay between each event.\nInterval is good for triggering a component on a recurring basis.\nThe time delay is set with the property \"interval\" in milliseconds.",
+    "displayName": "Interval",
     "methods": [
       {
         "name": "setInterval",
@@ -1642,6 +1649,7 @@
   },
   "src/components/Link.react.js": {
     "description": "",
+    "displayName": "Link",
     "methods": [
       {
         "name": "updateLocation",
@@ -1701,7 +1709,8 @@
     }
   },
   "src/components/Location.react.js": {
-    "description": "",
+    "description": "Update and track the current window.location object through the window.history state.\nUse in conjunction with the `dash_core_components.Link` component to make apps with multiple pages.",
+    "displayName": "Location",
     "methods": [
       {
         "name": "updateLocation",
@@ -1729,14 +1738,35 @@
           "name": "string"
         },
         "required": false,
-        "description": ""
+        "description": "pathname in window.location - e.g., \"/my/full/pathname\""
+      },
+      "search": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "search in window.location - e.g., \"?myargument=1\""
+      },
+      "hash": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "hash in window.location - e.g., \"#myhash\""
+      },
+      "href": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "href in window.location - e.g., \"/my/full/pathname?myargument=1#myhash\""
       },
       "refresh": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "",
+        "description": "Refresh the page when the location is updated?",
         "defaultValue": {
           "value": "true",
           "computed": false
@@ -1746,6 +1776,7 @@
   },
   "src/components/Markdown.react.js": {
     "description": "A component that renders Markdown text as specified by the\nCommonMark spec.",
+    "displayName": "DashMarkdown",
     "methods": [],
     "props": {
       "id": {
@@ -1780,6 +1811,7 @@
   },
   "src/components/RadioItems.react.js": {
     "description": "RadioItems is a component that encapsulates several radio item inputs.\nThe values and labels of the RadioItems is specified in the `options`\nproperty and the seleced item is specified with the `value` property.\nEach radio item is rendered as an input with a surrounding label.",
+    "displayName": "RadioItems",
     "methods": [],
     "props": {
       "id": {
@@ -1916,6 +1948,7 @@
   },
   "src/components/RangeSlider.react.js": {
     "description": "A double slider with two handles.\nUsed for specifying a range of numerical values.",
+    "displayName": "RangeSlider",
     "methods": [],
     "props": {
       "id": {
@@ -2103,6 +2136,7 @@
   },
   "src/components/Slider.react.js": {
     "description": "A slider component with a single handle.",
+    "displayName": "Slider",
     "methods": [],
     "props": {
       "id": {
@@ -2258,6 +2292,7 @@
   },
   "src/components/SyntaxHighlighter.react.js": {
     "description": "A component for pretty printing code.",
+    "displayName": "SyntaxHighlighter",
     "methods": [],
     "props": {
       "id": {
@@ -2365,6 +2400,7 @@
   },
   "src/components/Textarea.react.js": {
     "description": "A basic HTML textarea for entering multiline text.",
+    "displayName": "Textarea",
     "methods": [],
     "props": {
       "id": {
@@ -2588,6 +2624,7 @@
   },
   "src/components/Upload.react.js": {
     "description": "",
+    "displayName": "Upload",
     "methods": [
       {
         "name": "onDrop",

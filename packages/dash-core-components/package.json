@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.15.3",
+  "version": "0.15.4",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -26,7 +26,7 @@
   "dependencies": {
     "builder": "3.2.2",
     "dash-components-archetype": "^0.2.11",
-    "moment": "^2.18.1",
+    "moment": "^2.20.1",
     "radium": "^0.19.4",
     "ramda": "^0.24.1",
     "rc-slider": "^8.3.1",
