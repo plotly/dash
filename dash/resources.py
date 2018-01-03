@@ -5,6 +5,7 @@ import warnings
 from .development.base_component import Component
 
 
+# pylint: disable=old-style-class
 class Resources:
     def __init__(self, resource_name, layout):
         self._resources = []
@@ -66,6 +67,7 @@ class Resources:
         layout = self.layout
 
         def extract_resource_from_component(component):
+            # pylint: disable=protected-access
             if (isinstance(component, Component) and
                     component._namespace not in namespaces):
 
@@ -87,6 +89,7 @@ class Resources:
 
 
 class Css:
+    # pylint: disable=old-style-class
     def __init__(self, layout=None):
         self._resources = Resources('_css_dist', layout)
         self._resources.config = self.config
@@ -103,12 +106,14 @@ class Css:
     def get_inferred_css_dist(self):
         return self._resources.get_inferred_resources()
 
+    # pylint: disable=old-style-class, no-init, too-few-public-methods
     class config:
         infer_from_layout = True
         serve_locally = False
 
 
 class Scripts:
+    # pylint: disable=old-style-class
     def __init__(self, layout=None):
         self._resources = Resources('_js_dist', layout)
         self._resources.config = self.config
@@ -125,6 +130,7 @@ class Scripts:
     def get_inferred_scripts(self):
         return self._resources.get_inferred_resources()
 
+    # pylint: disable=old-style-class, no-init, too-few-public-methods
     class config:
         infer_from_layout = True
         serve_locally = False

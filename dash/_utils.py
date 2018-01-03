@@ -27,6 +27,7 @@ class AttributeDict(dict):
             # to conform with __getattr__ spec
             raise AttributeError(key)
 
+    # pylint: disable=inconsistent-return-statements
     def first(self, *names):
         for name in names:
             value = self.get(name)

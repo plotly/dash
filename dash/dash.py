@@ -4,8 +4,8 @@ import json
 import pkgutil
 import warnings
 from flask import Flask, Response
-from flask_compress import Compress
 import flask
+from flask_compress import Compress
 import plotly
 
 import dash_renderer
@@ -17,16 +17,17 @@ from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 
 
+# pylint: disable=too-many-instance-attributes
 class Dash(object):
     def __init__(
-        self,
-        name=None,
-        server=None,
-        static_folder=None,
-        url_base_pathname='/',
-        **kwargs
-    ):
+            self,
+            name=None,
+            server=None,
+            static_folder=None,
+            url_base_pathname='/',
+            **kwargs):
 
+        # pylint-disable: too-many-instance-attributes
         if 'csrf_protect' in kwargs:
             warnings.warn('''
                 `csrf_protect` is no longer used,
@@ -58,12 +59,13 @@ class Dash(object):
         self.registered_paths = {}
 
         # urls
-        def add_url(name, view_func, methods=['GET']):
+
+        def add_url(name, view_func, methods=('GET',)):
             self.server.add_url_rule(
                 name,
                 view_func=view_func,
                 endpoint=name,
-                methods=methods
+                methods=list(methods)
             )
 
         add_url(
@@ -77,8 +79,7 @@ class Dash(object):
 
         add_url(
             '{}_dash-update-component'.format(
-                self.config['routes_pathname_prefix']
-            ),
+                self.config['routes_pathname_prefix']),
             self.dispatch,
             ['POST'])
 
@@ -86,9 +87,8 @@ class Dash(object):
             '{}_dash-component-suites'
             '/<string:package_name>'
             '/<path:path_in_package_dist>').format(
-                self.config['routes_pathname_prefix']
-            ),
-            self.serve_component_suites)
+                self.config['routes_pathname_prefix']),
+                self.serve_component_suites)
 
         add_url(
             '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
@@ -133,6 +133,7 @@ class Dash(object):
         self._layout = value
 
         layout_value = self._layout_value()
+        # pylint: disable=protected-access
         self.css._update_layout(layout_value)
         self.scripts._update_layout(layout_value)
         self._collect_and_register_resources(
@@ -223,6 +224,7 @@ class Dash(object):
         # scripts have rendered.
         # The rest of the scripts can just be loaded after React but before
         # dash renderer.
+        # pylint: disable=protected-access
         srcs = self._collect_and_register_resources(
             self.scripts._resources._filter_resources(
                 dash_renderer._js_dist_dependencies
@@ -275,7 +277,7 @@ class Dash(object):
             mimetype=mimetype
         )
 
-    def index(self, *args, **kwargs):
+    def index(self):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
@@ -315,6 +317,7 @@ class Dash(object):
             } for k, v in list(self.callback_map.items())
         ])
 
+    # pylint: disable=unused-argument, no-self-use
     def react(self, *args, **kwargs):
         raise exceptions.DashException(
             'Yo! `react` is no longer used. \n'
@@ -322,6 +325,7 @@ class Dash(object):
             'so make sure to call `help(app.callback)` to learn more.')
 
     def _validate_callback(self, output, inputs, state, events):
+        # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
 
         if (layout is None and
@@ -337,10 +341,10 @@ class Dash(object):
                 `app.config['suppress_callback_exceptions']=True`
             '''.replace('    ', ''))
 
-        for args, object, name in [([output], Output, 'Output'),
-                                   (inputs, Input, 'Input'),
-                                   (state, State, 'State'),
-                                   (events, Event, 'Event')]:
+        for args, obj, name in [([output], Output, 'Output'),
+                                (inputs, Input, 'Input'),
+                                (state, State, 'State'),
+                                (events, Event, 'Event')]:
 
             if not isinstance(args, list):
                 raise exceptions.IncorrectTypeException(
@@ -350,7 +354,7 @@ class Dash(object):
                     ))
 
             for arg in args:
-                if not isinstance(arg, object):
+                if not isinstance(arg, obj):
                     raise exceptions.IncorrectTypeException(
                         'The {} argument `{}` is '
                         'not of type `dash.{}`.'.format(
@@ -402,8 +406,8 @@ class Dash(object):
                                    arg.component_id,
                                    arg.component_property,
                                    arg.component_id,
-                                   component.available_properties
-                                   ).replace('    ', ''))
+                                   component.available_properties)\
+                                   .replace('    ', ''))
 
                     if (hasattr(arg, 'component_event') and
                             arg.component_event not in
@@ -418,10 +422,10 @@ class Dash(object):
                                    arg.component_id,
                                    arg.component_event,
                                    arg.component_id,
-                                   component.available_events
-                                   ).replace('    ', ''))
+                                   component.available_events)\
+                                   .replace('    ', ''))
 
-        if len(state) > 0 and len(events) == 0 and len(inputs) == 0:
+        if state and not events and not inputs:
             raise exceptions.MissingEventsException('''
                 This callback has {} `State` {}
                 but no `Input` elements or `Event` elements.\n
@@ -466,6 +470,7 @@ class Dash(object):
     # the dropdown.
     # TODO - Check this map for recursive or other ill-defined non-tree
     # relationships
+    # pylint: disable=dangerous-default-value
     def callback(self, output, inputs=[], state=[], events=[]):
         self._validate_callback(output, inputs, state, events)
 
