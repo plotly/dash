@@ -10,15 +10,24 @@ def is_number(s):
         return False
 
 
+def _check_if_has_indexable_children(item):
+    if (not hasattr(item, 'children') or
+            (not isinstance(item.children, Component) and
+             not isinstance(item.children, collections.MutableSequence))):
+
+        raise KeyError
+
+
 class Component(collections.MutableMapping):
     def __init__(self, **kwargs):
+        # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
-            if k not in self._prop_names:
+            if k not in self._prop_names:  # pylint: disable=no-member
                 # TODO - What's the right exception here?
                 raise Exception(
                     'Unexpected keyword argument `{}`'.format(k) +
                     '\nAllowed arguments: {}'.format(
-                        ', '.join(sorted(self._prop_names))
+                        ', '.join(sorted(self._prop_names))  # pylint: disable=no-member
                     )
                 )
             setattr(self, k, v)
@@ -26,24 +35,20 @@ class Component(collections.MutableMapping):
     def to_plotly_json(self):
         as_json = {
             'props': {p: getattr(self, p)
-                      for p in self._prop_names
+                      for p in self._prop_names  # pylint: disable=no-member
                       if hasattr(self, p)},
-            'type': self._type,
-            'namespace': self._namespace
+            'type': self._type,  # pylint: disable=no-member
+            'namespace': self._namespace  # pylint: disable=no-member
         }
 
         return as_json
 
-    def _check_if_has_indexable_children(self, item):
-        if (not hasattr(item, 'children') or
-                (not isinstance(item.children, Component) and
-                 not isinstance(item.children, collections.MutableSequence))):
 
-            raise KeyError
-
+    # pylint: disable=too-many-branches, too-many-return-statements, redefined-builtin, inconsistent-return-statements
     def _get_set_or_delete(self, id, operation, new_item=None):
-        self._check_if_has_indexable_children(self)
+        _check_if_has_indexable_children(self)
 
+        # pylint: disable=access-member-before-definition, attribute-defined-outside-init
         if isinstance(self.children, Component):
             if getattr(self.children, 'id', None) is not None:
                 # Woohoo! It's the item that we're looking for
@@ -110,7 +115,7 @@ class Component(collections.MutableMapping):
     # - __iter__
     # - __len__
 
-    def __getitem__(self, id):
+    def __getitem__(self, id):  # pylint: disable=redefined-builtin
         """Recursively find the element with the given ID through the tree
         of children.
         """
@@ -119,11 +124,11 @@ class Component(collections.MutableMapping):
         # or a list of components.
         return self._get_set_or_delete(id, 'get')
 
-    def __setitem__(self, id, item):
+    def __setitem__(self, id, item):  # pylint: disable=redefined-builtin
         """Set an element by its ID."""
         return self._get_set_or_delete(id, 'set', item)
 
-    def __delitem__(self, id):
+    def __delitem__(self, id):  # pylint: disable=redefined-builtin
         """Delete items by ID in the tree of children."""
         return self._get_set_or_delete(id, 'delete')
 
@@ -139,7 +144,7 @@ class Component(collections.MutableMapping):
 
         # children is a list of components
         elif isinstance(children, collections.MutableSequence):
-            for i in children:
+            for i in children:  # pylint: disable=not-an-iterable
                 yield i
 
                 if isinstance(i, Component):
@@ -177,7 +182,7 @@ class Component(collections.MutableMapping):
         return length
 
 
-def generate_class(typename, props, description, namespace):
+def generate_class(typename, props, description, namespace):  # pylint: disable=unused-argument
     # Dynamically generate classes to have nicely formatted docstrings,
     # keyword arguments, and repr
     # Insired by http://jameso.be/2013/08/06/namedtuple.html
@@ -229,28 +234,28 @@ def generate_class(typename, props, description, namespace):
                     repr(getattr(self, self._prop_names[0], None)) + ')')
     '''
 
-    filtered_props = reorder_props(filter_props(props))
-    list_of_valid_keys = repr(list(filtered_props.keys()))
-    docstring = create_docstring(
+    filtered_props = reorder_props(filter_props(props))  # pylint: disable=unused-variable
+    list_of_valid_keys = repr(list(filtered_props.keys()))  # pylint: disable=unused-variable
+    docstring = create_docstring(  # pylint: disable=unused-variable
         typename,
         filtered_props,
         parse_events(props),
         description
     )
-    events = '[' + ', '.join(parse_events(props)) + ']'
+    events = '[' + ', '.join(parse_events(props)) + ']'  # pylint: disable=unused-variable
     if 'children' in props:
-        default_argtext = 'children=None, **kwargs'
-        argtext = 'children=children, **kwargs'
+        default_argtext = 'children=None, **kwargs'  # pylint: disable=unused-variable
+        argtext = 'children=children, **kwargs'  # pylint: disable=unused-variable
     else:
-        default_argtext = '**kwargs'
-        argtext = '**kwargs'
+        default_argtext = '**kwargs'  # pylint: disable=unused-variable
+        argtext = '**kwargs'  # pylint: disable=unused-variable
 
-    required_args = required_props(props)
+    required_args = required_props(props)  # pylint: disable=unused-variable
 
     d = c.format(**locals())
 
     scope = {'Component': Component}
-    exec(d, scope)
+    exec(d, scope)  # pylint: disable=exec-used
     result = scope[typename]
     return result
 
@@ -350,7 +355,7 @@ def js_to_py_type(type_object):
         ])),
 
         # React's PropTypes.arrayOf
-        'arrayOf': lambda: 'list'.format(
+        'arrayOf': lambda: 'list'.format(  # pylint: disable=too-many-format-args
             'of {}s'.format(js_to_py_type(type_object['value']))
             if js_to_py_type(type_object['value']) != ''
             else ''
@@ -387,8 +392,7 @@ def js_to_py_type(type_object):
         return ''
     if js_type_name in js_to_py_types:
         return js_to_py_types[js_type_name]()
-    else:
-        return ''
+    return ''
 
 
 def argument_doc(arg_name, type_object, required, description):
@@ -404,12 +408,11 @@ def argument_doc(arg_name, type_object, required, description):
             is_required='required' if required else 'optional'
         )
 
-    else:
-        return '{name} ({type}{is_required}){description}'.format(
-            name=arg_name,
-            type='{}; '.format(py_type_name) if py_type_name else '',
-            description=(
-                ': {}'.format(description) if description != '' else ''
-            ),
-            is_required='required' if required else 'optional'
-        )
+    return '{name} ({type}{is_required}){description}'.format(
+        name=arg_name,
+        type='{}; '.format(py_type_name) if py_type_name else '',
+        description=(
+            ': {}'.format(description) if description != '' else ''
+        ),
+        is_required='required' if required else 'optional'
+    )
