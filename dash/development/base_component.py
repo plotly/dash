@@ -24,10 +24,11 @@ class Component(collections.MutableMapping):
         for k, v in list(kwargs.items()):
             if k not in self._prop_names:  # pylint: disable=no-member
                 # TODO - What's the right exception here?
+                # pylint: disable=no-member
                 raise Exception(
                     'Unexpected keyword argument `{}`'.format(k) +
                     '\nAllowed arguments: {}'.format(
-                        ', '.join(sorted(self._prop_names))  # pylint: disable=no-member
+                        ', '.join(sorted(self._prop_names))
                     )
                 )
             setattr(self, k, v)
@@ -43,12 +44,13 @@ class Component(collections.MutableMapping):
 
         return as_json
 
-
-    # pylint: disable=too-many-branches, too-many-return-statements, redefined-builtin, inconsistent-return-statements
+    # pylint: disable=too-many-branches, too-many-return-statements
+    # pylint: disable=redefined-builtin, inconsistent-return-statements
     def _get_set_or_delete(self, id, operation, new_item=None):
         _check_if_has_indexable_children(self)
 
-        # pylint: disable=access-member-before-definition, attribute-defined-outside-init
+        # pylint: disable=access-member-before-definition,
+        # pylint: disable=attribute-defined-outside-init
         if isinstance(self.children, Component):
             if getattr(self.children, 'id', None) is not None:
                 # Woohoo! It's the item that we're looking for
@@ -182,7 +184,8 @@ class Component(collections.MutableMapping):
         return length
 
 
-def generate_class(typename, props, description, namespace):  # pylint: disable=unused-argument
+# pylint: disable=unused-argument
+def generate_class(typename, props, description, namespace):
     # Dynamically generate classes to have nicely formatted docstrings,
     # keyword arguments, and repr
     # Insired by http://jameso.be/2013/08/06/namedtuple.html
@@ -234,28 +237,29 @@ def generate_class(typename, props, description, namespace):  # pylint: disable=
                     repr(getattr(self, self._prop_names[0], None)) + ')')
     '''
 
-    filtered_props = reorder_props(filter_props(props))  # pylint: disable=unused-variable
-    list_of_valid_keys = repr(list(filtered_props.keys()))  # pylint: disable=unused-variable
-    docstring = create_docstring(  # pylint: disable=unused-variable
+    # pylint: disable=unused-variable
+    filtered_props = reorder_props(filter_props(props))
+    list_of_valid_keys = repr(list(filtered_props.keys()))
+    docstring = create_docstring(
         typename,
         filtered_props,
         parse_events(props),
         description
     )
-    events = '[' + ', '.join(parse_events(props)) + ']'  # pylint: disable=unused-variable
+    events = '[' + ', '.join(parse_events(props)) + ']'
     if 'children' in props:
-        default_argtext = 'children=None, **kwargs'  # pylint: disable=unused-variable
-        argtext = 'children=children, **kwargs'  # pylint: disable=unused-variable
+        default_argtext = 'children=None, **kwargs'
+        argtext = 'children=children, **kwargs'
     else:
-        default_argtext = '**kwargs'  # pylint: disable=unused-variable
-        argtext = '**kwargs'  # pylint: disable=unused-variable
+        default_argtext = '**kwargs'
+        argtext = '**kwargs'
 
-    required_args = required_props(props)  # pylint: disable=unused-variable
+    required_args = required_props(props)
 
     d = c.format(**locals())
 
     scope = {'Component': Component}
-    exec(d, scope)  # pylint: disable=exec-used
+    exec(d, scope)
     result = scope[typename]
     return result
 
@@ -355,7 +359,8 @@ def js_to_py_type(type_object):
         ])),
 
         # React's PropTypes.arrayOf
-        'arrayOf': lambda: 'list'.format(  # pylint: disable=too-many-format-args
+        # pylint: disable=too-many-format-args
+        'arrayOf': lambda: 'list'.format(
             'of {}s'.format(js_to_py_type(type_object['value']))
             if js_to_py_type(type_object['value']) != ''
             else ''

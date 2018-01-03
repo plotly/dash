@@ -406,7 +406,7 @@ class Dash(object):
                                    arg.component_id,
                                    arg.component_property,
                                    arg.component_id,
-                                   component.available_properties)\
+                                   component.available_properties)
                                    .replace('    ', ''))
 
                     if (hasattr(arg, 'component_event') and
@@ -422,7 +422,7 @@ class Dash(object):
                                    arg.component_id,
                                    arg.component_event,
                                    arg.component_id,
-                                   component.available_events)\
+                                   component.available_events)
                                    .replace('    ', ''))
 
         if state and not events and not inputs:
