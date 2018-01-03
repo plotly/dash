@@ -1,15 +1,10 @@
 from dash import Dash
-from dash.dependencies import Input, Output, State, Event
-import dash
+from dash.dependencies import Input, Output
 import dash_html_components as html
 import dash_core_components as dcc
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 from multiprocessing import Value
-import time
-import re
-import itertools
-import json
 
 
 class Tests(IntegrationTests):
@@ -20,7 +15,6 @@ class Tests(IntegrationTests):
             ))
             return self.driver.find_element_by_id(id)
         self.wait_for_element_by_id = wait_for_element_by_id
-
 
     def test_simple_callback(self):
         app = Dash(__name__)
