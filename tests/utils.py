@@ -1,4 +1,3 @@
-import json
 import time
 
 
@@ -12,7 +11,6 @@ def invincible(func):
         except:
             pass
     return wrap
-
 
 
 class WaitForTimeout(Exception):
