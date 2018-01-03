@@ -69,8 +69,4 @@ class Tests(IntegrationTests):
             len('hello world')
         )
 
-        self.request_queue_assertions(
-            expected_length=1,
-            check_rejected=False)
-
         assert_clean_console(self)
