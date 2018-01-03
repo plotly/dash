@@ -402,12 +402,13 @@ class Dash(object):
                             "{}" doesn't have "{}" as a property.\n
                             Here is a list of the available properties in "{}":
                             {}
-                        '''.format(arg.component_property,
-                                   arg.component_id,
-                                   arg.component_property,
-                                   arg.component_id,
-                                   component.available_properties)
-                                   .replace('    ', ''))
+                        '''.format(
+                            arg.component_property,
+                            arg.component_id,
+                            arg.component_property,
+                            arg.component_id,
+                            component.available_properties).replace(
+                                '    ', ''))
 
                     if (hasattr(arg, 'component_event') and
                             arg.component_event not in
@@ -418,12 +419,12 @@ class Dash(object):
                             "{}" doesn't have "{}" as an event.\n
                             Here is a list of the available events in "{}":
                             {}
-                        '''.format(arg.component_event,
-                                   arg.component_id,
-                                   arg.component_event,
-                                   arg.component_id,
-                                   component.available_events)
-                                   .replace('    ', ''))
+                        '''.format(
+                            arg.component_event,
+                            arg.component_id,
+                            arg.component_event,
+                            arg.component_id,
+                            component.available_events).replace('    ', ''))
 
         if state and not events and not inputs:
             raise exceptions.MissingEventsException('''
