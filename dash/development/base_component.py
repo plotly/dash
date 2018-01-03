@@ -259,6 +259,7 @@ def generate_class(typename, props, description, namespace):
     d = c.format(**locals())
 
     scope = {'Component': Component}
+    # pylint: disable=exec-used
     exec(d, scope)
     result = scope[typename]
     return result
