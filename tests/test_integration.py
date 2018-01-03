@@ -1,10 +1,10 @@
-from dash import Dash
-from dash.dependencies import Input, Output
+from multiprocessing import Value
 import dash_html_components as html
 import dash_core_components as dcc
+from dash import Dash
+from dash.dependencies import Input, Output
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
-from multiprocessing import Value
 
 
 class Tests(IntegrationTests):
