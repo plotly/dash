@@ -1,16 +1,9 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import dash
-import dash_core_components
-import dash_core_components as dcc
-import dash_html_components as html
-import importlib
 import multiprocessing
-import percy
+import sys
 import time
 import unittest
-import os
-import sys
+from selenium import webdriver
+import percy
 
 
 class IntegrationTests(unittest.TestCase):
@@ -28,12 +21,11 @@ class IntegrationTests(unittest.TestCase):
         cls.driver = webdriver.Chrome()
 
         loader = percy.ResourceLoader(
-          webdriver=cls.driver
+            webdriver=cls.driver
         )
         cls.percy_runner = percy.Runner(loader=loader)
 
         cls.percy_runner.initialize_build()
-
 
     @classmethod
     def tearDownClass(cls):
