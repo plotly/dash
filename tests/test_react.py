@@ -1,11 +1,11 @@
 import unittest
 import json
 import pkgutil
-import dash
 import plotly
 import dash_core_components as dcc
 from dash_html_components import Div
 import dash_renderer
+import dash
 
 from dash.dependencies import Event, Input, Output, State
 from dash import exceptions
