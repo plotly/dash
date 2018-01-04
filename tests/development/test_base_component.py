@@ -1,9 +1,9 @@
 from collections import OrderedDict
+import collections
 import inspect
 import json
-import unittest
-import collections
 import os
+import unittest
 import plotly
 
 from dash.development.base_component import (
@@ -164,60 +164,60 @@ class TestComponent(unittest.TestCase):
         Component._type
 
         self.assertEqual(json.loads(json.dumps(
-                c.to_plotly_json(),
-                cls=plotly.utils.PlotlyJSONEncoder
+            c.to_plotly_json(),
+            cls=plotly.utils.PlotlyJSONEncoder
             )), {
-            'type': 'TestComponent',
-            'namespace': 'test_namespace',
-            'props': {
-                'children': [
-                    {
-                        'type': 'TestComponent',
-                        'namespace': 'test_namespace',
-                        'props': {
-                            'id': '0.0'
+                'type': 'TestComponent',
+                'namespace': 'test_namespace',
+                'props': {
+                    'children': [
+                        {
+                            'type': 'TestComponent',
+                            'namespace': 'test_namespace',
+                            'props': {
+                                'id': '0.0'
+                            }
+                        },
+                        {
+                            'type': 'TestComponent',
+                            'namespace': 'test_namespace',
+                            'props': {
+                                'children': {
+                                    'type': 'TestComponent',
+                                    'namespace': 'test_namespace',
+                                    'props': {
+                                        'children': {
+                                            'type': 'TestComponent',
+                                            'namespace': 'test_namespace',
+                                            'props': {
+                                                'children': [
+                                                    10,
+                                                    None,
+                                                    'wrap string',
+                                                    {
+                                                        'type': 'TestComponent',
+                                                        'namespace': 'test_namespace',  # noqa: E501
+                                                        'props': {
+                                                            'children': 'string',
+                                                            'id': '0.1.x.x.0'
+                                                        }
+                                                    },
+                                                    'another string',
+                                                    4.51
+                                                ],
+                                                'id': '0.1.x.x'
+                                            }
+                                        },
+                                        'id': '0.1.x'
+                                    }
+                                },
+                                'id': '0.1'
+                            }
                         }
-                    },
-                    {
-                        'type': 'TestComponent',
-                        'namespace': 'test_namespace',
-                        'props': {
-                            'children': {
-                                'type': 'TestComponent',
-                                'namespace': 'test_namespace',
-                                'props': {
-                                    'children': {
-                                        'type': 'TestComponent',
-                                        'namespace': 'test_namespace',
-                                        'props': {
-                                            'children': [
-                                                10,
-                                                None,
-                                                'wrap string',
-                                                {
-                                                    'type': 'TestComponent',
-                                                    'namespace': 'test_namespace',  # noqa: E501
-                                                    'props': {
-                                                        'children': 'string',
-                                                        'id': '0.1.x.x.0'
-                                                    }
-                                                },
-                                                'another string',
-                                                4.51
-                                            ],
-                                            'id': '0.1.x.x'
-                                        }
-                                    },
-                                    'id': '0.1.x'
-                                }
-                            },
-                            'id': '0.1'
-                        }
-                    }
-                ],
-                'id': '0'
-            }
-        })
+                    ],
+                    'id': '0'
+                }
+            })
 
     def test_get_item_raises_key_if_id_doesnt_exist(self):
         c = Component()
@@ -754,4 +754,4 @@ def assert_docstring(assertEqual, docstring):
             "Available events: 'restyle', 'relayout', 'click'",
             '        '
             ])[i]
-        )
+                   )
