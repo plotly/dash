@@ -1,30 +1,27 @@
 # -*- coding: utf-8 -*-
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table_experiments as dt
+import base64
+from datetime import datetime
+import io
+import os
+import sys
+import time
+import pandas as pd
+
 import dash
 from dash.dependencies import Input, Output, State
-
-from datetime import datetime
+import dash_html_components as html
+import dash_core_components as dcc
+import dash_table_experiments as dt
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+
 try:
     from urlparse import urlparse
 except ImportError:
     from urllib.parse import urlparse
-import base64
-import importlib
-import io
-import multiprocessing
-import os
-import pandas as pd
-import percy
-import sys
-import time
-import unittest
 
 from .IntegrationTests import IntegrationTests
-from .utils import assert_clean_console, invincible, wait_for, waiter
+from .utils import invincible, wait_for, waiter
 
 # Download geckodriver: https://github.com/mozilla/geckodriver/releases
 # And add to path:
@@ -431,7 +428,7 @@ class Tests(IntegrationTests):
         # Check that pathname is updated through an a tag click via props
         self.driver.find_element_by_id('test-a').click()
         waiter(self.wait_for_element_by_id)
-        
+
         self.snapshot('link -- /test/pathname/a')
         self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/test/pathname/a')
         self.assertEqual(self.driver.find_element_by_id('test-search').text, '')
