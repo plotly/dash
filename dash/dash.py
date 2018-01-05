@@ -1,3 +1,4 @@
+import sys
 import collections
 import importlib
 import json
@@ -52,6 +53,12 @@ class Dash(object):
 
         # gzip
         Compress(self.server)
+
+        @self.server.errorhandler(exceptions.PreventUpdate)
+        def handle_error(error):
+            """Handle a halted callback and return an empty 204 response"""
+            print(error, file=sys.stderr)
+            return ('', 204)
 
         # static files from the packages
         self.css = Css()
