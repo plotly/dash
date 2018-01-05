@@ -41,5 +41,6 @@ class IDsCantContainPeriods(CallbackException):
 class CantHaveMultipleOutputs(CallbackException):
     pass
 
+
 class PreventUpdate(CallbackException):
     pass
