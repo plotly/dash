@@ -1,5 +1,5 @@
-import dash_html_components
 import unittest
+import dash_html_components
 
 
 class TestDashHtmlComponents(unittest.TestCase):

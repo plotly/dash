@@ -1,6 +1,6 @@
 import os as _os
-import dash as _dash
 import sys as _sys
+import dash as _dash
 from .version import __version__
 
 _current_path = _os.path.dirname(_os.path.abspath(__file__))
