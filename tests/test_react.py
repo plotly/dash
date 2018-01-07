@@ -20,7 +20,7 @@ def generate_css(css_links):
 
 def generate_js(js_links):
     return '\n'.join([
-        '<script type="text/JavaScript" src="{}"></script>'.format(l)
+        '<script src="{}"></script>'.format(l)
         for l in js_links
     ])
 

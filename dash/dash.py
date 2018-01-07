@@ -236,7 +236,7 @@ class Dash(object):
         )
 
         return '\n'.join([
-            '<script type="text/JavaScript" src="{}"></script>'.format(src)
+            '<script src="{}"></script>'.format(src)
             for src in srcs
         ])
 
