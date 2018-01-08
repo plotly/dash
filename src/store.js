@@ -5,11 +5,18 @@ import thunk from 'redux-thunk';
 import reducer from './reducers/reducer';
 import createLogger from 'redux-logger';
 
+
 let logger;
 if (process.env.NODE_ENV !== 'production')  // only set up logger in non-production mode
     logger = createLogger();
 let store;
-throw new Error('TEST');
+
+/**
+ * Initialize a Redux store with thunk, plus logging (only in development mode) middleware
+ *
+ * @returns {Store<GenericStoreEnhancer>}
+ *  An initialized redux store with middleware and possible hot reloading of reducers
+ */
 const initializeStore = () => {
     if (store) {
         return store;
