@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.11.2] - 2018-01-08
 ### Fixed
-- Removes logging from redux middleware from production build based on NODE_ENV.
+- Removes logging from redux middleware from production build based on process.env.NODE_ENV.
 
 ## [0.11.1] - 2017-10-19
 ### Fixed
