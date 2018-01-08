@@ -5,18 +5,21 @@ import thunk from 'redux-thunk';
 import reducer from './reducers/reducer';
 import createLogger from 'redux-logger';
 
-const logger = createLogger()
+let logger;
+if (process.env.NODE_ENV !== 'production')  // only set up logger in non-production mode
+    logger = createLogger();
 let store;
+throw new Error('TEST');
 const initializeStore = () => {
     if (store) {
         return store;
     }
 
-    store = createStore(
-        reducer,
-        // TODO - Remove logger from production
-        applyMiddleware(thunk, logger)
-    );
+    // only attach logger to middleware in non-production mode
+    store = process.env.NODE_ENV === 'production'
+        ? createStore(reducer, applyMiddleware(thunk))
+        : createStore(reducer, applyMiddleware(thunk, logger));
+
 
     // TODO - Protect this under a debug mode?
     window.store = store; /* global window:true */

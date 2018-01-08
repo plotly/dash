@@ -18,3 +18,4 @@ simple*
 /.tox
 
 *.csv
+.idea/
