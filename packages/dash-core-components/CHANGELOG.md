@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.5] - 2017-01-08
+### Fixed
+- The `dash_core_components.Location` and `dash_core_components.Link` properties
+should now work on Internet Explorer.
+Thanks to @nedned for suggesting a solution.
+Fixes https://github.com/plotly/dash-core-components/pull/113
+
 ## [0.15.4] - 2017-12-21
 ### Changed
 - The `dash_core_components.Location` component now supports `hash`,
@@ -9,10 +16,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 (mimicking the `window.location` API). `href` can be used to handle
 `pathname`, `hash`, and `search` in aggregate, or each can be manipulated
 independently.
-- The `children` property of `dash_core_components.Markdown` and 
-`dash_core_components.SyntaxHighlighter` now accepts an 
+- The `children` property of `dash_core_components.Markdown` and
+`dash_core_components.SyntaxHighlighter` now accepts an
 array of strings (previously it *had* to be a string). Now,
-if an array is provided, it is collapsed into a string with line 
+if an array is provided, it is collapsed into a string with line
 breaks (see #134).
 
 ## [0.15.3] - 2017-12-11

@@ -14,6 +14,7 @@ import dash_core_components as dcc
 import dash_table_experiments as dt
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+import time
 
 try:
     from urlparse import urlparse
@@ -21,7 +22,6 @@ except ImportError:
     from urllib.parse import urlparse
 
 from .IntegrationTests import IntegrationTests
-from .utils import invincible, wait_for, waiter
 
 # Download geckodriver: https://github.com/mozilla/geckodriver/releases
 # And add to path:
@@ -34,21 +34,28 @@ from .utils import invincible, wait_for, waiter
 
 class Tests(IntegrationTests):
     def setUp(self):
-        def wait_for_element_by_id(id):
-            wait_for(lambda: None is not invincible(
-                lambda: self.driver.find_element_by_id(id)
-            ))
-            return self.driver.find_element_by_id(id)
-        self.wait_for_element_by_id = wait_for_element_by_id
+        pass
 
-        def wait_for_element_by_css_selector(css_selector):
-            wait_for(lambda: None is not invincible(
-                lambda: self.driver.find_element_by_css_selector(css_selector)
-            ))
-            return self.driver.find_element_by_css_selector(css_selector)
-        self.wait_for_element_by_css_selector = (
-            wait_for_element_by_css_selector
-        )
+    def wait_for_element_by_css_selector(self, selector):
+        start_time = time.time()
+        while time.time() < start_time + 20:
+            try:
+                return self.driver.find_element_by_css_selector(selector)
+            except Exception as e:
+                pass
+            time.sleep(0.25)
+        raise e
+
+    def wait_for_text_to_equal(self, selector, assertion_text):
+        start_time = time.time()
+        while time.time() < start_time + 20:
+            el = self.wait_for_element_by_css_selector(selector)
+            try:
+                return self.assertEqual(el.text, assertion_text)
+            except Exception as e:
+                pass
+            time.sleep(0.25)
+        raise e
 
     def snapshot(self, name):
         if 'PERCY_PROJECT' in os.environ and 'PERCY_TOKEN' in os.environ:
@@ -100,7 +107,9 @@ class Tests(IntegrationTests):
                     df = pd.read_csv(io.StringIO(base64.b64decode(
                         content_string).decode('utf-8')))
                     return html.Div([
-                        dt.DataTable(rows=df.to_dict('records')),
+                        dt.DataTable(
+                            rows=df.to_dict('records'),
+                            columns=['city', 'country']),
                         html.Hr(),
                         html.Div('Raw Content'),
                         html.Pre(contents, style=pre_style)
@@ -109,7 +118,9 @@ class Tests(IntegrationTests):
                     df = pd.read_excel(io.BytesIO(base64.b64decode(
                         content_string)))
                     return html.Div([
-                        dt.DataTable(rows=df.to_dict('records')),
+                        dt.DataTable(
+                            rows=df.to_dict('records'),
+                            columns=['city', 'country']),
                         html.Hr(),
                         html.Div('Raw Content'),
                         html.Pre(contents, style=pre_style)
@@ -131,10 +142,10 @@ class Tests(IntegrationTests):
         self.startServer(app)
 
         try:
-            self.wait_for_element_by_id('waitfor')
+            self.wait_for_element_by_css_selector('#waitfor')
         except Exception as e:
-            print(self.wait_for_element_by_id(
-                '_dash-app-content').get_attribute('innerHTML'))
+            print(self.wait_for_element_by_css_selector(
+                '#_dash-app-content').get_attribute('innerHTML'))
             raise e
 
         upload_div = self.wait_for_element_by_css_selector(
@@ -189,10 +200,10 @@ class Tests(IntegrationTests):
         self.startServer(app)
 
         try:
-            self.wait_for_element_by_id('waitfor')
+            self.wait_for_element_by_css_selector('#waitfor')
         except Exception as e:
-            print(self.wait_for_element_by_id(
-                '_dash-app-content').get_attribute('innerHTML'))
+            print(self.wait_for_element_by_css_selector(
+                '#_dash-app-content').get_attribute('innerHTML'))
             raise e
 
         self.snapshot('test_upload_gallery')
@@ -311,12 +322,7 @@ class Tests(IntegrationTests):
         ])
         self.startServer(app)
 
-        try:
-            self.wait_for_element_by_id('waitfor')
-        except Exception as e:
-            print(self.wait_for_element_by_id(
-                '_dash-app-content').get_attribute('innerHTML'))
-            raise e
+        self.wait_for_element_by_css_selector('#waitfor')
 
         self.snapshot('gallery')
 
@@ -393,60 +399,55 @@ class Tests(IntegrationTests):
         self.snapshot('link -- location')
 
         # Check that link updates pathname
-        self.driver.find_element_by_id('test-link').click()
-
-        self.snapshot('link --- /test/pathname')
+        self.wait_for_element_by_css_selector('#test-link').click()
         self.assertEqual(
             self.driver.current_url.replace('http://localhost:8050', ''),
             '/test/pathname')
-        self.assertEqual(
-            self.driver.find_element_by_id('test-pathname').text,
-            '/test/pathname')
+        self.wait_for_text_to_equal('#test-pathname', '/test/pathname')
 
         # Check that hash is updated in the Location
-        self.driver.find_element_by_id('test-link-hash').click()
-
+        self.wait_for_element_by_css_selector('#test-link-hash').click()
+        self.wait_for_text_to_equal('#test-pathname', '/test/pathname')
+        self.wait_for_text_to_equal('#test-hash', '#test')
         self.snapshot('link -- /test/pathname#test')
-        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/test/pathname')
-        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '#test')
 
         # Check that search is updated in the Location -- note that this goes through href and therefore wipes the hash
-        self.driver.find_element_by_id('test-link-search').click()
-
+        self.wait_for_element_by_css_selector('#test-link-search').click()
+        self.wait_for_text_to_equal('#test-search', '?testQuery=testValue')
+        self.wait_for_text_to_equal('#test-hash', '')
         self.snapshot('link -- /test/pathname?testQuery=testValue')
-        self.assertEqual(self.driver.find_element_by_id('test-search').text, '?testQuery=testValue')
-        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '')
 
         # Check that pathname is updated through a Button click via props
-        self.driver.find_element_by_id('test-button').click()
-        time.sleep(1)  # Need to wait for the callback to fire TODO is there a better way to wait?
-
+        self.wait_for_element_by_css_selector('#test-button').click()
+        self.wait_for_text_to_equal('#test-pathname', '/new/pathname')
+        self.wait_for_text_to_equal('#test-search', '?testQuery=testValue')
         self.snapshot('link -- /new/pathname?testQuery=testValue')
-        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/new/pathname')
-        self.assertEqual(self.driver.find_element_by_id('test-search').text, '?testQuery=testValue')
 
         # Check that pathname is updated through an a tag click via props
-        self.driver.find_element_by_id('test-a').click()
-        waiter(self.wait_for_element_by_id)
+        self.wait_for_element_by_css_selector('#test-a').click()
+        try:
+            self.wait_for_element_by_css_selector('#waitfor')
+        except Exception as e:
+            print(self.wait_for_element_by_css_selector(
+                '#_dash-app-content').get_attribute('innerHTML'))
+            raise e
 
+        self.wait_for_text_to_equal('#test-pathname', '/test/pathname/a')
+        self.wait_for_text_to_equal('#test-search', '')
+        self.wait_for_text_to_equal('#test-hash', '')
         self.snapshot('link -- /test/pathname/a')
-        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/test/pathname/a')
-        self.assertEqual(self.driver.find_element_by_id('test-search').text, '')
-        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '')
 
         # Check that hash is updated through an a tag click via props
-        self.driver.find_element_by_id('test-a-hash').click()
-
+        self.wait_for_element_by_css_selector('#test-a-hash').click()
+        self.wait_for_text_to_equal('#test-pathname', '/test/pathname/a')
+        self.wait_for_text_to_equal('#test-search', '')
+        self.wait_for_text_to_equal('#test-hash', '#test-hash')
         self.snapshot('link -- /test/pathname/a#test-hash')
-        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/test/pathname/a')
-        self.assertEqual(self.driver.find_element_by_id('test-search').text, '')
-        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '#test-hash')
 
         # Check that hash is updated through an a tag click via props
-        self.driver.find_element_by_id('test-a-query').click()
-        waiter(self.wait_for_element_by_id)
-
+        self.wait_for_element_by_css_selector('#test-a-query').click()
+        self.wait_for_element_by_css_selector('#waitfor')
+        self.wait_for_text_to_equal('#test-pathname', '/test/pathname/a')
+        self.wait_for_text_to_equal('#test-search', '?queryA=valueA')
+        self.wait_for_text_to_equal('#test-hash', '')
         self.snapshot('link -- /test/pathname/a?queryA=valueA')
-        self.assertEqual(self.driver.find_element_by_id('test-pathname').text, '/test/pathname/a')
-        self.assertEqual(self.driver.find_element_by_id('test-search').text, '?queryA=valueA')
-        self.assertEqual(self.driver.find_element_by_id('test-hash').text, '')
