@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.11.2] - 2018-01-08
+### Fixed
+- Removes logging from redux middleware from production build based on NODE_ENV.
+
 ## [0.11.1] - 2017-10-19
 ### Fixed
 - :snail: :racehorse: Fixed a performance issue. In 0.11.0 we introduced an  internal request queue to fix some bugs. This request queue was boundless and in certain cases it could become really large and slow down the app. Now, we remove old requests from this queue when they are no longer needed, keeping its size under control. Originally reported in https://github.com/plotly/dash-renderer/issues/27
