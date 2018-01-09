@@ -277,7 +277,7 @@ class Dash(object):
             mimetype=mimetype
         )
 
-    def index(self):
+    def index(self, *args, **kwargs):  # pylint: disable=unused-argument
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
