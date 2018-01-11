@@ -1,10 +1,11 @@
 from setuptools import setup
 
-exec(open('dash_core_components/version.py').read())
+main_ns = {}
+exec(open('dash_core_components/version.py').read(), main_ns)
 
 setup(
     name='dash_core_components',
-    version=__version__,
+    version=main_ns['__version__'],
     author='Chris Parmer',
     author_email='chris@plot.ly',
     packages=['dash_core_components'],
