@@ -2,6 +2,57 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.17.0] - 2017-01-11
+### Added
+- The `dcc.Graph` component now includes `pointNumbers` inside `selectedData`
+and `hoverData` if the chart type is a `histogram`, `histogram2d`, or `histogram2dcontour`.
+
+## [0.16.0] - 2017-01-11
+### Added
+- Upgraded Plotly.js, the underlying library behind the
+`dash_core_components.Graph` component, to [version 1.32.0](https://github.com/plotly/plotly.js/releases/tag/v1.32.0).
+This was a huge release! Here are some of the new features that
+are available. See https://github.com/plotly/plotly.js/releases/tag/v1.32.0 for the official notes.
+- Add localization machinery  [https://github.com/plotly/plotly.js/pull/2195, https://github.com/plotly/plotly.js/pull/2207, https://github.com/plotly/plotly.js/pull/2210, https://github.com/plotly/plotly.js/pull/2232],
+   including an official German translation (locale `de`) [https://github.com/plotly/plotly.js/pull/2217]
+- Add `violin` trace type [https://github.com/plotly/plotly.js/pull/2116]
+- Add `selected` and `unselected` attribute containers to customize selection states [https://github.com/plotly/plotly.js/pull/2135]
+- Add support for multi-selections [https://github.com/plotly/plotly.js/pull/2140]
+- Add layout `colorway` to custom the trace-to-trace color sequence [https://github.com/plotly/plotly.js/pull/2156]
+- Add `tickformatstops` to set tick format per cartesian axis range [https://github.com/plotly/plotly.js/pull/1965]
+- Add hover labels and selections to box points [https://github.com/plotly/plotly.js/pull/2094]
+- Histogram events & bin hover label improvements [https://github.com/plotly/plotly.js/pull/2113]
+- Add support for aggregation in `pie` traces [https://github.com/plotly/plotly.js/pull/2117]
+- Add annotations `startarrowhead`, `arrowside`, `startarrowsize` and `startstandoff` attributes [https://github.com/plotly/plotly.js/pull/2164]
+- Add `zhoverformat` to format `z` values in `heatmap`, `contour` and 2d histogram traces [https://github.com/plotly/plotly.js/pull/2106, https://github.com/plotly/plotly.js/pull/2127]
+- Add `marker.opacity` to bar traces [https://github.com/plotly/plotly.js/pull/2163]
+- Add `Cividis` colorscale [https://github.com/plotly/plotly.js/pull/2178]
+- Implement transform inverse mapping [https://github.com/plotly/plotly.js/pull/2126, https://github.com/plotly/plotly.js/pull/2162]
+- Selections are now persistent [https://github.com/plotly/plotly.js/pull/2135]
+- Rename _Save and edit plot in cloud_ mode bar button _Edit in Chart Studio_ [https://github.com/plotly/plotly.js/pull/2183]
+
+### Fixed
+Here the bug fixes in the `Graph` component brought to you by the plotly.js release.
+See https://github.com/plotly/plotly.js/releases/tag/v1.32.0 for the official notes.
+
+- Fix right-click handling [https://github.com/plotly/plotly.js/pull/2241]
+- Miscellaneous fixes for `table` traces [https://github.com/plotly/plotly.js/pull/2107, https://github.com/plotly/plotly.js/pull/2182]
+- Fix horizontal legend items alignment edge case [https://github.com/plotly/plotly.js/pull/2149]
+- Fix shape and updatemenu layering [https://github.com/plotly/plotly.js/pull/2121]
+- Fix bar with error bar with set `ids` edge case [https://github.com/plotly/plotly.js/pull/2169]
+- Fix `cliponaxis: false` for non linear cartesian axes [https://github.com/plotly/plotly.js/pull/2177]
+- Fix heatmap non-uniform brick gaps problem [https://github.com/plotly/plotly.js/pull/2213]
+- Fix choropleth selection when `visible: false` trace are present on graph [https://github.com/plotly/plotly.js/pull/2099, https://github.com/plotly/plotly.js/pull/2109]
+- Fix yet another contour drawing bug [https://github.com/plotly/plotly.js/pull/2091]
+- Clean up pie event data [https://github.com/plotly/plotly.js/pull/2117]
+- Fix scatter + bar hover edge cases [https://github.com/plotly/plotly.js/pull/2218]
+- Allow hover labels to extend to edges of graph area [https://github.com/plotly/plotly.js/pull/2215]
+- Harden location-to-feature against non-string country names for geo subplot [https://github.com/plotly/plotly.js/pull/2122]
+- Remove obsolete `smith` attribute from plot schema [https://github.com/plotly/plotly.js/pull/2093]
+- Fix colorbar class name [https://github.com/plotly/plotly.js/pull/2139]
+
+
+
 ## [0.15.5] - 2017-01-08
 ### Fixed
 - The `dash_core_components.Location` and `dash_core_components.Link` properties
