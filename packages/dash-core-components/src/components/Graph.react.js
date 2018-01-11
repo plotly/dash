@@ -34,6 +34,14 @@ const filterEventData = (gd, eventData, event) => {
                 ].customdata[fullPoint.pointNumber];
             }
 
+            // specific to histogram. see https://github.com/plotly/plotly.js/pull/2113/
+            if (has('pointNumbers', fullPoint)) {
+                pointData.pointNumbers = fullPoint.pointNumbers;
+            }
+            if (has('binNumber', fullPoint)) {
+                pointData.binNumber = fullPoint.binNumber;
+            }
+
             points[i] = pointData;
 
         }
