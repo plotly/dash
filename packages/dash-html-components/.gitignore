@@ -11,5 +11,5 @@ venv/
 *.log
 .DS_Store
 lib/bundle.js
-
 lib/bundle.js.map
+.idea
