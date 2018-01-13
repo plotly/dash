@@ -57,7 +57,7 @@ class Dash(object):
         Compress(self.server)
 
         @self.server.errorhandler(exceptions.PreventUpdate)
-        def handle_error(error):
+        def _handle_error(error):
             """Handle a halted callback and return an empty 204 response"""
             print(error, file=sys.stderr)
             return ('', 204)
