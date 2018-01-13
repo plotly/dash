@@ -3,6 +3,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash import Dash
 from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -63,4 +64,51 @@ class Tests(IntegrationTests):
             len('hello world')
         )
 
+        assert_clean_console(self)
+        
+    def test_aborted_callback(self):
+        """Raising PreventUpdate prevents update and triggering dependencies"""
+        
+        initial_input = 'initial input'
+        initial_output = 'initial output'
+        
+        app = Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(id='input', value=initial_input),
+            html.Div(initial_output, id='output1'),
+            html.Div(initial_output, id='output2'),
+        ])
+
+        callback1_count = Value('i', 0)
+        callback2_count = Value('i', 0)
+        
+        @app.callback(Output('output1', 'children'), [Input('input', 'value')])
+        def callback1(value):
+            callback1_count.value = callback1_count.value + 1
+            raise PreventUpdate("testing callback does not update")
+            return value
+
+        @app.callback(Output('output2', 'children'), [Input('output1', 'children')])
+        def callback2(value):
+            callback2_count.value = callback2_count.value + 1
+            return value
+
+        self.startServer(app)
+
+        input_ = self.wait_for_element_by_id('input')
+        input_.clear()
+        input_.send_keys('x')
+        output1 = self.wait_for_element_by_id('output1')
+        output2 = self.wait_for_element_by_id('output2')        
+
+        # callback1 runs twice (initial page load and through send_keys)
+        self.assertEqual(callback1_count.value, 2)
+
+        # callback2 is never triggered, even on initial load
+        self.assertEqual(callback2_count.value, 0)
+
+        # double check that output1 and output2 children were not updated
+        self.assertEqual(output1.text, initial_output)
+        self.assertEqual(output2.text, initial_output)
+        
         assert_clean_console(self)
