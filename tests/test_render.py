@@ -1573,7 +1573,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        wait_for_element_by_id('session-id')
+        self.wait_for_element_by_id('session-id')
         time.sleep(2)
         self.assertEqual(call_counts['dropdown_1'].value, 1)
         self.assertEqual(call_counts['dropdown_2'].value, 1)
