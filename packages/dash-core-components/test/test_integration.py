@@ -15,7 +15,7 @@ import dash_table_experiments as dt
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
-
+from textwrap import dedent
 try:
     from urlparse import urlparse
 except ImportError:
@@ -318,7 +318,16 @@ class Tests(IntegrationTests):
                 quotes, and more.
 
                 北京
-            '''.replace('    ', ''))
+            '''.replace('    ', '')),
+            dcc.Markdown(['# Line one', '## Line two']),
+            dcc.Markdown(),
+            dcc.SyntaxHighlighter(dedent('''import python
+                print(3)'''), language='python'),
+            dcc.SyntaxHighlighter([
+                'import python',
+                'print(3)'
+            ], language='python'),
+            dcc.SyntaxHighlighter()
         ])
         self.startServer(app)
 

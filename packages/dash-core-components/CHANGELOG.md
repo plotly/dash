@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.17.1] - 2017-01-18
+### Fixed
+- Previously, if `None` is supplied to `SyntaxHighlighter` or `Markdown`, the
+component would not render and the app would break. This is problematic because
+if `children` isn't supplied (as done in the case for when you are updating that
+property from a callback), `None` is the default property. Fixes https://github.com/plotly/dash-core-components/issues/147. This bug was introduced in
+v0.15.4.
+
 ## [0.17.0] - 2017-01-11
 ### Added
 - The `dcc.Graph` component now includes `pointNumbers` inside `selectedData`

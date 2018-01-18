@@ -1,5 +1,5 @@
 import {arduinoLight, monokai} from 'react-syntax-highlighter/dist/styles';
-import {omit} from 'ramda';
+import {omit, type} from 'ramda';
 import React, {PropTypes} from 'react';
 import ReactSyntaxHighlighter from 'react-syntax-highlighter';
 
@@ -16,10 +16,12 @@ export default function SyntaxHighlighter(props) {
     }
 
     // must be a string or an array of strings
-    if(typeof props.children !== 'string') {
+    if(type(props.children) === 'Array') {
         props.children = props.children.join('\n');
     }
-
+    if(type(props.children) === 'Null') {
+        props.children = '';
+    }
     return (
         <ReactSyntaxHighlighter
             style={style}
@@ -34,7 +36,10 @@ SyntaxHighlighter.propTypes = {
     /**
      * The text to display and highlight
      */
-    children: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
+    children: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.arrayOf(PropTypes.string)
+    ]),
 
     /**
      * the language to highlight code in.
