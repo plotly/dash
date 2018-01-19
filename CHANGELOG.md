@@ -1,3 +1,15 @@
+## 0.20.0 - 2017-01-19
+## Added
+- `exceptions.PreventUpdate` can be raised inside a callback to elegantly prevent
+the callback from updating the app. See https://community.plot.ly/t/improving-handling-of-aborted-callbacks/7536/2 for context
+and #190 for the PR.
+
+## Changed
+- Many pylint style fixes.
+  See #163, #164, #165, #166, #167, #168, #169, #172, #173, #181, #185, #186, #193
+- New integration test framework #184
+- Submodules are now imported into the `dash` namespace for better IDE completion #174
+
 # 0.19.0 - 2017-10-16
 ## Changed
 - 🔒  CSRF protection measures were removed as CSRF style attacks are not relevant
