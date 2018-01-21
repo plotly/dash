@@ -6,12 +6,12 @@ import importlib
 import json
 import pkgutil
 import warnings
-from flask import Flask, Response
-import flask
-from flask_compress import Compress
-import plotly
 
+import plotly
 import dash_renderer
+import flask
+from flask import Flask, Response
+from flask_compress import Compress
 
 from .dependencies import Event, Input, Output, State
 from .resources import Scripts, Css
