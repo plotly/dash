@@ -6,6 +6,7 @@ import importlib
 import json
 import pkgutil
 import warnings
+from functools import wraps
 
 import plotly
 import dash_renderer
@@ -503,6 +504,7 @@ class Dash(object):
         }
 
         def wrap_func(func):
+            @wraps(func)
             def add_context(*args, **kwargs):
 
                 output_value = func(*args, **kwargs)
