@@ -1,12 +1,12 @@
 import io
 from setuptools import setup, find_packages
 
-
-exec(open('dash/version.py').read())  # pylint: disable=exec-used
+main_ns = {}
+exec(open('dash/version.py').read(), main_ns)  # pylint: disable=exec-used
 
 setup(
     name='dash',
-    version=__version__,  # noqa: F821 pylint: disable=undefined-variable
+    version=main_ns['__version__'],
     author='chris p',
     author_email='chris@plot.ly',
     packages=find_packages(exclude=['tests*']),

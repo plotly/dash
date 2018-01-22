@@ -19,3 +19,4 @@ dist
 *egg-info*
 npm-debug*
 /.tox
+.idea
