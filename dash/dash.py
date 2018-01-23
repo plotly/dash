@@ -22,6 +22,7 @@ from ._utils import AttributeDict as _AttributeDict
 
 
 # pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-arguments
 class Dash(object):
     def __init__(
             self,
@@ -29,6 +30,7 @@ class Dash(object):
             server=None,
             static_folder=None,
             url_base_pathname='/',
+            compress=True,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -54,8 +56,9 @@ class Dash(object):
         # list of dependencies
         self.callback_map = {}
 
-        # gzip
-        Compress(self.server)
+        if compress:
+            # gzip
+            Compress(self.server)
 
         @self.server.errorhandler(exceptions.PreventUpdate)
         def _handle_error(error):
