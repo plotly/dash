@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.18.1] - 2017-01-25
+### Fixed
+- Upgraded Plotly.js, the underlying library behind the
+`dash_core_components.Graph` component, to [version 1.33.1](https://github.com/plotly/plotly.js/releases/tag/v1.33.1). Fixes include
+    - Fix selection on scattergl plots with >20k points [#2266](https://github.com/plotly/plotly.js/issues/2266)
+    - Update Spanish localization with new strings [#2268](https://github.com/plotly/plotly.js/issues/2268)
+    - Fix test_dashboard overly rigid restriction so parcoods works there [#2273](https://github.com/plotly/plotly.js/issues/2273)
+    - Make layout.colorway compatible with sankey traces [#2277](https://github.com/plotly/plotly.js/issues/2277)
+    - Fix click events on fixedrange subplots [#2279](https://github.com/plotly/plotly.js/issues/2279)
+    - Remove ghost fill when trace data is emptied out [#2280](https://github.com/plotly/plotly.js/issues/2280)
+    - Fix resizing of new scattergl plots [#2283](https://github.com/plotly/plotly.js/issues/2283)
+    - Fix positioning of carpet axis titles for cheaterslope edge cases [#2285](https://github.com/plotly/plotly.js/issues/2285)
+    - Fix coloring and hover info for heatmaps and contour maps with nonuniform bins [#2288](https://github.com/plotly/plotly.js/issues/2288)
+
+
 ## [0.18.0] - 2017-01-19
 ### Added
 - Upgraded Plotly.js, the underlying library behind the
