@@ -1579,3 +1579,74 @@ class Tests(IntegrationTests):
         self.assertEqual(call_counts['dropdown_2'].value, 1)
 
         assert_clean_console(self)
+
+    def test_callbacks_triggered_on_generated_output(self):
+        app = dash.Dash()
+        app.config['suppress_callback_exceptions'] = True
+
+        call_counts = {
+            'tab1': Value('i', 0),
+            'tab2': Value('i', 0)
+        }
+
+        app.layout = html.Div([
+                dcc.Dropdown(
+                    id='outer-controls',
+                    options=[{'label': i, 'value': i} for i in ['a', 'b']],
+                    value='a'
+                ),
+                dcc.RadioItems(
+                    options=[
+                        {'label': 'Tab 1', 'value': 1},
+                        {'label': 'Tab 2', 'value': 2}
+                    ],
+                    value=1,
+                    id='tabs',
+                ),
+                html.Div(id='tab-output')
+            ])
+
+
+        @app.callback(Output('tab-output', 'children'), [Input('tabs', 'value')])
+        def display_content(value):
+            return html.Div([
+                html.Div(id='tab-{}-output'.format(value))
+            ])
+
+        @app.callback(Output('tab-1-output', 'children'),
+                      [Input('outer-controls', 'value')])
+        def display_tab1_output(value):
+            call_counts['tab1'].value += 1
+            return 'You have selected "{}"'.format(value)
+
+        @app.callback(Output('tab-2-output', 'children'),
+                      [Input('outer-controls', 'value')])
+        def display_tab2_output(value):
+            call_counts['tab2'].value += 1
+            return 'You have selected "{}"'.format(value)
+
+
+        self.startServer(app)
+        self.wait_for_element_by_id('tab-output')
+        time.sleep(2)
+
+        self.assertEqual(call_counts['tab1'].value, 1)
+        self.assertEqual(call_counts['tab2'].value, 0)
+        wait_for(lambda: (
+            self.driver.find_element_by_id('tab-output').text ==
+            'You have selected "1"'
+        ))
+
+        (self.driver.find_elements_by_css_selector(
+            'input[type="radio"]'
+        )[1]).click()
+        time.sleep(2)
+
+        wait_for(lambda: (
+            self.driver.find_element_by_id('tab-output').text ==
+            'You have selected "2"'
+        ))
+        self.assertEqual(call_counts['tab1'].value, 1)
+        self.assertEqual(call_counts['tab2'].value, 1)
+
+        assert_clean_console(self)
