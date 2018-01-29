@@ -45,7 +45,7 @@ $ npm run generate-components
 
 3. Run the dash layout you want to test
 
-        # Import dash_core_components to your layout, then run it:
+        # Import dash_html_components to your layout, then run it:
         $ python my_dash_layout.py
 
 #### Installing python package locally
