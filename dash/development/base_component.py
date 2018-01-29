@@ -568,11 +568,10 @@ def map_js_to_py_types_flow_types(type_object):
             '{}'.format(str(t['value'])) for t in type_object['value']
         )),
 
-        # TODO
         # React's PropTypes.oneOfType
         union=lambda: '{}'.format(' | '.join(
             '{}'.format(js_to_py_type(subType))
-            for subType in type_object['value'] if js_to_py_type(subType) != ''
+            for subType in type_object['elements'] if js_to_py_type(subType) != ''
         )),
 
         # Flow's Array type
@@ -830,6 +829,23 @@ if __name__ == '__main__':
           "computed": False
         }
       },
+      "value": {
+        "required": True,
+        "description": "",
+        "flowType": {
+            "name": "union",
+            "raw": "string | number",
+            "elements": [
+                {
+                    "name": "string"
+                },
+                {
+                    "name": "number"
+                }
+            ]
+        }
+      },
+
     }
 
     dash_class = generate_class(
@@ -838,7 +854,7 @@ if __name__ == '__main__':
         description='test description',
         namespace='test-namespace'
     )
-    print(str(dash_class(id='required-id')))
+    print(str(dash_class(id='required-id', value='1')))
     print(create_docstring(
         component_name='test_component',
         props=reorder_props(filter_props(test_props)),
