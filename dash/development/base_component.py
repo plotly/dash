@@ -575,12 +575,10 @@ def map_js_to_py_types_flow_types(type_object):
             for subType in type_object['value'] if js_to_py_type(subType) != ''
         )),
 
-        # TODO the elements are weird, need to process all elements
         # Flow's Array type
         Array=lambda: 'list{}'
-            # TODO this does not process correctly
-            .format(' of {}s'.format(js_to_py_type(type_object['value']))
-            if js_to_py_type(type_object['value']) != ''
+            .format(' of {}s'.format(js_to_py_type(type_object['elements'][0]))
+            if js_to_py_type(type_object['elements'][0]) != ''
             else ''),
 
         # TODO This can probably be replaced via the next block (similar to shape)
@@ -745,7 +743,93 @@ if __name__ == '__main__':
           "value": "null",
           "computed": False
         }
-      }
+      },
+      "options": {
+        "required": False,
+        "description": "Used to create the MenuItems to populate the Menu with. A Dash user passes in a list of dict\nitems, each one having at least a `value` and `primaryText`. If the 'label' is used,\nthat value will be used to render the representation of that item within the field.",
+        "flowType": {
+          "name": "Array",
+          "elements": [
+            {
+              "name": "signature",
+              "type": "object",
+              "raw": "{\n  checked?: boolean,\n  children?: Node,\n  customData: any,\n  disabled?: boolean,\n  label?: string,\n  primaryText: string,\n  secondaryText?: string,\n  style?: Object,\n  value: any,\n}",
+              "signature": {
+                "properties": [
+                  {
+                    "key": "checked",
+                    "value": {
+                      "name": "boolean",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "children",
+                    "value": {
+                      "name": "Node",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "customData",
+                    "value": {
+                      "name": "any",
+                      "required": True
+                    }
+                  },
+                  {
+                    "key": "disabled",
+                    "value": {
+                      "name": "boolean",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "label",
+                    "value": {
+                      "name": "string",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "primaryText",
+                    "value": {
+                      "name": "string",
+                      "required": True
+                    }
+                  },
+                  {
+                    "key": "secondaryText",
+                    "value": {
+                      "name": "string",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "style",
+                    "value": {
+                      "name": "Object",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "value",
+                    "value": {
+                      "name": "any",
+                      "required": True
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "raw": "Array<SD_MENU_ITEM>"
+        },
+        "defaultValue": {
+          "value": "[]",
+          "computed": False
+        }
+      },
     }
 
     dash_class = generate_class(
