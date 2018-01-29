@@ -587,20 +587,32 @@ def map_js_to_py_types_flow_types(type_object):
 
         # TODO this is via signature and is odd
         # React's PropTypes.shape
-        shape=lambda: 'dict containing keys {}.\n{}'.format(
-                ', '.join("'{}'".format(t) for t in list(type_object['value'].keys())),
-                'Those keys have the following types: \n{}'.format(
-                    '\n'.join(
-                        '  - ' + create_prop_docstring(
-                            prop_name=prop_name,
-                            type_object=prop,
-                            required=prop['required'],
-                            description=prop.get('description', '')
-                        ) for
-                        prop_name, prop in list(type_object['value'].items())
-                    )
-                )
+        # shape=lambda: 'dict containing keys {}.\n{}'.format(
+        #         ', '.join("'{}'".format(t) for t in list(type_object['value'].keys())),
+        #         'Those keys have the following types: \n{}'.format(
+        #             '\n'.join(
+        #                 '  - ' + create_prop_docstring(
+        #                     prop_name=prop_name,
+        #                     type_object=prop,
+        #                     required=prop['required'],
+        #                     description=prop.get('description', '')
+        #                 ) for
+        #                 prop_name, prop in list(type_object['value'].items())
+        #             )
+        #         )
+        #     )
+        signature=lambda: 'dict containing keys {}.\n{}'.format(
+            ', '.join("'{}'".format(d['key']) for d in type_object['signature']['properties']),
+            'Those keys have the following types: \n{}'.format(
+                '\n'.join(
+                    '  - ' + create_prop_docstring(
+                        prop_name=prop['key'],
+                        type_object=prop['value'],
+                        required=prop['value']['required'],
+                        description=prop['value'].get('description', '')
+                    ) for prop in type_object['signature']['properties'])
             )
+        )
     )
 
 
@@ -845,6 +857,84 @@ if __name__ == '__main__':
             ]
         }
       },
+      "shapeTest": {
+        "flowType": {
+            "name": "signature",
+            "type": "object",
+            "raw": "{\n  checked?: boolean,\n  children?: Node,\n  customData: any,\n  disabled?: boolean,\n  label?: string,\n  primaryText: string,\n  secondaryText?: string,\n  style?: Object,\n  value: any,\n}",
+            "signature": {
+                "properties": [
+                    {
+                        "key": "checked",
+                        "value": {
+                            "name": "boolean",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "children",
+                        "value": {
+                            "name": "Node",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "customData",
+                        "value": {
+                            "name": "any",
+                            "required": True,
+                            "description": "A test description"
+                        }
+                    },
+                    {
+                        "key": "disabled",
+                        "value": {
+                            "name": "boolean",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "label",
+                        "value": {
+                            "name": "string",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "primaryText",
+                        "value": {
+                            "name": "string",
+                            "required": True,
+                            "description": "Another test description"
+                        }
+                    },
+                    {
+                        "key": "secondaryText",
+                        "value": {
+                            "name": "string",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "style",
+                        "value": {
+                            "name": "Object",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "value",
+                        "value": {
+                            "name": "any",
+                            "required": True
+                        }
+                    }
+                ]
+            }
+        },
+        "required": False,
+        "description": "This is a test of an object's shape"
+      }
 
     }
 
