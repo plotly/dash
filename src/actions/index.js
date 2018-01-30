@@ -314,7 +314,7 @@ export function notifyObservers(payload) {
             const outputIdAndProp = queuedObservers[i];
             const [outputComponentId, outputProp] = outputIdAndProp.split('.');
 
-            const requestUid = newRequestQueue[i];
+            const requestUid = newRequestQueue[i].uid;
 
             promises.push(updateOutput(
                 outputComponentId,
