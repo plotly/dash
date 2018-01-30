@@ -1,4 +1,4 @@
-## 0.20.0 - 2017-01-19
+## 0.20.0 - 2018-01-19
 ## Added
 - `exceptions.PreventUpdate` can be raised inside a callback to elegantly prevent
 the callback from updating the app. See https://community.plot.ly/t/improving-handling-of-aborted-callbacks/7536/2 for context
