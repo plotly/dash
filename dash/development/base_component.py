@@ -200,7 +200,8 @@ def generate_class(typename, props, description, namespace):
     -------
 
     """
-    # TODO _prop_names, _type, _namespace, available_events, and available_properties
+    # TODO _prop_names, _type, _namespace, available_events,
+    # and available_properties
     # can be modified by a Dash JS developer via setattr
     # TODO - Tab out the repr for the repr of these components to make it
     # look more like a hierarchical tree
@@ -226,7 +227,8 @@ def generate_class(typename, props, description, namespace):
 
         for k in {required_args}:
             if k not in kwargs:
-                raise TypeError('Required argument `' + k + '` was not specified.')
+                raise TypeError(
+                    'Required argument `' + k + '` was not specified.')
 
         super({typename}, self).__init__({argtext})
 
@@ -286,7 +288,8 @@ def required_props(props):
     list
         List of prop names (str) that are required for the Component
     """
-    return [prop_name for prop_name, prop in list(props.items()) if prop['required']]
+    return [prop_name for prop_name, prop in list(props.items())
+            if prop['required']]
 
 
 def create_docstring(component_name, props, events, description):
@@ -309,7 +312,8 @@ def create_docstring(component_name, props, events, description):
     str
         Dash component docstring
     """
-    props = reorder_props(props=props)  # Ensure props are ordered with children first
+    # Ensure props are ordered with children first
+    props = reorder_props(props=props)
 
     return """A {name} component.\n{description}
 
@@ -321,7 +325,8 @@ Available events: {events}""".format(
         args='\n'.join(
             create_prop_docstring(
                 prop_name=p,
-                type_object=prop['type'] if 'type' in prop else prop['flowType'],
+                type_object=prop['type'] if 'type' in prop
+                else prop['flowType'],
                 required=prop['required'],
                 description=prop['description'],
                 indent_num=0,
@@ -354,7 +359,8 @@ def parse_events(props):
 
 def reorder_props(props):
     """
-    If "children" is in props, then move it to the front to respect dash convention
+    If "children" is in props, then move it to the
+    front to respect dash convention
 
     Parameters
     ----------
@@ -428,17 +434,19 @@ def filter_props(props):
             filtered_props.pop(arg_name)
             continue
 
-        # Filter out functions and instances -- these cannot be passed from Python
+        # Filter out functions and instances --
+        # these cannot be passed from Python
         if 'type' in arg:  # These come from PropTypes
             arg_type = arg['type']['name']
             if arg_type in {'func', 'symbol', 'instanceOf'}:
                 filtered_props.pop(arg_name)
-        elif 'flowType' in arg:  # These come from Flow and are handled differently
+        elif 'flowType' in arg:  # These come from Flow & handled differently
             arg_type_name = arg['flowType']['name']
             if arg_type_name == 'signature':
-                # This does the same as the PropTypes filter above, but the "func"
+                # This does the same as the PropTypes filter above, but "func"
                 # is under "type" if "name" is "signature" vs just in "name"
-                if 'type' not in arg['flowType'] or arg['flowType']['type'] != 'object':
+                if 'type' not in arg['flowType'] \
+                        or arg['flowType']['type'] != 'object':
                     filtered_props.pop(arg_name)
         else:
             raise ValueError
@@ -466,7 +474,8 @@ def create_prop_docstring(prop_name, type_object, required, description,
     description: str
         Dash component description
     indent_num: int
-        Number of indents to use for the context block (creates 2 spaces for every indent)
+        Number of indents to use for the context block
+        (creates 2 spaces for every indent)
     is_flow_type: bool
         Does the prop use Flow types? Otherwise, uses PropTypes
 
@@ -490,7 +499,8 @@ def create_prop_docstring(prop_name, type_object, required, description,
                 description=description,
                 is_required='required' if required else 'optional')
     else:
-        return '{indent_spacing}- {name} ({type}{is_required}){description}'.format(
+        return '{indent_spacing}- {name} ({type}' \
+               '{is_required}){description}'.format(
             indent_spacing=indent_spacing,
             name=prop_name,
             type='{}; '.format(py_type_name) if py_type_name else '',
@@ -510,7 +520,8 @@ def map_js_to_py_types_prop_types(type_object):
         object=lambda: 'dict',
         any=lambda: 'boolean | number | string | dict | list',
         element=lambda: 'dash component',
-        node=lambda: 'a list of or a singular dash component, string or number',
+        node=lambda: 'a list of or a singular dash '
+                     'component, string or number',
 
         # React's PropTypes.oneOf
         enum=lambda: 'a value equal to: {}'.format(
@@ -522,7 +533,8 @@ def map_js_to_py_types_prop_types(type_object):
         union=lambda: '{}'.format(
             ' | '.join(
                 '{}'.format(js_to_py_type(subType))
-                for subType in type_object['value'] if js_to_py_type(subType) != '')),
+                for subType in type_object['value']
+                if js_to_py_type(subType) != '')),
 
         # React's PropTypes.arrayOf
         arrayOf=lambda: 'list'.format(
@@ -532,7 +544,8 @@ def map_js_to_py_types_prop_types(type_object):
             else ''),
 
         # React's PropTypes.objectOf
-        objectOf=lambda: 'dict with strings as keys and values of type {}'.format(
+        objectOf=lambda: 'dict with strings as keys '
+                         'and values of type {}'.format(
             js_to_py_type(type_object['value'])),
 
         # React's PropTypes.shape
@@ -547,7 +560,8 @@ def map_js_to_py_types_prop_types(type_object):
                     required=prop['required'],
                     description=prop.get('description', ''),
                     indent_num=1)
-                          for prop_name, prop in list(type_object['value'].items())))),
+                          for prop_name, prop in
+                          list(type_object['value'].items())))),
     )
 
 
@@ -561,13 +575,15 @@ def map_js_to_py_types_flow_types(type_object):
         Object=lambda: 'dict',
         any=lambda: 'bool | number | str | dict | list',
         Element=lambda: 'dash component',
-        Node=lambda: 'a list of or a singular dash component, string or number',
+        Node=lambda: 'a list of or a singular dash '
+                     'component, string or number',
 
         # React's PropTypes.oneOfType
         union=lambda: '{}'.format(
             ' | '.join(
                 '{}'.format(js_to_py_type(subType))
-                for subType in type_object['elements'] if js_to_py_type(subType) != '')),
+                for subType in type_object['elements']
+                if js_to_py_type(subType) != '')),
 
         # Flow's Array type
         Array=lambda: 'list{}'.format(
@@ -578,7 +594,8 @@ def map_js_to_py_types_flow_types(type_object):
 
         # React's PropTypes.shape
         signature=lambda indent_num: 'dict containing keys {}.\n{}'.format(
-            ', '.join("'{}'".format(d['key']) for d in type_object['signature']['properties']),
+            ', '.join("'{}'".format(d['key'])
+                      for d in type_object['signature']['properties']),
             '{}Those keys have the following types: \n{}'.format(
                 '  ' * indent_num,
                 '\n'.join(
@@ -612,14 +629,15 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
         Python type string
     """
     js_type_name = type_object['name']
-    js_to_py_types = map_js_to_py_types_flow_types(type_object=type_object) if is_flow_type \
+    js_to_py_types = map_js_to_py_types_flow_types(type_object=type_object) \
+        if is_flow_type \
         else map_js_to_py_types_prop_types(type_object=type_object)
 
     if 'computed' in type_object and type_object['computed'] \
             or type_object.get('type', '') == 'function':
         return ''
     elif js_type_name in js_to_py_types:
-        if js_type_name == 'signature':  # If this is a Flow-type object with a signature
+        if js_type_name == 'signature':  # This is a Flow object w/ signature
             return js_to_py_types[js_type_name](indent_num)
         else:  # All other types
             return js_to_py_types[js_type_name]()
