@@ -18,6 +18,7 @@ import {
     slice,
     sort,
     type,
+//    values,
     view
 } from 'ramda';
 import {createAction} from 'redux-actions';
@@ -162,12 +163,8 @@ export function notifyObservers(payload) {
         } = payload
 
         const {
-            config,
-            layout,
             graphs,
-            paths,
             requestQueue,
-            dependenciesRequest
         } = getState();
         const {EventGraph, InputGraph} = graphs;
 
