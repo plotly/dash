@@ -994,14 +994,15 @@ if __name__ == '__main__':
     }
 
     dash_class = generate_class(
-        typename='test_component',
+        typename='flow_component',
         props=reorder_props(filter_props(test_props)),
         description='test description',
         namespace='test-namespace'
     )
     # print(str(dash_class()))
-    print(create_docstring(
-        component_name='test_component',
+    docs = (create_docstring(
+        component_name='flow_component',
         props=reorder_props(filter_props(test_props)),
         events=parse_events(test_props),
         description='test description'))
+    print(docs)
