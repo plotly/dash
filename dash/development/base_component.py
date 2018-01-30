@@ -615,7 +615,8 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
     js_to_py_types = map_js_to_py_types_flow_types(type_object=type_object) if is_flow_type \
         else map_js_to_py_types_prop_types(type_object=type_object)
 
-    if 'computed' in type_object and type_object['computed']:
+    if 'computed' in type_object and type_object['computed'] \
+            or type_object.get('type', '') == 'function':
         return ''
     elif js_type_name in js_to_py_types:
         if js_type_name == 'signature':  # If this is a Flow-type object with a signature

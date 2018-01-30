@@ -2,14 +2,14 @@
   "description": "This is a test description of the component.\nIt's multiple lines long.",
   "methods": [],
   "props": {
-    "required_test": {
+    "requiredString": {
       "required": true,
       "description": "A required string",
       "flowType": {
         "name": "string"
       }
     },
-    "string_test": {
+    "optionalString": {
       "required": false,
       "description": "A string that isn't required.",
       "flowType": {
@@ -20,7 +20,7 @@
         "computed": false
       }
     },
-    "boolean_test": {
+    "optionalBoolean": {
       "required": false,
       "description": "A boolean test",
       "flowType": {
@@ -31,7 +31,7 @@
         "computed": false
       }
     },
-    "func_test": {
+    "optionalFunc": {
       "required": false,
       "description": "Dash callback to update props on the server",
       "flowType": {
@@ -77,7 +77,7 @@
         "computed": false
       }
     },
-    "Node_test": {
+    "optionalNode": {
       "required": false,
       "description": "A node test",
       "flowType": {
@@ -88,7 +88,7 @@
         "computed": false
       }
     },
-    "Array_test": {
+    "optionalArray": {
       "required": false,
       "description": "An array test with a particularly \nlong description that covers several lines. It includes the newline character \nand should span 3 lines in total.",
       "flowType": {
@@ -174,7 +174,7 @@
         "computed": false
       }
     },
-    "union_test": {
+    "requiredUnion": {
       "required": true,
       "description": "",
       "flowType": {
@@ -190,7 +190,7 @@
         ]
       }
     },
-    "signature_test_(shape)": {
+    "optionalSignature(shape)": {
       "flowType": {
         "name": "signature",
         "type": "object",
@@ -268,7 +268,7 @@
       "required": false,
       "description": "This is a test of an object's shape"
     },
-    "nested_test": {
+    "requiredNested": {
       "flowType": {
         "name": "signature",
         "type": "object",

@@ -768,26 +768,25 @@ class TestFlowMetaDataConversions(unittest.TestCase):
             self.data = data
 
         self.expected_arg_strings = OrderedDict([
-            ['children',
-             'a list of or a singular dash component, string or number'],
+            ['children', 'a list of or a singular dash component, string or number'],
 
-            ['required_test', 'string'],
+            ['requiredString', 'string'],
 
-            ['string_test', 'string'],
+            ['optionalString', 'string'],
 
-            ['boolean_test', 'boolean'],
+            ['optionalBoolean', 'boolean'],
 
-            ['func_test', ''],
+            ['optionalFunc', ''],
 
-            ['Node_test', 'a list of or a singular dash component, string or number'],
+            ['optionalNode', 'a list of or a singular dash component, string or number'],
 
-            ['Array_test', 'list'],
+            ['optionalArray', 'list'],
 
-            ['union_test', 'string | number'],
+            ['requiredUnion', 'string | number'],
 
-            ['signature_test_(shape)', ''],
+            ['optionalSignature(shape)', ''],
 
-            ['nested_test', "dict containing keys 'customData', 'value'"],
+            ['requiredNested', "dict containing keys 'customData', 'value'"],
         ])
 
     def test_docstring(self):
@@ -805,7 +804,7 @@ class TestFlowMetaDataConversions(unittest.TestCase):
 
         for prop_name, prop in list(props.items()):
             self.assertEqual(
-                js_to_py_type(prop['flowType']),
+                js_to_py_type(prop['flowType'], is_flow_type=True),
                 self.expected_arg_strings[prop_name]
             )
 
@@ -818,25 +817,25 @@ def assert_flow_docstring(assertEqual, docstring):
             "It's multiple lines long.",
             "",
             "Keyword arguments:",
-            "- required_test (string; required): A required string",
-            "- string_test (string; optional): A string that isn't required.",
-            "- boolean_test (boolean; optional): A boolean test",
+            "- requiredString (string; required): A required string",
+            "- optionalString (string; optional): A string that isn't required.",
+            "- optionalBoolean (boolean; optional): A boolean test",
 
-            "- Node_test (a list of or a singular dash component, string or number; optional): "
+            "- optionalNode (a list of or a singular dash component, string or number; optional): "
             "A node test",
 
-            "- Array_test (list; optional): An array test with a particularly ",
+            "- optionalArray (list; optional): An array test with a particularly ",
             "long description that covers several lines. It includes the newline character ",
             "and should span 3 lines in total.",
 
-            "- union_test (string | number; required)",
+            "- requiredUnion (string | number; required)",
 
-            "- signature_test_(shape) (optional): This is a test of an object's shape. "
+            "- optionalSignature(shape) (optional): This is a test of an object's shape. "
             "signature_test_(shape) has the following type: dict containing keys 'checked', "
             "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "
             "'style', 'value'.",
 
-            "  Those keys have the following types:",
+            "  Those keys have the following types: ",
             "  - checked (boolean; optional)",
             "  - children (a list of or a singular dash component, string or number; optional)",
             "  - customData (bool | number | str | dict | list; required): A test description",
@@ -847,7 +846,7 @@ def assert_flow_docstring(assertEqual, docstring):
             "  - style (dict; optional)",
             "  - value (bool | number | str | dict | list; required)",
 
-            "- nested_test (required): . nested_test has the following type: dict containing "
+            "- requiredNested (required): . nested_test has the following type: dict containing "
             "keys 'customData', 'value'.",
 
             "  Those keys have the following types: ",
