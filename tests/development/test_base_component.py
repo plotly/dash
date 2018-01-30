@@ -784,9 +784,40 @@ class TestFlowMetaDataConversions(unittest.TestCase):
 
             ['requiredUnion', 'string | number'],
 
-            ['optionalSignature(shape)', ''],
+            ['optionalSignature(shape)', '\n'.join([
 
-            ['requiredNested', "dict containing keys 'customData', 'value'"],
+                "dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
+                "Those keys have the following types: ",
+                "- checked (boolean; optional)",
+                "- children (a list of or a singular dash component, string or number; optional)",
+                "- customData (bool | number | str | dict | list; required): A test description",
+                "- disabled (boolean; optional)",
+                "- label (string; optional)",
+                "- primaryText (string; required): Another test description",
+                "- secondaryText (string; optional)",
+                "- style (dict; optional)",
+                "- value (bool | number | str | dict | list; required)"
+
+            ])],
+
+            ['requiredNested', '\n'.join([
+
+                "dict containing keys 'customData', 'value'.",
+                "Those keys have the following types: ",
+                "- customData (required): . customData has the following type: dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
+                "  Those keys have the following types: ",
+                "  - checked (boolean; optional)",
+                "  - children (a list of or a singular dash component, string or number; optional)",
+                "  - customData (bool | number | str | dict | list; required)",
+                "  - disabled (boolean; optional)",
+                "  - label (string; optional)",
+                "  - primaryText (string; required)",
+                "  - secondaryText (string; optional)",
+                "  - style (dict; optional)",
+                "  - value (bool | number | str | dict | list; required)",
+                "- value (bool | number | str | dict | list; required)",
+
+            ])],
         ])
 
     def test_docstring(self):
@@ -831,7 +862,7 @@ def assert_flow_docstring(assertEqual, docstring):
             "- requiredUnion (string | number; required)",
 
             "- optionalSignature(shape) (optional): This is a test of an object's shape. "
-            "signature_test_(shape) has the following type: dict containing keys 'checked', "
+            "optionalSignature(shape) has the following type: dict containing keys 'checked', "
             "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "
             "'style', 'value'.",
 
@@ -846,7 +877,7 @@ def assert_flow_docstring(assertEqual, docstring):
             "  - style (dict; optional)",
             "  - value (bool | number | str | dict | list; required)",
 
-            "- requiredNested (required): . nested_test has the following type: dict containing "
+            "- requiredNested (required): . requiredNested has the following type: dict containing "
             "keys 'customData', 'value'.",
 
             "  Those keys have the following types: ",
