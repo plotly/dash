@@ -699,59 +699,6 @@ class TestMetaDataConversions(unittest.TestCase):
             )
 
 
-class TestFlowMetaDataConversions(unittest.TestCase):
-    def setUp(self):
-        path = os.path.join('tests', 'development', 'flow_metadata_test.json')
-        with open(path) as data_file:
-            json_string = data_file.read()
-            data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
-                .decode(json_string)
-            self.data = data
-
-        self.expected_arg_strings = OrderedDict([
-            ['children',
-             'a list of or a singular dash component, string or number'],
-
-            ['required_test', 'string'],
-
-            ['string_test', 'string'],
-
-            ['boolean_test', 'boolean'],
-
-            ['func_test', ''],
-
-            ['Node_test', 'a list of or a singular dash component, string or number'],
-
-            ['Array_test', 'list'],
-
-            ['union_test', 'string | number'],
-
-            ['signature_test_(shape)', ''],
-
-            ['nested_test', "dict containing keys 'customData', 'value'"],
-        ])
-
-    def test_docstring(self):
-        docstring = create_docstring(
-            'Flow_component',
-            self.data['props'],
-            parse_events(self.data['props']),
-            self.data['description'],
-        )
-        assert_docstring(self.assertEqual, docstring)
-
-    def test_docgen_to_python_args(self):
-
-        props = self.data['props']
-
-        for prop_name, prop in list(props.items()):
-            self.assertEqual(
-                js_to_py_type(prop['type']),
-                self.expected_arg_strings[prop_name]
-            )
-
-
 def assert_docstring(assertEqual, docstring):
     for i, line in enumerate(docstring.split('\n')):
         assertEqual(line, ([
@@ -808,6 +755,59 @@ def assert_docstring(assertEqual, docstring):
             '        '
             ])[i]
                    )
+
+
+class TestFlowMetaDataConversions(unittest.TestCase):
+    def setUp(self):
+        path = os.path.join('tests', 'development', 'flow_metadata_test.json')
+        with open(path) as data_file:
+            json_string = data_file.read()
+            data = json\
+                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .decode(json_string)
+            self.data = data
+
+        self.expected_arg_strings = OrderedDict([
+            ['children',
+             'a list of or a singular dash component, string or number'],
+
+            ['required_test', 'string'],
+
+            ['string_test', 'string'],
+
+            ['boolean_test', 'boolean'],
+
+            ['func_test', ''],
+
+            ['Node_test', 'a list of or a singular dash component, string or number'],
+
+            ['Array_test', 'list'],
+
+            ['union_test', 'string | number'],
+
+            ['signature_test_(shape)', ''],
+
+            ['nested_test', "dict containing keys 'customData', 'value'"],
+        ])
+
+    def test_docstring(self):
+        docstring = create_docstring(
+            'Flow_component',
+            self.data['props'],
+            parse_events(self.data['props']),
+            self.data['description'],
+        )
+        assert_flow_docstring(self.assertEqual, docstring)
+
+    def test_docgen_to_python_args(self):
+
+        props = self.data['props']
+
+        for prop_name, prop in list(props.items()):
+            self.assertEqual(
+                js_to_py_type(prop['type']),
+                self.expected_arg_strings[prop_name]
+            )
 
 
 def assert_flow_docstring(assertEqual, docstring):
