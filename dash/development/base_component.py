@@ -216,8 +216,7 @@ def generate_class(typename, props, description, namespace):
     # The solution might be to deal with default values better although
     # not all component authors will supply those.
     c = '''class {typename}(Component):
-    """{docstring}
-    """
+    """{docstring}"""
     def __init__(self, {default_argtext}):
         self._prop_names = {list_of_valid_keys}
         self._type = '{typename}'
@@ -538,17 +537,17 @@ def map_js_to_py_types_prop_types(type_object):
 
         # React's PropTypes.shape
         shape=lambda: 'dict containing keys {}.\n{}'.format(
-                ', '.join(
-                    "'{}'".format(t)
-                    for t in list(type_object['value'].keys())),
-                'Those keys have the following types: \n{}'.format(
-                    '\n'.join(create_prop_docstring(
-                        prop_name=prop_name,
-                        type_object=prop,
-                        required=prop['required'],
-                        description=prop.get('description', ''),
-                        indent_num=1)
-                              for prop_name, prop in list(type_object['value'].items())))),
+            ', '.join(
+                "'{}'".format(t)
+                for t in list(type_object['value'].keys())),
+            'Those keys have the following types: \n{}'.format(
+                '\n'.join(create_prop_docstring(
+                    prop_name=prop_name,
+                    type_object=prop,
+                    required=prop['required'],
+                    description=prop.get('description', ''),
+                    indent_num=1)
+                          for prop_name, prop in list(type_object['value'].items())))),
     )
 
 
