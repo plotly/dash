@@ -805,7 +805,7 @@ class TestFlowMetaDataConversions(unittest.TestCase):
 
         for prop_name, prop in list(props.items()):
             self.assertEqual(
-                js_to_py_type(prop['type']),
+                js_to_py_type(prop['flowType']),
                 self.expected_arg_strings[prop_name]
             )
 
@@ -813,22 +813,23 @@ class TestFlowMetaDataConversions(unittest.TestCase):
 def assert_flow_docstring(assertEqual, docstring):
     for i, line in enumerate(docstring.split('\n')):
         assertEqual(line, ([
-            "A flow_component component.",
-            "test description",
+            "A Flow_component component.",
+            "This is a test description of the component.",
+            "It's multiple lines long.",
             "",
-            "Keyword arguments:"
-            "- required_test (string; required): Dialog ID",
+            "Keyword arguments:",
+            "- required_test (string; required): A required string",
+            "- string_test (string; optional): A string that isn't required.",
+            "- boolean_test (boolean; optional): A boolean test",
 
-            "- boolean_test (boolean; optional): Is the Dialog a modal "
-            "(must click on an action to close the Dialog)?",
+            "- Node_test (a list of or a singular dash component, string or number; optional): "
+            "A node test",
 
-            "- string_test (string; optional): The css class name of the root element.",
+            "- Array_test (list; optional): An array test with a particularly ",
+            "long description that covers several lines. It includes the newline character ",
+            "and should span 3 lines in total.",
 
-            "- Array_test (list; optional): Used to create the MenuItems to populate the Menu "
-            "with. A Dash user passes in a list of dict",
-
-            "items, each one having at least a `value` and `primaryText`. If the 'label' is used,",
-            "that value will be used to render the representation of that item within the field.",
+            "- union_test (string | number; required)",
 
             "- signature_test_(shape) (optional): This is a test of an object's shape. "
             "signature_test_(shape) has the following type: dict containing keys 'checked', "
@@ -845,11 +846,6 @@ def assert_flow_docstring(assertEqual, docstring):
             "  - secondaryText (string; optional)",
             "  - style (dict; optional)",
             "  - value (bool | number | str | dict | list; required)",
-
-            "- Node_test (a list of or a singular dash component, string or number; optional): "
-            "children of the Dialog",
-
-            "- union_test (string | number; required)",
 
             "- nested_test (required): . nested_test has the following type: dict containing "
             "keys 'customData', 'value'.",
