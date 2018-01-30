@@ -1,17 +1,17 @@
 {
-  "description": "This is a description of the component.\nIt's multiple lines long.",
+  "description": "This is a test description of the component.\nIt's multiple lines long.",
   "methods": [],
   "props": {
     "required_test": {
       "required": true,
-      "description": "Dialog ID",
+      "description": "A required string",
       "flowType": {
         "name": "string"
       }
     },
     "string_test": {
       "required": false,
-      "description": "The css class name of the root element.",
+      "description": "A string that isn't required.",
       "flowType": {
         "name": "string"
       },
@@ -22,7 +22,7 @@
     },
     "boolean_test": {
       "required": false,
-      "description": "Is the Dialog a modal (must click on an action to close the Dialog)?",
+      "description": "A boolean test",
       "flowType": {
         "name": "boolean"
       },
@@ -79,7 +79,7 @@
     },
     "Node_test": {
       "required": false,
-      "description": "children of the Dialog",
+      "description": "A node test",
       "flowType": {
         "name": "Node"
       },
@@ -90,7 +90,7 @@
     },
     "Array_test": {
       "required": false,
-      "description": "Used to create the MenuItems to populate the Menu with. A Dash user passes in a list of dict\nitems, each one having at least a `value` and `primaryText`. If the 'label' is used,\nthat value will be used to render the representation of that item within the field.",
+      "description": "An array test with a particularly \nlong description that covers several lines. It includes the newline character \nand should span 3 lines in total.",
       "flowType": {
         "name": "Array",
         "elements": [
