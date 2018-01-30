@@ -22,10 +22,12 @@ class Component(collections.MutableMapping):
     def __init__(self, **kwargs):
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
+            # pylint: disable=no-member
             if k not in self._prop_names:
                 raise TypeError(
                     'Unexpected keyword argument `{}`'.format(k) +
                     '\nAllowed arguments: {}'.format(
+                        # pylint: disable=no-member
                         ', '.join(sorted(self._prop_names))
                     )
                 )
@@ -182,6 +184,7 @@ class Component(collections.MutableMapping):
         return length
 
 
+# pylint: disable=unused-argument
 def generate_class(typename, props, description, namespace):
     """
     Dynamically generate classes to have nicely formatted docstrings,
@@ -249,16 +252,20 @@ def generate_class(typename, props, description, namespace):
     '''
 
     filtered_props = reorder_props(filter_props(props))
+    # pylint: disable=unused-variable
     list_of_valid_keys = repr(list(filtered_props.keys()))
+    # pylint: disable=unused-variable
     docstring = create_docstring(
         component_name=typename,
         props=filtered_props,
         events=parse_events(props),
         description=description)
 
+    # pylint: disable=unused-variable
     events = '[' + ', '.join(parse_events(props)) + ']'
     if 'children' in props:
         default_argtext = 'children=None, **kwargs'
+        # pylint: disable=unused-variable
         argtext = 'children=children, **kwargs'
     else:
         default_argtext = '**kwargs'
@@ -320,19 +327,19 @@ def create_docstring(component_name, props, events, description):
 Keyword arguments:\n{args}
 
 Available events: {events}""".format(
-        name=component_name,
-        description=description,
-        args='\n'.join(
-            create_prop_docstring(
-                prop_name=p,
-                type_object=prop['type'] if 'type' in prop
-                else prop['flowType'],
-                required=prop['required'],
-                description=prop['description'],
-                indent_num=0,
-                is_flow_type='flowType' in prop and 'type' not in prop)
-            for p, prop in list(filter_props(props).items())),
-        events=', '.join(events))
+    name=component_name,
+    description=description,
+    args='\n'.join(
+        create_prop_docstring(
+            prop_name=p,
+            type_object=prop['type'] if 'type' in prop
+            else prop['flowType'],
+            required=prop['required'],
+            description=prop['description'],
+            indent_num=0,
+            is_flow_type='flowType' in prop and 'type' not in prop)
+        for p, prop in list(filter_props(props).items())),
+    events=', '.join(events))
 
 
 def parse_events(props):
@@ -458,6 +465,7 @@ def filter_props(props):
     return filtered_props
 
 
+# pylint: disable=too-many-arguments
 def create_prop_docstring(prop_name, type_object, required, description,
                           indent_num, is_flow_type=False):
     """
@@ -493,21 +501,20 @@ def create_prop_docstring(prop_name, type_object, required, description,
     if '\n' in py_type_name:
         return '{indent_spacing}- {name} ({is_required}): {description}. ' \
                '{name} has the following type: {type}'.format(
-                indent_spacing=indent_spacing,
-                name=prop_name,
-                type=py_type_name,
-                description=description,
-                is_required='required' if required else 'optional')
-    else:
-        return '{indent_spacing}- {name} ({type}' \
-               '{is_required}){description}'.format(
-                    indent_spacing=indent_spacing,
-                    name=prop_name,
-                    type='{}; '.format(py_type_name) if py_type_name else '',
-                    description=(
-                        ': {}'.format(description) if description != '' else ''
-                    ),
-                    is_required='required' if required else 'optional')
+                   indent_spacing=indent_spacing,
+                   name=prop_name,
+                   type=py_type_name,
+                   description=description,
+                   is_required='required' if required else 'optional')
+    return '{indent_spacing}- {name} ({type}' \
+           '{is_required}){description}'.format(
+               indent_spacing=indent_spacing,
+               name=prop_name,
+               type='{}; '.format(py_type_name) if py_type_name else '',
+               description=(
+                   ': {}'.format(description) if description != '' else ''
+               ),
+               is_required='required' if required else 'optional')
 
 
 def map_js_to_py_types_prop_types(type_object):
@@ -537,16 +544,17 @@ def map_js_to_py_types_prop_types(type_object):
                 if js_to_py_type(subType) != '')),
 
         # React's PropTypes.arrayOf
-        arrayOf=lambda: 'list'.format(
+        arrayOf=lambda: 'list'.format(  # pylint: disable=too-many-format-args
             ' of {}s'.format(
                 js_to_py_type(type_object['value']))
             if js_to_py_type(type_object['value']) != ''
             else ''),
 
         # React's PropTypes.objectOf
-        objectOf=lambda: 'dict with strings as keys '
-                         'and values of type {}'.format(
-            js_to_py_type(type_object['value'])),
+        objectOf=lambda: (
+            'dict with strings as keys and values of type {}'
+            ).format(
+                js_to_py_type(type_object['value'])),
 
         # React's PropTypes.shape
         shape=lambda: 'dict containing keys {}.\n{}'.format(
@@ -639,7 +647,6 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
     elif js_type_name in js_to_py_types:
         if js_type_name == 'signature':  # This is a Flow object w/ signature
             return js_to_py_types[js_type_name](indent_num)
-        else:  # All other types
-            return js_to_py_types[js_type_name]()
-    else:
-        return ''
+        # All other types
+        return js_to_py_types[js_type_name]()
+    return ''
