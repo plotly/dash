@@ -627,8 +627,10 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
 
 
 if __name__ == '__main__':
-
-    test_props = {
+    test_component_metadata = {
+    "description": "This is a description of the component.\nIt's multiple lines long.",
+    "methods": [],
+    "props": {
       "required_test": {
         "required": True,
         "description": "Dialog ID",
@@ -992,17 +994,18 @@ if __name__ == '__main__':
         "description": ""
       }
     }
+    }
 
     dash_class = generate_class(
         typename='flow_component',
-        props=reorder_props(filter_props(test_props)),
+        props=reorder_props(filter_props(test_component_metadata)),
         description='test description',
         namespace='test-namespace'
     )
     # print(str(dash_class()))
     docs = (create_docstring(
         component_name='flow_component',
-        props=reorder_props(filter_props(test_props)),
-        events=parse_events(test_props),
+        props=reorder_props(filter_props(test_component_metadata['props'])),
+        events=parse_events(test_component_metadata['props']),
         description='test description'))
     print(docs)
