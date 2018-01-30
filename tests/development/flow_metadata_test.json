@@ -1,0 +1,368 @@
+{
+  "description": "This is a description of the component.\nIt's multiple lines long.",
+  "methods": [],
+  "props": {
+    "required_test": {
+      "required": true,
+      "description": "Dialog ID",
+      "flowType": {
+        "name": "string"
+      }
+    },
+    "string_test": {
+      "required": false,
+      "description": "The css class name of the root element.",
+      "flowType": {
+        "name": "string"
+      },
+      "defaultValue": {
+        "value": "''",
+        "computed": false
+      }
+    },
+    "boolean_test": {
+      "required": false,
+      "description": "Is the Dialog a modal (must click on an action to close the Dialog)?",
+      "flowType": {
+        "name": "boolean"
+      },
+      "defaultValue": {
+        "value": "false",
+        "computed": false
+      }
+    },
+    "func_test": {
+      "required": false,
+      "description": "Dash callback to update props on the server",
+      "flowType": {
+        "name": "signature",
+        "type": "function",
+        "raw": "(props: { modal?: boolean, open?: boolean }) => void",
+        "signature": {
+          "arguments": [
+            {
+              "name": "props",
+              "type": {
+                "name": "signature",
+                "type": "object",
+                "raw": "{ modal?: boolean, open?: boolean }",
+                "signature": {
+                  "properties": [
+                    {
+                      "key": "modal",
+                      "value": {
+                        "name": "boolean",
+                        "required": false
+                      }
+                    },
+                    {
+                      "key": "open",
+                      "value": {
+                        "name": "boolean",
+                        "required": false
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "return": {
+            "name": "void"
+          }
+        }
+      },
+      "defaultValue": {
+        "value": "() => {}",
+        "computed": false
+      }
+    },
+    "Node_test": {
+      "required": false,
+      "description": "children of the Dialog",
+      "flowType": {
+        "name": "Node"
+      },
+      "defaultValue": {
+        "value": "null",
+        "computed": false
+      }
+    },
+    "Array_test": {
+      "required": false,
+      "description": "Used to create the MenuItems to populate the Menu with. A Dash user passes in a list of dict\nitems, each one having at least a `value` and `primaryText`. If the 'label' is used,\nthat value will be used to render the representation of that item within the field.",
+      "flowType": {
+        "name": "Array",
+        "elements": [
+          {
+            "name": "signature",
+            "type": "object",
+            "raw": "{\n  checked?: boolean,\n  children?: Node,\n  customData: any,\n  disabled?: boolean,\n  label?: string,\n  primaryText: string,\n  secondaryText?: string,\n  style?: Object,\n  value: any,\n}",
+            "signature": {
+              "properties": [
+                {
+                  "key": "checked",
+                  "value": {
+                    "name": "boolean",
+                    "required": false
+                  }
+                },
+                {
+                  "key": "children",
+                  "value": {
+                    "name": "Node",
+                    "required": false
+                  }
+                },
+                {
+                  "key": "customData",
+                  "value": {
+                    "name": "any",
+                    "required": true
+                  }
+                },
+                {
+                  "key": "disabled",
+                  "value": {
+                    "name": "boolean",
+                    "required": false
+                  }
+                },
+                {
+                  "key": "label",
+                  "value": {
+                    "name": "string",
+                    "required": false
+                  }
+                },
+                {
+                  "key": "primaryText",
+                  "value": {
+                    "name": "string",
+                    "required": true
+                  }
+                },
+                {
+                  "key": "secondaryText",
+                  "value": {
+                    "name": "string",
+                    "required": false
+                  }
+                },
+                {
+                  "key": "style",
+                  "value": {
+                    "name": "Object",
+                    "required": false
+                  }
+                },
+                {
+                  "key": "value",
+                  "value": {
+                    "name": "any",
+                    "required": true
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "raw": "Array<SD_MENU_ITEM>"
+      },
+      "defaultValue": {
+        "value": "[]",
+        "computed": false
+      }
+    },
+    "union_test": {
+      "required": true,
+      "description": "",
+      "flowType": {
+        "name": "union",
+        "raw": "string | number",
+        "elements": [
+          {
+            "name": "string"
+          },
+          {
+            "name": "number"
+          }
+        ]
+      }
+    },
+    "signature_test_(shape)": {
+      "flowType": {
+        "name": "signature",
+        "type": "object",
+        "raw": "{\n  checked?: boolean,\n  children?: Node,\n  customData: any,\n  disabled?: boolean,\n  label?: string,\n  primaryText: string,\n  secondaryText?: string,\n  style?: Object,\n  value: any,\n}",
+        "signature": {
+          "properties": [
+            {
+              "key": "checked",
+              "value": {
+                "name": "boolean",
+                "required": false
+              }
+            },
+            {
+              "key": "children",
+              "value": {
+                "name": "Node",
+                "required": false
+              }
+            },
+            {
+              "key": "customData",
+              "value": {
+                "name": "any",
+                "required": true,
+                "description": "A test description"
+              }
+            },
+            {
+              "key": "disabled",
+              "value": {
+                "name": "boolean",
+                "required": false
+              }
+            },
+            {
+              "key": "label",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "primaryText",
+              "value": {
+                "name": "string",
+                "required": true,
+                "description": "Another test description"
+              }
+            },
+            {
+              "key": "secondaryText",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "style",
+              "value": {
+                "name": "Object",
+                "required": false
+              }
+            },
+            {
+              "key": "value",
+              "value": {
+                "name": "any",
+                "required": true
+              }
+            }
+          ]
+        }
+      },
+      "required": false,
+      "description": "This is a test of an object's shape"
+    },
+    "nested_test": {
+      "flowType": {
+        "name": "signature",
+        "type": "object",
+        "raw": "{\n  customData: SD_MENU_ITEM,\n  value: any,\n}",
+        "signature": {
+          "properties": [
+            {
+              "key": "customData",
+              "value": {
+                "name": "signature",
+                "type": "object",
+                "raw": "{\n  checked?: boolean,\n  children?: Node,\n  customData: any,\n  disabled?: boolean,\n  label?: string,\n  primaryText: string,\n  secondaryText?: string,\n  style?: Object,\n  value: any,\n}",
+                "signature": {
+                  "properties": [
+                    {
+                      "key": "checked",
+                      "value": {
+                        "name": "boolean",
+                        "required": false
+                      }
+                    },
+                    {
+                      "key": "children",
+                      "value": {
+                        "name": "Node",
+                        "required": false
+                      }
+                    },
+                    {
+                      "key": "customData",
+                      "value": {
+                        "name": "any",
+                        "required": true
+                      }
+                    },
+                    {
+                      "key": "disabled",
+                      "value": {
+                        "name": "boolean",
+                        "required": false
+                      }
+                    },
+                    {
+                      "key": "label",
+                      "value": {
+                        "name": "string",
+                        "required": false
+                      }
+                    },
+                    {
+                      "key": "primaryText",
+                      "value": {
+                        "name": "string",
+                        "required": true
+                      }
+                    },
+                    {
+                      "key": "secondaryText",
+                      "value": {
+                        "name": "string",
+                        "required": false
+                      }
+                    },
+                    {
+                      "key": "style",
+                      "value": {
+                        "name": "Object",
+                        "required": false
+                      }
+                    },
+                    {
+                      "key": "value",
+                      "value": {
+                        "name": "any",
+                        "required": true
+                      }
+                    }
+                  ]
+                },
+                "required": true
+              }
+            },
+            {
+              "key": "value",
+              "value": {
+                "name": "any",
+                "required": true
+              }
+            }
+          ]
+        }
+      },
+      "required": true,
+      "description": ""
+    }
+  }
+}
