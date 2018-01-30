@@ -501,13 +501,13 @@ def create_prop_docstring(prop_name, type_object, required, description,
     else:
         return '{indent_spacing}- {name} ({type}' \
                '{is_required}){description}'.format(
-            indent_spacing=indent_spacing,
-            name=prop_name,
-            type='{}; '.format(py_type_name) if py_type_name else '',
-            description=(
-                ': {}'.format(description) if description != '' else ''
-            ),
-            is_required='required' if required else 'optional')
+                    indent_spacing=indent_spacing,
+                    name=prop_name,
+                    type='{}; '.format(py_type_name) if py_type_name else '',
+                    description=(
+                        ': {}'.format(description) if description != '' else ''
+                    ),
+                    is_required='required' if required else 'optional')
 
 
 def map_js_to_py_types_prop_types(type_object):
