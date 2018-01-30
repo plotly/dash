@@ -537,7 +537,6 @@ def map_js_to_py_types_prop_types(type_object):
             js_to_py_type(type_object['value'])),
 
         # React's PropTypes.shape
-        # TODO add indent_num here
         shape=lambda: 'dict containing keys {}.\n{}'.format(
                 ', '.join(
                     "'{}'".format(t)
