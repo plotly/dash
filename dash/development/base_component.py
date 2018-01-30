@@ -216,37 +216,35 @@ def generate_class(typename, props, description, namespace):
     # The solution might be to deal with default values better although
     # not all component authors will supply those.
     c = '''class {typename}(Component):
-        """{docstring}
-        """
-        def __init__(self, {default_argtext}):
-            self._prop_names = {list_of_valid_keys}
-            self._type = '{typename}'
-            self._namespace = '{namespace}'
-            self.available_events = {events}
-            self.available_properties = {list_of_valid_keys}
+    """{docstring}
+    """
+    def __init__(self, {default_argtext}):
+        self._prop_names = {list_of_valid_keys}
+        self._type = '{typename}'
+        self._namespace = '{namespace}'
+        self.available_events = {events}
+        self.available_properties = {list_of_valid_keys}
 
-            for k in {required_args}:
-                if k not in kwargs:
-                    raise TypeError(
-                        'Required argument `' + k + '` was not specified.'
-                    )
+        for k in {required_args}:
+            if k not in kwargs:
+                raise TypeError('Required argument `' + k + '` was not specified.')
 
-            super({typename}, self).__init__({argtext})
+        super({typename}, self).__init__({argtext})
 
-        def __repr__(self):
-            if(any(getattr(self, c, None) is not None for c in self._prop_names
-                   if c is not self._prop_names[0])):
+    def __repr__(self):
+        if(any(getattr(self, c, None) is not None for c in self._prop_names
+               if c is not self._prop_names[0])):
 
-                return (
-                    '{typename}(' +
-                    ', '.join([c+'='+repr(getattr(self, c, None))
-                               for c in self._prop_names
-                               if getattr(self, c, None) is not None])+')')
+            return (
+                '{typename}(' +
+                ', '.join([c+'='+repr(getattr(self, c, None))
+                           for c in self._prop_names
+                           if getattr(self, c, None) is not None])+')')
 
-            else:
-                return (
-                    '{typename}(' +
-                    repr(getattr(self, self._prop_names[0], None)) + ')')
+        else:
+            return (
+                '{typename}(' +
+                repr(getattr(self, self._prop_names[0], None)) + ')')
     '''
 
     filtered_props = reorder_props(filter_props(props))
@@ -315,27 +313,25 @@ def create_docstring(component_name, props, events, description):
     props = reorder_props(props=props)  # Ensure props are ordered with children first
 
     return """
-        A {name} component.{description}
+A {name} component.
+{description}
 
-        Keyword arguments:
-        {args}
+Keyword arguments:\n{args}
 
-        Available events: {events}
+Available events: {events}
         """.format(
         name=component_name,
-        description='\n{}'.format(description),
+        description=description,
         args='\n'.join(
-            '{}'.format(
-                create_prop_docstring(
-                    prop_name=p,
-                    type_object=prop['type'] if 'type' in prop else prop['flowType'],
-                    required=prop['required'],
-                    description=prop['description'],
-                    is_flow_type='flowType' in prop and 'type' not in prop
-            )) for p, prop in list(filter_props(props).items())
-        ),
-        events=', '.join(events)
-    ).replace('    ', '')
+            create_prop_docstring(
+                prop_name=p,
+                type_object=prop['type'] if 'type' in prop else prop['flowType'],
+                required=prop['required'],
+                description=prop['description'],
+                indent_num=0,
+                is_flow_type='flowType' in prop and 'type' not in prop)
+            for p, prop in list(filter_props(props).items())),
+        events=', '.join(events)).replace('\n', '\n    ')
 
 
 def parse_events(props):
@@ -437,13 +433,15 @@ def filter_props(props):
             continue
 
         # Filter out functions and instances -- these cannot be passed from Python
-        if 'type' in arg:
+        if 'type' in arg:  # These come from PropTypes
             arg_type = arg['type']['name']
             if arg_type in {'func', 'symbol', 'instanceOf'}:
                 filtered_props.pop(arg_name)
-        elif 'flowType' in arg:  # Potentially handle Flow types differently
+        elif 'flowType' in arg:  # These come from Flow and are handled differently
             arg_type_name = arg['flowType']['name']
-            if arg_type_name == 'signature':  # Dump func props
+            if arg_type_name == 'signature':
+                # This does the same as the PropTypes filter above, but the "func"
+                # is under "type" if "name" is "signature" vs just in "name"
                 if 'type' not in arg['flowType'] or arg['flowType']['type'] != 'object':
                     filtered_props.pop(arg_name)
         else:
@@ -456,8 +454,8 @@ def filter_props(props):
     return filtered_props
 
 
-def create_prop_docstring(prop_name, type_object, required, description, is_flow_type=False,
-                          indent_num=10):
+def create_prop_docstring(prop_name, type_object, required, description,
+                          indent_num, is_flow_type=False):
     """
     Create the Dash component prop docstring
 
@@ -471,6 +469,8 @@ def create_prop_docstring(prop_name, type_object, required, description, is_flow
         Component is required?
     description: str
         Dash component description
+    indent_num: int
+        Number of indents to use for the context block (creates 2 spaces for every indent)
     is_flow_type: bool
         Does the prop use Flow types? Otherwise, uses PropTypes
 
@@ -479,21 +479,23 @@ def create_prop_docstring(prop_name, type_object, required, description, is_flow
     str
         Dash component prop docstring
     """
-    py_type_name = js_to_py_type(type_object=type_object, is_flow_type=is_flow_type, indent_num=indent_num + 1)
+    py_type_name = js_to_py_type(
+        type_object=type_object,
+        is_flow_type=is_flow_type,
+        indent_num=indent_num + 1)
 
+    indent_spacing = '  ' * indent_num
     if '\n' in py_type_name:
-        return_val = (
-            '{indents}- {name} ({is_required}): {description}. '
-            '{name} has the following type: {type}'
-        ).format(
-            indents='  ' * indent_num,
-            name=prop_name,
-            type=py_type_name,
-            description=description,
-            is_required='required' if required else 'optional')
+        return '{indent_spacing}- {name} ({is_required}): {description}. ' \
+               '{name} has the following type: {type}'.format(
+                indent_spacing=indent_spacing,
+                name=prop_name,
+                type=py_type_name,
+                description=description,
+                is_required='required' if required else 'optional')
     else:
-        return_val = '{indents}- {name} ({type}{is_required}){description}'.format(
-            indents='  ' * indent_num,
+        return '{indent_spacing}- {name} ({type}{is_required}){description}'.format(
+            indent_spacing=indent_spacing,
             name=prop_name,
             type='{}; '.format(py_type_name) if py_type_name else '',
             description=(
@@ -501,70 +503,58 @@ def create_prop_docstring(prop_name, type_object, required, description, is_flow
             ),
             is_required='required' if required else 'optional')
 
-    # if 'signature' in type_object:
-    #     for prop in type_object['signature']['properties']:
-    #         if 'signature' in prop['value']:
-    #             return '{}\n{}'.format(return_val,
-    #                                    '\n'.join(
-    #                                        create_prop_docstring(prop_name=item['key'],
-    #                                                              type_object=item['value'],
-    #                                                              required=item['value']['required'],
-    #                                                              description=item['value'].get(
-    #                                                                  'description', ''),
-    #                                                              is_flow_type=True,
-    #                                                              indent_num=indent_num + 1)
-    #                                        for item in prop['value']['signature']['properties']))
-    return return_val
-
 
 def map_js_to_py_types_prop_types(type_object):
     """Mapping from the PropTypes js type object to the Python type"""
     return dict(
         array=lambda: 'list',
-        bool=lambda: 'bool',
+        bool=lambda: 'boolean',
         number=lambda: 'number',
-        string=lambda: 'str',
+        string=lambda: 'string',
         object=lambda: 'dict',
         any=lambda: 'bool | number | str | dict | list',
         element=lambda: 'dash component',
         node=lambda: 'a list of or a singular dash component, string or number',
 
         # React's PropTypes.oneOf
-        enum=lambda: 'a value equal to: {}'.format(', '.join(
-            '{}'.format(str(t['value'])) for t in type_object['value']
-        )),
+        enum=lambda: 'a value equal to: {}'.format(
+            ', '.join(
+                '{}'.format(str(t['value']))
+                for t in type_object['value'])),
 
         # React's PropTypes.oneOfType
-        union=lambda: '{}'.format(' | '.join(
-            '{}'.format(js_to_py_type(subType))
-            for subType in type_object['value'] if js_to_py_type(subType) != ''
-        )),
+        union=lambda: '{}'.format(
+            ' | '.join(
+                '{}'.format(js_to_py_type(subType))
+                for subType in type_object['value'] if js_to_py_type(subType) != '')),
 
         # React's PropTypes.arrayOf
-        arrayOf=lambda: 'list{}'
-            .format(' of {}s'.format(js_to_py_type(type_object['value']))
+        arrayOf=lambda: 'list'.format(
+            ' of {}s'.format(
+                js_to_py_type(type_object['value']))
             if js_to_py_type(type_object['value']) != ''
             else ''),
 
         # React's PropTypes.objectOf
-        objectOf=lambda: 'dict with strings as keys and values of type {}'
-            .format(js_to_py_type(type_object['value'])),
+        objectOf=lambda: 'dict with strings as keys and values of type {}'.format(
+            js_to_py_type(type_object['value'])),
 
         # React's PropTypes.shape
+        # TODO add indent_num here
         shape=lambda: 'dict containing keys {}.\n{}'.format(
-                ', '.join("'{}'".format(t) for t in list(type_object['value'].keys())),
+                ', '.join(
+                    "'{}'".format(t)
+                    for t in list(type_object['value'].keys())),
                 'Those keys have the following types: \n{}'.format(
                     '\n'.join(
-                        '  - ' + create_prop_docstring(
-                            prop_name=prop_name,
-                            type_object=prop,
-                            required=prop['required'],
-                            description=prop.get('description', '')
-                        ) for
-                        prop_name, prop in list(type_object['value'].items())
-                    )
-                )
-            )
+                        '  - {}'.format(
+                            create_prop_docstring(
+                                prop_name=prop_name,
+                                type_object=prop,
+                                required=prop['required'],
+                                description=prop.get('description', ''),
+                                indent_num=1)
+                            for prop_name, prop in list(type_object['value'].items()))))),
     )
 
 
@@ -572,42 +562,41 @@ def map_js_to_py_types_flow_types(type_object):
     """Mapping from the Flow js types to the Python type"""
     return dict(
         array=lambda: 'list',
-        boolean=lambda: 'bool',
+        boolean=lambda: 'boolean',
         number=lambda: 'number',
-        string=lambda: 'str',
+        string=lambda: 'string',
         Object=lambda: 'dict',
         any=lambda: 'bool | number | str | dict | list',
         Element=lambda: 'dash component',
         Node=lambda: 'a list of or a singular dash component, string or number',
 
         # React's PropTypes.oneOfType
-        union=lambda: '{}'.format(' | '.join(
-            '{}'.format(js_to_py_type(subType))
-            for subType in type_object['elements'] if js_to_py_type(subType) != ''
-        )),
+        union=lambda: '{}'.format(
+            ' | '.join(
+                '{}'.format(js_to_py_type(subType))
+                for subType in type_object['elements'] if js_to_py_type(subType) != '')),
 
         # Flow's Array type
-        Array=lambda: 'list{}'
-            .format(' of {}s'.format(js_to_py_type(type_object['elements'][0]))
+        Array=lambda: 'list{}'.format(
+            ' of {}s'.format(
+                js_to_py_type(type_object['elements'][0]))
             if js_to_py_type(type_object['elements'][0]) != ''
             else ''),
 
         # React's PropTypes.shape
-        signature=lambda indents: 'dict containing keys {}.\n{}'.format(
+        signature=lambda indent_num: 'dict containing keys {}.\n{}'.format(
             ', '.join("'{}'".format(d['key']) for d in type_object['signature']['properties']),
-            'Those keys have the following types: \n{}'.format(
+            '{}Those keys have the following types: \n{}'.format(
+                '  ' * indent_num,
                 '\n'.join(
-                    '  ' + create_prop_docstring(
+                    create_prop_docstring(
                         prop_name=prop['key'],
                         type_object=prop['value'],
                         required=prop['value']['required'],
                         description=prop['value'].get('description', ''),
-                        indent_num=indents,
-                        is_flow_type=True,
-                    ) for prop in type_object['signature']['properties']
-                )
-            )
-        )
+                        indent_num=indent_num,
+                        is_flow_type=True)
+                    for prop in type_object['signature']['properties']))),
     )
 
 
@@ -621,6 +610,8 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
         react-docgen-generated prop type dictionary
     is_flow_type: bool
         Does the prop use Flow types? Otherwise, uses PropTypes
+    indent_num: int
+        Number of indents to use for the docstring for the prop
 
     Returns
     -------
@@ -634,9 +625,9 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
     if 'computed' in type_object and type_object['computed']:
         return ''
     elif js_type_name in js_to_py_types:
-        if js_type_name == 'signature':
-            return js_to_py_types[js_type_name](indent_num + 1)
-        else:
+        if js_type_name == 'signature':  # If this is a Flow-type object with a signature
+            return js_to_py_types[js_type_name](indent_num)
+        else:  # All other types
             return js_to_py_types[js_type_name]()
     else:
         return ''
@@ -645,272 +636,272 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
 if __name__ == '__main__':
 
     test_props = {
-      # "required_test": {
-      #   "required": True,
-      #   "description": "Dialog ID",
-      #   "flowType": {
-      #     "name": "string"
-      #   }
-      # },
-      # "string_test": {
-      #   "required": False,
-      #   "description": "The css class name of the root element.",
-      #   "flowType": {
-      #     "name": "string"
-      #   },
-      #   "defaultValue": {
-      #     "value": "''",
-      #     "computed": False
-      #   }
-      # },
-      # "boolean_test": {
-      #   "required": False,
-      #   "description": "Is the Dialog a modal (must click on an action to close the Dialog)?",
-      #   "flowType": {
-      #     "name": "boolean"
-      #   },
-      #   "defaultValue": {
-      #     "value": "false",
-      #     "computed": False
-      #   }
-      # },
-      # "func_test": {
-      #   "required": False,
-      #   "description": "Dash callback to update props on the server",
-      #   "flowType": {
-      #     "name": "signature",
-      #     "type": "function",
-      #     "raw": "(props: { modal?: boolean, open?: boolean }) => void",
-      #     "signature": {
-      #       "arguments": [
-      #         {
-      #           "name": "props",
-      #           "type": {
-      #             "name": "signature",
-      #             "type": "object",
-      #             "raw": "{ modal?: boolean, open?: boolean }",
-      #             "signature": {
-      #               "properties": [
-      #                 {
-      #                   "key": "modal",
-      #                   "value": {
-      #                     "name": "boolean",
-      #                     "required": False
-      #                   }
-      #                 },
-      #                 {
-      #                   "key": "open",
-      #                   "value": {
-      #                     "name": "boolean",
-      #                     "required": False
-      #                   }
-      #                 }
-      #               ]
-      #             }
-      #           }
-      #         }
-      #       ],
-      #       "return": {
-      #         "name": "void"
-      #       }
-      #     }
-      #   },
-      #   "defaultValue": {
-      #     "value": "() => {}",
-      #     "computed": False
-      #   }
-      # },
-      # "Node_test": {
-      #   "required": False,
-      #   "description": "children of the Dialog",
-      #   "flowType": {
-      #     "name": "Node"
-      #   },
-      #   "defaultValue": {
-      #     "value": "null",
-      #     "computed": False
-      #   }
-      # },
-      # "Array_test": {
-      #   "required": False,
-      #   "description": "Used to create the MenuItems to populate the Menu with. A Dash user passes in a list of dict\nitems, each one having at least a `value` and `primaryText`. If the 'label' is used,\nthat value will be used to render the representation of that item within the field.",
-      #   "flowType": {
-      #     "name": "Array",
-      #     "elements": [
-      #       {
-      #         "name": "signature",
-      #         "type": "object",
-      #         "raw": "{\n  checked?: boolean,\n  children?: Node,\n  customData: any,\n  disabled?: boolean,\n  label?: string,\n  primaryText: string,\n  secondaryText?: string,\n  style?: Object,\n  value: any,\n}",
-      #         "signature": {
-      #           "properties": [
-      #             {
-      #               "key": "checked",
-      #               "value": {
-      #                 "name": "boolean",
-      #                 "required": False
-      #               }
-      #             },
-      #             {
-      #               "key": "children",
-      #               "value": {
-      #                 "name": "Node",
-      #                 "required": False
-      #               }
-      #             },
-      #             {
-      #               "key": "customData",
-      #               "value": {
-      #                 "name": "any",
-      #                 "required": True
-      #               }
-      #             },
-      #             {
-      #               "key": "disabled",
-      #               "value": {
-      #                 "name": "boolean",
-      #                 "required": False
-      #               }
-      #             },
-      #             {
-      #               "key": "label",
-      #               "value": {
-      #                 "name": "string",
-      #                 "required": False
-      #               }
-      #             },
-      #             {
-      #               "key": "primaryText",
-      #               "value": {
-      #                 "name": "string",
-      #                 "required": True
-      #               }
-      #             },
-      #             {
-      #               "key": "secondaryText",
-      #               "value": {
-      #                 "name": "string",
-      #                 "required": False
-      #               }
-      #             },
-      #             {
-      #               "key": "style",
-      #               "value": {
-      #                 "name": "Object",
-      #                 "required": False
-      #               }
-      #             },
-      #             {
-      #               "key": "value",
-      #               "value": {
-      #                 "name": "any",
-      #                 "required": True
-      #               }
-      #             }
-      #           ]
-      #         }
-      #       }
-      #     ],
-      #     "raw": "Array<SD_MENU_ITEM>"
-      #   },
-      #   "defaultValue": {
-      #     "value": "[]",
-      #     "computed": False
-      #   }
-      # },
-      # "union_test": {
-      #   "required": True,
-      #   "description": "",
-      #   "flowType": {
-      #       "name": "union",
-      #       "raw": "string | number",
-      #       "elements": [
-      #           {
-      #               "name": "string"
-      #           },
-      #           {
-      #               "name": "number"
-      #           }
-      #       ]
-      #   }
-      # },
-      # "signature_test_(shape)": {
-      #   "flowType": {
-      #       "name": "signature",
-      #       "type": "object",
-      #       "raw": "{\n  checked?: boolean,\n  children?: Node,\n  customData: any,\n  disabled?: boolean,\n  label?: string,\n  primaryText: string,\n  secondaryText?: string,\n  style?: Object,\n  value: any,\n}",
-      #       "signature": {
-      #           "properties": [
-      #               {
-      #                   "key": "checked",
-      #                   "value": {
-      #                       "name": "boolean",
-      #                       "required": False
-      #                   }
-      #               },
-      #               {
-      #                   "key": "children",
-      #                   "value": {
-      #                       "name": "Node",
-      #                       "required": False
-      #                   }
-      #               },
-      #               {
-      #                   "key": "customData",
-      #                   "value": {
-      #                       "name": "any",
-      #                       "required": True,
-      #                       "description": "A test description"
-      #                   }
-      #               },
-      #               {
-      #                   "key": "disabled",
-      #                   "value": {
-      #                       "name": "boolean",
-      #                       "required": False
-      #                   }
-      #               },
-      #               {
-      #                   "key": "label",
-      #                   "value": {
-      #                       "name": "string",
-      #                       "required": False
-      #                   }
-      #               },
-      #               {
-      #                   "key": "primaryText",
-      #                   "value": {
-      #                       "name": "string",
-      #                       "required": True,
-      #                       "description": "Another test description"
-      #                   }
-      #               },
-      #               {
-      #                   "key": "secondaryText",
-      #                   "value": {
-      #                       "name": "string",
-      #                       "required": False
-      #                   }
-      #               },
-      #               {
-      #                   "key": "style",
-      #                   "value": {
-      #                       "name": "Object",
-      #                       "required": False
-      #                   }
-      #               },
-      #               {
-      #                   "key": "value",
-      #                   "value": {
-      #                       "name": "any",
-      #                       "required": True
-      #                   }
-      #               }
-      #           ]
-      #       }
-      #   },
-      #   "required": False,
-      #   "description": "This is a test of an object's shape"
-      # },
+      "required_test": {
+        "required": True,
+        "description": "Dialog ID",
+        "flowType": {
+          "name": "string"
+        }
+      },
+      "string_test": {
+        "required": False,
+        "description": "The css class name of the root element.",
+        "flowType": {
+          "name": "string"
+        },
+        "defaultValue": {
+          "value": "''",
+          "computed": False
+        }
+      },
+      "boolean_test": {
+        "required": False,
+        "description": "Is the Dialog a modal (must click on an action to close the Dialog)?",
+        "flowType": {
+          "name": "boolean"
+        },
+        "defaultValue": {
+          "value": "false",
+          "computed": False
+        }
+      },
+      "func_test": {
+        "required": False,
+        "description": "Dash callback to update props on the server",
+        "flowType": {
+          "name": "signature",
+          "type": "function",
+          "raw": "(props: { modal?: boolean, open?: boolean }) => void",
+          "signature": {
+            "arguments": [
+              {
+                "name": "props",
+                "type": {
+                  "name": "signature",
+                  "type": "object",
+                  "raw": "{ modal?: boolean, open?: boolean }",
+                  "signature": {
+                    "properties": [
+                      {
+                        "key": "modal",
+                        "value": {
+                          "name": "boolean",
+                          "required": False
+                        }
+                      },
+                      {
+                        "key": "open",
+                        "value": {
+                          "name": "boolean",
+                          "required": False
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "return": {
+              "name": "void"
+            }
+          }
+        },
+        "defaultValue": {
+          "value": "() => {}",
+          "computed": False
+        }
+      },
+      "Node_test": {
+        "required": False,
+        "description": "children of the Dialog",
+        "flowType": {
+          "name": "Node"
+        },
+        "defaultValue": {
+          "value": "null",
+          "computed": False
+        }
+      },
+      "Array_test": {
+        "required": False,
+        "description": "Used to create the MenuItems to populate the Menu with. A Dash user passes in a list of dict\nitems, each one having at least a `value` and `primaryText`. If the 'label' is used,\nthat value will be used to render the representation of that item within the field.",
+        "flowType": {
+          "name": "Array",
+          "elements": [
+            {
+              "name": "signature",
+              "type": "object",
+              "raw": "{\n  checked?: boolean,\n  children?: Node,\n  customData: any,\n  disabled?: boolean,\n  label?: string,\n  primaryText: string,\n  secondaryText?: string,\n  style?: Object,\n  value: any,\n}",
+              "signature": {
+                "properties": [
+                  {
+                    "key": "checked",
+                    "value": {
+                      "name": "boolean",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "children",
+                    "value": {
+                      "name": "Node",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "customData",
+                    "value": {
+                      "name": "any",
+                      "required": True
+                    }
+                  },
+                  {
+                    "key": "disabled",
+                    "value": {
+                      "name": "boolean",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "label",
+                    "value": {
+                      "name": "string",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "primaryText",
+                    "value": {
+                      "name": "string",
+                      "required": True
+                    }
+                  },
+                  {
+                    "key": "secondaryText",
+                    "value": {
+                      "name": "string",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "style",
+                    "value": {
+                      "name": "Object",
+                      "required": False
+                    }
+                  },
+                  {
+                    "key": "value",
+                    "value": {
+                      "name": "any",
+                      "required": True
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "raw": "Array<SD_MENU_ITEM>"
+        },
+        "defaultValue": {
+          "value": "[]",
+          "computed": False
+        }
+      },
+      "union_test": {
+        "required": True,
+        "description": "",
+        "flowType": {
+            "name": "union",
+            "raw": "string | number",
+            "elements": [
+                {
+                    "name": "string"
+                },
+                {
+                    "name": "number"
+                }
+            ]
+        }
+      },
+      "signature_test_(shape)": {
+        "flowType": {
+            "name": "signature",
+            "type": "object",
+            "raw": "{\n  checked?: boolean,\n  children?: Node,\n  customData: any,\n  disabled?: boolean,\n  label?: string,\n  primaryText: string,\n  secondaryText?: string,\n  style?: Object,\n  value: any,\n}",
+            "signature": {
+                "properties": [
+                    {
+                        "key": "checked",
+                        "value": {
+                            "name": "boolean",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "children",
+                        "value": {
+                            "name": "Node",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "customData",
+                        "value": {
+                            "name": "any",
+                            "required": True,
+                            "description": "A test description"
+                        }
+                    },
+                    {
+                        "key": "disabled",
+                        "value": {
+                            "name": "boolean",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "label",
+                        "value": {
+                            "name": "string",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "primaryText",
+                        "value": {
+                            "name": "string",
+                            "required": True,
+                            "description": "Another test description"
+                        }
+                    },
+                    {
+                        "key": "secondaryText",
+                        "value": {
+                            "name": "string",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "style",
+                        "value": {
+                            "name": "Object",
+                            "required": False
+                        }
+                    },
+                    {
+                        "key": "value",
+                        "value": {
+                            "name": "any",
+                            "required": True
+                        }
+                    }
+                ]
+            }
+        },
+        "required": False,
+        "description": "This is a test of an object's shape"
+      },
       "nested_test": {
         "flowType": {
           "name": "signature",
@@ -1004,7 +995,7 @@ if __name__ == '__main__':
             ]
           }
         },
-        "required": False,
+        "required": True,
         "description": ""
       }
     }
@@ -1015,7 +1006,7 @@ if __name__ == '__main__':
         description='test description',
         namespace='test-namespace'
     )
-    print(str(dash_class()))
+    # print(str(dash_class()))
     print(create_docstring(
         component_name='test_component',
         props=reorder_props(filter_props(test_props)),
