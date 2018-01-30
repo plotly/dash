@@ -755,3 +755,70 @@ def assert_docstring(assertEqual, docstring):
             '        '
             ])[i]
                    )
+
+
+def assert_flow_docstring(assertEqual, docstring):
+    for i, line in enumerate(docstring.split('\n')):
+        assertEqual(line, ([
+            "A flow_component component.",
+            "test description",
+            "",
+            "Keyword arguments:"
+            "- required_test (string; required): Dialog ID",
+
+            "- boolean_test (boolean; optional): Is the Dialog a modal "
+            "(must click on an action to close the Dialog)?",
+
+            "- string_test (string; optional): The css class name of the root element.",
+
+            "- Array_test (list; optional): Used to create the MenuItems to populate the Menu "
+            "with. A Dash user passes in a list of dict",
+
+            "items, each one having at least a `value` and `primaryText`. If the 'label' is used,",
+            "that value will be used to render the representation of that item within the field.",
+
+            "- signature_test_(shape) (optional): This is a test of an object's shape. "
+            "signature_test_(shape) has the following type: dict containing keys 'checked', "
+            "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "
+            "'style', 'value'.",
+
+            "  Those keys have the following types:",
+            "  - checked (boolean; optional)",
+            "  - children (a list of or a singular dash component, string or number; optional)",
+            "  - customData (bool | number | str | dict | list; required): A test description",
+            "  - disabled (boolean; optional)",
+            "  - label (string; optional)",
+            "  - primaryText (string; required): Another test description",
+            "  - secondaryText (string; optional)",
+            "  - style (dict; optional)",
+            "  - value (bool | number | str | dict | list; required)",
+
+            "- Node_test (a list of or a singular dash component, string or number; optional): "
+            "children of the Dialog",
+
+            "- union_test (string | number; required)",
+
+            "- nested_test (required): . nested_test has the following type: dict containing "
+            "keys 'customData', 'value'.",
+
+            "  Those keys have the following types: ",
+
+            "  - customData (required): . customData has the following type: dict containing "
+            "keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', "
+            "'secondaryText', 'style', 'value'.",
+
+            "    Those keys have the following types: ",
+            "    - checked (boolean; optional)",
+            "    - children (a list of or a singular dash component, string or number; optional)",
+            "    - customData (bool | number | str | dict | list; required)",
+            "    - disabled (boolean; optional)",
+            "    - label (string; optional)",
+            "    - primaryText (string; required)",
+            "    - secondaryText (string; optional)",
+            "    - style (dict; optional)",
+            "    - value (bool | number | str | dict | list; required)",
+            "  - value (bool | number | str | dict | list; required)",
+            "",
+            "Available events: "
+        ])[i]
+                    )
