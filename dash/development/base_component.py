@@ -322,24 +322,26 @@ def create_docstring(component_name, props, events, description):
     # Ensure props are ordered with children first
     props = reorder_props(props=props)
 
-    return """A {name} component.\n{description}
+    return (
+        """A {name} component.\n{description}
 
 Keyword arguments:\n{args}
 
-Available events: {events}""".format(
-    name=component_name,
-    description=description,
-    args='\n'.join(
-        create_prop_docstring(
-            prop_name=p,
-            type_object=prop['type'] if 'type' in prop
-            else prop['flowType'],
-            required=prop['required'],
-            description=prop['description'],
-            indent_num=0,
-            is_flow_type='flowType' in prop and 'type' not in prop)
-        for p, prop in list(filter_props(props).items())),
-    events=', '.join(events))
+Available events: {events}"""
+    ).format(
+        name=component_name,
+        description=description,
+        args='\n'.join(
+            create_prop_docstring(
+                prop_name=p,
+                type_object=prop['type'] if 'type' in prop
+                else prop['flowType'],
+                required=prop['required'],
+                description=prop['description'],
+                indent_num=0,
+                is_flow_type='flowType' in prop and 'type' not in prop)
+            for p, prop in list(filter_props(props).items())),
+        events=', '.join(events))
 
 
 def parse_events(props):
