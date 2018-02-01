@@ -3,6 +3,7 @@ import {
     __,
     adjust,
     any,
+    append,
     concat,
     contains,
     findIndex,
@@ -42,7 +43,6 @@ export function hydrateInitialOutputs() {
         dispatch(setAppLifecycle(APP_STATES('HYDRATED')));
     }
 }
-
 
 function triggerDefaultState(dispatch, getState) {
     const {graphs} = getState();
@@ -583,7 +583,49 @@ function updateOutput(
                      * Organize props by shared outputs so that we
                      * only make one request per output component
                      * (even if there are multiple inputs).
+                     *
+                     * For example, we might render 10 inputs that control
+                     * a single output. If that is the case, we only want
+                     * to make a single call, not 10 calls.
                      */
+
+                    /*
+                     * In some cases, the new item will be an output
+                     * with its inputs already rendered (not rendered)
+                     * as part of this update.
+                     * For example, a tab with global controls that
+                     * renders different content containers without any
+                     * additional inputs.
+                     *
+                     * In that case, we'll call `updateOutput` with that output
+                     * and just "pretend" that one if its inputs changed.
+                     *
+                     * If we ever add logic that informs the user on
+                     * "which input changed", we'll have to account for this
+                     * special case (no input changed?)
+                     */
+
+
+                    const outputIds = [];
+                    keys(newProps).forEach(idAndProp => {
+                        if (
+                            // It's an output
+                            InputGraph.dependenciesOf(idAndProp).length === 0 &&
+                            /*
+                             * And none of its inputs are generated in this
+                             * request
+                             */
+                            intersection(
+                                InputGraph.dependantsOf(idAndProp),
+                                keys(newProps)
+                            ).length == 0
+                        ) {
+                            outputIds.push(idAndProp);
+                            delete newProps[idAndProp];
+                        }
+                    });
+
+                    // Dispatch updates to inputs
                     const reducedNodeIds = reduceInputIds(
                         keys(newProps), InputGraph);
                     const depOrder = InputGraph.overallOrder();
@@ -594,6 +636,28 @@ function updateOutput(
                     sortedNewProps.forEach(function(nodeId) {
                         dispatch(notifyObservers(newProps[nodeId]));
                     });
+
+                    // Dispatch updates to lone outputs
+                    outputIds.forEach(idAndProp => {
+                        const requestUid = uid();
+                        dispatch(setRequestQueue(
+                            append({
+                                controllerId: null, // ??
+                                status: 'loading',
+                                uid: requestUid,
+                                requestTime: Date.now()
+                            }, getState().requestQueue)
+                        ));
+                        updateOutput(
+                            idAndProp.split('.')[0],
+                            idAndProp.split('.')[1],
+                            null,
+                            getState,
+                            requestUid,
+                            dispatch
+                        );
+                    })
+
                 }
 
 
