@@ -18,25 +18,30 @@ class Tests(IntegrationTests):
 
     def wait_for_element_by_css_selector(self, selector):
         start_time = time.time()
+        exception = Exception('Time ran out, {} not found'.format(selector))
         while time.time() < start_time + 20:
             try:
                 return self.driver.find_element_by_css_selector(selector)
             except Exception as e:
+                exception = e
                 pass
             time.sleep(0.25)
-        raise e
+        raise exception
 
     def wait_for_text_to_equal(self, selector, assertion_text):
         start_time = time.time()
+        exception = Exception('Time ran out, {} on {} not found'.format(
+            assertion_text, selector))
         while time.time() < start_time + 20:
             el = self.wait_for_element_by_css_selector(selector)
             try:
                 return self.assertEqual(el.text, assertion_text)
             except Exception as e:
+                exception = e
                 pass
             time.sleep(0.25)
 
-        raise e
+        raise exception
 
     def request_queue_assertions(
             self, check_rejected=True, expected_length=None):
@@ -1679,7 +1684,7 @@ class Tests(IntegrationTests):
         def generate_callback(outputid):
             def callback(*args):
                 call_counts[outputid].value += 1
-                return str(args)
+                return '{}, {}'.format(*args)
             return callback
 
         for i in range(1, 5):
@@ -1700,7 +1705,7 @@ class Tests(IntegrationTests):
             self.assertEqual(call_counts[outputid].value, 1)
             self.wait_for_text_to_equal(
                 '#{}'.format(outputid),
-                "(u'input-{}', u'input-{}')".format(i, i+1)
+                "input-{}, input-{}".format(i, i+1)
             )
 
     def test_generate_overlapping_outputs(self):
@@ -1742,7 +1747,7 @@ class Tests(IntegrationTests):
         def generate_callback(outputid):
             def callback(*args):
                 call_counts[outputid].value += 1
-                return str(args)
+                return '{}, {}'.format(*args)
             return callback
 
         for i in range(1, 5):
@@ -1764,6 +1769,6 @@ class Tests(IntegrationTests):
             self.assertEqual(call_counts[outputid].value, 1)
             self.wait_for_text_to_equal(
                 '#{}'.format(outputid),
-                "(u'input-{}', u'input-{}')".format(i, i+1)
+                "input-{}, input-{}".format(i, i+1)
             )
         self.assertEqual(call_counts['container'].value, 1)
