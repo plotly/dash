@@ -35,6 +35,7 @@ class Tests(IntegrationTests):
             except Exception as e:
                 pass
             time.sleep(0.25)
+
         raise e
 
     def request_queue_assertions(
@@ -1651,3 +1652,118 @@ class Tests(IntegrationTests):
         self.assertEqual(call_counts['tab2'].value, 1)
 
         assert_clean_console(self)
+
+    def test_initialization_with_overlapping_outputs(self):
+        app = dash.Dash()
+        app.layout = html.Div([
+
+            html.Div(id='input-1', children='input-1'),
+            html.Div(id='input-2', children='input-2'),
+            html.Div(id='input-3', children='input-3'),
+            html.Div(id='input-4', children='input-4'),
+            html.Div(id='input-5', children='input-5'),
+
+            html.Div(id='output-1'),
+            html.Div(id='output-2'),
+            html.Div(id='output-3'),
+            html.Div(id='output-4'),
+
+        ])
+        call_counts = {
+            'output-1': Value('i', 0),
+            'output-2': Value('i', 0),
+            'output-3': Value('i', 0),
+            'output-4': Value('i', 0),
+        }
+
+        def generate_callback(outputid):
+            def callback(*args):
+                call_counts[outputid].value += 1
+                return str(args)
+            return callback
+
+        for i in range(1, 5):
+            outputid = 'output-{}'.format(i)
+            app.callback(
+                Output(outputid, 'children'),
+                [Input('input-{}'.format(i), 'children'),
+                 Input('input-{}'.format(i+1), 'children')]
+            )(generate_callback(outputid))
+
+        self.startServer(app)
+
+        self.wait_for_element_by_css_selector('#output-1')
+        time.sleep(5)
+
+        for i in range(1, 5):
+            outputid = 'output-{}'.format(i)
+            self.assertEqual(call_counts[outputid].value, 1)
+            self.wait_for_text_to_equal(
+                '#{}'.format(outputid),
+                "(u'input-{}', u'input-{}')".format(i, i+1)
+            )
+
+    def test_generate_overlapping_outputs(self):
+        app = dash.Dash()
+        app.config['suppress_callback_exceptions'] = True
+        block = html.Div([
+
+            html.Div(id='input-1', children='input-1'),
+            html.Div(id='input-2', children='input-2'),
+            html.Div(id='input-3', children='input-3'),
+            html.Div(id='input-4', children='input-4'),
+            html.Div(id='input-5', children='input-5'),
+
+            html.Div(id='output-1'),
+            html.Div(id='output-2'),
+            html.Div(id='output-3'),
+            html.Div(id='output-4'),
+
+        ])
+        app.layout = html.Div([
+            html.Div(id='input'),
+            html.Div(id='container')
+        ])
+
+        call_counts = {
+            'container': Value('i', 0),
+            'output-1': Value('i', 0),
+            'output-2': Value('i', 0),
+            'output-3': Value('i', 0),
+            'output-4': Value('i', 0),
+        }
+
+        @app.callback(Output('container', 'children'),
+                      [Input('input', 'children')])
+        def display_output(*args):
+            call_counts['container'].value += 1
+            return block
+
+        def generate_callback(outputid):
+            def callback(*args):
+                call_counts[outputid].value += 1
+                return str(args)
+            return callback
+
+        for i in range(1, 5):
+            outputid = 'output-{}'.format(i)
+            app.callback(
+                Output(outputid, 'children'),
+                [Input('input-{}'.format(i), 'children'),
+                 Input('input-{}'.format(i+1), 'children')]
+            )(generate_callback(outputid))
+
+        self.startServer(app)
+
+        wait_for(lambda: call_counts['container'].value == 1)
+        self.wait_for_element_by_css_selector('#output-1')
+        time.sleep(5)
+
+        for i in range(1, 5):
+            outputid = 'output-{}'.format(i)
+            self.assertEqual(call_counts[outputid].value, 1)
+            self.wait_for_text_to_equal(
+                '#{}'.format(outputid),
+                "(u'input-{}', u'input-{}')".format(i, i+1)
+            )
+        self.assertEqual(call_counts['container'].value, 1)
