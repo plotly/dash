@@ -4,7 +4,7 @@ import dash
 import dash_html_components as html
 import dash_core_components as dcc
 from .IntegrationTests import IntegrationTests
-from .utils import assert_clean_console, invincible, wait_for
+from .utils import assert_clean_console, wait_for
 from multiprocessing import Value
 import time
 import re
@@ -14,12 +14,28 @@ import json
 
 class Tests(IntegrationTests):
     def setUp(self):
-        def wait_for_element_by_id(id):
-            wait_for(lambda: None is not invincible(
-                lambda: self.driver.find_element_by_id(id)
-            ))
-            return self.driver.find_element_by_id(id)
-        self.wait_for_element_by_id = wait_for_element_by_id
+        pass
+
+    def wait_for_element_by_css_selector(self, selector):
+        start_time = time.time()
+        while time.time() < start_time + 20:
+            try:
+                return self.driver.find_element_by_css_selector(selector)
+            except Exception as e:
+                pass
+            time.sleep(0.25)
+        raise e
+
+    def wait_for_text_to_equal(self, selector, assertion_text):
+        start_time = time.time()
+        while time.time() < start_time + 20:
+            el = self.wait_for_element_by_css_selector(selector)
+            try:
+                return self.assertEqual(el.text, assertion_text)
+            except Exception as e:
+                pass
+            time.sleep(0.25)
+        raise e
 
     def request_queue_assertions(
             self, check_rejected=True, expected_length=None):
@@ -85,7 +101,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        el = self.wait_for_element_by_id('_dash-app-content')
+        el = self.wait_for_element_by_css_selector('#_dash-app-content')
 
         # TODO - Make less fragile with http://lxml.de/lxmlhtml.html#html-diff
         rendered_dom = '''
@@ -440,17 +456,15 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        output1 = self.wait_for_element_by_id('output-1')
-        wait_for(lambda: output1.text == 'initial value')
+        self.wait_for_text_to_equal('#output-1', 'initial value')
         self.percy_snapshot(name='simple-callback-1')
 
-        input1 = self.wait_for_element_by_id('input')
+        input1 = self.wait_for_element_by_css_selector('#input')
         input1.clear()
 
         input1.send_keys('hello world')
 
-        output1 = lambda: self.wait_for_element_by_id('output-1')
-        wait_for(lambda: output1().text == 'hello world')
+        self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='simple-callback-2')
 
         self.assertEqual(
@@ -558,11 +572,9 @@ class Tests(IntegrationTests):
         # editing the input should modify the sub output
         sub_input = self.driver.find_element_by_id('sub-input-1')
         sub_input.send_keys('a')
-        wait_for(
-            lambda: (
-                self.driver.find_element_by_id('sub-output-1').text
-            ) == 'sub input initial valuea'
-        )
+        self.wait_for_text_to_equal(
+            '#sub-output-1',
+            'sub input initial valuea')
 
         self.assertEqual(call_count.value, 2)
 
@@ -727,14 +739,7 @@ class Tests(IntegrationTests):
             else:
                 value = chapters[chapter]['{}-controls'.format(chapter)].value
             # check the actual values
-            wait_for(
-                lambda: (
-                    self.driver.find_element_by_id(
-                        '{}-label'.format(chapter)
-                    ).text
-                    == value
-                )
-            )
+            self.wait_for_text_to_equal('#{}-label'.format(chapter), value)
             wait_for(
                 lambda: (
                     self.driver.execute_script(
@@ -880,10 +885,7 @@ class Tests(IntegrationTests):
         (self.driver.find_elements_by_css_selector(
             'input[type="radio"]'
         )[3]).click()
-        wait_for(lambda: (
-            self.driver.find_element_by_id('body').text ==
-            'Just a string'
-        ))
+        self.wait_for_text_to_equal('#body', 'Just a string')
         self.percy_snapshot(name='chapter-4')
 
         # each element should exist in the dom
@@ -954,8 +956,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        el = self.wait_for_element_by_id('output-1')
-        wait_for(lambda: el.text == 'initial value')
+        self.wait_for_text_to_equal('#output-1', 'initial value')
         self.percy_snapshot(name='dependencies')
         time.sleep(1.0)
         self.assertEqual(output_1_call_count.value, 1)
@@ -964,8 +965,7 @@ class Tests(IntegrationTests):
         input = self.driver.find_element_by_id('input')
 
         input.send_keys('a')
-        wait_for(lambda: self.driver.find_element_by_id('output-1').text
-                 == 'initial valuea')
+        self.wait_for_text_to_equal('#output-1', 'initial valuea')
         time.sleep(1.0)
         self.assertEqual(output_1_call_count.value, 2)
         self.assertEqual(output_2_call_count.value, 0)
@@ -1497,7 +1497,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        self.wait_for_element_by_id('display-content').click()
+        self.wait_for_element_by_css_selector('#display-content').click()
 
         time.sleep(5)
 
@@ -1526,7 +1526,7 @@ class Tests(IntegrationTests):
             return n_clicks
 
         self.startServer(app)
-        button = self.wait_for_element_by_id('input')
+        button = self.wait_for_element_by_css_selector('#input')
         button.click()
         button.click()
         time.sleep(8)
@@ -1579,7 +1579,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        self.wait_for_element_by_id('session-id')
+        self.wait_for_element_by_css_selector('#session-id')
         time.sleep(2)
         self.assertEqual(call_counts['dropdown_1'].value, 1)
         self.assertEqual(call_counts['dropdown_2'].value, 1)
@@ -1612,8 +1612,8 @@ class Tests(IntegrationTests):
                 html.Div(id='tab-output')
             ])
 
-
-        @app.callback(Output('tab-output', 'children'), [Input('tabs', 'value')])
+        @app.callback(Output('tab-output', 'children'),
+                      [Input('tabs', 'value')])
         def display_content(value):
             return html.Div([
                 html.Div(id='tab-{}-output'.format(value))
@@ -1631,27 +1631,22 @@ class Tests(IntegrationTests):
             call_counts['tab2'].value += 1
             return 'You have selected "{}"'.format(value)
 
-
         self.startServer(app)
-        self.wait_for_element_by_id('tab-output')
+        self.wait_for_element_by_css_selector('#tab-output')
         time.sleep(2)
 
         self.assertEqual(call_counts['tab1'].value, 1)
         self.assertEqual(call_counts['tab2'].value, 0)
-        wait_for(lambda: (
-            self.driver.find_element_by_id('tab-output').text ==
-            'You have selected "1"'
-        ))
+        self.wait_for_text_to_equal('#tab-output', 'You have selected "a"')
+        self.wait_for_text_to_equal('#tab-1-output', 'You have selected "a"')
 
         (self.driver.find_elements_by_css_selector(
             'input[type="radio"]'
         )[1]).click()
         time.sleep(2)
 
-        wait_for(lambda: (
-            self.driver.find_element_by_id('tab-output').text ==
-            'You have selected "2"'
-        ))
+        self.wait_for_text_to_equal('#tab-output', 'You have selected "a"')
+        self.wait_for_text_to_equal('#tab-2-output', 'You have selected "a"')
         self.assertEqual(call_counts['tab1'].value, 1)
         self.assertEqual(call_counts['tab2'].value, 1)
 
