@@ -1596,21 +1596,21 @@ class Tests(IntegrationTests):
         }
 
         app.layout = html.Div([
-                dcc.Dropdown(
-                    id='outer-controls',
-                    options=[{'label': i, 'value': i} for i in ['a', 'b']],
-                    value='a'
-                ),
-                dcc.RadioItems(
-                    options=[
-                        {'label': 'Tab 1', 'value': 1},
-                        {'label': 'Tab 2', 'value': 2}
-                    ],
-                    value=1,
-                    id='tabs',
-                ),
-                html.Div(id='tab-output')
-            ])
+            dcc.Dropdown(
+                id='outer-controls',
+                options=[{'label': i, 'value': i} for i in ['a', 'b']],
+                value='a'
+            ),
+            dcc.RadioItems(
+                options=[
+                    {'label': 'Tab 1', 'value': 1},
+                    {'label': 'Tab 2', 'value': 2}
+                ],
+                value=1,
+                id='tabs',
+            ),
+            html.Div(id='tab-output')
+        ])
 
         @app.callback(Output('tab-output', 'children'),
                       [Input('tabs', 'value')])
