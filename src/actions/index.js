@@ -8,6 +8,8 @@ import {
     contains,
     findIndex,
     findLastIndex,
+    flatten,
+    flip,
     has,
     intersection,
     isEmpty,
@@ -16,6 +18,7 @@ import {
     merge,
     pluck,
     propEq,
+    reject,
     slice,
     sort,
     type,
@@ -65,8 +68,8 @@ function triggerDefaultState(dispatch, getState) {
         }
     });
 
-    reduceInputIds(inputNodeIds, InputGraph).forEach(nodeId => {
-        const [componentId, componentProp] = nodeId.split('.');
+    reduceInputIds(inputNodeIds, InputGraph).forEach(inputOutput => {
+        const [componentId, componentProp] = inputOutput.input.split('.');
         // Get the initial property
         const propLens = lensPath(
             concat(getState().paths[componentId],
@@ -79,8 +82,10 @@ function triggerDefaultState(dispatch, getState) {
 
         dispatch(notifyObservers({
             id: componentId,
-            props: {[componentProp]: propValue}
+            props: {[componentProp]: propValue},
+            excludedOutputs: inputOutput.excludedOutputs
         }));
+
     });
 
 }
@@ -136,7 +141,9 @@ function reduceInputIds(nodeIds, InputGraph) {
      */
     const inputOutputPairs = nodeIds.map(nodeId => ({
         input: nodeId,
-        outputs: InputGraph.dependenciesOf(nodeId)
+        // TODO - Does this include grandchildren?
+        outputs: InputGraph.dependenciesOf(nodeId),
+        excludedOutputs: []
     }));
 
     const sortedInputOutputPairs = sort(
@@ -144,12 +151,28 @@ function reduceInputIds(nodeIds, InputGraph) {
         inputOutputPairs
     );
 
-    const uniquePairs = sortedInputOutputPairs.filter((pair, i) => !contains(
-        pair.outputs,
-        pluck('outputs', slice(i + 1, Infinity, sortedInputOutputPairs))
-    ));
+    /*
+     * In some cases, we may have unique outputs but inputs that could
+     * trigger components to update multiple times.
+     *
+     * For example, [A, B] => C and [A, D] => E
+     * The unique inputs might be [A, B, D] but that is redudant.
+     * We only need to update B and D or just A.
+     *
+     * In these cases, we'll supply an additional list of outputs
+     * to exclude.
+     */
+    sortedInputOutputPairs.forEach((pair, i) => {
+        const outputsThatWillBeUpdated = flatten(pluck(
+            'outputs', slice(0, i, sortedInputOutputPairs)));
+        pair.outputs.forEach(output => {
+            if (contains(output, outputsThatWillBeUpdated)) {
+                pair.excludedOutputs.push(output);
+            }
+        });
+    });
 
-    return pluck('input', uniquePairs);
+    return sortedInputOutputPairs;
 }
 
 
@@ -159,7 +182,8 @@ export function notifyObservers(payload) {
         const {
             id,
             event,
-            props
+            props,
+            excludedOutputs
         } = payload
 
         const {
@@ -167,7 +191,6 @@ export function notifyObservers(payload) {
             requestQueue,
         } = getState();
         const {EventGraph, InputGraph} = graphs;
-
         /*
          * Figure out all of the output id's that depend on this
          * event or input.
@@ -190,6 +213,13 @@ export function notifyObservers(payload) {
                     outputObservers.push(outputId);
                 });
             });
+        }
+
+        if (excludedOutputs) {
+            outputObservers = reject(
+                flip(contains)(excludedOutputs),
+                outputObservers
+            );
         }
 
         if (isEmpty(outputObservers)) {
@@ -630,11 +660,13 @@ function updateOutput(
                         keys(newProps), InputGraph);
                     const depOrder = InputGraph.overallOrder();
                     const sortedNewProps = sort((a, b) =>
-                        depOrder.indexOf(a) - depOrder.indexOf(b),
+                        depOrder.indexOf(a.input) - depOrder.indexOf(b.input),
                         reducedNodeIds
                     );
-                    sortedNewProps.forEach(function(nodeId) {
-                        dispatch(notifyObservers(newProps[nodeId]));
+                    sortedNewProps.forEach(function(inputOutput) {
+                        const payload = newProps[inputOutput.input];
+                        payload.excludedOutputs = inputOutput.excludedOutputs;
+                        dispatch(notifyObservers(payload));
                     });
 
                     // Dispatch updates to lone outputs
