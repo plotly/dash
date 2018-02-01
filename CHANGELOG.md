@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.11.3] - 2018-02-01
+### Fixed
+- Fixed #41 in #42. In some cases, during initialization, callbacks may fired multiple times instead of just once. This only happens in certain scenarios where outputs have overlapping inputs and those inputs are leaves (they don't have any inputs of their own). See #41 for a simple example and #42 for some more extensive test cases.
+- Fixed #44 in #42. If an output component is returned from a callback and its inputs were _not_ returned from the same input (i.e. they were already visible), then the callback to update the output would not fire. This has now been fixed. A common scenario where this app structure exists is within a Tabbed app, where there are global controls that update each tab's contents and the tab's callback just displays new output containers. See #44 for a simple example and #42 for some more extensive test cases.
+
 ## [0.11.2] - 2018-01-08
 ### Fixed
 - Removes logging from redux middleware from production build based on process.env.NODE_ENV.
