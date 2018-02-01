@@ -674,7 +674,8 @@ function updateOutput(
                         const requestUid = uid();
                         dispatch(setRequestQueue(
                             append({
-                                controllerId: null, // ??
+                                // TODO - Are there any implications of doing this??
+                                controllerId: null,
                                 status: 'loading',
                                 uid: requestUid,
                                 requestTime: Date.now()
