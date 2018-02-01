@@ -58,7 +58,7 @@ function triggerDefaultState(dispatch, getState) {
          * and the invisible inputs
          */
         if (InputGraph.dependenciesOf(nodeId).length > 0 &&
-            InputGraph.dependantsOf(nodeId).length == 0 &&
+            InputGraph.dependantsOf(nodeId).length === 0 &&
             has(componentId, getState().paths)
         ) {
             inputNodeIds.push(nodeId);
@@ -368,8 +368,8 @@ function updateOutput(
      };
 
      if (event) {
-         payload.event = event;
-     }
+        payload.event = event;
+    }
 
     const {inputs, state} = dependenciesRequest.content.find(
         dependency => (
