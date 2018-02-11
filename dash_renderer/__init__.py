@@ -10,10 +10,11 @@
 from .version import __version__
 __file__
 
-# Dash renderer's dependencies get loaded in a special order by the server:
-# React bundles first, the renderer bundle at the very end.
-_js_dist_dependencies = [
-    {
+REACT_VERSION = '15.4.2'
+_REACT_VERSION_TYPES = {'15.4.2', '16.2.0'}
+assert REACT_VERSION in _REACT_VERSION_TYPES
+_REACT_VERSION_TO_URLS = {
+    '15.4.2': {
         'external_url': [
             'https://unpkg.com/react@15.4.2/dist/react.min.js',
             'https://unpkg.com/react-dom@15.4.2/dist/react-dom.min.js'
@@ -22,6 +23,25 @@ _js_dist_dependencies = [
             'react@15.4.2.min.js',
             'react-dom@15.4.2.min.js'
         ],
+    },
+    '16.2.0': {
+        'external_url': [
+            'https://unpkg.com/react@16.2.0/umd/react.production.min.js',
+            'https://unpkg.com/react@16.2.0/umd/react-dom.production.min.js'
+        ],
+        'relative_package_path': [
+            'react@16.2.0.production.min.js',
+            'react-dom@16.2.0.production.min.js'
+        ],
+    }
+}
+
+# Dash renderer's dependencies get loaded in a special order by the server:
+# React bundles first, the renderer bundle at the very end.
+_js_dist_dependencies = [
+    {
+        'external_url': _REACT_VERSION_TO_URLS[REACT_VERSION]['external_url'],
+        'relative_package_path': _REACT_VERSION_TO_URLS[REACT_VERSION]['relative_package_path'],
         'namespace': 'dash_renderer'
     }
 ]

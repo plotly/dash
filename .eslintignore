@@ -14,5 +14,5 @@ dist
 npm-debug*
 dash_renderer/bundle.js
 dash_renderer/bundle.js.map
-dash_renderer/react-dom@15.4.2.min.js
-dash_renderer/react@15.4.2.min.js
+dash_renderer/react@*.min.js
+dash_renderer/react-dom@*.min.js
