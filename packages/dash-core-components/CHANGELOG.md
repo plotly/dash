@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.19.0] - 2018-02-11
+### Changed
+- `PropTypes` now uses `prop-types` package instead of `React` to support move to React 16+
+
 ## [0.18.1] - 2017-01-25
 ### Fixed
 - Upgraded Plotly.js, the underlying library behind the
