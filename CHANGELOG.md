@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.0] - 2018-02-11
+### Added
+- `dash_renderer.REACT_VERSION` allows user to now choose between '15.4.2' and '16.2.0' for the React version used by Dash.
+
 ## [0.11.3] - 2018-02-01
 ### Fixed
 - Fixed #41 in #42. In some cases, during initialization, callbacks may fired multiple times instead of just once. This only happens in certain scenarios where outputs have overlapping inputs and those inputs are leaves (they don't have any inputs of their own). See #41 for a simple example and #42 for some more extensive test cases.
