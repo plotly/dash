@@ -1,5 +1,6 @@
+import PropTypes from 'prop-types';
 import R, {omit} from 'ramda';
-import React, {Component, PropTypes} from 'react';
+import React, { Component } from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
 

@@ -1,6 +1,7 @@
 import {arduinoLight, monokai} from 'react-syntax-highlighter/dist/styles';
+import PropTypes from 'prop-types';
 import {omit, type} from 'ramda';
-import React, {PropTypes} from 'react';
+import React from 'react';
 import ReactSyntaxHighlighter from 'react-syntax-highlighter';
 
 /**

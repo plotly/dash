@@ -1,7 +1,8 @@
 import {DateRangePicker} from 'react-dates';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import R from 'ramda';
-import React, {Component, PropTypes} from 'react';
+import React, { Component } from 'react';
 
 /**
  * DatePickerRange is a tailor made component designed for selecting

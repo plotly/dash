@@ -27,13 +27,12 @@
     "builder": "3.2.2",
     "dash-components-archetype": "^0.2.11",
     "moment": "^2.20.1",
+    "prop-types": "^15.6.0",
     "radium": "^0.19.4",
     "ramda": "^0.24.1",
     "rc-slider": "^8.3.1",
-    "react": "^15.4.0",
     "react-addons-shallow-compare": "^15.6.0",
     "react-dates": "^12.3.0",
-    "react-dom": "^15.4.0",
     "react-dropzone": "^4.1.2",
     "react-markdown": "^2.4.5",
     "react-select": "^1.0.0-rc.10",
@@ -45,5 +44,9 @@
     "component-playground": "^2.0.0",
     "dash-components-archetype-dev": "^0.2.11",
     "enzyme": "^2.4.1"
+  },
+  "peerDependencies": {
+    "react": "^15.4.0 || ^16.0.0",
+    "react-dom": "^15.4.0 || ^16.0.0"
   }
 }
