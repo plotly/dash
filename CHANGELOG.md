@@ -4,7 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.12.0] - 2018-02-11
 ### Added
-- `dash_renderer.REACT_VERSION` allows user to now choose between '15.4.2' and '16.2.0' for the React version used by Dash.
+- Allows user to now choose between '15.4.2' and '16.2.0' for React versions
+```python
+import dash_renderer
+
+# Set the react version before setting up the Dash application
+dash_renderer._set_react_version('16.2.0')
+
+app = dash.Dash(...)
+```
 
 ## [0.11.3] - 2018-02-01
 ### Fixed
