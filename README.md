@@ -3,8 +3,8 @@
 #### Dash is a Python framework for building analytical web applications. No JavaScript required.
 
 > 📢  Announcement!  
-> Registration is open for a 2 day, Dash master class in Montreal, February 17-18.  
-> [Register online here](https://plotcon.plot.ly/workshops) 🎚📈  🇨🇦
+> Registration is open for a 2 day, Dash master class in Boston, April 14-15.  
+> [Register online here](https://www.eventbrite.com/e/plotcon-workshops-boston-tickets-43138494398?aff=chrisdash)
 
 Build on top of Plotly.js, React, and Flask, Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical python code.
 
