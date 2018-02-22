@@ -117,6 +117,8 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='aborted')
 
     def test_flow_component(self):
+        app = dash.Dash()
+
         app.layout = html.Div([
             dash_flow_example.ExampleReactComponent(
                 id='react',
