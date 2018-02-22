@@ -2,7 +2,7 @@ from multiprocessing import Value
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_flow_example
-from dash import Dash
+import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from .IntegrationTests import IntegrationTests
@@ -19,7 +19,7 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_id = wait_for_element_by_id
 
     def test_simple_callback(self):
-        app = Dash(__name__)
+        app = dash.Dash(__name__)
         app.layout = html.Div([
             dcc.Input(
                 id='input',
@@ -73,7 +73,7 @@ class Tests(IntegrationTests):
         initial_input = 'initial input'
         initial_output = 'initial output'
 
-        app = Dash(__name__)
+        app = dash.Dash(__name__)
         app.layout = html.Div([
             dcc.Input(id='input', value=initial_input),
             html.Div(initial_output, id='output1'),
