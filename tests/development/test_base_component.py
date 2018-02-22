@@ -755,3 +755,149 @@ def assert_docstring(assertEqual, docstring):
             '        '
             ])[i]
                    )
+
+
+class TestFlowMetaDataConversions(unittest.TestCase):
+    def setUp(self):
+        path = os.path.join('tests', 'development', 'flow_metadata_test.json')
+        with open(path) as data_file:
+            json_string = data_file.read()
+            data = json\
+                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .decode(json_string)
+            self.data = data
+
+        self.expected_arg_strings = OrderedDict([
+            ['children', 'a list of or a singular dash component, string or number'],
+
+            ['requiredString', 'string'],
+
+            ['optionalString', 'string'],
+
+            ['optionalBoolean', 'boolean'],
+
+            ['optionalFunc', ''],
+
+            ['optionalNode', 'a list of or a singular dash component, string or number'],
+
+            ['optionalArray', 'list'],
+
+            ['requiredUnion', 'string | number'],
+
+            ['optionalSignature(shape)', '\n'.join([
+
+                "dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
+                "Those keys have the following types: ",
+                "- checked (boolean; optional)",
+                "- children (a list of or a singular dash component, string or number; optional)",
+                "- customData (bool | number | str | dict | list; required): A test description",
+                "- disabled (boolean; optional)",
+                "- label (string; optional)",
+                "- primaryText (string; required): Another test description",
+                "- secondaryText (string; optional)",
+                "- style (dict; optional)",
+                "- value (bool | number | str | dict | list; required)"
+
+            ])],
+
+            ['requiredNested', '\n'.join([
+
+                "dict containing keys 'customData', 'value'.",
+                "Those keys have the following types: ",
+                "- customData (required): . customData has the following type: dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
+                "  Those keys have the following types: ",
+                "  - checked (boolean; optional)",
+                "  - children (a list of or a singular dash component, string or number; optional)",
+                "  - customData (bool | number | str | dict | list; required)",
+                "  - disabled (boolean; optional)",
+                "  - label (string; optional)",
+                "  - primaryText (string; required)",
+                "  - secondaryText (string; optional)",
+                "  - style (dict; optional)",
+                "  - value (bool | number | str | dict | list; required)",
+                "- value (bool | number | str | dict | list; required)",
+
+            ])],
+        ])
+
+    def test_docstring(self):
+        docstring = create_docstring(
+            'Flow_component',
+            self.data['props'],
+            parse_events(self.data['props']),
+            self.data['description'],
+        )
+        assert_flow_docstring(self.assertEqual, docstring)
+
+    def test_docgen_to_python_args(self):
+
+        props = self.data['props']
+
+        for prop_name, prop in list(props.items()):
+            self.assertEqual(
+                js_to_py_type(prop['flowType'], is_flow_type=True),
+                self.expected_arg_strings[prop_name]
+            )
+
+
+def assert_flow_docstring(assertEqual, docstring):
+    for i, line in enumerate(docstring.split('\n')):
+        assertEqual(line, ([
+            "A Flow_component component.",
+            "This is a test description of the component.",
+            "It's multiple lines long.",
+            "",
+            "Keyword arguments:",
+            "- requiredString (string; required): A required string",
+            "- optionalString (string; optional): A string that isn't required.",
+            "- optionalBoolean (boolean; optional): A boolean test",
+
+            "- optionalNode (a list of or a singular dash component, string or number; optional): "
+            "A node test",
+
+            "- optionalArray (list; optional): An array test with a particularly ",
+            "long description that covers several lines. It includes the newline character ",
+            "and should span 3 lines in total.",
+
+            "- requiredUnion (string | number; required)",
+
+            "- optionalSignature(shape) (optional): This is a test of an object's shape. "
+            "optionalSignature(shape) has the following type: dict containing keys 'checked', "
+            "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "
+            "'style', 'value'.",
+
+            "  Those keys have the following types: ",
+            "  - checked (boolean; optional)",
+            "  - children (a list of or a singular dash component, string or number; optional)",
+            "  - customData (bool | number | str | dict | list; required): A test description",
+            "  - disabled (boolean; optional)",
+            "  - label (string; optional)",
+            "  - primaryText (string; required): Another test description",
+            "  - secondaryText (string; optional)",
+            "  - style (dict; optional)",
+            "  - value (bool | number | str | dict | list; required)",
+
+            "- requiredNested (required): . requiredNested has the following type: dict containing "
+            "keys 'customData', 'value'.",
+
+            "  Those keys have the following types: ",
+
+            "  - customData (required): . customData has the following type: dict containing "
+            "keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', "
+            "'secondaryText', 'style', 'value'.",
+
+            "    Those keys have the following types: ",
+            "    - checked (boolean; optional)",
+            "    - children (a list of or a singular dash component, string or number; optional)",
+            "    - customData (bool | number | str | dict | list; required)",
+            "    - disabled (boolean; optional)",
+            "    - label (string; optional)",
+            "    - primaryText (string; required)",
+            "    - secondaryText (string; optional)",
+            "    - style (dict; optional)",
+            "    - value (bool | number | str | dict | list; required)",
+            "  - value (bool | number | str | dict | list; required)",
+            "",
+            "Available events: "
+        ])[i]
+                    )
