@@ -66,13 +66,13 @@ class Tests(IntegrationTests):
         )
 
         assert_clean_console(self)
-        
+
     def test_aborted_callback(self):
         """Raising PreventUpdate prevents update and triggering dependencies"""
-        
+
         initial_input = 'initial input'
         initial_output = 'initial output'
-        
+
         app = Dash(__name__)
         app.layout = html.Div([
             dcc.Input(id='input', value=initial_input),
@@ -82,7 +82,7 @@ class Tests(IntegrationTests):
 
         callback1_count = Value('i', 0)
         callback2_count = Value('i', 0)
-        
+
         @app.callback(Output('output1', 'children'), [Input('input', 'value')])
         def callback1(value):
             callback1_count.value = callback1_count.value + 1
@@ -100,7 +100,7 @@ class Tests(IntegrationTests):
         input_.clear()
         input_.send_keys('x')
         output1 = self.wait_for_element_by_id('output1')
-        output2 = self.wait_for_element_by_id('output2')        
+        output2 = self.wait_for_element_by_id('output2')
 
         # callback1 runs twice (initial page load and through send_keys)
         self.assertEqual(callback1_count.value, 2)
@@ -111,7 +111,7 @@ class Tests(IntegrationTests):
         # double check that output1 and output2 children were not updated
         self.assertEqual(output1.text, initial_output)
         self.assertEqual(output2.text, initial_output)
-        
+
         assert_clean_console(self)
 
     def test_flow_component(self):
