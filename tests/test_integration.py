@@ -1,7 +1,8 @@
 from multiprocessing import Value
 import dash_html_components as html
 import dash_core_components as dcc
-from dash import Dash
+import dash_flow_example
+import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from .IntegrationTests import IntegrationTests
@@ -18,7 +19,7 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_id = wait_for_element_by_id
 
     def test_simple_callback(self):
-        app = Dash(__name__)
+        app = dash.Dash(__name__)
         app.layout = html.Div([
             dcc.Input(
                 id='input',
@@ -65,14 +66,14 @@ class Tests(IntegrationTests):
         )
 
         assert_clean_console(self)
-        
+
     def test_aborted_callback(self):
         """Raising PreventUpdate prevents update and triggering dependencies"""
-        
+
         initial_input = 'initial input'
         initial_output = 'initial output'
-        
-        app = Dash(__name__)
+
+        app = dash.Dash(__name__)
         app.layout = html.Div([
             dcc.Input(id='input', value=initial_input),
             html.Div(initial_output, id='output1'),
@@ -81,7 +82,7 @@ class Tests(IntegrationTests):
 
         callback1_count = Value('i', 0)
         callback2_count = Value('i', 0)
-        
+
         @app.callback(Output('output1', 'children'), [Input('input', 'value')])
         def callback1(value):
             callback1_count.value = callback1_count.value + 1
@@ -99,7 +100,7 @@ class Tests(IntegrationTests):
         input_.clear()
         input_.send_keys('x')
         output1 = self.wait_for_element_by_id('output1')
-        output2 = self.wait_for_element_by_id('output2')        
+        output2 = self.wait_for_element_by_id('output2')
 
         # callback1 runs twice (initial page load and through send_keys)
         self.assertEqual(callback1_count.value, 2)
@@ -110,5 +111,43 @@ class Tests(IntegrationTests):
         # double check that output1 and output2 children were not updated
         self.assertEqual(output1.text, initial_output)
         self.assertEqual(output2.text, initial_output)
-        
+
         assert_clean_console(self)
+
+        self.percy_snapshot(name='aborted')
+
+    def test_flow_component(self):
+        app = dash.Dash()
+
+        app.layout = html.Div([
+            dash_flow_example.ExampleReactComponent(
+                id='react',
+                value='my-value',
+                label='react component'
+            ),
+            dash_flow_example.ExampleFlowComponent(
+                id='flow',
+                value='my-value',
+                label='flow component'
+            ),
+            html.Hr(),
+            html.Div(id='output')
+        ])
+
+        @app.callback(Output('output', 'children'),
+                      [Input('react', 'value'), Input('flow', 'value')])
+        def display_output(react_value, flow_value):
+            return html.Div([
+                'You have entered {} and {}'.format(react_value, flow_value),
+                html.Hr(),
+                html.Label('Flow Component Docstring'),
+                html.Pre(dash_flow_example.ExampleFlowComponent.__doc__),
+                html.Hr(),
+                html.Label('React PropTypes Component Docstring'),
+                html.Pre(dash_flow_example.ExampleReactComponent.__doc__),
+                html.Div(id='waitfor')
+            ])
+
+        self.startServer(app)
+        self.wait_for_element_by_id('waitfor')
+        self.percy_snapshot(name='flowtype')

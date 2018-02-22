@@ -1,5 +1,6 @@
 dash_core_components>=0.4.0
 dash_html_components>=0.5.0
+dash_flow_example==0.0.3
 dash_renderer
 percy
 selenium
