@@ -1,11 +1,10 @@
-
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Applet = (props) => {
+const Base = (props) => {
     if (props.fireEvent || props.setProps) {
         return (
-            <applet
+            <base
                 onClick={() => {
                     if (props.setProps) props.setProps({n_clicks: props.n_clicks + 1});
                     if (props.fireEvent) props.fireEvent({event: 'click'});
@@ -13,22 +12,22 @@ const Applet = (props) => {
                 {...props}
             >
                 {props.children}
-            </applet>
+            </base>
         );
     } else {
         return (
-            <applet {...props}>
+            <base {...props}>
                 {props.children}
-            </applet>
+            </base>
         );
     }
 };
 
-Applet.defaultProps = {
+Base.defaultProps = {
     n_clicks: 0
 };
 
-Applet.propTypes = {
+Base.propTypes = {
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
@@ -53,12 +52,17 @@ Applet.propTypes = {
      * See https://reactjs.org/docs/lists-and-keys.html for more info
      */
     'key': PropTypes.string,
-    
+
 
     /**
-     * Alternative text in case an image can't be displayed.
+     * The URL of a linked resource.
      */
-    'alt': PropTypes.string,
+    'href': PropTypes.string,
+
+    /**
+     *
+     */
+    'target': PropTypes.string,
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -126,7 +130,7 @@ Applet.propTypes = {
     'fireEvent': PropTypes.func,
 
     'dashEvents': PropTypes.oneOf(['click'])
-    
+
 };
 
-export default Applet;
+export default Base;

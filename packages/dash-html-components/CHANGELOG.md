@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.9.0] - 2018-02-11
+### Changed
+- Moved `PropTypes` import from using `react` to using `prop-types` package to support using React 16+ in `dash-renderer`
+
 ## [0.8.0] - 2017-09-29
 ### Added
 - A `key` property has been added to every component. See https://reactjs.org/docs/lists-and-keys.html for more about this attribute.

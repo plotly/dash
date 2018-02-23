@@ -1,5 +1,6 @@
 
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 const Dd = (props) => {
     if (props.fireEvent || props.setProps) {

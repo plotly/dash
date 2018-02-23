@@ -94,7 +94,8 @@ function generateComponent(Component, element, attributes) {
     const propTypes = generatePropTypes(element, attributes);
 
     return `
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 const ${Component} = (props) => {
     if (props.fireEvent || props.setProps) {
