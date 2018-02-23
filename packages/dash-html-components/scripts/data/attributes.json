@@ -420,6 +420,7 @@
         },
         "muted": {
             "elements": [
+                "audio",
                 "video"
             ],
             "description": "Indicates whether the audio will be initially silenced on page load."
@@ -863,6 +864,7 @@
             "controls",
             "crossOrigin",
             "loop",
+            "muted",
             "preload",
             "src"
         ],

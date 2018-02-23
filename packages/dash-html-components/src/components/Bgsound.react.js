@@ -1,10 +1,10 @@
 
 import React, {PropTypes} from 'react';
 
-const Audio = (props) => {
+const Bgsound = (props) => {
     if (props.fireEvent || props.setProps) {
         return (
-            <audio
+            <bgsound
                 onClick={() => {
                     if (props.setProps) props.setProps({n_clicks: props.n_clicks + 1});
                     if (props.fireEvent) props.fireEvent({event: 'click'});
@@ -12,22 +12,22 @@ const Audio = (props) => {
                 {...props}
             >
                 {props.children}
-            </audio>
+            </bgsound>
         );
     } else {
         return (
-            <audio {...props}>
+            <bgsound {...props}>
                 {props.children}
-            </audio>
+            </bgsound>
         );
     }
 };
 
-Audio.defaultProps = {
+Bgsound.defaultProps = {
     n_clicks: 0
 };
 
-Audio.propTypes = {
+Bgsound.propTypes = {
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
@@ -55,39 +55,9 @@ Audio.propTypes = {
     
 
     /**
-     * The audio or video should play as soon as possible.
-     */
-    'autoPlay': PropTypes.string,
-
-    /**
-     * Indicates whether the browser should show playback controls to the user.
-     */
-    'controls': PropTypes.string,
-
-    /**
-     * How the element handles cross-origin requests
-     */
-    'crossOrigin': PropTypes.string,
-
-    /**
      * Indicates whether the media should start playing from the start when it's finished.
      */
     'loop': PropTypes.string,
-
-    /**
-     * Indicates whether the audio will be initially silenced on page load.
-     */
-    'muted': PropTypes.string,
-
-    /**
-     * Indicates whether the whole resource, parts of it or nothing should be preloaded.
-     */
-    'preload': PropTypes.string,
-
-    /**
-     * The URL of the embeddable content.
-     */
-    'src': PropTypes.string,
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -158,4 +128,4 @@ Audio.propTypes = {
     
 };
 
-export default Audio;
+export default Bgsound;

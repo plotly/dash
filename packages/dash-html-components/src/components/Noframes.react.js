@@ -1,10 +1,10 @@
 
 import React, {PropTypes} from 'react';
 
-const Base = (props) => {
+const Noframes = (props) => {
     if (props.fireEvent || props.setProps) {
         return (
-            <base
+            <noframes
                 onClick={() => {
                     if (props.setProps) props.setProps({n_clicks: props.n_clicks + 1});
                     if (props.fireEvent) props.fireEvent({event: 'click'});
@@ -12,22 +12,22 @@ const Base = (props) => {
                 {...props}
             >
                 {props.children}
-            </base>
+            </noframes>
         );
     } else {
         return (
-            <base {...props}>
+            <noframes {...props}>
                 {props.children}
-            </base>
+            </noframes>
         );
     }
 };
 
-Base.defaultProps = {
+Noframes.defaultProps = {
     n_clicks: 0
 };
 
-Base.propTypes = {
+Noframes.propTypes = {
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
@@ -53,16 +53,6 @@ Base.propTypes = {
      */
     'key': PropTypes.string,
     
-
-    /**
-     * The URL of a linked resource.
-     */
-    'href': PropTypes.string,
-
-    /**
-     *
-     */
-    'target': PropTypes.string,
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -133,4 +123,4 @@ Base.propTypes = {
     
 };
 
-export default Base;
+export default Noframes;
