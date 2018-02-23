@@ -20,7 +20,9 @@ let index = components.reduce((indexStr, component) => (
     indexStr + `import ${component} from '${componentPath}/${component}.react';\n`
 ), '');
 
-index += `\nexport {${components}};\n`;
+index += `\nexport {
+${components.map(c => `    ${c}`).join(',\n')}
+};\n`;
 
 const indexPath = path.join(srcPath, indexFileName);
 console.log(`Writing index for ${components.length} components to ${indexPath}.`);
