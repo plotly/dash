@@ -12,7 +12,10 @@ const dataPath = './data/elements.txt';
  */
 function extractElements($) {
     const excludeElements = [
-        'html', 'head', 'body', 'style', 'h1–h6', 'input'
+        'html', 'head', 'body', 'style', 'h1–h6', 'input',
+        // obsolete, non-standard, or deprecated tags
+        'image', 'dir', 'tt', 'applet', 'noembed', 'bgsound', 'menu', 'menuitem',
+        'noframes'
     ];
     // `<section>` is for some reason missing from the reference tables.
     const addElements = [

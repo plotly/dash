@@ -1,3 +1,4 @@
+
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -52,7 +53,7 @@ Base.propTypes = {
      * See https://reactjs.org/docs/lists-and-keys.html for more info
      */
     'key': PropTypes.string,
-
+    
 
     /**
      * The URL of a linked resource.
@@ -130,7 +131,7 @@ Base.propTypes = {
     'fireEvent': PropTypes.func,
 
     'dashEvents': PropTypes.oneOf(['click'])
-
+    
 };
 
 export default Base;
