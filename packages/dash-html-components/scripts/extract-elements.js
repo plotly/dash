@@ -15,7 +15,17 @@ function extractElements($) {
         'html', 'head', 'body', 'style', 'h1–h6', 'input'
     ];
     // `<section>` is for some reason missing from the reference tables.
-    const addElements = ['section', 'h1', 'h2', 'h3', 'h4','h5', 'h6', 'iframe'];
+    const addElements = [
+        'base',
+        'section',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'iframe'
+    ];
 
     return $('td:first-child')
         .toArray()
