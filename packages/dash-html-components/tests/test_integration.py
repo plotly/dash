@@ -56,13 +56,13 @@ class Tests(IntegrationTests):
             self.percy_runner.snapshot(name=name)
 
     def test_click(self):
+        call_count = Value('i', 0)
+
         app = dash.Dash()
         app.layout = html.Div([
             html.Div(id='container'),
             html.Button('Click', id='button', n_clicks=0)
         ])
-
-        call_count = Value('i', 0)
 
         @app.callback(Output('container', 'children'), [Input('button', 'n_clicks')])
         def update_output(n_clicks):
