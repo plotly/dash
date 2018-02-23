@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import {append, contains, without} from 'ramda';
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
 /**
  * Checklist is a component that encapsulates several checkboxes.

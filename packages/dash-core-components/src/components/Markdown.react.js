@@ -42,6 +42,6 @@ DashMarkdown.propTypes = {
         PropTypes.string,
         PropTypes.arrayOf(PropTypes.string)
     ])
-}
+};
 
 export default DashMarkdown;

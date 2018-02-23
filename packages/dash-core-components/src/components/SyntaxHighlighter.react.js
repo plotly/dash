@@ -87,4 +87,4 @@ SyntaxHighlighter.propTypes = {
      * inline style to be passed to the span wrapping each line if wrapLines is true. Can be either an object or a function that recieves current line number as argument and returns style object.
      */
     lineStyle: PropTypes.object
-}
+};

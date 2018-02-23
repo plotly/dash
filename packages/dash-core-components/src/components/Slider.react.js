@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import ReactSlider from 'rc-slider';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';

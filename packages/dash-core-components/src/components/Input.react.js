@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
@@ -32,7 +32,7 @@ export default class Input extends Component {
                     this.setState({value: e.target.value});
                     if (setProps) {
                         if (type === 'number') {
-                            setProps({value: Number(e.target.value)}); 
+                            setProps({value: Number(e.target.value)});
                         }
                         else {
                             setProps({value: e.target.value});

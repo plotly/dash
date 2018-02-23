@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
 /**
  * RadioItems is a component that encapsulates several radio item inputs.

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import R, {omit} from 'ramda';
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
 
@@ -184,4 +184,4 @@ Dropdown.defaultProps = {
     disabled: false,
     multi: false,
     searchable: true
-}
+};
