@@ -14,7 +14,7 @@ function Loading(props) {
 }
 
 Loading.propTypes = {
-    requestQueue: PropTypes.array.required
+    requestQueue: PropTypes.array.isRequired
 };
 
 export default connect(

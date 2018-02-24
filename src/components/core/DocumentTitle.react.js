@@ -31,7 +31,7 @@ class DocumentTitle extends Component {
 }
 
 DocumentTitle.propTypes = {
-    requestQueue: PropTypes.array.required
+    requestQueue: PropTypes.array.isRequired
 };
 
 export default connect(
