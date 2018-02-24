@@ -1823,18 +1823,5 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        dr_path = '/_dash-component-suites/dash_renderer'
-        # Make sure that the Dash application is generating the right React scripts
-        self.assertEqual(
-            app._generate_scripts_html(),
-            '<script type="text/JavaScript" '
-            'src="{dr_path}/react@16.2.0.production.min.js?v={version}"></script>\n'
-            '<script type="text/JavaScript" '
-            'src="{dr_path}/react-dom@16.2.0.production.min.js?v={version}"></script>\n'
-            '<script type="text/JavaScript" '
-            'src="{dr_path}/bundle.js?v={version}"></script>'.format(
-                dr_path=dr_path,
-                version=dash_renderer.__version__))
-
         # Reset react version
         dash_renderer._set_react_version(dash_renderer._DEFAULT_REACT_VERSION)
