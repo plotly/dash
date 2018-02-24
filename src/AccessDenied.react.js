@@ -1,6 +1,7 @@
 /* global window:true, document:true */
-import React, {PropTypes} from 'react';
+import React from 'react';
 import {merge} from 'ramda';
+import PropTypes from 'prop-types';
 import * as styles from './styles/styles.js';
 import * as constants from './constants/constants.js';
 

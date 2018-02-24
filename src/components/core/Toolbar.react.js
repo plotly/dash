@@ -1,5 +1,6 @@
 import {connect} from 'react-redux';
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import {merge} from 'ramda';
 import {redo, undo} from '../../actions/index.js';
 import Radium from 'radium';
@@ -91,7 +92,7 @@ function UnconnectedToolbar(props) {
 
 UnconnectedToolbar.propTypes = {
     history: PropTypes.object,
-    dispatch: PropTypes.function
+    dispatch: PropTypes.func,
 };
 
 const Toolbar = connect(
