@@ -1,6 +1,7 @@
 import {connect} from 'react-redux'
 import {contains, isEmpty, isNil} from 'ramda'
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
 import {
     computeGraphs,
@@ -112,7 +113,7 @@ UnconnectedContainer.propTypes = {
         APP_STATES('STARTED'),
         APP_STATES('HYDRATED')
     ]),
-    dispatch: PropTypes.function,
+    dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,

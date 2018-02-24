@@ -2,7 +2,8 @@
 
 import {connect} from 'react-redux'
 import {any} from 'ramda'
-import {Component, PropTypes} from 'react'
+import {Component} from 'react'
+import PropTypes from 'prop-types';
 
 class DocumentTitle extends Component {
     constructor(props) {
@@ -31,7 +32,7 @@ class DocumentTitle extends Component {
 
 DocumentTitle.propTypes = {
     requestQueue: PropTypes.array.required
-}
+};
 
 export default connect(
     state => ({

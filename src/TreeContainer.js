@@ -1,7 +1,8 @@
 'use strict'
 
 import R from 'ramda';
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import Registry from './registry';
 import NotifyObservers from './components/core/NotifyObservers.react';
 

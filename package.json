@@ -31,6 +31,7 @@
     "dependency-graph": "^0.5.0",
     "es6-promise": "^4.1.0",
     "json-loader": "^0.5.4",
+    "prop-types": "^15.6.0",
     "query-string": "^4.3.2",
     "radium": "^0.18.2",
     "ramda": "^0.23.0",

@@ -1,6 +1,7 @@
 import {connect} from 'react-redux'
 import {any} from 'ramda'
-import React, {PropTypes} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types';
 
 function Loading(props) {
     if (any(r => r.status === 'loading', props.requestQueue)) {
@@ -14,7 +15,7 @@ function Loading(props) {
 
 Loading.propTypes = {
     requestQueue: PropTypes.array.required
-}
+};
 
 export default connect(
     state => ({
