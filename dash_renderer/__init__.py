@@ -28,7 +28,7 @@ _REACT_VERSION_TO_URLS = {
     '16.2.0': {
         'external_url': [
             'https://unpkg.com/react@16.2.0/umd/react.production.min.js',
-            'https://unpkg.com/react@16.2.0/umd/react-dom.production.min.js'
+            'https://unpkg.com/react-dom@16.2.0/umd/react-dom.production.min.js'
         ],
         'relative_package_path': [
             'react@16.2.0.production.min.js',
