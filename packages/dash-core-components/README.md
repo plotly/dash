@@ -140,7 +140,7 @@ respectively. TODO:
 [#5](https://github.com/plotly/dash-components-archetype/issues/5) will roll up
 publishing steps into one workflow.
 
-Ask @chriddyp to get NPM / PyPi package publishing accesss.
+Ask @chriddyp to get NPM / PyPi package publishing access.
 
 1. Preparing to publish to NPM
 
