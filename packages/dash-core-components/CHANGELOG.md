@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.20.1] - 2018-03-01
+### Fixed
+- The `serve_locally` was broken - the Plotly.js bundle wasn't being served correctly.
+
 ## [0.20.0] - 2018-03-01
 ### Added
 - Upgraded Plotly.js, the underlying library behind the
