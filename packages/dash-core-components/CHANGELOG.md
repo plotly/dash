@@ -2,6 +2,37 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.20.0] - 2018-03-01
+### Added
+- Upgraded Plotly.js, the underlying library behind the
+`dash_core_components.Graph` component, to [version 1.34.0](https://github.com/plotly/plotly.js/releases/tag/v1.34.0).
+See https://github.com/plotly/plotly.js/releases/tag/v1.34.0 for the official notes.
+
+    Many of these features were funded directly by companies that rely on this library.
+    If your organization or company would like to sponsor particular features or
+    bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
+
+    - Add constraint-type contours to `contour` traces [https://github.com/plotly/plotly.js/pull/2270]
+    - Add `notched` and `notchwidth` attributes to `box` traces [https://github.com/plotly/plotly.js/pull/2305]
+    - Add localization machinery to auto-formatted date axis ticks [https://github.com/plotly/plotly.js/pull/2261]
+    - Add support for `text` in `mesh3d` traces [https://github.com/plotly/plotly.js/pull/2327]
+    - Add support for scalar `text` in `surface` traces [https://github.com/plotly/plotly.js/pull/2327]
+    - Make mode bar for graphs with multiple subplot types more usable [https://github.com/plotly/plotly.js/pull/2339]
+
+### Fixed
+- The `Graph` component now uses `Plotly.react` instead of `Plotly.newPlot`. This should fix issues when repeatedly updating GL chart types (`surface`, `scatter3d`, `scattergl`). #170
+    - Many other bug fixes from the PLotly.js upgrade, including:
+    - Prevent page scroll on mobile device on `gl2d` and `gl3d` subplots [https://github.com/plotly/plotly.js/pull/2296]
+    - Fix multi-marker `scattergl` selection errors (bug introduced in `1.33.0`) [https://github.com/plotly/plotly.js/pull/2295]
+    - Fix trace `opacity` restyle for `scattergl` traces (bug introduced in `1.33.0`) [https://github.com/plotly/plotly.js/pull/2299]
+    - Fix `scattergl` handling of `selectedpoints` across multiple traces [https://github.com/plotly/plotly.js/pull/2311]
+    - Fix `scattergl` horizontal and vertical line rendering [https://github.com/plotly/plotly.js/pull/2340]
+    - Fix `table` when content-less cells and headers are supplied [https://github.com/plotly/plotly.js/pull/2314]
+    - Fix `hoverformat` on `visible: false` cartesian axes (bug introduced in `1.33.0`) [https://github.com/plotly/plotly.js/pull/2329]
+    - Fix handling of double negative translate transform values [https://github.com/plotly/plotly.js/pull/2339]
+    - Fix compare `hovermode` fallback for non-cartesian subplot types [https://github.com/plotly/plotly.js/pull/2339]
+
+
 ## [0.19.0] - 2018-02-11
 ### Changed
 - `PropTypes` now uses `prop-types` package instead of `React` to support move to React 16+
