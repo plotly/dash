@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.20.2] - 2018-03-05
+### Fixed
+- The `selectedData`, `clickData`, and `hoverData` callbacks were being attached without being
+removed every time the graph was updated. They are now removed and reattached. #172
+
 ## [0.20.1] - 2018-03-01
 ### Fixed
 - The `serve_locally` was broken - the Plotly.js bundle wasn't being served correctly.
