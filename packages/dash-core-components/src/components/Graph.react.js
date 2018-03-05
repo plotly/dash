@@ -88,6 +88,7 @@ export default class PlotlyGraph extends Component {
         const {id, fireEvent, setProps, clear_on_unhover} = props;
 
         const gd = document.getElementById(id);
+        gd.removeAllListeners();
 
         gd.on('plotly_click', (eventData) => {
             const clickData = filterEventData(gd, eventData, 'click');
