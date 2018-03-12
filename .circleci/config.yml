@@ -23,10 +23,10 @@ jobs:
             - run:
                 name: Install dependencies
                 command: |
-                    pip install virtualenv
+                    sudo pip install virtualenv
                     python -m venv venv || virtualenv venv
                     . venv/bin/activate
-                    pip install -r requirements.txt --quiet
+                    pip install -r dev-requirements.txt --quiet
 
             - save_cache:
                 key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
