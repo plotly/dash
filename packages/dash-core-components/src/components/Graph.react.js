@@ -79,6 +79,7 @@ export default class PlotlyGraph extends Component {
             return Plotly.react(id, figure.data, figure.layout, config).then(() => {
                 if (!this._hasPlotted) {
                     this.bindEvents(props);
+                    Plotly.Plots.resize(document.getElementById(id));
                     this._hasPlotted = true;
                 }
             });
