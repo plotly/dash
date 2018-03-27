@@ -67,19 +67,18 @@ export default class PlotlyGraph extends Component {
     constructor(props) {
         super(props);
         this.bindEvents = this.bindEvents.bind(this);
-        this.state = {hasPlotted: false};
+        this._hasPlotted = false;
     }
 
     plot(props) {
         const {id, figure, animate, animation_options, config} = props;
-        const {hasPlotted} = this.state;
         const gd = document.getElementById(id);
-        if (animate && hasPlotted && figure.data.length === gd.data.length) {
+        if (animate && this._hasPlotted && figure.data.length === gd.data.length) {
             return Plotly.animate(id, figure, animation_options);
         } else {
             return  Plotly.react(id, figure.data, figure.layout, config).then(() => {
                 this.bindEvents(props);
-                this.setState({hasPlotted: true});
+                    this._hasPlotted = true;
             });
         }
     }
