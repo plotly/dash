@@ -164,19 +164,8 @@ export default class PlotlyGraph extends Component {
 
         const figureChanged = this.props.figure !== nextProps.figure;
 
-        /*
-         * Rebind events in case fireEvent or setProps
-         * wasn't defined on initial render
-         * TODO - Is it safe to rebind events?
-         */
-        const shouldBindEvents = (
-            (!this.props.setProps && nextProps.setProps) ||
-            (!this.props.fireEvent && nextProps.fireEvent)
-        );
         if (figureChanged) {
             this.plot(nextProps);
-        } else if (shouldBindEvents) {
-            this.bindEvents(nextProps);
         }
     }
 
