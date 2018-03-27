@@ -78,7 +78,7 @@ export default class PlotlyGraph extends Component {
         } else {
             return Plotly.react(id, figure.data, figure.layout, config).then(() => {
                 if (!this._hasPlotted) {
-                    this.bindEvents(props);
+                    this.bindEvents();
                     Plotly.Plots.resize(document.getElementById(id));
                     this._hasPlotted = true;
                 }
@@ -86,8 +86,8 @@ export default class PlotlyGraph extends Component {
         }
     }
 
-    bindEvents(props) {
-        const {id, fireEvent, setProps, clear_on_unhover} = props;
+    bindEvents() {
+        const {id, fireEvent, setProps, clear_on_unhover} = this.props;
 
         const gd = document.getElementById(id);
 
