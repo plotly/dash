@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.21.1] - 2018-03-28
+### Fixed
+- In some cases, frequently multi-page apps, the `dcc.Graph` interactive properties
+will stop working (`selectedData`, `hoverData`, `relayoutData`). This should be fixed now. https://github.com/plotly/dash-core-components/pull/178
+- `dcc.Graph` will now resize after it it plotted for the first time. This should fix issues
+where the `dcc.Graph` component was not fitting to the size of its container. https://github.com/plotly/dash-core-components/pull/178
+
 ## [0.21.0] - 2018-03-12
 ### Added
 - Upgraded Plotly.js, the underlying library behind the
