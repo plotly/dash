@@ -5,8 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.12.1] - 2018-03-29
 ### Fixed
 - Updates MANIFEST.in to include react and react-dom bundles for development mode
+https://github.com/plotly/dash-renderer/pull/50
 
-## [0.12.0] - 2018-02-11
+## [0.12.0] - 2018-03-28
 ### Added
 - Allows user to now choose between '15.4.2' and '16.2.0' for React versions
 ```python
@@ -17,6 +18,7 @@ dash_renderer._set_react_version('16.2.0')
 
 app = dash.Dash(...)
 ```
+https://github.com/plotly/dash-renderer/pull/45
 
 ## [0.11.3] - 2018-02-01
 ### Fixed
