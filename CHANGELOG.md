@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.12.1] - 2018-03-29
+### Fixed
+- Updates MANIFEST.in to include react and react-dom bundles for development mode
+
 ## [0.12.0] - 2018-02-11
 ### Added
 - Allows user to now choose between '15.4.2' and '16.2.0' for React versions
