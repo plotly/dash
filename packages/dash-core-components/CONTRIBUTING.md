@@ -2,7 +2,7 @@
 
 In order to run the tests, you first need to have built the JavaScript
 `dash_core_components` library. You will need to build the library again if
-you've pulled from upstream otherwise you may be running with an out of data
+you've pulled from upstream otherwise you may be running with an out of date
 `bundle.js`. See the instructions for building `bundle.js` in the "Testing
 Locally" section of README.md.
 
