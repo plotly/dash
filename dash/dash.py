@@ -26,9 +26,9 @@ from ._utils import AttributeDict as _AttributeDict
 class Dash(object):
     def __init__(
             self,
-            name=None,
+            name='__main__',
             server=None,
-            static_folder=None,
+            static_folder='static',
             url_base_pathname='/',
             compress=True,
             **kwargs):
