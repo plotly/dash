@@ -67,6 +67,7 @@ map
 track
 video
 embed
+iframe
 object
 param
 picture
