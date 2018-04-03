@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.10.0] - 2018-04-03
+### Added
+- Previously, if a user named their app file `dash.py`, an unhelpful error
+message would be raised. Now, `import dash_html_components` will check if
+the user has a file named `dash.py` and warn the users appropriately.
+https://github.com/plotly/dash-html-components/pull/39
+
 ## [0.9.0] - 2018-02-11
 ### Changed
 - Moved `PropTypes` import from using `react` to using `prop-types` package to support using React 16+ in `dash-renderer`
