@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.22.0] - 2018-04-03
+### Added
+- Previously, if a user named their app file `dash.py`, an unhelpful error
+message would be raised. Now, `import dash_core_components` will check if
+the user has a file named `dash.py` and warn the users appropriately.
+https://github.com/plotly/dash-core-components/pull/177
+
 ## [0.21.1] - 2018-03-28
 ### Fixed
 - In some cases, frequently multi-page apps, the `dcc.Graph` interactive properties
