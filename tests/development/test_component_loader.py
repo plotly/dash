@@ -28,6 +28,20 @@ METADATA_STRING = '''{
                 "description": "Children",
                 "required": false
             },
+            "data-*": {
+                "type": {
+                    "name": "string"
+                },
+                "description": "Wildcard data",
+                "required": false
+            },
+            "aria-*": {
+                "type": {
+                    "name": "string"
+                },
+                "description": "Wildcard aria",
+                "required": false
+            },
             "bar": {
                 "type": {
                     "name": "custom"
@@ -112,6 +126,9 @@ class TestLoadComponents(unittest.TestCase):
         MyComponentKwargs = {
             'foo': 'Hello World',
             'bar': 'Lah Lah',
+            'baz': 'Lemons',
+            'data-foo': 'Blah',
+            'aria-bar': 'Seven',
             'baz': 'Lemons',
             'children': 'Child'
         }

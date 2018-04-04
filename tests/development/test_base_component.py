@@ -17,6 +17,7 @@ from dash.development.base_component import (
 Component._prop_names = ('id', 'a', 'children', 'style', )
 Component._type = 'TestComponent'
 Component._namespace = 'test_namespace'
+Component._valid_wildcard_attributes = ['data-', 'aria-']
 
 
 def nested_tree():
@@ -410,6 +411,23 @@ class TestComponent(unittest.TestCase):
             ]))
         )
         """
+
+    def test_to_plotly_json_with_wildcards(self):
+        c = Component(id='a', **{'aria-expanded': 'true',
+                                 'data-toggle': 'toggled'})
+        c._prop_names = ('id',)
+        c._type = 'MyComponent'
+        c._namespace = 'basic'
+        self.assertEqual(
+            c.to_plotly_json(),
+            {'namespace': 'basic',
+             'props': {
+                'aria-expanded': 'true',
+                'data-toggle': 'toggled',
+                'id': 'a',
+              },
+             'type': 'MyComponent'}
+        )
 
     def test_len(self):
         self.assertEqual(len(Component()), 0)

@@ -23,7 +23,11 @@ class Component(collections.MutableMapping):
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
             # pylint: disable=no-member
-            if k not in self._prop_names:
+            k_in_propnames = k in self._prop_names
+            k_in_wildcards = any([k.startswith(w)
+                                  for w in
+                                  self._valid_wildcard_attributes])
+            if not k_in_propnames and not k_in_wildcards:
                 raise TypeError(
                     'Unexpected keyword argument `{}`'.format(k) +
                     '\nAllowed arguments: {}'.format(
@@ -34,10 +38,21 @@ class Component(collections.MutableMapping):
             setattr(self, k, v)
 
     def to_plotly_json(self):
+        # Add normal properties
+        props = {
+            p: getattr(self, p)
+            for p in self._prop_names  # pylint: disable=no-member
+            if hasattr(self, p)
+        }
+        # Add the wildcard properties data-* and aria-*
+        props.update({
+            k: getattr(self, k)
+            for k in self.__dict__
+            if any(k.startswith(w) for w in
+                   self._valid_wildcard_attributes)  # pylint:disable=no-member
+        })
         as_json = {
-            'props': {p: getattr(self, p)
-                      for p in self._prop_names  # pylint: disable=no-member
-                      if hasattr(self, p)},
+            'props': props,
             'type': self._type,  # pylint: disable=no-member
             'namespace': self._namespace  # pylint: disable=no-member
         }
@@ -225,6 +240,7 @@ def generate_class(typename, props, description, namespace):
         self._prop_names = {list_of_valid_keys}
         self._type = '{typename}'
         self._namespace = '{namespace}'
+        self._valid_wildcard_attributes={list_of_valid_wildcard_attr_prefixes}
         self.available_events = {events}
         self.available_properties = {list_of_valid_keys}
 
@@ -236,15 +252,23 @@ def generate_class(typename, props, description, namespace):
         super({typename}, self).__init__({argtext})
 
     def __repr__(self):
-        if(any(getattr(self, c, None) is not None for c in self._prop_names
-               if c is not self._prop_names[0])):
-
-            return (
-                '{typename}(' +
-                ', '.join([c+'='+repr(getattr(self, c, None))
-                           for c in self._prop_names
-                           if getattr(self, c, None) is not None])+')')
-
+        if(any(getattr(self, c, None) is not None
+               for c in self._prop_names
+               if c is not self._prop_names[0])
+           or any(getattr(self, c, None) is not None
+                  for c in self.__dict__.keys()
+                  if any(c.startswith(wc_attr)
+                  for wc_attr in self._valid_wildcard_attributes))):
+            props_string = ', '.join([c+'='+repr(getattr(self, c, None))
+                                      for c in self._prop_names
+                                      if getattr(self, c, None) is not None])
+            wilds_string = ', '.join([c+'='+repr(getattr(self, c, None))
+                                      for c in self.__dict__.keys()
+                                      if any([c.startswith(wc_attr)
+                                      for wc_attr in
+                                      self._valid_wildcard_attributes])])
+            return ('{typename}(' + props_string +
+                   (', ' + wilds_string if wilds_string != '' else '') + ')')
         else:
             return (
                 '{typename}(' +
@@ -252,6 +276,8 @@ def generate_class(typename, props, description, namespace):
     '''
 
     filtered_props = reorder_props(filter_props(props))
+    # pylint: disable=unused-variable
+    list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
     # pylint: disable=unused-variable
     list_of_valid_keys = repr(list(filtered_props.keys()))
     # pylint: disable=unused-variable
@@ -273,11 +299,9 @@ def generate_class(typename, props, description, namespace):
 
     required_args = required_props(props)
 
-    d = c.format(**locals())
-
     scope = {'Component': Component}
     # pylint: disable=exec-used
-    exec(d, scope)
+    exec(c.format(**locals()), scope)
     result = scope[typename]
     return result
 
@@ -364,6 +388,27 @@ def parse_events(props):
         events = []
 
     return events
+
+
+def parse_wildcards(props):
+    """
+    Pull out the wildcard attributes from the Component props
+
+    Parameters
+    ----------
+    props: dict
+        Dictionary with {propName: propMetadata} structure
+
+    Returns
+    -------
+    list
+        List of Dash valid wildcard prefixes
+    """
+    list_of_valid_wildcard_attr_prefixes = []
+    for wildcard_attr in ["data-*", "aria-*"]:
+        if wildcard_attr in props.keys():
+            list_of_valid_wildcard_attr_prefixes.append(wildcard_attr[:-1])
+    return list_of_valid_wildcard_attr_prefixes
 
 
 def reorder_props(props):

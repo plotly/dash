@@ -2,7 +2,7 @@ appnope==0.1.0
 backports.shutil-get-terminal-size==1.0.0
 click==6.7
 dash-core-components==0.3.3
-dash-html-components==0.4.0
+# dash-html-components==0.4.0
 dash-renderer==0.2.9
 dash.ly==0.14.0
 decorator==4.0.11
