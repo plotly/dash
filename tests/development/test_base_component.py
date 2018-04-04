@@ -600,6 +600,14 @@ class TestGenerateClass(unittest.TestCase):
             "Table(Table(children=Table(id='1'), id='2'))"
         )
 
+    def test_repr_with_wildcards(self):
+        c = self.ComponentClass(id='1', **{"data-one": "one",
+                                            "aria-two": "two"})
+        self.assertEqual(
+            repr(c),
+            "Table(id='1', data-one='one', aria-two='two')"
+        )
+
     def test_docstring(self):
         assert_docstring(self.assertEqual, self.ComponentClass.__doc__)
 
@@ -694,6 +702,10 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['customArrayProp', 'list'],
 
+            ['data-*', 'string'],
+
+            ['aria-*', 'string'],
+
             ['id', 'string'],
 
             ['dashEvents', "a value equal to: 'restyle', 'relayout', 'click'"]
@@ -769,6 +781,8 @@ def assert_docstring(assertEqual, docstring):
 
             "- customProp (optional)",
             "- customArrayProp (list; optional)",
+            '- data-* (string; optional)',
+            '- aria-* (string; optional)',
             '- id (string; optional)',
             '',
             "Available events: 'restyle', 'relayout', 'click'",

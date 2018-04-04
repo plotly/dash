@@ -207,6 +207,20 @@
       "required": false,
       "description": ""
     },
+    "data-*": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    },
+    "aria-*": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    },
     "id": {
       "type": {
         "name": "string"
