@@ -414,7 +414,8 @@ class TestComponent(unittest.TestCase):
 
     def test_to_plotly_json_with_wildcards(self):
         c = Component(id='a', **{'aria-expanded': 'true',
-                                 'data-toggle': 'toggled'})
+                                 'data-toggle': 'toggled',
+                                 'data-none': None})
         c._prop_names = ('id',)
         c._type = 'MyComponent'
         c._namespace = 'basic'
@@ -424,6 +425,7 @@ class TestComponent(unittest.TestCase):
              'props': {
                 'aria-expanded': 'true',
                 'data-toggle': 'toggled',
+                'data-none': None,
                 'id': 'a',
               },
              'type': 'MyComponent'}

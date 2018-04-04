@@ -408,7 +408,9 @@ class Dash(object):
 
                     if (hasattr(arg, 'component_property') and
                             arg.component_property not in
-                            component.available_properties):
+                            component.available_properties and not
+                            any(arg.component_property.startswith(w) for w in
+                                component.available_wildcard_properties)):
                         raise exceptions.NonExistantPropException('''
                             Attempting to assign a callback with
                             the property "{}" but the component

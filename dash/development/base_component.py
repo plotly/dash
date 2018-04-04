@@ -240,9 +240,10 @@ def generate_class(typename, props, description, namespace):
         self._prop_names = {list_of_valid_keys}
         self._type = '{typename}'
         self._namespace = '{namespace}'
-        self._valid_wildcard_attributes={list_of_valid_wildcard_attr_prefixes}
+        self._valid_wildcard_attributes = {list_of_valid_wildcard_attr_prefixes}
         self.available_events = {events}
         self.available_properties = {list_of_valid_keys}
+        self.available_wildcard_properties = {list_of_valid_wildcard_attr_prefixes}
 
         for k in {required_args}:
             if k not in kwargs:
