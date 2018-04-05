@@ -1,0 +1,220 @@
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+textarea {
+    white-space: pre;
+}
+
+table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 1rem;
+
+    font-family: monospace;
+    /* --selected: #119DFF; */
+    --selected: hotpink;
+    --border: lightgrey;
+    --text-color: rgb(60, 60, 60);
+}
+
+/* focus happens after copying to clipboard */
+table:focus {
+    outline: none;
+}
+
+thead {
+    display: table-row-group;
+}
+
+
+td, th {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    height: 30px;
+
+    box-shadow:
+        inset 1px 0px 0px 0px var(--border),
+        inset 0px 1px 0px 0px var(--border);
+
+    text-align: right;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+th {
+    background-color: rgb(250, 250, 250);
+}
+
+input {
+    padding: 0px;
+    margin: 0px;
+    /* TODO - height should be 90% */
+    height: 90%;
+    width: 100%;
+    line-height: 30px;
+    border: none;
+    font-size: 1rem;
+    font-family: inherit;
+    text-align: right;
+    box-sizing: border-box;
+    color: var(--text-color);
+}
+
+input.unfocused {
+    color: transparent;
+    text-shadow: 0 0 0 var(--text-color);
+    cursor: default;
+}
+
+input.unfocused:focus {
+    outline: none;
+}
+
+.numeric {
+    font-family: monospace;
+}
+
+.toggle-row {
+    border: none;
+    box-shadow: none;
+    width: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+td {
+    position: relative;
+}
+
+.selected-square {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color:  var(--selected);
+    bottom: -1px;
+    right: -1px;
+    z-index: 1;
+}
+
+.cell--active {
+    box-shadow:
+        inset 2px 0px 0px 0px  var(--selected),
+        inset 0px 2px 0px 0px  var(--selected),
+        inset 0px -1px 0px 0px  var(--selected),
+        inset -1px 0px 0px 0px  var(--selected);
+}
+
+.cell--active.cell--bottom-last {
+    box-shadow:
+        inset 2px 0px 0px 0px  var(--selected),
+        inset 0px 2px 0px 0px  var(--selected),
+        inset 0px -2px 0px 0px  var(--selected),
+        inset -1px 0px 0px 0px  var(--selected);
+}
+
+
+.cell--active-bottom {
+    box-shadow:
+        inset 0px 1px 0px 0px  var(--selected),
+        inset 1px 0px 0px 0px var(--border);
+}
+
+
+.cell--active-right {
+    box-shadow:
+        inset 1px 0px 0px 0px  var(--selected),
+        inset 0px 1px 0px 0px var(--border);
+}
+
+.cell--active-bottom.cell--bottom-last {
+    box-shadow:
+        inset 0px 1px 0px 0px  var(--selected),
+        inset 1px 0px 0px 0px var(--border),
+        inset 0px -1px 0px 0px var(--border);
+}
+
+
+.cell--active-right.cell--right-last {
+    box-shadow:
+        inset 1px 0px 0px 0px  var(--selected),
+        inset 0px 1px 0px 0px var(--border),
+        inset -1px 0px 0px 0px var(--border);
+}
+
+.cell--bottom-last {
+    box-shadow:
+        inset 1px 0px 0px 0px var(--border),
+        inset 0px 1px 0px 0px var(--border),
+        inset 0px -1px 0px 0px var(--border);
+}
+
+.cell--right-last {
+    box-shadow:
+        inset 1px 0px 0px 0px var(--border),
+        inset 0px 1px 0px 0px var(--border),
+        inset -1px 0px 0px 0px var(--border);
+}
+
+.cell--right-last.cell--bottom-last {
+    box-shadow:
+        inset 1px 0px 0px 0px var(--border),
+        inset 0px 1px 0px 0px var(--border),
+        inset -1px 0px 0px 0px var(--border),
+        inset 0px -1px 0px 0px var(--border);
+}
+
+
+.cell--active-bottom.cell--right-last {
+    box-shadow:
+        inset 0px 1px 0px 0px var(--selected),
+        inset 1px 0px 0px 0px var(--border),
+        inset -1px 0px 0px 0px var(--border);
+}
+
+.cell--active-bottom.cell--right-last.cell--bottom-last {
+    box-shadow:
+        inset 0px 1px 0px 0px var(--selected),
+        inset 1px 0px 0px 0px var(--border),
+        inset -1px 0px 0px 0px var(--border),
+        inset 0px -1px 0px 0px var(--border);
+}
+
+
+.cell--active-right.cell--bottom-last {
+    box-shadow:
+        inset 1px 0px 0px 0px var(--selected),
+        inset 0px 1px 0px 0px var(--border),
+        inset 0px -1px 0px 0px var(--border);
+}
+
+.cell--active.cell--right-last {
+    box-shadow:
+        inset 2px 0px 0px 0px var(--selected),
+        inset 0px 2px 0px 0px var(--selected),
+        inset -2px 0px 0px 0px var(--selected),
+        inset 0px -1px 0px 0px var(--selected);
+}
+
+.cell--active-right.cell--bottom-last.cell--right-last {
+    box-shadow:
+        inset 1px 0px 0px 0px var(--selected),
+        inset 0px 1px 0px 0px var(--border),
+        inset 0px -1px 0px 0px var(--border),
+        inset -1px 0px 0px 0px var(--border);
+}
+
+
+.cell--active.cell--bottom-last.cell--right-last {
+    box-shadow:
+        inset 2px 0px 0px 0px var(--selected),
+        inset 0px 2px 0px 0px var(--selected),
+        inset 0px -2px 0px 0px var(--selected),
+        inset -2px 0px 0px 0px var(--selected);
+}
