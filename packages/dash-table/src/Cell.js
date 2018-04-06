@@ -160,6 +160,8 @@ export default class Cell extends Component {
         const isBelowExpanded = (
             collapsable && R.contains(ri - 1, expanded_rows)
         );
+        const isSelectedColumn = R.contains(ci, selectedCols);
+        const isSelectedRow = R.contains(ri, selectedRows);
 
         // rules are applied in the order that they are supplied
         const boxShadowRules = [
@@ -170,6 +172,8 @@ export default class Cell extends Component {
             showOutsideLeftEdge ? Left(Accent, 1) : null,
             showBottomEdge ? Bottom(Accent, isBottommost || isAboveExpanded ? 2 : 1) : null,
             showInsideRightEdge ? Right(Accent, isRightmost ? 2 : 1) : null,
+            isSelectedColumn && isTopmost ? Top(Accent, 1) : null,
+            isSelectedRow && isLeftmost ? Left(Accent, 1) : null,
 
             Left(Border, 1),
             Top(Border, 1),
