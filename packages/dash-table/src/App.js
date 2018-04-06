@@ -8,17 +8,20 @@ class App extends Component {
         super();
         this.state = {
             dataframe: DATA,
-            column_order: ['NYC', 'Paris', 'Montreal'],
             columns: [
                 {
-                    'name': 'NYC',
-                    // 'width': '10%',
-                    'type': 'numeric'
+                    'name': 'New York City',
+//                    'width': '80px',
+                    'type': 'numeric',
+                    'style': {
+                        'white-space': 'pre-line'
+                    }
                 },
                 {
                     'name': 'Paris',
                     // 'width': '20%',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    // 'hidden': true
                 },
                 {
                     'name': 'Montréal',
@@ -36,12 +39,18 @@ class App extends Component {
             start_cell: [1, 1],
             end_cell: [1, 1],
             selected_cell: [
-                [1, 1] // [row, column]
+                // [0, 0],
+                // [1, 0],
+                // [0, 1],
+                [1, 0] // [row, column]
             ],
 
             is_focused: false,
-            collapsable: false,
-            expanded_rows: [0, 2]
+            collapsable: true,
+            expanded_rows: [1],
+
+            display_row_count: 10,
+            display_tail_count: 5
         }
     }
 
@@ -59,7 +68,7 @@ class App extends Component {
                     {...this.state}
                 />
 
-                <pre>{JSON.stringify(this.state, null, 2)}</pre>
+                {/*<pre>{JSON.stringify(this.state, null, 2)}</pre>*/}
 
             </div>
         )

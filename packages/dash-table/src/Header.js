@@ -14,11 +14,12 @@ export default class Header extends Component {
         } = this.props;
         const collapsableCell = (
             !collapsable ? null : (
-            <th className='toggle-row'/>
+            <th className='expanded-row--empty-cell'/>
         ));
 
         const headerCells = columns.map((c, i) => {
-            const style = {};
+            if (c.hidden) return null;
+            const style = c.style || {};
             if (c.width) {
                 style.width = c.width;
                 style.maxWidth = c.width;

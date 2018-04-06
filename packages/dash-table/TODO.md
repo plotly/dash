@@ -21,21 +21,35 @@
     - [ ] style - outlines
     - [ ] style - last_cell
     - [x] Delete
-    - [ ] Copyable
+    - [x] Copyable
 
 ***
 
-- [ ] Details
-- [ ] Immutable
+- [x] Performance
+    - [x] Display subset of rows
+    - [x] Only rerender certain rows
+- [x] Multiline headers
+- [x] Hide columns
+- [x] Details
+- [x] <td colSpan/>
+- [x] Multiselection styles
 
 ***
 
-- Right-click cmd v
-- Add rows, cells
+- [ ] 1px borders
+- [ ] dropdowns
+- [ ] sorting
+
+***
+
+- Handle hidden columns in mutliselect styles?
+- Bug when selecting down while on last row
+
+***
+
+- Right-click context menu? Or ribbon?
 - Filtering
 - Custom styles
 - Input styles
 - Data types
-- Immutable
-- Virtualized
-- Details
+    - Dropdown

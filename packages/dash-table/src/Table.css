@@ -15,10 +15,14 @@ table {
     font-size: 1rem;
 
     font-family: monospace;
-    /* --selected: #119DFF; */
-    --selected: hotpink;
+    /* --accent: #119DFF; */
+    --accent: hotpink;
     --border: lightgrey;
     --text-color: rgb(60, 60, 60);
+    --hover: rgb(253, 253, 253);
+    --background-color-ellipses: rgb(253, 253, 253);
+    --faded-text: rgb(250, 250, 250);
+    --selected-background: #ffebff;
 }
 
 /* focus happens after copying to clipboard */
@@ -30,33 +34,54 @@ thead {
     display: table-row-group;
 }
 
+.elip {
+    text-align: center;
+    width: 100%;
+    background-color: var(--background-color-ellipses)
+}
 
 td, th {
+    padding-right: 2px;
+    padding-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 
     height: 30px;
 
+    text-align: right;
+}
+
+th {
     box-shadow:
         inset 1px 0px 0px 0px var(--border),
         inset 0px 1px 0px 0px var(--border);
-
-    text-align: right;
-    padding-left: 5px;
-    padding-right: 5px;
 }
+
+:not(.cell--active--not-start) tr:hover,
+tr:hover input :not(.cell--active--not-start) {
+    background-color: var(--hover);
+}
+
 
 th {
     background-color: rgb(250, 250, 250);
 }
 
+.expanded-row--empty-cell {
+    box-shadow: none;
+    background-color: transparent;
+}
+
+.expanded-row {
+    text-align: center;
+}
+
 input {
     padding: 0px;
     margin: 0px;
-    /* TODO - height should be 90% */
-    height: 90%;
-    width: 100%;
+    height: calc(100% - 1px);
+    width: calc(100% - 1px); /* to account for box-shadow */
     line-height: 30px;
     border: none;
     font-size: 1rem;
@@ -64,6 +89,7 @@ input {
     text-align: right;
     box-sizing: border-box;
     color: var(--text-color);
+    background-color: transparent; /* so as to not overlay the box shadow */
 }
 
 input.unfocused {
@@ -87,65 +113,19 @@ input.unfocused:focus {
     padding-left: 10px;
     padding-right: 10px;
     cursor: pointer;
+    color: var(--faded-text);
+}
+
+.toggle-row--expanded {
+    color: var(--accent);
+}
+
+tr:hover .toggle-row {
+    color: var(--accent);
 }
 
 td {
     position: relative;
-}
-
-.selected-square {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background-color:  var(--selected);
-    bottom: -1px;
-    right: -1px;
-    z-index: 1;
-}
-
-.cell--active {
-    box-shadow:
-        inset 2px 0px 0px 0px  var(--selected),
-        inset 0px 2px 0px 0px  var(--selected),
-        inset 0px -1px 0px 0px  var(--selected),
-        inset -1px 0px 0px 0px  var(--selected);
-}
-
-.cell--active.cell--bottom-last {
-    box-shadow:
-        inset 2px 0px 0px 0px  var(--selected),
-        inset 0px 2px 0px 0px  var(--selected),
-        inset 0px -2px 0px 0px  var(--selected),
-        inset -1px 0px 0px 0px  var(--selected);
-}
-
-
-.cell--active-bottom {
-    box-shadow:
-        inset 0px 1px 0px 0px  var(--selected),
-        inset 1px 0px 0px 0px var(--border);
-}
-
-
-.cell--active-right {
-    box-shadow:
-        inset 1px 0px 0px 0px  var(--selected),
-        inset 0px 1px 0px 0px var(--border);
-}
-
-.cell--active-bottom.cell--bottom-last {
-    box-shadow:
-        inset 0px 1px 0px 0px  var(--selected),
-        inset 1px 0px 0px 0px var(--border),
-        inset 0px -1px 0px 0px var(--border);
-}
-
-
-.cell--active-right.cell--right-last {
-    box-shadow:
-        inset 1px 0px 0px 0px  var(--selected),
-        inset 0px 1px 0px 0px var(--border),
-        inset -1px 0px 0px 0px var(--border);
 }
 
 .cell--bottom-last {
@@ -170,51 +150,24 @@ td {
         inset 0px -1px 0px 0px var(--border);
 }
 
+.cell--active--not-start {
+    background-color: var(--selected-background);
+}
 
-.cell--active-bottom.cell--right-last {
+.expanded-row {
     box-shadow:
-        inset 0px 1px 0px 0px var(--selected),
-        inset 1px 0px 0px 0px var(--border),
+        inset 2px 0px 0px 0px var(--accent),
         inset -1px 0px 0px 0px var(--border);
+        /* inset 0px 1px 0px 0px var(--border); */
 }
 
-.cell--active-bottom.cell--right-last.cell--bottom-last {
-    box-shadow:
-        inset 0px 1px 0px 0px var(--selected),
-        inset 1px 0px 0px 0px var(--border),
-        inset -1px 0px 0px 0px var(--border),
-        inset 0px -1px 0px 0px var(--border);
+.selected-square {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: var(--accent);
 }
-
-
-.cell--active-right.cell--bottom-last {
-    box-shadow:
-        inset 1px 0px 0px 0px var(--selected),
-        inset 0px 1px 0px 0px var(--border),
-        inset 0px -1px 0px 0px var(--border);
-}
-
-.cell--active.cell--right-last {
-    box-shadow:
-        inset 2px 0px 0px 0px var(--selected),
-        inset 0px 2px 0px 0px var(--selected),
-        inset -2px 0px 0px 0px var(--selected),
-        inset 0px -1px 0px 0px var(--selected);
-}
-
-.cell--active-right.cell--bottom-last.cell--right-last {
-    box-shadow:
-        inset 1px 0px 0px 0px var(--selected),
-        inset 0px 1px 0px 0px var(--border),
-        inset 0px -1px 0px 0px var(--border),
-        inset -1px 0px 0px 0px var(--border);
-}
-
-
-.cell--active.cell--bottom-last.cell--right-last {
-    box-shadow:
-        inset 2px 0px 0px 0px var(--selected),
-        inset 0px 2px 0px 0px var(--selected),
-        inset 0px -2px 0px 0px var(--selected),
-        inset -2px 0px 0px 0px var(--selected);
+.selected-square-bottom-right {
+    top: -1px;
+    left: -1px;
 }

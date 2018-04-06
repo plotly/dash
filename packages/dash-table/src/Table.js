@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import * as R from 'ramda';
 import {keys, merge} from 'ramda';
 import SheetClip from 'sheetclip';
+import {List} from 'react-virtualized';
 
 import './Table.css'
 import Cell from './Cell.js';
@@ -34,6 +35,7 @@ export default class EditableTable extends Component {
 
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
+        this.collectRows = this.collectRows.bind(this);
     }
 
     handleClickOutside(event) {
@@ -61,24 +63,24 @@ export default class EditableTable extends Component {
         console.warn(`handleKeyDown: ${e.keyCode}`);
         // TODO - keyCode is deprecated?
 
+        const vci = [];  // visible col indices
+        columns.forEach((c, i) => {if(!c.hidden) vci.push(i)});
+
         if (e.keyCode === KEY_CODES.C && (e.metaKey || e.ctrlKey) &&
                 !is_focused) {
             e.preventDefault();
             console.info('--> cmd c baby');
             const el = document.createElement('textarea');
-            const selectedRows = R.pluck(0, selected_cell).sort();
-            const selectedCols = R.pluck(1, selected_cell).sort();
+            const selectedRows = R.uniq(R.pluck(0, selected_cell).sort());
+            const selectedCols = R.uniq(R.pluck(1, selected_cell).sort());
             const selectedTabularData = R.slice(
                 R.head(selectedRows),
                 R.last(selectedRows) + 1,
                 dataframe
-            ).map(row => R.slice(
-                R.head(selectedCols),
-                R.last(selectedCols) + 1,
-                R.values(row)
+            ).map(row => R.props(
+                selectedCols,
+                R.props(R.pluck('name', columns), row)
             ));
-
-            console.info('selectedTabularData: ', selectedTabularData);
 
             el.value = selectedTabularData.map(
                 row => R.values(row).join('\t')
@@ -123,12 +125,16 @@ export default class EditableTable extends Component {
             setProps({is_focused: false});
         }
 
-        const Left = [end_cell[0], R.max(0, end_cell[1] - 1)];
-        const Up = [R.max(0, end_cell[0] - 1), end_cell[1]];
+        const Left = [
+            end_cell[0],
+            R.max(vci[0], vci[R.indexOf(end_cell[1], vci) - 1])
+        ];
         const Right = [
             end_cell[0],
-            R.min(columns.length - 1, end_cell[1] + 1)
+            R.min(R.last(vci), vci[R.indexOf(end_cell[1], vci) + 1])
         ];
+
+        const Up = [R.max(0, end_cell[0] - 1), end_cell[1]];
         const Down = [
             R.min(dataframe.length - 1, end_cell[0] + 1),
             end_cell[1]
@@ -245,7 +251,13 @@ export default class EditableTable extends Component {
             this.handleClickOutside.bind(this),
             true
         );
-        document.addEventListener('keydown', this.handleKeyDown);
+        document.addEventListener('keydown', e => {
+            const t0 = performance.now();
+            console.debug(`==start`);
+            this.handleKeyDown(e);
+            const t1 = performance.now();
+            console.debug(`==${t1 - t0}ms`);
+        });
     }
 
     componentWillUnmount() {
@@ -307,7 +319,11 @@ export default class EditableTable extends Component {
                     const iOffset = end_cell[0] + i;
                     const jOffset = end_cell[1] + j;
                     // let newDataframe = dataframe;
-                    newDataframe[iOffset][newColumns[jOffset].name] = cell;
+                    newDataframe = R.set(
+                        R.lensPath([iOffset, newColumns[jOffset].name]),
+                        cell,
+                        newDataframe
+                    );
                 }));
                 setProps({
                     dataframe: newDataframe,
@@ -317,8 +333,45 @@ export default class EditableTable extends Component {
         }
     }
 
+    collectRows(slicedDf, start) {
+        const {collapsable, columns, expanded_rows} = this.props;
+        const rows = [];
+        for(let i=0; i<slicedDf.length; i++) {
+            const row = slicedDf[i];
+            rows.push(<Row
+                key={start + i}
+                row={row}
+                idx={start + i}
+                {...this.props}
+            />);
+            if (collapsable && R.contains(start + i, expanded_rows)) {
+                rows.push(
+                    <tr>
+                        <td className="expanded-row--empty-cell"/>
+                        <td colSpan={columns.length}
+                            className='expanded-row'
+                        >
+                            <h1>
+                                {`More About Row ${start + i}`}
+                            </h1>
+                        </td>
+                    </tr>
+                );
+            }
+        }
+        return rows;
+    }
+
     render() {
-        const {columns, dataframe, setProps} = this.props;
+        const {
+            collapsable,
+            columns,
+            dataframe,
+            setProps,
+            display_row_count: n,
+            display_tail_count: m
+        } = this.props;
+
         return (
             <table
                 ref={el => this._table = el}
@@ -329,13 +382,26 @@ export default class EditableTable extends Component {
                 <Header {...this.props}/>
 
                 <tbody>
-                {dataframe.map((row, idx) => (
-                    <Row
-                        row={row}
-                        idx={idx}
-                        {...this.props}
-                    />
-                ))}
+                {this.collectRows(dataframe.slice(0, n), 0)}
+
+                {dataframe.length < (n+m) ? null :
+                    <tr>
+                        {!collapsable ? null:
+                            <td className="expanded-row--empty-cell"/>
+                        }
+                        <td
+                            className="elip"
+                            colSpan={columns.length}
+                        >{'...'}</td>
+                    </tr>
+                }
+
+                {dataframe.length < n ? null :
+                    this.collectRows(dataframe.slice(
+                        R.max(dataframe.length - m, n),
+                        dataframe.length
+                    ), R.max(dataframe.length - m, n))}
+
                 </tbody>
 
             </table>

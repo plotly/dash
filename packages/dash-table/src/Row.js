@@ -7,7 +7,52 @@ import {keys, merge} from 'ramda';
 import Cell from './Cell';
 
 export default class Row extends Component {
+    shouldComponentUpdate(nextProps, nextState) {
+        return true;
 
+        const {
+            selected_cell: prev_selected_cell,
+            is_focused: prev_is_focused,
+            start_cell: prev_start_cell,
+            dataframe: prev_dataframe,
+            expanded_rows: prev_expanded_rows
+        } = this.props;
+
+        const {
+            idx,
+            selected_cell,
+            is_focused,
+            start_cell,
+            dataframe,
+            expanded_rows
+        } = nextProps;
+
+        const shouldRender = (
+            // row selection changes
+            (!R.contains(idx, R.pluck(0, selected_cell)) &&
+              R.contains(idx, R.pluck(0, prev_selected_cell))) ||
+
+            ( R.contains(idx, R.pluck(0, selected_cell)) &&
+             !R.contains(idx, R.pluck(0, prev_selected_cell))) ||
+
+            // cell selection changes for the current row
+            (R.contains(idx, R.pluck(0, selected_cell)) &&
+             start_cell !== prev_start_cell) ||
+
+            // row values change
+            (dataframe[idx] !== prev_dataframe[idx]) ||
+
+            // focus changes
+            (R.contains(idx, R.pluck(0, selected_cell)) &&
+             prev_is_focused !== is_focused) ||
+
+            expanded_rows !== prev_expanded_rows
+        );
+        if (shouldRender) {
+            console.info(`::Row ${idx} - ${shouldRender ? 'Render' : 'Skip'}`);
+        }
+        return shouldRender;
+    }
 
     render()  {
         const {
@@ -26,12 +71,17 @@ export default class Row extends Component {
         return (
             <tr>
                 {!collapsable ? null : (
-                    <td className='toggle-row'
+                    <td className={
+                        `toggle-row
+                        ${R.contains(idx, expanded_rows) ?
+                            'toggle-row--expanded' : ''}`
+                    }
                         onClick={e => {
+                            console.info(`Click ${idx}, ${expanded_rows}`);
                             if (R.contains(idx, expanded_rows)) {
                                 setProps({
                                     expanded_rows:
-                                    R.reject(R.equals(idx), expanded_rows)
+                                    R.without([idx], expanded_rows)
                                 });
                             } else {
                                 setProps({
@@ -44,13 +94,17 @@ export default class Row extends Component {
 
                     >
                         {R.contains(idx, expanded_rows) ?
-                            '▼' : '►'
+                            '▾' : '▸'
                         }
                     </td>
                 )}
 
-                {columns.map((c, i) => (
+                {columns.map((c, i) => {
+                    if (c.hidden) return null;
+
+                    return (
                     <Cell
+                        key={`${c}-${i}`}
                         value={dataframe[idx][c.name]}
                         type={c.type}
                         editable={editable}
@@ -82,20 +136,10 @@ export default class Row extends Component {
                         setProps={setProps}
                         {...this.props}
                     />
-                ))}
+
+                )})}
+
             </tr>
         );
     }
 }
-
-/*
-
-                {!(collapsable && R.contains(idx, expanded_rows)) ? null :
-                    <div>
-                        <h1>
-                            {'Summary'}
-                        </h1>
-                    </div>
-                }
-
-*/
