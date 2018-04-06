@@ -35,6 +35,12 @@ class App extends Component {
                 'Paris': 'numeric',
                 'Montreal': 'numeric',
             },
+            sort: [
+                {
+                    'column': 'Paris',
+                    'direction': 'desc'
+                }
+            ],
 
             start_cell: [1, 1],
             end_cell: [1, 1],
@@ -48,6 +54,7 @@ class App extends Component {
             is_focused: false,
             collapsable: true,
             expanded_rows: [1],
+            sortable: true,
 
             display_row_count: 10,
             display_tail_count: 5

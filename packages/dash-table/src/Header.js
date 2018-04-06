@@ -7,10 +7,56 @@ import {keys, merge} from 'ramda';
 import Cell from './Cell';
 
 export default class Header extends Component {
+    constructor() {
+        super();
+        this.sort = this.sort.bind(this);
+    }
+
+    sort(colName) {
+        const {dataframe, restore_index, setProps, sort} = this.props;
+
+        let newSort = sort;
+
+        let colSort = R.find(R.propEq('column', colName))(sort);
+        if (colSort) {
+            if (colSort.direction === 'desc') {
+                colSort.direction = 'asc';
+            } else if (colSort.direction === 'asc') {
+                newSort = newSort.filter(
+                    R.complement(R.propEq('column', colName)));
+            }
+        } else {
+            newSort.push({
+                column: colName,
+                direction: 'desc'
+            });
+        }
+
+        newSort = newSort.filter(R.complement(R.isEmpty));
+
+        setProps({
+
+            sort: newSort.filter(R.complement(R.not)),
+
+            dataframe: R.sortWith(
+                newSort.map(
+                    s => s.direction === 'desc' ?
+                    R.descend(R.prop(s.column)) :
+                    R.ascend(R.prop(s.column))
+                ),
+                dataframe
+            )
+
+        })
+    }
+
     render() {
         const {
             collapsable,
-            columns
+            columns,
+            sortable,
+            setProps,
+            sort
         } = this.props;
         const collapsableCell = (
             !collapsable ? null : (
@@ -19,7 +65,8 @@ export default class Header extends Component {
 
         const headerCells = columns.map((c, i) => {
             if (c.hidden) return null;
-            const style = c.style || {};
+            const style = c.style || {
+            };
             if (c.width) {
                 style.width = c.width;
                 style.maxWidth = c.width;
@@ -32,7 +79,23 @@ export default class Header extends Component {
                         ? '' : 'cell--right-last'
                     }`}
                 >
-                    {c.name}
+                    {sortable ? (
+                        <span
+                            className='filter'
+                            onClick={() => this.sort(c.name)}
+                        >
+                            {
+                                R.find(R.propEq('column', c.name), sort) ?
+                                (R.find(R.propEq('column', c.name), sort).direction
+                                === 'desc' ? '↑' : '↓')
+                                : '↕'
+                            }
+                        </span>
+                    ) : ''}
+
+                    <span>
+                        {c.name}
+                    </span>
                 </th>
             );
         });

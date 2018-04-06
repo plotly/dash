@@ -22,6 +22,7 @@ table {
     --hover: rgb(253, 253, 253);
     --background-color-ellipses: rgb(253, 253, 253);
     --faded-text: rgb(250, 250, 250);
+    --faded-text-header: rgb(180, 180, 180);
     --selected-background: #ffebff;
 }
 
@@ -48,6 +49,7 @@ td, th {
     text-overflow: ellipsis;
 
     height: 30px;
+    line-height: 30px;
 
     text-align: right;
 }
@@ -170,4 +172,17 @@ td {
 .selected-square-bottom-right {
     top: -1px;
     left: -1px;
+}
+
+.filter {
+    cursor: pointer;
+    float: left;
+    color: var(--faded-text-header);
+    font-size: 20px;
+}
+th:hover .filter {
+    color: var(--accent);
+}
+.filter:hover {
+    text-decoration: underline;
 }

@@ -36,6 +36,7 @@ export default class EditableTable extends Component {
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
         this.collectRows = this.collectRows.bind(this);
+
     }
 
     handleClickOutside(event) {
