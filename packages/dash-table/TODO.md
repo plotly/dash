@@ -46,25 +46,39 @@
 
 ***
 
-- [ ] Bugs and Stability
-    - [x] Fast keyboard, multi-keys
-    - [x] Thicker line on row 10
-    - [x] Selection at the edges
-    - [ ] Mutliselect background color on dropdown
-    - [ ] Sorting non numeric data
-    - [ ] Initial sorting
-    - [ ] Blur input when leaving it
+- [x] Bugs and Stability
+    - [x] Remove thicker line on row 10
+    - [x] Fix selection at the edges
+    - [x] Show mutli selection background color on dropdown
+    - [x] Blur input when leaving it
+    - [x] Sorting text data
+- [x] Editable per-column
+    - [x] Double clicking doesn't focus cell
+    - [x] Pressing enter doesn't focus cell
+    - [x] Typing while cell is selected doesn't change cell's value
+    - [x] Cell is still selectable
+    - [x] Copying selected cells still works
+    - [x] Deleting selected cells doesn't remove entries from uneditable columns
+    - [x] Pasting doesn't update the cell
+    - [x] Cell's cursor indicates that the cell isn't editable
+
+***
+
+
+
+***
 - [ ] Filtering
-- [ ] Editable per-column
+- Paste value in multi-select
+- Hidden column edge cases
+- Left aligned text values
 
 ***
 
-- Handle hidden columns in mutliselect styles?
-- Bug when selecting down while on last row
-
-***
-
+- Better open/close icon arrows
 - Filtering
 - Custom styles
 - Input styles
 - Draggable column size
+- Initial sorting
+- Pressing enter while on a dropdown cell should open dropdown
+- Non-editable

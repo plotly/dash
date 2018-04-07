@@ -5,6 +5,8 @@ import * as R from 'ramda';
 import {keys, merge} from 'ramda';
 import Dropdown from 'react-select';
 
+import {colIsEditable} from './derivedState';
+
 export default class Cell extends Component {
     constructor(props) {
         super(props);
@@ -13,6 +15,18 @@ export default class Cell extends Component {
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.borderStyle = this.borderStyle.bind(this);
         this.borderSquares = this.borderSquares.bind(this);
+
+        const {editable, columns, i} = props;
+        this.state = {notEditable:
+            !colIsEditable(editable, columns[i])
+        }
+    }
+
+    componentWillReceiveProps (nextProps) {
+        const {editable, columns, i} = nextProps;
+        this.setState({notEditable: (
+            !colIsEditable(editable, columns[i])
+        )});
     }
 
     handleClick(e) {
@@ -67,7 +81,17 @@ export default class Cell extends Component {
     }
 
     handleDoubleClick(e) {
-        const {setProps, idx, i, is_focused, isSelected} = this.props;
+        const {
+            columns,
+            editable,
+            setProps,
+            idx,
+            i,
+            is_focused,
+            isSelected
+        } = this.props;
+
+        if (this._notEditable) return;
 
         if (!is_focused) {
             e.preventDefault();
@@ -84,7 +108,6 @@ export default class Cell extends Component {
             if (this.props.isSelected &&
                 this.props.is_focused
             ) {
-                console.warn(`focus: [${this.props.c.name}, ${this.props.i}]`);
                 this.textInput.focus();
             }
         }
@@ -256,8 +279,11 @@ export default class Cell extends Component {
             columns
         } = this.props;
 
+        const {notEditable} = this.state;
+
         let innerCell;
-        if (editable && columns[i].type === 'numeric') {
+        if (!R.has('type', columns) ||
+                R.contains(columns[i].type, ['numeric', 'text'])) {
             innerCell = <input
                 id={`${c.name}-${idx}`}
                 type="text"
@@ -269,6 +295,7 @@ export default class Cell extends Component {
                 ref={el => this.textInput = el}
 
                 onChange={e => {
+                    if (notEditable) return;
                     if (isSelected) {
                         const newDataframe = R.set(R.lensPath([
                             idx, c.name
@@ -290,7 +317,6 @@ export default class Cell extends Component {
                     (isSelected ? 'input-active ' : '') +
                     (is_focused && isSelected ? 'focused ' : 'unfocused ')
                 }
-
             />
         } else if (columns[i].type === 'dropdown') {
             innerCell = (
@@ -311,31 +337,25 @@ export default class Cell extends Component {
             innerCell = value;
         }
 
-        if (editable) {
-            return (
-                <td
-                    style={this.borderStyle()}
-                    className={(
-                        (isSelected ? 'cell--active ' : '') +
-                        (is_focused && isSelected ? 'focused ' : '') +
-                        ((isSelected && selected_cell.length > 1 &&
-                            !(start_cell[0] === idx && start_cell[1] === i)
-                        ) ? 'cell--active--not-start' : '')
-                    )}
-                >
+        return (
+            <td
+                style={this.borderStyle()}
+                className={(
+                    (isSelected ? 'cell--active ' : '') +
+                    (is_focused && isSelected ? 'focused ' : '') +
+                    ((isSelected && selected_cell.length > 1 &&
+                        !(start_cell[0] === idx && start_cell[1] === i)
+                    ) ? 'cell--active--not-start ' : '') +
+                    (notEditable ? 'cell--uneditable ' : '')
+                )}
+            >
 
-                    {innerCell}
+                {innerCell}
 
-                    {this.borderSquares()}
+                {this.borderSquares()}
 
-                </td>
-            );
-        } else {
-            return (
-                <td>
-                    {value}
-                </td>
-            );
-        }
+            </td>
+        );
+
     }
 }

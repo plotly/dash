@@ -11,6 +11,7 @@ import './Dropdown.css';
 import Cell from './Cell.js';
 import Row from './Row.js';
 import Header from './Header.js';
+import {colIsEditable} from './derivedState';
 
 function deepMerge(a, b) {
   return (R.is(Object, a) && R.is(Object, b)) ? R.mergeWith(deepMerge, a, b) : b;
@@ -60,7 +61,8 @@ export default class EditableTable extends Component {
             selected_cell,
             setProps,
             start_cell,
-            is_focused
+            is_focused,
+            editable
         } = this.props;
         console.warn(`handleKeyDown: ${e.keyCode}`);
         // TODO - keyCode is deprecated?
@@ -152,6 +154,12 @@ export default class EditableTable extends Component {
                     selected_cell: [newCell]
                 });
             } else {
+                /*
+                 * the active element might be a rogue, unfocused input:
+                 * blur it so that it doesn't display a selection while
+                 * selecting multiple cells
+                 */
+                document.activeElement.blur();
                 let targetCells;
                 let removeCells = null;
 
@@ -207,7 +215,10 @@ export default class EditableTable extends Component {
             if (is_focused) {
                 switchCell(Down);
             } else {
-                setProps({is_focused: true});
+                if (colIsEditable(editable, columns[end_cell[1]])) {
+                    setProps({is_focused: true});
+                }
+
             }
         }
 
@@ -230,9 +241,11 @@ export default class EditableTable extends Component {
             const {selected_cell, columns} = this.props;
             let newDataframe = dataframe;
             selected_cell.forEach(cell => {
-                newDataframe = R.set(R.lensPath([
-                    cell[0], columns[cell[1]].name
-                ]), '', newDataframe);
+                if (colIsEditable(editable, columns[cell[1]])) {
+                    newDataframe = R.set(R.lensPath([
+                        cell[0], columns[cell[1]].name
+                    ]), '', newDataframe);
+                }
             });
 
             setProps({
@@ -245,7 +258,9 @@ export default class EditableTable extends Component {
             // except if we're copying and pasting
             !(e.metaKey && KEY_CODES.V) &&
             // except if we're selecting cells
-            !e.shiftKey
+            !e.shiftKey &&
+            // except if the column isn't editable
+            colIsEditable(editable, columns[end_cell[1]])
         ) {
             setProps({is_focused: true});
         }
@@ -282,17 +297,17 @@ export default class EditableTable extends Component {
         const {
             columns,
             dataframe,
+            editable,
             setProps,
             selected_cell,
             end_cell,
             is_focused
         } = this.props;
-        console.info('---> onPaste');
+
         if (e && e.clipboardData && !is_focused) {
             const text = e.clipboardData.getData('text/plain');
             if (text) {
                 const values = SheetClip.prototype.parse(text);
-                console.info('pasted values', values);
 
                 let newDataframe = dataframe;
                 let newColumns = columns;
@@ -328,11 +343,14 @@ export default class EditableTable extends Component {
                     const iOffset = end_cell[0] + i;
                     const jOffset = end_cell[1] + j;
                     // let newDataframe = dataframe;
-                    newDataframe = R.set(
-                        R.lensPath([iOffset, newColumns[jOffset].name]),
-                        cell,
-                        newDataframe
-                    );
+                    const col = newColumns[jOffset];
+                    if (colIsEditable(editable, col)) {
+                        newDataframe = R.set(
+                            R.lensPath([iOffset, col.name]),
+                            cell,
+                            newDataframe
+                        );
+                    }
                 }));
                 setProps({
                     dataframe: newDataframe,

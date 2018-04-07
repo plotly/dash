@@ -92,3 +92,12 @@
 .Select:hover .Select-clear {
     color: var(--accent);
 }
+
+.Select-control {
+    padding-left: 2px;
+}
+
+.cell--active--not-start .Select-control {
+    background-color: var(--selected-background);
+    border-radius: 0;
+}

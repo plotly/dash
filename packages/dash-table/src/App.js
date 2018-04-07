@@ -9,11 +9,13 @@ class App extends Component {
         this.state = {
             dataframe: DATA,
             columns: [
+
                 {
                     'name': ' ',
                     'type': 'numeric',
                     'width': 30
                 },
+
                 {
                     'name': 'New York City',
 //                    'width': '80px',
@@ -22,17 +24,21 @@ class App extends Component {
                         'white-space': 'pre-line'
                     }
                 },
+
                 {
                     'name': 'Paris',
                     // 'width': '20%',
                     'type': 'numeric',
                     // 'hidden': true
+                    'editable': false
                 },
+
                 {
                     'name': 'Montréal',
                     // 'width': '70%',
                     'type': 'numeric'
                 },
+
                 {
                     'name': 'Climate',
                     'type': 'dropdown',
@@ -44,7 +50,8 @@ class App extends Component {
                         'Tropical Beaches'
                     ].map(i => ({label: i, value: i})),
                     'clearable': true
-                }
+                },
+
             ],
 
             sort: [
@@ -54,15 +61,21 @@ class App extends Component {
                 }
             ],
 
-            start_cell: [1, 1],
-            end_cell: [1, 1],
+            start_cell: [1, 0],
+            end_cell: [1, 4],
+
             selected_cell: [
                 // [0, 0],
                 // [1, 0],
                 // [0, 1],
-                [1, 0] // [row, column]
+                [1, 0], // [row, column]
+                [1, 1],
+                [1, 2],
+                [1, 3],
+                [1, 4]
             ],
 
+            editable: true,
             is_focused: false,
             collapsable: true,
             expanded_rows: [],
@@ -70,6 +83,7 @@ class App extends Component {
 
             display_row_count: 50,
             display_tail_count: 5
+
         }
     }
 
@@ -77,7 +91,6 @@ class App extends Component {
         return (
             <div>
                 <Table
-                    editable={true}
                     setProps={newProps => {
                         console.info('--->', newProps);
                         this.setState(newProps)
