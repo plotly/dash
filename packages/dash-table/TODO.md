@@ -14,12 +14,11 @@
     - [x] Doesn't paste contents into the cell if unfocused
     - [x] Pastes contents into cell if focused
 
-- [ ] Multiselection
+- [x] Multiselection
     - [x] Shift click
     - [x] Shift arrows
-    - [ ] Click drag?
-    - [ ] style - outlines
-    - [ ] style - last_cell
+    - [x] style - outlines
+    - [x] style - last_cell
     - [x] Delete
     - [x] Copyable
 
@@ -36,9 +35,27 @@
 
 ***
 
-- [ ] 1px borders
-- [ ] dropdowns
-- [ ] sorting
+- [x] 1px borders
+- [x] Column bottom border
+- [x] basic sorting
+    - multi column sort
+
+***
+
+- [x] dropdowns
+
+***
+
+- [ ] Bugs and Stability
+    - [x] Fast keyboard, multi-keys
+    - [x] Thicker line on row 10
+    - [x] Selection at the edges
+    - [ ] Mutliselect background color on dropdown
+    - [ ] Sorting non numeric data
+    - [ ] Initial sorting
+    - [ ] Blur input when leaving it
+- [ ] Filtering
+- [ ] Editable per-column
 
 ***
 
@@ -47,9 +64,7 @@
 
 ***
 
-- Right-click context menu? Or ribbon?
 - Filtering
 - Custom styles
 - Input styles
-- Data types
-    - Dropdown
+- Draggable column size

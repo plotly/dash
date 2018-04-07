@@ -24,6 +24,7 @@ table {
     --faded-text: rgb(250, 250, 250);
     --faded-text-header: rgb(180, 180, 180);
     --selected-background: #ffebff;
+    --faded-dropdown: rgb(240, 240, 240);
 }
 
 /* focus happens after copying to clipboard */
@@ -45,7 +46,7 @@ td, th {
     padding-right: 2px;
     padding-bottom: 2px;
     white-space: nowrap;
-    overflow: hidden;
+    overflow-x: hidden;
     text-overflow: ellipsis;
 
     height: 30px;

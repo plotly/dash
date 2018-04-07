@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
 import {keys, merge} from 'ramda';
+import Dropdown from 'react-select';
 
 export default class Cell extends Component {
     constructor(props) {
@@ -113,8 +114,9 @@ export default class Cell extends Component {
         const Top = (c, t) => `inset 0px ${t}px 0px 0px ${c}`;
         const Bottom = (c, t) => `inset 0px -${t}px 0px 0px ${c}`;
 
-        const selectedRows = R.uniq(R.pluck(0, selected_cell).sort());
-        const selectedCols = R.uniq(R.pluck(1, selected_cell).sort());
+        const sortNumerical = R.sort((a, b) => a-b);
+        const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
+        const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
 
         const showInsideLeftEdge = (
              (ci === R.head(selectedCols))
@@ -181,22 +183,6 @@ export default class Cell extends Component {
             isBottommost || isAboveExpanded ? Bottom(Border, 1) : null,
             isRightmost ? Right(Border, 1) : null
 
-            // Right(Border, 1),
-            // Bottom(Border, 1)
-
-            // showLeftEdge || isNeighborToExpanded ?
-            //     Left(Accent, isLeftmost ? 2 : 2) : Left(Border, 1),
-            //
-            // showRightEdge ? null : isRightmost ? Right(Border, 1) : null,
-            //
-            // // showRightEdge ? Right(Accent, isRightmost ? 2 : 1) :
-            // //     isRightmost ? Right(Border, 1) : null,
-            //
-            // showTopEdge ? Top(Accent, isTopmost ? 2 : 1) : Top(Border, 1),
-            //
-            // showBottomEdge ? Bottom(Accent, isBottommost ? 2 : 1) :
-            //     isBottommost ? Bottom(Border, 1) : null,
-
         ].filter(R.complement(R.not));
         const sortedBoxRules = R.sort(
             (a, b) => R.contains(Accent, a) ? -1 : 1,
@@ -224,8 +210,9 @@ export default class Cell extends Component {
         const vci = [];  // visible col indices
         columns.forEach((c, i) => {if(!c.hidden) vci.push(i)});
 
-        const selectedRows = R.uniq(R.pluck(0, selected_cell).sort());
-        const selectedCols = R.uniq(R.pluck(1, selected_cell).sort());
+        const sortNumerical = R.sort((a, b) => a-b);
+        const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
+        const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
 
         const isRight = (
              ci === (R.last(selectedCols) + 1)
@@ -265,11 +252,12 @@ export default class Cell extends Component {
             collapsable,
             expanded_rows,
             start_cell,
-            selected_cell
+            selected_cell,
+            columns
         } = this.props;
 
         let innerCell;
-        if (editable) {
+        if (editable && columns[i].type === 'numeric') {
             innerCell = <input
                 id={`${c.name}-${idx}`}
                 type="text"
@@ -304,6 +292,21 @@ export default class Cell extends Component {
                 }
 
             />
+        } else if (columns[i].type === 'dropdown') {
+            innerCell = (
+                <Dropdown
+                    placeholder={''}
+                    options={columns[i].options}
+                    onChange={newOption => {
+                        const newDataframe = R.set(R.lensPath([
+                            idx, c.name
+                        ]), newOption ? newOption.value : newOption, dataframe);
+                        setProps({dataframe: newDataframe});
+                    }}
+                    clearable={columns[i].clearable}
+                    value={value}
+                />
+            );
         } else {
             innerCell = value;
         }

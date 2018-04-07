@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import * as R from 'ramda';
 import {keys, merge} from 'ramda';
 import SheetClip from 'sheetclip';
-import {List} from 'react-virtualized';
 
-import './Table.css'
+import 'react-select/dist/react-select.css';
+import './Table.css';
+import './Dropdown.css';
 import Cell from './Cell.js';
 import Row from './Row.js';
 import Header from './Header.js';
@@ -67,10 +68,10 @@ export default class EditableTable extends Component {
         const vci = [];  // visible col indices
         columns.forEach((c, i) => {if(!c.hidden) vci.push(i)});
 
+        // copy
         if (e.keyCode === KEY_CODES.C && (e.metaKey || e.ctrlKey) &&
                 !is_focused) {
             e.preventDefault();
-            console.info('--> cmd c baby');
             const el = document.createElement('textarea');
             const selectedRows = R.uniq(R.pluck(0, selected_cell).sort());
             const selectedCols = R.uniq(R.pluck(1, selected_cell).sort());
@@ -116,7 +117,8 @@ export default class EditableTable extends Component {
                 document.getSelection().addRange(selected);
             }
             // refocus on the table so that onPaste can be fired immediately
-            // note that this requires tabIndex to be set
+            // on the same table
+            // note that this requires tabIndex to be set on the <table/>
             this._table.focus();
             return;
         }
@@ -152,14 +154,18 @@ export default class EditableTable extends Component {
             } else {
                 let targetCells;
                 let removeCells = null;
-                const selectedCols = R.uniq(R.pluck(1, selected_cell));
-                const selectedRows = R.uniq(R.pluck(0, selected_cell));
+
+                const sortNumerical = R.sort((a, b) => a-b);
+                const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
+                const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
 
                 if ((e.keyCode === KEY_CODES.UP ||
                      e.keyCode === KEY_CODES.DOWN)) {
                     targetCells = selectedCols.map(col =>
                         [newCell[0], col]);
-                    if (R.intersection(targetCells, selected_cell).length) {
+                    if (R.intersection(targetCells, selected_cell).length &&
+                            newCell[0] !== 0 &&
+                            newCell[0] !== (dataframe.length - 1)) {
                         if (e.keyCode === KEY_CODES.DOWN) {
                             removeCells = targetCells.map(c => [c[0] - 1, c[1]]);
                         } else if (e.keyCode === KEY_CODES.UP) {
@@ -170,7 +176,9 @@ export default class EditableTable extends Component {
                             e.keyCode === KEY_CODES.RIGHT)) {
                     targetCells = selectedRows.map(row =>
                         [row, newCell[1]]);
-                    if (R.intersection(targetCells, selected_cell).length) {
+                    if (R.intersection(targetCells, selected_cell).length &&
+                            newCell[1] !== vci[0] &&
+                            newCell[1] !== R.last(vci)) {
                         if (e.keyCode === KEY_CODES.LEFT) {
                             removeCells = targetCells.map(c => [c[0], c[1] + 1]);
                         } else if (e.keyCode === KEY_CODES.RIGHT) {

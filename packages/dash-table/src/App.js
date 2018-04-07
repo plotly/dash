@@ -10,6 +10,11 @@ class App extends Component {
             dataframe: DATA,
             columns: [
                 {
+                    'name': ' ',
+                    'type': 'numeric',
+                    'width': 30
+                },
+                {
                     'name': 'New York City',
 //                    'width': '80px',
                     'type': 'numeric',
@@ -27,14 +32,21 @@ class App extends Component {
                     'name': 'Montréal',
                     // 'width': '70%',
                     'type': 'numeric'
+                },
+                {
+                    'name': 'Climate',
+                    'type': 'dropdown',
+                    'width': 200,
+                    'options': [
+                        'Humid',
+                        'Wet',
+                        'Snowy',
+                        'Tropical Beaches'
+                    ].map(i => ({label: i, value: i})),
+                    'clearable': true
                 }
             ],
 
-            types: {
-                'NYC': 'numeric',
-                'Paris': 'numeric',
-                'Montreal': 'numeric',
-            },
             sort: [
                 {
                     'column': 'Paris',
@@ -53,19 +65,17 @@ class App extends Component {
 
             is_focused: false,
             collapsable: true,
-            expanded_rows: [1],
+            expanded_rows: [],
             sortable: true,
 
-            display_row_count: 10,
+            display_row_count: 50,
             display_tail_count: 5
         }
     }
 
     render() {
         return (
-            <div class={'container'}>
-                <h3>{'Table'}</h3>
-
+            <div>
                 <Table
                     editable={true}
                     setProps={newProps => {
@@ -75,7 +85,9 @@ class App extends Component {
                     {...this.state}
                 />
 
-                {/*<pre>{JSON.stringify(this.state, null, 2)}</pre>*/}
+                <div style={{'columnCount': 3}}>
+                    <pre>{JSON.stringify(this.state, null, 2)}</pre>
+                </div>
 
             </div>
         )
