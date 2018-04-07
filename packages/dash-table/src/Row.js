@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
 import {keys, merge} from 'ramda';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import angleRight from '@fortawesome/fontawesome-free-solid/faAngleRight';
+import angleDown from '@fortawesome/fontawesome-free-solid/faAngleDown';
 
 import Cell from './Cell';
 
@@ -94,7 +97,8 @@ export default class Row extends Component {
 
                     >
                         {R.contains(idx, expanded_rows) ?
-                            '▾' : '▸'
+                            <FontAwesomeIcon icon={angleDown}/>:
+                            <FontAwesomeIcon icon={angleRight}/>
                         }
                     </td>
                 )}

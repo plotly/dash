@@ -61,10 +61,7 @@
     - [x] Deleting selected cells doesn't remove entries from uneditable columns
     - [x] Pasting doesn't update the cell
     - [x] Cell's cursor indicates that the cell isn't editable
-
-***
-
-
+    - [x] Better open/close icon arrows
 
 ***
 - [ ] Filtering
@@ -74,7 +71,6 @@
 
 ***
 
-- Better open/close icon arrows
 - Filtering
 - Custom styles
 - Input styles
