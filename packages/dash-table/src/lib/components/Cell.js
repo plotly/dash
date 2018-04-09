@@ -282,7 +282,7 @@ export default class Cell extends Component {
         const {notEditable} = this.state;
 
         let innerCell;
-        if (!R.has('type', columns) ||
+        if (!R.has('type', columns[i]) ||
                 R.contains(columns[i].type, ['numeric', 'text'])) {
             innerCell = <input
                 id={`${c.name}-${idx}`}

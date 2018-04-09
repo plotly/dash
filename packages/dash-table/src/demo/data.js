@@ -10,7 +10,8 @@ export const DATA = R.range(1, 5).map(i => ({
     ' ': i,
     'New York City': i,
     'Paris': i*10,
-    'Montréal': i*100
+    'Montréal': i*100,
+    'Climate': 'Tropical Beaches'
 }));
 
 // export const DATA = [

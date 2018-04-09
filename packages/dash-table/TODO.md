@@ -64,14 +64,14 @@
     - [x] Better open/close icon arrows
 
 ***
+
 - [ ] Filtering
-- Paste value in multi-select
-- Hidden column edge cases
-- Left aligned text values
 
 ***
 
-- Filtering
+- Paste value in multi-select
+- Hidden column edge cases
+- Left aligned text values
 - Custom styles
 - Input styles
 - Draggable column size
