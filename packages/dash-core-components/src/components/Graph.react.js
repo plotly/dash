@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {contains, filter, has, isNil, type} from 'ramda';
+import {contains, intersection, filter, has, isNil, type, pluck} from 'ramda';
 /* global Plotly:true */
 
 const filterEventData = (gd, eventData, event) => {
@@ -73,16 +73,31 @@ export default class PlotlyGraph extends Component {
     plot(props) {
         const {id, figure, animate, animation_options, config} = props;
         const gd = document.getElementById(id);
+
         if (animate && this._hasPlotted && figure.data.length === gd.data.length) {
             return Plotly.animate(id, figure, animation_options);
         } else {
-            return Plotly.react(id, figure.data, figure.layout, config).then(() => {
-                if (!this._hasPlotted) {
-                    this.bindEvents();
-                    Plotly.Plots.resize(document.getElementById(id));
-                    this._hasPlotted = true;
+
+            let PlotMethod;
+            if (intersection(
+                pluck('type', figure.data),
+                ['candlestick', 'ohlc']).length
+            ) {
+                PlotMethod = Plotly.newPlot;
+            } else {
+                PlotMethod = Plotly.react;
+            }
+
+            return PlotMethod(id, figure.data, figure.layout, config).then(
+                () => {
+                    if (!this._hasPlotted) {
+                        this.bindEvents();
+                        Plotly.Plots.resize(document.getElementById(id));
+                        this._hasPlotted = true;
+                    }
                 }
-            });
+            );
+
         }
     }
 
