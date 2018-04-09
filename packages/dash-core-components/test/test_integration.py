@@ -460,3 +460,39 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#test-search', '?queryA=valueA')
         self.wait_for_text_to_equal('#test-hash', '')
         self.snapshot('link -- /test/pathname/a?queryA=valueA')
+
+
+    def test_candlestick(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Button(
+                id='button',
+                children='Update Candlestick',
+                n_clicks=0
+            ),
+            dcc.Graph(id='graph')
+        ])
+
+        @app.callback(Output('graph', 'figure'), [Input('button', 'n_clicks')])
+        def update_graph(n_clicks):
+            return {
+                'data': [{
+                    'open': [1] * 5,
+                    'high': [3] * 5,
+                    'low': [0] * 5,
+                    'close': [2] * 5,
+                    'x': [n_clicks] * 5,
+                    'type': 'candlestick'
+                }]
+            }
+        self.startServer(app=app)
+
+        button = self.wait_for_element_by_css_selector('#button')
+        self.snapshot('candlestick - initial')
+        button.click()
+        time.sleep(2)
+        self.snapshot('candlestick - 1 click')
+
+        button.click()
+        time.sleep(2)
+        self.snapshot('candlestick - 2 click')
