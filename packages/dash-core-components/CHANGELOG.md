@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.22.1] - 2018-04-09
+### Fixed
+- Various bugs with the `ohlc` and `candlestick` chart type in the `dcc.Graph`
+component were fixed. See https://github.com/plotly/dash-core-components/pull/184.
+
 ## [0.22.0] - 2018-04-03
 ### Added
 - Previously, if a user named their app file `dash.py`, an unhelpful error
