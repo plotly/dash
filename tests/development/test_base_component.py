@@ -603,10 +603,12 @@ class TestGenerateClass(unittest.TestCase):
     def test_repr_with_wildcards(self):
         c = self.ComponentClass(id='1', **{"data-one": "one",
                                             "aria-two": "two"})
-        self.assertEqual(
-            repr(c),
-            "Table(id='1', data-one='one', aria-two='two')"
-        )
+        data_first = "Table(id='1', data-one='one', aria-two='two')"
+        aria_first = "Table(id='1', aria-two='two', data-one='one')"
+        repr_string = repr(c)
+        if not (repr_string == data_first or repr_string == aria_first):
+            raise Exception("%s\nDoes not equal\n%s\nor\n%s" %
+                            (repr_string, data_first, aria_first))
 
     def test_docstring(self):
         assert_docstring(self.assertEqual, self.ComponentClass.__doc__)

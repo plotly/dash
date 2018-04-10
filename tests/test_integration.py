@@ -175,6 +175,9 @@ class Tests(IntegrationTests):
 
     def test_wildcard_data_attributes(self):
         app = dash.Dash()
+        test_time = datetime.datetime(2012, 1, 10, 2, 3)
+        test_date = datetime.date(test_time.year, test_time.month,
+                                  test_time.day)
         app.layout = html.Div([
             html.Div(
                 id="inner-element",
@@ -182,7 +185,7 @@ class Tests(IntegrationTests):
                     'data-string': 'multiple words',
                     'data-number': 512,
                     'data-none': None,
-                    'data-date': datetime.datetime(2012, 1, 10),
+                    'data-date': test_date,
                     'aria-progress': 5
                 }
             )
@@ -202,7 +205,7 @@ class Tests(IntegrationTests):
             'id="inner-element"',
             'data-string="multiple words"',
             'data-number="512"',
-            'data-date="2012-01-10"',
+            'data-date="%s"' % (test_date),
             'aria-progress="5"'
         ], 5)
         passed = False
