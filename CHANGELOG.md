@@ -1,3 +1,8 @@
+## 0.21.1 - 2018-04-10
+## Added
+- `aria-*` and `data-*` attributes are now supported in all dash html components. (#40)
+- These new keywords can be added using a dictionary expansion, e.g. `html.Div(id="my-div", **{"data-toggle": "toggled", "aria-toggled": "true"})`
+
 ## 0.21.0 - 2018-02-21
 ## Added
 - #207 Dash now supports React components that use [Flow](https://flow.org/en/docs/react/).
