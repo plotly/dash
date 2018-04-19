@@ -68,80 +68,85 @@ export default class Row extends Component {
             setProps,
             selected_cell,
             collapsable,
-            expanded_rows
+            expanded_rows,
+            n_fixed_columns
         } = this.props;
+
+        const collapsableCell = !collapsable ? null : (
+            <td className={
+                `toggle-row
+                ${R.contains(idx, expanded_rows) ?
+                    'toggle-row--expanded' : ''}`
+            }
+                onClick={e => {
+                    console.info(`Click ${idx}, ${expanded_rows}`);
+                    if (R.contains(idx, expanded_rows)) {
+                        setProps({
+                            expanded_rows:
+                            R.without([idx], expanded_rows)
+                        });
+                    } else {
+                        setProps({
+                            expanded_rows:
+                            R.append(idx, expanded_rows)
+                        });
+                    }
+
+                }}
+
+            >
+                {R.contains(idx, expanded_rows) ?
+                    <FontAwesomeIcon icon={angleDown}/>:
+                    <FontAwesomeIcon icon={angleRight}/>
+                }
+            </td>
+        );
+
+        const cells = columns.map((c, i) => {
+            if (c.hidden) return null;
+
+            return (
+            <Cell
+                key={`${c}-${i}`}
+                value={dataframe[idx][c.name]}
+                type={c.type}
+                editable={editable}
+
+                isSelected={R.contains([idx, i], selected_cell)}
+
+                isBottom={
+                    false &&
+                    selected_cell[0][0] === idx-1 &&
+                    selected_cell[0][1] === i
+                }
+                isRight={
+                    false &&
+                    selected_cell[0][0] === idx &&
+                    selected_cell[0][1] === i-1
+                }
+                isRightmost={
+                    false &&
+                    columns.length === (i + 1)
+                }
+                isBottommost={
+                    false &&
+                    dataframe.length === (idx + 1)
+                }
+
+                idx={idx}
+                i={i}
+                c={c}
+                setProps={setProps}
+                {...this.props}
+            />
+
+        )});
 
         return (
             <tr>
-                {!collapsable ? null : (
-                    <td className={
-                        `toggle-row
-                        ${R.contains(idx, expanded_rows) ?
-                            'toggle-row--expanded' : ''}`
-                    }
-                        onClick={e => {
-                            console.info(`Click ${idx}, ${expanded_rows}`);
-                            if (R.contains(idx, expanded_rows)) {
-                                setProps({
-                                    expanded_rows:
-                                    R.without([idx], expanded_rows)
-                                });
-                            } else {
-                                setProps({
-                                    expanded_rows:
-                                    R.append(idx, expanded_rows)
-                                });
-                            }
+                {collapsableCell}
 
-                        }}
-
-                    >
-                        {R.contains(idx, expanded_rows) ?
-                            <FontAwesomeIcon icon={angleDown}/>:
-                            <FontAwesomeIcon icon={angleRight}/>
-                        }
-                    </td>
-                )}
-
-                {columns.map((c, i) => {
-                    if (c.hidden) return null;
-
-                    return (
-                    <Cell
-                        key={`${c}-${i}`}
-                        value={dataframe[idx][c.name]}
-                        type={c.type}
-                        editable={editable}
-
-                        isSelected={R.contains([idx, i], selected_cell)}
-
-                        isBottom={
-                            false &&
-                            selected_cell[0][0] === idx-1 &&
-                            selected_cell[0][1] === i
-                        }
-                        isRight={
-                            false &&
-                            selected_cell[0][0] === idx &&
-                            selected_cell[0][1] === i-1
-                        }
-                        isRightmost={
-                            false &&
-                            columns.length === (i + 1)
-                        }
-                        isBottommost={
-                            false &&
-                            dataframe.length === (idx + 1)
-                        }
-
-                        idx={idx}
-                        i={i}
-                        c={c}
-                        setProps={setProps}
-                        {...this.props}
-                    />
-
-                )})}
+                {cells}
 
             </tr>
         );

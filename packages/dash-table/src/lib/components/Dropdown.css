@@ -1,6 +1,8 @@
 .Select, .Select-control {
     border: none;
     cursor: pointer;
+    height: 26px;
+    border: none;
 }
 
 .Select:hover, .Select-control:hover {

@@ -65,11 +65,22 @@
 
 ***
 
-- [ ] Filtering
+- vertical (and horizontal) panes
+- scoped css styles
+- scoped events
 
 ***
 
-- Paste value in multi-select
+- multiline Header
+- Reactivity (may be the below are already addressed above)
+    - Subset of columns / rows reactive
+    - being able to identify specific cells which are updated
+- Add / delete row / col
+- Column headers represented by two states viz. name and label; the label is displayed which can be editable and the name is used for all internal working.
+
+
+***
+
 - Hidden column edge cases
 - Left aligned text values
 - Custom styles
@@ -77,4 +88,4 @@
 - Draggable column size
 - Initial sorting
 - Pressing enter while on a dropdown cell should open dropdown
-- Non-editable
+- Filtering

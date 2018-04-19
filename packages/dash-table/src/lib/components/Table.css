@@ -1,6 +1,10 @@
 html {
   box-sizing: border-box;
 }
+body {
+    margin: 0;
+    padding: 0;
+}
 *, *:before, *:after {
   box-sizing: inherit;
 }
@@ -15,15 +19,15 @@ table {
     font-size: 1rem;
 
     font-family: monospace;
-    /* --accent: #119DFF; */
-    --accent: hotpink;
+    --accent: #FF4136;
+    /*--accent: hotpink;*/
     --border: lightgrey;
     --text-color: rgb(60, 60, 60);
     --hover: rgb(253, 253, 253);
     --background-color-ellipses: rgb(253, 253, 253);
     --faded-text: rgb(250, 250, 250);
     --faded-text-header: rgb(180, 180, 180);
-    --selected-background: #ffebff;
+    --selected-background: rgba(255,65,54, 0.2);
     --faded-dropdown: rgb(240, 240, 240);
 }
 

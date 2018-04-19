@@ -6,12 +6,13 @@ import * as R from 'ramda';
 // ]
 
 
-export const DATA = R.range(1, 5).map(i => ({
+export const DATA = R.range(1, 50).map(i => ({
     ' ': i,
     'New York City': i,
     'Paris': i*10,
     'Montréal': i*100,
-    'Climate': 'Tropical Beaches'
+    'Climate': 'Tropical Beaches',
+    'Boston': i+i
 }));
 
 // export const DATA = [

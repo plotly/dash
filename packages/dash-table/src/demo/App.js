@@ -7,48 +7,59 @@ class App extends Component {
         super();
         this.state = {
             dataframe: DATA,
+            n_fixed_columns: 2,
             columns: [
 
                 {
                     'name': ' ',
                     'type': 'numeric',
-                    'width': 30
+                    'width': 150
                 },
 
                 {
                     'name': 'New York City',
-//                    'width': '80px',
                     'type': 'numeric',
                     'style': {
                         'white-space': 'pre-line'
-                    }
+                    },
+                    'width': 200
                 },
 
                 {
                     'name': 'Paris',
-                    // 'width': '20%',
                     'type': 'numeric',
-                    // 'hidden': true
-                    'editable': false
+                    'editable': true,
+                    'width': 200
                 },
 
                 {
                     'name': 'Montréal',
                     // 'width': '70%',
-                    'type': 'numeric'
+                    'type': 'numeric',
+                    'editable': false,
+                    'width': 200
                 },
 
                 {
                     'name': 'Climate',
-                    'type': 'dropdown',
-                    'width': 200,
+                    // 'type': 'dropdown',
+                    'type': 'numeric',
+                    // 'width': 100,
                     'options': [
                         'Humid',
                         'Wet',
                         'Snowy',
                         'Tropical Beaches'
                     ].map(i => ({label: i, value: i})),
-                    'clearable': true
+                    'clearable': true,
+                    'width': 200
+                },
+
+                {
+                    'name': 'Boston',
+                    // 'width': '70%',
+                    'type': 'numeric',
+                    'width': 200
                 },
 
             ],
@@ -76,12 +87,17 @@ class App extends Component {
 
             editable: true,
             is_focused: false,
-            collapsable: true,
+            collapsable: false,
             expanded_rows: [],
             sortable: true,
 
-            display_row_count: 50,
-            display_tail_count: 5
+            display_row_count: 5,
+            display_tail_count: 5,
+
+            width: 300,
+            table_style: {
+                'tableLayout': 'inherit'
+            }
 
         }
     }
@@ -96,10 +112,6 @@ class App extends Component {
                     }}
                     {...this.state}
                 />
-
-                <div style={{'columnCount': 3}}>
-                    <pre>{JSON.stringify(this.state, null, 2)}</pre>
-                </div>
 
             </div>
         )

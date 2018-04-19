@@ -5,6 +5,7 @@ import * as R from 'ramda';
 import {keys, merge} from 'ramda';
 
 import Cell from './Cell';
+import computedStyles from './computedStyles';
 
 export default class Header extends Component {
     constructor() {
@@ -56,7 +57,8 @@ export default class Header extends Component {
             columns,
             sortable,
             setProps,
-            sort
+            sort,
+            n_fixed_columns
         } = this.props;
         const collapsableCell = (
             !collapsable ? null : (
@@ -65,12 +67,16 @@ export default class Header extends Component {
 
         const headerCells = columns.map((c, i) => {
             if (c.hidden) return null;
-            const style = c.style || {
+            let style = c.style || {
             };
             if (c.width) {
                 style.width = c.width;
                 style.maxWidth = c.width;
+                style.minWidth = c.width;
             }
+
+            style = R.merge(style, computedStyles.scroll.cell(this.props, i))
+
             return (
                 <th
                     style={style}
@@ -100,9 +106,11 @@ export default class Header extends Component {
             );
         });
 
+        const rowStyle = computedStyles.scroll.row(this.props);
+
         return (
             <thead>
-                <tr>
+                <tr style={rowStyle}>
                     {collapsableCell}
                     {headerCells}
                 </tr>

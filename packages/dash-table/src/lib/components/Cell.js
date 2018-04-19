@@ -6,6 +6,7 @@ import {keys, merge} from 'ramda';
 import Dropdown from 'react-select';
 
 import {colIsEditable} from './derivedState';
+import computedStyles from './computedStyles';
 
 export default class Cell extends Component {
     constructor(props) {
@@ -15,6 +16,7 @@ export default class Cell extends Component {
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.borderStyle = this.borderStyle.bind(this);
         this.borderSquares = this.borderSquares.bind(this);
+        this.fixedColumnStyle = this.fixedColumnStyle.bind(this);
 
         const {editable, columns, i} = props;
         this.state = {notEditable:
@@ -248,13 +250,15 @@ export default class Cell extends Component {
             (isRight && isBelow) ? 'bottom-right' : ''
         );
         if (!className) return null
-        console.info('*******', className);
         return (
             <div className={`selected-square selected-square-${className}`}/>
         );
 
     }
 
+    fixedColumnStyle() {
+
+    }
 
     render() {
         const {
@@ -339,7 +343,10 @@ export default class Cell extends Component {
 
         return (
             <td
-                style={this.borderStyle()}
+                style={R.merge(
+                    this.borderStyle(),
+                    computedStyles.scroll.cell(this.props, i)
+                )}
                 className={(
                     (isSelected ? 'cell--active ' : '') +
                     (is_focused && isSelected ? 'focused ' : '') +

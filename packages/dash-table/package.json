@@ -1,6 +1,6 @@
 {
   "name": "dash-spreadsheet",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "React NPM library starter kit based on Facebook's create react app",
   "main": "build/index.js",
   "scripts": {

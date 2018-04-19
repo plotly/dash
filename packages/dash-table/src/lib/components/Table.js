@@ -12,6 +12,7 @@ import Cell from './Cell.js';
 import Row from './Row.js';
 import Header from './Header.js';
 import {colIsEditable} from './derivedState';
+import computedStyles from './computedStyles';
 
 function deepMerge(a, b) {
   return (R.is(Object, a) && R.is(Object, b)) ? R.mergeWith(deepMerge, a, b) : b;
@@ -396,14 +397,17 @@ export default class EditableTable extends Component {
             dataframe,
             setProps,
             display_row_count: n,
-            display_tail_count: m
+            display_tail_count: m,
+            table_style,
+            n_fixed_columns
         } = this.props;
 
-        return (
+        const table_component = (
             <table
                 ref={el => this._table = el}
                 onPaste={this.onPaste}
                 tabIndex={-1}
+                style={table_style}
             >
 
                 <Header {...this.props}/>
@@ -433,6 +437,16 @@ export default class EditableTable extends Component {
 
             </table>
         );
+
+        if (n_fixed_columns) {
+            return (
+                <div style={computedStyles.scroll.containerDiv(this.props)}>
+                    {table_component}
+                </div>
+            );
+        } else {
+            return table_component;
+        }
     }
 }
 
