@@ -65,13 +65,17 @@
 
 ***
 
-- vertical (and horizontal) panes
-- scoped css styles
-- scoped events
+- [x] vertical (and horizontal) panes
 
 ***
 
-- multiline Header
+- multiline header
+- scoped css styles
+- scoped events
+- css api
+
+***
+
 - Reactivity (may be the below are already addressed above)
     - Subset of columns / rows reactive
     - being able to identify specific cells which are updated

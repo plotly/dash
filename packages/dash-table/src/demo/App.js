@@ -7,45 +7,56 @@ class App extends Component {
         super();
         this.state = {
             dataframe: DATA,
-            n_fixed_columns: 1,
+            n_fixed_columns: 0,
             n_fixed_rows: 0,
+            merge_duplicate_headers: true,
             columns: [
 
                 {
                     'name': ' ',
+                    'rows': ['City', 'Canada', 'Toronto'],
                     'type': 'numeric',
-                    'width': 150
-                },
-
-                {
-                    'name': 'New York City',
-                    'type': 'numeric',
-                    'style': {
-                        'white-space': 'pre-line'
-                    },
-                    'width': 200
-                },
-
-                {
-                    'name': 'Paris',
-                    'type': 'numeric',
-                    'editable': true,
-                    'width': 200
+                    // 'width': 150,
                 },
 
                 {
                     'name': 'Montréal',
-                    // 'width': '70%',
+                    'rows': ['City', 'Canada', 'Montréal'],
                     'type': 'numeric',
                     'editable': false,
-                    'width': 200
+                    // 'width': 200
+                },
+
+                {
+                    'name': 'New York City',
+                    'rows': ['City', 'America', 'New York City'],
+                    'type': 'numeric',
+                    'style': {
+                        'white-space': 'pre-line'
+                    },
+                    // 'width': 200
+                },
+
+                {
+                    'name': 'Boston',
+                    'rows': ['City', 'America', 'Boston'],
+                    'type': 'numeric',
+                    // 'width': 200
+                },
+
+                {
+                    'name': 'Paris',
+                    'rows': ['City', 'France', 'Paris'],
+                    'type': 'numeric',
+                    'editable': true,
+                    // 'width': 200
                 },
 
                 {
                     'name': 'Climate',
+                    'rows': ['', 'Weather', 'Climate'],
                     // 'type': 'dropdown',
                     'type': 'numeric',
-                    // 'width': 100,
                     'options': [
                         'Humid',
                         'Wet',
@@ -53,15 +64,14 @@ class App extends Component {
                         'Tropical Beaches'
                     ].map(i => ({label: i, value: i})),
                     'clearable': true,
-                    'width': 200
+                    // 'width': 200
                 },
 
                 {
-                    'name': 'Boston',
-                    // 'width': '70%',
+                    'name': 'Temperature',
+                    'rows': ['', 'Weather', 'Temperature'],
                     'type': 'numeric',
-                    'width': 200
-                },
+                }
 
             ],
 
