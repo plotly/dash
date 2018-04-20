@@ -399,7 +399,8 @@ export default class EditableTable extends Component {
             display_row_count: n,
             display_tail_count: m,
             table_style,
-            n_fixed_columns
+            n_fixed_columns,
+            n_fixed_rows
         } = this.props;
 
         const table_component = (
@@ -438,7 +439,7 @@ export default class EditableTable extends Component {
             </table>
         );
 
-        if (n_fixed_columns) {
+        if (n_fixed_columns || n_fixed_rows) {
             return (
                 <div style={computedStyles.scroll.containerDiv(this.props)}>
                     {table_component}

@@ -7,7 +7,8 @@ class App extends Component {
         super();
         this.state = {
             dataframe: DATA,
-            n_fixed_columns: 2,
+            n_fixed_columns: 1,
+            n_fixed_rows: 0,
             columns: [
 
                 {
@@ -91,12 +92,13 @@ class App extends Component {
             expanded_rows: [],
             sortable: true,
 
-            display_row_count: 5,
+            display_row_count: 25,
             display_tail_count: 5,
 
-            width: 300,
+            width: 500,
+            height: 500,
             table_style: {
-                'tableLayout': 'inherit'
+                'tableLayout': 'inherit',
             }
 
         }

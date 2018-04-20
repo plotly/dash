@@ -8,6 +8,7 @@ import angleRight from '@fortawesome/fontawesome-free-solid/faAngleRight';
 import angleDown from '@fortawesome/fontawesome-free-solid/faAngleDown';
 
 import Cell from './Cell';
+import computedStyles from './computedStyles';
 
 export default class Row extends Component {
     shouldComponentUpdate(nextProps, nextState) {
@@ -143,7 +144,7 @@ export default class Row extends Component {
         )});
 
         return (
-            <tr>
+            <tr style={computedStyles.scroll.row(this.props, idx + 1)}>
                 {collapsableCell}
 
                 {cells}

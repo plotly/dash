@@ -75,7 +75,7 @@ export default class Header extends Component {
                 style.minWidth = c.width;
             }
 
-            style = R.merge(style, computedStyles.scroll.cell(this.props, i))
+            style = R.merge(style, computedStyles.scroll.cell(this.props, i, 0))
 
             return (
                 <th
@@ -106,7 +106,7 @@ export default class Header extends Component {
             );
         });
 
-        const rowStyle = computedStyles.scroll.row(this.props);
+        const rowStyle = computedStyles.scroll.row(this.props, 0);
 
         return (
             <thead>
