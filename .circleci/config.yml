@@ -1,0 +1,61 @@
+version: 2
+
+workflows:
+    version: 2
+    test:
+        jobs:
+            - test-3.6
+            - test-3.5
+            - test-2.7
+
+jobs:
+    test-3.6: &test-template
+        docker:
+            - image: circleci/python:3.6-browsers
+        working_directory: ~/repo
+
+        steps:
+            - checkout
+
+            - restore_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+
+            - run:
+                name: Install dependencies
+                command: |
+                    sudo pip install virtualenv
+                    python -m venv venv || virtualenv venv
+                    . venv/bin/activate
+                    pip install -r dev-requirements.txt --quiet
+
+            - save_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+                paths:
+                    - "venv"
+
+            - run:
+                name: Run lint
+                command: |
+                    . venv/bin/activate
+                    flake8 dash setup.py
+                    pylint dash setup.py
+
+            - run:
+                name: Run tests
+                command: |
+                    . venv/bin/activate
+                    python --version
+                    python -m unittest tests.test_integration
+                    python -m unittest tests.test_react
+                    python -m unittest tests.test_resources
+
+
+    test-3.5:
+        <<: *test-template
+        docker:
+            - image: circleci/python:3.5-browsers
+
+    test-2.7:
+        <<: *test-template
+        docker:
+            - image: circleci/python:2.7-browsers
