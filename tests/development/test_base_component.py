@@ -17,6 +17,7 @@ from dash.development.base_component import (
 Component._prop_names = ('id', 'a', 'children', 'style', )
 Component._type = 'TestComponent'
 Component._namespace = 'test_namespace'
+Component._valid_wildcard_attributes = ['data-', 'aria-']
 
 
 def nested_tree():
@@ -411,6 +412,25 @@ class TestComponent(unittest.TestCase):
         )
         """
 
+    def test_to_plotly_json_with_wildcards(self):
+        c = Component(id='a', **{'aria-expanded': 'true',
+                                 'data-toggle': 'toggled',
+                                 'data-none': None})
+        c._prop_names = ('id',)
+        c._type = 'MyComponent'
+        c._namespace = 'basic'
+        self.assertEqual(
+            c.to_plotly_json(),
+            {'namespace': 'basic',
+             'props': {
+                'aria-expanded': 'true',
+                'data-toggle': 'toggled',
+                'data-none': None,
+                'id': 'a',
+              },
+             'type': 'MyComponent'}
+        )
+
     def test_len(self):
         self.assertEqual(len(Component()), 0)
         self.assertEqual(len(Component(children='Hello World')), 1)
@@ -580,6 +600,16 @@ class TestGenerateClass(unittest.TestCase):
             "Table(Table(children=Table(id='1'), id='2'))"
         )
 
+    def test_repr_with_wildcards(self):
+        c = self.ComponentClass(id='1', **{"data-one": "one",
+                                            "aria-two": "two"})
+        data_first = "Table(id='1', data-one='one', aria-two='two')"
+        aria_first = "Table(id='1', aria-two='two', data-one='one')"
+        repr_string = repr(c)
+        if not (repr_string == data_first or repr_string == aria_first):
+            raise Exception("%s\nDoes not equal\n%s\nor\n%s" %
+                            (repr_string, data_first, aria_first))
+
     def test_docstring(self):
         assert_docstring(self.assertEqual, self.ComponentClass.__doc__)
 
@@ -674,6 +704,10 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['customArrayProp', 'list'],
 
+            ['data-*', 'string'],
+
+            ['aria-*', 'string'],
+
             ['id', 'string'],
 
             ['dashEvents', "a value equal to: 'restyle', 'relayout', 'click'"]
@@ -749,6 +783,8 @@ def assert_docstring(assertEqual, docstring):
 
             "- customProp (optional)",
             "- customArrayProp (list; optional)",
+            '- data-* (string; optional)',
+            '- aria-* (string; optional)',
             '- id (string; optional)',
             '',
             "Available events: 'restyle', 'relayout', 'click'",

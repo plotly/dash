@@ -1,4 +1,7 @@
 from multiprocessing import Value
+import datetime
+import itertools
+import re
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_flow_example
@@ -67,6 +70,60 @@ class Tests(IntegrationTests):
 
         assert_clean_console(self)
 
+    def test_wildcard_callback(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+                value='initial value'
+            ),
+            html.Div(
+                html.Div([
+                    1.5,
+                    None,
+                    'string',
+                    html.Div(id='output-1', **{'data-cb': 'initial value',
+                                               'aria-cb': 'initial value'})
+                ])
+            )
+        ])
+
+        input_call_count = Value('i', 0)
+
+        @app.callback(Output('output-1', 'data-cb'), [Input('input', 'value')])
+        def update_data(value):
+            input_call_count.value = input_call_count.value + 1
+            return value
+
+        @app.callback(Output('output-1', 'children'),
+                      [Input('output-1', 'data-cb')])
+        def update_text(data):
+            return data
+
+        self.startServer(app)
+        output1 = self.wait_for_element_by_id('output-1')
+        wait_for(lambda: output1.text == 'initial value')
+        self.percy_snapshot(name='wildcard-callback-1')
+
+        input1 = self.wait_for_element_by_id('input')
+        input1.clear()
+
+        input1.send_keys('hello world')
+
+        output1 = lambda: self.wait_for_element_by_id('output-1')
+        wait_for(lambda: output1().text == 'hello world')
+        self.percy_snapshot(name='wildcard-callback-2')
+
+        self.assertEqual(
+            input_call_count.value,
+            # an initial call
+            1 +
+            # one for each hello world character
+            len('hello world')
+        )
+
+        assert_clean_console(self)
+
     def test_aborted_callback(self):
         """Raising PreventUpdate prevents update and triggering dependencies"""
 
@@ -115,6 +172,64 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
         self.percy_snapshot(name='aborted')
+
+    def test_wildcard_data_attributes(self):
+        app = dash.Dash()
+        test_time = datetime.datetime(2012, 1, 10, 2, 3)
+        test_date = datetime.date(test_time.year, test_time.month,
+                                  test_time.day)
+        app.layout = html.Div([
+            html.Div(
+                id="inner-element",
+                **{
+                    'data-string': 'multiple words',
+                    'data-number': 512,
+                    'data-none': None,
+                    'data-date': test_date,
+                    'aria-progress': 5
+                }
+            )
+        ], id='data-element')
+
+        self.startServer(app)
+
+        div = self.wait_for_element_by_id('data-element')
+
+        # React wraps text and numbers with e.g. <!-- react-text: 20 -->
+        # Remove those
+        comment_regex = '<!--[^\[](.*?)-->'
+
+        # Somehow the html attributes are unordered.
+        # Try different combinations (they're all valid html)
+        permutations = itertools.permutations([
+            'id="inner-element"',
+            'data-string="multiple words"',
+            'data-number="512"',
+            'data-date="%s"' % (test_date),
+            'aria-progress="5"'
+        ], 5)
+        passed = False
+        for i, permutation in enumerate(permutations):
+            actual_cleaned = re.sub(comment_regex, '',
+                                    div.get_attribute('innerHTML'))
+            expected_cleaned = re.sub(
+                comment_regex,
+                '',
+                "<div PERMUTE></div>"
+                .replace('PERMUTE', ' '.join(list(permutation)))
+            )
+            passed = passed or (actual_cleaned == expected_cleaned)
+            if passed:
+                break
+        if not passed:
+            raise Exception(
+                'HTML does not match\nActual:\n{}\n\nExpected:\n{}'.format(
+                    actual_cleaned,
+                    expected_cleaned
+                )
+            )
+
+        assert_clean_console(self)
 
     def test_flow_component(self):
         app = dash.Dash()
