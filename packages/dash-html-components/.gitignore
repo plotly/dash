@@ -1,3 +1,4 @@
+.tox
 build/
 dist/
 dash_html_components/metadata.json
