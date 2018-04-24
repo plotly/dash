@@ -1,19 +1,15 @@
-html {
+.dash-spreadsheet {
   box-sizing: border-box;
 }
-body {
-    margin: 0;
-    padding: 0;
-}
-*, *:before, *:after {
+.dash-spreadsheet *, .dash-spreadsheet *:before, .dash-spreadsheet *:after {
   box-sizing: inherit;
 }
 
-textarea {
+.dash-spreadsheet textarea {
     white-space: pre;
 }
 
-table {
+.dash-spreadsheet table {
     border-collapse: collapse;
     table-layout: fixed;
     font-size: 1rem;
@@ -32,11 +28,11 @@ table {
 }
 
 /* focus happens after copying to clipboard */
-table:focus {
+.dash-spreadsheet table:focus {
     outline: none;
 }
 
-thead {
+.dash-spreadsheet thead {
     display: table-row-group;
 }
 
@@ -46,7 +42,7 @@ thead {
     background-color: var(--background-color-ellipses)
 }
 
-td, th {
+.dash-spreadsheet td, .dash-spreadsheet th {
     padding-left: 2px;
     padding-right: 2px;
     padding-bottom: 2px;
@@ -61,19 +57,19 @@ td, th {
     text-align: right;
 }
 
-th {
+.dash-spreadsheet th {
     box-shadow:
         inset 1px 0px 0px 0px var(--border),
         inset 0px 1px 0px 0px var(--border);
 }
 
-:not(.cell--active--not-start) tr:hover,
+.dash-spreadsheet :not(.cell--active--not-start) tr:hover,
 tr:hover input :not(.cell--active--not-start) {
     background-color: var(--hover);
 }
 
 
-th {
+.dash-spreadsheet th {
     background-color: rgb(250, 250, 250);
 }
 
@@ -86,7 +82,7 @@ th {
     text-align: center;
 }
 
-input {
+.dash-spreadsheet input {
     padding: 0px;
     margin: 0px;
     height: calc(100% - 1px);
@@ -101,13 +97,13 @@ input {
     background-color: transparent; /* so as to not overlay the box shadow */
 }
 
-input.unfocused {
+.dash-spreadsheet input.unfocused {
     color: transparent;
     text-shadow: 0 0 0 var(--text-color);
     cursor: default;
 }
 
-input.unfocused:focus {
+.dash-spreadsheet input.unfocused:focus {
     outline: none;
 }
 
@@ -129,11 +125,11 @@ input.unfocused:focus {
     color: var(--accent);
 }
 
-tr:hover .toggle-row {
+.dash-spreadsheet tr:hover .toggle-row {
     color: var(--accent);
 }
 
-td {
+.dash-spreadsheet td {
     position: relative;
 }
 

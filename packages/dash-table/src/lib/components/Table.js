@@ -441,12 +441,18 @@ export default class EditableTable extends Component {
 
         if (n_fixed_columns || n_fixed_rows) {
             return (
-                <div style={computedStyles.scroll.containerDiv(this.props)}>
+                <div
+                    className="dash-spreadsheet"
+                    style={computedStyles.scroll.containerDiv(this.props)}>
                     {table_component}
                 </div>
             );
         } else {
-            return table_component;
+            return (
+                <div className="dash-spreadsheet">
+                    {table_component}
+                </div>
+            )
         }
     }
 }
