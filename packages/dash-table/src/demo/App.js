@@ -11,46 +11,13 @@ class App extends Component {
             n_fixed_rows: 0,
             merge_duplicate_headers: true,
             columns: [
-
                 {
-                    'name': ' ',
-                    'rows': ['City', 'Canada', 'Toronto'],
+                    'name': 'Temperature',
+                    'rows': ['', 'Weather', 'Temperature'],
                     'type': 'numeric',
-                    // 'width': 150,
+                    'width': 150
                 },
 
-                {
-                    'name': 'Montréal',
-                    'rows': ['City', 'Canada', 'Montréal'],
-                    'type': 'numeric',
-                    'editable': false,
-                    // 'width': 200
-                },
-
-                {
-                    'name': 'New York City',
-                    'rows': ['City', 'America', 'New York City'],
-                    'type': 'numeric',
-                    'style': {
-                        'white-space': 'pre-line'
-                    },
-                    // 'width': 200
-                },
-
-                {
-                    'name': 'Boston',
-                    'rows': ['City', 'America', 'Boston'],
-                    'type': 'numeric',
-                    // 'width': 200
-                },
-
-                {
-                    'name': 'Paris',
-                    'rows': ['City', 'France', 'Paris'],
-                    'type': 'numeric',
-                    'editable': true,
-                    // 'width': 200
-                },
 
                 {
                     'name': 'Climate',
@@ -64,14 +31,49 @@ class App extends Component {
                         'Tropical Beaches'
                     ].map(i => ({label: i, value: i})),
                     'clearable': true,
-                    // 'width': 200
+                    'width': 200
+                },
+
+
+                {
+                    'name': ' ',
+                    'rows': ['City', 'Canada', 'Toronto'],
+                    'type': 'numeric',
+                    'width': 150,
                 },
 
                 {
-                    'name': 'Temperature',
-                    'rows': ['', 'Weather', 'Temperature'],
+                    'name': 'Montréal',
+                    'rows': ['City', 'Canada', 'Montréal'],
                     'type': 'numeric',
-                }
+                    'editable': false,
+                    'width': 150
+                },
+
+                {
+                    'name': 'New York City',
+                    'rows': ['City', 'America', 'New York City'],
+                    'type': 'numeric',
+                    'style': {
+                        'white-space': 'pre-line'
+                    },
+                    'width': 150
+                },
+
+                {
+                    'name': 'Boston',
+                    'rows': ['City', 'America', 'Boston'],
+                    'type': 'numeric',
+                    'width': 150
+                },
+
+                {
+                    'name': 'Paris',
+                    'rows': ['City', 'France', 'Paris'],
+                    'type': 'numeric',
+                    'editable': true,
+                    'width': 150
+                },
 
             ],
 
@@ -105,7 +107,7 @@ class App extends Component {
             display_row_count: 25,
             display_tail_count: 5,
 
-            width: 500,
+            width: 400,
             height: 500,
             table_style: {
                 'tableLayout': 'inherit',

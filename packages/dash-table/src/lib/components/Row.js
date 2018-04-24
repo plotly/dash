@@ -144,7 +144,14 @@ export default class Row extends Component {
         )});
 
         return (
-            <tr style={computedStyles.scroll.row(this.props, idx + 1)}>
+            <tr style={computedStyles.scroll.row(
+                    this.props,
+                    idx + (
+                        R.has('rows', this.props.columns[0]) ?
+                        this.props.columns[0].rows.length :
+                        1
+                    )
+                )}>
                 {collapsableCell}
 
                 {cells}

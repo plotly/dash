@@ -60,7 +60,7 @@ export default class Header extends Component {
         if (!mergeCells) {
             columnIndices = R.range(0, columns.length);
         } else {
-            columnIndices = [0]; // [0, 5]
+            columnIndices = [0];
             let compareIndex = 0;
             labels.forEach((label, i) => {
                 if (label === labels[compareIndex]) {
@@ -75,13 +75,8 @@ export default class Header extends Component {
         return columnIndices.map((i, j) => {
             const c = columns[i];
             if (c.hidden) return null;
-            let style = c.style || {
+            let style = R.merge({}, c.style) || {
             };
-            if (c.width) {
-                style.width = c.width;
-                style.maxWidth = c.width;
-                style.minWidth = c.width;
-            }
 
             let colSpan;
             if (!mergeCells) {
@@ -92,18 +87,37 @@ export default class Header extends Component {
                 } else {
                     colSpan = columnIndices[j + 1] - i;
                 }
+            }
 
+            if (c.width && colSpan === 1) {
+                style.width = c.width;
+                style.maxWidth = c.width;
+                style.minWidth = c.width;
             }
 
             style = R.merge(style, computedStyles.scroll.cell(this.props, i, 0))
+
+            if (colSpan !== 1) {
+                const widths = R.range(
+                    i,
+                    R.min(i + colSpan, labels.length)
+                ).map(k =>
+                    R.type(columns[k].width) === 'Number' ?
+                    `${columns[k].width}px` : columns[k].width
+                );
+                style.width = `calc(${widths.join(' + ')})`;
+                style.maxWidth = style.width;
+                style.minWidth = style.width;
+            }
 
             return (
                 <th
                     colSpan={colSpan}
                     style={style}
                     className={`${
-                        i !== (columns.length - 1)
-                        ? '' : 'cell--right-last'
+                        (i === (columns.length - 1) ||
+                         i === R.last(columnIndices)) ?
+                         'cell--right-last' : ''
                     }`}
                 >
                     {rowIsSortable ? (
@@ -140,8 +154,6 @@ export default class Header extends Component {
             n_fixed_columns
         } = this.props;
 
-        const rowStyle = computedStyles.scroll.row(this.props, 0);
-
         let headerRows;
 
         const collapsableCell = (
@@ -150,6 +162,9 @@ export default class Header extends Component {
         ));
 
         if (!R.has('rows', columns[0])) {
+
+            const rowStyle = computedStyles.scroll.row(this.props, 0);
+
             headerRows = (
                 <tr style={rowStyle}>
                     {collapsableCell}
@@ -162,6 +177,9 @@ export default class Header extends Component {
         } else {
             headerRows = [];
             R.range(0, columns[0].rows.length).forEach(i => {
+
+                const rowStyle = computedStyles.scroll.row(this.props, i);
+
                 headerRows.push(
                     <tr style={rowStyle}>
                         {collapsableCell}
