@@ -1,21 +1,23 @@
-.Select, .Select-control {
+.dash-spreadsheet .Select,
+.dash-spreadsheet .Select-control {
     border: none;
     cursor: pointer;
     height: 26px;
     border: none;
 }
 
-.Select:hover, .Select-control:hover {
+.dash-spreadsheet .Select:hover,
+.dash-spreadsheet .Select-control:hover {
     border: none;
     box-shadow: none;
     cursor: pointer;
 }
 
-.Select-menu-outer {
+.dash-spreadsheet .Select-menu-outer {
     z-index: 100;
 }
 
-.Select-arrow {
+.dash-spreadsheet .Select-arrow {
     border-top-color: var(--faded-dropdown);
     border-left-color: transparent;
     border-right-color: transparent;
@@ -23,83 +25,86 @@
 }
 
 
-.Select-control:hover .Select-arrow {
+.dash-spreadsheet .Select-control:hover .Select-arrow {
     border-top-color: var(--accent);
     border-left-color: transparent;
     border-right-color: transparent;
     border-bottom-color: transparent;
 }
 
-.is-open > .Select-control .Select-arrow {
+.dash-spreadsheet .is-open > .Select-control .Select-arrow {
     border-bottom-color: var(--background-color-8-react-select);
     border-left-color: transparent;
     border-right-color: transparent;
     border-top-color: transparent;
 }
 
-.Select--multi .Select-value,
-.Select--multi a.Select-value-label {
+.dash-spreadsheet .Select--multi .Select-value,
+.dash-spreadsheet .Select--multi a.Select-value-label {
     color: var(--color-8-react-select);
 }
 
-.Select {
+.dash-spreadsheet .Select {
     border-radius: 0;
 }
 
-.Select.is-disabled > .Select-control {
+.dash-spreadsheet .Select.is-disabled > .Select-control {
     border: none;
 }
 
-.Select--multi .Select-value-icon:hover, .Select--multi .Select-value-icon:focus {
+.dash-spreadsheet .Select--multi .Select-value-icon:hover,
+.dash-spreadsheet .Select--multi .Select-value-icon:focus {
     font-weight: bold;
 }
 
-.Select.is-disabled .Select-control {
+.dash-spreadsheet .Select.is-disabled .Select-control {
     cursor: not-allowed;
 }
 
-.Select-menu-outer {
+.dash-spreadsheet .Select-menu-outer {
   background-color: white;
   border: none;
   border-bottom: thin var(--border) solid;
   border-radius: 0;
   border-top: none;
 }
-.Select-option {
+
+.dash-spreadsheet .Select-option {
   background-color: inherit;
   color: var(--accent);
 }
-.Select-option:hover {
+
+.dash-spreadsheet .Select-option:hover {
     font-weight: bold;
     color: var(--accent);
     background-color: var(--hover);
 }
 
-.Select.is-focused:not(.is-open) > .Select-control {
+.dash-spreadsheet .Select.is-focused:not(.is-open) > .Select-control {
     border: none;
     -webkit-box-shadow: none;
     box-shadow: none;
     background: #fff;
 }
 
-.Select-option.is-focused {
+.dash-spreadsheet .Select-option.is-focused {
     background-color: white;
     color: var(--accent);
     font-weight: bold;
 }
 
-.Select-clear {
+.dash-spreadsheet .Select-clear {
     color: transparent;
 }
 .Select:hover .Select-clear {
     color: var(--accent);
 }
 
-.Select-control {
+.dash-spreadsheet .Select-control {
     padding-left: 2px;
 }
 
-.cell--active--not-start .Select-control {
+.dash-spreadsheet .cell--active--not-start .Select-control {
     background-color: var(--selected-background);
     border-radius: 0;
 }
