@@ -462,7 +462,7 @@ PlotlyGraph.propTypes = {
     /**
      * Function that fires events
      */
-    dashFireEvent: PropTypes.func
+    fireEvent: PropTypes.func
 }
 
 PlotlyGraph.defaultProps = {

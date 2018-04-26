@@ -1253,7 +1253,7 @@
         "required": false,
         "description": "Function that updates the state tree."
       },
-      "dashFireEvent": {
+      "fireEvent": {
         "type": {
           "name": "func"
         },
