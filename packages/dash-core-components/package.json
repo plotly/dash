@@ -16,7 +16,7 @@
     "publish-all": "npm publish && python setup.py sdist upload",
     "publish-pypi": "npm run prepublish && python setup.py sdist && twine upload --sign --skip-existing",
     "start": "./node_modules/.bin/builder run build-dev",
-    "test": "./node_modules/.bin/eslint --fix --ignore-path .gitignore --ext *.js src",
+    "test": "./node_modules/.bin/eslint --fix .",
     "test-watch": "./node_modules/.bin/builder run test-frontend-watch",
     "test-debug": "./node_modules/.bin/builder run test-frontend-debug",
     "uninstall-local": "pip uninstall dash-core-components -y"
