@@ -4,6 +4,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.10.1] - 2018-04-29
+### Added
+- `aria-*` and `data-*` attributes are now supported in all dash html components [#40](https://github.com/plotly/dash-html-components/pull/40)
+    These new keywords can be added using a dictionary expansion, e.g.
+    ```
+    html.Div(id="my-div", **{"data-toggle": "toggled", "aria-toggled": "true"})
+    ```
+- The `role` attribute was added to all components
+- The `autoComplete` property was added to `textarea`
+
 ## [0.10.0] - 2018-04-03
 ### Added
 - Previously, if a user named their app file `dash.py`, an unhelpful error
