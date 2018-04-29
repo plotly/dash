@@ -71,6 +71,11 @@ Textarea.propTypes = {
     
 
     /**
+     * Indicates whether controls in this form can by default have their values automatically completed by the browser.
+     */
+    'autoComplete': PropTypes.string,
+
+    /**
      * The element should be automatically focused after the page loaded.
      */
     'autoFocus': PropTypes.string,

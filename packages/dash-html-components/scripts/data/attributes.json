@@ -43,7 +43,8 @@
         "autoComplete": {
             "elements": [
                 "form",
-                "input"
+                "input",
+                "textarea"
             ],
             "description": "Indicates whether controls in this form can by default have their values automatically completed by the browser."
         },
@@ -819,6 +820,21 @@
             "src",
             "type"
         ],
+        "textarea": [
+            "autoComplete",
+            "autoFocus",
+            "cols",
+            "disabled",
+            "form",
+            "maxLength",
+            "minLength",
+            "name",
+            "placeholder",
+            "readOnly",
+            "required",
+            "rows",
+            "wrap"
+        ],
         "button": [
             "autoFocus",
             "disabled",
@@ -844,20 +860,6 @@
             "name",
             "required",
             "size"
-        ],
-        "textarea": [
-            "autoFocus",
-            "cols",
-            "disabled",
-            "form",
-            "maxLength",
-            "minLength",
-            "name",
-            "placeholder",
-            "readOnly",
-            "required",
-            "rows",
-            "wrap"
         ],
         "audio": [
             "autoPlay",
