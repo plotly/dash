@@ -210,7 +210,17 @@ export function notifyObservers(payload) {
                     return;
                 }
                 InputGraph.dependenciesOf(node).forEach(outputId => {
-                    outputObservers.push(outputId);
+                    /*
+                     * Multiple input properties that update the same
+                     * output can change at once.
+                     * For example, `n_clicks` and `n_clicks_previous`
+                     * on a button component.
+                     * We only need to update the output once for this
+                     * update, so keep outputObservers unique.
+                     */
+                    if (!contains(outputId, outputObservers)) {
+                        outputObservers.push(outputId);
+                    }
                 });
             });
         }
