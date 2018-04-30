@@ -11,6 +11,7 @@ import time
 import re
 import itertools
 import json
+import unittest
 
 
 class Tests(IntegrationTests):
