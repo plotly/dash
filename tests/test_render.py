@@ -1825,3 +1825,54 @@ class Tests(IntegrationTests):
 
         # Reset react version
         dash_renderer._set_react_version(dash_renderer._DEFAULT_REACT_VERSION)
+
+
+    def test_multiple_properties_update_at_same_time_on_same_component(self):
+        call_count = Value('i', 0)
+
+        app = dash.Dash()
+        app.layout = html.Div([
+            html.Div(id='container'),
+            html.Button('Click', id='button-1', n_clicks=0, n_clicks_previous=0),
+            html.Button('Click', id='button-2', n_clicks=0, n_clicks_previous=0)
+        ])
+
+        @app.callback(
+            Output('container', 'children'),
+            [Input('button-1', 'n_clicks'),
+             Input('button-1', 'n_clicks_previous'),
+             Input('button-2', 'n_clicks'),
+             Input('button-2', 'n_clicks_previous')])
+        def update_output(*args):
+            call_count.value += 1
+            return '{}, {}, {}, {}'.format(*args)
+
+        self.startServer(app)
+
+        self.wait_for_element_by_css_selector('#container')
+        time.sleep(2)
+        self.wait_for_text_to_equal(
+            '#container', '0, 0, 0, 0')
+        self.assertEqual(call_count.value, 1)
+        self.snapshot('button initialization 1')
+
+        self.driver.find_element_by_css_selector('#button-1').click()
+        time.sleep(2)
+        self.wait_for_text_to_equal(
+            '#container', '0, 1, 0, 0')
+        self.assertEqual(call_count.value, 2)
+        self.snapshot('button-1 click')
+
+        self.driver.find_element_by_css_selector('#button-2').click()
+        time.sleep(2)
+        self.wait_for_text_to_equal(
+            '#container', '1, 1, 0, 1')
+        self.assertEqual(call_count.value, 3)
+        self.snapshot('button-2 click')
+
+        self.driver.find_element_by_css_selector('#button-2').click()
+        time.sleep(2)
+        self.wait_for_text_to_equal(
+            '#container', '1, 1, 1, 2')
+        self.assertEqual(call_count.value, 4)
+        self.snapshot('button-2 click again')
