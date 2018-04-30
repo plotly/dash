@@ -1,5 +1,5 @@
 dash_core_components==0.12.0
-dash_html_components==0.11.0rc1
+dash_html_components==0.11.0rc5
 dash==0.18.3
 percy
 selenium

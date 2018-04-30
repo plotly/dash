@@ -1829,50 +1829,67 @@ class Tests(IntegrationTests):
 
     def test_multiple_properties_update_at_same_time_on_same_component(self):
         call_count = Value('i', 0)
+        timestamp_1 = Value('d', -5)
+        timestamp_2 = Value('d', -5)
 
         app = dash.Dash()
         app.layout = html.Div([
             html.Div(id='container'),
-            html.Button('Click', id='button-1', n_clicks=0, n_clicks_previous=0),
-            html.Button('Click', id='button-2', n_clicks=0, n_clicks_previous=0)
+            html.Button('Click', id='button-1', n_clicks=0, n_clicks_timestamp=-1),
+            html.Button('Click', id='button-2', n_clicks=0, n_clicks_timestamp=-1)
         ])
 
         @app.callback(
             Output('container', 'children'),
             [Input('button-1', 'n_clicks'),
-             Input('button-1', 'n_clicks_previous'),
+             Input('button-1', 'n_clicks_timestamp'),
              Input('button-2', 'n_clicks'),
-             Input('button-2', 'n_clicks_previous')])
+             Input('button-2', 'n_clicks_timestamp')])
         def update_output(*args):
             call_count.value += 1
-            return '{}, {}, {}, {}'.format(*args)
+            timestamp_1.value = args[1]
+            timestamp_2.value = args[3]
+            return '{}, {}'.format(args[0], args[2])
 
         self.startServer(app)
 
         self.wait_for_element_by_css_selector('#container')
         time.sleep(2)
-        self.wait_for_text_to_equal(
-            '#container', '0, 0, 0, 0')
+        self.wait_for_text_to_equal('#container', '0, 0')
+        self.assertEqual(timestamp_1.value, -1)
+        self.assertEqual(timestamp_2.value, -1)
         self.assertEqual(call_count.value, 1)
         self.snapshot('button initialization 1')
 
         self.driver.find_element_by_css_selector('#button-1').click()
         time.sleep(2)
-        self.wait_for_text_to_equal(
-            '#container', '0, 1, 0, 0')
+        self.wait_for_text_to_equal('#container', '1, 0')
+        self.assertTrue(
+            timestamp_1.value >
+            ((time.time()  - (24 * 60 * 60)) * 1000))
+        self.assertEqual(timestamp_2.value, -1)
         self.assertEqual(call_count.value, 2)
         self.snapshot('button-1 click')
+        prev_timestamp_1 = timestamp_1.value
 
         self.driver.find_element_by_css_selector('#button-2').click()
         time.sleep(2)
-        self.wait_for_text_to_equal(
-            '#container', '1, 1, 0, 1')
+        self.wait_for_text_to_equal('#container', '1, 1')
+        self.assertEqual(timestamp_1.value, prev_timestamp_1)
+        self.assertTrue(
+            timestamp_2.value >
+            ((time.time()  - 24 * 60 * 60) * 1000))
         self.assertEqual(call_count.value, 3)
         self.snapshot('button-2 click')
+        prev_timestamp_2 = timestamp_2.value
 
         self.driver.find_element_by_css_selector('#button-2').click()
         time.sleep(2)
-        self.wait_for_text_to_equal(
-            '#container', '1, 1, 1, 2')
+        self.wait_for_text_to_equal('#container', '1, 2')
+        self.assertEqual(timestamp_1.value, prev_timestamp_1)
+        self.assertTrue(
+            timestamp_2.value >
+            prev_timestamp_2)
+        self.assertTrue(timestamp_2.value > timestamp_1.value)
         self.assertEqual(call_count.value, 4)
         self.snapshot('button-2 click again')
