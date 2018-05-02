@@ -17,7 +17,8 @@ setup(
     install_requires=[
         'Flask>=0.12',
         'flask-compress',
-        'plotly'
+        'plotly',
+        'dash_renderer',
     ],
     url='https://plot.ly/dash',
     classifiers=[
