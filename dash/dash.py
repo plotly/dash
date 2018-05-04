@@ -121,6 +121,8 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self.routes = []
+        self.head = None
+        self.footer = None
 
     @property
     def layout(self):
@@ -294,14 +296,16 @@ class Dash(object):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
-        title = getattr(self, 'title', 'Dash')
+        custom_head_html = self._generate_head()
+        custom_footer_html = self._generate_footer()
+
         return '''
         <!DOCTYPE html>
         <html>
             <head>
                 <meta charset="UTF-8">
-                <title>{}</title>
-                {}
+                {component_css}
+                {custom_head_html}
             </head>
             <body>
                 <div id="react-entry-point">
@@ -310,12 +314,18 @@ class Dash(object):
                     </div>
                 </div>
                 <footer>
-                    {}
-                    {}
+                    {config}
+                    {component_scripts}
+                    {custom_footer_html}
                 </footer>
             </body>
         </html>
-        '''.format(title, css, config, scripts)
+        '''.format(
+            component_css=css,
+            config=config,
+            component_scripts=scripts,
+            custom_head_html=custom_head_html,
+            custom_footer_html=custom_footer_html)
 
     def dependencies(self):
         return flask.jsonify([
@@ -336,6 +346,40 @@ class Dash(object):
             'Yo! `react` is no longer used. \n'
             'Use `callback` instead. `callback` has a new syntax too, '
             'so make sure to call `help(app.callback)` to learn more.')
+
+    def _generate_footer_or_header_html(self, footer_or_header):
+        section = getattr(self, footer_or_header)
+        if isinstance(section, collections.Callable):
+            section_instance = section()
+        else:
+            section_instance = section
+
+        def convert_to_html(element):
+            if isinstance(element, Component):
+                element_html = element.to_html5()
+            elif isinstance(element, basestring):
+                element_html = element
+            elif element is None:
+                element_html = ''
+            return element_html
+
+        if isinstance(section_instance, collections.Iterable):
+            section_html = '\n'.join(
+                [convert_to_html(element) for element in section_instance])
+        else:
+            section_html = convert_to_html(section_instance)
+
+        return section_html
+
+    def _generate_footer(self):
+        return self._generate_footer_or_header_html('footer')
+
+    def _generate_head(self):
+        head_html = self._generate_footer_or_header_html('head')
+        if head_html == '':
+            head_html = '<title>{}</title>'.format(
+                getattr(self, 'title', 'Dash'))
+        return head_html
 
     def _validate_callback(self, output, inputs, state, events):
         # pylint: disable=too-many-branches
