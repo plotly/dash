@@ -20,6 +20,12 @@ from .development.base_component import Component
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.backends import default_backend
+
+
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments
@@ -31,6 +37,7 @@ class Dash(object):
             static_folder='static',
             url_base_pathname='/',
             compress=True,
+            encryption_keystring='',
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -121,6 +128,23 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self.routes = []
+
+        self.fernet_key = None
+
+        if encryption_keystring != '':
+            if len(encryption_keystring) < 30:
+                raise Exception(
+                ''
+                'encryption_keystring must be at least 30 characters.')
+            else:
+                hkdf = HKDF(
+                        algorithm=hashes.SHA256(),
+                        length=32,
+                        salt=None,
+                        info=None,
+                        backend=default_backend()
+                    )
+                self.fernet_key = hkdf.derive(encryption_keystring)
 
     @property
     def layout(self):
@@ -513,6 +537,18 @@ class Dash(object):
             def add_context(*args, **kwargs):
 
                 output_value = func(*args, **kwargs)
+
+                if output.component_property.startswith("encrypted_"):
+                    if not self.fernet_key:
+                        raise Exception(
+                        ''
+                        'You must provide an encryption_keystring '
+                        'to use encrypted_* properties.')
+                    f = Fernet(self.fernet_key)
+                    output_value_str = json.dumps(output_value,
+                                            cls=plotly.utils.PlotlyJSONEncoder)
+                    output_value = f.encrypt(bytes(output_value_str))
+
                 response = {
                     'response': {
                         'props': {
@@ -547,6 +583,14 @@ class Dash(object):
                 c['property'] == component_registration['property'] and
                 c['id'] == component_registration['id']
             ][0])
+            if component_registration['property'].startswith("encrypted_"):
+                if not self.fernet_key:
+                    raise Exception(
+                    ''
+                    'You must provide an encryption_keystring '
+                    'to use encrypted_* properties.')
+                f = Fernet(self.fernet_key)
+                args[-1] = json.loads(f.decrypt(bytes(args[-1])))
 
         for component_registration in self.callback_map[target_id]['state']:
             args.append([
