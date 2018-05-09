@@ -205,11 +205,11 @@ class Tests(IntegrationTests):
             'id="inner-element"',
             'data-string="multiple words"',
             'data-number="512"',
-            'data-date="%s"' % (test_date),
+            'data-date="%s"' % test_date,
             'aria-progress="5"'
         ], 5)
         passed = False
-        for i, permutation in enumerate(permutations):
+        for permutation in permutations:
             actual_cleaned = re.sub(comment_regex, '',
                                     div.get_attribute('innerHTML'))
             expected_cleaned = re.sub(
