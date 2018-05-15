@@ -7,6 +7,9 @@ import {keys, merge} from 'ramda';
 import Cell from './Cell';
 import computedStyles from './computedStyles';
 
+const getColLength = c => (Array.isArray(c.name) ? c.name.length : 1);
+const getColNameAt = (c, i) => c.name[i];
+
 export default class Header extends Component {
     constructor() {
         super();
@@ -14,23 +17,23 @@ export default class Header extends Component {
         this.renderHeaderCells = this.renderHeaderCells.bind(this);
     }
 
-    sort(colName) {
+    sort(colId) {
         const {dataframe, restore_index, setProps, sort} = this.props;
 
         let newSort = sort;
 
-        let colSort = R.find(R.propEq('column', colName))(sort);
+        let colSort = R.find(R.propEq('column', colId))(sort);
         if (colSort) {
             if (colSort.direction === 'desc') {
                 colSort.direction = 'asc';
             } else if (colSort.direction === 'asc') {
                 newSort = newSort.filter(
-                    R.complement(R.propEq('column', colName))
+                    R.complement(R.propEq('column', colId))
                 );
             }
         } else {
             newSort.push({
-                column: colName,
+                column: colId,
                 direction: 'desc',
             });
         }
@@ -163,9 +166,10 @@ export default class Header extends Component {
             <th className="expanded-row--empty-cell" />
         );
 
-        if (!R.has('rows', columns[0])) {
+        // TODO calculate in lifecycle function
+        const headerDepth = Math.max.apply(Math, columns.map(getColLength));
+        if (headerDepth === 1) {
             const rowStyle = computedStyles.scroll.row(this.props, 0);
-
             headerRows = (
                 <tr style={rowStyle}>
                     {collapsableCell}
@@ -177,19 +181,18 @@ export default class Header extends Component {
             );
         } else {
             headerRows = [];
-            R.range(0, columns[0].rows.length).forEach(i => {
+            R.range(0, headerDepth).forEach(i => {
                 const rowStyle = computedStyles.scroll.row(this.props, i);
-
                 headerRows.push(
                     <tr style={rowStyle}>
                         {collapsableCell}
                         {this.renderHeaderCells({
-                            labels: R.pluck(i, R.pluck('rows', columns)),
+                            labels: columns.map(c => getColNameAt(c, i)),
                             rowIsSortable:
-                                sortable && i + 1 === columns[i].rows.length,
+                                sortable && i + 1 === columns[i].name.length,
                             mergeCells:
                                 merge_duplicate_headers &&
-                                i + 1 !== columns[i].rows.length,
+                                i + 1 !== columns[i].name.length,
                         })}
                     </tr>
                 );
