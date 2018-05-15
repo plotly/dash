@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Table from './Table.js';
 import {DATA} from './data.js';
-import './App.css'
+import './App.css';
 
 class App extends Component {
     constructor() {
@@ -9,56 +9,54 @@ class App extends Component {
         this.state = {
             dataframe: DATA,
             columns: [
-
                 {
-                    'name': ' ',
-                    'type': 'numeric',
-                    'width': 30
+                    name: ' ',
+                    type: 'numeric',
+                    width: 30,
                 },
 
                 {
-                    'name': 'New York City',
-//                    'width': '80px',
-                    'type': 'numeric',
-                    'style': {
-                        'white-space': 'pre-line'
-                    }
+                    name: 'New York City',
+                    //                    'width': '80px',
+                    type: 'numeric',
+                    style: {
+                        'white-space': 'pre-line',
+                    },
                 },
 
                 {
-                    'name': 'Paris',
+                    name: 'Paris',
                     // 'width': '20%',
-                    'type': 'numeric',
+                    type: 'numeric',
                     // 'hidden': true
-                    'editable': false
+                    editable: false,
                 },
 
                 {
-                    'name': 'Montréal',
+                    name: 'Montréal',
                     // 'width': '70%',
-                    'type': 'numeric'
+                    type: 'numeric',
                 },
 
                 {
-                    'name': 'Climate',
-                    'type': 'dropdown',
-                    'width': 200,
-                    'options': [
-                        'Humid',
-                        'Wet',
-                        'Snowy',
-                        'Tropical Beaches'
-                    ].map(i => ({label: i, value: i})),
-                    'clearable': true
+                    name: 'Climate',
+                    type: 'dropdown',
+                    width: 200,
+                    options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(
+                        i => ({
+                            label: i,
+                            value: i,
+                        })
+                    ),
+                    clearable: true,
                 },
-
             ],
 
             sort: [
                 {
-                    'column': 'Paris',
-                    'direction': 'desc'
-                }
+                    column: 'Paris',
+                    direction: 'desc',
+                },
             ],
 
             start_cell: [1, 0],
@@ -72,7 +70,7 @@ class App extends Component {
                 [1, 1],
                 [1, 2],
                 [1, 3],
-                [1, 4]
+                [1, 4],
             ],
 
             editable: true,
@@ -82,9 +80,8 @@ class App extends Component {
             sortable: true,
 
             display_row_count: 50,
-            display_tail_count: 5
-
-        }
+            display_tail_count: 5,
+        };
     }
 
     render() {
@@ -93,17 +90,16 @@ class App extends Component {
                 <Table
                     setProps={newProps => {
                         console.info('--->', newProps);
-                        this.setState(newProps)
+                        this.setState(newProps);
                     }}
                     {...this.state}
                 />
 
-                <div style={{'columnCount': 3}}>
+                <div style={{columnCount: 3}}>
                     <pre>{JSON.stringify(this.state, null, 2)}</pre>
                 </div>
-
             </div>
-        )
+        );
     }
 }
 
@@ -112,18 +108,18 @@ class InputContainer extends Component {
         super();
         this.state = {
             value: 3,
-            isFocused: true
-        }
+            isFocused: true,
+        };
     }
 
     render() {
-        return <StatefulInput
-            value={this.state.value}
-            updateProps={
-                newProps => this.setState(newProps)
-            }
-            isFocused={this.state.isFocused}
-        />
+        return (
+            <StatefulInput
+                value={this.state.value}
+                updateProps={newProps => this.setState(newProps)}
+                isFocused={this.state.isFocused}
+            />
+        );
     }
 }
 
@@ -144,67 +140,71 @@ class StatefulInput extends Component {
 
     render() {
         return (
-            <div style={{
-                'padding': 50,
-            }}
+            <div
+                style={{
+                    padding: 50,
+                }}
             >
-                <button onClick={() => this.props.updateProps({
-                    isFocused: false
-                })}>
+                <button
+                    onClick={() =>
+                        this.props.updateProps({
+                            isFocused: false,
+                        })
+                    }
+                >
                     {'Unfocus'}
                 </button>
-                <button onClick={() => this.props.updateProps({
-                    isFocused: true
-                })}>
+                <button
+                    onClick={() =>
+                        this.props.updateProps({
+                            isFocused: true,
+                        })
+                    }
+                >
                     {'Focus'}
                 </button>
 
-                <div>
-                    {`Focused: ${this.props.isFocused}`}
-                </div>
+                <div>{`Focused: ${this.props.isFocused}`}</div>
 
                 <input
                     className={`${
-                        this.props.isFocused ?
-                        'focused' : 'unfocused'
+                        this.props.isFocused ? 'focused' : 'unfocused'
                     }`}
                     onChange={e => {
                         const newProps = {
-                            value: e.target.value
+                            value: e.target.value,
                         };
                         if (!this.props.focused) {
                             newProps.isFocused = true;
                         }
                         this.props.updateProps(newProps);
                     }}
-
                     onClick={e => {
-                        if(!this.props.isFocused) {
+                        if (!this.props.isFocused) {
                             console.warn('click - preventDefault');
                             e.preventDefault();
                             this.props.updateProps({
-                                isFocused: false
+                                isFocused: false,
                             });
                         }
                         return e;
                     }}
                     onDoubleClick={e => {
-                        if(!this.props.isFocused) {
+                        if (!this.props.isFocused) {
                             console.warn('dblclick - preventDefault');
                             e.preventDefault();
                             this.props.updateProps({
-                                isFocused: true
+                                isFocused: true,
                             });
                         }
                         return e;
                     }}
-
                     type="text"
-                    ref={el => this.el = el}
+                    ref={el => (this.el = el)}
                     value={this.props.value}
                 />
             </div>
-        )
+        );
     }
 }
 

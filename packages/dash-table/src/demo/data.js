@@ -5,15 +5,14 @@ import * as R from 'ramda';
 //     {'New York City': 7, 'Paris': 8, 'Montréal': 9},
 // ]
 
-
 export const DATA = R.range(1, 50).map(i => ({
     ' ': i,
     'New York City': i,
-    'Paris': i*10,
-    'Montréal': i*100,
-    'Climate': 'Tropical Beaches',
-    'Boston': i+i,
-    'Temperature': i+1
+    Paris: i * 10,
+    Montréal: i * 100,
+    Climate: 'Tropical Beaches',
+    Boston: i + i,
+    Temperature: i + 1
 }));
 
 // export const DATA = [

@@ -19,16 +19,16 @@ export default class Cell extends Component {
         this.fixedColumnStyle = this.fixedColumnStyle.bind(this);
 
         const {editable, columns, i} = props;
-        this.state = {notEditable:
-            !colIsEditable(editable, columns[i])
-        }
+        this.state = {
+            notEditable: !colIsEditable(editable, columns[i]),
+        };
     }
 
-    componentWillReceiveProps (nextProps) {
+    componentWillReceiveProps(nextProps) {
         const {editable, columns, i} = nextProps;
-        this.setState({notEditable: (
-            !colIsEditable(editable, columns[i])
-        )});
+        this.setState({
+            notEditable: !colIsEditable(editable, columns[i]),
+        });
     }
 
     handleClick(e) {
@@ -40,7 +40,7 @@ export default class Cell extends Component {
             i,
             is_focused,
             isSelected,
-            selected_cell
+            selected_cell,
         } = this.props;
 
         if (!is_focused) {
@@ -57,11 +57,13 @@ export default class Cell extends Component {
         let newSelectedCell;
         const newProps = {
             is_focused: false,
-            end_cell: cellLocation
+            end_cell: cellLocation,
         };
 
-        const vci = [];  // visible col indices
-        columns.forEach((c, i) => {if(!c.hidden) vci.push(i)});
+        const vci = []; // visible col indices
+        columns.forEach((c, i) => {
+            if (!c.hidden) vci.push(i);
+        });
 
         if (e.shiftKey) {
             newProps.selected_cell = R.xprod(
@@ -79,7 +81,6 @@ export default class Cell extends Component {
             newProps.start_cell = cellLocation;
         }
         setProps(newProps);
-
     }
 
     handleDoubleClick(e) {
@@ -90,7 +91,7 @@ export default class Cell extends Component {
             idx,
             i,
             is_focused,
-            isSelected
+            isSelected,
         } = this.props;
 
         if (this._notEditable) return;
@@ -99,24 +100,21 @@ export default class Cell extends Component {
             e.preventDefault();
             const newProps = {
                 selected_cell: [[idx, i]],
-                is_focused: true
-            }
+                is_focused: true,
+            };
             setProps(newProps);
         }
     }
 
     componentDidUpdate() {
         if (this.textInput) {
-            if (this.props.isSelected &&
-                this.props.is_focused
-            ) {
+            if (this.props.isSelected && this.props.is_focused) {
                 this.textInput.focus();
             }
         }
     }
 
     borderStyle() {
-
         const {
             i: ci,
             idx: ri,
@@ -124,11 +122,13 @@ export default class Cell extends Component {
             selected_cell,
             dataframe,
             collapsable,
-            expanded_rows
+            expanded_rows,
         } = this.props;
 
-        const vci = [];  // visible col indices
-        columns.forEach((c, i) => {if(!c.hidden) vci.push(i)});
+        const vci = []; // visible col indices
+        columns.forEach((c, i) => {
+            if (!c.hidden) vci.push(i);
+        });
 
         // Left, Right, Top, Bottom
         const Accent = 'var(--accent)';
@@ -139,65 +139,47 @@ export default class Cell extends Component {
         const Top = (c, t) => `inset 0px ${t}px 0px 0px ${c}`;
         const Bottom = (c, t) => `inset 0px -${t}px 0px 0px ${c}`;
 
-        const sortNumerical = R.sort((a, b) => a-b);
+        const sortNumerical = R.sort((a, b) => a - b);
         const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
         const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
 
-        const showInsideLeftEdge = (
-             (ci === R.head(selectedCols))
-              && R.contains(ri, selectedRows)
-        );
-        const showInsideTopEdge = (
-            (ri === R.head(selectedRows))
-             && R.contains(ci, selectedCols)
-        );
-        const showOutsideTopEdge = (
-            (ri === (R.last(selectedRows) + 1))
-             && R.contains(ci, selectedCols)
-        );
-        const showOutsideLeftEdge = (
-            (ci === (R.last(selectedCols) + 1))
-             && R.contains(ri, selectedRows)
-        );
+        const showInsideLeftEdge =
+            ci === R.head(selectedCols) && R.contains(ri, selectedRows);
+        const showInsideTopEdge =
+            ri === R.head(selectedRows) && R.contains(ci, selectedCols);
+        const showOutsideTopEdge =
+            ri === R.last(selectedRows) + 1 && R.contains(ci, selectedCols);
+        const showOutsideLeftEdge =
+            ci === R.last(selectedCols) + 1 && R.contains(ri, selectedRows);
 
-        const showInsideRightEdge = (
-            (ci === R.last(selectedCols))
-             && R.contains(ri, selectedRows)
-        );
+        const showInsideRightEdge =
+            ci === R.last(selectedCols) && R.contains(ri, selectedRows);
 
-        const showBottomEdge = (
-            (ri === R.last(selectedRows) ||
-             false // ri === (R.head(selectedRows) - 1)
-         ) &&
-             R.contains(ci, selectedCols)
-        );
+        const showBottomEdge =
+            (ri === R.last(selectedRows) || false) && // ri === (R.head(selectedRows) - 1)
+            R.contains(ci, selectedCols);
 
         const isRightmost = ci === R.last(vci);
         const isLeftmost = ci === R.head(vci);
         const isTopmost = ri === 0;
-        const isBottommost = ri === (dataframe.length - 1);
-        const isNeighborToExpanded = (
-            collapsable &&
-            R.contains(ri, expanded_rows) &&
-            ci === vci[0]
-        );
-        const isAboveExpanded = (
-            collapsable && R.contains(ri, expanded_rows)
-        );
-        const isBelowExpanded = (
-            collapsable && R.contains(ri - 1, expanded_rows)
-        );
+        const isBottommost = ri === dataframe.length - 1;
+        const isNeighborToExpanded =
+            collapsable && R.contains(ri, expanded_rows) && ci === vci[0];
+        const isAboveExpanded = collapsable && R.contains(ri, expanded_rows);
+        const isBelowExpanded =
+            collapsable && R.contains(ri - 1, expanded_rows);
         const isSelectedColumn = R.contains(ci, selectedCols);
         const isSelectedRow = R.contains(ri, selectedRows);
 
         // rules are applied in the order that they are supplied
         const boxShadowRules = [
-
             showInsideLeftEdge || isNeighborToExpanded ? Left(Accent, 2) : null,
             showInsideTopEdge ? Top(Accent, 2) : null,
             showOutsideTopEdge && !isBelowExpanded ? Top(Accent, 1) : null,
             showOutsideLeftEdge ? Left(Accent, 1) : null,
-            showBottomEdge ? Bottom(Accent, isBottommost || isAboveExpanded ? 2 : 1) : null,
+            showBottomEdge
+                ? Bottom(Accent, isBottommost || isAboveExpanded ? 2 : 1)
+                : null,
             showInsideRightEdge ? Right(Accent, isRightmost ? 2 : 1) : null,
             isSelectedColumn && isTopmost ? Top(Accent, 1) : null,
             isSelectedRow && isLeftmost ? Left(Accent, 1) : null,
@@ -206,17 +188,16 @@ export default class Cell extends Component {
             Top(Border, 1),
 
             isBottommost || isAboveExpanded ? Bottom(Border, 1) : null,
-            isRightmost ? Right(Border, 1) : null
-
+            isRightmost ? Right(Border, 1) : null,
         ].filter(R.complement(R.not));
         const sortedBoxRules = R.sort(
-            (a, b) => R.contains(Accent, a) ? -1 : 1,
+            (a, b) => (R.contains(Accent, a) ? -1 : 1),
             boxShadowRules
         );
 
         const style = {
-            boxShadow: `${sortedBoxRules.join(', ')}`
-        }
+            boxShadow: `${sortedBoxRules.join(', ')}`,
+        };
 
         return style;
     }
@@ -229,36 +210,29 @@ export default class Cell extends Component {
             selected_cell,
             dataframe,
             collapsable,
-            expanded_rows
+            expanded_rows,
         } = this.props;
 
-        const vci = [];  // visible col indices
-        columns.forEach((c, i) => {if(!c.hidden) vci.push(i)});
+        const vci = []; // visible col indices
+        columns.forEach((c, i) => {
+            if (!c.hidden) vci.push(i);
+        });
 
-        const sortNumerical = R.sort((a, b) => a-b);
+        const sortNumerical = R.sort((a, b) => a - b);
         const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
         const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
 
-        const isRight = (
-             ci === (R.last(selectedCols) + 1)
-        );
-        const isBelow = (
-             ri === (R.last(selectedRows) + 1)
-        );
+        const isRight = ci === R.last(selectedCols) + 1;
+        const isBelow = ri === R.last(selectedRows) + 1;
 
-        const className = (
-            (isRight && isBelow) ? 'bottom-right' : ''
-        );
-        if (!className) return null
+        const className = isRight && isBelow ? 'bottom-right' : '';
+        if (!className) return null;
         return (
-            <div className={`selected-square selected-square-${className}`}/>
+            <div className={`selected-square selected-square-${className}`} />
         );
-
     }
 
-    fixedColumnStyle() {
-
-    }
+    fixedColumnStyle() {}
 
     render() {
         const {
@@ -280,57 +254,60 @@ export default class Cell extends Component {
             expanded_rows,
             start_cell,
             selected_cell,
-            columns
+            columns,
         } = this.props;
 
         const {notEditable} = this.state;
 
         let innerCell;
-        if (!R.has('type', columns[i]) ||
-                R.contains(columns[i].type, ['numeric', 'text'])) {
-            innerCell = <input
-                id={`${c.name}-${idx}`}
-                type="text"
-                value={value}
-
-                onClick={this.handleClick}
-                onDoubleClick={this.handleDoubleClick}
-
-                ref={el => this.textInput = el}
-
-                onChange={e => {
-                    if (notEditable) return;
-                    if (isSelected) {
-                        const newDataframe = R.set(R.lensPath([
-                            idx, c.name
-                        ]), e.target.value, dataframe);
-                        setProps({
-                            is_focused: true,
-                            dataframe: newDataframe
-                        });
+        if (
+            !R.has('type', columns[i]) ||
+            R.contains(columns[i].type, ['numeric', 'text'])
+        ) {
+            innerCell = (
+                <input
+                    id={`${c.name}-${idx}`}
+                    type="text"
+                    value={value}
+                    onClick={this.handleClick}
+                    onDoubleClick={this.handleDoubleClick}
+                    ref={el => (this.textInput = el)}
+                    onChange={e => {
+                        if (notEditable) return;
+                        if (isSelected) {
+                            const newDataframe = R.set(
+                                R.lensPath([idx, c.name]),
+                                e.target.value,
+                                dataframe
+                            );
+                            setProps({
+                                is_focused: true,
+                                dataframe: newDataframe,
+                            });
+                        }
+                    }}
+                    onPaste={e => {
+                        if (!(isSelected && is_focused)) {
+                            e.preventDefault();
+                        }
+                    }}
+                    className={
+                        (isSelected ? 'input-active ' : '') +
+                        (is_focused && isSelected ? 'focused ' : 'unfocused ')
                     }
-                }}
-
-                onPaste={e => {
-                    if (!(isSelected && is_focused)) {
-                        e.preventDefault();
-                    }
-                }}
-
-                className={
-                    (isSelected ? 'input-active ' : '') +
-                    (is_focused && isSelected ? 'focused ' : 'unfocused ')
-                }
-            />
+                />
+            );
         } else if (columns[i].type === 'dropdown') {
             innerCell = (
                 <Dropdown
                     placeholder={''}
                     options={columns[i].options}
                     onChange={newOption => {
-                        const newDataframe = R.set(R.lensPath([
-                            idx, c.name
-                        ]), newOption ? newOption.value : newOption, dataframe);
+                        const newDataframe = R.set(
+                            R.lensPath([idx, c.name]),
+                            newOption ? newOption.value : newOption,
+                            dataframe
+                        );
                         setProps({dataframe: newDataframe});
                     }}
                     clearable={columns[i].clearable}
@@ -347,22 +324,21 @@ export default class Cell extends Component {
                     this.borderStyle(),
                     computedStyles.scroll.cell(this.props, i)
                 )}
-                className={(
+                className={
                     (isSelected ? 'cell--active ' : '') +
                     (is_focused && isSelected ? 'focused ' : '') +
-                    ((isSelected && selected_cell.length > 1 &&
-                        !(start_cell[0] === idx && start_cell[1] === i)
-                    ) ? 'cell--active--not-start ' : '') +
+                    (isSelected &&
+                    selected_cell.length > 1 &&
+                    !(start_cell[0] === idx && start_cell[1] === i)
+                        ? 'cell--active--not-start '
+                        : '') +
                     (notEditable ? 'cell--uneditable ' : '')
-                )}
+                }
             >
-
                 {innerCell}
 
                 {this.borderSquares()}
-
             </td>
         );
-
     }
 }

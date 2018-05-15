@@ -1,8 +1,10 @@
 .dash-spreadsheet {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
-.dash-spreadsheet *, .dash-spreadsheet *:before, .dash-spreadsheet *:after {
-  box-sizing: inherit;
+.dash-spreadsheet *,
+.dash-spreadsheet *:before,
+.dash-spreadsheet *:after {
+    box-sizing: inherit;
 }
 
 .dash-spreadsheet textarea {
@@ -15,7 +17,7 @@
     font-size: 1rem;
 
     font-family: monospace;
-    --accent: #FF4136;
+    --accent: #ff4136;
     /*--accent: hotpink;*/
     --border: lightgrey;
     --text-color: rgb(60, 60, 60);
@@ -23,7 +25,7 @@
     --background-color-ellipses: rgb(253, 253, 253);
     --faded-text: rgb(250, 250, 250);
     --faded-text-header: rgb(180, 180, 180);
-    --selected-background: rgba(255,65,54, 0.2);
+    --selected-background: rgba(255, 65, 54, 0.2);
     --faded-dropdown: rgb(240, 240, 240);
 }
 
@@ -39,10 +41,11 @@
 .elip {
     text-align: center;
     width: 100%;
-    background-color: var(--background-color-ellipses)
+    background-color: var(--background-color-ellipses);
 }
 
-.dash-spreadsheet td, .dash-spreadsheet th {
+.dash-spreadsheet td,
+.dash-spreadsheet th {
     padding-left: 2px;
     padding-right: 2px;
     padding-bottom: 2px;
@@ -58,8 +61,7 @@
 }
 
 .dash-spreadsheet th {
-    box-shadow:
-        inset 1px 0px 0px 0px var(--border),
+    box-shadow: inset 1px 0px 0px 0px var(--border),
         inset 0px 1px 0px 0px var(--border);
 }
 
@@ -67,7 +69,6 @@
 tr:hover input :not(.cell--active--not-start) {
     background-color: var(--hover);
 }
-
 
 .dash-spreadsheet th {
     background-color: rgb(250, 250, 250);
@@ -134,22 +135,19 @@ tr:hover input :not(.cell--active--not-start) {
 }
 
 .cell--bottom-last {
-    box-shadow:
-        inset 1px 0px 0px 0px var(--border),
+    box-shadow: inset 1px 0px 0px 0px var(--border),
         inset 0px 1px 0px 0px var(--border),
         inset 0px -1px 0px 0px var(--border);
 }
 
 .cell--right-last {
-    box-shadow:
-        inset 1px 0px 0px 0px var(--border),
+    box-shadow: inset 1px 0px 0px 0px var(--border),
         inset 0px 1px 0px 0px var(--border),
         inset -1px 0px 0px 0px var(--border);
 }
 
 .cell--right-last.cell--bottom-last {
-    box-shadow:
-        inset 1px 0px 0px 0px var(--border),
+    box-shadow: inset 1px 0px 0px 0px var(--border),
         inset 0px 1px 0px 0px var(--border),
         inset -1px 0px 0px 0px var(--border),
         inset 0px -1px 0px 0px var(--border);
@@ -159,15 +157,15 @@ tr:hover input :not(.cell--active--not-start) {
     background-color: var(--selected-background);
 }
 
-.cell--uneditable, .cell--uneditable input {
+.cell--uneditable,
+.cell--uneditable input {
     cursor: not-allowed;
 }
 
 .expanded-row {
-    box-shadow:
-        inset 2px 0px 0px 0px var(--accent),
+    box-shadow: inset 2px 0px 0px 0px var(--accent),
         inset -1px 0px 0px 0px var(--border);
-        /* inset 0px 1px 0px 0px var(--border); */
+    /* inset 0px 1px 0px 0px var(--border); */
 }
 
 .selected-square {

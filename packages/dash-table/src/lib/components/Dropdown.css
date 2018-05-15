@@ -24,7 +24,6 @@
     border-bottom-color: transparent;
 }
 
-
 .dash-spreadsheet .Select-control:hover .Select-arrow {
     border-top-color: var(--accent);
     border-left-color: transparent;
@@ -62,16 +61,16 @@
 }
 
 .dash-spreadsheet .Select-menu-outer {
-  background-color: white;
-  border: none;
-  border-bottom: thin var(--border) solid;
-  border-radius: 0;
-  border-top: none;
+    background-color: white;
+    border: none;
+    border-bottom: thin var(--border) solid;
+    border-radius: 0;
+    border-top: none;
 }
 
 .dash-spreadsheet .Select-option {
-  background-color: inherit;
-  color: var(--accent);
+    background-color: inherit;
+    color: var(--accent);
 }
 
 .dash-spreadsheet .Select-option:hover {

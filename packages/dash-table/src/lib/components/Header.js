@@ -25,31 +25,31 @@ export default class Header extends Component {
                 colSort.direction = 'asc';
             } else if (colSort.direction === 'asc') {
                 newSort = newSort.filter(
-                    R.complement(R.propEq('column', colName)));
+                    R.complement(R.propEq('column', colName))
+                );
             }
         } else {
             newSort.push({
                 column: colName,
-                direction: 'desc'
+                direction: 'desc',
             });
         }
 
         newSort = newSort.filter(R.complement(R.isEmpty));
 
         setProps({
-
             sort: newSort.filter(R.complement(R.not)),
 
             dataframe: R.sortWith(
                 newSort.map(
-                    s => s.direction === 'desc' ?
-                    R.descend(R.prop(s.column)) :
-                    R.ascend(R.prop(s.column))
+                    s =>
+                        s.direction === 'desc'
+                            ? R.descend(R.prop(s.column))
+                            : R.ascend(R.prop(s.column))
                 ),
                 dataframe
-            )
-
-        })
+            ),
+        });
     }
 
     renderHeaderCells({labels, rowIsSortable, mergeCells}) {
@@ -69,14 +69,13 @@ export default class Header extends Component {
                     columnIndices.push(i);
                     compareIndex = i;
                 }
-            })
+            });
         }
 
         return columnIndices.map((i, j) => {
             const c = columns[i];
             if (c.hidden) return null;
-            let style = R.merge({}, c.style) || {
-            };
+            let style = R.merge({}, c.style) || {};
 
             let colSpan;
             if (!mergeCells) {
@@ -95,15 +94,20 @@ export default class Header extends Component {
                 style.minWidth = c.width;
             }
 
-            style = R.merge(style, computedStyles.scroll.cell(this.props, i, 0))
+            style = R.merge(
+                style,
+                computedStyles.scroll.cell(this.props, i, 0)
+            );
 
             if (colSpan !== 1) {
                 const widths = R.range(
                     i,
                     R.min(i + colSpan, labels.length)
-                ).map(k =>
-                    R.type(columns[k].width) === 'Number' ?
-                    `${columns[k].width}px` : columns[k].width
+                ).map(
+                    k =>
+                        R.type(columns[k].width) === 'Number'
+                            ? `${columns[k].width}px`
+                            : columns[k].width
                 );
                 style.width = `calc(${widths.join(' + ')})`;
                 style.maxWidth = style.width;
@@ -115,32 +119,31 @@ export default class Header extends Component {
                     colSpan={colSpan}
                     style={style}
                     className={`${
-                        (i === (columns.length - 1) ||
-                         i === R.last(columnIndices)) ?
-                         'cell--right-last' : ''
+                        i === columns.length - 1 || i === R.last(columnIndices)
+                            ? 'cell--right-last'
+                            : ''
                     }`}
                 >
                     {rowIsSortable ? (
                         <span
-                            className='filter'
+                            className="filter"
                             onClick={() => this.sort(c.name)}
                         >
-                            {
-                                R.find(R.propEq('column', c.name), sort) ?
-                                (R.find(R.propEq('column', c.name), sort).direction
-                                === 'desc' ? '↑' : '↓')
-                                : '↕'
-                            }
+                            {R.find(R.propEq('column', c.name), sort)
+                                ? R.find(R.propEq('column', c.name), sort)
+                                      .direction === 'desc'
+                                    ? '↑'
+                                    : '↓'
+                                : '↕'}
                         </span>
-                    ) : ''}
+                    ) : (
+                        ''
+                    )}
 
-                    <span>
-                        {labels[i]}
-                    </span>
+                    <span>{labels[i]}</span>
                 </th>
             );
         });
-
     }
 
     render() {
@@ -151,18 +154,16 @@ export default class Header extends Component {
             setProps,
             sort,
             merge_duplicate_headers,
-            n_fixed_columns
+            n_fixed_columns,
         } = this.props;
 
         let headerRows;
 
-        const collapsableCell = (
-            !collapsable ? null : (
-            <th className='expanded-row--empty-cell'/>
-        ));
+        const collapsableCell = !collapsable ? null : (
+            <th className="expanded-row--empty-cell" />
+        );
 
         if (!R.has('rows', columns[0])) {
-
             const rowStyle = computedStyles.scroll.row(this.props, 0);
 
             headerRows = (
@@ -170,47 +171,31 @@ export default class Header extends Component {
                     {collapsableCell}
                     {this.renderHeaderCells({
                         labels: R.pluck('name', columns),
-                        rowIsSortable: sortable
+                        rowIsSortable: sortable,
                     })}
                 </tr>
-            )
+            );
         } else {
             headerRows = [];
             R.range(0, columns[0].rows.length).forEach(i => {
-
                 const rowStyle = computedStyles.scroll.row(this.props, i);
 
                 headerRows.push(
                     <tr style={rowStyle}>
                         {collapsableCell}
                         {this.renderHeaderCells({
-                            labels: R.pluck(
-                                i,
-                                R.pluck(
-                                    'rows',
-                                    columns
-                                )
-                            ),
-                            rowIsSortable: (
-                                sortable &&
-                                (i + 1 ===
-                                columns[i].rows.length)
-                            ),
-                            mergeCells: (
+                            labels: R.pluck(i, R.pluck('rows', columns)),
+                            rowIsSortable:
+                                sortable && i + 1 === columns[i].rows.length,
+                            mergeCells:
                                 merge_duplicate_headers &&
-                                (i + 1 !==
-                                columns[i].rows.length)
-                            )
+                                i + 1 !== columns[i].rows.length,
                         })}
                     </tr>
-                )
+                );
             });
         }
 
-        return (
-            <thead>
-                {headerRows}
-            </thead>
-        )
+        return <thead>{headerRows}</thead>;
     }
 }
