@@ -1,99 +1,28 @@
 import React, {Component} from 'react';
 import Table from '../lib';
-import {DATA} from './data.js';
+import {mockData} from './data.js';
 
 class App extends Component {
     constructor() {
         super();
         this.state = {
-            dataframe: DATA,
+            dataframe: mockData.dataframe,
             n_fixed_columns: 0,
             n_fixed_rows: 0,
             merge_duplicate_headers: true,
-            columns: [
-                {
-                    name: 'Temperature',
-                    rows: ['', 'Weather', 'Temperature'],
-                    type: 'numeric',
-                    width: 150
-                },
-
-                {
-                    name: 'Climate',
-                    rows: ['', 'Weather', 'Climate'],
-                    // 'type': 'dropdown',
-                    type: 'numeric',
-                    options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(
-                        i => ({
-                            label: i,
-                            value: i
-                        })
-                    ),
-                    clearable: true,
-                    width: 200
-                },
-
-                {
-                    name: ' ',
-                    rows: ['City', 'Canada', 'Toronto'],
-                    type: 'numeric',
-                    width: 150
-                },
-
-                {
-                    name: 'Montréal',
-                    rows: ['City', 'Canada', 'Montréal'],
-                    type: 'numeric',
-                    editable: false,
-                    width: 150
-                },
-
-                {
-                    name: 'New York City',
-                    rows: ['City', 'America', 'New York City'],
-                    type: 'numeric',
-                    style: {
-                        'white-space': 'pre-line'
-                    },
-                    width: 150
-                },
-
-                {
-                    name: 'Boston',
-                    rows: ['City', 'America', 'Boston'],
-                    type: 'numeric',
-                    width: 150
-                },
-
-                {
-                    name: 'Paris',
-                    rows: ['City', 'France', 'Paris'],
-                    type: 'numeric',
-                    editable: true,
-                    width: 150
-                }
-            ],
+            columns: mockData.columns,
 
             sort: [
                 {
                     column: 'Paris',
-                    direction: 'desc'
-                }
+                    direction: 'desc',
+                },
             ],
 
             start_cell: [1, 0],
             end_cell: [1, 4],
 
-            selected_cell: [
-                // [0, 0],
-                // [1, 0],
-                // [0, 1],
-                [1, 0], // [row, column]
-                [1, 1],
-                [1, 2],
-                [1, 3],
-                [1, 4]
-            ],
+            selected_cell: [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4]],
 
             editable: true,
             is_focused: false,
@@ -107,8 +36,8 @@ class App extends Component {
             width: 400,
             height: 500,
             table_style: {
-                tableLayout: 'inherit'
-            }
+                tableLayout: 'inherit',
+            },
         };
     }
 
@@ -132,7 +61,7 @@ class InputContainer extends Component {
         super();
         this.state = {
             value: 3,
-            isFocused: true
+            isFocused: true,
         };
     }
 
@@ -166,13 +95,13 @@ class StatefulInput extends Component {
         return (
             <div
                 style={{
-                    padding: 50
+                    padding: 50,
                 }}
             >
                 <button
                     onClick={() =>
                         this.props.updateProps({
-                            isFocused: false
+                            isFocused: false,
                         })
                     }
                 >
@@ -181,7 +110,7 @@ class StatefulInput extends Component {
                 <button
                     onClick={() =>
                         this.props.updateProps({
-                            isFocused: true
+                            isFocused: true,
                         })
                     }
                 >
@@ -196,7 +125,7 @@ class StatefulInput extends Component {
                     }`}
                     onChange={e => {
                         const newProps = {
-                            value: e.target.value
+                            value: e.target.value,
                         };
                         if (!this.props.focused) {
                             newProps.isFocused = true;
@@ -208,7 +137,7 @@ class StatefulInput extends Component {
                             console.warn('click - preventDefault');
                             e.preventDefault();
                             this.props.updateProps({
-                                isFocused: false
+                                isFocused: false,
                             });
                         }
                         return e;
@@ -218,7 +147,7 @@ class StatefulInput extends Component {
                             console.warn('dblclick - preventDefault');
                             e.preventDefault();
                             this.props.updateProps({
-                                isFocused: true
+                                isFocused: true,
                             });
                         }
                         return e;

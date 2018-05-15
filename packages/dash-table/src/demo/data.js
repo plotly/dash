@@ -1,33 +1,92 @@
 import * as R from 'ramda';
-// export const DATA = [
-//     {'New York City': 1, 'Paris': 2, 'Montréal': 3},
-//     {'New York City': 4, 'Paris': 5, 'Montréal': 6},
-//     {'New York City': 7, 'Paris': 8, 'Montréal': 9},
-// ]
 
-export const DATA = R.range(1, 50).map(i => ({
-    ' ': i,
-    'New York City': i,
-    Paris: i * 10,
-    Montréal: i * 100,
-    Climate: 'Tropical Beaches',
-    Boston: i + i,
-    Temperature: i + 1
-}));
+const N_DATA = 50;
 
-// export const DATA = [
-//     {'New York City': 1, 'Paris': 3, 'Montréal': 1, ' ': 1},
-//     {'New York City': 1, 'Paris': 2, 'Montréal': 2, ' ': 2},
-//     {'New York City': 1, 'Paris': 1, 'Montréal': 3, ' ': 3},
-//
-//     {'New York City': 2, 'Paris': 3, 'Montréal': 4, ' ': 4},
-//     {'New York City': 2, 'Paris': 2, 'Montréal': 5, ' ': 5},
-//     {'New York City': 2, 'Paris': 1, 'Montréal': 6, ' ': 6},
-// ];
+export const mockData = unpackIntoColumnsAndDataFrames([
+    {
+        id: 'aaa',
+        name: ['', 'Weather', 'Temperature'],
+        type: 'numeric',
+        width: 150,
+        data: gendata(i => i + 1),
+    },
 
-// export const DATA = R.range(1, 7).map(i => ({
-//     ' ': i,
-//     'New York City': [1, 1, 1, 2, 2, 2],
-//     'Paris': [3, 2, 1, 3, 2, 1],
-//     'Montréal': i*100
-// }));
+    {
+        id: 'bbb',
+        name: ['', 'Weather', 'Climate'],
+        // 'type': 'dropdown',
+        type: 'numeric',
+        options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
+            label: i,
+            value: i,
+        })),
+        clearable: true,
+        width: 200,
+        data: gendata(
+            i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
+        ),
+    },
+
+    {
+        id: 'ccc',
+        name: ['City', 'Canada', 'Toronto', ' '],
+        type: 'numeric',
+        width: 150,
+        data: gendata(i => i),
+    },
+
+    {
+        id: 'ddd',
+        name: ['City', 'Canada', 'Montréal'],
+        type: 'numeric',
+        editable: false,
+        width: 150,
+        data: gendata(i => i * 100),
+    },
+
+    {
+        id: 'eee',
+        name: ['City', 'America', 'New York City'],
+        type: 'numeric',
+        style: {
+            'white-space': 'pre-line',
+        },
+        width: 150,
+        data: gendata(i => i),
+    },
+
+    {
+        id: 'fff',
+        name: ['City', 'America', 'Boston'],
+        type: 'numeric',
+        width: 150,
+        data: gendata(i => i + 1),
+    },
+
+    {
+        id: 'ggg',
+        name: ['City', 'France', 'Paris'],
+        type: 'numeric',
+        editable: true,
+        width: 150,
+        data: gendata(i => i * 10),
+    },
+]);
+
+function unpackIntoColumnsAndDataFrames(columns) {
+    const mockData = {columns: [], dataframe: []};
+    columns.forEach(col => {
+        col.data.forEach((v, i) => {
+            if (!mockData.dataframe[i]) {
+                mockData.dataframe[i] = {};
+            }
+            mockData.dataframe[i][col.id] = v;
+        });
+        mockData.columns.push(R.dissoc('data', col));
+    });
+    return mockData;
+}
+
+function gendata(func, ndata = N_DATA) {
+    return R.range(1, ndata).map(func);
+}
