@@ -266,7 +266,7 @@ export default class Cell extends Component {
         ) {
             innerCell = (
                 <input
-                    id={`${c.name}-${idx}`}
+                    id={`${c.id}-${idx}`}
                     type="text"
                     value={value}
                     onClick={this.handleClick}
@@ -276,7 +276,7 @@ export default class Cell extends Component {
                         if (notEditable) return;
                         if (isSelected) {
                             const newDataframe = R.set(
-                                R.lensPath([idx, c.name]),
+                                R.lensPath([idx, c.id]),
                                 e.target.value,
                                 dataframe
                             );
@@ -304,7 +304,7 @@ export default class Cell extends Component {
                     options={columns[i].options}
                     onChange={newOption => {
                         const newDataframe = R.set(
-                            R.lensPath([idx, c.name]),
+                            R.lensPath([idx, c.id]),
                             newOption ? newOption.value : newOption,
                             dataframe
                         );

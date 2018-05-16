@@ -6,9 +6,10 @@ import {keys, merge} from 'ramda';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import angleRight from '@fortawesome/fontawesome-free-solid/faAngleRight';
 import angleDown from '@fortawesome/fontawesome-free-solid/faAngleDown';
-
 import Cell from './Cell';
 import computedStyles from './computedStyles';
+
+const getColLength = c => (Array.isArray(c.name) ? c.name.length : 1);
 
 export default class Row extends Component {
     shouldComponentUpdate(nextProps, nextState) {
@@ -100,7 +101,7 @@ export default class Row extends Component {
             return (
                 <Cell
                     key={`${c}-${i}`}
-                    value={dataframe[idx][c.name]}
+                    value={dataframe[idx][c.id]}
                     type={c.type}
                     editable={editable}
                     isSelected={R.contains([idx, i], selected_cell)}
@@ -125,15 +126,11 @@ export default class Row extends Component {
             );
         });
 
+        // TODO calculate in lifecycle function
+        const headerDepth = Math.max.apply(Math, columns.map(getColLength));
         return (
             <tr
-                style={computedStyles.scroll.row(
-                    this.props,
-                    idx +
-                        (R.has('rows', this.props.columns[0])
-                            ? this.props.columns[0].rows.length
-                            : 1)
-                )}
+                style={computedStyles.scroll.row(this.props, idx + headerDepth)}
             >
                 {collapsableCell}
 

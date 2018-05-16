@@ -89,7 +89,7 @@ export default class EditableTable extends Component {
                 R.last(selectedRows) + 1,
                 dataframe
             ).map(row =>
-                R.props(selectedCols, R.props(R.pluck('name', columns), row))
+                R.props(selectedCols, R.props(R.pluck('id', columns), row))
             );
 
             el.value = selectedTabularData
