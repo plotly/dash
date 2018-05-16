@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Table from '../lib';
-import {mockData} from './data.js';
+import {mockData, mockDataSimple} from './data.js';
 
 class App extends Component {
     constructor() {

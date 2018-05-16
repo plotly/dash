@@ -29,7 +29,7 @@ export const mockData = unpackIntoColumnsAndDataFrames([
 
     {
         id: 'ccc',
-        name: ['City', 'Canada', 'Toronto', ' '],
+        name: ['City', 'Canada', 'Toronto'],
         type: 'numeric',
         width: 150,
         data: gendata(i => i),
@@ -70,6 +70,31 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         editable: true,
         width: 150,
         data: gendata(i => i * 10),
+    },
+]);
+
+export const mockDataSimple = unpackIntoColumnsAndDataFrames([
+    {
+        id: 'aaa',
+        name: 'Temperature',
+        type: 'numeric',
+        width: 150,
+        data: gendata(i => i + 1),
+    },
+
+    {
+        id: 'bbb',
+        name: 'Climate',
+        type: 'numeric',
+        options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
+            label: i,
+            value: i,
+        })),
+        clearable: true,
+        width: 200,
+        data: gendata(
+            i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
+        ),
     },
 ]);
 
