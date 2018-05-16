@@ -1,8 +1,0 @@
-.dash-spreadsheet input.unfocused {
-    color: transparent;
-    text-shadow: 0 0 0 black;
-    cursor: default;
-}
-.dash-spreadsheet input.unfocused:focus {
-    outline: none;
-}
