@@ -12,6 +12,7 @@ import Cell from './Cell.js';
 import Row from './Row.js';
 import Header from './Header.js';
 import {colIsEditable} from './derivedState';
+import {KEY_CODES, isMetaKey, isCtrlKey, isCtrlMetaKey} from '../utils/unicode';
 import computedStyles from './computedStyles';
 
 function deepMerge(a, b) {
@@ -20,20 +21,6 @@ function deepMerge(a, b) {
         : b;
 }
 
-const KEY_CODES = {
-    LEFT: 37,
-    ESC: 27,
-    UP: 38,
-    RIGHT: 39,
-    TAB: 9,
-    DOWN: 40,
-    BACKSPACE: 8,
-    DELETE: 46,
-    V: 85,
-    ENTER: 13,
-    C: 67,
-};
-
 export default class EditableTable extends Component {
     constructor(props) {
         super(props);
@@ -41,6 +28,7 @@ export default class EditableTable extends Component {
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
         this.collectRows = this.collectRows.bind(this);
+        this.onPaste = this.onPaste.bind(this);
     }
 
     handleClickOutside(event) {
@@ -66,8 +54,21 @@ export default class EditableTable extends Component {
             is_focused,
             editable,
         } = this.props;
-        console.warn(`handleKeyDown: ${e.keyCode}`);
+        console.warn(`handleKeyDown: ${e.key}`);
         // TODO - keyCode is deprecated?
+
+        // catch CTRL but not right ALT (which in some systems triggers ALT+CTRL)
+        const ctrlDown = (e.ctrlKey || e.metaKey) && !e.altKey;
+
+        // if this is the intial CTL keydown with no modifiers then pass
+        if (ctrlDown && isCtrlKey(e.keyCode)) {
+            return;
+        }
+
+        // if this is a paste event let onPaste handler handle it
+        if (ctrlDown && e.keyCode === KEY_CODES.V) {
+            return;
+        }
 
         const vci = []; // visible col indices
         columns.forEach((c, i) => {
@@ -131,7 +132,7 @@ export default class EditableTable extends Component {
             return;
         }
 
-        if (e.keyCode === KEY_CODES.ESC) {
+        if (e.keyCode === KEY_CODES.ESCAPE) {
             // escape
             setProps({is_focused: false});
         }
@@ -161,10 +162,10 @@ export default class EditableTable extends Component {
                 });
             } else {
                 /*
-         * the active element might be a rogue, unfocused input:
-         * blur it so that it doesn't display a selection while
-         * selecting multiple cells
-         */
+                 * the active element might be a rogue, unfocused input:
+                 * blur it so that it doesn't display a selection while
+                 * selecting multiple cells
+                 */
                 document.activeElement.blur();
                 let targetCells;
                 let removeCells = null;
@@ -178,8 +179,8 @@ export default class EditableTable extends Component {
                 );
 
                 if (
-                    e.keyCode === KEY_CODES.UP ||
-                    e.keyCode === KEY_CODES.DOWN
+                    e.keyCode === KEY_CODES.ARROW_UP ||
+                    e.keyCode === KEY_CODES.ARROW_DOWN
                 ) {
                     targetCells = selectedCols.map(col => [newCell[0], col]);
                     if (
@@ -187,12 +188,12 @@ export default class EditableTable extends Component {
                         newCell[0] !== 0 &&
                         newCell[0] !== dataframe.length - 1
                     ) {
-                        if (e.keyCode === KEY_CODES.DOWN) {
+                        if (e.keyCode === KEY_CODES.ARROW_DOWN) {
                             removeCells = targetCells.map(c => [
                                 c[0] - 1,
                                 c[1],
                             ]);
-                        } else if (e.keyCode === KEY_CODES.UP) {
+                        } else if (e.keyCode === KEY_CODES.ARROW_UP) {
                             removeCells = targetCells.map(c => [
                                 c[0] + 1,
                                 c[1],
@@ -200,8 +201,8 @@ export default class EditableTable extends Component {
                         }
                     }
                 } else if (
-                    e.keyCode === KEY_CODES.LEFT ||
-                    e.keyCode === KEY_CODES.RIGHT
+                    e.keyCode === KEY_CODES.ARROW_LEFT ||
+                    e.keyCode === KEY_CODES.ARROW_RIGHT
                 ) {
                     targetCells = selectedRows.map(row => [row, newCell[1]]);
                     if (
@@ -209,12 +210,12 @@ export default class EditableTable extends Component {
                         newCell[1] !== vci[0] &&
                         newCell[1] !== R.last(vci)
                     ) {
-                        if (e.keyCode === KEY_CODES.LEFT) {
+                        if (e.keyCode === KEY_CODES.ARROW_LEFT) {
                             removeCells = targetCells.map(c => [
                                 c[0],
                                 c[1] + 1,
                             ]);
-                        } else if (e.keyCode === KEY_CODES.RIGHT) {
+                        } else if (e.keyCode === KEY_CODES.ARROW_RIGHT) {
                             removeCells = targetCells.map(c => [
                                 c[0],
                                 c[1] - 1,
@@ -252,26 +253,28 @@ export default class EditableTable extends Component {
             return;
         }
 
-        if (e.keyCode === KEY_CODES.LEFT) {
+        if (e.keyCode === KEY_CODES.ARROW_LEFT) {
             switchCell(Left);
-        } else if (e.keyCode === KEY_CODES.UP) {
+        } else if (e.keyCode === KEY_CODES.ARROW_UP) {
             switchCell(Up);
         } else if (
-            e.keyCode === KEY_CODES.RIGHT ||
+            e.keyCode === KEY_CODES.ARROW_RIGHT ||
             e.keyCode === KEY_CODES.TAB
         ) {
             switchCell(Right);
-        } else if (e.keyCode === KEY_CODES.DOWN) {
+        } else if (e.keyCode === KEY_CODES.ARROW_DOWN) {
             switchCell(Down);
-        } else if (e.keyCode === 8 || e.keyCode === 46) {
-            // backspace or delete
+        } else if (
+            e.keyCode === KEY_CODES.BACKSPACE ||
+            e.keyCode === KEY_CODES.DELETE
+        ) {
             e.preventDefault();
             const {selected_cell, columns} = this.props;
             let newDataframe = dataframe;
             selected_cell.forEach(cell => {
                 if (colIsEditable(editable, columns[cell[1]])) {
                     newDataframe = R.set(
-                        R.lensPath([cell[0], columns[cell[1]].name]),
+                        R.lensPath([cell[0], columns[cell[1]].id]),
                         '',
                         newDataframe
                     );
@@ -321,7 +324,7 @@ export default class EditableTable extends Component {
         );
     }
 
-    onPaste = e => {
+    onPaste(e) {
         const {
             columns,
             dataframe,
@@ -374,7 +377,7 @@ export default class EditableTable extends Component {
                         const col = newColumns[jOffset];
                         if (colIsEditable(editable, col)) {
                             newDataframe = R.set(
-                                R.lensPath([iOffset, col.name]),
+                                R.lensPath([iOffset, col.id]),
                                 cell,
                                 newDataframe
                             );
@@ -387,7 +390,7 @@ export default class EditableTable extends Component {
                 });
             }
         }
-    };
+    }
 
     collectRows(slicedDf, start) {
         const {collapsable, columns, expanded_rows} = this.props;
