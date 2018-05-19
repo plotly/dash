@@ -6,7 +6,7 @@ import SheetClip from 'sheetclip';
 import Row from './Row.js';
 import Header from './Header.js';
 import {colIsEditable} from './derivedState';
-import {KEY_CODES, isMetaKey, isCtrlKey, isCtrlMetaKey} from '../utils/unicode';
+import {KEY_CODES, isCtrlMetaKey, isMetaKey} from '../utils/unicode';
 import computedStyles from './computedStyles';
 
 import 'react-select/dist/react-select.css';
@@ -36,31 +36,81 @@ export default class EditableTable extends Component {
     }
 
     handleKeyDown(e) {
-        const {
-            columns,
-            dataframe,
-            end_cell,
-            selected_cell,
-            setProps,
-            is_focused,
-            editable,
-        } = this.props;
+        const {columns, end_cell, setProps, is_focused, editable} = this.props;
+
         console.warn(`handleKeyDown: ${e.key}`);
-        // TODO - keyCode is deprecated?
 
         // catch CTRL but not right ALT (which in some systems triggers ALT+CTRL)
         const ctrlDown = (e.ctrlKey || e.metaKey) && !e.altKey;
-        const isCopyCmd = e.keyCode === KEY_CODES.C && ctrlDown && !is_focused;
 
-        // if this is the initial CTL keydown with no modifiers then pass
-        if (ctrlDown && isCtrlKey(e.keyCode)) {
+        // if this is the initial CtrlMeta keydown with no modifiers then pass
+        if (isCtrlMetaKey(e.keyCode)) {
             return;
         }
 
-        // if this is a paste event let onPaste handler handle it
+        // if paste event onPaste handler registered in Table jsx handles it
         if (ctrlDown && e.keyCode === KEY_CODES.V) {
             return;
         }
+
+        // copy
+        if (e.keyCode === KEY_CODES.C && ctrlDown && !is_focused) {
+            this.onCopy(e);
+            return;
+        }
+
+        if (e.keyCode === KEY_CODES.ESCAPE) {
+            setProps({is_focused: false});
+            return;
+        }
+
+        if (e.keyCode === KEY_CODES.ENTER) {
+            if (is_focused) {
+                this.switchCell(e, 'down');
+            } else {
+                if (colIsEditable(editable, columns[end_cell[1]])) {
+                    setProps({is_focused: true});
+                }
+            }
+            return;
+        }
+
+        if (is_focused && e.keyCode !== KEY_CODES.TAB) {
+            return;
+        }
+
+        if (e.keyCode === KEY_CODES.ARROW_LEFT) {
+            this.switchCell(e, 'left');
+        } else if (e.keyCode === KEY_CODES.ARROW_UP) {
+            this.switchCell(e, 'up');
+        } else if (
+            e.keyCode === KEY_CODES.ARROW_RIGHT ||
+            e.keyCode === KEY_CODES.TAB
+        ) {
+            this.switchCell(e, 'right');
+        } else if (e.keyCode === KEY_CODES.ARROW_DOWN) {
+            this.switchCell(e, 'down');
+        } else if (
+            e.keyCode === KEY_CODES.BACKSPACE ||
+            e.keyCode === KEY_CODES.DELETE
+        ) {
+            this.deleteCell(e);
+        }
+        // if we have any non-meta key enter editable mode
+        else if (
+            !this.props.is_focused &&
+            colIsEditable(editable, columns[end_cell[1]]) &&
+            !isMetaKey(e.keyCode)
+        ) {
+            setProps({is_focused: true});
+        }
+
+        return;
+    }
+
+    switchCell(event, direction) {
+        const e = event;
+        const {columns, dataframe, selected_cell, setProps} = this.props;
 
         // visible col indices
         const vci = [];
@@ -70,175 +120,131 @@ export default class EditableTable extends Component {
             }
         });
 
-        // copy
-        if (isCopyCmd) {
-            this.onCopy();
-            return;
-        }
-        if (e.keyCode === KEY_CODES.ESCAPE) {
-            // escape
-            setProps({is_focused: false});
-        }
+        const nextCell = this.getNextCell(vci, direction);
 
-        const Left = [
-            end_cell[0],
-            R.max(vci[0], vci[R.indexOf(end_cell[1], vci) - 1]),
-        ];
-        const Right = [
-            end_cell[0],
-            R.min(R.last(vci), vci[R.indexOf(end_cell[1], vci) + 1]),
-        ];
-
-        const Up = [R.max(0, end_cell[0] - 1), end_cell[1]];
-        const Down = [
-            R.min(dataframe.length - 1, end_cell[0] + 1),
-            end_cell[1],
-        ];
-
-        const switchCell = newCell => {
-            if (!e.shiftKey) {
-                setProps({
-                    is_focused: false,
-                    start_cell: newCell,
-                    end_cell: newCell,
-                    selected_cell: [newCell],
-                });
-            } else {
-                /*
-                 * the active element might be a rogue, unfocused input:
-                 * blur it so that it doesn't display a selection while
-                 * selecting multiple cells
-                 */
-                document.activeElement.blur();
-                let targetCells;
-                let removeCells = null;
-
-                const sortNumerical = R.sort((a, b) => a - b);
-                const selectedRows = sortNumerical(
-                    R.uniq(R.pluck(0, selected_cell))
-                );
-                const selectedCols = sortNumerical(
-                    R.uniq(R.pluck(1, selected_cell))
-                );
-
-                if (
-                    e.keyCode === KEY_CODES.ARROW_UP ||
-                    e.keyCode === KEY_CODES.ARROW_DOWN
-                ) {
-                    targetCells = selectedCols.map(col => [newCell[0], col]);
-                    if (
-                        R.intersection(targetCells, selected_cell).length &&
-                        newCell[0] !== 0 &&
-                        newCell[0] !== dataframe.length - 1
-                    ) {
-                        if (e.keyCode === KEY_CODES.ARROW_DOWN) {
-                            removeCells = targetCells.map(c => [
-                                c[0] - 1,
-                                c[1],
-                            ]);
-                        } else if (e.keyCode === KEY_CODES.ARROW_UP) {
-                            removeCells = targetCells.map(c => [
-                                c[0] + 1,
-                                c[1],
-                            ]);
-                        }
-                    }
-                } else if (
-                    e.keyCode === KEY_CODES.ARROW_LEFT ||
-                    e.keyCode === KEY_CODES.ARROW_RIGHT
-                ) {
-                    targetCells = selectedRows.map(row => [row, newCell[1]]);
-                    if (
-                        R.intersection(targetCells, selected_cell).length &&
-                        newCell[1] !== vci[0] &&
-                        newCell[1] !== R.last(vci)
-                    ) {
-                        if (e.keyCode === KEY_CODES.ARROW_LEFT) {
-                            removeCells = targetCells.map(c => [
-                                c[0],
-                                c[1] + 1,
-                            ]);
-                        } else if (e.keyCode === KEY_CODES.ARROW_RIGHT) {
-                            removeCells = targetCells.map(c => [
-                                c[0],
-                                c[1] - 1,
-                            ]);
-                        }
-                    }
-                } else {
-                    targetCells = [newCell];
-                }
-
-                let newSelectedCell = R.concat(targetCells, selected_cell);
-                if (removeCells) {
-                    newSelectedCell = R.without(removeCells, newSelectedCell);
-                }
-
-                setProps({
-                    is_focused: false,
-                    end_cell: newCell,
-                    selected_cell: R.uniq(newSelectedCell),
-                });
-            }
-        };
-
-        if (e.keyCode === KEY_CODES.ENTER) {
-            if (is_focused) {
-                switchCell(Down);
-            } else {
-                if (colIsEditable(editable, columns[end_cell[1]])) {
-                    setProps({is_focused: true});
-                }
-            }
-        }
-
-        if (is_focused && e.keyCode !== KEY_CODES.TAB) {
-            return;
-        }
-
-        if (e.keyCode === KEY_CODES.ARROW_LEFT) {
-            switchCell(Left);
-        } else if (e.keyCode === KEY_CODES.ARROW_UP) {
-            switchCell(Up);
-        } else if (
-            e.keyCode === KEY_CODES.ARROW_RIGHT ||
-            e.keyCode === KEY_CODES.TAB
-        ) {
-            switchCell(Right);
-        } else if (e.keyCode === KEY_CODES.ARROW_DOWN) {
-            switchCell(Down);
-        } else if (
-            e.keyCode === KEY_CODES.BACKSPACE ||
-            e.keyCode === KEY_CODES.DELETE
-        ) {
-            e.preventDefault();
-            const {selected_cell, columns} = this.props;
-            let newDataframe = dataframe;
-            selected_cell.forEach(cell => {
-                if (colIsEditable(editable, columns[cell[1]])) {
-                    newDataframe = R.set(
-                        R.lensPath([cell[0], columns[cell[1]].id]),
-                        '',
-                        newDataframe
-                    );
-                }
-            });
-
+        if (!e.shiftKey) {
             setProps({
-                dataframe: newDataframe,
+                is_focused: false,
+                start_cell: nextCell,
+                end_cell: nextCell,
+                selected_cell: [nextCell],
             });
-        } else if (
-            // pressing other letters focuses the event
-            !this.props.is_focused &&
-            // except if we're selecting cells
-            !e.shiftKey &&
-            // except if the column isn't editable
-            colIsEditable(editable, columns[end_cell[1]])
-        ) {
-            setProps({is_focused: true});
+            return;
         }
 
-        return;
+        /*
+         * the active element might be a rogue, unfocused input:
+         * blur it so that it doesn't display a selection while
+         * selecting multiple cells
+         */
+        document.activeElement.blur();
+        let targetCells;
+        let removeCells = null;
+
+        const sortNumerical = R.sort((a, b) => a - b);
+        const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
+        const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
+
+        if (
+            e.keyCode === KEY_CODES.ARROW_UP ||
+            e.keyCode === KEY_CODES.ARROW_DOWN
+        ) {
+            targetCells = selectedCols.map(col => [nextCell[0], col]);
+            if (
+                R.intersection(targetCells, selected_cell).length &&
+                nextCell[0] !== 0 &&
+                nextCell[0] !== dataframe.length - 1
+            ) {
+                if (e.keyCode === KEY_CODES.ARROW_DOWN) {
+                    removeCells = targetCells.map(c => [c[0] - 1, c[1]]);
+                } else if (e.keyCode === KEY_CODES.ARROW_UP) {
+                    removeCells = targetCells.map(c => [c[0] + 1, c[1]]);
+                }
+            }
+        } else if (
+            e.keyCode === KEY_CODES.ARROW_LEFT ||
+            e.keyCode === KEY_CODES.ARROW_RIGHT
+        ) {
+            targetCells = selectedRows.map(row => [row, nextCell[1]]);
+            if (
+                R.intersection(targetCells, selected_cell).length &&
+                nextCell[1] !== vci[0] &&
+                nextCell[1] !== R.last(vci)
+            ) {
+                if (e.keyCode === KEY_CODES.ARROW_LEFT) {
+                    removeCells = targetCells.map(c => [c[0], c[1] + 1]);
+                } else if (e.keyCode === KEY_CODES.ARROW_RIGHT) {
+                    removeCells = targetCells.map(c => [c[0], c[1] - 1]);
+                }
+            }
+        } else {
+            targetCells = [nextCell];
+        }
+
+        let newSelectedCell = R.concat(targetCells, selected_cell);
+        if (removeCells) {
+            newSelectedCell = R.without(removeCells, newSelectedCell);
+        }
+
+        setProps({
+            is_focused: false,
+            end_cell: nextCell,
+            selected_cell: R.uniq(newSelectedCell),
+        });
+    }
+
+    deleteCell(event) {
+        const {
+            columns,
+            dataframe,
+            editable,
+            selected_cell,
+            setProps,
+        } = this.props;
+
+        event.preventDefault();
+
+        let newDataframe = dataframe;
+        selected_cell.forEach(cell => {
+            if (colIsEditable(editable, columns[cell[1]])) {
+                newDataframe = R.set(
+                    R.lensPath([cell[0], columns[cell[1]].id]),
+                    '',
+                    newDataframe
+                );
+            }
+        });
+
+        setProps({
+            dataframe: newDataframe,
+        });
+    }
+
+    getNextCell(vci, direction) {
+        const {dataframe, end_cell} = this.props;
+        switch (direction) {
+            case 'left':
+                return [
+                    end_cell[0],
+                    R.max(vci[0], vci[R.indexOf(end_cell[1], vci) - 1]),
+                ];
+            case 'right':
+                return [
+                    end_cell[0],
+                    R.min(R.last(vci), vci[R.indexOf(end_cell[1], vci) + 1]),
+                ];
+            case 'up':
+                return [R.max(0, end_cell[0] - 1), end_cell[1]];
+            case 'down':
+                return [
+                    R.min(dataframe.length - 1, end_cell[0] + 1),
+                    end_cell[1],
+                ];
+            default:
+                throw new Error(
+                    `Table.getNextCell: unknown direction ${direction}`
+                );
+        }
     }
 
     componentDidMount() {
