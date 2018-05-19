@@ -5,6 +5,14 @@ const N_DATA = 50;
 export const mockData = unpackIntoColumnsAndDataFrames([
     {
         id: 'aaa',
+        name: ['', '', 'row'],
+        type: 'numeric',
+        width: 40,
+        editable: false,
+        data: gendata(i => i),
+    },
+    {
+        id: 'aaa',
         name: ['', 'Weather', 'Temperature'],
         type: 'numeric',
         width: 150,
@@ -39,7 +47,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         id: 'ddd',
         name: ['City', 'Canada', 'Montréal'],
         type: 'numeric',
-        editable: false,
         width: 150,
         data: gendata(i => i * 100),
     },
