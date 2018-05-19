@@ -1,6 +1,8 @@
+/* eslint no-magic-numbers: 0 */
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import Table from '../lib';
-import {mockData, mockDataSimple} from './data.js';
+import {mockData} from './data.js';
 
 class App extends Component {
     constructor() {
@@ -56,109 +58,8 @@ class App extends Component {
     }
 }
 
-class InputContainer extends Component {
-    constructor() {
-        super();
-        this.state = {
-            value: 3,
-            isFocused: true,
-        };
-    }
-
-    render() {
-        return (
-            <StatefulInput
-                value={this.state.value}
-                updateProps={newProps => this.setState(newProps)}
-                isFocused={this.state.isFocused}
-            />
-        );
-    }
-}
-
-class StatefulInput extends Component {
-    componentDidMount() {
-        if (this.el && this.props.isFocused) {
-            console.warn('componentDidMount - focus');
-            this.el.focus();
-        }
-    }
-
-    componentDidUpdate() {
-        if (this.el && this.props.isFocused) {
-            console.warn('componentDidUpdate - focus');
-            this.el.focus();
-        }
-    }
-
-    render() {
-        return (
-            <div
-                style={{
-                    padding: 50,
-                }}
-            >
-                <button
-                    onClick={() =>
-                        this.props.updateProps({
-                            isFocused: false,
-                        })
-                    }
-                >
-                    {'Unfocus'}
-                </button>
-                <button
-                    onClick={() =>
-                        this.props.updateProps({
-                            isFocused: true,
-                        })
-                    }
-                >
-                    {'Focus'}
-                </button>
-
-                <div>{`Focused: ${this.props.isFocused}`}</div>
-
-                <input
-                    className={`${
-                        this.props.isFocused ? 'focused' : 'unfocused'
-                    }`}
-                    onChange={e => {
-                        const newProps = {
-                            value: e.target.value,
-                        };
-                        if (!this.props.focused) {
-                            newProps.isFocused = true;
-                        }
-                        this.props.updateProps(newProps);
-                    }}
-                    onClick={e => {
-                        if (!this.props.isFocused) {
-                            console.warn('click - preventDefault');
-                            e.preventDefault();
-                            this.props.updateProps({
-                                isFocused: false,
-                            });
-                        }
-                        return e;
-                    }}
-                    onDoubleClick={e => {
-                        if (!this.props.isFocused) {
-                            console.warn('dblclick - preventDefault');
-                            e.preventDefault();
-                            this.props.updateProps({
-                                isFocused: true,
-                            });
-                        }
-                        return e;
-                    }}
-                    type="text"
-                    ref={el => (this.el = el)}
-                    value={this.props.value}
-                />
-            </div>
-        );
-    }
-}
+App.propTypes = {
+    value: PropTypes.any,
+};
 
 export default App;

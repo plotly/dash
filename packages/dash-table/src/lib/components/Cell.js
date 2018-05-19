@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
-import {keys, merge} from 'ramda';
 import Dropdown from 'react-select';
 
 import {colIsEditable} from './derivedState';
@@ -54,15 +52,17 @@ export default class Cell extends Component {
 
         e.preventDefault();
         const cellLocation = [idx, i];
-        let newSelectedCell;
         const newProps = {
             is_focused: false,
             end_cell: cellLocation,
         };
 
-        const vci = []; // visible col indices
+        // visible col indices
+        const vci = [];
         columns.forEach((c, i) => {
-            if (!c.hidden) vci.push(i);
+            if (!c.hidden) {
+                vci.push(i);
+            }
         });
 
         if (e.shiftKey) {
@@ -84,17 +84,11 @@ export default class Cell extends Component {
     }
 
     handleDoubleClick(e) {
-        const {
-            columns,
-            editable,
-            setProps,
-            idx,
-            i,
-            is_focused,
-            isSelected,
-        } = this.props;
+        const {setProps, idx, i, is_focused} = this.props;
 
-        if (this._notEditable) return;
+        if (this._notEditable) {
+            return;
+        }
 
         if (!is_focused) {
             e.preventDefault();
@@ -125,19 +119,21 @@ export default class Cell extends Component {
             expanded_rows,
         } = this.props;
 
-        const vci = []; // visible col indices
+        // visible col indices
+        const vci = [];
         columns.forEach((c, i) => {
-            if (!c.hidden) vci.push(i);
+            if (!c.hidden) {
+                vci.push(i);
+            }
         });
 
         // Left, Right, Top, Bottom
-        const Accent = 'var(--accent)';
-        const Hidden = 'transparent';
-        const Border = 'var(--border)';
-        const Left = (c, t) => `inset ${t}px 0px 0px 0px ${c}`;
-        const Right = (c, t) => `inset -${t}px 0px 0px 0px ${c}`;
-        const Top = (c, t) => `inset 0px ${t}px 0px 0px ${c}`;
-        const Bottom = (c, t) => `inset 0px -${t}px 0px 0px ${c}`;
+        const ACCENT = 'var(--accent)';
+        const BORDER = 'var(--border)';
+        const doLeft = (c, t) => `inset ${t}px 0px 0px 0px ${c}`;
+        const doRight = (c, t) => `inset -${t}px 0px 0px 0px ${c}`;
+        const doTop = (c, t) => `inset 0px ${t}px 0px 0px ${c}`;
+        const doBottom = (c, t) => `inset 0px -${t}px 0px 0px ${c}`;
 
         const sortNumerical = R.sort((a, b) => a - b);
         const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
@@ -156,7 +152,7 @@ export default class Cell extends Component {
             ci === R.last(selectedCols) && R.contains(ri, selectedRows);
 
         const showBottomEdge =
-            (ri === R.last(selectedRows) || false) && // ri === (R.head(selectedRows) - 1)
+            (ri === R.last(selectedRows) || false) &&
             R.contains(ci, selectedCols);
 
         const isRightmost = ci === R.last(vci);
@@ -173,25 +169,27 @@ export default class Cell extends Component {
 
         // rules are applied in the order that they are supplied
         const boxShadowRules = [
-            showInsideLeftEdge || isNeighborToExpanded ? Left(Accent, 2) : null,
-            showInsideTopEdge ? Top(Accent, 2) : null,
-            showOutsideTopEdge && !isBelowExpanded ? Top(Accent, 1) : null,
-            showOutsideLeftEdge ? Left(Accent, 1) : null,
-            showBottomEdge
-                ? Bottom(Accent, isBottommost || isAboveExpanded ? 2 : 1)
+            showInsideLeftEdge || isNeighborToExpanded
+                ? doLeft(ACCENT, 2)
                 : null,
-            showInsideRightEdge ? Right(Accent, isRightmost ? 2 : 1) : null,
-            isSelectedColumn && isTopmost ? Top(Accent, 1) : null,
-            isSelectedRow && isLeftmost ? Left(Accent, 1) : null,
+            showInsideTopEdge ? doTop(ACCENT, 2) : null,
+            showOutsideTopEdge && !isBelowExpanded ? doTop(ACCENT, 1) : null,
+            showOutsideLeftEdge ? doLeft(ACCENT, 1) : null,
+            showBottomEdge
+                ? doBottom(ACCENT, isBottommost || isAboveExpanded ? 2 : 1)
+                : null,
+            showInsideRightEdge ? doRight(ACCENT, isRightmost ? 2 : 1) : null,
+            isSelectedColumn && isTopmost ? doTop(ACCENT, 1) : null,
+            isSelectedRow && isLeftmost ? doLeft(ACCENT, 1) : null,
 
-            Left(Border, 1),
-            Top(Border, 1),
+            doLeft(BORDER, 1),
+            doTop(BORDER, 1),
 
-            isBottommost || isAboveExpanded ? Bottom(Border, 1) : null,
-            isRightmost ? Right(Border, 1) : null,
+            isBottommost || isAboveExpanded ? doBottom(BORDER, 1) : null,
+            isRightmost ? doRight(BORDER, 1) : null,
         ].filter(R.complement(R.not));
         const sortedBoxRules = R.sort(
-            (a, b) => (R.contains(Accent, a) ? -1 : 1),
+            a => (R.contains(ACCENT, a) ? -1 : 1),
             boxShadowRules
         );
 
@@ -203,19 +201,14 @@ export default class Cell extends Component {
     }
 
     borderSquares() {
-        const {
-            i: ci,
-            idx: ri,
-            columns,
-            selected_cell,
-            dataframe,
-            collapsable,
-            expanded_rows,
-        } = this.props;
+        const {i: ci, idx: ri, columns, selected_cell} = this.props;
 
-        const vci = []; // visible col indices
+        // visible col indices
+        const vci = [];
         columns.forEach((c, i) => {
-            if (!c.hidden) vci.push(i);
+            if (!c.hidden) {
+                vci.push(i);
+            }
         });
 
         const sortNumerical = R.sort((a, b) => a - b);
@@ -226,7 +219,9 @@ export default class Cell extends Component {
         const isBelow = ri === R.last(selectedRows) + 1;
 
         const className = isRight && isBelow ? 'bottom-right' : '';
-        if (!className) return null;
+        if (!className) {
+            return null;
+        }
         return (
             <div className={`selected-square selected-square-${className}`} />
         );
@@ -237,21 +232,13 @@ export default class Cell extends Component {
     render() {
         const {
             c,
-            editable,
             i,
             idx,
             isSelected,
-            isRight,
-            isRightmost,
-            isBottom,
-            isBottommost,
-            type,
             value,
             setProps,
             dataframe,
             is_focused,
-            collapsable,
-            expanded_rows,
             start_cell,
             selected_cell,
             columns,
@@ -273,7 +260,9 @@ export default class Cell extends Component {
                     onDoubleClick={this.handleDoubleClick}
                     ref={el => (this.textInput = el)}
                     onChange={e => {
-                        if (notEditable) return;
+                        if (notEditable) {
+                            return;
+                        }
                         if (isSelected) {
                             const newDataframe = R.set(
                                 R.lensPath([idx, c.id]),
@@ -342,3 +331,20 @@ export default class Cell extends Component {
         );
     }
 }
+
+Cell.propTypes = {
+    c: PropTypes.any,
+    collapsable: PropTypes.any,
+    columns: PropTypes.any,
+    dataframe: PropTypes.any,
+    editable: PropTypes.any,
+    expanded_rows: PropTypes.any,
+    i: PropTypes.any,
+    idx: PropTypes.any,
+    isSelected: PropTypes.any,
+    is_focused: PropTypes.any,
+    selected_cell: PropTypes.any,
+    setProps: PropTypes.any,
+    start_cell: PropTypes.any,
+    value: PropTypes.any,
+};

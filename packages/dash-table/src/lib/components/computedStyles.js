@@ -4,7 +4,7 @@ const HEIGHT = 35;
 
 const styles = {
     scroll: {
-        row: props => {
+        row2: props => {
             const style = {};
 
             if (props.n_fixed_columns) {
@@ -56,13 +56,16 @@ const styles = {
             if (props.n_fixed_columns) {
                 style.overflowX = 'scroll';
                 style.width = props.width;
+
+                // taking into account some border somewhere
+                const BORDER_FIX = -1;
                 style.marginLeft =
                     R.sum(
                         R.pluck(
                             'width',
                             R.slice(0, props.n_fixed_columns, props.columns)
                         )
-                    ) - 1; /* taking into account some border somewhere */
+                    ) + BORDER_FIX;
             }
 
             if (props.n_fixed_rows) {
@@ -74,7 +77,7 @@ const styles = {
             return style;
         },
 
-        table: (props, column_index) => {
+        table: () => {
             const style = {};
 
             return style;

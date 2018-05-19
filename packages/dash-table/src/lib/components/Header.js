@@ -1,10 +1,6 @@
 import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
-import {keys, merge} from 'ramda';
-
-import Cell from './Cell';
 import computedStyles from './computedStyles';
 
 const getColLength = c => (Array.isArray(c.name) ? c.name.length : 1);
@@ -18,11 +14,11 @@ export default class Header extends Component {
     }
 
     sort(colId) {
-        const {dataframe, restore_index, setProps, sort} = this.props;
+        const {dataframe, setProps, sort} = this.props;
 
         let newSort = sort;
+        const colSort = R.find(R.propEq('column', colId))(sort);
 
-        let colSort = R.find(R.propEq('column', colId))(sort);
         if (colSort) {
             if (colSort.direction === 'desc') {
                 colSort.direction = 'asc';
@@ -57,8 +53,6 @@ export default class Header extends Component {
 
     renderHeaderCells({labels, rowIsSortable, mergeCells}) {
         const {columns, sort} = this.props;
-        const headerCells = [];
-
         let columnIndices;
         if (!mergeCells) {
             columnIndices = R.range(0, columns.length);
@@ -68,16 +62,17 @@ export default class Header extends Component {
             labels.forEach((label, i) => {
                 if (label === labels[compareIndex]) {
                     return;
-                } else {
-                    columnIndices.push(i);
-                    compareIndex = i;
                 }
+                columnIndices.push(i);
+                compareIndex = i;
             });
         }
 
         return columnIndices.map((i, j) => {
             const c = columns[i];
-            if (c.hidden) return null;
+            if (c.hidden) {
+                return null;
+            }
             let style = R.merge({}, c.style) || {};
 
             let colSpan;
@@ -154,10 +149,7 @@ export default class Header extends Component {
             collapsable,
             columns,
             sortable,
-            setProps,
-            sort,
             merge_duplicate_headers,
-            n_fixed_columns,
         } = this.props;
 
         let headerRows;
@@ -202,3 +194,13 @@ export default class Header extends Component {
         return <thead>{headerRows}</thead>;
     }
 }
+
+Header.propTypes = {
+    collapsable: PropTypes.any,
+    columns: PropTypes.any,
+    sortable: PropTypes.any,
+    merge_duplicate_headers: PropTypes.any,
+    dataframe: PropTypes.any,
+    setProps: PropTypes.any,
+    sort: PropTypes.any,
+};

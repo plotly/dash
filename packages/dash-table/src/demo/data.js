@@ -1,3 +1,4 @@
+/* eslint no-magic-numbers: 0 */
 import * as R from 'ramda';
 
 const N_DATA = 50;

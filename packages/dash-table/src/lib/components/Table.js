@@ -2,24 +2,16 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
-import {keys, merge} from 'ramda';
 import SheetClip from 'sheetclip';
-
-import 'react-select/dist/react-select.css';
-import './Table.css';
-import './Dropdown.css';
-import Cell from './Cell.js';
 import Row from './Row.js';
 import Header from './Header.js';
 import {colIsEditable} from './derivedState';
 import {KEY_CODES, isMetaKey, isCtrlKey, isCtrlMetaKey} from '../utils/unicode';
 import computedStyles from './computedStyles';
 
-function deepMerge(a, b) {
-    return R.is(Object, a) && R.is(Object, b)
-        ? R.mergeWith(deepMerge, a, b)
-        : b;
-}
+import 'react-select/dist/react-select.css';
+import './Table.css';
+import './Dropdown.css';
 
 export default class EditableTable extends Component {
     constructor(props) {
@@ -50,7 +42,6 @@ export default class EditableTable extends Component {
             end_cell,
             selected_cell,
             setProps,
-            start_cell,
             is_focused,
             editable,
         } = this.props;
@@ -59,8 +50,9 @@ export default class EditableTable extends Component {
 
         // catch CTRL but not right ALT (which in some systems triggers ALT+CTRL)
         const ctrlDown = (e.ctrlKey || e.metaKey) && !e.altKey;
+        const isCopyCmd = e.keyCode === KEY_CODES.C && ctrlDown && !is_focused;
 
-        // if this is the intial CTL keydown with no modifiers then pass
+        // if this is the initial CTL keydown with no modifiers then pass
         if (ctrlDown && isCtrlKey(e.keyCode)) {
             return;
         }
@@ -70,68 +62,19 @@ export default class EditableTable extends Component {
             return;
         }
 
-        const vci = []; // visible col indices
+        // visible col indices
+        const vci = [];
         columns.forEach((c, i) => {
-            if (!c.hidden) vci.push(i);
+            if (!c.hidden) {
+                vci.push(i);
+            }
         });
 
         // copy
-        if (
-            e.keyCode === KEY_CODES.C &&
-            (e.metaKey || e.ctrlKey) &&
-            !is_focused
-        ) {
-            e.preventDefault();
-            const el = document.createElement('textarea');
-            const selectedRows = R.uniq(R.pluck(0, selected_cell).sort());
-            const selectedCols = R.uniq(R.pluck(1, selected_cell).sort());
-            const selectedTabularData = R.slice(
-                R.head(selectedRows),
-                R.last(selectedRows) + 1,
-                dataframe
-            ).map(row =>
-                R.props(selectedCols, R.props(R.pluck('id', columns), row))
-            );
-
-            el.value = selectedTabularData
-                .map(row => R.values(row).join('\t'))
-                .join('\r\n');
-
-            // (Adapted from https://hackernoon.com/copying-text-to-clipboard-with-javascript-df4d4988697f)
-            // Make it readonly to be tamper-proof
-            el.setAttribute('readonly', '');
-            // el.style.position = 'absolute';
-            // Move outside the screen to make it invisible
-            // el.style.left = '-9999px';
-            // Append the <textarea> element to the HTML document
-            document.body.appendChild(el);
-            const selected =
-                // Check if there is any content selected previously
-                document.getSelection().rangeCount > 0
-                    ? // Store selection if found
-                      document.getSelection().getRangeAt(0)
-                    : // Mark as false to know no selection existed before
-                      false;
-            // Select the <textarea> content
-            el.select();
-            // Copy - only works as a result of a user action (e.g. click events)
-            document.execCommand('copy');
-            // Remove the <textarea> element
-            document.body.removeChild(el);
-            // If a selection existed before copying
-            if (selected) {
-                // Unselect everything on the HTML document
-                document.getSelection().removeAllRanges();
-                // Restore the original selection
-                document.getSelection().addRange(selected);
-            }
-            // refocus on the table so that onPaste can be fired immediately
-            // on the same table
-            // note that this requires tabIndex to be set on the <table/>
-            this._table.focus();
+        if (isCopyCmd) {
+            this.onCopy();
             return;
         }
-
         if (e.keyCode === KEY_CODES.ESCAPE) {
             // escape
             setProps({is_focused: false});
@@ -285,10 +228,8 @@ export default class EditableTable extends Component {
                 dataframe: newDataframe,
             });
         } else if (
-            // pressing other letters focusses the event
+            // pressing other letters focuses the event
             !this.props.is_focused &&
-            // except if we're copying and pasting
-            !(e.metaKey && KEY_CODES.V) &&
             // except if we're selecting cells
             !e.shiftKey &&
             // except if the column isn't editable
@@ -296,7 +237,8 @@ export default class EditableTable extends Component {
         ) {
             setProps({is_focused: true});
         }
-        return e;
+
+        return;
     }
 
     componentDidMount() {
@@ -324,13 +266,67 @@ export default class EditableTable extends Component {
         );
     }
 
+    onCopy(e) {
+        const {columns, dataframe, selected_cell} = this.props;
+
+        e.preventDefault();
+        const el = document.createElement('textarea');
+        const selectedRows = R.uniq(R.pluck(0, selected_cell).sort());
+        const selectedCols = R.uniq(R.pluck(1, selected_cell).sort());
+        const selectedTabularData = R.slice(
+            R.head(selectedRows),
+            R.last(selectedRows) + 1,
+            dataframe
+        ).map(row =>
+            R.props(selectedCols, R.props(R.pluck('id', columns), row))
+        );
+
+        el.value = selectedTabularData
+            .map(row => R.values(row).join('\t'))
+            .join('\r\n');
+
+        // (Adapted from https://hackernoon.com/copying-text-to-clipboard-with-javascript-df4d4988697f)
+        // Make it readonly to be tamper-proof
+        el.setAttribute('readonly', '');
+        // el.style.position = 'absolute';
+        // Move outside the screen to make it invisible
+        // el.style.left = '-9999px';
+        // Append the <textarea> element to the HTML document
+        document.body.appendChild(el);
+
+        // Check if there is any content selected previously
+        let selected = false;
+        if (document.getSelection().rangeCount > 0) {
+            // Store selection if found
+            selected = document.getSelection().getRangeAt(0);
+        }
+
+        // Select the <textarea> content
+        el.select();
+        // Copy - only works as a result of a user action (e.g. click events)
+        document.execCommand('copy');
+        // Remove the <textarea> element
+        document.body.removeChild(el);
+        // If a selection existed before copying
+        if (selected) {
+            // Unselect everything on the HTML document
+            document.getSelection().removeAllRanges();
+            // Restore the original selection
+            document.getSelection().addRange(selected);
+        }
+        // refocus on the table so that onPaste can be fired immediately
+        // on the same table
+        // note that this requires tabIndex to be set on the <table/>
+        this._table.focus();
+        return;
+    }
+
     onPaste(e) {
         const {
             columns,
             dataframe,
             editable,
             setProps,
-            selected_cell,
             end_cell,
             is_focused,
         } = this.props;
@@ -341,7 +337,7 @@ export default class EditableTable extends Component {
                 const values = SheetClip.prototype.parse(text);
 
                 let newDataframe = dataframe;
-                let newColumns = columns;
+                const newColumns = columns;
 
                 if (values[0].length + end_cell[1] >= columns.length) {
                     for (
@@ -424,7 +420,6 @@ export default class EditableTable extends Component {
             collapsable,
             columns,
             dataframe,
-            setProps,
             display_row_count: n,
             display_tail_count: m,
             table_style,
@@ -477,9 +472,8 @@ export default class EditableTable extends Component {
                     {table_component}
                 </div>
             );
-        } else {
-            return <div className="dash-spreadsheet">{table_component}</div>;
         }
+        return <div className="dash-spreadsheet">{table_component}</div>;
     }
 }
 
@@ -519,4 +513,22 @@ EditableTable.defaultProps = {
 
         td: {},
     },
+};
+
+EditableTable.propTypes = {
+    collapsable: PropTypes.any,
+    columns: PropTypes.any,
+    dataframe: PropTypes.any,
+    display_row_count: PropTypes.any,
+    display_tail_count: PropTypes.any,
+    editable: PropTypes.any,
+    end_cell: PropTypes.any,
+    expanded_rows: PropTypes.any,
+    is_focused: PropTypes.any,
+    n_fixed_columns: PropTypes.any,
+    n_fixed_rows: PropTypes.any,
+    selected_cell: PropTypes.any,
+    setProps: PropTypes.any,
+    start_cell: PropTypes.any,
+    table_style: PropTypes.any,
 };
