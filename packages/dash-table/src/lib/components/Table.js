@@ -23,6 +23,31 @@ export default class EditableTable extends Component {
         this.onPaste = this.onPaste.bind(this);
     }
 
+    componentDidMount() {
+        console.warn('adding event listener');
+        document.addEventListener(
+            'click',
+            this.handleClickOutside.bind(this),
+            true
+        );
+        document.addEventListener('keydown', e => {
+            const t0 = performance.now();
+            console.debug(`==start`);
+            this.handleKeyDown(e);
+            const t1 = performance.now();
+            console.debug(`==${t1 - t0}ms`);
+        });
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+        document.removeEventListener(
+            'click',
+            this.handleClickOutside.bind(this),
+            true
+        );
+    }
+
     handleClickOutside(event) {
         const domNode = ReactDOM.findDOMNode(this);
 
@@ -245,31 +270,6 @@ export default class EditableTable extends Component {
                     `Table.getNextCell: unknown direction ${direction}`
                 );
         }
-    }
-
-    componentDidMount() {
-        console.warn('adding event listener');
-        document.addEventListener(
-            'click',
-            this.handleClickOutside.bind(this),
-            true
-        );
-        document.addEventListener('keydown', e => {
-            const t0 = performance.now();
-            console.debug(`==start`);
-            this.handleKeyDown(e);
-            const t1 = performance.now();
-            console.debug(`==${t1 - t0}ms`);
-        });
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-        document.removeEventListener(
-            'click',
-            this.handleClickOutside.bind(this),
-            true
-        );
     }
 
     onCopy(e) {
