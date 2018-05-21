@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
 import SheetClip from 'sheetclip';
@@ -18,46 +17,8 @@ export default class EditableTable extends Component {
         super(props);
 
         this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.handleClickOutside = this.handleClickOutside.bind(this);
         this.collectRows = this.collectRows.bind(this);
         this.onPaste = this.onPaste.bind(this);
-    }
-
-    componentDidMount() {
-        console.warn('adding event listener');
-        document.addEventListener(
-            'click',
-            this.handleClickOutside.bind(this),
-            true
-        );
-        document.addEventListener('keydown', e => {
-            const t0 = performance.now();
-            console.debug(`==start`);
-            this.handleKeyDown(e);
-            const t1 = performance.now();
-            console.debug(`==${t1 - t0}ms`);
-        });
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-        document.removeEventListener(
-            'click',
-            this.handleClickOutside.bind(this),
-            true
-        );
-    }
-
-    handleClickOutside(event) {
-        const domNode = ReactDOM.findDOMNode(this);
-
-        if (!domNode || !domNode.contains(event.target)) {
-            console.warn('handleClickOutside');
-            this.props.setProps({
-                selected_cell: [[]],
-                is_focused: false,
-            });
-        }
     }
 
     handleKeyDown(e) {
@@ -157,15 +118,8 @@ export default class EditableTable extends Component {
             return;
         }
 
-        /*
-         * the active element might be a rogue, unfocused input:
-         * blur it so that it doesn't display a selection while
-         * selecting multiple cells
-         */
-        document.activeElement.blur();
         let targetCells;
         let removeCells = null;
-
         const sortNumerical = R.sort((a, b) => a - b);
         const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
         const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
@@ -469,17 +423,19 @@ export default class EditableTable extends Component {
             </table>
         );
 
+        let tableStyle = null;
         if (n_fixed_columns || n_fixed_rows) {
-            return (
-                <div
-                    className="dash-spreadsheet"
-                    style={computedStyles.scroll.containerDiv(this.props)}
-                >
-                    {table_component}
-                </div>
-            );
+            tableStyle = computedStyles.scroll.containerDiv(this.props);
         }
-        return <div className="dash-spreadsheet">{table_component}</div>;
+        return (
+            <div
+                className="dash-spreadsheet"
+                style={tableStyle}
+                onKeyDown={this.handleKeyDown}
+            >
+                {table_component}
+            </div>
+        );
     }
 }
 
