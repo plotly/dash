@@ -4,15 +4,17 @@ import PropTypes from 'prop-types';
 import Table from '../lib';
 import {mockData} from './data.js';
 
+const clone = o => JSON.parse(JSON.stringify(o));
+
 class App extends Component {
     constructor() {
         super();
         this.state = {
-            dataframe: mockData.dataframe,
+            dataframe: clone(mockData.dataframe),
             n_fixed_columns: 0,
             n_fixed_rows: 0,
             merge_duplicate_headers: true,
-            columns: mockData.columns,
+            columns: clone(mockData.columns),
 
             sort: [
                 {
@@ -46,6 +48,10 @@ class App extends Component {
     render() {
         return (
             <div>
+                <label>test events:{'\u00A0\u00A0'}</label>
+                <input type="text" />
+                <br />
+                <br />
                 <Table
                     setProps={newProps => {
                         console.info('--->', newProps);
