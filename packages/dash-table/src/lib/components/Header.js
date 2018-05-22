@@ -4,7 +4,7 @@ import * as R from 'ramda';
 import computedStyles from './computedStyles';
 
 const getColLength = c => (Array.isArray(c.name) ? c.name.length : 1);
-const getColNameAt = (c, i) => c.name[i];
+const getColNameAt = (c, i) => (Array.isArray(c.name) ? c.name[i] : '');
 
 export default class Header extends Component {
     constructor() {
@@ -125,10 +125,10 @@ export default class Header extends Component {
                     {rowIsSortable ? (
                         <span
                             className="filter"
-                            onClick={() => this.sort(c.name)}
+                            onClick={() => this.sort(c.id)}
                         >
-                            {R.find(R.propEq('column', c.name), sort)
-                                ? R.find(R.propEq('column', c.name), sort)
+                            {R.find(R.propEq('column', c.id), sort)
+                                ? R.find(R.propEq('column', c.id), sort)
                                       .direction === 'desc'
                                     ? '↑'
                                     : '↓'
@@ -179,12 +179,16 @@ export default class Header extends Component {
                     <tr style={rowStyle}>
                         {collapsableCell}
                         {this.renderHeaderCells({
-                            labels: columns.map(c => getColNameAt(c, i)),
-                            rowIsSortable:
-                                sortable && i + 1 === columns[i].name.length,
+                            labels: columns.map(
+                                c =>
+                                    !c.name && i === headerDepth - 1
+                                        ? c.id
+                                        : getColNameAt(c, i)
+                            ),
+                            rowIsSortable: sortable && i + 1 === headerDepth,
                             mergeCells:
                                 merge_duplicate_headers &&
-                                i + 1 !== columns[i].name.length,
+                                i + 1 !== headerDepth,
                         })}
                     </tr>
                 );

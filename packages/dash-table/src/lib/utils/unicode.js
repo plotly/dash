@@ -46,6 +46,46 @@ export const KEY_CODES = {
     V: 86,
 };
 
+const META_KEYS = [
+    KEY_CODES.ARROW_DOWN,
+    KEY_CODES.ARROW_UP,
+    KEY_CODES.ARROW_LEFT,
+    KEY_CODES.ARROW_RIGHT,
+    KEY_CODES.HOME,
+    KEY_CODES.END,
+    KEY_CODES.DELETE,
+    KEY_CODES.BACKSPACE,
+    KEY_CODES.F1,
+    KEY_CODES.F2,
+    KEY_CODES.F3,
+    KEY_CODES.F4,
+    KEY_CODES.F5,
+    KEY_CODES.F6,
+    KEY_CODES.F7,
+    KEY_CODES.F8,
+    KEY_CODES.F9,
+    KEY_CODES.F10,
+    KEY_CODES.F11,
+    KEY_CODES.F12,
+    KEY_CODES.TAB,
+    KEY_CODES.PAGE_DOWN,
+    KEY_CODES.PAGE_UP,
+    KEY_CODES.ENTER,
+    KEY_CODES.ESCAPE,
+    KEY_CODES.SHIFT,
+    KEY_CODES.CAPS_LOCK,
+    KEY_CODES.ALT,
+];
+
+const ARROW_KEYS = [
+    KEY_CODES.ARROW_DOWN,
+    KEY_CODES.ARROW_UP,
+    KEY_CODES.ARROW_LEFT,
+    KEY_CODES.ARROW_RIGHT,
+];
+
+const NAVIGATION_KEYS = [...ARROW_KEYS, KEY_CODES.TAB, KEY_CODES.ENTER];
+
 /**
  * Returns true if keyCode represents a printable character.
  *
@@ -76,38 +116,25 @@ export function isPrintableChar(keyCode) {
  * @returns {Boolean}
  */
 export function isMetaKey(keyCode) {
-    var metaKeys = [
-        KEY_CODES.ARROW_DOWN,
-        KEY_CODES.ARROW_UP,
-        KEY_CODES.ARROW_LEFT,
-        KEY_CODES.ARROW_RIGHT,
-        KEY_CODES.HOME,
-        KEY_CODES.END,
-        KEY_CODES.DELETE,
-        KEY_CODES.BACKSPACE,
-        KEY_CODES.F1,
-        KEY_CODES.F2,
-        KEY_CODES.F3,
-        KEY_CODES.F4,
-        KEY_CODES.F5,
-        KEY_CODES.F6,
-        KEY_CODES.F7,
-        KEY_CODES.F8,
-        KEY_CODES.F9,
-        KEY_CODES.F10,
-        KEY_CODES.F11,
-        KEY_CODES.F12,
-        KEY_CODES.TAB,
-        KEY_CODES.PAGE_DOWN,
-        KEY_CODES.PAGE_UP,
-        KEY_CODES.ENTER,
-        KEY_CODES.ESCAPE,
-        KEY_CODES.SHIFT,
-        KEY_CODES.CAPS_LOCK,
-        KEY_CODES.ALT,
-    ];
+    return META_KEYS.indexOf(keyCode) !== -1;
+}
 
-    return metaKeys.indexOf(keyCode) !== -1;
+/**
+ * Checks if passed key code can lead to table cell naviagation.
+ * This doesn't mean we must navigate. Enter for example can also
+ * bring the cell Input into focus.
+ */
+export function isNavKey(keyCode) {
+    return NAVIGATION_KEYS.indexOf(keyCode) !== -1;
+}
+
+/**
+ * Checks if passed key code can lead to table cell naviagation.
+ * This doesn't mean we must navigate. Enter for example can also
+ * bring the cell Input into focus.
+ */
+export function isArrowKey(keyCode) {
+    return ARROW_KEYS.indexOf(keyCode) !== -1;
 }
 
 /**

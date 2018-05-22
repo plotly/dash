@@ -65,8 +65,8 @@
         inset 0px 1px 0px 0px var(--border);
 }
 
-.dash-spreadsheet :not(.cell--active--not-start) tr:hover,
-tr:hover input :not(.cell--active--not-start) {
+.dash-spreadsheet :not(.cell--selected) tr:hover,
+tr:hover input :not(.cell--selected) {
     background-color: var(--hover);
 }
 
@@ -153,7 +153,7 @@ tr:hover input :not(.cell--active--not-start) {
         inset 0px -1px 0px 0px var(--border);
 }
 
-.cell--active--not-start {
+.cell--selected {
     background-color: var(--selected-background);
 }
 

@@ -61,18 +61,6 @@ export default class Row extends Component {
                     type={c.type}
                     editable={editable}
                     isSelected={R.contains([idx, i], selected_cell)}
-                    isBottom={
-                        false &&
-                        selected_cell[0][0] === idx - 1 &&
-                        selected_cell[0][1] === i
-                    }
-                    isRight={
-                        false &&
-                        selected_cell[0][0] === idx &&
-                        selected_cell[0][1] === i - 1
-                    }
-                    isRightmost={false && columns.length === i + 1}
-                    isBottommost={false && dataframe.length === idx + 1}
                     idx={idx}
                     i={i}
                     c={c}
@@ -105,4 +93,5 @@ Row.propTypes = {
     selected_cell: PropTypes.any,
     collapsable: PropTypes.any,
     expanded_rows: PropTypes.any,
+    active_cell: PropTypes.any,
 };

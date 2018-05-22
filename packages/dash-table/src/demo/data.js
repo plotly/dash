@@ -5,8 +5,7 @@ const N_DATA = 50;
 
 export const mockData = unpackIntoColumnsAndDataFrames([
     {
-        id: 'aaa',
-        name: ['', '', 'row'],
+        id: 'rows',
         type: 'numeric',
         width: 40,
         editable: false,

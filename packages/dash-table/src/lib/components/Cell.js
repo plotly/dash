@@ -12,9 +12,6 @@ export default class Cell extends Component {
 
         this.handleClick = this.handleClick.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
-        this.borderStyle = this.borderStyle.bind(this);
-        this.borderSquares = this.borderSquares.bind(this);
-        this.fixedColumnStyle = this.fixedColumnStyle.bind(this);
 
         const {editable, columns, i} = props;
         this.state = {
@@ -33,7 +30,6 @@ export default class Cell extends Component {
         const {
             columns,
             setProps,
-            start_cell,
             idx,
             i,
             is_focused,
@@ -54,7 +50,7 @@ export default class Cell extends Component {
         const cellLocation = [idx, i];
         const newProps = {
             is_focused: false,
-            end_cell: cellLocation,
+            active_cell: cellLocation,
         };
 
         // visible col indices
@@ -65,20 +61,24 @@ export default class Cell extends Component {
             }
         });
 
+        const selectedRows = R.uniq(R.pluck(0, selected_cell)).sort();
+        const selectedCols = R.uniq(R.pluck(1, selected_cell)).sort();
+        const minRow = selectedRows[0];
+        const minCol = selectedCols[0];
+
         if (e.shiftKey) {
             newProps.selected_cell = R.xprod(
                 R.range(
-                    R.min(start_cell[0], cellLocation[0]),
-                    R.max(start_cell[0], cellLocation[0]) + 1
+                    R.min(minRow, cellLocation[0]),
+                    R.max(minRow, cellLocation[0]) + 1
                 ),
                 R.range(
-                    R.min(start_cell[1], cellLocation[1]),
-                    R.max(start_cell[1], cellLocation[1]) + 1
+                    R.min(minCol, cellLocation[1]),
+                    R.max(minCol, cellLocation[1]) + 1
                 )
             ).filter(c => R.contains(c[1], vci));
         } else {
             newProps.selected_cell = [cellLocation];
-            newProps.start_cell = cellLocation;
         }
         setProps(newProps);
     }
@@ -94,6 +94,7 @@ export default class Cell extends Component {
             e.preventDefault();
             const newProps = {
                 selected_cell: [[idx, i]],
+                active_cell: [idx, i],
                 is_focused: true,
             };
             setProps(newProps);
@@ -101,8 +102,10 @@ export default class Cell extends Component {
     }
 
     componentDidUpdate() {
+        const {active_cell, idx, i} = this.props;
+        const isActive = active_cell[0] === idx && active_cell[1] === i;
         if (this.textInput) {
-            if (this.props.isSelected && this.props.is_focused) {
+            if (isActive && this.props.is_focused) {
                 this.textInput.focus();
             }
         }
@@ -117,6 +120,7 @@ export default class Cell extends Component {
             dataframe,
             collapsable,
             expanded_rows,
+            active_cell,
         } = this.props;
 
         // visible col indices
@@ -127,9 +131,12 @@ export default class Cell extends Component {
             }
         });
 
+        const isActive = active_cell[0] === ri && active_cell[1] === ci;
+
         // Left, Right, Top, Bottom
         const ACCENT = 'var(--accent)';
         const BORDER = 'var(--border)';
+
         const doLeft = (c, t) => `inset ${t}px 0px 0px 0px ${c}`;
         const doRight = (c, t) => `inset -${t}px 0px 0px 0px ${c}`;
         const doTop = (c, t) => `inset 0px ${t}px 0px 0px ${c}`;
@@ -139,21 +146,19 @@ export default class Cell extends Component {
         const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
         const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
 
-        const showInsideLeftEdge =
-            ci === R.head(selectedCols) && R.contains(ri, selectedRows);
-        const showInsideTopEdge =
-            ri === R.head(selectedRows) && R.contains(ci, selectedCols);
-        const showOutsideTopEdge =
-            ri === R.last(selectedRows) + 1 && R.contains(ci, selectedCols);
-        const showOutsideLeftEdge =
-            ci === R.last(selectedCols) + 1 && R.contains(ri, selectedRows);
-
-        const showInsideRightEdge =
-            ci === R.last(selectedCols) && R.contains(ri, selectedRows);
-
-        const showBottomEdge =
-            (ri === R.last(selectedRows) || false) &&
-            R.contains(ci, selectedCols);
+        const showInsideLeftEdge = isActive
+            ? true
+            : ci === R.head(selectedCols) && R.contains(ri, selectedRows);
+        const showInsideTopEdge = isActive
+            ? true
+            : ri === R.head(selectedRows) && R.contains(ci, selectedCols);
+        const showInsideRightEdge = isActive
+            ? true
+            : ci === R.last(selectedCols) && R.contains(ri, selectedRows);
+        const showBottomEdge = isActive
+            ? true
+            : (ri === R.last(selectedRows) || false) &&
+              R.contains(ci, selectedCols);
 
         const isRightmost = ci === R.last(vci);
         const isLeftmost = ci === R.head(vci);
@@ -162,23 +167,17 @@ export default class Cell extends Component {
         const isNeighborToExpanded =
             collapsable && R.contains(ri, expanded_rows) && ci === vci[0];
         const isAboveExpanded = collapsable && R.contains(ri, expanded_rows);
-        const isBelowExpanded =
-            collapsable && R.contains(ri - 1, expanded_rows);
         const isSelectedColumn = R.contains(ci, selectedCols);
         const isSelectedRow = R.contains(ri, selectedRows);
 
         // rules are applied in the order that they are supplied
         const boxShadowRules = [
             showInsideLeftEdge || isNeighborToExpanded
-                ? doLeft(ACCENT, 2)
+                ? doLeft(ACCENT, isActive ? 2 : 1)
                 : null,
-            showInsideTopEdge ? doTop(ACCENT, 2) : null,
-            showOutsideTopEdge && !isBelowExpanded ? doTop(ACCENT, 1) : null,
-            showOutsideLeftEdge ? doLeft(ACCENT, 1) : null,
-            showBottomEdge
-                ? doBottom(ACCENT, isBottommost || isAboveExpanded ? 2 : 1)
-                : null,
-            showInsideRightEdge ? doRight(ACCENT, isRightmost ? 2 : 1) : null,
+            showInsideTopEdge ? doTop(ACCENT, isActive ? 2 : 1) : null,
+            showBottomEdge ? doBottom(ACCENT, isActive ? 2 : 1) : null,
+            showInsideRightEdge ? doRight(ACCENT, isActive ? 2 : 1) : null,
             isSelectedColumn && isTopmost ? doTop(ACCENT, 1) : null,
             isSelectedRow && isLeftmost ? doLeft(ACCENT, 1) : null,
 
@@ -188,6 +187,7 @@ export default class Cell extends Component {
             isBottommost || isAboveExpanded ? doBottom(BORDER, 1) : null,
             isRightmost ? doRight(BORDER, 1) : null,
         ].filter(R.complement(R.not));
+
         const sortedBoxRules = R.sort(
             a => (R.contains(ACCENT, a) ? -1 : 1),
             boxShadowRules
@@ -239,12 +239,13 @@ export default class Cell extends Component {
             setProps,
             dataframe,
             is_focused,
-            start_cell,
-            selected_cell,
             columns,
+            selected_cell,
+            active_cell,
         } = this.props;
 
         const {notEditable} = this.state;
+        const isActive = active_cell[0] === idx && active_cell[1] === i;
 
         let innerCell;
         if (
@@ -281,8 +282,8 @@ export default class Cell extends Component {
                         }
                     }}
                     className={
-                        (isSelected ? 'input-active ' : '') +
-                        (is_focused && isSelected ? 'focused ' : 'unfocused ')
+                        (isActive ? 'input-active ' : '') +
+                        (is_focused && isActive ? 'focused ' : 'unfocused ')
                     }
                 />
             );
@@ -314,13 +315,10 @@ export default class Cell extends Component {
                     computedStyles.scroll.cell(this.props, i)
                 )}
                 className={
-                    (isSelected ? 'cell--active ' : '') +
-                    (is_focused && isSelected ? 'focused ' : '') +
-                    (isSelected &&
-                    selected_cell.length > 1 &&
-                    !(start_cell[0] === idx && start_cell[1] === i)
-                        ? 'cell--active--not-start '
+                    (isSelected && selected_cell.length > 1
+                        ? 'cell--selected '
                         : '') +
+                    (is_focused && isActive ? 'focused ' : '') +
                     (notEditable ? 'cell--uneditable ' : '')
                 }
             >
@@ -345,6 +343,6 @@ Cell.propTypes = {
     is_focused: PropTypes.any,
     selected_cell: PropTypes.any,
     setProps: PropTypes.any,
-    start_cell: PropTypes.any,
     value: PropTypes.any,
+    active_cell: PropTypes.array,
 };

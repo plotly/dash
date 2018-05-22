@@ -103,7 +103,7 @@
     padding-left: 2px;
 }
 
-.dash-spreadsheet .cell--active--not-start .Select-control {
+.dash-spreadsheet .cell--selected .Select-control {
     background-color: var(--selected-background);
     border-radius: 0;
 }

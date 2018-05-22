@@ -23,9 +23,6 @@ class App extends Component {
                 },
             ],
 
-            start_cell: [1, 0],
-            end_cell: [1, 4],
-
             selected_cell: [[1, 0], [1, 1], [1, 2], [1, 3], [1, 4]],
 
             editable: true,
