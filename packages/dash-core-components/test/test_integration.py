@@ -14,6 +14,7 @@ import dash_core_components as dcc
 import dash_table_experiments as dt
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import InvalidElementStateException
 import time
 from textwrap import dedent
 try:
@@ -38,24 +39,28 @@ class Tests(IntegrationTests):
 
     def wait_for_element_by_css_selector(self, selector):
         start_time = time.time()
+        error = None
         while time.time() < start_time + 20:
             try:
                 return self.driver.find_element_by_css_selector(selector)
             except Exception as e:
+                error = e
                 pass
             time.sleep(0.25)
-        raise e
+        raise error
 
     def wait_for_text_to_equal(self, selector, assertion_text):
         start_time = time.time()
+        error = None
         while time.time() < start_time + 20:
             el = self.wait_for_element_by_css_selector(selector)
             try:
                 return self.assertEqual(el.text, assertion_text)
             except Exception as e:
+                error = e
                 pass
             time.sleep(0.25)
-        raise e
+        raise error
 
     def snapshot(self, name):
         if 'PERCY_PROJECT' in os.environ and 'PERCY_TOKEN' in os.environ:
@@ -262,7 +267,11 @@ class Tests(IntegrationTests):
             ),
 
             html.Label('Text Input'),
-            dcc.Input(value='MTL', type='text'),
+            dcc.Input(value='', placeholder='type here', type='text',
+                      id='textinput'),
+            html.Label('Disabled Text Input'),
+            dcc.Input(value='disabled', type='text',
+                      id='disabled-textinput', disabled=True),
 
             html.Label('Slider'),
             dcc.Slider(
@@ -340,6 +349,24 @@ class Tests(IntegrationTests):
         ).send_keys(u'北')
         self.snapshot('gallery - chinese character')
 
+        text_input = self.driver.find_element_by_id('textinput')
+        disabled_text_input = self.driver.find_element_by_id(
+            'disabled-textinput')
+        text_input.send_keys('HODOR')
+
+        # It seems selenium errors when send(ing)_keys on a disabled element.
+        # In case this changes we try anyway and catch the particular
+        # exception. In any case Percy will snapshot the disabled input style
+        # so we are not totally dependent on the send_keys behaviour for
+        # testing disabled state.
+        try:
+            disabled_text_input.send_keys('RODOH')
+        except InvalidElementStateException:
+            pass
+
+        self.snapshot('gallery - text input')
+
+
     def test_location_link(self):
         app = dash.Dash(__name__)
 
@@ -360,7 +387,8 @@ class Tests(IntegrationTests):
                 id='test-link-search',
                 href='?testQuery=testValue',
                 refresh=False),
-            html.Button('I am a magic button that updates pathname', id='test-button'),
+            html.Button('I am a magic button that updates pathname',
+                        id='test-button'),
             html.A('link to click', href='/test/pathname/a', id='test-a'),
             html.A('link to click', href='#test-hash', id='test-a-hash'),
             html.A('link to click', href='?queryA=valueA', id='test-a-query'),
@@ -370,13 +398,15 @@ class Tests(IntegrationTests):
         ])
 
         @app.callback(
-            output=Output(component_id='test-pathname', component_property='children'),
+            output=Output(component_id='test-pathname',
+                          component_property='children'),
             inputs=[Input(component_id='test-location', component_property='pathname')])
         def update_location_on_page(pathname):
             return pathname
 
         @app.callback(
-            output=Output(component_id='test-hash', component_property='children'),
+            output=Output(component_id='test-hash',
+                          component_property='children'),
             inputs=[Input(component_id='test-location', component_property='hash')])
         def update_location_on_page(hash_val):
             if hash_val is None:
@@ -385,7 +415,8 @@ class Tests(IntegrationTests):
             return hash_val
 
         @app.callback(
-            output=Output(component_id='test-search', component_property='children'),
+            output=Output(component_id='test-search',
+                          component_property='children'),
             inputs=[Input(component_id='test-location', component_property='search')])
         def update_location_on_page(search):
             if search is None:
@@ -394,8 +425,10 @@ class Tests(IntegrationTests):
             return search
 
         @app.callback(
-            output=Output(component_id='test-location', component_property='pathname'),
-            inputs=[Input(component_id='test-button', component_property='n_clicks')],
+            output=Output(component_id='test-location',
+                          component_property='pathname'),
+            inputs=[Input(component_id='test-button',
+                          component_property='n_clicks')],
             state=[State(component_id='test-location', component_property='pathname')])
         def update_pathname(n_clicks, current_pathname):
             if n_clicks is not None:
@@ -460,7 +493,6 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#test-search', '?queryA=valueA')
         self.wait_for_text_to_equal('#test-hash', '')
         self.snapshot('link -- /test/pathname/a?queryA=valueA')
-
 
     def test_candlestick(self):
         app = dash.Dash(__name__)

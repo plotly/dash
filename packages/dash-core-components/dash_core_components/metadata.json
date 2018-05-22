@@ -139,6 +139,73 @@
       }
     }
   },
+  "src/components/Confirm.react.js": {
+    "description": "Confirm wraps window.confirm",
+    "displayName": "Confirm",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "message": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "init": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "value": {
+              "name": "any",
+              "required": false
+            },
+            "ask": {
+              "name": "bool",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": ""
+      },
+      "result": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "timestamp": {
+              "name": "custom",
+              "raw": "PropTypes.integer",
+              "required": false
+            },
+            "value": {
+              "name": "any",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "{\n    timestamp: -1\n}",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      }
+    }
+  },
   "src/components/DatePickerRange.react.js": {
     "description": "DatePickerRange is a tailor made component designed for selecting\ntimespan across multiple days off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates",
     "displayName": "DatePickerRange",
@@ -1353,6 +1420,13 @@
         },
         "required": false,
         "description": "The element should be automatically focused after the page loaded."
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the input is disabled and can't be clicked on."
       },
       "inputmode": {
         "type": {

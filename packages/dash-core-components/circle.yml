@@ -7,14 +7,13 @@ machine:
         TOX_PYTHON_27: python2.7
 
 dependencies:
-    pre:
-        - npm install -g eslint
-        - pip install tox
-        - npm install
-        - node_modules/.bin/builder run build-dist
-        - node_modules/.bin/builder run copy-lib
-
+    override:
+      - pip install tox
+      - npm install -g eslint
+      - npm install --ignore-scripts
+      - node_modules/.bin/builder run build-dist
+      - node_modules/.bin/builder run copy-lib
 test:
     override:
         - tox
-        - npm run test
+        - npm test

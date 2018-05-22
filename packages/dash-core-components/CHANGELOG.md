@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.22.2] - 2018-05-22
+### Fixed
+- `dcc.Input` component now handles `disabled=False` property.
+- Broken sourcemaps for debugging.
+### Added
+- Testing configuration for CHROMEPATH and SERVER_PROCESSES
+
 ## [0.22.1] - 2018-04-09
 ### Fixed
 - Various bugs with the `ohlc` and `candlestick` chart type in the `dcc.Graph`

@@ -1,10 +1,11 @@
 from __future__ import absolute_import
+import os
 import multiprocessing
 import time
 import unittest
 import percy
 from selenium import webdriver
-
+from selenium.webdriver.chrome.options import Options
 
 class IntegrationTests(unittest.TestCase):
 
@@ -12,7 +13,12 @@ class IntegrationTests(unittest.TestCase):
     def setUpClass(cls):
         super(IntegrationTests, cls).setUpClass()
 
-        cls.driver = webdriver.Chrome()
+        options = Options()
+
+        if 'DASH_TEST_CHROMEPATH' in os.environ:
+            options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
+
+        cls.driver = webdriver.Chrome(chrome_options=options)
         loader = percy.ResourceLoader(webdriver=cls.driver)
         cls.percy_runner = percy.Runner(loader=loader)
         cls.percy_runner.initialize_build()
@@ -32,13 +38,18 @@ class IntegrationTests(unittest.TestCase):
         time.sleep(3)
 
     def startServer(self, app):
+        if 'DASH_TEST_PROCESSES' in os.environ:
+            processes = int(os.environ['DASH_TEST_PROCESSES'])
+        else:
+            processes = 4
+
         def run():
             app.scripts.config.serve_locally = True
             app.css.config.serve_locally = True
             app.run_server(
                 port=8050,
                 debug=False,
-                processes=4
+                processes=processes
             )
 
         # Run on a separate process so that it doesn't block

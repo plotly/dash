@@ -91,6 +91,11 @@ Input.propTypes = {
      */
     autofocus: PropTypes.string,
 
+    /**
+     * If true, the input is disabled and can't be clicked on.
+     */
+    disabled: PropTypes.bool,
+
     inputmode: PropTypes.oneOf([
         /**
          * Alphanumeric, non-prose content such as usernames and passwords.
