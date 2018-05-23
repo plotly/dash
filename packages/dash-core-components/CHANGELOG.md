@@ -2,6 +2,43 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.23.0] - UNRELEASED
+### Added
+- Upgraded Plotly.js, the underlying library behind the
+`dash_core_components.Graph` component, to [version 1.38.0](https://github.com/plotly/plotly.js/releases/tag/v1.38.0).
+See https://github.com/plotly/plotly.js/releases/tag/v1.38.0 for the official notes.
+
+    Many of these features were funded directly by companies that rely on this library.
+    If your organization or company would like to sponsor particular features or
+    bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
+
+    - Add 3D `cone` traces to visualize vector fields [#2641](https://github.com/plotly/plotly.js/pull/2641), [#2647](https://github.com/plotly/plotly.js/pull/2647)
+    - Add ability to interactively change length and rotate line shapes [#2594](https://github.com/plotly/plotly.js/pull/2594)
+    - Add `toImageButtonOptions` config object to override to-image mode bar button options [#2607](https://github.com/plotly/plotly.js/pull/2607)
+    - Add `plotly_legendclick` and `plotly_legenddoubleclick` events [#2581](https://github.com/plotly/plotly.js/pull/2581)
+    - Add splom (aka scatter plot matrix) traces [#2505](https://github.com/plotly/plotly.js/pull/2505)
+    - Add selection and improve legend items for ohlc and candlestick [#2561](https://github.com/plotly/plotly.js/pull/2561)
+
+### Changed
+As part of the Plotly.js upgrade:
+- Improve cartesian scroll and pan (mostly) performance for graphs with
+many marker or/and text nodes [#2623](https://github.com/plotly/plotly.js/pull/2623)
+- Improve multi-axis axis-range relayout performance by updating minimal set of
+axes instead of all axes [#2628](https://github.com/plotly/plotly.js/pull/2628)
+- New and improved point-clustering algorithm for `scattergl` [#2499](https://github.com/plotly/plotly.js/pull/2499)
+
+### Fixed
+As part of the plotly.js upgrade:
+- Fix `scattergl` error bar computations when input value are numeric strings [#2620](https://github.com/plotly/plotly.js/pull/2620)
+- Fix `scattergl` error bar computations for `x0`/`dx` and `y0`/`dy` coordinates [#2620](https://github.com/plotly/plotly.js/pull/2620)
+- Fix `violin` kde span edge cases [#2650](https://github.com/plotly/plotly.js/pull/2650)
+- Make `sankey` traces accept numeric strings [#2629](https://github.com/plotly/plotly.js/pull/2629)
+- Fix axis range edits under axis constraints [#2620](https://github.com/plotly/plotly.js/pull/2620)
+- Fix "sloppy click" event emission during cartesian zoom [#2649](https://github.com/plotly/plotly.js/pull/2649)
+- Fix layout `grid` validation which lead to exceptions [#2638](https://github.com/plotly/plotly.js/pull/2638)
+- Fix `parcoords` rendering in old Safari version [#2612](https://github.com/plotly/plotly.js/pull/2612)
+- Link to https://get.webgl.org instead of http version in no WebGL message [#2617](https://github.com/plotly/plotly.js/pull/2617)
+
 ## [0.22.2] - 2018-05-22
 ### Fixed
 - `dcc.Input` component now handles `disabled=False` property.
