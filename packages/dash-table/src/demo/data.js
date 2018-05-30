@@ -22,7 +22,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
     {
         id: 'bbb',
         name: ['', 'Weather', 'Climate'],
-        // 'type': 'dropdown',
         type: 'numeric',
         options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
             label: i,
@@ -102,6 +101,15 @@ export const mockDataSimple = unpackIntoColumnsAndDataFrames([
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
         ),
+    },
+]);
+
+export const miniData = unpackIntoColumnsAndDataFrames([
+    {
+        id: 'aaa', name: 'cheese', data: [1, 2, 3]
+    },
+    {
+        id: 'bbb', name: 'tomato', data: [3, 2, 1]
     },
 ]);
 

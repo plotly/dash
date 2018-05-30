@@ -181,7 +181,7 @@ export default class Header extends Component {
                         {this.renderHeaderCells({
                             labels: columns.map(
                                 c =>
-                                    !c.name && i === headerDepth - 1
+                                    R.isNil(c.name) && i === headerDepth - 1
                                         ? c.id
                                         : getColNameAt(c, i)
                             ),

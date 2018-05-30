@@ -5,7 +5,13 @@ import SheetClip from 'sheetclip';
 import Row from './Row.js';
 import Header from './Header.js';
 import {colIsEditable} from './derivedState';
-import {KEY_CODES, isCtrlMetaKey, isMetaKey, isNavKey} from '../utils/unicode';
+import {
+    KEY_CODES,
+    isCtrlMetaKey,
+    isCtrlDown,
+    isMetaKey,
+    isNavKey,
+} from '../utils/unicode';
 import {selectionCycle} from '../utils/navigation';
 import computedStyles from './computedStyles';
 
@@ -13,7 +19,7 @@ import 'react-select/dist/react-select.css';
 import './Table.css';
 import './Dropdown.css';
 
-export default class EditableTable extends Component {
+export default class Table extends Component {
     constructor(props) {
         super(props);
 
@@ -42,8 +48,7 @@ export default class EditableTable extends Component {
 
         console.warn(`handleKeyDown: ${e.key}`);
 
-        // catch CTRL but not right ALT (which in some systems triggers ALT+CTRL)
-        const ctrlDown = (e.ctrlKey || e.metaKey) && !e.altKey;
+        const ctrlDown = isCtrlDown(e);
 
         // if this is the initial CtrlMeta keydown with no modifiers then pass
         if (isCtrlMetaKey(e.keyCode)) {
@@ -115,8 +120,6 @@ export default class EditableTable extends Component {
             setProps,
         } = this.props;
 
-        // visible col indices
-
         const hasSelection = selected_cell.length > 1;
         const isEnterOrTab =
             e.keyCode === KEY_CODES.ENTER || e.keyCode === KEY_CODES.TAB;
@@ -162,6 +165,7 @@ export default class EditableTable extends Component {
         const maxRow = selectedRows[selectedRows.length - 1];
         const maxCol = selectedCols[selectedCols.length - 1];
 
+        // visible col indices
         const vci = [];
         columns.forEach((c, i) => {
             if (!c.hidden) {
@@ -541,13 +545,16 @@ export default class EditableTable extends Component {
     }
 }
 
-EditableTable.defaultProps = {
+Table.defaultProps = {
     changed_data: {},
     editable: false,
     active_cell: [0, 0],
     index_name: '',
     types: {},
     merged_styles: {},
+    selected_cell: [],
+    display_row_count: 20,
+    display_tail_count: 5,
     base_styles: {
         numeric: {
             'text-align': 'right',
@@ -580,7 +587,7 @@ EditableTable.defaultProps = {
     },
 };
 
-EditableTable.propTypes = {
+Table.propTypes = {
     collapsable: PropTypes.any,
     columns: PropTypes.any,
     dataframe: PropTypes.any,

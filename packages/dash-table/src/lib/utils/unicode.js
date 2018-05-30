@@ -176,23 +176,5 @@ export function isCtrlMetaKey(keyCode) {
     ].includes(keyCode);
 }
 
-/**
- * @param {Number} keyCode
- * @param {String} baseCode
- * @returns {Boolean}
- */
-export function isKey(keyCode, baseCode) {
-    const keys = baseCode.split('|');
-    let result = false;
-
-    keys.forEach(key => {
-        if (keyCode === KEY_CODES[key]) {
-            result = true;
-
-            return false;
-        }
-        return true;
-    });
-
-    return result;
-}
+// catch CTRL but not right ALT (which in some systems triggers ALT+CTRL)
+export const isCtrlDown = e => (e.ctrlKey || e.metaKey) && !e.altKey;

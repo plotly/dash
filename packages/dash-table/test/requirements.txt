@@ -1,0 +1,11 @@
+# Switch into a virtual environment
+# pip install -r requirements.txt
+
+chromedriver-binary
+dash
+dash-core-components
+dash-html-components
+dash-renderer
+ipdb
+percy
+selenium
