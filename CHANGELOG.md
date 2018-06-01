@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.13.0] - 2018-06-01
+### Fixed
+- Previously, if a component called `updateProps` with multiple properties, Dash would fire the callback multiple times (once for each property). Now, the callback is only fired once. https://github.com/plotly/dash-renderer/pull/54
+
+
+### Added
+- A `_dash-error` class was added to the "Error loading layout" and "Error loading dependencies" messages. https://github.com/plotly/dash-renderer/pull/55
+
 ## [0.12.1] - 2018-03-29
 ### Fixed
 - Updates MANIFEST.in to include react and react-dom bundles for development mode
