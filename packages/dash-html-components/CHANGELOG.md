@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## [0.11.0] - 2018-06-01
+### Added
+- A `n_clicks_timestamp` property was added to all of the components. This property represents the date that the element was clicked on and can be used to determine _which element was clicked on_ in callbacks with multiple elements. This is considered a stop-gap solution: ultimately we'll want a solution that works for _all_ properties across all components, not just the `n_clicks` property. https://github.com/plotly/dash-html-components/pull/45
+
 ## [0.10.1] - 2018-04-29
 ### Added
 - `aria-*` and `data-*` attributes are now supported in all dash html components [#40](https://github.com/plotly/dash-html-components/pull/40)
