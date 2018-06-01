@@ -3,29 +3,27 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const H3 = (props) => {
-    if (props.fireEvent || props.setProps) {
-        return (
-            <h3
-                onClick={() => {
-                    if (props.setProps) props.setProps({n_clicks: props.n_clicks + 1});
-                    if (props.fireEvent) props.fireEvent({event: 'click'});
-                }}
-                {...props}
-            >
-                {props.children}
-            </h3>
-        );
-    } else {
-        return (
-            <h3 {...props}>
-                {props.children}
-            </h3>
-        );
-    }
+    return (
+        <h3
+            onClick={() => {
+                if (props.setProps) {
+                    props.setProps({
+                        n_clicks: props.n_clicks + 1,
+                        n_clicks_timestamp: Date.now()
+                    })
+                }
+                if (props.fireEvent) props.fireEvent({event: 'click'});
+            }}
+            {...props}
+        >
+            {props.children}
+        </h3>
+    );
 };
 
 H3.defaultProps = {
-    n_clicks: 0
+    n_clicks: 0,
+    n_clicks_timestamp: -1
 };
 
 H3.propTypes = {
@@ -46,6 +44,13 @@ H3.propTypes = {
      * that this element has been clicked on.
      */
     'n_clicks': PropTypes.integer,
+
+    /**
+     * An integer that represents the time (in ms since 1970)
+     * at which n_clicks changed. This can be used to tell
+     * which button was changed most recently.
+     */
+    'n_clicks_timestamp': PropTypes.integer,
 
     /**
      * A unique identifier for the component, used to improve

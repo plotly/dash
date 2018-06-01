@@ -3,29 +3,27 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const Form = (props) => {
-    if (props.fireEvent || props.setProps) {
-        return (
-            <form
-                onClick={() => {
-                    if (props.setProps) props.setProps({n_clicks: props.n_clicks + 1});
-                    if (props.fireEvent) props.fireEvent({event: 'click'});
-                }}
-                {...props}
-            >
-                {props.children}
-            </form>
-        );
-    } else {
-        return (
-            <form {...props}>
-                {props.children}
-            </form>
-        );
-    }
+    return (
+        <form
+            onClick={() => {
+                if (props.setProps) {
+                    props.setProps({
+                        n_clicks: props.n_clicks + 1,
+                        n_clicks_timestamp: Date.now()
+                    })
+                }
+                if (props.fireEvent) props.fireEvent({event: 'click'});
+            }}
+            {...props}
+        >
+            {props.children}
+        </form>
+    );
 };
 
 Form.defaultProps = {
-    n_clicks: 0
+    n_clicks: 0,
+    n_clicks_timestamp: -1
 };
 
 Form.propTypes = {
@@ -46,6 +44,13 @@ Form.propTypes = {
      * that this element has been clicked on.
      */
     'n_clicks': PropTypes.integer,
+
+    /**
+     * An integer that represents the time (in ms since 1970)
+     * at which n_clicks changed. This can be used to tell
+     * which button was changed most recently.
+     */
+    'n_clicks_timestamp': PropTypes.integer,
 
     /**
      * A unique identifier for the component, used to improve

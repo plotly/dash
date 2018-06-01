@@ -540,23 +540,17 @@
             "elements": [
                 "iframe"
             ],
-            "description": ""
+            "description": "Stops a document loaded in an iframe from using certain features (such as submitting forms or opening new windows)."
         },
         "scope": {
             "elements": [
                 "th"
             ],
-            "description": ""
+            "description": "Defines the cells that the header test (defined in the th element) relates to."
         },
         "scoped": {
             "elements": [
                 "style"
-            ],
-            "description": ""
-        },
-        "seamless": {
-            "elements": [
-                "iframe"
             ],
             "description": ""
         },
@@ -1006,7 +1000,6 @@
             "height",
             "name",
             "sandbox",
-            "seamless",
             "src",
             "srcDoc",
             "width"

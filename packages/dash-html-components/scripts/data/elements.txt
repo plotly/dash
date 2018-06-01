@@ -43,7 +43,6 @@ em
 i
 kbd
 mark
-nobr
 q
 rp
 rt

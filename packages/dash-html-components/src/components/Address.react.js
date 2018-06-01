@@ -3,29 +3,27 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const Address = (props) => {
-    if (props.fireEvent || props.setProps) {
-        return (
-            <address
-                onClick={() => {
-                    if (props.setProps) props.setProps({n_clicks: props.n_clicks + 1});
-                    if (props.fireEvent) props.fireEvent({event: 'click'});
-                }}
-                {...props}
-            >
-                {props.children}
-            </address>
-        );
-    } else {
-        return (
-            <address {...props}>
-                {props.children}
-            </address>
-        );
-    }
+    return (
+        <address
+            onClick={() => {
+                if (props.setProps) {
+                    props.setProps({
+                        n_clicks: props.n_clicks + 1,
+                        n_clicks_timestamp: Date.now()
+                    })
+                }
+                if (props.fireEvent) props.fireEvent({event: 'click'});
+            }}
+            {...props}
+        >
+            {props.children}
+        </address>
+    );
 };
 
 Address.defaultProps = {
-    n_clicks: 0
+    n_clicks: 0,
+    n_clicks_timestamp: -1
 };
 
 Address.propTypes = {
@@ -46,6 +44,13 @@ Address.propTypes = {
      * that this element has been clicked on.
      */
     'n_clicks': PropTypes.integer,
+
+    /**
+     * An integer that represents the time (in ms since 1970)
+     * at which n_clicks changed. This can be used to tell
+     * which button was changed most recently.
+     */
+    'n_clicks_timestamp': PropTypes.integer,
 
     /**
      * A unique identifier for the component, used to improve

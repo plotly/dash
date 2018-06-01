@@ -7,6 +7,7 @@ import dash as _dash
 
 from .version import __version__
 
+
 if not hasattr(_dash, 'development'):
     print("Dash was not successfully imported. Make sure you don't have a file "
           "named \n'dash.py' in your current directory.", file=_sys.stderr)
