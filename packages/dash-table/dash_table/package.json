@@ -4,10 +4,10 @@
   "description": "Dash table",
   "main": "build/index.js",
   "scripts": {
-    "start": "webpack-serve ./webpack.serve.config.js --open --content ./lib",
+    "start": "webpack-serve ./webpack.serve.config.js --open",
     "build:js-dev": "webpack --mode development",
     "build:js": "webpack --mode production",
-    "build:py": "./extract-meta src/lib/components/Table.js > dash_table/metadata.json && cp lib/bundle.js dash_table && cp package.json dash_table"
+    "build:py": "./extract-meta src/lib/components/Table.js > dash_table/metadata.json && cp package.json dash_table"
   },
   "author": "Chris P <chris@plot.ly",
   "license": "MIT",
