@@ -12,7 +12,9 @@ if not hasattr(_dash, 'development'):
           'named \n"dash.py" in your current directory.', file=_sys.stderr)
     _sys.exit(1)
 
-with open('package.json') as f:
+_basepath = _os.path.dirname(__file__)
+_filepath = _os.path.abspath(_os.path.join(_basepath, 'package.json'))
+with open(_filepath) as f:
     package = json.load(f)
 
 package_name = package['name'].replace(' ', '_').replace('-', '_')
