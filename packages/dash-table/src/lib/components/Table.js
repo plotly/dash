@@ -22,6 +22,40 @@ import './Dropdown.css';
 export default class Table extends Component {
     constructor(props) {
         super(props);
+        this.state = {};
+    }
+
+    render() {
+        if (!this.props.setProps) {
+            const newProps = R.mergeAll([
+                this.props,
+                this.state,
+                {
+                    setProps: newProps => this.setState(newProps),
+                    this: 'that'
+                }
+            ]);
+            console.warn('newProps', newProps);
+            return <ControlledTable {...newProps}/>
+        } else {
+            return <ControlledTable {...R.merge(
+                this.props,
+                {
+                    setProps: newProps => {
+                        if (R.has('dataframe', newProps)) {
+                            newProps.dataframe_timestamp = Date.now()
+                        }
+                        this.props.setProps(newProps);
+                    }
+                }
+            )}/>
+        }
+    }
+}
+
+class ControlledTable extends Component {
+    constructor(props) {
+        super(props);
 
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.collectRows = this.collectRows.bind(this);
