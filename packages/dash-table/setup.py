@@ -11,7 +11,7 @@ setup(
     version=package["version"],
     author=package['author'],
     packages=[package_name],
-    include_package_package=True,
+    include_package_data=True,
     license=package['license'],
     description=package['description'] if 'desciption' in package else package_name,
     install_requires=[]
