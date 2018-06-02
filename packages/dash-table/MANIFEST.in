@@ -1,0 +1,4 @@
+include dash_table/bundle.js
+include dash_table/metadata.json
+include dash_table/package.json
+include README.md
