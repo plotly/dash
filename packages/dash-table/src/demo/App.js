@@ -23,6 +23,8 @@ class App extends Component {
             <div>
                 <label>test events:{'\u00A0\u00A0'}</label>
                 <input type="text" />
+                <input type="text" />
+                <input type="text" />
                 <br />
                 <br />
                 <Table
