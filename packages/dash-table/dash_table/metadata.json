@@ -11,7 +11,7 @@
         "required": false,
         "description": "",
         "defaultValue": {
-          "value": "[0, 0]",
+          "value": "[]",
           "computed": false
         }
       },
@@ -134,7 +134,42 @@
         "required": false,
         "description": ""
       },
+      "row_selectable": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'single'",
+              "computed": false
+            },
+            {
+              "value": "'multi'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
       "selected_cell": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "[[]]",
+          "computed": false
+        }
+      },
+      "selected_rows": {
         "type": {
           "name": "arrayOf",
           "value": {
@@ -175,6 +210,13 @@
           "value": {
             "name": "number"
           }
+        },
+        "required": false,
+        "description": ""
+      },
+      "style_as_list_view": {
+        "type": {
+          "name": "bool"
         },
         "required": false,
         "description": ""
