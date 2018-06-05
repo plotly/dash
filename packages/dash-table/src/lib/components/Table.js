@@ -32,10 +32,8 @@ export default class Table extends Component {
                 this.state,
                 {
                     setProps: newProps => this.setState(newProps),
-                    this: 'that'
                 }
             ]);
-            console.warn('newProps', newProps);
             return <ControlledTable {...newProps}/>
         } else {
             return <ControlledTable {...R.merge(
