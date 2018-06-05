@@ -55,7 +55,7 @@ export default class Row extends Component {
             <td style={R.merge(
                 computedStyles.scroll.borderStyle(
                     R.merge({i: -1}, this.props)),
-                {'minWidth': 30}
+                    {'width': 30}
             )}>
                 <input
                     type={row_selectable === 'single' ? 'radio' : 'checkbox'}

@@ -160,7 +160,7 @@ export default class Header extends Component {
         );
         const selectableCell = !row_selectable ? null : (
             <th className="expanded-row--empty-cell"
-                style={{'minWidth': 30}}
+                style={{'width': 30}}
              />
         );
 
