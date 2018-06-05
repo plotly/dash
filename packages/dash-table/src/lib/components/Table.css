@@ -17,8 +17,7 @@
     font-size: 1rem;
 
     font-family: monospace;
-    --accent: #ff4136;
-    /*--accent: hotpink;*/
+    --accent: hotpink;
     --border: lightgrey;
     --text-color: rgb(60, 60, 60);
     --hover: rgb(253, 253, 253);
@@ -27,6 +26,7 @@
     --faded-text-header: rgb(180, 180, 180);
     --selected-background: rgba(255, 65, 54, 0.2);
     --faded-dropdown: rgb(240, 240, 240);
+    --selected-row: #fff0ff;
 }
 
 /* focus happens after copying to clipboard */
@@ -83,7 +83,7 @@ tr:hover input :not(.cell--selected) {
     text-align: center;
 }
 
-.dash-spreadsheet input {
+.dash-spreadsheet input:not([type=radio]):not([type=checkbox]) {
     padding: 0px;
     margin: 0px;
     height: calc(100% - 1px);
@@ -190,4 +190,8 @@ th:hover .filter {
 }
 .filter:hover {
     text-decoration: underline;
+}
+
+.dash-spreadsheet .selected-row {
+    background-color: var(--selected-row);
 }
