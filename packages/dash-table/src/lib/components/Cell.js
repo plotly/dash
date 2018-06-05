@@ -29,6 +29,7 @@ export default class Cell extends Component {
     handleClick(e) {
         const {
             columns,
+            editable,
             setProps,
             idx,
             i,
@@ -36,7 +37,9 @@ export default class Cell extends Component {
             isSelected,
             selected_cell,
         } = this.props;
-
+        if (!editable) {
+            return;
+        }
         if (!is_focused) {
             e.preventDefault();
         }
@@ -86,7 +89,7 @@ export default class Cell extends Component {
     handleDoubleClick(e) {
         const {setProps, idx, i, is_focused} = this.props;
 
-        if (this._notEditable) {
+        if (!editable) {
             return;
         }
 
