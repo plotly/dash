@@ -644,5 +644,6 @@ Table.propTypes = {
     sort: PropTypes.array,
     sortable: PropTypes.bool,
     start_cell: PropTypes.arrayOf(PropTypes.number),
+    style_as_list_view: PropTypes.bool,
     table_style: PropTypes.any,
 };
