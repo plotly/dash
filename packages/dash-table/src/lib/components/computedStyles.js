@@ -49,6 +49,7 @@ const styles = {
                 collapsable,
                 expanded_rows,
                 active_cell,
+                row_selectable
             } = args;
 
             // visible col indices
@@ -74,6 +75,11 @@ const styles = {
             const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
             const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
 
+            const showInsideLeftEdge = isActive
+                ? true
+                : ci === R.head(selectedCols) &&
+                  !row_selectable &&
+                  R.contains(ri, selectedRows);
             const showInsideTopEdge = isActive
                 ? true
                 : ri === R.head(selectedRows) && R.contains(ci, selectedCols);
@@ -86,6 +92,9 @@ const styles = {
                   R.contains(ci, selectedCols);
 
             const isRightmost = ci === R.last(vci);
+            const isLeftmost = row_selectable
+                ? ci === -1  // -1 refers to meta columns like the row-select checkbox column
+                : ci === R.head(vci);
             const isTopmost = ri === 0;
             const isBottommost = ri === dataframe.length - 1;
             const isNeighborToExpanded =
