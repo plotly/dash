@@ -2,109 +2,37 @@
   "src/lib/components/Table.js": {
     "description": "",
     "displayName": "Table",
-    "methods": [
-      {
-        "name": "handleKeyDown",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "e",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "switchCell",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "event",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "deleteCell",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "event",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "getNextCell",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "event",
-            "type": null
-          },
-          {
-            "name": "{restrictToSelection, currentCell}",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "onCopy",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "e",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "onPaste",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "e",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "collectRows",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "slicedDf",
-            "type": null
-          },
-          {
-            "name": "start",
-            "type": null
-          }
-        ],
-        "returns": null
-      }
-    ],
+    "methods": [],
     "props": {
+      "active_cell": {
+        "type": {
+          "name": "array"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "[0, 0]",
+          "computed": false
+        }
+      },
       "collapsable": {
         "type": {
-          "name": "any"
+          "name": "bool"
         },
         "required": false,
         "description": ""
       },
       "columns": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "object"
+          }
+        },
+        "required": false,
+        "description": ""
+      },
+      "dataframe_timestamp": {
         "type": {
           "name": "any"
         },
@@ -113,14 +41,17 @@
       },
       "dataframe": {
         "type": {
-          "name": "any"
+          "name": "arrayOf",
+          "value": {
+            "name": "object"
+          }
         },
         "required": false,
         "description": ""
       },
       "display_row_count": {
         "type": {
-          "name": "any"
+          "name": "number"
         },
         "required": false,
         "description": "",
@@ -131,7 +62,7 @@
       },
       "display_tail_count": {
         "type": {
-          "name": "any"
+          "name": "number"
         },
         "required": false,
         "description": "",
@@ -142,7 +73,7 @@
       },
       "editable": {
         "type": {
-          "name": "any"
+          "name": "bool"
         },
         "required": false,
         "description": "",
@@ -151,37 +82,64 @@
           "computed": false
         }
       },
+      "end_cell": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": ""
+      },
       "expanded_rows": {
         "type": {
-          "name": "any"
+          "name": "array"
+        },
+        "required": false,
+        "description": ""
+      },
+      "id": {
+        "type": {
+          "name": "string"
         },
         "required": false,
         "description": ""
       },
       "is_focused": {
         "type": {
-          "name": "any"
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "merge_duplicate_headers": {
+        "type": {
+          "name": "bool"
         },
         "required": false,
         "description": ""
       },
       "n_fixed_columns": {
         "type": {
-          "name": "any"
+          "name": "number"
         },
         "required": false,
         "description": ""
       },
       "n_fixed_rows": {
         "type": {
-          "name": "any"
+          "name": "number"
         },
         "required": false,
         "description": ""
       },
       "selected_cell": {
         "type": {
-          "name": "any"
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
         },
         "required": false,
         "description": "",
@@ -197,23 +155,36 @@
         "required": false,
         "description": ""
       },
+      "sort": {
+        "type": {
+          "name": "array"
+        },
+        "required": false,
+        "description": ""
+      },
+      "sortable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": ""
+      },
+      "start_cell": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": ""
+      },
       "table_style": {
         "type": {
           "name": "any"
         },
         "required": false,
         "description": ""
-      },
-      "active_cell": {
-        "type": {
-          "name": "array"
-        },
-        "required": false,
-        "description": "",
-        "defaultValue": {
-          "value": "[0, 0]",
-          "computed": false
-        }
       },
       "changed_data": {
         "defaultValue": {
