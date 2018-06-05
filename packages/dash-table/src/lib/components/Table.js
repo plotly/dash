@@ -580,11 +580,13 @@ class ControlledTable extends Component {
 Table.defaultProps = {
     changed_data: {},
     editable: false,
-    active_cell: [0, 0],
+    active_cell: [],
     index_name: '',
     types: {},
     merged_styles: {},
-    selected_cell: [],
+    selected_cell: [[]],
+    selected_rows: [],
+    row_selectable: false,
     display_row_count: 20,
     display_tail_count: 5,
     base_styles: {
