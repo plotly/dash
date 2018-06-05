@@ -487,7 +487,7 @@ class ControlledTable extends Component {
     }
 
     collectRows(slicedDf, start) {
-        const {collapsable, columns, expanded_rows} = this.props;
+        const {collapsable, columns, expanded_rows, row_selectable} = this.props;
         const rows = [];
         for (let i = 0; i < slicedDf.length; i++) {
             const row = slicedDf[i];
@@ -503,7 +503,9 @@ class ControlledTable extends Component {
                 rows.push(
                     <tr>
                         <td className="expanded-row--empty-cell" />
-                        <td colSpan={columns.length} className="expanded-row">
+                        <td colSpan={columns.length + (row_selectable ? 1 : 0)}
+                            className="expanded-row"
+                        >
                             <h1>{`More About Row ${start + i}`}</h1>
                         </td>
                     </tr>
@@ -523,6 +525,7 @@ class ControlledTable extends Component {
             table_style,
             n_fixed_columns,
             n_fixed_rows,
+            row_selectable
         } = this.props;
 
         const table_component = (
@@ -542,7 +545,9 @@ class ControlledTable extends Component {
                             {!collapsable ? null : (
                                 <td className="expanded-row--empty-cell" />
                             )}
-                            <td className="elip" colSpan={columns.length}>
+                            <td className="elip"
+                                colSpan={columns.length + (row_selectable ? 1 : 0)}
+                            >
                                 {'...'}
                             </td>
                         </tr>
