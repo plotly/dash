@@ -18,8 +18,10 @@ export default class Row extends Component {
             editable,
             setProps,
             selected_cell,
+            selected_rows,
             collapsable,
             expanded_rows,
+            row_selectable
         } = this.props;
 
         const collapsableCell = !collapsable ? null : (
@@ -49,6 +51,35 @@ export default class Row extends Component {
             </td>
         );
 
+        const rowSelectable = !row_selectable ? null : (
+            <td style={R.merge(
+                computedStyles.scroll.borderStyle(
+                    R.merge({i: -1}, this.props)),
+                {'minWidth': 30}
+            )}>
+                <input
+                    type={row_selectable === 'single' ? 'radio' : 'checkbox'}
+                    name="row-select"
+                    style={{
+                        'marginLeft': 'auto',
+                        'marginRight': 'auto',
+                        'width': 30
+                    }}
+                    checked={R.contains(idx, selected_rows)}
+                    onChange={() => setProps({selected_rows:
+                        row_selectable === 'single' ?
+                            [idx] :
+                            R.ifElse(
+                                R.contains(idx),
+                                R.without([idx]),
+                                R.append(idx)
+                            )(selected_rows)
+                    })}
+                />
+            </td>
+        );
+
+
         const cells = columns.map((c, i) => {
             if (c.hidden) {
                 return null;
@@ -75,8 +106,10 @@ export default class Row extends Component {
         return (
             <tr
                 style={computedStyles.scroll.row(this.props, idx + headerDepth)}
+                className={R.contains(idx, selected_rows) ? 'selected-row' : ''}
             >
                 {collapsableCell}
+                {rowSelectable}
 
                 {cells}
             </tr>

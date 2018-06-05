@@ -150,12 +150,18 @@ export default class Header extends Component {
             columns,
             sortable,
             merge_duplicate_headers,
+            row_selectable
         } = this.props;
 
         let headerRows;
 
         const collapsableCell = !collapsable ? null : (
             <th className="expanded-row--empty-cell" />
+        );
+        const selectableCell = !row_selectable ? null : (
+            <th className="expanded-row--empty-cell"
+                style={{'minWidth': 30}}
+             />
         );
 
         // TODO calculate in lifecycle function
@@ -165,6 +171,7 @@ export default class Header extends Component {
             headerRows = (
                 <tr style={rowStyle}>
                     {collapsableCell}
+                    {selectableCell}
                     {this.renderHeaderCells({
                         labels: R.pluck('name', columns),
                         rowIsSortable: sortable,
@@ -178,6 +185,7 @@ export default class Header extends Component {
                 headerRows.push(
                     <tr style={rowStyle}>
                         {collapsableCell}
+                        {selectableCell}
                         {this.renderHeaderCells({
                             labels: columns.map(
                                 c =>
