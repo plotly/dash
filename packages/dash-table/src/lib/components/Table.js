@@ -618,7 +618,7 @@ Table.defaultProps = {
         th: {},
 
         td: {},
-    },
+    }
 };
 
 Table.propTypes = {
@@ -639,6 +639,8 @@ Table.propTypes = {
     n_fixed_rows: PropTypes.number,
     selected_cell: PropTypes.arrayOf(PropTypes.number),
     setProps: PropTypes.any,
+    sort: PropTypes.array,
+    sortable: PropTypes.bool,
+    start_cell: PropTypes.arrayOf(PropTypes.number),
     table_style: PropTypes.any,
-    active_cell: PropTypes.array,
 };
