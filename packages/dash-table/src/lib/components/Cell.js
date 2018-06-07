@@ -6,6 +6,8 @@ import Dropdown from 'react-select';
 import {colIsEditable} from './derivedState';
 import computedStyles from './computedStyles';
 
+const sortNumerical = R.sort((a, b) => a - b);
+
 export default class Cell extends Component {
     constructor(props) {
         super(props);
@@ -87,7 +89,7 @@ export default class Cell extends Component {
     }
 
     handleDoubleClick(e) {
-        const {setProps, idx, i, is_focused} = this.props;
+        const {editable, setProps, idx, i, is_focused} = this.props;
 
         if (!editable) {
             return;
@@ -125,7 +127,6 @@ export default class Cell extends Component {
             }
         });
 
-        const sortNumerical = R.sort((a, b) => a - b);
         const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
         const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
 

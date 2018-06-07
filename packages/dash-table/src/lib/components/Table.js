@@ -19,6 +19,8 @@ import 'react-select/dist/react-select.css';
 import './Table.css';
 import './Dropdown.css';
 
+const sortNumerical = R.sort((a, b) => a - b);
+
 export default class Table extends Component {
     constructor(props) {
         super(props);
@@ -32,22 +34,23 @@ export default class Table extends Component {
                 this.state,
                 {
                     setProps: newProps => this.setState(newProps),
-                }
+                },
             ]);
-            return <ControlledTable {...newProps}/>
-        } else {
-            return <ControlledTable {...R.merge(
-                this.props,
-                {
+            return <ControlledTable {...newProps} />;
+        }
+
+        return (
+            <ControlledTable
+                {...R.merge(this.props, {
                     setProps: newProps => {
                         if (R.has('dataframe', newProps)) {
-                            newProps.dataframe_timestamp = Date.now()
+                            newProps.dataframe_timestamp = Date.now();
                         }
                         this.props.setProps(newProps);
-                    }
-                }
-            )}/>
-        }
+                    },
+                })}
+            />
+        );
     }
 }
 
@@ -152,6 +155,18 @@ class ControlledTable extends Component {
             setProps,
         } = this.props;
 
+        // This is mostly to prevent TABing also triggering native HTML tab
+        // navigation. If the preventDefault is too greedy here we must
+        // continue to use it for at least the case we are navigating with
+        // TAB
+        event.preventDefault();
+
+        // If we are moving yank focus away from whatever input may still have
+        // focus.
+        // TODO There is a better way to handle native focus being out of sync
+        // with the "is_focused" prop. We should find the better way.
+        this._table.focus();
+
         const hasSelection = selected_cell.length > 1;
         const isEnterOrTab =
             e.keyCode === KEY_CODES.ENTER || e.keyCode === KEY_CODES.TAB;
@@ -189,8 +204,8 @@ class ControlledTable extends Component {
         // with shift.
         let targetCells = [];
         let removeCells = [];
-        const selectedRows = R.uniq(R.pluck(0, selected_cell)).sort();
-        const selectedCols = R.uniq(R.pluck(1, selected_cell)).sort();
+        const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
+        const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
 
         const minRow = selectedRows[0];
         const minCol = selectedCols[0];
@@ -487,7 +502,12 @@ class ControlledTable extends Component {
     }
 
     collectRows(slicedDf, start) {
-        const {collapsable, columns, expanded_rows, row_selectable} = this.props;
+        const {
+            collapsable,
+            columns,
+            expanded_rows,
+            row_selectable,
+        } = this.props;
         const rows = [];
         for (let i = 0; i < slicedDf.length; i++) {
             const row = slicedDf[i];
@@ -503,7 +523,8 @@ class ControlledTable extends Component {
                 rows.push(
                     <tr>
                         <td className="expanded-row--empty-cell" />
-                        <td colSpan={columns.length + (row_selectable ? 1 : 0)}
+                        <td
+                            colSpan={columns.length + (row_selectable ? 1 : 0)}
                             className="expanded-row"
                         >
                             <h1>{`More About Row ${start + i}`}</h1>
@@ -525,7 +546,7 @@ class ControlledTable extends Component {
             table_style,
             n_fixed_columns,
             n_fixed_rows,
-            row_selectable
+            row_selectable,
         } = this.props;
 
         const table_component = (
@@ -545,8 +566,11 @@ class ControlledTable extends Component {
                             {!collapsable ? null : (
                                 <td className="expanded-row--empty-cell" />
                             )}
-                            <td className="elip"
-                                colSpan={columns.length + (row_selectable ? 1 : 0)}
+                            <td
+                                className="elip"
+                                colSpan={
+                                    columns.length + (row_selectable ? 1 : 0)
+                                }
                             >
                                 {'...'}
                             </td>
@@ -623,7 +647,7 @@ Table.defaultProps = {
         th: {},
 
         td: {},
-    }
+    },
 };
 
 Table.propTypes = {
