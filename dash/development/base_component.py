@@ -1,5 +1,7 @@
 import collections
 import copy
+import os
+import errno
 
 
 def is_number(s):
@@ -200,9 +202,9 @@ class Component(collections.MutableMapping):
 
 
 # pylint: disable=unused-argument
-def generate_class(typename, props, description, namespace):
+def generate_class_string(typename, props, description, namespace):
     """
-    Dynamically generate classes to have nicely formatted docstrings,
+    Dynamically generate class strings to have nicely formatted docstrings,
     keyword arguments, and repr
 
     Inspired by http://jameso.be/2013/08/06/namedtuple.html
@@ -216,6 +218,7 @@ def generate_class(typename, props, description, namespace):
 
     Returns
     -------
+    string
 
     """
     # TODO _prop_names, _type, _namespace, available_events,
@@ -276,13 +279,13 @@ def generate_class(typename, props, description, namespace):
             return (
                 '{typename}(' +
                 repr(getattr(self, self._prop_names[0], None)) + ')')
-    '''
+'''
 
     filtered_props = reorder_props(filter_props(props))
     # pylint: disable=unused-variable
     list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
     # pylint: disable=unused-variable
-    list_of_valid_keys = repr(list(filtered_props.keys()))
+    list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
     # pylint: disable=unused-variable
     docstring = create_docstring(
         component_name=typename,
@@ -302,9 +305,61 @@ def generate_class(typename, props, description, namespace):
 
     required_args = required_props(props)
 
+    return c.format(**locals())
+
+
+# pylint: disable=unused-argument
+def generate_class_file(typename, props, description, namespace):
+    """
+    Generate a python class file (.py) given a class string
+
+    Parameters
+    ----------
+    typename
+    props
+    description
+    namespace
+
+    Returns
+    -------
+
+    """
+    string = generate_class_string(typename, props, description, namespace)
+    file_name = "{:s}.py".format(typename)
+
+    # Convoluted way since os.makedirs(..., exist_ok=True) only >=3.2
+    try:
+        os.makedirs(namespace)
+    except OSError as exc:  # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(namespace):
+            pass
+        else:
+            raise
+    file_path = os.path.join(namespace, file_name)
+    with open(file_path, 'w') as f:
+        f.write(string)
+
+
+# pylint: disable=unused-argument
+def generate_class(typename, props, description, namespace):
+    """
+    Generate a python class object given a class string
+
+    Parameters
+    ----------
+    typename
+    props
+    description
+    namespace
+
+    Returns
+    -------
+
+    """
+    string = generate_class_string(typename, props, description, namespace)
     scope = {'Component': Component}
     # pylint: disable=exec-used
-    exec(c.format(**locals()), scope)
+    exec(string, scope)
     result = scope[typename]
     return result
 

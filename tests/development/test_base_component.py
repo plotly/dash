@@ -8,6 +8,8 @@ import plotly
 
 from dash.development.base_component import (
     generate_class,
+    generate_class_string,
+    generate_class_file,
     Component,
     js_to_py_type,
     create_docstring,
@@ -486,6 +488,58 @@ class TestComponent(unittest.TestCase):
         c2_popped = c.pop('2')
         self.assertTrue('2' not in c)
         self.assertTrue(c2_popped is c2)
+
+
+class TestGenerateClassFile(unittest.TestCase):
+    def setUp(self):
+        json_path = os.path.join('tests', 'development', 'metadata_test.json')
+        with open(json_path) as data_file:
+            json_string = data_file.read()
+            data = json\
+                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .decode(json_string)
+            self.data = data
+
+        # Class string generated from generate_class_string
+        self.component_class_string = generate_class_string(
+            typename='Table',
+            props=data['props'],
+            description=data['description'],
+            namespace='TableComponents'
+        )
+
+        # Class string written to file
+        generate_class_file(
+            typename='Table',
+            props=data['props'],
+            description=data['description'],
+            namespace='TableComponents'
+        )
+        written_file_path = os.path.join(
+            'TableComponents', "Table.py"
+        )
+        with open(written_file_path, 'r') as f:
+            self.written_class_string = f.read()
+        
+        # The expected result for both class string and class file generation
+        expected_string_path = os.path.join(
+            'tests', 'development', 'metadata_test.py'
+        )
+        with open(expected_string_path, 'r') as f:
+            self.expected_class_string = f.read()
+
+
+    def test_class_string(self):
+        self.assertEqual(
+            self.expected_class_string,
+            self.component_class_string
+        )
+
+    def test_class_file(self):
+        self.assertEqual(
+            self.expected_class_string,
+            self.written_class_string
+        )
 
 
 class TestGenerateClass(unittest.TestCase):
