@@ -1,3 +1,6 @@
+from dash.development.base_component import Component
+
+
 class Table(Component):
     """A Table component.
 This is a description of the component.

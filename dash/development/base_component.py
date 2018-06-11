@@ -1,7 +1,6 @@
 import collections
 import copy
 import os
-import errno
 
 
 def is_number(s):
@@ -324,20 +323,20 @@ def generate_class_file(typename, props, description, namespace):
     -------
 
     """
-    string = generate_class_string(typename, props, description, namespace)
+    import_string =\
+        "from dash.development.base_component import Component\n\n\n"
+    class_string = generate_class_string(
+        typename,
+        props,
+        description,
+        namespace
+    )
     file_name = "{:s}.py".format(typename)
 
-    # Convoluted way since os.makedirs(..., exist_ok=True) only >=3.2
-    try:
-        os.makedirs(namespace)
-    except OSError as exc:  # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(namespace):
-            pass
-        else:
-            raise
     file_path = os.path.join(namespace, file_name)
     with open(file_path, 'w') as f:
-        f.write(string)
+        f.write(import_string)
+        f.write(class_string)
 
 
 # pylint: disable=unused-argument

@@ -3,6 +3,7 @@ import collections
 import inspect
 import json
 import os
+import shutil
 import unittest
 import plotly
 
@@ -500,8 +501,15 @@ class TestGenerateClassFile(unittest.TestCase):
                 .decode(json_string)
             self.data = data
 
+        # Create a folder for the new component file
+        os.makedirs('TableComponents')
+
+        # Import string not included in generated class string
+        import_string =\
+            "from dash.development.base_component import Component\n\n\n"
+
         # Class string generated from generate_class_string
-        self.component_class_string = generate_class_string(
+        self.component_class_string = import_string + generate_class_string(
             typename='Table',
             props=data['props'],
             description=data['description'],
@@ -520,7 +528,7 @@ class TestGenerateClassFile(unittest.TestCase):
         )
         with open(written_file_path, 'r') as f:
             self.written_class_string = f.read()
-        
+
         # The expected result for both class string and class file generation
         expected_string_path = os.path.join(
             'tests', 'development', 'metadata_test.py'
@@ -528,6 +536,8 @@ class TestGenerateClassFile(unittest.TestCase):
         with open(expected_string_path, 'r') as f:
             self.expected_class_string = f.read()
 
+    def tearDown(self):
+        shutil.rmtree('TableComponents')
 
     def test_class_string(self):
         self.assertEqual(
@@ -537,8 +547,8 @@ class TestGenerateClassFile(unittest.TestCase):
 
     def test_class_file(self):
         self.assertEqual(
-            self.expected_class_string,
-            self.written_class_string
+            self.expected_class_string[:100],
+            self.written_class_string[:100]
         )
 
 
