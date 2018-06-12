@@ -547,8 +547,8 @@ class TestGenerateClassFile(unittest.TestCase):
 
     def test_class_file(self):
         self.assertEqual(
-            self.expected_class_string[:100],
-            self.written_class_string[:100]
+            self.expected_class_string,
+            self.written_class_string
         )
 
 

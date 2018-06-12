@@ -6,7 +6,6 @@ import unittest
 from dash.development.component_loader import load_components, generate_classes
 from dash.development.base_component import (
     generate_class,
-    generate_class_file,
     Component
 )
 
@@ -186,7 +185,7 @@ class TestGenerateClasses(unittest.TestCase):
             'default_namespace'
         )
 
-        generate_classes(METADATA_PATH)
+        generate_classes(METADATA_PATH, 'default_namespace')
         from default_namespace.MyComponent import MyComponent \
             as MyComponent_buildtime
         from default_namespace.A import A as A_buildtime

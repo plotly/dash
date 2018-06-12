@@ -55,8 +55,7 @@ def load_components(metadata_path,
     return components
 
 
-def generate_classes(metadata_path,
-                     namespace='default_namespace'):
+def generate_classes(metadata_path='lib/metadata.json', output_dir='lib'):
     """Load React component metadata into a format Dash can parse,
     then create python class files.
 
@@ -65,6 +64,8 @@ def generate_classes(metadata_path,
     Keyword arguments:
     metadata_path -- a path to a JSON file created by
     [`react-docgen`](https://github.com/reactjs/react-docgen).
+
+    output_dir -- the directory to put component classes in
 
     Returns:
     """
@@ -85,5 +86,5 @@ def generate_classes(metadata_path,
             name,
             componentData['props'],
             componentData['description'],
-            namespace
+            output_dir
         )
