@@ -63,7 +63,8 @@ export default class Row extends Component {
                     style={{
                         'marginLeft': 'auto',
                         'marginRight': 'auto',
-                        'width': 30
+                        'width': 15,
+                        'display': 'block'
                     }}
                     checked={R.contains(idx, selected_rows)}
                     onChange={() => setProps({selected_rows:
