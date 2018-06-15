@@ -115,7 +115,7 @@ const styles = {
                 isSelectedColumn && isTopmost ? doTop(ACCENT, 1) : null,
                 isSelectedRow && isLeftmost ? doLeft(ACCENT, 1) : null,
 
-                !style_as_list_view ? doLeft(BORDER, 1) : null,
+                !style_as_list_view || ci === -1 ? doLeft(BORDER, 1) : null,
                 doTop(BORDER, 1),
 
                 isBottommost || isAboveExpanded ? doBottom(BORDER, 1) : null,
