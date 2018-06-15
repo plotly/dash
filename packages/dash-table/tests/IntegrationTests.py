@@ -67,6 +67,7 @@ class IntegrationTests(unittest.TestCase):
             app.run_server(
                 port=8050,
                 debug=False,
+                threaded=False,
                 processes=processes
             )
 

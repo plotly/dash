@@ -29,12 +29,8 @@ class EventTests(IntegrationTests):
         ])
         self.startServer(app)
 
-        try:
-            import ipdb
-            ipdb.set_trace()
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "waitfor"))
+        )
 
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.ID, "waitfor"))
-            )
-        finally:
-            self.driver.quit()
+        
