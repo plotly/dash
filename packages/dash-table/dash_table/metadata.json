@@ -30,7 +30,11 @@
           }
         },
         "required": false,
-        "description": ""
+        "description": "",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
       },
       "dataframe_timestamp": {
         "type": {
@@ -47,7 +51,11 @@
           }
         },
         "required": false,
-        "description": ""
+        "description": "",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
       },
       "display_row_count": {
         "type": {
