@@ -33,3 +33,5 @@ dash_table.egg-info
 dist
 *__pycache__*
 __pycache__/
+
+*.pyc
