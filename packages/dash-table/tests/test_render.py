@@ -9,6 +9,7 @@ import os
 
 from dash_table import Table  # pylint: disable=no-name-in-module
 
+
 class Tests(IntegrationTests):
     # Tests are dynamically generated below
     pass
