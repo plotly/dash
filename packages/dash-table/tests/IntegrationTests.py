@@ -5,6 +5,7 @@ import time
 import unittest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+import os
 import percy
 import logging
 
@@ -12,13 +13,11 @@ import logging
 # pylint: disable=import-error,unused-import
 import chromedriver_binary
 
-PERCY_ENABLED = False
-
 
 class IntegrationTests(unittest.TestCase):
 
     def percy_snapshot(self, name=''):
-        if PERCY_ENABLED:
+        if os.environ.get('PERCY_ENABLED', False):
             snapshot_name = '{} - {}'.format(name, sys.version_info)
             self.percy_runner.snapshot(
                 name=snapshot_name
@@ -34,7 +33,7 @@ class IntegrationTests(unittest.TestCase):
 
         cls.driver = webdriver.Chrome(chrome_options=options)
 
-        if PERCY_ENABLED:
+        if os.environ.get('PERCY_ENABLED', False):
             loader = percy.ResourceLoader(
                 webdriver=cls.driver
             )
@@ -45,7 +44,7 @@ class IntegrationTests(unittest.TestCase):
     def tearDownClass(cls):
         super(IntegrationTests, cls).tearDownClass()
 
-        if PERCY_ENABLED:
+        if os.environ.get('PERCY_ENABLED', False):
             cls.driver.quit()
             cls.percy_runner.finalize_build()
 
