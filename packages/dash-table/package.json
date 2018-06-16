@@ -36,5 +36,9 @@
   "peerDependencies": {
     "react": ">=0.14",
     "react-dom": ">=0.14"
+  },
+  "engines": {
+    "node": ">=8.11.0",
+    "npm": ">=6.1.0"
   }
 }
