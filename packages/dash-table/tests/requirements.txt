@@ -9,3 +9,5 @@ dash-renderer
 ipdb
 percy
 selenium
+flake8
+pylint
