@@ -6,6 +6,7 @@ import unittest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import percy
+import logging
 
 # flake8: noqa: F401
 # pylint: disable=import-error,unused-import
@@ -69,6 +70,7 @@ class IntegrationTests(unittest.TestCase):
 
         # Run on a separate process so that it doesn't block
         self.server_process = multiprocessing.Process(target=run)
+        logging.getLogger('werkzeug').setLevel(logging.ERROR)
         self.server_process.start()
         time.sleep(5)
 
