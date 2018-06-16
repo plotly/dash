@@ -5,7 +5,6 @@ import {Table} from '../lib';
 import {mockData} from './data.js';
 import Dropdown from 'react-select';
 import TestFixtures from '../../tests/fixtures.json';
-import * as R from 'ramda';
 
 
 const clone = o => JSON.parse(JSON.stringify(o));
