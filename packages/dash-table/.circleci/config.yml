@@ -9,14 +9,14 @@ jobs:
             - checkout
 
             - restore_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
 
             - run:
                 name: Install package.json
                 command: npm i
 
             - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
                 paths:
                     - node_modules
 
