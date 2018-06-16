@@ -65,6 +65,22 @@ SAMPLE_TABLE_PROPS = [
                 {'column-1': 10, 'column-2': 20},
             ]
         }
+    },
+
+    {
+        'name': 'extra-rows',
+        'props': {
+            'columns': [
+                {
+                    'name': 'Column 1',
+                    'id': 'column-1'
+                }
+            ],
+            'dataframe': [
+                {'column-1': 3, 'column-2': 10},
+                {'column-1': 30, 'column-2': 20}                
+            ]
+        }
     }
 
 ]
