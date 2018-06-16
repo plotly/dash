@@ -22,9 +22,7 @@ jobs:
 
             - run:
                 name: Run eslint
-                command: |
-                    npm install eslint
-                    ./node_modules/.bin/eslint src
+                command: ./node_modules/.bin/eslint src
                 when: always
 
 
