@@ -93,8 +93,10 @@ const styles = {
                   R.contains(ci, selectedCols);
 
             const isRightmost = ci === R.last(vci);
+
+            // -1 refers to meta columns like the row-select checkbox column
             const isLeftmost = row_selectable
-                ? ci === -1  // -1 refers to meta columns like the row-select checkbox column
+                ? ci === -1
                 : ci === R.head(vci);
             const isTopmost = ri === 0;
             const isBottommost = ri === dataframe.length - 1;

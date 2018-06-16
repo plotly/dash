@@ -215,4 +215,5 @@ Header.propTypes = {
     dataframe: PropTypes.any,
     setProps: PropTypes.any,
     sort: PropTypes.any,
+    row_selectable: PropTypes.any
 };

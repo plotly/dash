@@ -128,4 +128,6 @@ Row.propTypes = {
     collapsable: PropTypes.any,
     expanded_rows: PropTypes.any,
     active_cell: PropTypes.any,
+    selected_rows: PropTypes.any,
+    row_selectable: PropTypes.any
 };

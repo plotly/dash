@@ -676,3 +676,5 @@ Table.propTypes = {
     style_as_list_view: PropTypes.bool,
     table_style: PropTypes.any,
 };
+
+ControlledTable.propTypes = Table.propTypes;
