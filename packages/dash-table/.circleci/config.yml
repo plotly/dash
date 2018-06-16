@@ -1,0 +1,78 @@
+version: 2
+
+jobs:
+    "node":
+        docker:
+            - image: circleci/node:8.11.3
+
+        steps:
+            - checkout
+
+            - restore_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+
+            - run:
+                name: Install package.json
+                command: npm i
+
+            - save_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}
+                paths:
+                    - node_modules
+
+            - run:
+                name: Run eslint
+                command: |
+                    npm install eslint
+                    ./node_modules/.bin/eslint src
+                when: always
+
+
+    "python-3.6":
+        docker:
+            - image: circleci/python:3.6-stretch-browsers
+
+        steps:
+            - checkout
+
+            - restore_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "tests/requirements.txt" }}
+
+            - run:
+                name: Create virtualenv
+                command: |
+                    python3 -m venv venv
+
+            - run:
+                name: Install requirements
+                command: |
+                    . venv/bin/activate
+                    pip install -r requirements.txt --quiet
+
+            - save_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+                paths:
+                    - "venv"
+
+            - run:
+                name: Run python linters
+                command: |
+                    . venv/bin/activate
+                    flake8 usage.py tests
+                    pylint usage.py tests
+                when: always
+
+            - run:
+                name: Integration Tests
+                command: |
+                    . venv/bin/activate
+                    python -m unittest tests
+                when: always
+
+
+workflows:
+    version: 2
+    build:
+    jobs:
+        - "python-3.6"
+        - "node"
