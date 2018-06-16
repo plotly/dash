@@ -70,7 +70,7 @@ jobs:
                 name: Integration Tests
                 command: |
                     . venv/bin/activate
-                    python -m unittest tests/test_render
+                    python -m unittest tests.test_render
                 when: always
 
 
