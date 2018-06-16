@@ -78,7 +78,7 @@ SAMPLE_TABLE_PROPS = [
             ],
             'dataframe': [
                 {'column-1': 3, 'column-2': 10},
-                {'column-1': 30, 'column-2': 20}                
+                {'column-1': 30, 'column-2': 20}
             ]
         }
     }

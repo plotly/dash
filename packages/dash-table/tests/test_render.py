@@ -1,11 +1,10 @@
 from .IntegrationTests import IntegrationTests
 import dash
 import dash_html_components as html
-import dash_core_components as dcc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from dash_table import Table
+from dash_table import Table  # pylint: disable=no-name-in-module
 
 from .fixtures import SAMPLE_TABLE_PROPS
 
@@ -15,12 +14,12 @@ class Tests(IntegrationTests):
     pass
 
 
-def create_test(test_data):
+def create_test(test_case):
     def test(self):
         app = dash.Dash(__name__)
         app.layout = html.Div([
             html.Div(id='waitfor'),
-            Table(**test_data['props'])
+            Table(**test_case['props'])
         ])
 
         self.startServer(app)
@@ -29,7 +28,7 @@ def create_test(test_data):
             EC.presence_of_element_located((By.ID, "waitfor"))
         )
 
-        self.percy_snapshot(test_data['name'])
+        self.percy_snapshot(test_case['name'])
 
     return test
 

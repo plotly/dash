@@ -5,20 +5,21 @@ import time
 import unittest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import chromedriver_binary  # adds chromedriver to path
 import percy
 
+# flake8: noqa: F401
+# pylint: disable=import-error,unused-import
+import chromedriver_binary
 
 PERCY_ENABLED = False
 
 
 class IntegrationTests(unittest.TestCase):
 
-    def percy_snapshot(cls, name=''):
+    def percy_snapshot(self, name=''):
         if PERCY_ENABLED:
             snapshot_name = '{} - {}'.format(name, sys.version_info)
-            print(snapshot_name)
-            cls.percy_runner.snapshot(
+            self.percy_runner.snapshot(
                 name=snapshot_name
             )
 
@@ -47,12 +48,12 @@ class IntegrationTests(unittest.TestCase):
             cls.driver.quit()
             cls.percy_runner.finalize_build()
 
-    def setUp(s):
+    def setUp(self):
         pass
 
-    def tearDown(s):
+    def tearDown(self):
         time.sleep(2)
-        s.server_process.terminate()
+        self.server_process.terminate()
         time.sleep(2)
 
     def startServer(self, app):
@@ -85,17 +86,23 @@ class IntegrationTests(unittest.TestCase):
         var _error = console.error;
 
         console.log = function() {
-            window.tests.console.log.push({method: 'log', arguments: arguments});
+            window.tests.console.log.push({
+                method: 'log', arguments: arguments
+            });
             return _log.apply(console, arguments);
         };
 
         console.warn = function() {
-            window.tests.console.warn.push({method: 'warn', arguments: arguments});
+            window.tests.console.warn.push({
+                method: 'warn', arguments: arguments
+            });
             return _warn.apply(console, arguments);
         };
 
         console.error = function() {
-            window.tests.console.error.push({method: 'error', arguments: arguments});
+            window.tests.console.error.push({
+                method: 'error', arguments: arguments
+            });
             return _error.apply(console, arguments);
         };
         '''
