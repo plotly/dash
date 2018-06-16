@@ -53,11 +53,17 @@ jobs:
                     - "venv"
 
             - run:
-                name: Run python linters
+                name: Run pylint
+                command: |
+                    . venv/bin/activate
+                    pylint usage.py tests
+                when: always
+
+            - run:
+                name: Run flake8
                 command: |
                     . venv/bin/activate
                     flake8 usage.py tests
-                    pylint usage.py tests
                 when: always
 
             - run:
