@@ -29,8 +29,9 @@ jobs:
     "python-3.6":
         docker:
             - image: circleci/python:3.6-stretch-browsers
-                environment:
-                    PERCY_ENABLED: False
+
+        environment:
+            PERCY_ENABLED: False
 
         steps:
             - checkout
