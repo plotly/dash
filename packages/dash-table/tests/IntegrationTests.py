@@ -56,19 +56,14 @@ class IntegrationTests(unittest.TestCase):
         time.sleep(2)
 
     def startServer(self, app):
-        if 'DASH_TEST_PROCESSES' in os.environ:
-            processes = int(os.environ['DASH_TEST_PROCESSES'])
-        else:
-            processes = 4
-
         def run():
             app.scripts.config.serve_locally = True
             app.css.config.serve_locally = True
             app.run_server(
                 port=8050,
                 debug=False,
-                threaded=False,
-                processes=processes
+                processes=1,
+                threaded=True
             )
 
         # Run on a separate process so that it doesn't block
