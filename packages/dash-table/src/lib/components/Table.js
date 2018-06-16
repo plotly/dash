@@ -608,6 +608,8 @@ class ControlledTable extends Component {
 
 Table.defaultProps = {
     changed_data: {},
+    dataframe: [],
+    columns: [],
     editable: false,
     active_cell: [],
     index_name: '',
