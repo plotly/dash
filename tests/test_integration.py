@@ -13,14 +13,6 @@ from .utils import assert_clean_console, invincible, wait_for
 
 
 class Tests(IntegrationTests):
-    def setUp(self):
-        def wait_for_element_by_id(id):
-            wait_for(lambda: None is not invincible(
-                lambda: self.driver.find_element_by_id(id)
-            ))
-            return self.driver.find_element_by_id(id)
-        self.wait_for_element_by_id = wait_for_element_by_id
-
     def test_simple_callback(self):
         app = dash.Dash(__name__)
         app.layout = html.Div([

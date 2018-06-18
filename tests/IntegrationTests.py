@@ -2,8 +2,16 @@ import multiprocessing
 import sys
 import time
 import unittest
-from selenium import webdriver
+import threading
+import platform
 import percy
+import flask
+import requests
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class IntegrationTests(unittest.TestCase):
@@ -13,6 +21,11 @@ class IntegrationTests(unittest.TestCase):
         print(snapshot_name)
         cls.percy_runner.snapshot(
             name=snapshot_name
+        )
+
+    def wait_for_element_by_id(self, _id):
+        return WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, _id))
         )
 
     @classmethod
@@ -33,15 +46,19 @@ class IntegrationTests(unittest.TestCase):
         cls.driver.quit()
         cls.percy_runner.finalize_build()
 
-    def setUp(s):
+    def setUp(self):
         pass
 
-    def tearDown(s):
+    def tearDown(self):
         time.sleep(2)
-        s.server_process.terminate()
+        if platform.system() == 'Windows':
+            requests.get('http://localhost:8050/stop')
+            time.sleep(4)
+        else:
+            self.server_process.terminate()
         time.sleep(2)
 
-    def startServer(s, dash):
+    def startServer(self, dash):
         def run():
             dash.scripts.config.serve_locally = True
             dash.run_server(
@@ -51,13 +68,36 @@ class IntegrationTests(unittest.TestCase):
                 threaded=False
             )
 
+        def run_windows():
+            dash.scripts.config.serve_locally = True
+            dash.css.config.serve_locally = True
+
+            @dash.server.route('/stop')
+            def _stop_server_windows():
+                stopper = flask.request.environ['werkzeug.server.shutdown']
+                stopper()
+                return 'stop'
+
+            dash.run_server(
+                port=8050,
+                debug=False,
+                dev_mode=True,
+                threaded=True
+            )
+
         # Run on a separate process so that it doesn't block
-        s.server_process = multiprocessing.Process(target=run)
-        s.server_process.start()
-        time.sleep(0.5)
+        system = platform.system()
+        if system == 'Windows':
+            # multiprocess can't pickle an inner func on windows (closure are not serializable by default on windows)
+            self.server_thread = threading.Thread(target=run_windows)
+            self.server_thread.start()
+        else:
+            self.server_process = multiprocessing.Process(target=run)
+            self.server_process.start()
+        time.sleep(3)
 
         # Visit the dash page
-        s.driver.get('http://localhost:8050')
+        self.driver.get('http://localhost:8050')
         time.sleep(0.5)
 
         # Inject an error and warning logger
@@ -84,4 +124,4 @@ class IntegrationTests(unittest.TestCase):
             return _error.apply(console, arguments);
         };
         '''
-        s.driver.execute_script(logger)
+        self.driver.execute_script(logger)
