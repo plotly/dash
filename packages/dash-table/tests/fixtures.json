@@ -113,6 +113,66 @@
     },
 
     {
+        "name": "dropdown with column widths",
+        "props": {
+            "columns": [
+                {
+                    "name": "Column 1",
+                    "id": "column-1",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "label": "Montréal",
+                            "value": "mtl"
+                        },
+                        {
+                            "label": "San Francisco",
+                            "value": "sf"
+                        }
+                    ]
+                },
+                {
+                    "name": "Column 2",
+                    "id": "column-2",
+                    "width": 400,
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "label": "Montréal",
+                            "value": "mtl"
+                        },
+                        {
+                            "label": "San Francisco",
+                            "value": "sf"
+                        }
+                    ]
+                },
+                {
+                    "name": "Column 3",
+                    "id": "column-3",
+                    "width": 80,
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "label": "Montréal",
+                            "value": "mtl"
+                        },
+                        {
+                            "label": "San Francisco",
+                            "value": "sf"
+                        }
+                    ]
+                }
+            ],
+            "dataframe": [
+                {"column-1": "mtl", "column-2": "mtl", "column-3": "mtl"},
+                {"column-1": "mtl", "column-2": "mtl", "column-3": "mtl"},
+                {"column-1": "mtl", "column-2": "mtl", "column-3": "mtl"}
+            ]
+        }
+    },
+
+    {
         "name": "multi-line headers",
         "props": {
             "columns": [
@@ -170,6 +230,32 @@
                     "salinity": 50,
                     "region": "costa-rica"
                 }
+            ]
+        }
+    },
+
+    {
+        "name": "mixed percentage and pixel column widths",
+        "props": {
+            "columns": [
+                {
+                    "name": "Column 1",
+                    "id": "column-1"
+                },
+                {
+                    "name": "Column 2",
+                    "id": "column-2",
+                    "width": 400
+                },
+                {
+                    "name": "Column 3",
+                    "id": "column-3",
+                    "width": "30%"
+                }
+            ],
+            "dataframe": [
+                {"column-1": 1, "column-2": 2, "column-3": 3},
+                {"column-1": 10, "column-2": 20, "column-3": 30}
             ]
         }
     }
