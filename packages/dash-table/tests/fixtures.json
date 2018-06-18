@@ -81,6 +81,97 @@
                 {"column-1": 30, "column-2": 20}
             ]
         }
+    },
+
+    {
+        "name": "dropdown",
+        "props": {
+            "columns": [
+                {
+                    "name": "Column 1",
+                    "id": "column-1",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "label": "Montréal",
+                            "value": "mtl"
+                        },
+                        {
+                            "label": "San Francisco",
+                            "value": "sf"
+                        }
+                    ]
+                }
+            ],
+            "dataframe": [
+                {"column-1": "mtl"},
+                {"column-1": "sf"},
+                {"column-1": "mtl"},
+                {"column-1": "boston"}
+            ]
+        }
+    },
+
+    {
+        "name": "multi-line headers",
+        "props": {
+            "columns": [
+                {
+                    "name": ["Climate", "Rainfall"],
+                    "id": "rainfall"
+                },
+                {
+                    "name": ["Climate", "Temperature"],
+                    "id": "temp"
+                },
+                {
+                    "name": ["Climate", "Rainfall"],
+                    "id": "rainfall"
+                },
+                {
+                    "name": ["Water Conditions", "Clarity"],
+                    "id": "clarity"
+                },
+                {
+                    "name": ["Water Conditions", "Salinity"],
+                    "id": "salinity"
+                },
+                {
+                    "name": ["Region", ""],
+                    "id": "region",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "label": "Hawaii",
+                            "value": "hawaii"
+                        },
+                        {
+                            "label": "Costa Rica",
+                            "value": "costa-rica"
+                        }
+                    ]
+                }
+            ],
+            "merge_duplicate_headers": true,
+            "dataframe": [
+                {
+                    "rainfall": 1,
+                    "temp": 2,
+                    "rainfaill": 3,
+                    "clarity": 4,
+                    "salinity": 5,
+                    "region": "hawaii"
+                },
+                {
+                    "rainfall": 10,
+                    "temp": 20,
+                    "rainfaill": 30,
+                    "clarity": 40,
+                    "salinity": 50,
+                    "region": "costa-rica"
+                }
+            ]
+        }
     }
 
 ]
