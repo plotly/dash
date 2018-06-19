@@ -6,8 +6,6 @@ import Dropdown from 'react-select';
 import {colIsEditable} from './derivedState';
 import computedStyles from './computedStyles';
 
-const sortNumerical = R.sort((a, b) => a - b);
-
 export default class Cell extends Component {
     constructor(props) {
         super(props);
@@ -116,32 +114,6 @@ export default class Cell extends Component {
         }
     }
 
-    borderSquares() {
-        const {i: ci, idx: ri, columns, selected_cell} = this.props;
-
-        // visible col indices
-        const vci = [];
-        columns.forEach((c, i) => {
-            if (!c.hidden) {
-                vci.push(i);
-            }
-        });
-
-        const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cell)));
-        const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cell)));
-
-        const isRight = ci === R.last(selectedCols) + 1;
-        const isBelow = ri === R.last(selectedRows) + 1;
-
-        const className = isRight && isBelow ? 'bottom-right' : '';
-        if (!className) {
-            return null;
-        }
-        return (
-            <div className={`selected-square selected-square-${className}`} />
-        );
-    }
-
     fixedColumnStyle() {}
 
     render() {
@@ -223,10 +195,14 @@ export default class Cell extends Component {
             innerCell = value;
         }
 
+        const {style, borderFixDiv} = computedStyles.scroll.borderStyle(
+            this.props
+        );
+
         return (
             <td
                 style={R.merge(
-                    computedStyles.scroll.borderStyle(this.props),
+                    style,
                     computedStyles.scroll.cell(this.props, i)
                 )}
                 className={
@@ -238,8 +214,7 @@ export default class Cell extends Component {
                 }
             >
                 {innerCell}
-
-                {this.borderSquares()}
+                {borderFixDiv}
             </td>
         );
     }

@@ -5,7 +5,7 @@ import {Table} from '../lib';
 import {mockData} from './data.js';
 import Dropdown from 'react-select';
 import TestFixtures from '../../tests/fixtures.json';
-
+import {merge} from 'ramda';
 
 const clone = o => JSON.parse(JSON.stringify(o));
 
@@ -18,9 +18,9 @@ class App extends Component {
                 columns: clone(mockData.columns),
                 editable: true,
                 row_selectable: 'multi',
-                selected_rows: [5, 10, 15]
+                selected_rows: [5, 10, 15],
             },
-            selectedFixture: null
+            selectedFixture: null,
         };
     }
 
@@ -32,27 +32,31 @@ class App extends Component {
                     <Dropdown
                         options={TestFixtures.map(t => ({
                             label: t.name,
-                            value: JSON.stringify(t.props)
+                            value: JSON.stringify(t.props),
                         }))}
-                        onChange={e => this.setState({
-                            tableProps: JSON.parse(e.value),
-                            selectedFixture: e.value
-                        })}
+                        onChange={e =>
+                            this.setState({
+                                tableProps: JSON.parse(e.value),
+                                selectedFixture: e.value,
+                            })
+                        }
                         value={this.state.selectedFixture}
                     />
                 </div>
 
-                <hr/>
+                <hr />
                 <label>test events:{'\u00A0\u00A0'}</label>
                 <input type="text" />
                 <input type="text" />
                 <input type="text" />
-                <hr/>
+                <hr />
 
                 <Table
                     setProps={newProps => {
                         console.info('--->', newProps);
-                        this.setState({tableProps: newProps});
+                        this.setState({
+                            tableProps: merge(this.state.tableProps, newProps),
+                        });
                     }}
                     {...this.state.tableProps}
                 />
