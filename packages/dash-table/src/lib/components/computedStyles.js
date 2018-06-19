@@ -119,12 +119,22 @@ const styles = {
             const isAboveExpanded =
                 collapsable && R.contains(ri, expanded_rows);
 
+            let leftEdgeThickness = 1;
+            if (isActive && !isLeftmost) {
+                leftEdgeThickness = 2;
+            }
+
+            let topEdgeThickness = 1;
+            if (isActive && !isTopmost) {
+                topEdgeThickness = 2;
+            }
+
             // rules are applied in the order that they are supplied
             const boxShadowRules = [
                 showLeftEdge || isNeighborToExpanded
-                    ? doLeft(ACCENT, isActive ? 2 : 1)
+                    ? doLeft(ACCENT, leftEdgeThickness)
                     : null,
-                showTopEdge ? doTop(ACCENT, isActive ? 2 : 1) : null,
+                showTopEdge ? doTop(ACCENT, topEdgeThickness) : null,
                 showInsideBottomEdge ? doBottom(ACCENT, 1) : null,
                 showInsideRightEdge ? doRight(ACCENT, 1) : null,
                 isWithinColSelections && isTopmost ? doTop(ACCENT, 1) : null,
