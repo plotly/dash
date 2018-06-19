@@ -475,6 +475,62 @@ class Dash(object):
                 output.component_id,
                 output.component_property).replace('    ', ''))
 
+    def _validate_callback_output(self, output_value, output):
+        valid = [str, dict, int, float, type(None), Component]
+
+        def _raise_invalid(bad_val, outer_type, bad_type, path, index=None):
+            raise exceptions.ReturnValueNotJSONSerializable('''
+            The callback for property `{:s}` of component `{:s}`
+            returned a tree with one value having type `{:s}`
+            which is not JSON serializable.
+
+            The value in question is located at
+
+            `{:s}`
+
+            and has string representation
+
+            `{}`.
+
+            In general, Dash properties can only be
+            dash components, strings, dictionaries, numbers, None,
+            or lists of those.
+            '''.format(
+                output.component_property,
+                output.component_id,
+                bad_type,
+                (
+                    "outer list index {:d} ({:s}) -> "
+                    .format(index, outer_type)
+                    if index is not None
+                    else (outer_type + " -> ")
+                ) + path,
+                bad_val).replace('    ', ''))
+
+        def _value_is_valid(val):
+            return (
+                # pylint: disable=unused-variable
+                any([isinstance(val, x) for x in valid]) or
+                type(val).__name__ == 'unicode'
+            )
+
+        def _validate_value(val, index=None):
+            if isinstance(val, Component):
+                for p, j in val.traverse_with_paths():
+                    if not _value_is_valid(j):
+                        _raise_invalid(j, type(val).__name__, type(j).__name__,
+                                       p, index)
+            else:
+                if not _value_is_valid(val):
+                    _raise_invalid(val, type(val).__name__, type(val).__name__,
+                                   '', index)
+
+        if isinstance(output_value, list):
+            for i, val in enumerate(output_value):
+                _validate_value(val, index=i)
+        else:
+            _validate_value(output_value)
+
     # TODO - Update nomenclature.
     # "Parents" and "Children" should refer to the DOM tree
     # and not the dependency tree.
@@ -513,6 +569,7 @@ class Dash(object):
             def add_context(*args, **kwargs):
 
                 output_value = func(*args, **kwargs)
+                self._validate_callback_output(output_value, output)
                 response = {
                     'response': {
                         'props': {

@@ -44,3 +44,7 @@ class CantHaveMultipleOutputs(CallbackException):
 
 class PreventUpdate(CallbackException):
     pass
+
+
+class ReturnValueNotJSONSerializable(CallbackException):
+    pass
