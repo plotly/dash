@@ -506,6 +506,7 @@ class TestGenerateClassFile(unittest.TestCase):
 
         # Import string not included in generated class string
         import_string =\
+            "# AUTO GENERATED FILE - DO NOT EDIT\n\n" + \
             "from dash.development.base_component import Component\n\n\n"
 
         # Class string generated from generate_class_string

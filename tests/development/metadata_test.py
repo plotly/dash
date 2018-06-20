@@ -1,3 +1,5 @@
+# AUTO GENERATED FILE - DO NOT EDIT
+
 from dash.development.base_component import Component
 
 

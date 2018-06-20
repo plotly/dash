@@ -324,6 +324,7 @@ def generate_class_file(typename, props, description, namespace):
 
     """
     import_string =\
+        "# AUTO GENERATED FILE - DO NOT EDIT\n\n" + \
         "from dash.development.base_component import Component\n\n\n"
     class_string = generate_class_string(
         typename,
