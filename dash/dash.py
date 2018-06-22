@@ -480,7 +480,7 @@ class Dash(object):
 
         def _raise_invalid(bad_val, outer_val, bad_type, path, index=None,
                            toplevel=False):
-            outer_id = "id={:s}".format(outer_val.id) \
+            outer_id = "(id={:s})".format(outer_val.id) \
                         if getattr(outer_val, 'id', False) else ''
             outer_type = type(outer_val).__name__
             raise exceptions.ReturnValueNotJSONSerializable('''
@@ -508,9 +508,10 @@ class Dash(object):
                 ),
                 location=(
                     "\n" +
-                    ("[{:d}] {:s} {:s}\n".format(index, outer_type, outer_id)
+                    ("[{:d}] {:s} {:s}".format(index, outer_type, outer_id)
                      if index is not None
-                     else (outer_type + ' ' + outer_id + "\n")) + path + "\n"
+                     else ('-   ' + outer_type + ' ' + outer_id))
+                    + "\n" + path + "\n"
                 ) if not toplevel else '',
                 bad_val=bad_val).replace('    ', ''))
 
@@ -544,7 +545,7 @@ class Dash(object):
                                 bad_val=child,
                                 outer_val=val,
                                 bad_type=type(child).__name__,
-                                path=p + type(child).__name__,
+                                path=p + "\n" + type(child).__name__,
                                 index=index
                             )
 
