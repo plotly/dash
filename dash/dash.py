@@ -545,7 +545,7 @@ class Dash(object):
                                 bad_val=child,
                                 outer_val=val,
                                 bad_type=type(child).__name__,
-                                path=p + "\n" + type(child).__name__,
+                                path=p + "\n-   " + type(child).__name__,
                                 index=index
                             )
 

@@ -164,9 +164,9 @@ class Component(collections.MutableMapping):
 
         # children is just a component
         if isinstance(children, Component):
-            yield children_string, children
+            yield "-   " + children_string, children
             for p, t in children.traverse_with_paths():
-                yield "\n".join([children_string, p]), t
+                yield "\n".join(["-   " + children_string, p]), t
 
         # children is a list of components
         elif isinstance(children, collections.MutableSequence):
