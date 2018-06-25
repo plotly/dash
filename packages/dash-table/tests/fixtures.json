@@ -303,6 +303,7 @@
             "active_cell": [0, 1]
         }
     },
+
     {
         "name": "inner-selection",
         "props": {
@@ -331,6 +332,81 @@
                 {"column-1": 2, "column-2": "bravo", "column-3": 2, "column-4": 1},
                 {"column-1": 3, "column-2": "charlie", "column-3": 2, "column-4": 1},
                 {"column-1": 4, "column-2": "delta", "column-3": 2, "column-4": 1}
+            ]
+        }
+    },
+
+    {
+        "name": "hidden-columns",
+        "props": {
+            "editable": true,
+            "selected_cell": [[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]],
+            "columns": [
+                {
+                    "name": "Column 1",
+                    "id": "column-1"
+                },
+                {
+                    "name": "Column 2",
+                    "id": "column-2",
+                    "hidden": true
+                },
+                {
+                    "name": "Column 3",
+                    "id": "column-3"
+                },
+                {
+                    "name": "Column 4",
+                    "id": "column-4"
+                }
+            ],
+            "dataframe": [
+                {"column-1": 1, "column-2": "alpha", "column-3": 2, "column-4": 1},
+                {"column-1": 2, "column-2": {"data": "whatever im hidden who cares"}, "column-3": 2, "column-4": 1},
+                {"column-1": 3, "column-2": true, "column-3": 2, "column-4": 1},
+                {"column-1": 4, "column-2": "delta", "column-3": 2, "column-4": 1}
+            ]
+        }
+    },
+
+    {
+        "name": "hidden-columns-with-merged-headers",
+        "props": {
+            "editable": true,
+            "selected_cell": [[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]],
+            "merge_duplicate_headers": true,
+            "columns": [
+                {
+                    "name": ["Columns", "Column 1"],
+                    "id": "column-1"
+                },
+                {
+                    "name": ["Columns", "Column 2"],
+                    "id": "column-2",
+                    "hidden": true
+                },
+                {
+                    "name": ["Columns", "Column 3"],
+                    "id": "column-3"
+                },
+                {
+                    "name": ["Columns", "Column 4"],
+                    "id": "column-4"
+                },
+                {
+                    "name": ["Colors", "Blue"],
+                    "id": "column-5"
+                },
+                {
+                    "name": ["Colors", "Red"],
+                    "id": "column-6"
+                }
+            ],
+            "dataframe": [
+                {"column-1": 1, "column-2": "alpha", "column-3": 2, "column-4": 1, "column-5": 1, "column-6": 2},
+                {"column-1": 2, "column-2": {"data": "whatever im hidden who cares", "column-5": 1, "column-6": 2}, "column-3": 2, "column-4": 1, "column-5": 1, "column-6": 2},
+                {"column-1": 3, "column-2": true, "column-3": 2, "column-4": 1, "column-5": 1, "column-6": 2},
+                {"column-1": 4, "column-2": "delta", "column-3": 2, "column-4": 1, "column-5": 1, "column-6": 2}
             ]
         }
     }
