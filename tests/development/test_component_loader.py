@@ -185,7 +185,7 @@ class TestGenerateClasses(unittest.TestCase):
             'default_namespace'
         )
 
-        generate_classes(METADATA_PATH, 'default_namespace')
+        generate_classes('default_namespace', METADATA_PATH)
         from default_namespace.MyComponent import MyComponent \
             as MyComponent_buildtime
         from default_namespace.A import A as A_buildtime
