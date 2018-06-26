@@ -79,10 +79,14 @@ export default class Header extends Component {
             if (!mergeCells) {
                 colSpan = 1;
             } else {
+                const nHiddenColumns = (
+                    R.slice(i, columnIndices[j+1] || Infinity, columns)
+                     .filter(R.propEq('hidden', true))
+                     .length);
                 if (i === R.last(columnIndices)) {
-                    colSpan = labels.length - i;
+                    colSpan = labels.length - i - nHiddenColumns;
                 } else {
-                    colSpan = columnIndices[j + 1] - i;
+                    colSpan = columnIndices[j + 1] - i - nHiddenColumns;
                 }
             }
 
