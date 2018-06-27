@@ -12,6 +12,7 @@ from dash.development.base_component import (
     generate_class_string,
     generate_class_file,
     Component,
+    _explicitize_args,
     js_to_py_type,
     create_docstring,
     parse_events
@@ -507,7 +508,8 @@ class TestGenerateClassFile(unittest.TestCase):
         # Import string not included in generated class string
         import_string =\
             "# AUTO GENERATED FILE - DO NOT EDIT\n\n" + \
-            "from dash.development.base_component import Component\n\n\n"
+            "from dash.development.base_component import" + \
+            " Component, _explicitize_args\n\n\n"
 
         # Class string generated from generate_class_string
         self.component_class_string = import_string + generate_class_string(
@@ -684,16 +686,22 @@ class TestGenerateClass(unittest.TestCase):
             ['restyle', 'relayout', 'click']
         )
 
+    # This one is kind of pointless now
     def test_call_signature(self):
+        __init__func = self.ComponentClass.__init__
         # TODO: Will break in Python 3
         # http://stackoverflow.com/questions/2677185/
         self.assertEqual(
-            inspect.getargspec(self.ComponentClass.__init__).args,
-            ['self', 'children']
+            inspect.getargspec(__init__func).args,
+            []
         )
         self.assertEqual(
-            inspect.getargspec(self.ComponentClass.__init__).defaults,
-            (None, )
+            inspect.getargspec(__init__func).varargs,
+            'args'
+        )
+        self.assertEqual(
+            inspect.getargspec(__init__func).keywords,
+            'kwargs'
         )
 
     def test_required_props(self):

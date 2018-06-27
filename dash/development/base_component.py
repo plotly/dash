@@ -19,6 +19,29 @@ def _check_if_has_indexable_children(item):
         raise KeyError
 
 
+def _explicitize_args(func):
+    # Python 2
+    if hasattr(func, 'func_code'):
+        varnames = func.func_code.co_varnames
+    # Python 3
+    else:
+        varnames = func.__code__.co_varnames
+
+    def wrapper(*args, **kwargs):
+        if '_explicit_params' in kwargs.keys():
+            raise Exception('Variable _explicit_params should not be set.')
+        kwargs['_explicit_params'] = \
+            list(
+                set(
+                    list(varnames[:len(args)]) + [k for k, _ in kwargs.items()]
+                )
+            )
+        if 'self' in kwargs['_explicit_params']:
+            kwargs['_explicit_params'].remove('self')
+        return func(*args, **kwargs)
+    return wrapper
+
+
 class Component(collections.MutableMapping):
     def __init__(self, **kwargs):
         # pylint: disable=super-init-not-called
@@ -238,7 +261,8 @@ def generate_class_string(typename, props, description, namespace):
     # not all component authors will supply those.
     c = '''class {typename}(Component):
     """{docstring}"""
-    def __init__(self, {default_argtext}):
+    @_explicitize_args
+    def __init__(self, {default_argtext}, **kwargs):
         self._prop_names = {list_of_valid_keys}
         self._type = '{typename}'
         self._namespace = '{namespace}'
@@ -249,11 +273,15 @@ def generate_class_string(typename, props, description, namespace):
         self.available_wildcard_properties =\
             {list_of_valid_wildcard_attr_prefixes}
 
+        _explicit_params = kwargs.pop('_explicit_params')
+        _locals = locals()
+        _locals.update(kwargs)  # For wildcard attrs
+        args = {{k: _locals[k] for k in _explicit_params if k != 'children'}}
+
         for k in {required_args}:
-            if k not in kwargs:
+            if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
-
         super({typename}, self).__init__({argtext})
 
     def __repr__(self):
@@ -294,16 +322,20 @@ def generate_class_string(typename, props, description, namespace):
 
     # pylint: disable=unused-variable
     events = '[' + ', '.join(parse_events(props)) + ']'
+    prop_keys = list(props.keys())
     if 'children' in props:
-        default_argtext = 'children=None, **kwargs'
+        prop_keys.remove('children')
+        default_argtext = "children=None, "
         # pylint: disable=unused-variable
-        argtext = 'children=children, **kwargs'
+        argtext = 'children=children, **args'
     else:
-        default_argtext = '**kwargs'
-        argtext = '**kwargs'
+        default_argtext = ""
+        argtext = '**args'
+    default_argtext += ", ".join(
+        ['{:s}=None'.format(p) for p in prop_keys if not p.endswith("-*")]
+    )
 
     required_args = required_props(props)
-
     return c.format(**locals())
 
 
@@ -325,7 +357,8 @@ def generate_class_file(typename, props, description, namespace):
     """
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n" + \
-        "from dash.development.base_component import Component\n\n\n"
+        "from dash.development.base_component import " + \
+        "Component, _explicitize_args\n\n\n"
     class_string = generate_class_string(
         typename,
         props,
@@ -357,7 +390,7 @@ def generate_class(typename, props, description, namespace):
 
     """
     string = generate_class_string(typename, props, description, namespace)
-    scope = {'Component': Component}
+    scope = {'Component': Component, '_explicitize_args': _explicitize_args}
     # pylint: disable=exec-used
     exec(string, scope)
     result = scope[typename]

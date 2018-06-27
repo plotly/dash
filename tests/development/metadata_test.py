@@ -1,6 +1,6 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
 
 class Table(Component):
@@ -37,7 +37,8 @@ Those keys have the following types:
 - id (string; optional)
 
 Available events: 'restyle', 'relayout', 'click'"""
-    def __init__(self, children=None, **kwargs):
+    @_explicitize_args
+    def __init__(self, children=None, optionalArray=None, optionalBool=None, optionalFunc=None, optionalNumber=None, optionalObject=None, optionalString=None, optionalSymbol=None, optionalNode=None, optionalElement=None, optionalMessage=None, optionalEnum=None, optionalUnion=None, optionalArrayOf=None, optionalObjectOf=None, optionalObjectWithShapeAndNestedDescription=None, optionalAny=None, customProp=None, customArrayProp=None, id=None, dashEvents=None, **kwargs):
         self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'id']
         self._type = 'Table'
         self._namespace = 'TableComponents'
@@ -46,12 +47,16 @@ Available events: 'restyle', 'relayout', 'click'"""
         self.available_properties = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'id']
         self.available_wildcard_properties =            ['data-', 'aria-']
 
+        _explicit_params = kwargs.pop('_explicit_params')
+        _locals = locals()
+        _locals.update(kwargs)  # For wildcard attrs
+        args = {k: _locals[k] for k in _explicit_params if k != 'children'}
+
         for k in []:
-            if k not in kwargs:
+            if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
-
-        super(Table, self).__init__(children=children, **kwargs)
+        super(Table, self).__init__(children=children, **args)
 
     def __repr__(self):
         if(any(getattr(self, c, None) is not None
