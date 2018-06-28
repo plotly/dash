@@ -693,15 +693,46 @@ class TestGenerateClass(unittest.TestCase):
         # http://stackoverflow.com/questions/2677185/
         self.assertEqual(
             inspect.getargspec(__init__func).args,
-            []
+            ['self',
+             'children',
+             'optionalArray',
+             'optionalBool',
+             'optionalFunc',
+             'optionalNumber',
+             'optionalObject',
+             'optionalString',
+             'optionalSymbol',
+             'optionalNode',
+             'optionalElement',
+             'optionalMessage',
+             'optionalEnum',
+             'optionalUnion',
+             'optionalArrayOf',
+             'optionalObjectOf',
+             'optionalObjectWithShapeAndNestedDescription',
+             'optionalAny',
+             'customProp',
+             'customArrayProp',
+             'id',
+             'dashEvents'] if hasattr(inspect, 'signature') else []
+
+
         )
         self.assertEqual(
             inspect.getargspec(__init__func).varargs,
-            'args'
+            None if hasattr(inspect, 'signature') else 'args'
         )
         self.assertEqual(
             inspect.getargspec(__init__func).keywords,
             'kwargs'
+        )
+        self.assertEqual(
+            inspect.getargspec(__init__func).defaults,
+            (None, None, None, None, None,
+             None, None, None, None, None,
+             None, None, None, None, None,
+             None, None, None,
+             None, None, None) if hasattr(inspect, 'signature') else None
         )
 
     def test_required_props(self):

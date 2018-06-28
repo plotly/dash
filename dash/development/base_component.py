@@ -1,6 +1,7 @@
 import collections
 import copy
 import os
+import inspect
 
 
 def is_number(s):
@@ -28,17 +29,25 @@ def _explicitize_args(func):
         varnames = func.__code__.co_varnames
 
     def wrapper(*args, **kwargs):
-        if '_explicit_params' in kwargs.keys():
-            raise Exception('Variable _explicit_params should not be set.')
-        kwargs['_explicit_params'] = \
+        if '_explicit_args' in kwargs.keys():
+            raise Exception('Variable _explicit_args should not be set.')
+        kwargs['_explicit_args'] = \
             list(
                 set(
                     list(varnames[:len(args)]) + [k for k, _ in kwargs.items()]
                 )
             )
-        if 'self' in kwargs['_explicit_params']:
-            kwargs['_explicit_params'].remove('self')
+        if 'self' in kwargs['_explicit_args']:
+            kwargs['_explicit_args'].remove('self')
         return func(*args, **kwargs)
+
+    # If Python 3, we can set the function signature to be correct
+    if hasattr(inspect, 'signature'):
+        # pylint: disable=no-member
+        new_sig = inspect.signature(wrapper).replace(
+            parameters=inspect.signature(func).parameters.values()
+        )
+        wrapper.__signature__ = new_sig
     return wrapper
 
 
@@ -273,10 +282,10 @@ def generate_class_string(typename, props, description, namespace):
         self.available_wildcard_properties =\
             {list_of_valid_wildcard_attr_prefixes}
 
-        _explicit_params = kwargs.pop('_explicit_params')
+        _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {{k: _locals[k] for k in _explicit_params if k != 'children'}}
+        args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
 
         for k in {required_args}:
             if k not in args:
