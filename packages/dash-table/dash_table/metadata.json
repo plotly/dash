@@ -36,13 +36,6 @@
           "computed": false
         }
       },
-      "dataframe_timestamp": {
-        "type": {
-          "name": "any"
-        },
-        "required": false,
-        "description": ""
-      },
       "dataframe": {
         "type": {
           "name": "arrayOf",
@@ -54,6 +47,34 @@
         "description": "",
         "defaultValue": {
           "value": "[]",
+          "computed": false
+        }
+      },
+      "dataframe_previous": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "object"
+          }
+        },
+        "required": false,
+        "description": ""
+      },
+      "dataframe_timestamp": {
+        "type": {
+          "name": "any"
+        },
+        "required": false,
+        "description": ""
+      },
+      "update_on_unfocus": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Only send an update of  `dataframe_previous` and `dataframe_timestamp`\nwhen the cell is unfocused ()",
+        "defaultValue": {
+          "value": "true",
           "computed": false
         }
       },
