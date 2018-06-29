@@ -85,6 +85,7 @@ class ControlledTable extends Component {
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.collectRows = this.collectRows.bind(this);
         this.onPaste = this.onPaste.bind(this);
+        this.handleClickOutside = this.handleClickOutside.bind(this);
     }
 
     componentDidMount() {
@@ -93,6 +94,17 @@ class ControlledTable extends Component {
             !R.contains(this.props.active_cell, this.props.selected_cell)
         ) {
             this.props.setProps({active_cell: this.props.selected_cell[0]});
+        }
+        document.addEventListener('mousedown', this.handleClickOutside);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('mousedown', this.handleClickOutside);
+    }
+
+    handleClickOutside(event) {
+        if (this._table && !this._table.contains(event.target)) {
+            this.props.setProps({is_focused: false});
         }
     }
 
