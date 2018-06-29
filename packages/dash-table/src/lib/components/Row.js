@@ -1,9 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import angleRight from '@fortawesome/fontawesome-free-solid/faAngleRight';
-import angleDown from '@fortawesome/fontawesome-free-solid/faAngleDown';
 import Cell from './Cell';
 import computedStyles from './computedStyles';
 
@@ -43,11 +40,7 @@ export default class Row extends Component {
                     }
                 }}
             >
-                {R.contains(idx, expanded_rows) ? (
-                    <FontAwesomeIcon icon={angleDown} />
-                ) : (
-                    <FontAwesomeIcon icon={angleRight} />
-                )}
+                {R.contains(idx, expanded_rows) ? '^' : '>'}
             </td>
         );
 

@@ -12,12 +12,9 @@
   "author": "Chris P <chris@plot.ly",
   "license": "MIT",
   "dependencies": {
-    "@fortawesome/fontawesome": "^1.1.8",
-    "@fortawesome/fontawesome-free-solid": "^5.0.13",
-    "@fortawesome/react-fontawesome": "0.0.20",
     "ramda": "^0.25.0",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2",
+    "react": "15.4.2",
+    "react-dom": "15.4.2",
     "react-select": "^1.2.1",
     "sheetclip": "^0.3.0"
   },
