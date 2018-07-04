@@ -510,7 +510,7 @@ class Dash(object):
                     "\n" +
                     ("[{:d}] {:s} {:s}".format(index, outer_type, outer_id)
                      if index is not None
-                     else ('-   ' + outer_type + ' ' + outer_id))
+                     else ('[*] ' + outer_type + ' ' + outer_id))
                     + "\n" + path + "\n"
                 ) if not toplevel else '',
                 bad_val=bad_val).replace('    ', ''))
@@ -545,7 +545,7 @@ class Dash(object):
                                 bad_val=child,
                                 outer_val=val,
                                 bad_type=type(child).__name__,
-                                path=p + "\n-   " + type(child).__name__,
+                                path=p + "\n" + "[*] " + type(child).__name__,
                                 index=index
                             )
 
