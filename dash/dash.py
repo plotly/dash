@@ -76,12 +76,14 @@ class Dash(object):
             'routes_pathname_prefix': url_base_pathname,
             'requests_pathname_prefix': url_base_pathname,
             'include_static_files': include_static_files,
+            'static_folder': static_folder
         })
 
         # list of dependencies
         self.callback_map = {}
 
         self._meta_tags = collections.OrderedDict()
+        self._favicon = None
 
         if compress:
             # gzip
@@ -611,6 +613,8 @@ class Dash(object):
                     self.css.append_css({
                         'static_path': path
                     })
+                elif f == 'favicon.ico':
+                    self._favicon = path
 
     def add_meta_tag(self, name, content):
         self._meta_tags[name] = {'name': name, 'content': content}
