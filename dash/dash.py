@@ -23,7 +23,7 @@ from ._utils import AttributeDict as _AttributeDict
 
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
     def __init__(
             self,
