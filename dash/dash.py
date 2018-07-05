@@ -7,6 +7,9 @@ import importlib
 import json
 import pkgutil
 import warnings
+import shutil
+import re
+
 from functools import wraps
 
 import plotly
@@ -595,15 +598,24 @@ class Dash(object):
 
     def _walk_static_directory(self):
         walk_dir = self.config.static_folder
-        subs = []
+        slash_splitter = re.compile(r'[\\/]+')
+
         for current, _, files in os.walk(walk_dir):
-            if current != walk_dir:
-                subs.append(os.path.basename(current))
+            if current == walk_dir:
+                base = ''
+            else:
+                s = current.replace(walk_dir, '').lstrip('\\').lstrip('/')
+                splitted = slash_splitter.split(s)
+                if len(splitted) > 1:
+                    base = '/'.join(slash_splitter.split(s))
+                else:
+                    base = splitted[0]
 
             for f in files:
-
-                # path.join is bad here cause we call url_for
-                path = f if not subs else '/'.join(subs + [f])
+                if base:
+                    path = '/'.join([base, f])
+                else:
+                    path = f
 
                 if f.endswith('js'):
                     self.scripts.append_script({
