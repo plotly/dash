@@ -2,15 +2,50 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.24.0]
+
+### Added
+- Upgraded Plotly.js, the underlying library behind the
+`dash_core_components.Graph` component, to [version 1.39.0](https://github.com/plotly/plotly.js/releases/tag/v1.39.0).
+See https://github.com/plotly/plotly.js/releases/tag/v1.39.0 for the official notes.
+
+    Many of these features were funded directly by companies that rely on this library.
+    If your organization or company would like to sponsor particular features or
+    bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
+
+As part of plotly.js release:
+- Add support for on-graph text in scattergl traces [#2737](https://github.com/plotly/plotly.js/pull/2737), [#2783](https://github.com/plotly/plotly.js/pull/2783)
+- Add gridshape attribute to polar subplots with values 'circular' (the default) and 'linear' (to draw polygon grids) [#2739](https://github.com/plotly/plotly.js/pull/2739)
+- Add support for colorbar linked to marker.color values for splom,
+scatterpolar and scatterpolargl traces [#2681](https://github.com/plotly/plotly.js/pull/2681)
+- Revamp icon settings in custom mode bar buttons, allowing users to specify their own dimensions and SVG transforms [#2762](https://github.com/plotly/plotly.js/pull/2762)
+- Add plotlyServerURL config option [#2760](https://github.com/plotly/plotly.js/pull/2760)
+- Added no-WebGL warnings for graphs with scattergl, scatterpolargl, splom and parcoords traces [#2697](https://github.com/plotly/plotly.js/pull/2697)
+
+### Fixed
+As part of plotly.js release:
+- Fix Plotly.react's handling of changing auto-margins [#2681](https://github.com/plotly/plotly.js/pull/2681)
+- Make plotting/updating WebGL-based traces fail gracefully when WebGL isn't
+supported [#2697](https://github.com/plotly/plotly.js/pull/2697)
+- Fix mapbox layout layer updates [#2734](https://github.com/plotly/plotly.js/pull/2734)
+- Fix mapbox event inconsistencies [#2766](https://github.com/plotly/plotly.js/pull/2766)
+- Correctly emit plotly_relayout at end of scroll on mapbox subplots [#2709](https://github.com/plotly/plotly.js/pull/2709)
+- Fix scatter3d scalar hovertext handling [#2698](https://github.com/plotly/plotly.js/pull/2698)
+- Fix line decimation for segments crossing the viewport [#2705](https://github.com/plotly/plotly.js/pull/2705)
+- Fix surface trace contours when first level has length zero [#2712](https://github.com/plotly/plotly.js/pull/2712)
+- Fix contour(x|y|z).highlight partial settings [#2712](https://github.com/plotly/plotly.js/pull/2712)
+- Fix old date timezone precision in Chrome 67+ [#2747](https://github.com/plotly/plotly.js/pull/2747)
+- Fix x-only zoom moves when xaxis.fixedrange: true[#2776](https://github.com/plotly/plotly.js/pull/2776)
+- Fix colorbar edits for parcoords and histogram traces [#2681](https://github.com/plotly/plotly.js/pull/2681)
+- Fix bandwidth for single-value violins [#2775](https://github.com/plotly/plotly.js/pull/2775)
+- Make Plots.resize work when layout attribute is gone from graph div [#2710](https://github.com/plotly/plotly.js/pull/2710)
+- Fix colorscale attribute descriptions [#2658](https://github.com/plotly/plotly.js/pull/2658)    
+
 ## [0.23.0]
 ### Added
 - Upgraded Plotly.js, the underlying library behind the
 `dash_core_components.Graph` component, to [version 1.38.0](https://github.com/plotly/plotly.js/releases/tag/v1.38.0).
 See https://github.com/plotly/plotly.js/releases/tag/v1.38.0 for the official notes.
-
-    Many of these features were funded directly by companies that rely on this library.
-    If your organization or company would like to sponsor particular features or
-    bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
 
     - Add 3D `cone` traces to visualize vector fields [#2641](https://github.com/plotly/plotly.js/pull/2641), [#2647](https://github.com/plotly/plotly.js/pull/2647)
     - Add ability to interactively change length and rotate line shapes [#2594](https://github.com/plotly/plotly.js/pull/2594)
