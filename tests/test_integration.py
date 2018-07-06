@@ -266,3 +266,30 @@ class Tests(IntegrationTests):
         self.startServer(app)
         self.wait_for_element_by_id('waitfor')
         self.percy_snapshot(name='flowtype')
+
+    def test_meta_tags(self):
+        app = dash.Dash()
+
+        app.layout = html.Div(id='content')
+
+        metas = (
+            ('description', 'my dash app'),
+            ('custom', 'customized')
+        )
+
+        for m in metas:
+            app.add_meta_tag(*m)
+
+        self.startServer(app)
+
+        meta = self.driver.find_elements_by_tag_name('meta')
+
+        self.assertEqual(len(metas), len(meta) - 1, 'Not enough meta tags')
+
+        for i in range(1, len(meta)):
+            meta_tag = meta[i]
+            meta_info = metas[i - 1]
+            name = meta_tag.get_attribute('name')
+            content = meta_tag.get_attribute('content')
+            self.assertEqual(name, meta_info[0])
+            self.assertEqual(content, meta_info[1])
