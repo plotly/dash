@@ -37,6 +37,7 @@ class Dash(object):
             include_static_files=True,
             url_base_pathname='/',
             compress=True,
+            meta_tags=None,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -85,7 +86,7 @@ class Dash(object):
         # list of dependencies
         self.callback_map = {}
 
-        self._meta_tags = collections.OrderedDict()
+        self._meta_tags = meta_tags or []
         self._favicon = None
 
         if compress:
@@ -629,7 +630,7 @@ class Dash(object):
                     self._favicon = path
 
     def add_meta_tag(self, name, content):
-        self._meta_tags[name] = {'name': name, 'content': content}
+        self._meta_tags.append({'name': name, 'content': content})
 
     def run_server(self,
                    port=8050,
