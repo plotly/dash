@@ -6,8 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - Upgraded Plotly.js, the underlying library behind the
-`dash_core_components.Graph` component, to [version 1.39.0](https://github.com/plotly/plotly.js/releases/tag/v1.39.0).
-See https://github.com/plotly/plotly.js/releases/tag/v1.39.0 for the official notes.
+`dash_core_components.Graph` component, to [version 1.39.1](https://github.com/plotly/plotly.js/releases/tag/v1.39.1).
+See https://github.com/plotly/plotly.js/releases/tag/v1.39.1 for the official notes.
 
     Many of these features were funded directly by companies that rely on this library.
     If your organization or company would like to sponsor particular features or
