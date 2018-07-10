@@ -22,6 +22,33 @@ from .resources import Scripts, Css
 from .development.base_component import Component
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
+from ._utils import interpolate_str
+
+_default_index = '''
+<!DOCTYPE html>
+<html>
+    <head>
+        %(metas)
+        <title>%(title)</title>
+        %(css)
+    </head>
+    <body>
+        %(app_entry)
+        <footer>
+            %(config)
+            %(scripts)
+        </footer>
+    </body>
+</html>
+'''
+
+_app_entry = '''
+<div id="react-entry-point">
+    <div class="_dash-loading">
+        Loading...
+    </div>
+</div>
+'''
 
 
 # pylint: disable=too-many-instance-attributes
@@ -37,6 +64,7 @@ class Dash(object):
             url_base_pathname='/',
             compress=True,
             meta_tags=None,
+            index_string=_default_index,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -72,6 +100,7 @@ class Dash(object):
         # list of dependencies
         self.callback_map = {}
 
+        self.index_string = index_string
         self._meta_tags = meta_tags or []
         self._favicon = None
 
@@ -328,27 +357,17 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
-        return '''
-        <!DOCTYPE html>
-        <html>
-            <head>
-                {}
-                <title>{}</title>
-                {}
-            </head>
-            <body>
-                <div id="react-entry-point">
-                    <div class="_dash-loading">
-                        Loading...
-                    </div>
-                </div>
-                <footer>
-                    {}
-                    {}
-                </footer>
-            </body>
-        </html>
-        '''.format(metas, title, css, config, scripts)
+        return self.interpolate_index(
+            metas, title, css, config, scripts, _app_entry)
+
+    def interpolate_index(self, metas, title, css, config, scripts, app_entry):
+        return interpolate_str(self.index_string,
+                               metas=metas,
+                               title=title,
+                               css=css,
+                               config=config,
+                               scripts=scripts,
+                               app_entry=app_entry)
 
     def dependencies(self):
         return flask.jsonify([
