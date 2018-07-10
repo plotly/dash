@@ -7,7 +7,6 @@ import importlib
 import json
 import pkgutil
 import warnings
-import shutil
 import re
 
 from functools import wraps
@@ -326,7 +325,6 @@ class Dash(object):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
-        metas = self._meta_tags.values()
         title = getattr(self, 'title', 'Dash')
         return '''
         <!DOCTYPE html>
