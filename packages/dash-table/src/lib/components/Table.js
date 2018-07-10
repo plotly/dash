@@ -705,6 +705,19 @@ Table.propTypes = {
 
     display_row_count: PropTypes.number,
     display_tail_count: PropTypes.number,
+
+    dropdown_properties: PropTypes.objectOf(
+        PropTypes.arrayOf(PropTypes.shape({
+            'options': PropTypes.shape({
+                'label': PropTypes.string,
+                'value': PropTypes.string,
+                'required': PropTypes.bool
+            }),
+            'disabled': PropTypes.bool,
+            // And the rest of the dropdown props...
+        }))
+    ),
+
     editable: PropTypes.bool,
     end_cell: PropTypes.arrayOf(PropTypes.number),
     expanded_rows: PropTypes.array,

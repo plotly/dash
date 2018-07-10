@@ -119,6 +119,7 @@ export default class Cell extends Component {
     render() {
         const {
             c,
+            dropdown_properties,
             i,
             idx,
             isSelected,
@@ -175,10 +176,19 @@ export default class Cell extends Component {
                 />
             );
         } else if (columns[i].type === 'dropdown') {
+            let options;
+            if (dropdown_properties &&
+                    R.type(dropdown_properties) === 'Object' &&
+                    R.has(columns[i].id, dropdown_properties) &&
+                    R.has('options', dropdown_properties[columns[i].id][idx])) {
+                options = dropdown_properties[columns[i].id][idx].options;
+            } else {
+                options = columns[i].options;
+            }
             innerCell = (
                 <Dropdown
                     placeholder={''}
-                    options={columns[i].options}
+                    options={options}
                     onChange={newOption => {
                         const newDataframe = R.set(
                             R.lensPath([idx, c.id]),

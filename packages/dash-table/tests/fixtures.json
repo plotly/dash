@@ -415,5 +415,77 @@
                 {"column-1": 4, "column-2": "delta", "column-3": 2, "column-4": 1, "column-5": 1, "column-6": 2, "column-7": 1}
             ]
         }
+    },
+
+    {
+        "name": "per-cell dropdowns",
+        "props": {
+            "columns": [
+                {
+                    "id": "column-1",
+                    "name": "Column 1",
+                    "type": "dropdown",
+                    "width": 200
+                },
+                {
+                    "id": "column-2",
+                    "name": "Column 2"
+                }
+            ],
+            "dataframe": [
+                {
+                    "column-1": "alpha",
+                    "column-2": 1
+                },
+                {
+                    "column-1": "blue",
+                    "column-2": 1
+                },
+                {
+                    "column-1": "mangos",
+                    "column-2": 1
+                }
+            ],
+            "dropdown_properties": {
+                "column-1": [
+                    {
+                        "options": [
+                            {
+                                "label": "Alpha Label",
+                                "value": "alpha"
+                            },
+                            {
+                                "label": "Beta Label",
+                                "value": "beta"
+                            }
+                        ]
+                    },
+                    {
+                        "options": [
+                            {
+                                "label": "Blue Label",
+                                "value": "blue"
+                            },
+                            {
+                                "label": "Orange Label",
+                                "value": "orange"
+                            }
+                        ]
+                    },
+                    {
+                        "options": [
+                            {
+                                "label": "Mangos Label",
+                                "value": "mangos"
+                            },
+                            {
+                                "label": "Apples Label",
+                                "value": "apples"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
     }
 ]
