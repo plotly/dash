@@ -79,7 +79,8 @@ class Dash(object):
             'routes_pathname_prefix': url_base_pathname,
             'requests_pathname_prefix': url_base_pathname,
             'include_static_files': include_static_files,
-            'static_folder': static_folder
+            'static_folder': static_folder,
+            'static_external_path': ''
         })
 
         # list of dependencies
@@ -599,6 +600,13 @@ class Dash(object):
         walk_dir = self.config.static_folder
         slash_splitter = re.compile(r'[\\/]+')
 
+        def add_resource(p):
+            res = {'static_path': p}
+            if self.config.static_external_path:
+                res['external_url'] = '{}{}'.format(
+                    self.config.static_external_path, path)
+            return res
+
         for current, _, files in os.walk(walk_dir):
             if current == walk_dir:
                 base = ''
@@ -617,13 +625,9 @@ class Dash(object):
                     path = f
 
                 if f.endswith('js'):
-                    self.scripts.append_script({
-                        'static_path': path
-                    })
+                    self.scripts.append_script(add_resource(path))
                 elif f.endswith('css'):
-                    self.css.append_css({
-                        'static_path': path
-                    })
+                    self.css.append_css(add_resource(path))
                 elif f == 'favicon.ico':
                     self._favicon = path
 
