@@ -100,6 +100,43 @@
           "computed": false
         }
       },
+      "dropdown_properties": {
+        "type": {
+          "name": "objectOf",
+          "value": {
+            "name": "arrayOf",
+            "value": {
+              "name": "shape",
+              "value": {
+                "options": {
+                  "name": "shape",
+                  "value": {
+                    "label": {
+                      "name": "string",
+                      "required": false
+                    },
+                    "value": {
+                      "name": "string",
+                      "required": false
+                    },
+                    "required": {
+                      "name": "bool",
+                      "required": false
+                    }
+                  },
+                  "required": false
+                },
+                "disabled": {
+                  "name": "bool",
+                  "required": false
+                }
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": ""
+      },
       "editable": {
         "type": {
           "name": "bool"
