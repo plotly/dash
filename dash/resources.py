@@ -29,8 +29,8 @@ class Resources:
                 )
             elif 'absolute_path' in s:
                 filtered_resource['absolute_path'] = s['absolute_path']
-            elif 'static_path' in s:
-                filtered_resource['static_path'] = s['static_path']
+            elif 'asset_path' in s:
+                filtered_resource['asset_path'] = s['asset_path']
             elif self.config.serve_locally:
                 warnings.warn(
                     'A local version of {} is not available'.format(

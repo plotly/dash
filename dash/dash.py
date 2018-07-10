@@ -31,9 +31,9 @@ class Dash(object):
             self,
             name='__main__',
             server=None,
-            static_folder=None,
-            static_url_path='/static',
-            include_static_files=True,
+            assets_folder=None,
+            assets_url_path='/assets',
+            include_assets_files=True,
             url_base_pathname='/',
             compress=True,
             meta_tags=None,
@@ -50,37 +50,23 @@ class Dash(object):
 
         name = name or 'dash'
 
-        lib_dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..'))
-        template_folder = os.path.join(lib_dir, 'templates')
-        lib_static = os.path.join(lib_dir, 'static')
-
-        # Set the static folder (same as flask does, but we can use it)
-        static_folder = static_folder or os.path.join(
-            os.getcwd(), 'static'
+        self.assets_folder = assets_folder or os.path.join(
+            os.getcwd(), 'assets'
         )
 
         # allow users to supply their own flask server
-        self.server = server or Flask(name,
-                                      static_folder=static_folder,
-                                      static_url_path=static_url_path)
-
-        _dash_files = flask.Blueprint('_dash_files',
-                                      '_dash_files',
-                                      url_prefix='/dash-files',
-                                      static_folder=lib_static,
-                                      template_folder=template_folder)
-
-        self.server.register_blueprint(_dash_files)
+        self.server = server or Flask(name)
 
         self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict({
             'suppress_callback_exceptions': False,
             'routes_pathname_prefix': url_base_pathname,
             'requests_pathname_prefix': url_base_pathname,
-            'include_static_files': include_static_files,
-            'static_folder': static_folder,
-            'static_external_path': ''
+            'include_assets_files': include_assets_files,
+            'assets_folder': assets_folder or os.path.join(
+                os.getcwd(), 'assets'),
+            'assets_external_path': '',
+            'assets_url_path': assets_url_path,
         })
 
         # list of dependencies
@@ -247,9 +233,9 @@ class Dash(object):
                 raise Exception(
                     'Serving files from absolute_path isn\'t supported yet'
                 )
-            elif 'static_path' in resource:
-                static_url = flask.url_for('static',
-                                           filename=resource['static_path'])
+            elif 'asset_path' in resource:
+                static_url = flask.url_for('assets.static',
+                                           filename=resource['asset_path'])
                 srcs.append(static_url)
         return srcs
 
@@ -590,21 +576,21 @@ class Dash(object):
         return self.callback_map[target_id]['callback'](*args)
 
     def _setup_server(self):
-        if self.config.include_static_files:
-            self._walk_static_directory()
+        if self.config.include_assets_files:
+            self._walk_assets_directory()
 
         self._generate_scripts_html()
         self._generate_css_dist_html()
 
-    def _walk_static_directory(self):
-        walk_dir = self.config.static_folder
+    def _walk_assets_directory(self):
+        walk_dir = self.config.assets_folder
         slash_splitter = re.compile(r'[\\/]+')
 
         def add_resource(p):
-            res = {'static_path': p}
-            if self.config.static_external_path:
+            res = {'asset_path': p}
+            if self.config.assets_external_path:
                 res['external_url'] = '{}{}'.format(
-                    self.config.static_external_path, path)
+                    self.config.assets_external_path, path)
             return res
 
         for current, _, files in os.walk(walk_dir):
@@ -638,4 +624,8 @@ class Dash(object):
                    port=8050,
                    debug=False,
                    **flask_run_options):
+        bp = flask.Blueprint('assets', 'assets',
+                             static_folder=self.config.assets_folder,
+                             static_url_path=self.config.assets_url_path)
+        self.server.register_blueprint(bp)
         self.server.run(port=port, debug=debug, **flask_run_options)
