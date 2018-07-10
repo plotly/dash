@@ -30,6 +30,7 @@ _default_index = '''
     <head>
         %(metas)
         <title>%(title)</title>
+        %(favicon)
         %(css)
     </head>
     <body>
@@ -357,16 +358,22 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
+        favicon = '<link rel="icon" type="image/png" href="{}">'.format(
+            flask.url_for('assets.static', filename=self._favicon))\
+            if self._favicon else ''
         return self.interpolate_index(
-            metas, title, css, config, scripts, _app_entry)
+            metas, title, css, config, scripts, _app_entry, favicon)
 
-    def interpolate_index(self, metas, title, css, config, scripts, app_entry):
+    def interpolate_index(self,
+                          metas, title, css, config,
+                          scripts, app_entry, favicon):
         return interpolate_str(self.index_string,
                                metas=metas,
                                title=title,
                                css=css,
                                config=config,
                                scripts=scripts,
+                               favicon=favicon,
                                app_entry=app_entry)
 
     def dependencies(self):
