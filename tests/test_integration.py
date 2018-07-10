@@ -6,6 +6,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_flow_example
 import dash
+
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from .IntegrationTests import IntegrationTests
@@ -13,13 +14,6 @@ from .utils import assert_clean_console, invincible, wait_for
 
 
 class Tests(IntegrationTests):
-    def setUp(self):
-        def wait_for_element_by_id(id):
-            wait_for(lambda: None is not invincible(
-                lambda: self.driver.find_element_by_id(id)
-            ))
-            return self.driver.find_element_by_id(id)
-        self.wait_for_element_by_id = wait_for_element_by_id
 
     def test_simple_callback(self):
         app = dash.Dash(__name__)
@@ -268,22 +262,20 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='flowtype')
 
     def test_meta_tags(self):
-        app = dash.Dash()
-
-        app.layout = html.Div(id='content')
-
         metas = (
-            ('description', 'my dash app'),
-            ('custom', 'customized')
+            {'name': 'description', 'content': 'my dash app'},
+            {'name': 'custom', 'content': 'customized'}
         )
 
-        for m in metas:
-            app.add_meta_tag(*m)
+        app = dash.Dash(meta_tags=metas)
+
+        app.layout = html.Div(id='content')
 
         self.startServer(app)
 
         meta = self.driver.find_elements_by_tag_name('meta')
 
+        # -1 for the meta charset.
         self.assertEqual(len(metas), len(meta) - 1, 'Not enough meta tags')
 
         for i in range(1, len(meta)):
@@ -291,5 +283,5 @@ class Tests(IntegrationTests):
             meta_info = metas[i - 1]
             name = meta_tag.get_attribute('name')
             content = meta_tag.get_attribute('content')
-            self.assertEqual(name, meta_info[0])
-            self.assertEqual(content, meta_info[1])
+            self.assertEqual(name, meta_info['name'])
+            self.assertEqual(content, meta_info['content'])

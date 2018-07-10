@@ -658,8 +658,8 @@ class Dash(object):
                 elif f == 'favicon.ico':
                     self._favicon = path
 
-    def add_meta_tag(self, name, content):
-        self._meta_tags.append({'name': name, 'content': content})
+    def add_meta_tag(self, meta):
+        self._meta_tags.append(meta)
 
     def run_server(self,
                    port=8050,
