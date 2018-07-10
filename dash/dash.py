@@ -278,6 +278,20 @@ class Dash(object):
             '</script>'
         ).format(json.dumps(self._config()))
 
+    def _generate_meta_html(self):
+        has_charset = any(filter(lambda x: 'charset' in x, self._meta_tags))
+
+        tags = []
+        if not has_charset:
+            tags.append('<meta charset="UTF-8"/>')
+        for meta in self._meta_tags:
+            attributes = []
+            for k, v in meta.items():
+                attributes.append('{}="{}"'.format(k, v))
+            tags.append('<meta {} />'.format(' '.join(attributes)))
+
+        return '\n      '.join(tags)
+
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
         if package_name not in self.registered_paths:
@@ -312,12 +326,13 @@ class Dash(object):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
+        metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
         return '''
         <!DOCTYPE html>
         <html>
             <head>
-                <meta charset="UTF-8">
+                {}
                 <title>{}</title>
                 {}
             </head>
@@ -333,7 +348,7 @@ class Dash(object):
                 </footer>
             </body>
         </html>
-        '''.format(title, css, config, scripts)
+        '''.format(metas, title, css, config, scripts)
 
     def dependencies(self):
         return flask.jsonify([
