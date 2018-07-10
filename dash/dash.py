@@ -22,22 +22,22 @@ from .resources import Scripts, Css
 from .development.base_component import Component
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
-from ._utils import interpolate_str
+from ._utils import interpolate_str as _interpolate
 
 _default_index = '''
 <!DOCTYPE html>
 <html>
     <head>
-        %(metas)
-        <title>%(title)</title>
-        %(favicon)
-        %(css)
+        {metas}
+        <title>{title}</title>
+        {favicon}
+        {css}
     </head>
     <body>
-        %(app_entry)
+        {app_entry}
         <footer>
-            %(config)
-            %(scripts)
+            {config}
+            {scripts}
         </footer>
     </body>
 </html>
@@ -59,6 +59,7 @@ class Dash(object):
             self,
             name='__main__',
             server=None,
+            static_folder='static',
             assets_folder=None,
             assets_url_path='/assets',
             include_assets_files=True,
@@ -84,7 +85,7 @@ class Dash(object):
         )
 
         # allow users to supply their own flask server
-        self.server = server or Flask(name)
+        self.server = server or Flask(name, static_folder=static_folder)
 
         self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict({
@@ -309,7 +310,7 @@ class Dash(object):
         ).format(json.dumps(self._config()))
 
     def _generate_meta_html(self):
-        has_charset = any(filter(lambda x: 'charset' in x, self._meta_tags))
+        has_charset = any('charset' in x for x in self._meta_tags)
 
         tags = []
         if not has_charset:
@@ -358,23 +359,25 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
-        favicon = '<link rel="icon" type="image/png" href="{}">'.format(
-            flask.url_for('assets.static', filename=self._favicon))\
-            if self._favicon else ''
+        if self._favicon:
+            favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
+                flask.url_for('assets.static', filename=self._favicon))
+        else:
+            favicon = ''
         return self.interpolate_index(
             metas, title, css, config, scripts, _app_entry, favicon)
 
     def interpolate_index(self,
                           metas, title, css, config,
                           scripts, app_entry, favicon):
-        return interpolate_str(self.index_string,
-                               metas=metas,
-                               title=title,
-                               css=css,
-                               config=config,
-                               scripts=scripts,
-                               favicon=favicon,
-                               app_entry=app_entry)
+        return _interpolate(self.index_string,
+                            metas=metas,
+                            title=title,
+                            css=css,
+                            config=config,
+                            scripts=scripts,
+                            favicon=favicon,
+                            app_entry=app_entry)
 
     def dependencies(self):
         return flask.jsonify([

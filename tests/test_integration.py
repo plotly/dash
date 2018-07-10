@@ -6,6 +6,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_flow_example
 import dash
+import time
 
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -14,6 +15,13 @@ from .utils import assert_clean_console, invincible, wait_for
 
 
 class Tests(IntegrationTests):
+    def setUp(self):
+        def wait_for_element_by_id(id):
+            wait_for(lambda: None is not invincible(
+                lambda: self.driver.find_element_by_id(id)
+            ))
+            return self.driver.find_element_by_id(id)
+        self.wait_for_element_by_id = wait_for_element_by_id
 
     def test_simple_callback(self):
         app = dash.Dash(__name__)
@@ -285,3 +293,54 @@ class Tests(IntegrationTests):
             content = meta_tag.get_attribute('content')
             self.assertEqual(name, meta_info['name'])
             self.assertEqual(content, meta_info['content'])
+
+    def test_index_customization(self):
+        app = dash.Dash()
+
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {metas}
+                <title>{title}</title>
+                {favicon}
+                {css}
+            </head>
+            <body>
+                <div id="custom-header">My custom header</div>
+                <div id="add"></div>
+                {app_entry}
+                <footer>
+                    {config}
+                    {scripts}
+                </footer>
+                <div id="custom-footer">My custom footer</div>
+                <script>
+                // Test the formatting doesn't mess up script tags.
+                var elem = document.getElementById('add');
+                if (!elem) {
+                    throw Error('could not find container to add');
+                }
+                elem.innerHTML = 'Got added';
+                </script>
+            </body>
+        </html>
+        '''
+
+        app.layout = html.Div('Dash app', id='app')
+
+        self.startServer(app)
+
+        time.sleep(0.5)
+
+        header = self.wait_for_element_by_id('custom-header')
+        footer = self.wait_for_element_by_id('custom-footer')
+
+        self.assertEqual('My custom header', header.text)
+        self.assertEqual('My custom footer', footer.text)
+
+        add = self.wait_for_element_by_id('add')
+
+        self.assertEqual('Got added', add.text)
+
+        self.percy_snapshot('custom-index')
