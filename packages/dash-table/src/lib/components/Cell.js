@@ -221,7 +221,7 @@ export default class Cell extends Component {
                         : '') +
                     (is_focused && isActive ? 'focused ' : '') +
                     (notEditable ? 'cell--uneditable ' : '') +
-                    (columns[i].type === 'dropdown' ? 'dropdown' : '')
+                    (columns[i].type === 'dropdown' ? 'dropdown ' : '')
                 }
             >
                 {innerCell}
