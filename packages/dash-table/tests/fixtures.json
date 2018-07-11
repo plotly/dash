@@ -439,10 +439,10 @@
                 },
                 {
                     "column-1": "blue",
-                    "column-2": 1
+                    "column-2": "Some really super long text that should overflow"
                 },
                 {
-                    "column-1": "mangos",
+                    "column-1": "apples",
                     "column-2": 1
                 }
             ],
@@ -479,7 +479,7 @@
                                 "value": "mangos"
                             },
                             {
-                                "label": "Apples Label",
+                                "label": "Apples Apples Apples Apples Apples Apples Apples Apples Apples Apples Apples Label",
                                 "value": "apples"
                             }
                         ]

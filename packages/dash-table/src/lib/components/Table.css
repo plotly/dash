@@ -60,6 +60,22 @@
     text-align: right;
 }
 
+.dash-spreadsheet td.dropdown {
+    /*
+     * To view the dropdown's contents, we need
+     * overflow-y: visible.
+     * Unfortunately, overflow-x: hidden and overflow-y: visible
+     * can't both be set at the same time.
+     * So, we have to make both overflow-x: visible and overflow-y: visble
+     *
+     * See https://stackoverflow.com/questions/6421966/
+     *
+     * There might be another solution with parent divs, but I haven't
+     * tried it.
+     */
+    overflow-x: visible;
+}
+
 .dash-spreadsheet th {
     box-shadow: inset 1px 0px 0px 0px var(--border),
         inset 0px 1px 0px 0px var(--border);
