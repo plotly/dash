@@ -28,16 +28,16 @@ _default_index = '''
 <!DOCTYPE html>
 <html>
     <head>
-        {metas}
-        <title>{title}</title>
-        {favicon}
-        {css}
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
     </head>
     <body>
-        {app_entry}
+        {%app_entry%}
         <footer>
-            {config}
-            {scripts}
+            {%config%}
+            {%scripts%}
         </footer>
     </body>
 </html>
@@ -51,9 +51,17 @@ _app_entry = '''
 </div>
 '''
 
+_re_index_entry = re.compile(r'{%app_entry%}')
+_re_index_config = re.compile(r'{%config%}')
+_re_index_scripts = re.compile(r'{%scripts%}')
+
+_re_index_entry_id = re.compile(r'(id="react-entry-point")')
+_re_index_config_id = re.compile(r'(id="_dash-config")')
+_re_index_scripts_id = re.compile(r'(src=".*dash[-_]renderer.*")')
+
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-arguments, too-many-locals
+# pylint: disable=too-many-arguments
 class Dash(object):
     def __init__(
             self,
@@ -102,6 +110,7 @@ class Dash(object):
         # list of dependencies
         self.callback_map = {}
 
+        self._index_string = ''
         self.index_string = index_string
         self._meta_tags = meta_tags or []
         self._favicon = None
@@ -199,6 +208,26 @@ class Dash(object):
         # pylint: disable=protected-access
         self.css._update_layout(layout_value)
         self.scripts._update_layout(layout_value)
+
+    @property
+    def index_string(self):
+        return self._index_string
+
+    @index_string.setter
+    def index_string(self, value):
+        checks = (
+            (_re_index_entry.search(value), 'app_entry'),
+            (_re_index_config.search(value), 'config',),
+            (_re_index_scripts.search(value), 'scripts'),
+        )
+        missing = [missing for check, missing in checks if not check]
+        if missing:
+            raise Exception(
+                'Did you forget to include {} in your index string ?'.format(
+                    ', '.join('{%' + x + '%}' for x in missing)
+                )
+            )
+        self._index_string = value
 
     def serve_layout(self):
         layout = self._layout_value()
@@ -364,8 +393,27 @@ class Dash(object):
                 flask.url_for('assets.static', filename=self._favicon))
         else:
             favicon = ''
-        return self.interpolate_index(
+
+        index = self.interpolate_index(
             metas, title, css, config, scripts, _app_entry, favicon)
+
+        checks = (
+            (_re_index_entry_id.search(index), '#react-entry-point'),
+            (_re_index_config_id.search(index), '#_dash-configs'),
+            (_re_index_scripts_id.search(index), 'dash-renderer'),
+        )
+        missing = [missing for check, missing in checks if not check]
+
+        if missing:
+            plural = 's' if len(missing) > 1 else ''
+            raise Exception(
+                'Missing element{pl} {ids} in index.'.format(
+                    ids=', '.join(missing),
+                    pl=plural
+                )
+            )
+
+        return index
 
     def interpolate_index(self,
                           metas, title, css, config,

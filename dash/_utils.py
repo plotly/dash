@@ -1,7 +1,7 @@
 def interpolate_str(template, **data):
     s = template
     for k, v in data.items():
-        key = '{' + k + '}'
+        key = '{%' + k + '%}'
         s = s.replace(key, v)
     return s
 
