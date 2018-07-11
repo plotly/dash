@@ -1,3 +1,4 @@
+import json
 from multiprocessing import Value
 import datetime
 import itertools
@@ -344,3 +345,51 @@ class Tests(IntegrationTests):
         self.assertEqual('Got added', add.text)
 
         self.percy_snapshot('custom-index')
+
+    def test_assets(self):
+        app = dash.Dash(assets_folder='tests/assets')
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {metas}
+                <title>{title}</title>
+                {css}
+            </head>
+            <body>
+                <div id="tested"></div>
+                {app_entry}
+                <footer>
+                    {config}
+                    {scripts}
+                </footer>
+            </body>
+        </html>
+        '''
+
+        app.layout = html.Div([
+            html.Div(id='content'),
+            dcc.Input(id='test')
+        ], id='layout')
+
+        self.startServer(app)
+
+        body = self.driver.find_element_by_tag_name('body')
+
+        body_margin = body.value_of_css_property('margin')
+        self.assertEqual('0px', body_margin)
+
+        content = self.wait_for_element_by_id('content')
+        content_padding = content.value_of_css_property('padding')
+        self.assertEqual('8px', content_padding)
+
+        tested = self.wait_for_element_by_id('tested')
+        tested = json.loads(tested.text)
+        self.assertEqual(3, len(tested))
+
+        order = ('load_first', 'load_after', 'load_after1')
+
+        for i in range(3):
+            self.assertEqual(order[i], tested[i])
+
+        self.percy_snapshot('test assets includes')
