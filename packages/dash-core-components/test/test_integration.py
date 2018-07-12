@@ -528,3 +528,22 @@ class Tests(IntegrationTests):
         button.click()
         time.sleep(2)
         self.snapshot('candlestick - 2 click')
+    
+    def test_interval(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Div(id='output'),
+            dcc.Interval(id='interval', interval=1, max_intervals=2)
+        ])
+
+        @app.callback(Output('output', 'children'),
+                    [Input('interval', 'n_intervals')])
+        def update_text(n):
+            return "{}".format(n)
+
+        self.startServer(app=app)
+
+        time.sleep(5) # wait for interval to finish
+
+        output = self.wait_for_element_by_css_selector('#output')
+        self.assertEqual(output.text, '2')

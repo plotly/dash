@@ -35,15 +35,21 @@ export default class Interval extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if ((!this.props.fireEvent && nextProps.fireEvent) ||
-            (!this.props.setProps && nextProps.setProps)) {
-            this.setInterval(nextProps);
-        } else if (
-            this.props.interval !== nextProps.interval &&
-            this.state.intervalId
-        ) {
+        if(nextProps.n_intervals < this.props.max_intervals || this.props.max_intervals === -1) {
+            if ((!this.props.fireEvent && nextProps.fireEvent) ||
+                (!this.props.setProps && nextProps.setProps)
+            ) {
+                this.setInterval(nextProps);
+            } else if (
+                this.props.interval !== nextProps.interval &&
+                this.state.intervalId
+            ) {
+                window.clearInterval(this.state.intervalId);
+                this.setInterval(nextProps);
+            }
+        }
+        else {
             window.clearInterval(this.state.intervalId);
-            this.setInterval(nextProps);
         }
     }
 
@@ -76,6 +82,11 @@ Interval.propTypes = {
     n_intervals: PropTypes.number,
 
     /**
+     * Number of times the interval will be fired. If -1, then the interval has no limit (the default) and if 0 then the interval stops running.
+     */
+    max_intervals: PropTypes.number,
+
+    /**
      * Dash assigned callback
      */
     fireEvent: PropTypes.func,
@@ -90,5 +101,6 @@ Interval.propTypes = {
 
 Interval.defaultProps = {
     interval: 1000,
-    n_intervals: 0
+    n_intervals: 0,
+    max_intervals: -1
 };
