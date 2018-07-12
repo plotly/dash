@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.24.1]
 ### Fixed
 - Improved DatePickerRange, fixing issues [#209](https://github.com/plotly/dash-core-components/issues/209) and [#152](https://github.com/plotly/dash-core-components/issues/152)
+- Link component now is a proper <a> tag so you can right click on it, and will scroll back to top. Fixes [#99](https://github.com/plotly/dash-core-components/issues/99), implemented in [#215](https://github.com/plotly/dash-core-components/pull/215)
+- Added `max_interval` prop to `Interval` component, fixing issue [#222](https://github.com/plotly/dash-core-components/issues/222)
+
 
 ## [0.24.0]
 ### Added

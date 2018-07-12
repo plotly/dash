@@ -32,7 +32,7 @@ _js_dist = [
         'external_url': (
             'https://unpkg.com/dash-core-components@{}'
             '/dash_core_components/bundle.js'
-        ).format(__version__),
+        ).format('0.23.1-rc1'),
         'namespace': 'dash_core_components'
     }
 ]
