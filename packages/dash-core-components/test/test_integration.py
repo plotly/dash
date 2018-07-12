@@ -529,6 +529,46 @@ class Tests(IntegrationTests):
         time.sleep(2)
         self.snapshot('candlestick - 2 click')
     
+    def test_datepickerrange_updatemodes(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.DatePickerRange(
+                id='date-picker-range',
+                start_date_placeholder_text='Select a start date!',
+                end_date_placeholder_text='Select an end date!',
+                updatemode='bothdates'
+            ),
+            html.Div(id='date-picker-range-output')
+        ])
+
+        @app.callback(
+            dash.dependencies.Output('date-picker-range-output', 'children'),
+            [dash.dependencies.Input('date-picker-range', 'start_date'),
+            dash.dependencies.Input('date-picker-range', 'end_date')])
+        def update_output(start_date, end_date):
+            return '{} - {}'.format(start_date, end_date)
+
+        self.startServer(app=app)
+
+        start_date = self.wait_for_element_by_css_selector('#startDate')
+        start_date.click()
+
+        end_date= self.wait_for_element_by_css_selector('#endDate')
+        end_date.click()
+
+        date_content = self.wait_for_element_by_css_selector('#date-picker-range-output')
+        self.assertEquals(date_content.text, 'None - None')
+
+        # updated only one date, callback shouldn't fire and output should be unchanged
+        start_date.send_keys("1997-05-03")
+        self.assertEquals(date_content.text, 'None - None')
+
+        # updated both dates, callback should now fire and update output
+        end_date.send_keys("1997-05-04")
+        end_date.click() 
+
+        self.assertEquals(date_content.text, '1997-05-03 - 1997-05-04')
     def test_interval(self):
         app = dash.Dash(__name__)
         app.layout = html.Div([

@@ -2,8 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.24.0]
+## [0.24.1]
+### Fixed
+- Improved DatePickerRange, fixing issues [#209](https://github.com/plotly/dash-core-components/issues/209) and [#152](https://github.com/plotly/dash-core-components/issues/152)
 
+## [0.24.0]
 ### Added
 - Upgraded Plotly.js, the underlying library behind the
 `dash_core_components.Graph` component, to [version 1.39.1](https://github.com/plotly/plotly.js/releases/tag/v1.39.1).

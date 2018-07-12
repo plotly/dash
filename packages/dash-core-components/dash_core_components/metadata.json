@@ -445,6 +445,27 @@
         },
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "updatemode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'singledate'",
+              "computed": false
+            },
+            {
+              "value": "'bothdates'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Determines when the component should update\nits value. If `bothdates`, then the DatePicker \nwill only trigger its value when the user has\nfinished picking both dates. If `singledate`, then\nthe DatePicker will update its value \nas one date is picked.",
+        "defaultValue": {
+          "value": "'singledate'",
+          "computed": false
+        }
       }
     }
   },
