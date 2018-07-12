@@ -59,42 +59,18 @@ You have to maintain the list of components in `demo/Demo.react.js`.
 
 ### Code quality and tests
 
-#### To run lint and unit tests:
+### To run integration tests (test_integration.py)
+We run our integration tests on CircleCI with help from Tox. There’s a tox.ini file which holds the configuration, refer to [tox's documentation](http://tox.readthedocs.io/en/latest/index.html) for help. You may need to set environment variables in your terminal, like `TOX_PYTHON_27` to my version of python that I wanted tox to use. So running:
 
 ```sh
-$ npm test
+export TOX_PYTHON_27=python2
 ```
 
-#### To run unit tests and watch for changes:
+set the `TOX_PYTHON_27` env variable to point to `python2`, which is Python 2.7 running on my machine. 
+You could also look in `tox.ini` and see which tests it runs, and run those commands yourself: 
 
 ```sh
-$ npm run test-watch
-```
-
-#### To debug unit tests in a browser (Chrome):
-
-```sh
-$ npm run test-debug
-```
-
-1. Wait until Chrome launches.
-2. Click the "DEBUG" button in the top right corner.
-3. Open up Chrome Devtools (`Cmd+opt+i`).
-4. Click the "Sources" tab.
-5. Find source files
-  - Navigate to `webpack:// -> . -> spec/components` to find your test source files.
-  - Navigate to `webpack:// -> [your/repo/path]] -> dash-core-components -> src` to find your component source files.
-6. Now you can set breakpoints and reload the page to hit them.
-7. The test output is available in the "Console" tab, or in any tab by pressing "Esc".
-
-#### To run a specific test
-
-In your test, append `.only` to a `describe` or `it` statement:
-
-```javascript
-describe.only('Foo component', () => {
-    // ...
-});
+python -m unittest test.test_integration
 ```
 
 ### Testing your components in Dash
@@ -142,26 +118,18 @@ publishing steps into one workflow.
 
 Ask @chriddyp to get NPM / PyPi package publishing access.
 
-1. Preparing to publish to NPM
+1 - Update `version.py`, we're using [semantic versioning](https://semver.org/)!
 
-        # Bump the package version
-        $ npm version major|minor|patch
+2 - Update `package.json`
 
-        # Push branch and tags to repo
-        $ git push --follow-tags
+4 - Publish: `npm run publish-all` (Make sure you have access to NPM and PyPI)
+4b - If the `publish-all` script fails on the `twine` command, try running
+```sh
+twine upload dist/dash_core_components-X.X.X.tar.gz # where xx.x.x is the version number
+```
 
-2. Preparing to publish to PyPi
-
-        # Bump the PyPi package to the same version
-        $ vi setup.py
-
-        # Commit to github
-        $ git add setup.py
-        $ git commit -m "Bump pypi package version to vx.x.x"
-
-3. Publish to npm and PyPi
-
-        $ npm run publish-all
+If you want to publish a prerelease package, change `version.py` to X.X.XrcX (0.23.1rc1 for example) and
+`package.json` to X.X.X-rcX (notice how the rc syntax is different between node and python. npm requires a - between the version number and the prerelease tag while python's pip just has 0.23.1rc1)
 
 
 ## Builder / Archetype
