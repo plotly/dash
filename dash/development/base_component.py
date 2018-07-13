@@ -2,6 +2,7 @@ import collections
 import copy
 import os
 import inspect
+import yaml
 
 
 def is_number(s):
@@ -51,7 +52,34 @@ def _explicitize_args(func):
     return wrapper
 
 
+def _convert_js_arg(value):
+    if 'defaultValue' in value:
+        # Convert custom types
+        if value['type']['name'] == 'custom':
+            value['type']['name'] =\
+                value['type']['raw'].replace('PropTypes.', '')
+        type_string = js_to_py_type(type_object=value['type'])
+        default_value = value['defaultValue']['value']
+        if type_string == 'boolean':
+            return default_value == 'true'
+        elif type_string.startswith('dict'):
+            d = yaml.load(default_value)
+            return str(d)
+        elif type_string in ['string', 'list', 'number', 'integer']:
+            return default_value
+    return 'Component._NO_DEFAULT_ARG'
+
+
 class Component(collections.MutableMapping):
+    class NO_DEFAULT_ARG(object):
+        def __repr__(self):
+            return 'NO_DEFAULT_ARG'
+
+        def __str__(self):
+            return 'NO_DEFAULT_ARG'
+
+    _NO_DEFAULT_ARG = NO_DEFAULT_ARG()
+
     def __init__(self, **kwargs):
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
@@ -68,7 +96,8 @@ class Component(collections.MutableMapping):
                         ', '.join(sorted(self._prop_names))
                     )
                 )
-            setattr(self, k, v)
+            if v is not self._NO_DEFAULT_ARG:
+                setattr(self, k, v)
 
     def to_plotly_json(self):
         # Add normal properties
@@ -234,6 +263,7 @@ class Component(collections.MutableMapping):
 
 # pylint: disable=unused-argument
 def generate_class_string(typename, props, description, namespace):
+    # pylint: disable=too-many-locals
     """
     Dynamically generate class strings to have nicely formatted docstrings,
     keyword arguments, and repr
@@ -284,11 +314,12 @@ def generate_class_string(typename, props, description, namespace):
 
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
-        _locals.update(kwargs)  # For wildcard attrs
-        args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
+        args = {{k: _locals[k] for k in self._prop_names
+                 if k != 'children' and not k.endswith('-*')}}
+        args.update(kwargs)  # For wildcard attrs
 
         for k in {required_args}:
-            if k not in args:
+            if k not in _explicit_args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
         super({typename}, self).__init__({argtext})
@@ -333,16 +364,19 @@ def generate_class_string(typename, props, description, namespace):
     events = '[' + ', '.join(parse_events(props)) + ']'
     prop_keys = list(props.keys())
     if 'children' in props:
-        prop_keys.remove('children')
+        exclude_children = True
         default_argtext = "children=None, "
         # pylint: disable=unused-variable
         argtext = 'children=children, **args'
     else:
+        exclude_children = False
         default_argtext = ""
         argtext = '**args'
-    default_argtext += ", ".join(
-        ['{:s}=None'.format(p) for p in prop_keys if not p.endswith("-*")]
-    )
+    default_argtext += ", ".join([
+        '{:s}={}'.format(
+            p, v
+        ) for p, v in [(p, _convert_js_arg(v)) for p, v in props.items()]
+        if not (p.endswith("-*") or (exclude_children and p == "children"))])
 
     required_args = required_props(props)
     return c.format(**locals())
@@ -670,6 +704,7 @@ def map_js_to_py_types_prop_types(type_object):
         array=lambda: 'list',
         bool=lambda: 'boolean',
         number=lambda: 'number',
+        integer=lambda: 'integer',
         string=lambda: 'string',
         object=lambda: 'dict',
         any=lambda: 'boolean | number | string | dict | list',

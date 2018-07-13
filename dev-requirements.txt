@@ -13,3 +13,4 @@ plotly>=2.0.8
 requests[security]
 flake8
 pylint
+PyYAML

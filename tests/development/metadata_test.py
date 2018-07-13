@@ -38,7 +38,7 @@ Those keys have the following types:
 
 Available events: 'restyle', 'relayout', 'click'"""
     @_explicitize_args
-    def __init__(self, children=None, optionalArray=None, optionalBool=None, optionalFunc=None, optionalNumber=None, optionalObject=None, optionalString=None, optionalSymbol=None, optionalNode=None, optionalElement=None, optionalMessage=None, optionalEnum=None, optionalUnion=None, optionalArrayOf=None, optionalObjectOf=None, optionalObjectWithShapeAndNestedDescription=None, optionalAny=None, customProp=None, customArrayProp=None, id=None, dashEvents=None, **kwargs):
+    def __init__(self, children=None, optionalArray=Component._NO_DEFAULT_ARG, optionalBool=Component._NO_DEFAULT_ARG, optionalFunc=Component._NO_DEFAULT_ARG, optionalNumber=42, optionalObject=Component._NO_DEFAULT_ARG, optionalString='hello world', optionalSymbol=Component._NO_DEFAULT_ARG, optionalNode=Component._NO_DEFAULT_ARG, optionalElement=Component._NO_DEFAULT_ARG, optionalMessage=Component._NO_DEFAULT_ARG, optionalEnum=Component._NO_DEFAULT_ARG, optionalUnion=Component._NO_DEFAULT_ARG, optionalArrayOf=Component._NO_DEFAULT_ARG, optionalObjectOf=Component._NO_DEFAULT_ARG, optionalObjectWithShapeAndNestedDescription=Component._NO_DEFAULT_ARG, optionalAny=Component._NO_DEFAULT_ARG, customProp=Component._NO_DEFAULT_ARG, customArrayProp=Component._NO_DEFAULT_ARG, id=Component._NO_DEFAULT_ARG, dashEvents=Component._NO_DEFAULT_ARG, **kwargs):
         self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'id']
         self._type = 'Table'
         self._namespace = 'TableComponents'
@@ -49,11 +49,12 @@ Available events: 'restyle', 'relayout', 'click'"""
 
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
-        _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in self._prop_names
+                 if k != 'children' and not k.endswith('-*')}
+        args.update(kwargs)  # For wildcard attrs
 
         for k in []:
-            if k not in args:
+            if k not in _explicit_args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
         super(Table, self).__init__(children=children, **args)

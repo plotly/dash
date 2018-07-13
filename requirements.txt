@@ -35,6 +35,7 @@ py==1.4.33
 Pygments==2.2.0
 python-dateutil==2.5.3
 pytz==2017.2
+PyYAML==3.12.0
 requests==2.13.0
 requests-file==1.4.1
 scandir==1.5

@@ -593,10 +593,12 @@ class TestGenerateClass(unittest.TestCase):
         c = self.ComponentClass()
         self.assertEqual(c.to_plotly_json(), {
             'namespace': 'TableComponents',
-            'type': 'Table',
             'props': {
-                'children': None
-            }
+                'children': None,
+                'optionalNumber': 42,
+                'optionalString': 'hello world'
+            },
+            'type': 'Table'
         })
 
         c = self.ComponentClass(id='my-id')
@@ -605,7 +607,9 @@ class TestGenerateClass(unittest.TestCase):
             'type': 'Table',
             'props': {
                 'children': None,
-                'id': 'my-id'
+                'id': 'my-id',
+                'optionalNumber': 42,
+                'optionalString': 'hello world'
             }
         })
 
@@ -616,7 +620,9 @@ class TestGenerateClass(unittest.TestCase):
             'props': {
                 'children': None,
                 'id': 'my-id',
-                'optionalArray': None
+                'optionalArray': None,
+                'optionalNumber': 42,
+                'optionalString': 'hello world'
             }
         })
 
@@ -635,18 +641,21 @@ class TestGenerateClass(unittest.TestCase):
         c2 = self.ComponentClass(children='text children')
         self.assertEqual(
             repr(c1),
-            "Table('text children')"
+            "Table(children='text children', optionalNumber=42, "
+            "optionalString='hello world')"
         )
         self.assertEqual(
             repr(c2),
-            "Table('text children')"
+            "Table(children='text children', optionalNumber=42, "
+            "optionalString='hello world')"
         )
 
     def test_repr_single_non_default_argument(self):
         c = self.ComponentClass(id='my-id')
         self.assertEqual(
             repr(c),
-            "Table(id='my-id')"
+            "Table(optionalNumber=42, optionalString='hello world', "
+            "id='my-id')"
         )
 
     def test_repr_multiple_arguments(self):
@@ -655,7 +664,8 @@ class TestGenerateClass(unittest.TestCase):
         c = self.ComponentClass(id='my id', optionalArray=[1, 2, 3])
         self.assertEqual(
             repr(c),
-            "Table(optionalArray=[1, 2, 3], id='my id')"
+            "Table(optionalArray=[1, 2, 3], optionalNumber=42, "
+            "optionalString='hello world', id='my id')"
         )
 
     def test_repr_nested_arguments(self):
@@ -664,14 +674,21 @@ class TestGenerateClass(unittest.TestCase):
         c3 = self.ComponentClass(children=c2)
         self.assertEqual(
             repr(c3),
-            "Table(Table(children=Table(id='1'), id='2'))"
+            "Table(children=Table(children=Table(optionalNumber=42, "
+            "optionalString='hello world', id='1'), optionalNumber=42, "
+            "optionalString='hello world', id='2'), optionalNumber=42, "
+            "optionalString='hello world')"
         )
 
     def test_repr_with_wildcards(self):
-        c = self.ComponentClass(id='1', **{"data-one": "one",
-                                            "aria-two": "two"})
-        data_first = "Table(id='1', data-one='one', aria-two='two')"
-        aria_first = "Table(id='1', aria-two='two', data-one='one')"
+        c = self.ComponentClass(id='1', **{
+            "data-one": "one",
+            "aria-two": "two"
+        })
+        data_first = ("Table(optionalNumber=42, optionalString='hello world', "
+                      "id='1', data-one='one', aria-two='two')")
+        aria_first = ("Table(optionalNumber=42, optionalString='hello world', "
+                      "id='1', aria-two='two', data-one='one')")
         repr_string = repr(c)
         if not (repr_string == data_first or repr_string == aria_first):
             raise Exception("%s\nDoes not equal\n%s\nor\n%s" %
@@ -726,14 +743,13 @@ class TestGenerateClass(unittest.TestCase):
             inspect.getargspec(__init__func).keywords,
             'kwargs'
         )
-        self.assertEqual(
-            inspect.getargspec(__init__func).defaults,
-            (None, None, None, None, None,
-             None, None, None, None, None,
-             None, None, None, None, None,
-             None, None, None,
-             None, None, None) if hasattr(inspect, 'signature') else None
-        )
+        if hasattr(inspect, 'signature'):
+            self.assertEqual(
+                [str(x) if isinstance(x, Component.NO_DEFAULT_ARG) else x
+                 for x in inspect.getargspec(__init__func).defaults],
+                ([None] + ['NO_DEFAULT_ARG'] * 3 + [42] + ['NO_DEFAULT_ARG'] +
+                 ['hello world'] + ['NO_DEFAULT_ARG'] * 14)
+            )
 
     def test_required_props(self):
         with self.assertRaises(Exception):
