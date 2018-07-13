@@ -730,8 +730,7 @@ class TestGenerateClass(unittest.TestCase):
              'optionalAny',
              'customProp',
              'customArrayProp',
-             'id',
-             'dashEvents'] if hasattr(inspect, 'signature') else []
+             'id'] if hasattr(inspect, 'signature') else []
 
 
         )
@@ -748,7 +747,7 @@ class TestGenerateClass(unittest.TestCase):
                 [str(x) if isinstance(x, Component.NO_DEFAULT_ARG) else x
                  for x in inspect.getargspec(__init__func).defaults],
                 ([None] + ['NO_DEFAULT_ARG'] * 3 + [42] + ['NO_DEFAULT_ARG'] +
-                 ['hello world'] + ['NO_DEFAULT_ARG'] * 14)
+                 ['hello world'] + ['NO_DEFAULT_ARG'] * 13)
             )
 
     def test_required_props(self):

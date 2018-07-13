@@ -55,7 +55,7 @@ def _explicitize_args(func):
 def _convert_js_arg(value):
     if 'defaultValue' in value:
         # Convert custom types
-        if value['type']['name'] == 'custom':
+        if value['type']['name'] == 'custom' and 'raw' in value['type']:
             value['type']['name'] =\
                 value['type']['raw'].replace('PropTypes.', '')
         type_string = js_to_py_type(type_object=value['type'])
@@ -348,11 +348,13 @@ def generate_class_string(typename, props, description, namespace):
                 repr(getattr(self, self._prop_names[0], None)) + ')')
 '''
 
+    omitted_props = ['dashEvents', 'fireEvent', 'setProps']
     filtered_props = reorder_props(filter_props(props))
     # pylint: disable=unused-variable
     list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
     # pylint: disable=unused-variable
-    list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
+    list_of_valid_keys = repr([str(x) for x in filtered_props.keys()
+                               if x not in omitted_props])
     # pylint: disable=unused-variable
     docstring = create_docstring(
         component_name=typename,
@@ -376,7 +378,11 @@ def generate_class_string(typename, props, description, namespace):
         '{:s}={}'.format(
             p, v
         ) for p, v in [(p, _convert_js_arg(v)) for p, v in props.items()]
-        if not (p.endswith("-*") or (exclude_children and p == "children"))])
+        if not (
+            p.endswith("-*") or
+            (exclude_children and p == "children") or
+            p in omitted_props
+        )])
 
     required_args = required_props(props)
     return c.format(**locals())
