@@ -52,6 +52,24 @@ def _explicitize_args(func):
 
 
 class Component(collections.MutableMapping):
+    class _UNDEFINED(object):
+        def __repr__(self):
+            return 'undefined'
+
+        def __str__(self):
+            return 'undefined'
+
+    UNDEFINED = _UNDEFINED()
+
+    class _REQUIRED(object):
+        def __repr__(self):
+            return 'required'
+
+        def __str__(self):
+            return 'required'
+
+    REQUIRED = _REQUIRED()
+
     def __init__(self, **kwargs):
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
@@ -341,7 +359,12 @@ def generate_class_string(typename, props, description, namespace):
         default_argtext = ""
         argtext = '**args'
     default_argtext += ", ".join(
-        ['{:s}=None'.format(p) for p in prop_keys if not p.endswith("-*")]
+        [('{:s}=Component.REQUIRED'.format(p)
+          if props[p]['required'] else
+          '{:s}=Component.UNDEFINED'.format(p))
+         for p in prop_keys
+         if not p.endswith("-*") and
+         p not in ['dashEvents', 'fireEvent', 'setProps']]
     )
 
     required_args = required_props(props)

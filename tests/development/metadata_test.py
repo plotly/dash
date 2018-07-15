@@ -38,7 +38,7 @@ Those keys have the following types:
 
 Available events: 'restyle', 'relayout', 'click'"""
     @_explicitize_args
-    def __init__(self, children=None, optionalArray=None, optionalBool=None, optionalFunc=None, optionalNumber=None, optionalObject=None, optionalString=None, optionalSymbol=None, optionalNode=None, optionalElement=None, optionalMessage=None, optionalEnum=None, optionalUnion=None, optionalArrayOf=None, optionalObjectOf=None, optionalObjectWithShapeAndNestedDescription=None, optionalAny=None, customProp=None, customArrayProp=None, id=None, dashEvents=None, **kwargs):
+    def __init__(self, children=None, optionalArray=Component.UNDEFINED, optionalBool=Component.UNDEFINED, optionalFunc=Component.UNDEFINED, optionalNumber=Component.UNDEFINED, optionalObject=Component.UNDEFINED, optionalString=Component.UNDEFINED, optionalSymbol=Component.UNDEFINED, optionalNode=Component.UNDEFINED, optionalElement=Component.UNDEFINED, optionalMessage=Component.UNDEFINED, optionalEnum=Component.UNDEFINED, optionalUnion=Component.UNDEFINED, optionalArrayOf=Component.UNDEFINED, optionalObjectOf=Component.UNDEFINED, optionalObjectWithShapeAndNestedDescription=Component.UNDEFINED, optionalAny=Component.UNDEFINED, customProp=Component.UNDEFINED, customArrayProp=Component.UNDEFINED, id=Component.UNDEFINED, **kwargs):
         self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'id']
         self._type = 'Table'
         self._namespace = 'TableComponents'

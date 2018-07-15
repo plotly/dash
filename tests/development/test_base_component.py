@@ -713,8 +713,7 @@ class TestGenerateClass(unittest.TestCase):
              'optionalAny',
              'customProp',
              'customArrayProp',
-             'id',
-             'dashEvents'] if hasattr(inspect, 'signature') else []
+             'id'] if hasattr(inspect, 'signature') else []
 
 
         )
@@ -726,14 +725,11 @@ class TestGenerateClass(unittest.TestCase):
             inspect.getargspec(__init__func).keywords,
             'kwargs'
         )
-        self.assertEqual(
-            inspect.getargspec(__init__func).defaults,
-            (None, None, None, None, None,
-             None, None, None, None, None,
-             None, None, None, None, None,
-             None, None, None,
-             None, None, None) if hasattr(inspect, 'signature') else None
-        )
+        if hasattr(inspect, 'signature'):
+            self.assertEqual(
+                [str(x) for x in inspect.getargspec(__init__func).defaults],
+                ['None'] + ['undefined'] * 19
+            )
 
     def test_required_props(self):
         with self.assertRaises(Exception):
