@@ -418,7 +418,20 @@ function updateOutput(
         )
     );
     if (inputs.length > 0) {
+      const validKeys = Object.keys(paths);
         payload.inputs = inputs.map(inputObject => {
+            // Make sure the component id exists in the layout
+            if (!validKeys.includes(inputObject.id)) {
+              throw ReferenceError(
+                "An invalid input object was used in the " +
+                "`Input` or `State` of a Dash callback. " +
+                "The id of this object is `" +
+                inputObject.id + "` and the property is `" +
+                inputObject.property +
+                "`. The list of ids in the current layout is " +
+                "`[" + validKeys.join(", ") + "]`"
+              )
+            }
             const propLens = lensPath(
                 concat(paths[inputObject.id],
                 ['props', inputObject.property]
