@@ -55,9 +55,9 @@ _re_index_entry = re.compile(r'{%app_entry%}')
 _re_index_config = re.compile(r'{%config%}')
 _re_index_scripts = re.compile(r'{%scripts%}')
 
-_re_index_entry_id = re.compile(r'(id="react-entry-point")')
-_re_index_config_id = re.compile(r'(id="_dash-config")')
-_re_index_scripts_id = re.compile(r'(src=".*dash[-_]renderer.*")')
+_re_index_entry_id = re.compile(r'id="react-entry-point"')
+_re_index_config_id = re.compile(r'id="_dash-config"')
+_re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 
 
 # pylint: disable=too-many-instance-attributes
@@ -101,8 +101,7 @@ class Dash(object):
             'routes_pathname_prefix': url_base_pathname,
             'requests_pathname_prefix': url_base_pathname,
             'include_assets_files': include_assets_files,
-            'assets_folder': assets_folder or os.path.join(
-                os.getcwd(), 'assets'),
+            'assets_folder': self.assets_folder,
             'assets_external_path': '',
             'assets_url_path': assets_url_path,
         })
@@ -395,7 +394,8 @@ class Dash(object):
             favicon = ''
 
         index = self.interpolate_index(
-            metas, title, css, config, scripts, _app_entry, favicon)
+            metas=metas, title=title, css=css, config=config,
+            scripts=scripts, app_entry=_app_entry, favicon=favicon)
 
         checks = (
             (_re_index_entry_id.search(index), '#react-entry-point'),
@@ -416,8 +416,8 @@ class Dash(object):
         return index
 
     def interpolate_index(self,
-                          metas, title, css, config,
-                          scripts, app_entry, favicon):
+                          metas='', title='', css='', config='',
+                          scripts='', app_entry='', favicon=''):
         return _interpolate(self.index_string,
                             metas=metas,
                             title=title,
