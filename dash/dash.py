@@ -565,4 +565,13 @@ class Dash(object):
                    port=8050,
                    debug=False,
                    **flask_run_options):
+        # Make sure `layout` is set before running the server
+        value = getattr(self, 'layout')
+        if value is None:
+            raise Exception(
+                ''
+                'The layout was `None` '
+                'at the time that `run_server` was called. '
+                'Make sure to set the `layout` attribute of your application '
+                'before running the server.')
         self.server.run(port=port, debug=debug, **flask_run_options)
