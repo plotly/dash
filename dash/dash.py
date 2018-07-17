@@ -568,7 +568,7 @@ class Dash(object):
         # Make sure `layout` is set before running the server
         value = getattr(self, 'layout')
         if value is None:
-            raise Exception(
+            raise exceptions.NoLayoutException(
                 ''
                 'The layout was `None` '
                 'at the time that `run_server` was called. '
