@@ -417,14 +417,14 @@ function updateOutput(
             dependency.output.property === outputProp
         )
     );
+    const validKeys = Object.keys(paths);
     if (inputs.length > 0) {
-      const validKeys = Object.keys(paths);
         payload.inputs = inputs.map(inputObject => {
             // Make sure the component id exists in the layout
             if (!validKeys.includes(inputObject.id)) {
               throw ReferenceError(
-                "An invalid input object was used in the " +
-                "`Input` or `State` of a Dash callback. " +
+                "An invalid input object was used in an " +
+                "`Input` of a Dash callback. " +
                 "The id of this object is `" +
                 inputObject.id + "` and the property is `" +
                 inputObject.property +
@@ -445,6 +445,18 @@ function updateOutput(
     }
     if (state.length > 0) {
         payload.state = state.map(stateObject => {
+            // Make sure the component id exists in the layout
+            if (!validKeys.includes(stateObject.id)) {
+              throw ReferenceError(
+                "An invalid input object was used in a " +
+                "`State` object of a Dash callback. " +
+                "The id of this object is `" +
+                stateObject.id + "` and the property is `" +
+                stateObject.property +
+                "`. The list of ids in the current layout is " +
+                "`[" + validKeys.join(", ") + "]`"
+              )
+            }
             const propLens = lensPath(
                 concat(paths[stateObject.id],
                 ['props', stateObject.property]
