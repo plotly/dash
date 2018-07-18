@@ -15,9 +15,13 @@ import Textarea from './components/Textarea.react';
 import DatePickerSingle from './components/DatePickerSingle.react';
 import DatePickerRange from './components/DatePickerRange.react';
 import Upload from './components/Upload.react';
+import ConfirmDialog from './components/ConfirmDialog.react';
+import ConfirmDialogProvider from './components/ConfirmDialogProvider.react'
 
 export {
     Checklist,
+    ConfirmDialog,
+    ConfirmDialogProvider,
     Dropdown,
     Graph,
     Input,

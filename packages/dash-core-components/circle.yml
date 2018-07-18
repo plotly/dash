@@ -8,6 +8,8 @@ machine:
 
 dependencies:
     override:
+      - pip install setuptools --upgrade
+      - pip install virtualenv
       - pip install tox
       - npm install -g eslint
       - npm install --ignore-scripts

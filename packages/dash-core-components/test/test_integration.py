@@ -15,7 +15,7 @@ import dash_table_experiments as dt
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import InvalidElementStateException
-import time
+
 from textwrap import dedent
 try:
     from urlparse import urlparse
@@ -368,7 +368,6 @@ class Tests(IntegrationTests):
 
         self.snapshot('gallery - text input')
 
-
     def test_location_link(self):
         app = dash.Dash(__name__)
 
@@ -580,7 +579,7 @@ class Tests(IntegrationTests):
         button.click()
         time.sleep(2)
         self.snapshot('candlestick - 2 click')
-    
+
     def test_datepickerrange_updatemodes(self):
         app = dash.Dash(__name__)
 
@@ -618,7 +617,7 @@ class Tests(IntegrationTests):
 
         # updated both dates, callback should now fire and update output
         end_date.send_keys("1997-05-04")
-        end_date.click() 
+        end_date.click()
 
         self.assertEquals(date_content.text, '1997-05-03 - 1997-05-04')
     def test_interval(self):
@@ -639,3 +638,69 @@ class Tests(IntegrationTests):
 
         output = self.wait_for_element_by_css_selector('#output')
         self.assertEqual(output.text, '2')
+
+    def _test_confirm(self, app, test_name):
+        count = Value('i', 0)
+
+        @app.callback(Output('confirmed', 'children'),
+                      [Input('confirm', 'submit_n_clicks'),
+                       Input('confirm', 'cancel_n_clicks')],
+                      [State('confirm', 'submit_n_clicks_timestamp'),
+                       State('confirm', 'cancel_n_clicks_timestamp')])
+        def _on_confirmed(submit_n_clicks, cancel_n_clicks,
+                          submit_timestamp, cancel_timestamp):
+            if not submit_n_clicks and not cancel_n_clicks:
+                return ''
+            count.value = submit_n_clicks + cancel_n_clicks
+            if submit_timestamp > cancel_timestamp:
+                return 'confirmed'
+            else:
+                return 'canceled'
+
+        self.startServer(app)
+        self.snapshot(test_name + ' -> initial')
+        button = self.wait_for_element_by_css_selector('#button')
+
+        button.click()
+        time.sleep(1)
+        self.driver.switch_to.alert.accept()
+        self.wait_for_text_to_equal('#confirmed', 'confirmed')
+        self.snapshot(test_name + ' -> confirmed')
+
+        button.click()
+        time.sleep(0.5)
+        self.driver.switch_to.alert.dismiss()
+        time.sleep(0.5)
+        self.wait_for_text_to_equal('#confirmed', 'canceled')
+        self.snapshot(test_name + ' -> canceled')
+
+        self.assertEqual(2, count.value, 'Expected 2 callback but got ' + str(count.value))
+
+    def test_confirm(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Button(id='button', children='Send confirm', n_clicks=0),
+            dcc.ConfirmDialog(id='confirm', message='Please confirm.'),
+            html.Div(id='confirmed')
+        ])
+
+        @app.callback(Output('confirm', 'displayed'),
+                      [Input('button', 'n_clicks')])
+        def on_click_confirm(n_clicks):
+            if n_clicks:
+                return True
+
+        self._test_confirm(app, 'ConfirmDialog')
+
+    def test_confirm_dialog_provider(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.ConfirmDialogProvider(
+                html.Button('click me', id='button'),
+                id='confirm', message='Please confirm.'),
+            html.Div(id='confirmed')
+        ])
+
+        self._test_confirm(app, 'ConfirmDialogProvider')
