@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.25.0",
+  "version": "0.25.1",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -9,8 +9,8 @@
   "main": "src/index.js",
   "scripts": {
     "build-dev": "builder run clean-lib && builder run extract-metadata && webpack -w --config=./config/webpack/webpack.config.dev.js",
-    "build-dist": "builder run clean-lib && builder run extract-metadata && NODE_ENV=production webpack --config=./config/webpack/webpack.config.dist.js",
-    "copy-lib": "cp lib/* dash_core_components",
+    "build-dist": "builder run clean-lib && builder run extract-metadata && cross-env NODE_ENV=production webpack --config=./config/webpack/webpack.config.dist.js",
+    "copy-lib": "copyfiles -f lib/* dash_core_components",
     "install-local": "npm run copy-lib && python setup.py install",
     "prepublish": "npm test && builder run build-dist && npm run copy-lib",
     "publish-all": "npm publish && python setup.py sdist upload",
@@ -25,6 +25,8 @@
   "license": "MIT",
   "dependencies": {
     "builder": "3.2.2",
+    "copyfiles": "^2.0.0",
+    "cross-env": "^5.2.0",
     "dash-components-archetype": "^0.2.11",
     "moment": "^2.20.1",
     "prop-types": "^15.6.0",
