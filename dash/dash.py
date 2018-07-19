@@ -558,13 +558,6 @@ class Dash(object):
         return self.callback_map[target_id]['callback'](*args)
 
     def _setup_server(self):
-        self._generate_scripts_html()
-        self._generate_css_dist_html()
-
-    def run_server(self,
-                   port=8050,
-                   debug=False,
-                   **flask_run_options):
         # Make sure `layout` is set before running the server
         value = getattr(self, 'layout')
         if value is None:
@@ -574,4 +567,11 @@ class Dash(object):
                 'at the time that `run_server` was called. '
                 'Make sure to set the `layout` attribute of your application '
                 'before running the server.')
+        self._generate_scripts_html()
+        self._generate_css_dist_html()
+
+    def run_server(self,
+                   port=8050,
+                   debug=False,
+                   **flask_run_options):
         self.server.run(port=port, debug=debug, **flask_run_options)
