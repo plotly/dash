@@ -632,6 +632,16 @@ class Dash(object):
                     )
                 except TypeError:
                     self._validate_callback_output(output_value, output)
+                    raise exceptions.ReturnValueNotJSONSerializable('''
+                    The callback for property `{property:s}`
+                    of component `{id:s}` returned a value
+                    which is not JSON serializable.
+
+                    In general, Dash properties can only be
+                    dash components, strings, dictionaries, numbers, None,
+                    or lists of those.
+                    '''.format(property=output.component_property,
+                               id=output.component_id))
 
                 return flask.Response(
                     jsonResponse,
