@@ -417,11 +417,11 @@ function updateOutput(
             dependency.output.property === outputProp
         )
     );
-    const validKeys = Object.keys(paths);
+    const validKeys = R.keys(paths);
     if (inputs.length > 0) {
         payload.inputs = inputs.map(inputObject => {
             // Make sure the component id exists in the layout
-            if (!validKeys.includes(inputObject.id)) {
+            if (!R.contains(inputObject.id, validKeys)) {
               throw ReferenceError(
                 "An invalid input object was used in an " +
                 "`Input` of a Dash callback. " +
