@@ -617,7 +617,6 @@ class Dash(object):
             def add_context(*args, **kwargs):
 
                 output_value = func(*args, **kwargs)
-                self._validate_callback_output(output_value, output)
                 response = {
                     'response': {
                         'props': {
@@ -626,9 +625,16 @@ class Dash(object):
                     }
                 }
 
+                try:
+                    jsonResponse = json.dumps(
+                        response,
+                        cls=plotly.utils.PlotlyJSONEncoder
+                    )
+                except TypeError:
+                    self._validate_callback_output(output_value, output)
+
                 return flask.Response(
-                    json.dumps(response,
-                               cls=plotly.utils.PlotlyJSONEncoder),
+                    jsonResponse,
                     mimetype='application/json'
                 )
 
