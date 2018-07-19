@@ -73,6 +73,7 @@ class Tests(IntegrationTests):
         app.layout = html.Div([
             'Basic string',
             3.14,
+            True,
             None,
             html.Div('Child div with basic string',
                      id='p.c.3',

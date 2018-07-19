@@ -21,7 +21,7 @@ TreeContainer.propTypes = {
 }
 
 function render(component) {
-    if (R.contains(R.type(component), ['String', 'Number', 'Null'])) {
+    if (R.contains(R.type(component), ['String', 'Number', 'Null', 'Boolean'])) {
         return component;
     }
 
@@ -39,7 +39,7 @@ function render(component) {
 
     } else if (R.contains(
         R.type(component.props.children),
-        ['String', 'Number', 'Null'])
+        ['String', 'Number', 'Null', 'Boolean'])
     ) {
 
         children = [component.props.children];
