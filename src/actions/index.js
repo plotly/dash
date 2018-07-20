@@ -446,7 +446,7 @@ function updateOutput(
     if (state.length > 0) {
         payload.state = state.map(stateObject => {
             // Make sure the component id exists in the layout
-            if (!validKeys.includes(stateObject.id)) {
+            if (!contains(stateObject.id, validKeys)) {
               throw ReferenceError(
                 "An invalid input object was used in a " +
                 "`State` object of a Dash callback. " +
