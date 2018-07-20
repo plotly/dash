@@ -225,6 +225,7 @@ class Tests(IntegrationTests):
                   "children": [
                     "Basic string",
                     3.14,
+                    True,
                     None,
                     {
                       "namespace": "dash_html_components",
