@@ -372,10 +372,10 @@ class Tests(IntegrationTests):
             ),
             {
                 "p.c.3": [
-                    "props",  "children",  3
+                    "props",  "children",  4
                 ],
                 "p.c.4": [
-                    "props",  "children",  4
+                    "props",  "children",  5
                 ],
                 "p.c.5": [
                     "props",  "children",  5
