@@ -86,14 +86,17 @@ class Dash(object):
                 See https://github.com/plotly/dash/issues/141 for details.
                 ''', DeprecationWarning)
 
-        name = name or 'dash'
-
-        self.assets_folder = assets_folder or os.path.join(
+        self._assets_folder = assets_folder or os.path.join(
             os.getcwd(), 'assets'
         )
 
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
+
+        self.server.register_blueprint(
+            flask.Blueprint('assets', 'assets',
+                            static_folder=self._assets_folder,
+                            static_url_path=assets_url_path))
 
         self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict({
@@ -101,9 +104,7 @@ class Dash(object):
             'routes_pathname_prefix': url_base_pathname,
             'requests_pathname_prefix': url_base_pathname,
             'include_assets_files': include_assets_files,
-            'assets_folder': self.assets_folder,
             'assets_external_path': '',
-            'assets_url_path': assets_url_path,
         })
 
         # list of dependencies
@@ -675,7 +676,7 @@ class Dash(object):
         self._generate_css_dist_html()
 
     def _walk_assets_directory(self):
-        walk_dir = self.config.assets_folder
+        walk_dir = self._assets_folder
         slash_splitter = re.compile(r'[\\/]+')
 
         def add_resource(p):
@@ -713,8 +714,4 @@ class Dash(object):
                    port=8050,
                    debug=False,
                    **flask_run_options):
-        bp = flask.Blueprint('assets', 'assets',
-                             static_folder=self.config.assets_folder,
-                             static_url_path=self.config.assets_url_path)
-        self.server.register_blueprint(bp)
         self.server.run(port=port, debug=debug, **flask_run_options)
