@@ -87,7 +87,7 @@ class Dash(object):
                 ''', DeprecationWarning)
 
         self._assets_folder = assets_folder or os.path.join(
-            os.getcwd(), 'assets'
+            flask.helpers.get_root_path(name), 'assets'
         )
 
         # allow users to supply their own flask server
