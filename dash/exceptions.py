@@ -46,5 +46,5 @@ class PreventUpdate(CallbackException):
     pass
 
 
-class ReturnValueNotJSONSerializable(CallbackException):
+class InvalidCallbackReturnValue(CallbackException):
     pass

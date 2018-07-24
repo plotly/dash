@@ -483,7 +483,7 @@ class Dash(object):
             outer_id = "(id={:s})".format(outer_val.id) \
                         if getattr(outer_val, 'id', False) else ''
             outer_type = type(outer_val).__name__
-            raise exceptions.ReturnValueNotJSONSerializable('''
+            raise exceptions.InvalidCallbackReturnValue('''
             The callback for property `{property:s}` of component `{id:s}`
             returned a {object:s} having type `{type:s}`
             which is not JSON serializable.
@@ -632,7 +632,7 @@ class Dash(object):
                     )
                 except TypeError:
                     self._validate_callback_output(output_value, output)
-                    raise exceptions.ReturnValueNotJSONSerializable('''
+                    raise exceptions.InvalidCallbackReturnValue('''
                     The callback for property `{property:s}`
                     of component `{id:s}` returned a value
                     which is not JSON serializable.
