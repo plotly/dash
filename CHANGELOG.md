@@ -2,9 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.13.1] - 2018-07-18
+## [0.13.2] - 2018-07-24
 ### Fixed
 - Attempting to render a `Boolean` value to the page no longer crashes the app.
+
+## [0.13.1] - 2018-07-18
+### Fixed
+- If a callback references an `id` which does not exist in the DOM tree at the time it is executed, throw an informative front-end exception (previously an uninformative front-end exception was thrown). https://github.com/plotly/dash-renderer/issues/57
 
 ## [0.13.0] - 2018-06-01
 ### Fixed
