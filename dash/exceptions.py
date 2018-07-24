@@ -2,6 +2,10 @@ class DashException(Exception):
     pass
 
 
+class NoLayoutException(DashException):
+    pass
+
+
 class CallbackException(DashException):
     pass
 
