@@ -419,6 +419,42 @@ class Dash(object):
     def interpolate_index(self,
                           metas='', title='', css='', config='',
                           scripts='', app_entry='', favicon=''):
+        """
+        Called to create the initial HTML string that is loaded on page.
+        Override this method to provide you own custom HTML.
+
+        :Example:
+
+            class MyDash(dash.Dash):
+                def interpolate_index(self, **kwargs):
+                    return '''
+                    <!DOCTYPE html>
+                    <html>
+                        <head>
+                            <title>My App</title>
+                        </head>
+                        <body>
+                            <div id="custom-header">My custom header</div>
+                            {}
+                            {}
+                            {}
+                            <div id="custom-footer">My custom footer</div>
+                        </body>
+                    </html>
+                    '''.format(
+                        kwargs.get('app_entry'),
+                        kwargs.get('config'),
+                        kwargs.get('scripts'))
+
+        :param metas: Collected & formatted meta tags.
+        :param title: The title of the app.
+        :param css: Collected & formatted css dependencies as <link> tags.
+        :param config: Configs needed by dash-renderer.
+        :param scripts: Collected & formatted scripts tags.
+        :param app_entry: Where the app will render.
+        :param favicon: A favicon <link> tag if found in assets folder.
+        :return: The interpolated HTML string for the index.
+        """
         return _interpolate(self.index_string,
                             metas=metas,
                             title=title,
