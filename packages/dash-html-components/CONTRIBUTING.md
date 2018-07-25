@@ -22,7 +22,7 @@ If your company wishes to sponsor development of open source dash components, pl
 
 [Dash HTML Components]: https://dash.plot.ly/dash-html-components
 [MDN spec]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-[W3 index of elements](https://dev.w3.org/html5/html-author/#index-of-elements)
+[W3 index of elements]: https://dev.w3.org/html5/html-author/#index-of-elements
 [Dash Core Components]: https://github.com/plotly/dash-core-components
 [issues]: https://github.com/plotly/dash-html-components/issues
 [GitHub flow]: https://guides.github.com/introduction/flow/
