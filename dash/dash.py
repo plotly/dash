@@ -435,16 +435,16 @@ class Dash(object):
                         </head>
                         <body>
                             <div id="custom-header">My custom header</div>
-                            {}
-                            {}
-                            {}
+                            {app_entry}
+                            {config}
+                            {scripts}
                             <div id="custom-footer">My custom footer</div>
                         </body>
                     </html>
                     '''.format(
-                        kwargs.get('app_entry'),
-                        kwargs.get('config'),
-                        kwargs.get('scripts'))
+                        app_entry=kwargs.get('app_entry'),
+                        config=kwargs.get('config'),
+                        scripts=kwargs.get('scripts'))
 
         :param metas: Collected & formatted meta tags.
         :param title: The title of the app.
@@ -733,7 +733,7 @@ class Dash(object):
                 else:
                     base = splitted[0]
 
-            for f in files:
+            for f in sorted(files):
                 if base:
                     path = '/'.join([base, f])
                 else:

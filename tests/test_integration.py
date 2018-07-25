@@ -389,11 +389,14 @@ class Tests(IntegrationTests):
 
         tested = self.wait_for_element_by_id('tested')
         tested = json.loads(tested.text)
-        self.assertEqual(3, len(tested))
 
-        order = ('load_first', 'load_after', 'load_after1')
+        order = ('load_first', 'load_after', 'load_after1',
+                 'load_after10', 'load_after11', 'load_after2',
+                 'load_after3', 'load_after4', )
 
-        for i in range(3):
+        self.assertEqual(len(order), len(tested))
+
+        for i in range(len(tested)):
             self.assertEqual(order[i], tested[i])
 
         self.percy_snapshot('test assets includes')
