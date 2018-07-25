@@ -1,0 +1,1 @@
+window.tested = ['load_first'];

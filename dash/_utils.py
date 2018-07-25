@@ -1,3 +1,11 @@
+def interpolate_str(template, **data):
+    s = template
+    for k, v in data.items():
+        key = '{%' + k + '%}'
+        s = s.replace(key, v)
+    return s
+
+
 class AttributeDict(dict):
     """
     Dictionary subclass enabling attribute lookup/assignment of keys/values.

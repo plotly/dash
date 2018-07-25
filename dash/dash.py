@@ -1,11 +1,14 @@
 from __future__ import print_function
 
+import os
 import sys
 import collections
 import importlib
 import json
 import pkgutil
 import warnings
+import re
+
 from functools import wraps
 
 import plotly
@@ -19,6 +22,42 @@ from .resources import Scripts, Css
 from .development.base_component import Component
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
+from ._utils import interpolate_str as _interpolate
+
+_default_index = '''
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+        </footer>
+    </body>
+</html>
+'''
+
+_app_entry = '''
+<div id="react-entry-point">
+    <div class="_dash-loading">
+        Loading...
+    </div>
+</div>
+'''
+
+_re_index_entry = re.compile(r'{%app_entry%}')
+_re_index_config = re.compile(r'{%config%}')
+_re_index_scripts = re.compile(r'{%scripts%}')
+
+_re_index_entry_id = re.compile(r'id="react-entry-point"')
+_re_index_config_id = re.compile(r'id="_dash-config"')
+_re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 
 
 # pylint: disable=too-many-instance-attributes
@@ -29,8 +68,13 @@ class Dash(object):
             name='__main__',
             server=None,
             static_folder='static',
+            assets_folder=None,
+            assets_url_path='/assets',
+            include_assets_files=True,
             url_base_pathname='/',
             compress=True,
+            meta_tags=None,
+            index_string=_default_index,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -42,19 +86,34 @@ class Dash(object):
                 See https://github.com/plotly/dash/issues/141 for details.
                 ''', DeprecationWarning)
 
-        name = name or 'dash'
+        self._assets_folder = assets_folder or os.path.join(
+            flask.helpers.get_root_path(name), 'assets'
+        )
+
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
+
+        self.server.register_blueprint(
+            flask.Blueprint('assets', 'assets',
+                            static_folder=self._assets_folder,
+                            static_url_path=assets_url_path))
 
         self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict({
             'suppress_callback_exceptions': False,
             'routes_pathname_prefix': url_base_pathname,
-            'requests_pathname_prefix': url_base_pathname
+            'requests_pathname_prefix': url_base_pathname,
+            'include_assets_files': include_assets_files,
+            'assets_external_path': '',
         })
 
         # list of dependencies
         self.callback_map = {}
+
+        self._index_string = ''
+        self.index_string = index_string
+        self._meta_tags = meta_tags or []
+        self._favicon = None
 
         if compress:
             # gzip
@@ -149,12 +208,26 @@ class Dash(object):
         # pylint: disable=protected-access
         self.css._update_layout(layout_value)
         self.scripts._update_layout(layout_value)
-        self._collect_and_register_resources(
-            self.scripts.get_all_scripts()
+
+    @property
+    def index_string(self):
+        return self._index_string
+
+    @index_string.setter
+    def index_string(self, value):
+        checks = (
+            (_re_index_entry.search(value), 'app_entry'),
+            (_re_index_config.search(value), 'config',),
+            (_re_index_scripts.search(value), 'scripts'),
         )
-        self._collect_and_register_resources(
-            self.css.get_all_css()
-        )
+        missing = [missing for check, missing in checks if not check]
+        if missing:
+            raise Exception(
+                'Did you forget to include {} in your index string ?'.format(
+                    ', '.join('{%' + x + '%}' for x in missing)
+                )
+            )
+        self._index_string = value
 
     def serve_layout(self):
         layout = self._layout_value()
@@ -180,6 +253,7 @@ class Dash(object):
         )
 
     def _collect_and_register_resources(self, resources):
+        # now needs the app context.
         # template in the necessary component suite JS bundles
         # add the version number of the package as a query parameter
         # for cache busting
@@ -217,8 +291,12 @@ class Dash(object):
                         srcs.append(url)
             elif 'absolute_path' in resource:
                 raise Exception(
-                    'Serving files form absolute_path isn\'t supported yet'
+                    'Serving files from absolute_path isn\'t supported yet'
                 )
+            elif 'asset_path' in resource:
+                static_url = flask.url_for('assets.static',
+                                           filename=resource['asset_path'])
+                srcs.append(static_url)
         return srcs
 
     def _generate_css_dist_html(self):
@@ -260,6 +338,20 @@ class Dash(object):
             '</script>'
         ).format(json.dumps(self._config()))
 
+    def _generate_meta_html(self):
+        has_charset = any('charset' in x for x in self._meta_tags)
+
+        tags = []
+        if not has_charset:
+            tags.append('<meta charset="UTF-8"/>')
+        for meta in self._meta_tags:
+            attributes = []
+            for k, v in meta.items():
+                attributes.append('{}="{}"'.format(k, v))
+            tags.append('<meta {} />'.format(' '.join(attributes)))
+
+        return '\n      '.join(tags)
+
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
         if package_name not in self.registered_paths:
@@ -294,28 +386,83 @@ class Dash(object):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
+        metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
-        return '''
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>{}</title>
-                {}
-            </head>
-            <body>
-                <div id="react-entry-point">
-                    <div class="_dash-loading">
-                        Loading...
-                    </div>
-                </div>
-                <footer>
-                    {}
-                    {}
-                </footer>
-            </body>
-        </html>
-        '''.format(title, css, config, scripts)
+        if self._favicon:
+            favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
+                flask.url_for('assets.static', filename=self._favicon))
+        else:
+            favicon = ''
+
+        index = self.interpolate_index(
+            metas=metas, title=title, css=css, config=config,
+            scripts=scripts, app_entry=_app_entry, favicon=favicon)
+
+        checks = (
+            (_re_index_entry_id.search(index), '#react-entry-point'),
+            (_re_index_config_id.search(index), '#_dash-configs'),
+            (_re_index_scripts_id.search(index), 'dash-renderer'),
+        )
+        missing = [missing for check, missing in checks if not check]
+
+        if missing:
+            plural = 's' if len(missing) > 1 else ''
+            raise Exception(
+                'Missing element{pl} {ids} in index.'.format(
+                    ids=', '.join(missing),
+                    pl=plural
+                )
+            )
+
+        return index
+
+    def interpolate_index(self,
+                          metas='', title='', css='', config='',
+                          scripts='', app_entry='', favicon=''):
+        """
+        Called to create the initial HTML string that is loaded on page.
+        Override this method to provide you own custom HTML.
+
+        :Example:
+
+            class MyDash(dash.Dash):
+                def interpolate_index(self, **kwargs):
+                    return '''
+                    <!DOCTYPE html>
+                    <html>
+                        <head>
+                            <title>My App</title>
+                        </head>
+                        <body>
+                            <div id="custom-header">My custom header</div>
+                            {app_entry}
+                            {config}
+                            {scripts}
+                            <div id="custom-footer">My custom footer</div>
+                        </body>
+                    </html>
+                    '''.format(
+                        app_entry=kwargs.get('app_entry'),
+                        config=kwargs.get('config'),
+                        scripts=kwargs.get('scripts'))
+
+        :param metas: Collected & formatted meta tags.
+        :param title: The title of the app.
+        :param css: Collected & formatted css dependencies as <link> tags.
+        :param config: Configs needed by dash-renderer.
+        :param scripts: Collected & formatted scripts tags.
+        :param app_entry: Where the app will render.
+        :param favicon: A favicon <link> tag if found in assets folder.
+        :return: The interpolated HTML string for the index.
+        """
+        return _interpolate(self.index_string,
+                            metas=metas,
+                            title=title,
+                            css=css,
+                            config=config,
+                            scripts=scripts,
+                            favicon=favicon,
+                            app_entry=app_entry)
 
     def dependencies(self):
         return flask.jsonify([
@@ -558,6 +705,9 @@ class Dash(object):
         return self.callback_map[target_id]['callback'](*args)
 
     def _setup_server(self):
+        if self.config.include_assets_files:
+            self._walk_assets_directory()
+
         # Make sure `layout` is set before running the server
         value = getattr(self, 'layout')
         if value is None:
@@ -567,8 +717,44 @@ class Dash(object):
                 'at the time that `run_server` was called. '
                 'Make sure to set the `layout` attribute of your application '
                 'before running the server.')
+
         self._generate_scripts_html()
         self._generate_css_dist_html()
+
+    def _walk_assets_directory(self):
+        walk_dir = self._assets_folder
+        slash_splitter = re.compile(r'[\\/]+')
+
+        def add_resource(p):
+            res = {'asset_path': p}
+            if self.config.assets_external_path:
+                res['external_url'] = '{}{}'.format(
+                    self.config.assets_external_path, path)
+            return res
+
+        for current, _, files in os.walk(walk_dir):
+            if current == walk_dir:
+                base = ''
+            else:
+                s = current.replace(walk_dir, '').lstrip('\\').lstrip('/')
+                splitted = slash_splitter.split(s)
+                if len(splitted) > 1:
+                    base = '/'.join(slash_splitter.split(s))
+                else:
+                    base = splitted[0]
+
+            for f in sorted(files):
+                if base:
+                    path = '/'.join([base, f])
+                else:
+                    path = f
+
+                if f.endswith('js'):
+                    self.scripts.append_script(add_resource(path))
+                elif f.endswith('css'):
+                    self.css.append_css(add_resource(path))
+                elif f == 'favicon.ico':
+                    self._favicon = path
 
     def run_server(self,
                    port=8050,
