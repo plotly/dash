@@ -3,7 +3,9 @@
 Vanilla HTML components for [Dash][]
 
 
-## Contributing
+## Getting Started
+
+### Installation
 
 ```sh
 # Install dependencies
@@ -62,6 +64,10 @@ $ npm run install-local
 ```sh
 $ npm run uninstall-local
 ```
+
+## Contributing
+
+See the [contributing guide](CONTRIBUTING.md) for guidelines on contributing to this project.
 
 ## Publishing
 
