@@ -1,3 +1,8 @@
+## 0.22.0 - 2018-07-25
+## Added
+- Assets files & index customization [#286](https://github.com/plotly/dash/pull/286)
+- Raise an error if there is no layout present when the server is running [#294](https://github.com/plotly/dash/pull/294)
+
 ## 0.21.1 - 2018-04-10
 ## Added
 - `aria-*` and `data-*` attributes are now supported in all dash html components. (#40)
