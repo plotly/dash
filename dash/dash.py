@@ -707,7 +707,17 @@ class Dash(object):
     def _setup_server(self):
         if self.config.include_assets_files:
             self._walk_assets_directory()
-
+      
+        # Make sure `layout` is set before running the server
+        value = getattr(self, 'layout')
+        if value is None:
+            raise exceptions.NoLayoutException(
+                ''
+                'The layout was `None` '
+                'at the time that `run_server` was called. '
+                'Make sure to set the `layout` attribute of your application '
+                'before running the server.')
+            
         self._generate_scripts_html()
         self._generate_css_dist_html()
 
