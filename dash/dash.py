@@ -61,7 +61,7 @@ _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
     def __init__(
             self,
@@ -75,6 +75,8 @@ class Dash(object):
             compress=True,
             meta_tags=None,
             index_string=_default_index,
+            external_script_urls=None,
+            external_css_urls=None,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -128,6 +130,10 @@ class Dash(object):
         # static files from the packages
         self.css = Css()
         self.scripts = Scripts()
+
+        self._external_scripts_urls = external_script_urls or []
+        self._external_css_urls = external_css_urls or []
+
         self.registered_paths = {}
 
         # urls
@@ -302,7 +308,8 @@ class Dash(object):
     def _generate_css_dist_html(self):
         links = self._collect_and_register_resources(
             self.css.get_all_css()
-        )
+        ) + self._external_css_urls
+
         return '\n'.join([
             '<link rel="stylesheet" href="{}">'.format(link)
             for link in links
@@ -324,7 +331,7 @@ class Dash(object):
             self.scripts._resources._filter_resources(
                 dash_renderer._js_dist
             )
-        )
+        ) + self._external_scripts_urls
 
         return '\n'.join([
             '<script src="{}"></script>'.format(src)

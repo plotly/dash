@@ -434,4 +434,26 @@ class Tests(IntegrationTests):
         self.assertTrue('{%config%}' in exc_msg)
         self.assertTrue('{%scripts%}' in exc_msg)
         time.sleep(0.5)
-        print('invalid index string')
+
+    def test_external_files_init(self):
+        js_files = [
+            'https://www.google-analytics.com/analytics.js',
+            'https://cdn.polyfill.io/v2/polyfill.min.js'
+        ]
+        css_files = [
+            'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css',
+            'https://codepen.io/chriddyp/pen/bWLwgP.css'
+        ]
+
+        app = dash.Dash(
+            external_script_urls=js_files, external_css_urls=css_files)
+
+        app.layout = html.Div()
+
+        self.startServer(app)
+        time.sleep(0.5)
+
+        for fmt, url in itertools.chain(
+                (("//script[@src='{}']", x) for x in js_files),
+                (("//link[@href='{}']", x) for x in css_files)):
+            self.driver.find_element_by_xpath(fmt.format(url))
