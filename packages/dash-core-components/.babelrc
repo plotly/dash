@@ -1,3 +1,6 @@
 {
-    "extends": "./node_modules/dash-components-archetype/config/babel/babelrc"
+    "extends": "./node_modules/dash-components-archetype/config/babel/babelrc",
+    "plugins": [
+        "styled-jsx/babel"
+      ]
 }

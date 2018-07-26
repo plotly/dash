@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.25.1",
+  "version": "0.26.0",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -40,7 +40,8 @@
     "react-select": "^1.0.0-rc.10",
     "react-select-fast-filter-options": "^0.2.2",
     "react-syntax-highlighter": "^5.0.0",
-    "react-virtualized-select": "^3.1.0"
+    "react-virtualized-select": "^3.1.0",
+    "styled-jsx": "^2.2.6"
   },
   "devDependencies": {
     "component-playground": "^2.0.0",

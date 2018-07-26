@@ -222,6 +222,56 @@ class Tests(IntegrationTests):
             html.Div(id='waitfor'),
             html.Label('Upload'),
             dcc.Upload(),
+
+            html.Label('Horizontal Tabs'),
+            dcc.Tabs(id="tabs", children=[
+                dcc.Tab(label='Tab one', className='test', style={'border': '1px solid magenta'}, children=[
+                    html.Div(['Test'])
+                ]),
+                dcc.Tab(label='Tab two', children=[
+                    html.Div([
+                        html.H1("This is the content in tab 2"),
+                        html.P("A graph here would be nice!")
+                    ])
+                ], id='tab-one'),
+                dcc.Tab(label='Tab three', children=[
+                    html.Div([
+                        html.H1("This is the content in tab 3"),
+                    ])
+                ]),
+            ],
+                style={
+                'fontFamily': 'system-ui'
+            },
+                content_style={
+                'border': '1px solid #d6d6d6',
+                'padding': '44px'
+            },
+                parent_style={
+                'maxWidth': '1000px',
+                'margin': '0 auto'
+            }
+            ),
+
+            html.Label('Vertical Tabs'),
+            dcc.Tabs(id="tabs", vertical=True, children=[
+                dcc.Tab(label='Tab one', children=[
+                    html.Div(['Test'])
+                ]),
+                dcc.Tab(label='Tab two', children=[
+                    html.Div([
+                        html.H1("This is the content in tab 2"),
+                        html.P("A graph here would be nice!")
+                    ])
+                ]),
+                dcc.Tab(label='Tab three', children=[
+                    html.Div([
+                        html.H1("This is the content in tab 3"),
+                    ])
+                ]),
+            ]
+            ),
+
             html.Label('Dropdown'),
             dcc.Dropdown(
                 options=[
@@ -367,6 +417,44 @@ class Tests(IntegrationTests):
             pass
 
         self.snapshot('gallery - text input')
+
+    def test_tabs_without_children(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.H1('Dash Tabs component demo'),
+            dcc.Tabs(id="tabs", value='tab-2', children=[
+                dcc.Tab(label='Tab one', value='tab-1', id='tab-1'),
+                dcc.Tab(label='Tab two', value='tab-2', id='tab-2'),
+                ]),
+            html.Div(id='tabs-content')
+        ])
+
+        @app.callback(dash.dependencies.Output('tabs-content', 'children'),
+                    [dash.dependencies.Input('tabs', 'value')])
+        def render_content(tab):
+            if(tab == 'tab-1'):
+                return html.Div([
+                    html.H3('Test content 1')
+                ], id='test-tab-1')
+            elif(tab == 'tab-2'):
+                return html.Div([
+                    html.H3('Test content 2')
+                ], id='test-tab-2')
+
+        self.startServer(app=app)
+
+        self.snapshot('tabs - without children')
+
+        initial_tab = self.wait_for_element_by_css_selector('#tab-2')
+        tabs_content = self.wait_for_element_by_css_selector('#tabs-content')
+        self.assertEqual(tabs_content.text, 'Test content 2')
+        self.snapshot('initial tab - tab 2')
+
+        selected_tab = self.wait_for_element_by_css_selector('#tab-1')
+        selected_tab.click()
+        self.assertEqual(tabs_content.text, 'Test content 1')
+
 
     def test_location_link(self):
         app = dash.Dash(__name__)
