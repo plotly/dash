@@ -73,38 +73,39 @@ class Tests(IntegrationTests):
         app.layout = html.Div([
             'Basic string',
             3.14,
+            True,
             None,
             html.Div('Child div with basic string',
-                     id='p.c.3',
+                     id='p.c.4',
                      className="my-class",
                      title='tooltip',
                      style={'color': 'red', 'fontSize': 30}
                      ),
-            html.Div(id='p.c.4'),
+            html.Div(id='p.c.5'),
             html.Div([
-                html.Div('Grandchild div', id='p.c.5.p.c.0'),
+                html.Div('Grandchild div', id='p.c.6.p.c.0'),
                 html.Div([
-                    html.Div('Great grandchild', id='p.c.5.p.c.1.p.c.0'),
+                    html.Div('Great grandchild', id='p.c.6.p.c.1.p.c.0'),
                     3.14159,
                     'another basic string'
-                ], id='p.c.5.p.c.1'),
+                ], id='p.c.6.p.c.1'),
                 html.Div([
                     html.Div(
                         html.Div([
                             html.Div([
                                 html.Div(
-                                    id='p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0'
+                                    id='p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0'
                                 ),
                                 '',
                                 html.Div(
-                                    id='p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2'
+                                    id='p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2'
                                 )
-                            ], id='p.c.5.p.c.2.p.c.0.p.c.p.c.0')
-                        ], id='p.c.5.p.c.2.p.c.0.p.c'),
-                        id='p.c.5.p.c.2.p.c.0'
+                            ], id='p.c.6.p.c.2.p.c.0.p.c.p.c.0')
+                        ], id='p.c.6.p.c.2.p.c.0.p.c'),
+                        id='p.c.6.p.c.2.p.c.0'
                     )
-                ], id='p.c.5.p.c.2')
-            ], id='p.c.5')
+                ], id='p.c.6.p.c.2')
+            ], id='p.c.6')
         ])
 
         self.startServer(app)
@@ -122,16 +123,16 @@ class Tests(IntegrationTests):
                     Child div with basic string
                 </div>
 
-                <div id="p.c.4">
+                <div id="p.c.5">
                 </div>
 
-                <div id="p.c.5">
-                    <div id="p.c.5.p.c.0">
+                <div id="p.c.6">
+                    <div id="p.c.6.p.c.0">
                         Grandchild div
                     </div>
 
-                    <div id="p.c.5.p.c.1">
-                        <div id="p.c.5.p.c.1.p.c.0">
+                    <div id="p.c.6.p.c.1">
+                        <div id="p.c.6.p.c.1.p.c.0">
                             Great grandchild
                         </div>
 
@@ -140,16 +141,16 @@ class Tests(IntegrationTests):
                         another basic string
                     </div>
 
-                    <div id="p.c.5.p.c.2">
-                        <div id="p.c.5.p.c.2.p.c.0">
-                            <div id="p.c.5.p.c.2.p.c.0.p.c">
-                                <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0">
+                    <div id="p.c.6.p.c.2">
+                        <div id="p.c.6.p.c.2.p.c.0">
+                            <div id="p.c.6.p.c.2.p.c.0.p.c">
+                                <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0">
 
-                                    <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0">
+                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0">
                                     </div>
 
 
-                                    <div id="p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2">
+                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2">
                                     </div>
 
                                 </div>
@@ -171,7 +172,7 @@ class Tests(IntegrationTests):
             'style="font-size: 30px; color: red;"'
         ]
         permutations = itertools.permutations([
-            'id="p.c.3"',
+            'id="p.c.4"',
             'class="my-class"',
             'title="tooltip"',
         ], 3)
@@ -224,12 +225,13 @@ class Tests(IntegrationTests):
                   "children": [
                     "Basic string",
                     3.14,
+                    True,
                     None,
                     {
                       "namespace": "dash_html_components",
                       "props": {
                         "children": "Child div with basic string",
-                        "id": "p.c.3",
+                        "id": "p.c.4",
                          'className': "my-class",
                          'title': 'tooltip',
                          'style': {
@@ -242,7 +244,7 @@ class Tests(IntegrationTests):
                       "namespace": "dash_html_components",
                       "props": {
                         "children": None,
-                        "id": "p.c.4"
+                        "id": "p.c.5"
                       },
                       "type": "Div"
                     },
@@ -254,7 +256,7 @@ class Tests(IntegrationTests):
                             "namespace": "dash_html_components",
                             "props": {
                               "children": "Grandchild div",
-                              "id": "p.c.5.p.c.0"
+                              "id": "p.c.6.p.c.0"
                             },
                             "type": "Div"
                           },
@@ -266,14 +268,14 @@ class Tests(IntegrationTests):
                                   "namespace": "dash_html_components",
                                   "props": {
                                     "children": "Great grandchild",
-                                    "id": "p.c.5.p.c.1.p.c.0"
+                                    "id": "p.c.6.p.c.1.p.c.0"
                                   },
                                   "type": "Div"
                                 },
                                 3.14159,
                                 "another basic string"
                               ],
-                              "id": "p.c.5.p.c.1"
+                              "id": "p.c.6.p.c.1"
                             },
                             "type": "Div"
                           },
@@ -296,7 +298,7 @@ class Tests(IntegrationTests):
                                                   "namespace": "dash_html_components",
                                                   "props": {
                                                     "children": None,
-                                                    "id": "p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0"
+                                                    "id": "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0"
                                                   },
                                                   "type": "Div"
                                                 },
@@ -305,31 +307,31 @@ class Tests(IntegrationTests):
                                                   "namespace": "dash_html_components",
                                                   "props": {
                                                     "children": None,
-                                                    "id": "p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2"
+                                                    "id": "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2"
                                                   },
                                                   "type": "Div"
                                                 }
                                               ],
-                                              "id": "p.c.5.p.c.2.p.c.0.p.c.p.c.0"
+                                              "id": "p.c.6.p.c.2.p.c.0.p.c.p.c.0"
                                             },
                                             "type": "Div"
                                           }
                                         ],
-                                        "id": "p.c.5.p.c.2.p.c.0.p.c"
+                                        "id": "p.c.6.p.c.2.p.c.0.p.c"
                                       },
                                       "type": "Div"
                                     },
-                                    "id": "p.c.5.p.c.2.p.c.0"
+                                    "id": "p.c.6.p.c.2.p.c.0"
                                   },
                                   "type": "Div"
                                 }
                               ],
-                              "id": "p.c.5.p.c.2"
+                              "id": "p.c.6.p.c.2"
                             },
                             "type": "Div"
                           }
                         ],
-                        "id": "p.c.5"
+                        "id": "p.c.6"
                       },
                       "type": "Div"
                     }
@@ -369,60 +371,60 @@ class Tests(IntegrationTests):
                 'return window.store.getState().paths'
             ),
             {
-                "p.c.3": [
-                    "props",  "children",  3
-                ],
                 "p.c.4": [
                     "props",  "children",  4
                 ],
                 "p.c.5": [
                     "props",  "children",  5
                 ],
-                "p.c.5.p.c.0": [
-                    "props",  "children",  5,
+                "p.c.6": [
+                    "props",  "children",  6
+                ],
+                "p.c.6.p.c.0": [
+                    "props",  "children",  6,
                     "props",  "children",  0
                 ],
-                "p.c.5.p.c.1": [
-                    "props",  "children",  5,
+                "p.c.6.p.c.1": [
+                    "props",  "children",  6,
                     "props",  "children",  1
                 ],
-                "p.c.5.p.c.1.p.c.0": [
-                    "props",  "children",  5,
+                "p.c.6.p.c.1.p.c.0": [
+                    "props",  "children",  6,
                     "props",  "children",  1,
                     "props",  "children",  0
                 ],
-                "p.c.5.p.c.2": [
-                    "props",  "children",  5,
+                "p.c.6.p.c.2": [
+                    "props",  "children",  6,
                     "props",  "children",  2
                 ],
-                "p.c.5.p.c.2.p.c.0": [
-                    "props",  "children",  5,
+                "p.c.6.p.c.2.p.c.0": [
+                    "props",  "children",  6,
                     "props",  "children",  2,
                     "props",  "children",  0
                 ],
-                "p.c.5.p.c.2.p.c.0.p.c": [
-                    "props",  "children",  5,
+                "p.c.6.p.c.2.p.c.0.p.c": [
+                    "props",  "children",  6,
                     "props",  "children",  2,
                     "props",  "children",  0,
                     "props",  "children"
                 ],
-                "p.c.5.p.c.2.p.c.0.p.c.p.c.0": [
-                    "props",  "children",  5,
+                "p.c.6.p.c.2.p.c.0.p.c.p.c.0": [
+                    "props",  "children",  6,
                     "props",  "children",  2,
                     "props",  "children",  0,
                     "props",  "children",
                     "props",  "children",  0
                 ],
-                "p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.0": [
-                    "props",  "children",  5,
+                "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0": [
+                    "props",  "children",  6,
                     "props",  "children",  2,
                     "props",  "children",  0,
                     "props",  "children",
                     "props",  "children",  0,
                     "props",  "children",  0
                 ],
-                "p.c.5.p.c.2.p.c.0.p.c.p.c.0.p.c.2": [
-                    "props",  "children",  5,
+                "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2": [
+                    "props",  "children",  6,
                     "props",  "children",  2,
                     "props",  "children",  0,
                     "props",  "children",
