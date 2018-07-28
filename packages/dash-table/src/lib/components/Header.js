@@ -154,6 +154,7 @@ export default class Header extends Component {
             columns,
             sortable,
             merge_duplicate_headers,
+            row_deletable,
             row_selectable
         } = this.props;
 
@@ -167,6 +168,11 @@ export default class Header extends Component {
                 style={{'width': 30}}
              />
         );
+        const deletableCell = !row_deletable ? null : (
+            <th className="expanded-row--empty-cell"
+                style={{'width': 30}}
+             />
+        )
 
         // TODO calculate in lifecycle function
         const headerDepth = Math.max.apply(Math, columns.map(getColLength));
@@ -188,6 +194,7 @@ export default class Header extends Component {
                 const rowStyle = computedStyles.scroll.row(this.props, i);
                 headerRows.push(
                     <tr style={rowStyle}>
+                        {deletableCell}
                         {collapsableCell}
                         {selectableCell}
                         {this.renderHeaderCells({
@@ -219,5 +226,6 @@ Header.propTypes = {
     dataframe: PropTypes.any,
     setProps: PropTypes.any,
     sort: PropTypes.any,
+    row_deletable: PropTypes.bool,
     row_selectable: PropTypes.any
 };

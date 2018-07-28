@@ -169,7 +169,7 @@
         "type": {
           "name": "string"
         },
-        "required": false,
+        "required": true,
         "description": ""
       },
       "is_focused": {
@@ -196,6 +196,13 @@
       "n_fixed_rows": {
         "type": {
           "name": "number"
+        },
+        "required": false,
+        "description": ""
+      },
+      "row_deletable": {
+        "type": {
+          "name": "bool"
         },
         "required": false,
         "description": ""

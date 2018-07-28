@@ -180,27 +180,32 @@ export default class Cell extends Component {
             if (dropdown_properties &&
                     R.type(dropdown_properties) === 'Object' &&
                     R.has(columns[i].id, dropdown_properties) &&
+                    idx < dropdown_properties[columns[i].id].length &&
                     R.has('options', dropdown_properties[columns[i].id][idx])) {
                 options = dropdown_properties[columns[i].id][idx].options;
             } else {
                 options = columns[i].options;
             }
-            innerCell = (
-                <Dropdown
-                    placeholder={''}
-                    options={options}
-                    onChange={newOption => {
-                        const newDataframe = R.set(
-                            R.lensPath([idx, c.id]),
-                            newOption ? newOption.value : newOption,
-                            dataframe
-                        );
-                        setProps({dataframe: newDataframe});
-                    }}
-                    clearable={columns[i].clearable}
-                    value={value}
-                />
-            );
+            if (!options) {
+                innerCell = value;
+            } else {
+                innerCell = (
+                    <Dropdown
+                        placeholder={''}
+                        options={options}
+                        onChange={newOption => {
+                            const newDataframe = R.set(
+                                R.lensPath([idx, c.id]),
+                                newOption ? newOption.value : newOption,
+                                dataframe
+                            );
+                            setProps({dataframe: newDataframe});
+                        }}
+                        clearable={columns[i].clearable}
+                        value={value}
+                    />
+                );
+            }
         } else {
             innerCell = value;
         }

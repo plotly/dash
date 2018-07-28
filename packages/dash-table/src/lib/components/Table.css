@@ -27,6 +27,7 @@
     --selected-background: rgba(255, 65, 54, 0.2);
     --faded-dropdown: rgb(240, 240, 240);
     --selected-row: #fff0ff;
+    --muted: rgb(200, 200, 200);
 }
 
 /* focus happens after copying to clipboard */
@@ -210,4 +211,14 @@ th:hover .filter {
 
 .dash-spreadsheet .selected-row {
     background-color: var(--selected-row);
+}
+
+.dash-spreadsheet .delete-cell {
+    font-size: 1.3rem;
+    text-align: center;
+    cursor: pointer;
+    color: var(--muted);
+}
+.dash-spreadsheet .delete-cell:hover {
+    color: var(--accent);
 }

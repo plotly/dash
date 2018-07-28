@@ -14,6 +14,7 @@ class App extends Component {
         super();
         this.state = {
             tableProps: {
+                id: 'table',
                 dataframe: clone(mockData.dataframe),
                 columns: clone(mockData.columns),
                 editable: true,

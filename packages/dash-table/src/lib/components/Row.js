@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as R from 'ramda';
 import Cell from './Cell';
 import computedStyles from './computedStyles';
+import * as actions from '../utils/actions';
 
 const getColLength = c => (Array.isArray(c.name) ? c.name.length : 1);
 
@@ -18,6 +19,7 @@ export default class Row extends Component {
             selected_rows,
             collapsable,
             expanded_rows,
+            row_deletable,
             row_selectable
         } = this.props;
 
@@ -47,7 +49,7 @@ export default class Row extends Component {
         const rowSelectable = !row_selectable ? null : (
             <td style={R.merge(
                 computedStyles.scroll.borderStyle(
-                    R.merge({i: -1}, this.props)),
+                    R.merge({i: -1}, this.props)).style,
                     {'width': 30}
             )}>
                 <input
@@ -73,6 +75,22 @@ export default class Row extends Component {
             </td>
         );
 
+        const deleteCell = !row_deletable ? null : (
+            <td className='delete-cell'
+                style={R.merge(
+                computedStyles.scroll.borderStyle(
+                    R.merge({i: -1}, this.props)).style,
+                    {
+                        'width': 35,
+                        'minWidth': 35,
+                        'maxWidth': 35,
+                        'padding': 0
+                    })}
+                onClick={() => setProps(actions.deleteRow(idx, this.props))}
+            >
+                {'×'}
+            </td>
+        );
 
         const cells = columns.map((c, i) => {
             if (c.hidden) {
@@ -95,13 +113,13 @@ export default class Row extends Component {
             );
         });
 
-        // TODO calculate in lifecycle function
         const headerDepth = Math.max.apply(Math, columns.map(getColLength));
         return (
             <tr
                 style={computedStyles.scroll.row(this.props, idx + headerDepth)}
                 className={R.contains(idx, selected_rows) ? 'selected-row' : ''}
             >
+                {deleteCell}
                 {collapsableCell}
                 {rowSelectable}
 
@@ -122,5 +140,6 @@ Row.propTypes = {
     expanded_rows: PropTypes.any,
     active_cell: PropTypes.any,
     selected_rows: PropTypes.any,
+    row_deletable: PropTypes.bool,
     row_selectable: PropTypes.any
 };

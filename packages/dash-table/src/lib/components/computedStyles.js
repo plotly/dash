@@ -50,6 +50,7 @@ const styles = {
                 collapsable,
                 expanded_rows,
                 active_cell,
+                row_deletable,
                 row_selectable,
                 style_as_list_view,
             } = args;
@@ -111,7 +112,9 @@ const styles = {
             const isRightmost = ci === R.last(vci);
 
             // -1 refers to meta columns like the row-select checkbox column
-            const isLeftmost = row_selectable ? ci === -1 : ci === R.head(vci);
+            // TODO - Get row-select and row-delete to work together
+            const isLeftmost = ((row_selectable || row_deletable) ?
+                ci === -1 : ci === R.head(vci));
             const isTopmost = ri === 0;
             const isBottommost = ri === dataframe.length - 1;
             const isNeighborToExpanded =
@@ -139,7 +142,6 @@ const styles = {
                 showInsideRightEdge ? doRight(ACCENT, 1) : null,
                 isWithinColSelections && isTopmost ? doTop(ACCENT, 1) : null,
                 isWithinRowSelections && isLeftmost ? doLeft(ACCENT, 1) : null,
-
                 !style_as_list_view || ci === -1 ? doLeft(BORDER, 1) : null,
                 doTop(BORDER, 1),
 

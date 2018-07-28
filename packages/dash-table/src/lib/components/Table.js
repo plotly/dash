@@ -86,6 +86,7 @@ class ControlledTable extends Component {
         this.collectRows = this.collectRows.bind(this);
         this.onPaste = this.onPaste.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
+        this.getDomElement = this.getDomElement.bind(this);
     }
 
     componentDidMount() {
@@ -103,9 +104,14 @@ class ControlledTable extends Component {
     }
 
     handleClickOutside(event) {
-        if (this._table && !this._table.contains(event.target)) {
+        if (this.getDomElement() && !this.getDomElement().contains(event.target)) {
             this.props.setProps({is_focused: false});
         }
+    }
+
+    getDomElement() {
+        // this.ref is unreliable, so just use query selector
+        return document.getElementById(this.props.id);
     }
 
     handleKeyDown(e) {
@@ -201,7 +207,7 @@ class ControlledTable extends Component {
         // focus.
         // TODO There is a better way to handle native focus being out of sync
         // with the "is_focused" prop. We should find the better way.
-        this._table.focus();
+        this.getDomElement().focus();
 
         const hasSelection = selected_cell.length > 1;
         const isEnterOrTab =
@@ -466,7 +472,7 @@ class ControlledTable extends Component {
         // refocus on the table so that onPaste can be fired immediately
         // on the same table
         // note that this requires tabIndex to be set on the <table/>
-        this._table.focus();
+        this.getDomElement().focus();
         return;
     }
 
@@ -482,6 +488,7 @@ class ControlledTable extends Component {
 
         if (e && e.clipboardData && !is_focused) {
             const text = e.clipboardData.getData('text/plain');
+            console.warn('clipboard data: ', text);
             if (text) {
                 const values = SheetClip.prototype.parse(text);
 
@@ -579,6 +586,7 @@ class ControlledTable extends Component {
             dataframe,
             display_row_count: n,
             display_tail_count: m,
+            id,
             table_style,
             n_fixed_columns,
             n_fixed_rows,
@@ -587,7 +595,8 @@ class ControlledTable extends Component {
 
         const table_component = (
             <table
-                ref={el => (this._table = el)}
+                id={id}
+                key={`${id}-table`}
                 onPaste={this.onPaste}
                 tabIndex={-1}
                 style={table_style}
@@ -635,6 +644,7 @@ class ControlledTable extends Component {
                 className="dash-spreadsheet"
                 style={tableStyle}
                 onKeyDown={this.handleKeyDown}
+                key={`${id}-table-container`}
             >
                 {table_component}
             </div>
@@ -720,12 +730,14 @@ Table.propTypes = {
 
     editable: PropTypes.bool,
     end_cell: PropTypes.arrayOf(PropTypes.number),
+    // TODO - Remove `expanded_rows`
     expanded_rows: PropTypes.array,
-    id: PropTypes.string,
+    id: PropTypes.string.isRequired,
     is_focused: PropTypes.bool,
     merge_duplicate_headers: PropTypes.bool,
     n_fixed_columns: PropTypes.number,
     n_fixed_rows: PropTypes.number,
+    row_deletable: PropTypes.bool,
     row_selectable: PropTypes.oneOf(['single', 'multi']),
     selected_cell: PropTypes.arrayOf(PropTypes.number),
     selected_rows: PropTypes.arrayOf(PropTypes.number),
