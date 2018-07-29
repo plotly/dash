@@ -10,6 +10,7 @@ enum34==1.1.6
 Flask==0.12
 Flask-Compress==1.4.0
 Flask-SeaSurf==0.2.2
+Flask-SocketIO==3.0.1
 funcsigs==1.0.2
 functools32==3.2.3.post2
 ipdb==0.10.2
