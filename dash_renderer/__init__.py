@@ -12,7 +12,7 @@ import sys
 from .version import __version__
 __file__
 
-_DEFAULT_REACT_VERSION = '15.4.2'
+_DEFAULT_REACT_VERSION = '16.2.0'
 _REACT_VERSION_TYPES = {'15.4.2', '16.2.0'}
 _REACT_VERSION_TO_URLS = {
     '15.4.2': {

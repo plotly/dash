@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.14.0] - 2018-07-29
+### Added
+- Back-end and front-end exceptions in Dash are now rendered on the page when in debug mode.
+
 ## [0.13.2] - 2018-07-24
 ### Fixed
 - Attempting to render a `Boolean` value to the page no longer crashes the app.
