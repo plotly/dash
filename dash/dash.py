@@ -8,6 +8,7 @@ import json
 import pkgutil
 import warnings
 import re
+import traceback
 
 from functools import wraps
 
@@ -16,6 +17,8 @@ import dash_renderer
 import flask
 from flask import Flask, Response
 from flask_compress import Compress
+from flask import got_request_exception
+from flask_socketio import SocketIO
 
 from .dependencies import Event, Input, Output, State
 from .resources import Scripts, Css
@@ -114,6 +117,7 @@ class Dash(object):
         self.index_string = index_string
         self._meta_tags = meta_tags or []
         self._favicon = None
+        self._errors = ""
 
         if compress:
             # gzip
@@ -760,4 +764,24 @@ class Dash(object):
                    port=8050,
                    debug=False,
                    **flask_run_options):
-        self.server.run(port=port, debug=debug, **flask_run_options)
+        if debug:
+            socketio = SocketIO(self.server)
+
+            @got_request_exception.connect_via(self.server)
+            def when_dash_gets_exception(server, exception, **extra):
+                socketio.emit(
+                    'error',
+                    {
+                        'errorType': type(exception).__name__,
+                        'errorMessage': str(exception),
+                        'errorTraceback': traceback.format_exc(),
+                    },
+                    namespace=(
+                       '{}_dash-errors'
+                       .format(self.config['routes_pathname_prefix'])
+                    )
+                )
+
+            socketio.run(self.server, port=port, debug=debug)
+        else:
+            self.server.run(port=port, debug=debug, **flask_run_options)
