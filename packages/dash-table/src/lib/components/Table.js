@@ -86,6 +86,7 @@ class ControlledTable extends Component {
         this.collectRows = this.collectRows.bind(this);
         this.onPaste = this.onPaste.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
+        this.handlePaste = this.handlePaste.bind(this);
         this.getDomElement = this.getDomElement.bind(this);
     }
 
@@ -97,15 +98,32 @@ class ControlledTable extends Component {
             this.props.setProps({active_cell: this.props.selected_cell[0]});
         }
         document.addEventListener('mousedown', this.handleClickOutside);
+
+        // Fallback method for paste handling in Chrome
+        // when no input element has focused inside the table
+        document.addEventListener('paste', this.handlePaste);
     }
 
     componentWillUnmount() {
         document.removeEventListener('mousedown', this.handleClickOutside);
+        document.removeEventListener('paste', this.handlePaste);
     }
 
     handleClickOutside(event) {
         if (this.getDomElement() && !this.getDomElement().contains(event.target)) {
             this.props.setProps({is_focused: false});
+        }
+    }
+
+    handlePaste(event) {
+        // no need to check for target as this will only be called if
+        // a child fails to handle the paste event (e.g table, table input)
+
+        // make sure the active element is in the scope of the component
+        const el = this.getDomElement();
+
+        if (el && el.contains(document.activeElement)) {
+            this.onPaste(event);
         }
     }
 
