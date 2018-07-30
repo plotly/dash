@@ -15,9 +15,8 @@ from functools import wraps
 import plotly
 import dash_renderer
 import flask
-from flask import Flask, Response
+from flask import Flask, Response, got_request_exception
 from flask_compress import Compress
-from flask import got_request_exception
 from flask_socketio import SocketIO
 
 from .dependencies import Event, Input, Output, State
@@ -768,6 +767,7 @@ class Dash(object):
             socketio = SocketIO(self.server)
 
             @got_request_exception.connect_via(self.server)
+            # pylint: disable=unused-variable
             def when_dash_gets_exception(server, exception, **extra):
                 socketio.emit(
                     'error',
@@ -777,8 +777,8 @@ class Dash(object):
                         'errorTraceback': traceback.format_exc(),
                     },
                     namespace=(
-                       '{}_dash-errors'
-                       .format(self.config['routes_pathname_prefix'])
+                        '{}_dash-errors'
+                        .format(self.config['routes_pathname_prefix'])
                     )
                 )
 
