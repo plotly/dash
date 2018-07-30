@@ -1,6 +1,7 @@
 {
     "env": {
-        "node": true
+        "node": true,
+        "browser": true
     },
     "extends": [
         "eslint:recommended",
@@ -15,7 +16,8 @@
         "ecmaVersion": "2015",
         "sourceType": "module",
         "ecmaFeatures": {
-            "jsx": true
+            "jsx": true,
+            "experimentalObjectRestSpread": true
         }
     },
     "rules": {

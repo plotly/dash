@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+
 import io from 'socket.io-client'
+
+// import {urlBase} from './utils';
 
 const ErrorDisplay = ({ errorOrigin, errorType, errorMessage, errorTraceback }) => (
   <div>
@@ -12,6 +15,13 @@ const ErrorDisplay = ({ errorOrigin, errorType, errorMessage, errorTraceback }) 
     </code>
   </div>
 )
+
+ErrorDisplay.propTypes = {
+    errorOrigin: PropTypes.string,
+    errorType: PropTypes.string,
+    errorMessage: PropTypes.string,
+    errorTraceback: PropTypes.string,
+}
 
 export default class ErrorHandler extends Component {
   constructor(props) {
@@ -35,7 +45,9 @@ export default class ErrorHandler extends Component {
   }
 
   componentWillMount() {
-    let connectionString = 'http://' + document.domain + ':' + location.port + '/_dash-errors';
+    let connectionString = 'http://' + document.domain +
+                            ':' + location.port + '/_dash-errors';
+                            // urlBase(window.state.getState().config)
     let socket = io.connect(connectionString);
     socket.on('error', function(error) {
       this.setState({
