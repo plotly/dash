@@ -111,26 +111,7 @@ $ npm run uninstall-local
 
 ## Publishing
 
-For now, multiple steps are necessary for publishing to NPM and PyPi,
-respectively. TODO:
-[#5](https://github.com/plotly/dash-components-archetype/issues/5) will roll up
-publishing steps into one workflow.
-
-Ask @chriddyp to get NPM / PyPi package publishing access.
-
-1 - Update `version.py`, we're using [semantic versioning](https://semver.org/)!
-
-2 - Update `package.json`
-
-4 - Publish: `npm run publish-all` (Make sure you have access to NPM and PyPI)
-4b - If the `publish-all` script fails on the `twine` command, try running
-```sh
-twine upload dist/dash_core_components-X.X.X.tar.gz # where xx.x.x is the version number
-```
-
-If you want to publish a prerelease package, change `version.py` to X.X.XrcX (0.23.1rc1 for example) and
-`package.json` to X.X.X-rcX (notice how the rc syntax is different between node and python. npm requires a - between the version number and the prerelease tag while python's pip just has 0.23.1rc1)
-
+See the [Publishing New Components/Features](CONTRIBUTING.md#publishing-new-componentsfeatures) section of the Contributing guide for step-by-step instructions on publishing new components.
 
 ## Builder / Archetype
 
