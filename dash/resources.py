@@ -1,6 +1,7 @@
 from copy import copy
 import json
 import warnings
+import os
 
 from .development.base_component import Component
 
@@ -30,7 +31,9 @@ class Resources:
             elif 'absolute_path' in s:
                 filtered_resource['absolute_path'] = s['absolute_path']
             elif 'asset_path' in s:
+                info = os.stat(s['filepath'])
                 filtered_resource['asset_path'] = s['asset_path']
+                filtered_resource['ts'] = info.st_mtime
             elif self.config.serve_locally:
                 warnings.warn(
                     'A local version of {} is not available'.format(
