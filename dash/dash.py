@@ -843,19 +843,30 @@ class Dash(object):
 
         return self.callback_map[target_id]['callback'](*args)
 
-    def _setup_server(self):
-        if self.config.include_assets_files:
-            self._walk_assets_directory()
-
-        # Make sure `layout` is set before running the server
-        value = getattr(self, 'layout')
-        if value is None:
+    def _validate_layout(self):
+        if self.layout is None:
             raise exceptions.NoLayoutException(
                 ''
                 'The layout was `None` '
                 'at the time that `run_server` was called. '
                 'Make sure to set the `layout` attribute of your application '
                 'before running the server.')
+
+        layout_id = getattr(self.layout, 'id', None)
+
+        component_ids = {layout_id} if layout_id else set()
+        for component in self.layout.traverse():
+            component_id = getattr(component, 'id', None)
+            if component_id and component_id in component_ids:
+                raise exceptions.DuplicateIdError(
+                    'Duplicate component id found : `{}`'.format(component_id))
+            component_ids.add(component_id)
+
+    def _setup_server(self):
+        if self.config.include_assets_files:
+            self._walk_assets_directory()
+
+        self._validate_layout()
 
         self._generate_scripts_html()
         self._generate_css_dist_html()
