@@ -1,3 +1,7 @@
+## 0.23.0 - 2018-08-01
+## Added
+- Dash components are now generated at build-time and then imported rather than generated when a module is imported. This should reduce the time it takes to import Dash component libraries, and makes Dash compatible with IDEs.
+
 ## 0.21.1 - 2018-04-10
 ## Added
 - `aria-*` and `data-*` attributes are now supported in all dash html components. (#40)
