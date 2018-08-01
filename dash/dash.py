@@ -339,16 +339,21 @@ class Dash(object):
         ).format(json.dumps(self._config()))
 
     def _generate_meta_html(self):
+        has_ie_compat = any(
+            x.get('http-equiv', '') == 'X-UA-Compatible'
+            for x in self._meta_tags)
         has_charset = any('charset' in x for x in self._meta_tags)
 
         tags = []
+        if not has_ie_compat:
+            tags.append('<meta equiv="X-UA-Compatible" content="IE=edge">')
         if not has_charset:
-            tags.append('<meta charset="UTF-8"/>')
+            tags.append('<meta charset="UTF-8">')
         for meta in self._meta_tags:
             attributes = []
             for k, v in meta.items():
                 attributes.append('{}="{}"'.format(k, v))
-            tags.append('<meta {} />'.format(' '.join(attributes)))
+            tags.append('<meta {}>'.format(' '.join(attributes)))
 
         return '\n      '.join(tags)
 

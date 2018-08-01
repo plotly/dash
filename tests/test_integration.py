@@ -272,10 +272,10 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='flowtype')
 
     def test_meta_tags(self):
-        metas = (
+        metas = [
             {'name': 'description', 'content': 'my dash app'},
-            {'name': 'custom', 'content': 'customized'}
-        )
+            {'name': 'custom', 'content': 'customized'},
+        ]
 
         app = dash.Dash(meta_tags=metas)
 
@@ -285,12 +285,12 @@ class Tests(IntegrationTests):
 
         meta = self.driver.find_elements_by_tag_name('meta')
 
-        # -1 for the meta charset.
-        self.assertEqual(len(metas), len(meta) - 1, 'Not enough meta tags')
+        # -2 for the meta charset and http-equiv.
+        self.assertEqual(len(metas), len(meta) - 2, 'Not enough meta tags')
 
-        for i in range(1, len(meta)):
+        for i in range(2, len(meta)):
             meta_tag = meta[i]
-            meta_info = metas[i - 1]
+            meta_info = metas[i - 2]
             name = meta_tag.get_attribute('name')
             content = meta_tag.get_attribute('content')
             self.assertEqual(name, meta_info['name'])
