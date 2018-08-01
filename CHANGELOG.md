@@ -1,3 +1,7 @@
+## 0.22.1 - 2018-08-01
+## Fixed
+- Raise a more informative error if a non JSON serializable value is returned from a callback [#273](https://github.com/plotly/dash/pull/273)
+
 ## 0.22.0 - 2018-07-25
 ## Added
 - Assets files & index customization [#286](https://github.com/plotly/dash/pull/286)
