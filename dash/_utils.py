@@ -6,6 +6,20 @@ def interpolate_str(template, **data):
     return s
 
 
+def format_tag(tag_name, attributes, inner='', closed=False, opened=False):
+    tag = '<{tag} {attributes}'
+    if closed:
+        tag += '/>'
+    elif opened:
+        tag += '>'
+    else:
+        tag += '>' + inner + '</{tag}>'
+    return tag.format(
+        tag=tag_name,
+        attributes=' '.join([
+            '{}="{}"'.format(k, v) for k, v in attributes.items()]))
+
+
 class AttributeDict(dict):
     """
     Dictionary subclass enabling attribute lookup/assignment of keys/values.
