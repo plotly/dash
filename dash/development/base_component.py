@@ -151,22 +151,36 @@ class Component(collections.MutableMapping):
 
     def traverse(self):
         """Yield each item in the tree."""
+        for t in self.traverse_with_paths():
+            yield t[1]
+
+    def traverse_with_paths(self):
+        """Yield each item with its path in the tree."""
         children = getattr(self, 'children', None)
+        children_type = type(children).__name__
+        children_id = "(id={:s})".format(children.id) \
+                      if getattr(children, 'id', False) else ''
+        children_string = children_type + ' ' + children_id
 
         # children is just a component
         if isinstance(children, Component):
-            yield children
-            for t in children.traverse():
-                yield t
+            yield "[*] " + children_string, children
+            for p, t in children.traverse_with_paths():
+                yield "\n".join(["[*] " + children_string, p]), t
 
         # children is a list of components
         elif isinstance(children, collections.MutableSequence):
-            for i in children:  # pylint: disable=not-an-iterable
-                yield i
+            for idx, i in enumerate(children):
+                list_path = "[{:d}] {:s} {}".format(
+                    idx,
+                    type(i).__name__,
+                    "(id={:s})".format(i.id) if getattr(i, 'id', False) else ''
+                )
+                yield list_path, i
 
                 if isinstance(i, Component):
-                    for t in i.traverse():
-                        yield t
+                    for p, t in i.traverse_with_paths():
+                        yield "\n".join([list_path, p]), t
 
     def __iter__(self):
         """Yield IDs in the tree of children."""

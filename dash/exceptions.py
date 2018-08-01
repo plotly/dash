@@ -48,3 +48,7 @@ class CantHaveMultipleOutputs(CallbackException):
 
 class PreventUpdate(CallbackException):
     pass
+
+
+class InvalidCallbackReturnValue(CallbackException):
+    pass
