@@ -331,7 +331,8 @@ class Dash(object):
             self.scripts._resources._filter_resources(
                 dash_renderer._js_dist
             )
-        ) + self._external_scripts_urls
+        )
+        srcs = srcs[:-1] + self._external_scripts_urls + [srcs[-1]]
 
         return '\n'.join([
             '<script src="{}"></script>'.format(src)
