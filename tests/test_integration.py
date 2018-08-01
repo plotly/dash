@@ -1,3 +1,4 @@
+import json
 from multiprocessing import Value
 import datetime
 import itertools
@@ -5,7 +6,10 @@ import re
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_flow_example
+
 import dash
+import time
+
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from .IntegrationTests import IntegrationTests
@@ -266,3 +270,168 @@ class Tests(IntegrationTests):
         self.startServer(app)
         self.wait_for_element_by_id('waitfor')
         self.percy_snapshot(name='flowtype')
+
+    def test_meta_tags(self):
+        metas = (
+            {'name': 'description', 'content': 'my dash app'},
+            {'name': 'custom', 'content': 'customized'}
+        )
+
+        app = dash.Dash(meta_tags=metas)
+
+        app.layout = html.Div(id='content')
+
+        self.startServer(app)
+
+        meta = self.driver.find_elements_by_tag_name('meta')
+
+        # -1 for the meta charset.
+        self.assertEqual(len(metas), len(meta) - 1, 'Not enough meta tags')
+
+        for i in range(1, len(meta)):
+            meta_tag = meta[i]
+            meta_info = metas[i - 1]
+            name = meta_tag.get_attribute('name')
+            content = meta_tag.get_attribute('content')
+            self.assertEqual(name, meta_info['name'])
+            self.assertEqual(content, meta_info['content'])
+
+    def test_index_customization(self):
+        app = dash.Dash()
+
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {%metas%}
+                <title>{%title%}</title>
+                {%favicon%}
+                {%css%}
+            </head>
+            <body>
+                <div id="custom-header">My custom header</div>
+                <div id="add"></div>
+                {%app_entry%}
+                <footer>
+                    {%config%}
+                    {%scripts%}
+                </footer>
+                <div id="custom-footer">My custom footer</div>
+                <script>
+                // Test the formatting doesn't mess up script tags.
+                var elem = document.getElementById('add');
+                if (!elem) {
+                    throw Error('could not find container to add');
+                }
+                elem.innerHTML = 'Got added';
+                var config = {};
+                fetch('/nonexist').then(r => r.json())
+                    .then(r => config = r).catch(err => ({config}));
+                </script>
+            </body>
+        </html>
+        '''
+
+        app.layout = html.Div('Dash app', id='app')
+
+        self.startServer(app)
+
+        time.sleep(0.5)
+
+        header = self.wait_for_element_by_id('custom-header')
+        footer = self.wait_for_element_by_id('custom-footer')
+
+        self.assertEqual('My custom header', header.text)
+        self.assertEqual('My custom footer', footer.text)
+
+        add = self.wait_for_element_by_id('add')
+
+        self.assertEqual('Got added', add.text)
+
+        self.percy_snapshot('custom-index')
+
+    def test_assets(self):
+        app = dash.Dash(assets_folder='tests/assets')
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {%metas%}
+                <title>{%title%}</title>
+                {%css%}
+            </head>
+            <body>
+                <div id="tested"></div>
+                {%app_entry%}
+                <footer>
+                    {%config%}
+                    {%scripts%}
+                </footer>
+            </body>
+        </html>
+        '''
+
+        app.layout = html.Div([
+            html.Div(id='content'),
+            dcc.Input(id='test')
+        ], id='layout')
+
+        self.startServer(app)
+
+        body = self.driver.find_element_by_tag_name('body')
+
+        body_margin = body.value_of_css_property('margin')
+        self.assertEqual('0px', body_margin)
+
+        content = self.wait_for_element_by_id('content')
+        content_padding = content.value_of_css_property('padding')
+        self.assertEqual('8px', content_padding)
+
+        tested = self.wait_for_element_by_id('tested')
+        tested = json.loads(tested.text)
+
+        order = ('load_first', 'load_after', 'load_after1',
+                 'load_after10', 'load_after11', 'load_after2',
+                 'load_after3', 'load_after4', )
+
+        self.assertEqual(len(order), len(tested))
+
+        for i in range(len(tested)):
+            self.assertEqual(order[i], tested[i])
+
+        self.percy_snapshot('test assets includes')
+
+    def test_invalid_index_string(self):
+        app = dash.Dash()
+
+        def will_raise():
+            app.index_string = '''
+                    <!DOCTYPE html>
+                    <html>
+                        <head>
+                            {%metas%}
+                            <title>{%title%}</title>
+                            {%favicon%}
+                            {%css%}
+                        </head>
+                        <body>
+                            <div id="custom-header">My custom header</div>
+                            <div id="add"></div>
+                            <footer>
+                            </footer>
+                        </body>
+                    </html>
+                    '''
+
+        with self.assertRaises(Exception) as context:
+            will_raise()
+
+        app.layout = html.Div()
+        self.startServer(app)
+
+        exc_msg = str(context.exception)
+        self.assertTrue('{%app_entry%}' in exc_msg)
+        self.assertTrue('{%config%}' in exc_msg)
+        self.assertTrue('{%scripts%}' in exc_msg)
+        time.sleep(0.5)
+        print('invalid index string')

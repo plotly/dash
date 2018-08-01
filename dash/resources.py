@@ -21,7 +21,6 @@ class Resources:
             filtered_resource = {}
             if 'namespace' in s:
                 filtered_resource['namespace'] = s['namespace']
-
             if 'external_url' in s and not self.config.serve_locally:
                 filtered_resource['external_url'] = s['external_url']
             elif 'relative_package_path' in s:
@@ -30,6 +29,8 @@ class Resources:
                 )
             elif 'absolute_path' in s:
                 filtered_resource['absolute_path'] = s['absolute_path']
+            elif 'asset_path' in s:
+                filtered_resource['asset_path'] = s['asset_path']
             elif self.config.serve_locally:
                 warnings.warn(
                     'A local version of {} is not available'.format(
@@ -112,8 +113,7 @@ class Css:
         serve_locally = False
 
 
-class Scripts:
-    # pylint: disable=old-style-class
+class Scripts:  # pylint: disable=old-style-class
     def __init__(self, layout=None):
         self._resources = Resources('_js_dist', layout)
         self._resources.config = self.config

@@ -2,6 +2,16 @@
 ## Added
 - Dash components are now generated at build-time and then imported rather than generated when a module is imported. This should reduce the time it takes to import Dash component libraries, and makes Dash compatible with IDEs.
 
+## 0.22.1 - 2018-08-01
+## Fixed
+- Raise a more informative error if a non JSON serializable value is returned from a callback [#273](https://github.com/plotly/dash/pull/273)
+
+## 0.22.0 - 2018-07-25
+## Added
+- Assets files & index customization [#286](https://github.com/plotly/dash/pull/286)
+- Raise an error if there is no layout present when the server is running [#294](https://github.com/plotly/dash/pull/294)
+
+
 ## 0.21.1 - 2018-04-10
 ## Added
 - `aria-*` and `data-*` attributes are now supported in all dash html components. (#40)
