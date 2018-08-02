@@ -1,5 +1,7 @@
 import collections
 import copy
+import os
+import inspect
 
 
 def is_number(s):
@@ -18,7 +20,56 @@ def _check_if_has_indexable_children(item):
         raise KeyError
 
 
+def _explicitize_args(func):
+    # Python 2
+    if hasattr(func, 'func_code'):
+        varnames = func.func_code.co_varnames
+    # Python 3
+    else:
+        varnames = func.__code__.co_varnames
+
+    def wrapper(*args, **kwargs):
+        if '_explicit_args' in kwargs.keys():
+            raise Exception('Variable _explicit_args should not be set.')
+        kwargs['_explicit_args'] = \
+            list(
+                set(
+                    list(varnames[:len(args)]) + [k for k, _ in kwargs.items()]
+                )
+            )
+        if 'self' in kwargs['_explicit_args']:
+            kwargs['_explicit_args'].remove('self')
+        return func(*args, **kwargs)
+
+    # If Python 3, we can set the function signature to be correct
+    if hasattr(inspect, 'signature'):
+        # pylint: disable=no-member
+        new_sig = inspect.signature(wrapper).replace(
+            parameters=inspect.signature(func).parameters.values()
+        )
+        wrapper.__signature__ = new_sig
+    return wrapper
+
+
 class Component(collections.MutableMapping):
+    class _UNDEFINED(object):
+        def __repr__(self):
+            return 'undefined'
+
+        def __str__(self):
+            return 'undefined'
+
+    UNDEFINED = _UNDEFINED()
+
+    class _REQUIRED(object):
+        def __repr__(self):
+            return 'required'
+
+        def __str__(self):
+            return 'required'
+
+    REQUIRED = _REQUIRED()
+
     def __init__(self, **kwargs):
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
@@ -151,22 +202,36 @@ class Component(collections.MutableMapping):
 
     def traverse(self):
         """Yield each item in the tree."""
+        for t in self.traverse_with_paths():
+            yield t[1]
+
+    def traverse_with_paths(self):
+        """Yield each item with its path in the tree."""
         children = getattr(self, 'children', None)
+        children_type = type(children).__name__
+        children_id = "(id={:s})".format(children.id) \
+                      if getattr(children, 'id', False) else ''
+        children_string = children_type + ' ' + children_id
 
         # children is just a component
         if isinstance(children, Component):
-            yield children
-            for t in children.traverse():
-                yield t
+            yield "[*] " + children_string, children
+            for p, t in children.traverse_with_paths():
+                yield "\n".join(["[*] " + children_string, p]), t
 
         # children is a list of components
         elif isinstance(children, collections.MutableSequence):
-            for i in children:  # pylint: disable=not-an-iterable
-                yield i
+            for idx, i in enumerate(children):
+                list_path = "[{:d}] {:s} {}".format(
+                    idx,
+                    type(i).__name__,
+                    "(id={:s})".format(i.id) if getattr(i, 'id', False) else ''
+                )
+                yield list_path, i
 
                 if isinstance(i, Component):
-                    for t in i.traverse():
-                        yield t
+                    for p, t in i.traverse_with_paths():
+                        yield "\n".join([list_path, p]), t
 
     def __iter__(self):
         """Yield IDs in the tree of children."""
@@ -200,9 +265,9 @@ class Component(collections.MutableMapping):
 
 
 # pylint: disable=unused-argument
-def generate_class(typename, props, description, namespace):
+def generate_class_string(typename, props, description, namespace):
     """
-    Dynamically generate classes to have nicely formatted docstrings,
+    Dynamically generate class strings to have nicely formatted docstrings,
     keyword arguments, and repr
 
     Inspired by http://jameso.be/2013/08/06/namedtuple.html
@@ -216,6 +281,7 @@ def generate_class(typename, props, description, namespace):
 
     Returns
     -------
+    string
 
     """
     # TODO _prop_names, _type, _namespace, available_events,
@@ -236,7 +302,8 @@ def generate_class(typename, props, description, namespace):
     # not all component authors will supply those.
     c = '''class {typename}(Component):
     """{docstring}"""
-    def __init__(self, {default_argtext}):
+    @_explicitize_args
+    def __init__(self, {default_argtext}, **kwargs):
         self._prop_names = {list_of_valid_keys}
         self._type = '{typename}'
         self._namespace = '{namespace}'
@@ -247,11 +314,15 @@ def generate_class(typename, props, description, namespace):
         self.available_wildcard_properties =\
             {list_of_valid_wildcard_attr_prefixes}
 
+        _explicit_args = kwargs.pop('_explicit_args')
+        _locals = locals()
+        _locals.update(kwargs)  # For wildcard attrs
+        args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
+
         for k in {required_args}:
-            if k not in kwargs:
+            if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
-
         super({typename}, self).__init__({argtext})
 
     def __repr__(self):
@@ -276,13 +347,13 @@ def generate_class(typename, props, description, namespace):
             return (
                 '{typename}(' +
                 repr(getattr(self, self._prop_names[0], None)) + ')')
-    '''
+'''
 
     filtered_props = reorder_props(filter_props(props))
     # pylint: disable=unused-variable
     list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
     # pylint: disable=unused-variable
-    list_of_valid_keys = repr(list(filtered_props.keys()))
+    list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
     # pylint: disable=unused-variable
     docstring = create_docstring(
         component_name=typename,
@@ -292,19 +363,82 @@ def generate_class(typename, props, description, namespace):
 
     # pylint: disable=unused-variable
     events = '[' + ', '.join(parse_events(props)) + ']'
+    prop_keys = list(props.keys())
     if 'children' in props:
-        default_argtext = 'children=None, **kwargs'
+        prop_keys.remove('children')
+        default_argtext = "children=None, "
         # pylint: disable=unused-variable
-        argtext = 'children=children, **kwargs'
+        argtext = 'children=children, **args'
     else:
-        default_argtext = '**kwargs'
-        argtext = '**kwargs'
+        default_argtext = ""
+        argtext = '**args'
+    default_argtext += ", ".join(
+        [('{:s}=Component.REQUIRED'.format(p)
+          if props[p]['required'] else
+          '{:s}=Component.UNDEFINED'.format(p))
+         for p in prop_keys
+         if not p.endswith("-*") and
+         p not in ['dashEvents', 'fireEvent', 'setProps']]
+    )
 
     required_args = required_props(props)
+    return c.format(**locals())
 
-    scope = {'Component': Component}
+
+# pylint: disable=unused-argument
+def generate_class_file(typename, props, description, namespace):
+    """
+    Generate a python class file (.py) given a class string
+
+    Parameters
+    ----------
+    typename
+    props
+    description
+    namespace
+
+    Returns
+    -------
+
+    """
+    import_string =\
+        "# AUTO GENERATED FILE - DO NOT EDIT\n\n" + \
+        "from dash.development.base_component import " + \
+        "Component, _explicitize_args\n\n\n"
+    class_string = generate_class_string(
+        typename,
+        props,
+        description,
+        namespace
+    )
+    file_name = "{:s}.py".format(typename)
+
+    file_path = os.path.join(namespace, file_name)
+    with open(file_path, 'w') as f:
+        f.write(import_string)
+        f.write(class_string)
+
+
+# pylint: disable=unused-argument
+def generate_class(typename, props, description, namespace):
+    """
+    Generate a python class object given a class string
+
+    Parameters
+    ----------
+    typename
+    props
+    description
+    namespace
+
+    Returns
+    -------
+
+    """
+    string = generate_class_string(typename, props, description, namespace)
+    scope = {'Component': Component, '_explicitize_args': _explicitize_args}
     # pylint: disable=exec-used
-    exec(c.format(**locals()), scope)
+    exec(string, scope)
     result = scope[typename]
     return result
 
