@@ -273,7 +273,7 @@ class Dash(object):
                 self.registered_paths[namespace] = [relative_package_path]
 
             return '{}_dash-component-suites/{}/{}?v={}'.format(
-                self.config['routes_pathname_prefix'],
+                self.config['requests_pathname_prefix'],
                 namespace,
                 relative_package_path,
                 importlib.import_module(namespace).__version__
