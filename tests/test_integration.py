@@ -434,4 +434,39 @@ class Tests(IntegrationTests):
         self.assertTrue('{%config%}' in exc_msg)
         self.assertTrue('{%scripts%}' in exc_msg)
         time.sleep(0.5)
-        print('invalid index string')
+
+    def test_external_files_init(self):
+        js_files = [
+            'https://www.google-analytics.com/analytics.js',
+            {'src': 'https://cdn.polyfill.io/v2/polyfill.min.js'},
+            {
+                'src': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.core.js',
+                'integrity': 'sha256-Qqd/EfdABZUcAxjOkMi8eGEivtdTkh3b65xCZL4qAQA=',
+                'crossorigin': 'anonymous'
+            }
+        ]
+        css_files = [
+            'https://codepen.io/chriddyp/pen/bWLwgP.css',
+            {
+                'href': 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css',
+                'rel': 'stylesheet',
+                'integrity': 'sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO',
+                'crossorigin': 'anonymous'
+            }
+        ]
+
+        app = dash.Dash(
+            external_scripts=js_files, external_stylesheets=css_files)
+
+        app.layout = html.Div()
+
+        self.startServer(app)
+        time.sleep(0.5)
+
+        js_urls = [x['src'] if isinstance(x, dict) else x for x in js_files]
+        css_urls = [x['href'] if isinstance(x, dict) else x for x in css_files]
+
+        for fmt, url in itertools.chain(
+                (("//script[@src='{}']", x) for x in js_urls),
+                (("//link[@href='{}']", x) for x in css_urls)):
+            self.driver.find_element_by_xpath(fmt.format(url))

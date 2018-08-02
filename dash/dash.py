@@ -23,6 +23,7 @@ from .development.base_component import Component
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
+from ._utils import format_tag as _format_tag
 
 _default_index = '''
 <!DOCTYPE html>
@@ -61,7 +62,7 @@ _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
     def __init__(
             self,
@@ -75,6 +76,8 @@ class Dash(object):
             compress=True,
             meta_tags=None,
             index_string=_default_index,
+            external_scripts=None,
+            external_stylesheets=None,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -128,6 +131,10 @@ class Dash(object):
         # static files from the packages
         self.css = Css()
         self.scripts = Scripts()
+
+        self._external_scripts = external_scripts or []
+        self._external_stylesheets = external_stylesheets or []
+
         self.registered_paths = {}
 
         # urls
@@ -302,9 +309,12 @@ class Dash(object):
     def _generate_css_dist_html(self):
         links = self._collect_and_register_resources(
             self.css.get_all_css()
-        )
+        ) + self._external_stylesheets
+
         return '\n'.join([
-            '<link rel="stylesheet" href="{}">'.format(link)
+            _format_tag('link', link, opened=True)
+            if isinstance(link, dict)
+            else '<link rel="stylesheet" href="{}">'.format(link)
             for link in links
         ])
 
@@ -325,9 +335,12 @@ class Dash(object):
                 dash_renderer._js_dist
             )
         )
+        srcs = srcs[:-1] + self._external_scripts + [srcs[-1]]
 
         return '\n'.join([
-            '<script src="{}"></script>'.format(src)
+            _format_tag('script', src)
+            if isinstance(src, dict)
+            else '<script src="{}"></script>'.format(src)
             for src in srcs
         ])
 
@@ -348,12 +361,11 @@ class Dash(object):
         if not has_ie_compat:
             tags.append('<meta equiv="X-UA-Compatible" content="IE=edge">')
         if not has_charset:
-            tags.append('<meta charset="UTF-8">')
-        for meta in self._meta_tags:
-            attributes = []
-            for k, v in meta.items():
-                attributes.append('{}="{}"'.format(k, v))
-            tags.append('<meta {}>'.format(' '.join(attributes)))
+            tags.append('<meta charset="UTF-8"/>')
+
+        tags = tags + [
+            _format_tag('meta', x, opened=True) for x in self._meta_tags
+        ]
 
         return '\n      '.join(tags)
 
