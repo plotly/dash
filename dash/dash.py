@@ -366,7 +366,7 @@ class Dash(object):
         tags = tags + [
             _format_tag('meta', x, opened=True) for x in self._meta_tags
         ]
-        
+
         return '\n      '.join(tags)
 
     # Serve the JS bundles for each package
