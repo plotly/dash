@@ -73,9 +73,10 @@ class Dash(object):
             static_folder='static',
             assets_folder=None,
             assets_url_path='/assets',
+            assets_ignore='',
+            include_assets_files=True,
+            url_base_pathname='/',
             assets_external_path=None,
-            include_assets_files=None,
-            url_base_pathname=None,
             requests_pathname_prefix=None,
             routes_pathname_prefix=None,
             compress=True,
@@ -157,6 +158,8 @@ class Dash(object):
 
         self._external_scripts = external_scripts or []
         self._external_stylesheets = external_stylesheets or []
+
+        self.assets_ignore = assets_ignore
 
         self.registered_paths = {}
 
@@ -895,6 +898,8 @@ class Dash(object):
     def _walk_assets_directory(self):
         walk_dir = self._assets_folder
         slash_splitter = re.compile(r'[\\/]+')
+        ignore_filter = re.compile(self.assets_ignore) \
+            if self.assets_ignore else None
 
         def add_resource(p, filepath):
             res = {'asset_path': p, 'filepath': filepath}
@@ -914,7 +919,10 @@ class Dash(object):
                 else:
                     base = splitted[0]
 
-            for f in sorted(files):
+            files_gen = (x for x in files if not ignore_filter.search(x)) \
+                if ignore_filter else files
+
+            for f in sorted(files_gen):
                 if base:
                     path = '/'.join([base, f])
                 else:

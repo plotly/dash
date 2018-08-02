@@ -363,7 +363,8 @@ class Tests(IntegrationTests):
         self.percy_snapshot('custom-index')
 
     def test_assets(self):
-        app = dash.Dash(assets_folder='tests/assets')
+        app = dash.Dash(assets_folder='tests/assets',
+                        assets_ignore='.*ignored.*')
         app.index_string = '''
         <!DOCTYPE html>
         <html>
