@@ -6,7 +6,8 @@ export const ACTIONS = (action) => {
         COMPUTE_PATHS: 'COMPUTE_PATHS',
         SET_LAYOUT: 'SET_LAYOUT',
         SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
-        READ_CONFIG: 'READ_CONFIG'
+        READ_CONFIG: 'READ_CONFIG',
+        ON_ERROR: 'ON_ERROR'
     };
     if (actionList[action]) return actionList[action];
     else throw new Error(`${action} is not defined.`)

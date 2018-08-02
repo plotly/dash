@@ -3,6 +3,7 @@ import {contains, isEmpty, isNil} from 'ramda'
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
+import ErrorHandler from './ErrorHandler.react';
 import {
     computeGraphs,
     computePaths,
@@ -77,7 +78,8 @@ class UnconnectedContainer extends Component {
             appLifecycle,
             dependenciesRequest,
             layoutRequest,
-            layout
+            layout,
+            error
         } = this.props;
 
         if (layoutRequest.status &&
@@ -98,7 +100,9 @@ class UnconnectedContainer extends Component {
         else if (appLifecycle === APP_STATES('HYDRATED')) {
             return (
                 <div id="_dash-app-content">
-                    <TreeContainer layout={layout}/>
+                    <ErrorHandler error={error}>
+                      <TreeContainer layout={layout}/>
+                    </ErrorHandler>
                 </div>
             );
         }
@@ -130,7 +134,8 @@ const Container = connect(
         layout: state.layout,
         graphs: state.graphs,
         paths: state.paths,
-        history: state.history
+        history: state.history,
+        error: state.error
     }),
     dispatch => ({dispatch})
 )(UnconnectedContainer);

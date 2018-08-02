@@ -7,6 +7,7 @@ import paths from './paths';
 import requestQueue from './requestQueue';
 import appLifecycle from './appLifecycle';
 import history from './history';
+import error from './error';
 import * as API from './api';
 import config from './config';
 
@@ -20,7 +21,8 @@ const reducer = combineReducers({
     dependenciesRequest: API.dependenciesRequest,
     layoutRequest: API.layoutRequest,
     loginRequest: API.loginRequest,
-    history
+    history,
+    error
 });
 
 

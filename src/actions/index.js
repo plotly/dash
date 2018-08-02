@@ -39,6 +39,8 @@ export const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
 export const setLayout = createAction(ACTIONS('SET_LAYOUT'));
 export const setAppLifecycle = createAction(ACTIONS('SET_APP_LIFECYCLE'));
 export const readConfig = createAction(ACTIONS('READ_CONFIG'));
+export const onError = createAction(ACTIONS('ON_ERROR'));
+
 
 export function hydrateInitialOutputs() {
     return function (dispatch, getState) {
@@ -479,6 +481,10 @@ function updateOutput(
         body: JSON.stringify(payload)
     }).then(function handleResponse(res) {
 
+        if (!res.ok) {
+            throw res;
+        }
+
         const getThisRequestIndex = () => {
             const postRequestQueue = getState().requestQueue;
             const thisRequestIndex = findIndex(
@@ -732,6 +738,8 @@ function updateOutput(
             }
 
         });
+    }).catch(err => {
+      err.text().then(text => {dispatch(onError(text))});
     });
 
 }

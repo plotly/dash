@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import io from 'socket.io-client'
-
-// import {urlBase} from './utils';
-
-const ErrorDisplay = ({ errorOrigin, errorType, errorMessage, errorTraceback }) => (
+const FrontEndErrorDisplay = ({ errorOrigin, errorType, errorMessage, errorTraceback }) => (
   <div>
     <h1> Dash had an error in the {errorOrigin}.</h1>
     <h3>{errorType}</h3>
@@ -16,7 +12,7 @@ const ErrorDisplay = ({ errorOrigin, errorType, errorMessage, errorTraceback }) 
   </div>
 )
 
-ErrorDisplay.propTypes = {
+FrontEndErrorDisplay.propTypes = {
     errorOrigin: PropTypes.string,
     errorType: PropTypes.string,
     errorMessage: PropTypes.string,
@@ -27,14 +23,14 @@ export default class ErrorHandler extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      hasError: false,
+      frontEndError: false,
       error: {}
     };
   }
 
   componentDidCatch(error, info) {
     this.setState({
-      hasError: true,
+      frontEndError: true,
       error: {
         errorOrigin: 'front-end',
         errorType: error.name,
@@ -44,23 +40,14 @@ export default class ErrorHandler extends Component {
     });
   }
 
-  componentWillMount() {
-    let connectionString = 'http://' + document.domain +
-                            ':' + location.port + '/_dash-errors';
-                            // urlBase(window.state.getState().config)
-    let socket = io.connect(connectionString);
-    socket.on('error', function(error) {
-      this.setState({
-        hasError: true,
-        error: {errorOrigin: 'back-end', ...error}
-      })
-    }.bind(this));
-  }
-
   render() {
-    return this.state.hasError ? (
-      <ErrorDisplay {...this.state.error} />
-    ) : this.props.children;
+    const { error } = this.props;
+    if (error.error) {
+      return <div dangerouslySetInnerHTML={{__html: error.errorPage}} />
+    } else if (this.state.frontEndError) {
+      return <FrontEndErrorDisplay {...this.state.error} />
+    }
+    return this.props.children;
   }
 }
 
