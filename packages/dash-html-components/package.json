@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -17,6 +17,7 @@
     "clean-src": "rm -rf src/* && mkdir -p src/components",
     "clean": "npm run clean-lib && npm run clean-src",
     "copy-lib": "cp lib/* dash_html_components",
+    "generate-python-classes": "python -c 'import dash; dash.development.component_loader.generate_classes(\"dash_html_components\")'",
     "generate-components": "cd scripts && sh generate-all.sh && cd -",
     "install-local": "npm run copy-lib && python setup.py install",
     "prepublish": "npm run clean && npm run generate-components && npm test && ./node_modules/.bin/builder run build-dist && npm run copy-lib",
@@ -29,12 +30,12 @@
   "author": "Chris Parmer <chris@plot.ly>",
   "dependencies": {
     "builder": "3.2.1",
-    "dash-components-archetype": "^0.2.4",
+    "dash-components-archetype": "^0.3.0-rc1",
     "prop-types": "^15.6.0"
   },
   "devDependencies": {
     "cheerio": "^0.20.0",
-    "dash-components-archetype-dev": "^0.2.4",
+    "dash-components-archetype-dev": "^0.3.0-rc1",
     "request": "^2.72.0",
     "string": "^3.3.1"
   },

@@ -9,7 +9,7 @@ machine:
 dependencies:
     pre:
         - npm install -g eslint
-        - pip install tox
+        - pip install tox dash==0.23.1
         - npm install
         - node_modules/.bin/builder run build-dist
         - node_modules/.bin/builder run copy-lib

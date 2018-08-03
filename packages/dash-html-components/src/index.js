@@ -90,6 +90,7 @@ import Plaintext from './components/Plaintext.react';
 import Pre from './components/Pre.react';
 import Progress from './components/Progress.react';
 import Q from './components/Q.react';
+import Rb from './components/Rb.react';
 import Rp from './components/Rp.react';
 import Rt from './components/Rt.react';
 import Rtc from './components/Rtc.react';
@@ -222,6 +223,7 @@ export {
     Pre,
     Progress,
     Q,
+    Rb,
     Rp,
     Rt,
     Rtc,

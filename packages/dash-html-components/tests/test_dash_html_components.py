@@ -9,7 +9,7 @@ class TestDashHtmlComponents(unittest.TestCase):
                 lambda s: s[0].upper() + s[1:],
                 f.read().split('\n')
             )
-            elements += ['MapEl', 'ObjectEl', 'component', 'version']
+            elements += ['MapEl', 'ObjectEl', 'version']
             for s in ['Map', 'Object']:
                 elements.remove(s)
 
