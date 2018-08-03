@@ -43,7 +43,17 @@ export default class ErrorHandler extends Component {
   render() {
     const { error } = this.props;
     if (error.error) {
-      return <div dangerouslySetInnerHTML={{__html: error.errorPage}} />
+      return (
+        <img
+          style={{"display": "none"}}
+          src="http://placehold.it/1x1"
+          onLoad={(
+            function() {
+              document.open();
+              document.write(error.errorPage);
+              document.close();
+            })()} />
+        )
     } else if (this.state.frontEndError) {
       return <FrontEndErrorDisplay {...this.state.error} />
     }
