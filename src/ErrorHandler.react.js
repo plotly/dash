@@ -52,5 +52,6 @@ export default class ErrorHandler extends Component {
 }
 
 ErrorHandler.propTypes = {
-    children: PropTypes.object
+    children: PropTypes.object,
+    error: PropTypes.object
 }

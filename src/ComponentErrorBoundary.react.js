@@ -4,16 +4,20 @@ import PropTypes from 'prop-types';
 export default class ComponentErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { error: false };
+    this.state = { hadError: false, error: {}, info: {} };
   }
 
   componentDidCatch(error, info) {
-    this.setState({ error: true });
+    this.setState({
+      hadError: true,
+      error,
+      info
+    });
   }
 
   render() {
     const { type, id } = this.props;
-    if (this.state.error) {
+    if (this.state.hadError) {
       return (<span
         style={{
           padding: '10px',
@@ -25,5 +29,7 @@ export default class ComponentErrorBoundary extends Component {
 }
 
 ComponentErrorBoundary.propTypes = {
-    children: PropTypes.object
+    children: PropTypes.object,
+    id: PropTypes.string,
+    type: PropTypes.string
 }

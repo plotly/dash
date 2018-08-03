@@ -122,7 +122,8 @@ UnconnectedContainer.propTypes = {
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,
-    history: PropTypes.array
+    history: PropTypes.array,
+    error: PropTypes.object
 }
 
 const Container = connect(
