@@ -6,6 +6,7 @@ import re
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_flow_example
+import dash_dangerously_set_inner_html
 
 import dash
 import time
@@ -234,6 +235,17 @@ class Tests(IntegrationTests):
             )
 
         assert_clean_console(self)
+
+    def test_no_props_component(self):
+        app = dash.Dash()
+        app.layout = html.Div([
+            dash_dangerously_set_inner_html.DangerouslySetInnerHTML('''
+                <h1>No Props Component</h1>
+            ''')
+        ])
+        self.startServer(app)
+        assert_clean_console(self)
+        self.percy_snapshot(name='no-props-component')
 
     def test_flow_component(self):
         app = dash.Dash()
