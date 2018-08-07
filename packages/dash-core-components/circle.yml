@@ -10,7 +10,7 @@ dependencies:
     override:
       - pip install setuptools --upgrade
       - pip install virtualenv
-      - pip install tox
+      - pip install tox dash==0.23.1
       - npm install -g eslint
       - npm install --ignore-scripts
       - node_modules/.bin/builder run build-dist

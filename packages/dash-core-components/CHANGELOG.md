@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.27.0]
+### Changed
+- `dash_core_components/__init__.py` now imports from python class files rather than generating classes at runtime,
+adding support for IDE autocomplete ect.
+
 ## [0.26.0]
 ### Added
 - New Tabs and Tab components! [#213](https://github.com/plotly/dash-core-components/pull/213#pullrequestreview-135893345)

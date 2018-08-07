@@ -453,6 +453,7 @@ class Tests(IntegrationTests):
 
         selected_tab = self.wait_for_element_by_css_selector('#tab-1')
         selected_tab.click()
+        time.sleep(2)
         self.assertEqual(tabs_content.text, 'Test content 1')
 
 

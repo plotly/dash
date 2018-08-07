@@ -2626,6 +2626,7 @@
   },
   "src/components/Tab.react.js": {
     "description": "",
+    "displayName": "Tab",
     "methods": [],
     "props": {
       "id": {
