@@ -1,3 +1,7 @@
+## 0.23.2 - 2018-08-07
+## Fixed
+- Fixed error in 0.23.1 where importing Dash components with no props would result in an error. (Fixes [#321](https://github.com/plotly/dash/issues/321)).
+
 ## 0.23.1 - 2018-08-02
 ## Added
 - Add ie-compat meta tag to the index by default. [#316](https://github.com/plotly/dash/pull/316)
