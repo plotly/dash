@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
 import computedStyles from './computedStyles';
+import * as actions from '../utils/actions';
 
 const getColLength = c => (Array.isArray(c.name) ? c.name.length : 1);
 const getColNameAt = (c, i) => (Array.isArray(c.name) ? c.name[i] : '');
@@ -11,6 +12,8 @@ export default class Header extends Component {
         super();
         this.sort = this.sort.bind(this);
         this.renderHeaderCells = this.renderHeaderCells.bind(this);
+        this.editColumnName = this.editColumnName.bind(this);
+        this.deleteColumn = this.deleteColumn.bind(this);
     }
 
     sort(colId) {
@@ -51,7 +54,21 @@ export default class Header extends Component {
         });
     }
 
-    renderHeaderCells({labels, rowIsSortable, mergeCells}) {
+    editColumnName(column, columnRowIndex) {
+        return () => {
+            const {setProps} = this.props;
+            setProps(actions.editColumnName(column, columnRowIndex, this.props));
+        }
+    }
+
+    deleteColumn(column, columnRowIndex) {
+        return () => {
+            const {setProps} = this.props;
+            setProps(actions.deleteColumn(column, columnRowIndex, this.props));
+        }
+    }
+
+    renderHeaderCells({labels, rowIsSortable, mergeCells, columnRowIndex}) {
         const {columns, sort} = this.props;
         let columnIndices;
         if (!mergeCells) {
@@ -126,6 +143,7 @@ export default class Header extends Component {
                             : ''
                     }`}
                 >
+
                     {rowIsSortable ? (
                         <span
                             className="filter"
@@ -142,7 +160,31 @@ export default class Header extends Component {
                         ''
                     )}
 
+                    {((c.editable_name && R.type(c.editable_name) === 'Boolean') ||
+                      (R.type(c.editable_name) === 'Number' &&
+                       c.editable_name === columnRowIndex)) ? (
+                        <span
+                            className="column-header--edit"
+                            onClick={this.editColumnName(c, columnRowIndex)}
+                        >
+                            {`✎`}
+                        </span>
+                    ) : ''}
+
+                    {((c.deletable && R.type(c.deletable) === 'Boolean') ||
+                     (R.type(c.deletable) === 'Number' &&
+                      c.deletable === columnRowIndex)) ? (
+                        <span
+                            className="column-header--delete"
+                            onClick={this.deleteColumn(
+                                c, columnRowIndex)}
+                        >
+                            {'×'}
+                        </span>
+                    ) : ''}
+
                     <span>{labels[i]}</span>
+
                 </th>
             );
         });
@@ -185,6 +227,7 @@ export default class Header extends Component {
                     {this.renderHeaderCells({
                         labels: R.pluck('name', columns),
                         rowIsSortable: sortable,
+                        columnRowIndex: 0
                     })}
                 </tr>
             );
@@ -208,6 +251,7 @@ export default class Header extends Component {
                             mergeCells:
                                 merge_duplicate_headers &&
                                 i + 1 !== headerDepth,
+                            columnRowIndex: i
                         })}
                     </tr>
                 );

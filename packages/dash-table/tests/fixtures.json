@@ -505,5 +505,69 @@
                 ]
             }
         }
+    },
+
+    {
+        "name": "sortable, deletable, renamable columns",
+        "props": {
+            "id": "table",
+            "columns": [
+                {
+                    "name": ["City", "NYC"],
+                    "id": "city-nyc",
+                    "deletable": true,
+                    "editable_name": true
+                },
+                {
+                    "name": ["City", "SF"],
+                    "id": "city-sf",
+                    "deletable": true
+                },
+                {
+                    "name": ["Weather", "Rainy"],
+                    "id": "weather-rainy",
+                    "editable_name": true
+                },
+                {
+                    "name": ["Weather", "Sunny"],
+                    "id": "weather-sunny"
+                },
+                {
+                    "name": ["Village", "NYC"],
+                    "id": "village-nyc",
+                    "deletable": true,
+                    "editable_name": 0
+                },
+                {
+                    "name": ["Village", "SF"],
+                    "id": "village-sf",
+                    "deletable": true
+                },
+                {
+                    "name": ["Climate", "Rainy"],
+                    "id": "climate-rainy",
+                    "editable_name": 1
+                },
+                {
+                    "name": ["Climate", "Sunny"],
+                    "id": "climate-sunny"
+                }
+            ],
+            "dataframe": [
+                {
+                    "city-nyc": 3,
+                    "city-sf": 10,
+                    "village-nyc": 3,
+                    "village-sf": 10,
+                    "weather-rainy": 15,
+                    "weather-sunny": 20,
+                    "climate-rainy": 15,
+                    "climate-sunny": 20
+                }
+            ],
+            "merge_duplicate_headers": true,
+            "sortable": true,
+            "sort": []
+        }
     }
 ]

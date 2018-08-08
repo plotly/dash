@@ -16,10 +16,18 @@ class App extends Component {
             tableProps: {
                 id: 'table',
                 dataframe: clone(mockData.dataframe),
-                columns: clone(mockData.columns),
-                editable: true,
-                row_selectable: 'multi',
-                selected_rows: [5, 10, 15],
+                columns: clone(mockData.columns).map(col => merge(col, {
+                    editable_name: 1,
+                    deletable: 1,
+                    type: 'dropdown'
+                })),
+                editable: false,
+                // row_selectable: 'multi',
+                // selected_rows: [5, 10, 15],
+                sortable: false,
+                sort: [],
+                merge_duplicate_headers: true,
+                expanded_rows: true
             },
             selectedFixture: null,
         };
