@@ -2,6 +2,7 @@ import collections
 import copy
 import os
 import inspect
+import keyword
 
 
 def is_number(s):
@@ -378,6 +379,7 @@ def generate_class_string(typename, props, description, namespace):
           '{:s}=Component.UNDEFINED'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
+         p not in keyword.kwlist and
          p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
     )
 

@@ -808,6 +808,8 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['aria-*', 'string'],
 
+            ['in', 'string'],
+
             ['id', 'string'],
 
             ['dashEvents', "a value equal to: 'restyle', 'relayout', 'click'"]
@@ -885,6 +887,7 @@ def assert_docstring(assertEqual, docstring):
             "- customArrayProp (list; optional)",
             '- data-* (string; optional)',
             '- aria-* (string; optional)',
+            '- in (string; optional)',
             '- id (string; optional)',
             '',
             "Available events: 'restyle', 'relayout', 'click'",
