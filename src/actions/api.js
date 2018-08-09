@@ -96,3 +96,11 @@ export function login(oauth_token) {
         Authorization: `Bearer ${oauth_token}`,
     });
 }
+
+export function getReloadHash() {
+    return apiThunk(
+        '_reload-hash',
+        'GET',
+        'reloadHash'
+    )
+}
