@@ -6,6 +6,7 @@ import collections
 import importlib
 import json
 import pkgutil
+import uuid
 import warnings
 import re
 
@@ -101,6 +102,8 @@ class Dash(object):
             flask.helpers.get_root_path(name), 'assets'
         )
         self._assets_url_path = assets_url_path
+
+        self._reload_hash = str(uuid.uuid4().hex).strip('-')
 
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
@@ -202,6 +205,9 @@ class Dash(object):
             self.config['routes_pathname_prefix'],
             self.index)
 
+        add_url('{}_reload-hash'.format(self.config['routes_pathname_prefix']),
+                self.serve_reload_hash)
+
         # catch-all for front-end routes, used by dcc.Location
         self._add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
@@ -294,9 +300,13 @@ class Dash(object):
 
     def _config(self):
         return {
+            'reload_hash': self._reload_hash,
             'url_base_pathname': self.url_base_pathname,
             'requests_pathname_prefix': self.config['requests_pathname_prefix']
         }
+
+    def serve_reload_hash(self):
+        return flask.jsonify({'reloadHash': self._reload_hash})
 
     def serve_routes(self):
         return flask.Response(
