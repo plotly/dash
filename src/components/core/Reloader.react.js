@@ -6,8 +6,16 @@ import {getReloadHash} from "../../actions/api";
 class Reloader extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            hash: props.config.reload_hash
+        if (props.config.hot_reload) {
+            const { hash, interval } = props.config.hot_reload;
+            this.state = {
+                hash: hash,
+                interval
+            }
+        } else {
+            this.state = {
+                disabled: true
+            }
         }
     }
 
@@ -26,10 +34,12 @@ class Reloader extends React.Component {
 
     componentDidMount() {
         const { dispatch } = this.props;
-        // TODO add interval config
-        setInterval(() => {
-            dispatch(getReloadHash())
-        }, 1000);
+        const { disabled, interval } = this.state;
+        if (!disabled) {
+            setInterval(() => {
+                dispatch(getReloadHash())
+            }, interval);
+        }
     }
 
     render() {
