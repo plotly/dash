@@ -2,8 +2,19 @@
 .dash-spreadsheet .Select-control {
     border: none;
     cursor: pointer;
-    height: 26px;
+    height: 30px;  /* matches the td height and line-height */
     border: none;
+}
+
+.dash-spreadsheet .Select-placeholder,
+.dash-spreadsheet .Select--single > .Select-control .Select-value {
+    height: 100%;
+    line-height: inherit;
+}
+
+.dash-spreadsheet .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label,
+.dash-spreadsheet .Select.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+    color: var(--text-color);
 }
 
 .dash-spreadsheet .Select:hover,

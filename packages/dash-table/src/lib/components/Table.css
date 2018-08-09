@@ -113,6 +113,12 @@ tr:hover input :not(.cell--selected) {
     box-sizing: border-box;
     color: var(--text-color);
     background-color: transparent; /* so as to not overlay the box shadow */
+
+    /* browser's default text-shadow is `$color 0px 0px 0px;`
+     * for `input`, which makes it look a little bit heavier than dropdowns
+     * or bare `td`
+     */
+    text-shadow: none;
 }
 
 .dash-spreadsheet input.unfocused {
