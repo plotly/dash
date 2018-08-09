@@ -73,6 +73,7 @@ class Dash(object):
             assets_url_path='/assets',
             include_assets_files=True,
             url_base_pathname='/',
+            requests_pathname_prefix='',
             compress=True,
             meta_tags=None,
             index_string=_default_index,
@@ -105,10 +106,10 @@ class Dash(object):
         self.config = _AttributeDict({
             'suppress_callback_exceptions': False,
             'routes_pathname_prefix': url_base_pathname,
-            'requests_pathname_prefix': os.getenv(
+            'requests_pathname_prefix': requests_pathname_prefix or os.getenv(
                 'DASH_REQUESTS_PATHNAME_PREFIX',
-                '/{}/'.format(os.environ['DASH_APP_NAME'])
-                if 'DASH_APP_NAME' in os.environ else url_base_pathname),
+                '/{}'.format(os.environ['DASH_APP_NAME'])
+                if 'DASH_APP_NAME' in os.environ else '') + url_base_pathname,
             'include_assets_files': include_assets_files,
             'assets_external_path': '',
         })
