@@ -859,7 +859,8 @@ class Dash(object):
             component_id = getattr(component, 'id', None)
             if component_id and component_id in component_ids:
                 raise exceptions.DuplicateIdError(
-                    'Duplicate component id found : `{}`'.format(component_id))
+                    'Duplicate component id found'
+                    ' in the initial layout: `{}`'.format(component_id))
             component_ids.add(component_id)
 
     def _setup_server(self):
