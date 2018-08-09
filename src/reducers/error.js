@@ -13,6 +13,10 @@ function error (state = initialError, action) {
             };
         }
 
+        case 'RESOLVE_ERROR': {
+          return initialError;
+        }
+
         default: {
             return state;
         }

@@ -3,7 +3,7 @@ import {contains, isEmpty, isNil} from 'ramda'
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
-import ErrorHandler from './ErrorHandler.react';
+import GlobalErrorBoundary from './components/error/GlobalErrorBoundary.react';
 import {
     computeGraphs,
     computePaths,
@@ -100,9 +100,9 @@ class UnconnectedContainer extends Component {
         else if (appLifecycle === APP_STATES('HYDRATED')) {
             return (
                 <div id="_dash-app-content">
-                    <ErrorHandler error={error}>
+                    <GlobalErrorBoundary>
                       <TreeContainer layout={layout}/>
-                    </ErrorHandler>
+                    </GlobalErrorBoundary>
                 </div>
             );
         }
