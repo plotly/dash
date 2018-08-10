@@ -14,9 +14,9 @@ if not hasattr(_dash, 'development'):
           "named \n'dash.py' in your current directory.", file=_sys.stderr)
     _sys.exit(1)
 
-# Must update to dash>=0.22.0 to use this version of dash-core-components
+# Must update to dash>=0.23.1 to use this version of dash-core-components
 if not hasattr(_dash.development.base_component, '_explicitize_args'):
-    print("Please update the `dash` module to >= 0.22.0 to use this "
+    print("Please update the `dash` module to >= 0.23.1 to use this "
           "version of dash_core_components.\n"
           "You are using version {:s}".format(_dash.version.__version__),
           file=_sys.stderr)
