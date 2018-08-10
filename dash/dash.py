@@ -302,7 +302,8 @@ class Dash(object):
                 )
             elif 'asset_path' in resource:
                 static_url = flask.url_for('assets.static',
-                                           filename=resource['asset_path'])
+                                           filename=resource['asset_path'],
+                                           mod=resource['ts'])
                 srcs.append(static_url)
         return srcs
 
@@ -863,8 +864,8 @@ class Dash(object):
         walk_dir = self._assets_folder
         slash_splitter = re.compile(r'[\\/]+')
 
-        def add_resource(p):
-            res = {'asset_path': p}
+        def add_resource(p, filepath):
+            res = {'asset_path': p, 'filepath': filepath}
             if self.config.assets_external_path:
                 res['external_url'] = '{}{}'.format(
                     self.config.assets_external_path, path)
@@ -887,10 +888,13 @@ class Dash(object):
                 else:
                     path = f
 
+                full = os.path.join(current, f)
+
                 if f.endswith('js'):
-                    self.scripts.append_script(add_resource(path))
+                    self.scripts.append_script(
+                        add_resource(path, full))
                 elif f.endswith('css'):
-                    self.css.append_css(add_resource(path))
+                    self.css.append_css(add_resource(path, full))
                 elif f == 'favicon.ico':
                     self._favicon = path
 

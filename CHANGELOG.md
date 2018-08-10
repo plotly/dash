@@ -1,15 +1,18 @@
-## 0.23.2 - 2018-08-07
+
+## 0.24.1 - 2018-08-10
 ## Fixed
 - Fixed bug in 0.23.1 where importing Dash components with no props would result in an error. (Fixes [#321](https://github.com/plotly/dash/issues/321)).
 - Fixed bug in 0.23.1 where importing components with arguments that are python keywords could cause an error. In particular, this fixes `dash-html-components` while using Python 3.7.
+
+## 0.24.0 - 2018-08-10
+## Added
+- Add a modified time query string to the assets included in the index in order to bust the cache. [#319](https://github.com/plotly/dash/pull/309)
+
 
 ## 0.23.1 - 2018-08-02
 ## Added
 - Add ie-compat meta tag to the index by default. [#316](https://github.com/plotly/dash/pull/316)
 - Add `external_script` and `external_css` keywords to dash `__init__`. [#305](https://github.com/plotly/dash/pull/305)
-
-## 0.23.0 - 2018-08-01
-## Added
 - Dash components are now generated at build-time and then imported rather than generated when a module is imported. This should reduce the time it takes to import Dash component libraries, and makes Dash compatible with IDEs.
 
 ## 0.22.1 - 2018-08-01
