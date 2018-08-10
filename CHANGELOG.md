@@ -1,3 +1,7 @@
+## 0.24.0 - 2018-08-10
+## Added
+- Add a modified time query string to the assets included in the index in order to bust the cache. [#319](https://github.com/plotly/dash/pull/309)
+
 ## 0.23.1 - 2018-08-02
 ## Added
 - Add ie-compat meta tag to the index by default. [#316](https://github.com/plotly/dash/pull/316)
