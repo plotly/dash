@@ -427,11 +427,11 @@ class TestComponent(unittest.TestCase):
             c.to_plotly_json(),
             {'namespace': 'basic',
              'props': {
-                'aria-expanded': 'true',
-                'data-toggle': 'toggled',
-                'data-none': None,
-                'id': 'a',
-              },
+                 'aria-expanded': 'true',
+                 'data-toggle': 'toggled',
+                 'data-none': None,
+                 'id': 'a',
+             },
              'type': 'MyComponent'}
         )
 
@@ -669,7 +669,7 @@ class TestGenerateClass(unittest.TestCase):
 
     def test_repr_with_wildcards(self):
         c = self.ComponentClass(id='1', **{"data-one": "one",
-                                            "aria-two": "two"})
+                                           "aria-two": "two"})
         data_first = "Table(id='1', data-one='one', aria-two='two')"
         aria_first = "Table(id='1', aria-two='two', data-one='one')"
         repr_string = repr(c)
@@ -1036,4 +1036,4 @@ def assert_flow_docstring(assertEqual, docstring):
             "",
             "Available events: "
         ])[i]
-                    )
+                   )
