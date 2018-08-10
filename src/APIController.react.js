@@ -78,8 +78,7 @@ class UnconnectedContainer extends Component {
             appLifecycle,
             dependenciesRequest,
             layoutRequest,
-            layout,
-            error
+            layout
         } = this.props;
 
         if (layoutRequest.status &&

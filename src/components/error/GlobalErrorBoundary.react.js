@@ -42,6 +42,8 @@ class UnconnectedGlobalErrorBoundary extends Component {
 
 UnconnectedGlobalErrorBoundary.propTypes = {
     children: PropTypes.object,
+    error: PropTypes.object,
+    dispatch: PropTypes.func
 }
 
 const GlobalErrorBoundary = connect(

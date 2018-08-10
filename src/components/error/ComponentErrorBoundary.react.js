@@ -59,12 +59,12 @@ class UnconnectedComponentErrorBoundary extends Component {
 
 UnconnectedComponentErrorBoundary.propTypes = {
     children: PropTypes.object,
-    id: PropTypes.string,
-    type: PropTypes.string
+    componentId: PropTypes.string,
+    componentType: PropTypes.string,
+    dispatch: PropTypes.func
 }
 
 const ComponentErrorBoundary = connect(
-    state => ({}),
     dispatch => ({dispatch})
 )(Radium(UnconnectedComponentErrorBoundary));
 
