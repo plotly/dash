@@ -221,6 +221,13 @@
       "required": false,
       "description": ""
     },
+    "in": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    },
     "id": {
       "type": {
         "name": "string"

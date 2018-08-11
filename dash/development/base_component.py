@@ -2,6 +2,7 @@ import collections
 import copy
 import os
 import inspect
+import keyword
 
 
 def is_number(s):
@@ -303,7 +304,7 @@ def generate_class_string(typename, props, description, namespace):
     c = '''class {typename}(Component):
     """{docstring}"""
     @_explicitize_args
-    def __init__(self, {default_argtext}, **kwargs):
+    def __init__(self, {default_argtext}):
         self._prop_names = {list_of_valid_keys}
         self._type = '{typename}'
         self._namespace = '{namespace}'
@@ -378,7 +379,8 @@ def generate_class_string(typename, props, description, namespace):
           '{:s}=Component.UNDEFINED'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
-         p not in ['dashEvents', 'fireEvent', 'setProps']]
+         p not in keyword.kwlist and
+         p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
     )
 
     required_args = required_props(props)
