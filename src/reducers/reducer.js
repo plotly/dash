@@ -49,9 +49,7 @@ function getInputHistoryState(itempath, props, state) {
 function recordHistory(reducer) {
     return function (state, action) {
         // Record initial state
-        if (action.type === 'ON_PROP_CHANGE' &&
-            R.isEmpty(state.history.present)
-        ) {
+        if (action.type === 'ON_PROP_CHANGE') {
             const {itempath, props} = action.payload;
             const historyEntry = getInputHistoryState(itempath, props, state);
             if (historyEntry && !R.isEmpty(historyEntry.props)) {
@@ -75,7 +73,7 @@ function recordHistory(reducer) {
                 nextState.history = {
                     past: [
                         ...nextState.history.past,
-                        nextState.history.present
+                        state.history.present
                     ],
                     present: historyEntry,
                     future: []
