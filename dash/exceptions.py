@@ -50,5 +50,9 @@ class PreventUpdate(CallbackException):
     pass
 
 
+class DuplicateIdError(DashException):
+    pass
+
+
 class InvalidCallbackReturnValue(CallbackException):
     pass

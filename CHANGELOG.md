@@ -1,3 +1,6 @@
+## 0.24.2 - 2018-08-13
+## Fixed
+- Disallow duplicate component ids in the initial layout. [#320](https://github.com/plotly/dash/pull/320)
 
 ## 0.24.1 - 2018-08-10
 ## Fixed
