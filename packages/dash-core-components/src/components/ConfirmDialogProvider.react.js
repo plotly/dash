@@ -18,15 +18,26 @@ import ConfirmDialog from './ConfirmDialog.react'
  * ```
  */
 export default class ConfirmDialogProvider extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {displayed: props.displayed};
+    }
+
+    componentWillReceiveProps(props) {
+        this.setState({displayed: props.displayed})
+    }
+
     render() {
         const { id, setProps, children } = this.props;
+
+        const displayed = this.state.displayed;
 
         // Will lose the previous onClick of the child
         const wrapClick = (child) => React.cloneElement(child, {onClick: () =>
             {
-                setProps({
-                    displayed: true
-                });
+                const update = {displayed: true};
+                this.setState(update);
+                if (setProps) setProps(update);
             }
         });
 
@@ -41,7 +52,9 @@ export default class ConfirmDialogProvider extends React.Component {
                         ? realChild.map(wrapClick)
                         : wrapClick(realChild)
                 }
-                <ConfirmDialog {...this.props}/>
+                <ConfirmDialog
+                    {...this.props}
+                    displayed={displayed}/>
             </div>
         )
     }

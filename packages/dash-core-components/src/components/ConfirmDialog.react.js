@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import {Component} from 'react';
 
+
 /**
  * ConfirmDialog is used to display the browser's native "confirm" modal,
  * with an optional message and two buttons ("OK" and "Cancel").
@@ -11,28 +12,53 @@ export default class ConfirmDialog extends Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            displayed: props.displayed
+        };
+        this._update();
+    }
+
+    _setStateAndProps(value) {
+        const { setProps } = this.props;
+        this.setState({displayed: value.displayed});
+        if (setProps) setProps(value);
+    }
+
+    componentWillReceiveProps(props) {
+        this.setState({displayed: props.displayed})
+    }
+
+    _update() {
+        const {
+            message,
+            cancel_n_clicks,
+            submit_n_clicks
+        } = this.props;
+
+        const displayed = this.state.displayed;
+
+        if (displayed) {
+            new Promise(resolve => resolve(window.confirm(message))).then(result => {
+
+                if (result) {
+                    this._setStateAndProps({
+                        submit_n_clicks:  submit_n_clicks + 1,
+                        submit_n_clicks_timestamp: Date.now(),
+                        displayed: false
+                    });
+                } else {
+                    this._setStateAndProps({
+                        cancel_n_clicks: cancel_n_clicks + 1,
+                        cancel_n_clicks_timestamp: Date.now(),
+                        displayed: false
+                    });
+                }
+            });
+        }
     }
 
     componentDidUpdate() {
-        const {
-            displayed, message, setProps,
-            cancel_n_clicks, cancel_n_clicks_timestamp,
-            submit_n_clicks, submit_n_clicks_timestamp
-        } = this.props;
-
-        if (displayed) {
-            new Promise(resolve => resolve(window.confirm(message))).then(result => setProps({
-                cancel_n_clicks: !result ?
-                    cancel_n_clicks + 1 : cancel_n_clicks,
-                cancel_n_clicks_timestamp: !result ?
-                    Date.now() :  cancel_n_clicks_timestamp,
-                submit_n_clicks: result ?
-                    submit_n_clicks + 1: submit_n_clicks,
-                submit_n_clicks_timestamp: result ?
-                    Date.now() : submit_n_clicks_timestamp,
-                displayed: false
-            }));
-        }
+        this._update()
     }
 
     render() {
@@ -74,6 +100,7 @@ ConfirmDialog.propTypes = {
      *  Set to true to send the ConfirmDialog.
      */
     displayed: PropTypes.bool,
+    key: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the value changes.

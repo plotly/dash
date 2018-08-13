@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.27.0",
+  "version": "0.27.1",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -11,7 +11,7 @@
     "build-dev": "builder run clean-lib && builder run extract-metadata && builder run generate-python-classes && webpack -w --config=./config/webpack/webpack.config.dev.js",
     "build-dist": "builder run clean-lib && builder run extract-metadata && builder run generate-python-classes && cross-env NODE_ENV=production webpack --config=./config/webpack/webpack.config.dist.js",
     "copy-lib": "copyfiles -f lib/* dash_core_components",
-    "generate-python-classes": "python -c 'import dash; dash.development.component_loader.generate_classes(\"dash_core_components\")'",
+    "generate-python-classes": "python -c \"import dash; dash.development.component_loader.generate_classes('dash_core_components');\"",
     "install-local": "npm run copy-lib && python setup.py install",
     "prepublish": "npm test && builder run build-dist && npm run copy-lib",
     "publish-all": "npm publish && python setup.py sdist upload",
