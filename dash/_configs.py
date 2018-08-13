@@ -22,7 +22,7 @@ def env_configs():
     )})
 
 
-def choose_config(config_name, init, env, default=None):
+def get_config(config_name, init, env, default=None):
     if init is not None:
         return init
 
@@ -51,17 +51,17 @@ def pathname_configs(url_base_pathname=None,
     '''
     environ_configs = environ_configs or env_configs()
 
-    url_base_pathname = choose_config('url_base_pathname',
-                                      url_base_pathname,
-                                      environ_configs)
+    url_base_pathname = get_config('url_base_pathname',
+                                   url_base_pathname,
+                                   environ_configs)
 
-    routes_pathname_prefix = choose_config('routes_pathname_prefix',
-                                           routes_pathname_prefix,
-                                           environ_configs)
+    routes_pathname_prefix = get_config('routes_pathname_prefix',
+                                        routes_pathname_prefix,
+                                        environ_configs)
 
-    requests_pathname_prefix = choose_config('requests_pathname_prefix',
-                                             requests_pathname_prefix,
-                                             environ_configs)
+    requests_pathname_prefix = get_config('requests_pathname_prefix',
+                                          requests_pathname_prefix,
+                                          environ_configs)
 
     if url_base_pathname is not None and requests_pathname_prefix is not None:
         raise exceptions.InvalidConfig(

@@ -118,18 +118,18 @@ class Dash(object):
 
         self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict({
-            'suppress_callback_exceptions': _configs.choose_config(
+            'suppress_callback_exceptions': _configs.get_config(
                 'suppress_callback_exceptions',
                 suppress_callback_exceptions, env_configs, False
             ),
             'routes_pathname_prefix': routes_pathname_prefix,
             'requests_pathname_prefix': requests_pathname_prefix,
-            'include_assets_files': _configs.choose_config(
+            'include_assets_files': _configs.get_config(
                 'include_assets_files',
                 include_assets_files,
                 env_configs,
                 True),
-            'assets_external_path': _configs.choose_config(
+            'assets_external_path': _configs.get_config(
                 'assets_external_path', assets_external_path, env_configs, ''),
         })
 
