@@ -56,3 +56,7 @@ class DuplicateIdError(DashException):
 
 class InvalidCallbackReturnValue(CallbackException):
     pass
+
+
+class InvalidConfig(DashException):
+    pass
