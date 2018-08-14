@@ -331,9 +331,8 @@ class Dash(object):
         return srcs
 
     def _generate_css_dist_html(self):
-        links = self._collect_and_register_resources(
-            self.css.get_all_css()
-        ) + self._external_stylesheets
+        links = self._external_stylesheets + \
+                self._collect_and_register_resources(self.css.get_all_css())
 
         return '\n'.join([
             _format_tag('link', link, opened=True)
