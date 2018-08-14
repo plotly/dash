@@ -24,6 +24,8 @@ from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
+from . import _configs
+
 
 _default_index = '''
 <!DOCTYPE html>
@@ -71,13 +73,17 @@ class Dash(object):
             static_folder='static',
             assets_folder=None,
             assets_url_path='/assets',
-            include_assets_files=True,
-            url_base_pathname='/',
+            assets_external_path=None,
+            include_assets_files=None,
+            url_base_pathname=None,
+            requests_pathname_prefix=None,
+            routes_pathname_prefix=None,
             compress=True,
             meta_tags=None,
             index_string=_default_index,
             external_scripts=None,
             external_stylesheets=None,
+            suppress_callback_exceptions=None,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -101,13 +107,30 @@ class Dash(object):
                             static_folder=self._assets_folder,
                             static_url_path=assets_url_path))
 
+        env_configs = _configs.env_configs()
+
+        url_base_pathname, routes_pathname_prefix, requests_pathname_prefix = \
+            _configs.pathname_configs(
+                url_base_pathname,
+                routes_pathname_prefix,
+                requests_pathname_prefix,
+                environ_configs=env_configs)
+
         self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict({
-            'suppress_callback_exceptions': False,
-            'routes_pathname_prefix': url_base_pathname,
-            'requests_pathname_prefix': url_base_pathname,
-            'include_assets_files': include_assets_files,
-            'assets_external_path': '',
+            'suppress_callback_exceptions': _configs.get_config(
+                'suppress_callback_exceptions',
+                suppress_callback_exceptions, env_configs, False
+            ),
+            'routes_pathname_prefix': routes_pathname_prefix,
+            'requests_pathname_prefix': requests_pathname_prefix,
+            'include_assets_files': _configs.get_config(
+                'include_assets_files',
+                include_assets_files,
+                env_configs,
+                True),
+            'assets_external_path': _configs.get_config(
+                'assets_external_path', assets_external_path, env_configs, ''),
         })
 
         # list of dependencies
@@ -273,7 +296,7 @@ class Dash(object):
                 self.registered_paths[namespace] = [relative_package_path]
 
             return '{}_dash-component-suites/{}/{}?v={}'.format(
-                self.config['routes_pathname_prefix'],
+                self.config['requests_pathname_prefix'],
                 namespace,
                 relative_package_path,
                 importlib.import_module(namespace).__version__

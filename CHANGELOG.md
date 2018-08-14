@@ -1,3 +1,14 @@
+## 0.25.0 - 2018-08-14
+## Added
+- Take configs values from init or environ variables (Prefixed with `DASH_`). [#322](https://github.com/plotly/dash/pull/322)
+
+## Fixed
+- Take `requests_pathname_prefix` config when creating scripts tags. 
+- `requests/routes_pathname_prefix` must starts and end with `/`.
+- `requests_pathname_prefix` must ends with `routes_pathname_prefix`. If you supplied both `requests` and `routes` pathname before this update, make sure `requests_pathname_prefix` ends with the same value as `routes_pathname_prefix`.
+- `url_base_pathname` set both `requests/routes` pathname, cannot supply it with either `requests` or `routes` pathname prefixes.
+
+
 ## 0.24.2 - 2018-08-13
 ## Fixed
 - Disallow duplicate component ids in the initial layout. [#320](https://github.com/plotly/dash/pull/320)
