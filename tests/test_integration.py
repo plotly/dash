@@ -452,11 +452,17 @@ class Tests(IntegrationTests):
             'https://www.google-analytics.com/analytics.js',
             {'src': 'https://cdn.polyfill.io/v2/polyfill.min.js'},
             {
-                'src': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.core.js',
-                'integrity': 'sha256-Qqd/EfdABZUcAxjOkMi8eGEivtdTkh3b65xCZL4qAQA=',
+                'src': 'https://cdnjs.cloudflare.com/ajax/libs/ramda/0.25.0/ramda.min.js',
+                'integrity': 'sha256-YN22NHB7zs5+LjcHWgk3zL0s+CRnzCQzDOFnndmUamY=',
+                'crossorigin': 'anonymous'
+            },
+            {
+                'src': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js',
+                'integrity': 'sha256-VKITM616rVzV+MI3kZMNUDoY5uTsuSl1ZvEeZhNoJVk=',
                 'crossorigin': 'anonymous'
             }
         ]
+
         css_files = [
             'https://codepen.io/chriddyp/pen/bWLwgP.css',
             {
@@ -467,8 +473,30 @@ class Tests(IntegrationTests):
             }
         ]
 
-        app = dash.Dash(
-            external_scripts=js_files, external_stylesheets=css_files)
+        app = dash.Dash(__name__,
+                        external_scripts=js_files,
+                        external_stylesheets=css_files)
+
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {%metas%}
+                <title>{%title%}</title>
+                {%css%}
+            </head>
+            <body>
+                <div id="tested"></div>
+                <div id="ramda-test"></div>
+                <button type="button" id="btn">Btn</button>
+                {%app_entry%}
+                <footer>
+                    {%config%}
+                    {%scripts%}
+                </footer>
+            </body>
+        </html>
+        '''
 
         app.layout = html.Div()
 
@@ -482,3 +510,13 @@ class Tests(IntegrationTests):
                 (("//script[@src='{}']", x) for x in js_urls),
                 (("//link[@href='{}']", x) for x in css_urls)):
             self.driver.find_element_by_xpath(fmt.format(url))
+
+        # Ensure the button style was overloaded by reset (set to 38px in codepen)
+        btn = self.driver.find_element_by_id('btn')
+        btn_height = btn.value_of_css_property('height')
+
+        self.assertEqual('18px', btn_height)
+
+        # ensure ramda was loaded before the assets so they can use it.
+        lo_test = self.driver.find_element_by_id('ramda-test')
+        self.assertEqual('Hello World', lo_test.text)
