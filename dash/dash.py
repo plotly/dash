@@ -24,6 +24,8 @@ from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
+from ._utils import (_validate_callback_output,
+                     _validate_children_callback_output)
 
 _default_index = '''
 <!DOCTYPE html>
@@ -640,110 +642,6 @@ class Dash(object):
                 output.component_id,
                 output.component_property).replace('    ', ''))
 
-    def _validate_callback_output(self, output_value, output):
-        valid = [str, dict, int, float, type(None), Component]
-
-        def _raise_invalid(bad_val, outer_val, bad_type, path, index=None,
-                           toplevel=False):
-            outer_id = "(id={:s})".format(outer_val.id) \
-                        if getattr(outer_val, 'id', False) else ''
-            outer_type = type(outer_val).__name__
-            raise exceptions.InvalidCallbackReturnValue('''
-            The callback for property `{property:s}` of component `{id:s}`
-            returned a {object:s} having type `{type:s}`
-            which is not JSON serializable.
-
-            {location_header:s}{location:s}
-            and has string representation
-            `{bad_val}`
-
-            In general, Dash properties can only be
-            dash components, strings, dictionaries, numbers, None,
-            or lists of those.
-            '''.format(
-                property=output.component_property,
-                id=output.component_id,
-                object='tree with one value' if not toplevel else 'value',
-                type=bad_type,
-                location_header=(
-                    'The value in question is located at'
-                    if not toplevel else
-                    '''The value in question is either the only value returned,
-                    or is in the top level of the returned list,'''
-                ),
-                location=(
-                    "\n" +
-                    ("[{:d}] {:s} {:s}".format(index, outer_type, outer_id)
-                     if index is not None
-                     else ('[*] ' + outer_type + ' ' + outer_id))
-                    + "\n" + path + "\n"
-                ) if not toplevel else '',
-                bad_val=bad_val).replace('    ', ''))
-
-        def _value_is_valid(val):
-            return (
-                # pylint: disable=unused-variable
-                any([isinstance(val, x) for x in valid]) or
-                type(val).__name__ == 'unicode'
-            )
-
-        def _validate_value(val, index=None):
-            # val is a Component
-            if isinstance(val, Component):
-                for p, j in val.traverse_with_paths():
-                    # check each component value in the tree
-                    if not _value_is_valid(j):
-                        _raise_invalid(
-                            bad_val=j,
-                            outer_val=val,
-                            bad_type=type(j).__name__,
-                            path=p,
-                            index=index
-                        )
-
-                    # Children that are not of type Component or
-                    # collections.MutableSequence not returned by traverse
-                    child = getattr(j, 'children', None)
-                    if not isinstance(child, collections.MutableSequence):
-                        if child and not _value_is_valid(child):
-                            _raise_invalid(
-                                bad_val=child,
-                                outer_val=val,
-                                bad_type=type(child).__name__,
-                                path=p + "\n" + "[*] " + type(child).__name__,
-                                index=index
-                            )
-
-                # Also check the child of val, as it will not be returned
-                child = getattr(val, 'children', None)
-                if not isinstance(child, collections.MutableSequence):
-                    if child and not _value_is_valid(child):
-                        _raise_invalid(
-                            bad_val=child,
-                            outer_val=val,
-                            bad_type=type(child).__name__,
-                            path=type(child).__name__,
-                            index=index
-                        )
-
-            # val is not a Component, but is at the top level of tree
-            else:
-                if not _value_is_valid(val):
-                    _raise_invalid(
-                        bad_val=val,
-                        outer_val=type(val).__name__,
-                        bad_type=type(val).__name__,
-                        path='',
-                        index=index,
-                        toplevel=True
-                    )
-
-        if isinstance(output_value, list):
-            for i, val in enumerate(output_value):
-                _validate_value(val, index=i)
-        else:
-            _validate_value(output_value)
-
     # TODO - Update nomenclature.
     # "Parents" and "Children" should refer to the DOM tree
     # and not the dependency tree.
@@ -782,6 +680,9 @@ class Dash(object):
             def add_context(*args, **kwargs):
 
                 output_value = func(*args, **kwargs)
+                if output.component_property == 'children':
+                    _validate_children_callback_output(output_value,
+                                                       output)
                 response = {
                     'response': {
                         'props': {
@@ -796,7 +697,7 @@ class Dash(object):
                         cls=plotly.utils.PlotlyJSONEncoder
                     )
                 except TypeError:
-                    self._validate_callback_output(output_value, output)
+                    _validate_callback_output(output_value, output)
                     raise exceptions.InvalidCallbackReturnValue('''
                     The callback for property `{property:s}`
                     of component `{id:s}` returned a value
