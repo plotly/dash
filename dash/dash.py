@@ -234,6 +234,12 @@ class Dash(object):
 
         self._layout = value
 
+        self._components = {}
+        for component in self.layout.traverse():
+            component_id = getattr(component, 'id', None)
+            if component_id:
+                self._components.update({component_id: component})
+
         layout_value = self._layout_value()
         # pylint: disable=protected-access
         self.css._update_layout(layout_value)
@@ -805,6 +811,14 @@ class Dash(object):
             def add_context(*args, **kwargs):
 
                 output_value = func(*args, **kwargs)
+                setattr(
+                    self._components[output.component_id],
+                    output.component_property,
+                    output_value
+                )
+                print(self._components[output.component_id])
+                print(self.layout)
+
                 response = {
                     'response': {
                         'props': {
@@ -851,18 +865,34 @@ class Dash(object):
         target_id = '{}.{}'.format(output['id'], output['property'])
         args = []
         for component_registration in self.callback_map[target_id]['inputs']:
-            args.append([
-                c.get('value', None) for c in inputs if
-                c['property'] == component_registration['property'] and
-                c['id'] == component_registration['id']
-            ][0])
+            matched_input = {}
+            for c in inputs:
+                if (c['property'] == component_registration['property'] and
+                   c['id'] == component_registration['id']):
+                    matched_input = c
+                    break
+            matched_input_value = matched_input.get('value', None)
+            args.append(matched_input_value)
+            setattr(
+                self._components[matched_input['id']],
+                matched_input['property'],
+                matched_input_value
+            )
 
         for component_registration in self.callback_map[target_id]['state']:
-            args.append([
-                c.get('value', None) for c in state if
-                c['property'] == component_registration['property'] and
-                c['id'] == component_registration['id']
-            ][0])
+            matched_state = {}
+            for c in state:
+                if (c['property'] == component_registration['property'] and
+                   c['id'] == component_registration['id']):
+                    matched_state = c
+                    break
+            matched_state_value = matched_state.get('value', None)
+            args.append(matched_state_value)
+            setattr(
+                self._components[matched_input['id']],
+                matched_state['property'],
+                matched_state_value
+            )
 
         return self.callback_map[target_id]['callback'](*args)
 
