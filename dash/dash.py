@@ -875,10 +875,15 @@ class Dash(object):
                 'Make sure to set the `layout` attribute of your application '
                 'before running the server.')
 
+        if callable(self.layout):
+            to_validate = self.layout()  # pylint: disable=not-callable
+        else:
+            to_validate = self.layout
+
         layout_id = getattr(self.layout, 'id', None)
 
         component_ids = {layout_id} if layout_id else set()
-        for component in self.layout.traverse():
+        for component in to_validate.traverse():
             component_id = getattr(component, 'id', None)
             if component_id and component_id in component_ids:
                 raise exceptions.DuplicateIdError(

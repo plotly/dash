@@ -12,7 +12,7 @@ import dash
 import time
 
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
+from dash.exceptions import PreventUpdate, NoLayoutException
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -482,3 +482,14 @@ class Tests(IntegrationTests):
                 (("//script[@src='{}']", x) for x in js_urls),
                 (("//link[@href='{}']", x) for x in css_urls)):
             self.driver.find_element_by_xpath(fmt.format(url))
+
+    def test_func_layout_accepted(self):
+
+        app = dash.Dash()
+
+        def create_layout():
+            return html.Div('Hello World')
+        app.layout = create_layout
+
+        self.startServer(app)
+        time.sleep(0.5)
