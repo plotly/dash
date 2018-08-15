@@ -816,6 +816,15 @@ class Dash(object):
                     output.component_property,
                     output_value
                 )
+                if output.component_property == 'children':
+                    fake_updated_component =\
+                        self._components[output.component_id]\
+                            .__class__(children=output_value)
+                    for component in fake_updated_component.traverse():
+                        component_id = getattr(component, 'id', None)
+                        if component_id:
+                            self._components.update({component_id: component})
+                print(self._components)
                 print(self._components[output.component_id])
                 print(self.layout)
 
