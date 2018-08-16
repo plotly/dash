@@ -2,7 +2,19 @@ import collections
 import copy
 import os
 import inspect
+import json
 import keyword
+import cerberus
+
+
+
+# Forward declated Component class, see below.
+class Component:
+    pass
+
+
+cerberus.Validator.types_mapping['component'] =\
+   cerberus.TypeDefinition('component', (Component,), ())
 
 
 def is_number(s):
@@ -73,7 +85,8 @@ class Component(collections.MutableMapping):
 
     def __init__(self, **kwargs):
         # pylint: disable=super-init-not-called
-        for k, v in list(kwargs.items()):
+        # Make sure arguments have valid names
+        for k in kwargs:
             # pylint: disable=no-member
             k_in_propnames = k in self._prop_names
             k_in_wildcards = any([k.startswith(w)
@@ -87,6 +100,40 @@ class Component(collections.MutableMapping):
                         ', '.join(sorted(self._prop_names))
                     )
                 )
+
+        # Make sure arguments have valid values
+        self._validator = cerberus.Validator(self._schema, allow_unknown=True)
+        valid = self._validator.validate(kwargs)
+        if not valid:
+            raise TypeError("""
+                Invalid initialization of component {}.
+                The errors are as follows:
+                Errors:
+
+                {}
+            """.format(
+                self.__class__.__name__,
+                "\n\n".join([(
+                    "Invalid value {} for property {}.\n"
+                    "This broke the rule {} which should be {}\n"
+                    "Here is the expected schema for the {} prop:\n\n"
+                    "{}"
+                )
+                 .format(
+                     e.value,
+                     e.schema_path[0],
+                     e.schema_path,
+                     e.constraint,
+                     e.schema_path[0],
+                     json.dumps(
+                         self._schema[e.schema_path[0]],
+                         indent=1
+                     ))
+                 for e in self._validator._errors]))
+               .replace('    ', ''))
+
+        # Set object attributes once validations have passed
+        for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
     def to_plotly_json(self):
@@ -265,6 +312,64 @@ class Component(collections.MutableMapping):
         return length
 
 
+def js_to_cerberus_type(type_object):
+    converters = {
+        'None': lambda x: {},
+        'func': lambda x: {},
+        'custom': lambda x: {},
+        'node': lambda x: {'type': 'component'},
+        'enum': lambda x: {
+            'anyof': [js_to_cerberus_type(v) for v in x['value']]
+        },
+        'union': lambda x: {
+            'anyof': [js_to_cerberus_type(v) for v in x['value']]
+        },
+        'any': lambda x: {
+            'anyof_type': ['bool', 'number', 'string', 'dict', 'list']
+        },
+        'string': lambda x: {'type': 'string'},
+        'bool': lambda x: {'type': 'boolean'},
+        'number': lambda x: {'type': 'number'},
+        'integer': lambda x: {'type': 'number'},
+        'object': lambda x: {'type': 'dict'},
+        'objectOf': lambda x: {
+            'type': 'dict',
+            'allow_unknown': False,
+            'schema': js_to_cerberus_type(x['value'])
+        },
+        'array': lambda x: {'type': 'list'},
+        'arrayOf': lambda x: {
+            'type': 'list',
+            'allow_unknown': False,
+            'schema': js_to_cerberus_type(x['value'])
+        },
+        'shape': lambda x: {
+            'type': 'dict',
+            'allow_unknown': False,
+            'schema': {
+                k: js_to_cerberus_type(v) for k, v in x['value'].items()
+            }
+        },
+        'instanceOf': lambda x: dict(
+            Date={'type': 'datetime'},
+        )[x['value']]
+    }
+    converter = converters[type_object.get('name', 'None')]
+    return converter(type_object)
+
+
+def generate_property_schema(jsonSchema):
+    type_object = jsonSchema.get('type', None)
+    schema = {'nullable': True}
+    type = js_to_cerberus_type(type_object)
+    if type:
+        schema.update(type)
+    required = jsonSchema.get('required', None)
+    if required:
+        schema.update({'required': True})
+    return schema
+
+
 # pylint: disable=unused-argument
 def generate_class_string(typename, props, description, namespace):
     """
@@ -305,6 +410,7 @@ def generate_class_string(typename, props, description, namespace):
     """{docstring}"""
     @_explicitize_args
     def __init__(self, {default_argtext}):
+        self._schema = {schema}
         self._prop_names = {list_of_valid_keys}
         self._type = '{typename}'
         self._namespace = '{namespace}'
@@ -382,7 +488,8 @@ def generate_class_string(typename, props, description, namespace):
          p not in keyword.kwlist and
          p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
     )
-
+    schema = {str(k): generate_property_schema(v)
+              for k, v in props.items() if not k.endswith("-*")}
     required_args = required_props(props)
     return c.format(**locals())
 
