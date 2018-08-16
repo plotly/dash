@@ -5,33 +5,60 @@ jobs:
     docker:
       - image: circleci/python:2.7-stretch-browsers
         environment:
-          TOX_PYTHON_27: python2.7
-          TOX_RUN_ENV: py27
+          REQUIREMENTS_FILE: dev-requirements.txt
+          PYLINTRC: .pylintrc
 
     steps:
       - checkout
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "dev-requirements.txt" }}
+
       - run:
-          name: Install tox
-          command: 'sudo pip install tox'
+          name: Install dependencies
+          command: |
+              sudo pip install virtualenv
+              python -m venv venv || virtualenv venv
+              . venv/bin/activate
+              pip install -r $REQUIREMENTS_FILE
+
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "dev-requirements.txt" }}
+          paths:
+              - "venv"
+
       - run:
-          name: Test with tox
-          command: 'tox -e $TOX_RUN_ENV'
+          name: Run lint
+          command: |
+              . venv/bin/activate
+              pylint dash setup.py --rcfile=$PYLINTRC
+              flake8 dash setup.py
+
+      - run:
+          name: Run tests
+          command: |
+              . venv/bin/activate
+              python --version
+              python -m unittest tests.development.test_base_component
+              python -m unittest tests.development.test_component_loader
+              python -m unittest tests.test_integration
+              python -m unittest tests.test_resources
+              python -m unittest tests.test_configs
 
   "python-3.6":
     <<: *test-template
     docker:
       - image: circleci/python:3.6-stretch-browsers
         environment:
-          TOX_PYTHON_36: python3.6
-          TOX_RUN_ENV: py36
+          REQUIREMENTS_FILE: dev-requirements.txt
+          PYLINTRC: .pylintrc
 
   "python-3.7":
     <<: *test-template
     docker:
       - image: circleci/python:3.7-stretch-browsers
         environment:
-          TOX_PYTHON_37: python3.7
-          TOX_RUN_ENV: py37
+          REQUIREMENTS_FILE: dev-requirements-py37.txt
+          PYLINTRC: .pylintrc37
 
 
 workflows:
