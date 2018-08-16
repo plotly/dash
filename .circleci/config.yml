@@ -1,11 +1,12 @@
 version: 2
 
 jobs:
-  "python-2.7":
+  "python-2.7": &test-template
     docker:
       - image: circleci/python:2.7-stretch-browsers
         environment:
           TOX_PYTHON_27: python2.7
+          TOX_RUN_ENV: py27
 
     steps:
       - checkout
@@ -14,37 +15,23 @@ jobs:
           command: 'sudo pip install tox'
       - run:
           name: Test with tox
-          command: 'tox -e py27'
+          command: 'tox -e $TOX_RUN_ENV'
 
   "python-3.6":
+    <<: *test-template
     docker:
       - image: circleci/python:3.6-stretch-browsers
         environment:
           TOX_PYTHON_36: python3.6
-
-    steps:
-      - checkout
-      - run:
-          name: Install tox
-          command: 'sudo pip install tox'
-      - run:
-          name: Test with tox
-          command: 'tox -e py36'
+          TOX_RUN_ENV: py36
 
   "python-3.7":
+    <<: *test-template
     docker:
       - image: circleci/python:3.7-stretch-browsers
         environment:
           TOX_PYTHON_37: python3.7
-
-    steps:
-      - checkout
-      - run:
-          name: Install tox
-          command: 'sudo pip install tox'
-      - run:
-          name: Test with tox
-          command: 'tox -e py37'
+          TOX_RUN_ENV: py37
 
 
 workflows:
