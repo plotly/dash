@@ -875,10 +875,7 @@ class Dash(object):
                 'Make sure to set the `layout` attribute of your application '
                 'before running the server.')
 
-        if callable(self.layout):
-            to_validate = self.layout()  # pylint: disable=not-callable
-        else:
-            to_validate = self.layout
+        to_validate = self._layout_value()
 
         layout_id = getattr(self.layout, 'id', None)
 

@@ -12,7 +12,7 @@ import dash
 import time
 
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate, NoLayoutException
+from dash.exceptions import PreventUpdate
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
