@@ -1,0 +1,70 @@
+version: 2
+
+jobs:
+  "python-2.7": &test-template
+    docker:
+      - image: circleci/python:2.7-stretch-browsers
+        environment:
+          REQUIREMENTS_FILE: dev-requirements.txt
+          PYLINTRC: .pylintrc
+
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "dev-requirements.txt" }}
+
+      - run:
+          name: Install dependencies
+          command: |
+              sudo pip install virtualenv
+              python -m venv venv || virtualenv venv
+              . venv/bin/activate
+              pip install -r $REQUIREMENTS_FILE
+
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "dev-requirements.txt" }}
+          paths:
+              - "venv"
+
+      - run:
+          name: Run lint
+          command: |
+              . venv/bin/activate
+              pylint dash setup.py --rcfile=$PYLINTRC
+              flake8 dash setup.py
+
+      - run:
+          name: Run tests
+          command: |
+              . venv/bin/activate
+              python --version
+              python -m unittest tests.development.test_base_component
+              python -m unittest tests.development.test_component_loader
+              python -m unittest tests.test_integration
+              python -m unittest tests.test_resources
+              python -m unittest tests.test_configs
+
+  "python-3.6":
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.6-stretch-browsers
+        environment:
+          REQUIREMENTS_FILE: dev-requirements.txt
+          PYLINTRC: .pylintrc
+
+  "python-3.7":
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.7-stretch-browsers
+        environment:
+          REQUIREMENTS_FILE: dev-requirements-py37.txt
+          PYLINTRC: .pylintrc37
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - "python-2.7"
+      - "python-3.6"
+      - "python-3.7"
