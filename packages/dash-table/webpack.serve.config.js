@@ -1,6 +1,6 @@
-const config = require('./webpack.config.js');
+const config = require('./webpack.config');
 
-config.entry = {main: './src/demo/index.js'};
+config.entry = {main: './demo/index.js'};
 config.output = {filename: 'output.js'};
 config.mode = 'development';
 config.externals = undefined; // eslint-disable-line

@@ -1,93 +1,42 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import * as R from 'ramda';
 import SheetClip from 'sheetclip';
-import Row from './Row.js';
-import Header from './Header.js';
-import {colIsEditable} from './derivedState';
+import Stylesheet from 'core/Stylesheet';
+import { colIsEditable } from 'dash-table/components/derivedState';
 import {
     KEY_CODES,
     isCtrlMetaKey,
     isCtrlDown,
     isMetaKey,
     isNavKey,
-} from '../utils/unicode';
-import {selectionCycle} from '../utils/navigation';
-import computedStyles from './computedStyles';
+} from 'dash-table/utils/unicode';
+import { selectionCycle } from 'dash-table/utils/navigation';
 
-import 'react-select/dist/react-select.css';
-import './Table.css';
-import './Dropdown.css';
+import { propTypes } from 'dash-table/components/Table';
+
+import HeaderFactory from 'dash-table/components/HeaderFactory';
+import RowFactory from 'dash-table/components/RowFactory';
+import { DEFAULT_CELL_WIDTH } from 'dash-table/components/Row';
 
 const sortNumerical = R.sort((a, b) => a - b);
 
-export default class Table extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-
-    render() {
-        if (!this.props.setProps) {
-            const newProps = R.mergeAll([
-                this.props,
-                this.state,
-                {
-                    setProps: newProps => this.setState(newProps),
-                },
-            ]);
-            return <ControlledTable {...newProps} />;
-        }
-
-        return (
-            <ControlledTable
-                {...R.merge(this.props, {
-                    setProps: newProps => {
-
-                        // !is_focused -> is_focused: save the current dataframe
-                        if (newProps.is_focused && !this.props.is_focused) {
-                            console.warn('Saving dataframe', this.props.dataframe);
-                            this.dataframe_previous = this.props.dataframe;
-                        }
-
-                        // unfocused -> send the old dataframe and the update time
-                        if (!newProps.is_focused && this.props.is_focused &&
-                            this.props.update_on_unfocus) {
-                            console.warn('Updating timestamp');
-                            newProps.dataframe_timestamp = Date.now();
-                            newProps.dataframe_previous = this.dataframe_previous;
-
-                        // table is unfocused but user copied and pasted data
-                        } else if (!this.props.is_focused &&
-                                   R.has('dataframe', newProps)) {
-                            newProps.dataframe_previous = this.props.dataframe;
-                            newProps.dataframe_timestamp = Date.now();
-                        // user wants the new dataframe on every letter press
-                        } else if (!this.props.update_on_unfocus &&
-                                   R.has('dataframe', newProps)) {
-                            newProps.dataframe_previous = this.dataframe_previous;
-                            newProps.dataframe_timestamp = Date.now();
-                        }
-
-                        this.props.setProps(newProps);
-
-                    },
-                })}
-            />
-        );
-    }
-}
-
-class ControlledTable extends Component {
+export default class ControlledTable extends Component {
     constructor(props) {
         super(props);
 
         this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.collectRows = this.collectRows.bind(this);
         this.onPaste = this.onPaste.bind(this);
         this.handleClickOutside = this.handleClickOutside.bind(this);
         this.handlePaste = this.handlePaste.bind(this);
         this.getDomElement = this.getDomElement.bind(this);
+        this.onContainerScroll = this.onContainerScroll.bind(this);
+
+        this.loadNext = this.loadNext.bind(this);
+        this.loadPrevious = this.loadPrevious.bind(this);
+
+        this.listeners = {};
+
+        this.stylesheet = new Stylesheet(`#${props.id}`);
     }
 
     componentDidMount() {
@@ -95,7 +44,7 @@ class ControlledTable extends Component {
             this.props.selected_cell.length &&
             !R.contains(this.props.active_cell, this.props.selected_cell)
         ) {
-            this.props.setProps({active_cell: this.props.selected_cell[0]});
+            this.props.setProps({ active_cell: this.props.selected_cell[0] });
         }
         document.addEventListener('mousedown', this.handleClickOutside);
 
@@ -111,17 +60,15 @@ class ControlledTable extends Component {
 
     handleClickOutside(event) {
         if (this.getDomElement() && !this.getDomElement().contains(event.target)) {
-            this.props.setProps({is_focused: false});
+            this.props.setProps({ is_focused: false });
         }
     }
 
     handlePaste(event) {
         // no need to check for target as this will only be called if
         // a child fails to handle the paste event (e.g table, table input)
-
         // make sure the active element is in the scope of the component
         const el = this.getDomElement();
-
         if (el && el.contains(document.activeElement)) {
             this.onPaste(event);
         }
@@ -162,7 +109,7 @@ class ControlledTable extends Component {
         }
 
         if (e.keyCode === KEY_CODES.ESCAPE) {
-            setProps({is_focused: false});
+            setProps({ is_focused: false });
             return;
         }
 
@@ -171,7 +118,7 @@ class ControlledTable extends Component {
             !is_focused &&
             colIsEditable(editable, columns[active_cell[1]])
         ) {
-            setProps({is_focused: true});
+            setProps({ is_focused: true });
             return;
         }
 
@@ -199,7 +146,7 @@ class ControlledTable extends Component {
             colIsEditable(editable, columns[active_cell[1]]) &&
             !isMetaKey(e.keyCode)
         ) {
-            setProps({is_focused: true});
+            setProps({ is_focused: true });
         }
 
         return;
@@ -210,10 +157,12 @@ class ControlledTable extends Component {
         const {
             active_cell,
             columns,
-            dataframe,
             selected_cell,
             setProps,
+            virtualizer
         } = this.props;
+
+        const dataframe = virtualizer.dataframe;
 
         // This is mostly to prevent TABing also triggering native HTML tab
         // navigation. If the preventDefault is too greedy here we must
@@ -345,11 +294,13 @@ class ControlledTable extends Component {
     deleteCell(event) {
         const {
             columns,
-            dataframe,
             editable,
             selected_cell,
             setProps,
+            virtualizer
         } = this.props;
+
+        const dataframe = virtualizer.dataframe;
 
         event.preventDefault();
 
@@ -369,8 +320,10 @@ class ControlledTable extends Component {
         });
     }
 
-    getNextCell(event, {restrictToSelection, currentCell}) {
-        const {dataframe, columns, selected_cell} = this.props;
+    getNextCell(event, { restrictToSelection, currentCell }) {
+        const { columns, selected_cell, virtualizer } = this.props;
+        const dataframe = virtualizer.dataframe;
+
         const e = event;
         const vci = [];
 
@@ -386,51 +339,51 @@ class ControlledTable extends Component {
             case KEY_CODES.ARROW_LEFT:
                 return restrictToSelection
                     ? selectionCycle(
-                          [currentCell[0], currentCell[1] - 1],
-                          selected_cell
-                      )
+                        [currentCell[0], currentCell[1] - 1],
+                        selected_cell
+                    )
                     : [
-                          currentCell[0],
-                          R.max(
-                              vci[0],
-                              vci[R.indexOf(currentCell[1], vci) - 1]
-                          ),
-                      ];
+                        currentCell[0],
+                        R.max(
+                            vci[0],
+                            vci[R.indexOf(currentCell[1], vci) - 1]
+                        ),
+                    ];
 
             case KEY_CODES.ARROW_RIGHT:
             case KEY_CODES.TAB:
                 return restrictToSelection
                     ? selectionCycle(
-                          [currentCell[0], currentCell[1] + 1],
-                          selected_cell
-                      )
+                        [currentCell[0], currentCell[1] + 1],
+                        selected_cell
+                    )
                     : [
-                          currentCell[0],
-                          R.min(
-                              R.last(vci),
-                              vci[R.indexOf(currentCell[1], vci) + 1]
-                          ),
-                      ];
+                        currentCell[0],
+                        R.min(
+                            R.last(vci),
+                            vci[R.indexOf(currentCell[1], vci) + 1]
+                        ),
+                    ];
 
             case KEY_CODES.ARROW_UP:
                 return restrictToSelection
                     ? selectionCycle(
-                          [currentCell[0] - 1, currentCell[1]],
-                          selected_cell
-                      )
+                        [currentCell[0] - 1, currentCell[1]],
+                        selected_cell
+                    )
                     : [R.max(0, currentCell[0] - 1), currentCell[1]];
 
             case KEY_CODES.ARROW_DOWN:
             case KEY_CODES.ENTER:
                 return restrictToSelection
                     ? selectionCycle(
-                          [currentCell[0] + 1, currentCell[1]],
-                          selected_cell
-                      )
+                        [currentCell[0] + 1, currentCell[1]],
+                        selected_cell
+                    )
                     : [
-                          R.min(dataframe.length - 1, currentCell[0] + 1),
-                          currentCell[1],
-                      ];
+                        R.min(dataframe.length - 1, currentCell[0] + 1),
+                        currentCell[1],
+                    ];
 
             default:
                 throw new Error(
@@ -440,7 +393,8 @@ class ControlledTable extends Component {
     }
 
     onCopy(e) {
-        const {columns, dataframe, selected_cell} = this.props;
+        const { columns, selected_cell, virtualizer } = this.props;
+        const dataframe = virtualizer.dataframe;
 
         e.preventDefault();
         const el = document.createElement('textarea');
@@ -497,13 +451,12 @@ class ControlledTable extends Component {
     onPaste(e) {
         const {
             columns,
-            dataframe,
             editable,
             setProps,
             is_focused,
             active_cell,
+            dataframe
         } = this.props;
-
         if (e && e.clipboardData && !is_focused) {
             const text = e.clipboardData.getData('text/plain');
             console.warn('clipboard data: ', text);
@@ -562,209 +515,205 @@ class ControlledTable extends Component {
         }
     }
 
-    collectRows(slicedDf, start) {
+    get displayPagination() {
         const {
-            collapsable,
-            columns,
-            expanded_rows,
-            row_selectable,
+            dataframe,
+            navigation,
+            virtualization,
+            virtualization_settings
         } = this.props;
-        const rows = [];
-        for (let i = 0; i < slicedDf.length; i++) {
-            const row = slicedDf[i];
-            rows.push(
-                <Row
-                    key={start + i}
-                    row={row}
-                    idx={start + i}
-                    {...this.props}
-                />
+
+        return navigation === 'page' &&
+            (
+                (virtualization === 'fe' && virtualization_settings.page_size < dataframe.length) ||
+                virtualization === 'be'
             );
-            if (collapsable && R.contains(start + i, expanded_rows)) {
-                rows.push(
-                    <tr>
-                        <td className="expanded-row--empty-cell" />
-                        <td
-                            colSpan={columns.length + (row_selectable ? 1 : 0)}
-                            className="expanded-row"
-                        >
-                            <h1>{`More About Row ${start + i}`}</h1>
-                        </td>
-                    </tr>
-                );
-            }
+    }
+
+    loadNext() {
+        const { virtualizer } = this.props;
+
+        virtualizer.loadNext();
+    }
+
+    loadPrevious() {
+        const { virtualizer } = this.props;
+
+        virtualizer.loadPrevious();
+    }
+
+    componentWillUpdate() {
+        const { table_style } = this.props;
+
+        R.forEach(({ selector, rule }) => {
+            this.stylesheet.setRule(selector, rule);
+        }, table_style);
+    }
+
+    componentDidUpdate() {
+        const { n_fixed_columns = 0, n_fixed_rows = 0 } = this.props;
+        if (!n_fixed_columns && !n_fixed_rows) {
+            return;
         }
-        return rows;
+
+        const { container, frozenTop } = this.refs;
+
+        if (n_fixed_columns > 0) {
+            // Find the height of the <tr /> of the first <td /> and <th />
+            // Assume that these table rows are representative in style with the rest of the table
+            // Use them to force the height of the fixed cells; base styling vs. rendering can be off
+
+            const fixedTd = container.querySelector(`td.frozen-left`);
+            const tdHeight = parseInt(getComputedStyle(fixedTd.parentElement).height, 10);
+
+            const fixedTh = container.querySelector(`th.frozen-left`);
+            const thHeight = parseInt(getComputedStyle(fixedTh.parentElement).height, 10);
+
+            this.stylesheet.setRule(`td.frozen-left`, `height: ${tdHeight}px;`)
+            this.stylesheet.setRule(`th.frozen-left`, `height: ${thHeight}px;`)
+        }
+
+        let xOffset = 0;
+        R.range(0, n_fixed_columns).forEach(index => {
+            this.stylesheet.setRule(`.frozen-left-${index}`, `margin-left: ${xOffset}px;`);
+
+            const fixedCell = container.querySelector(`td.frozen-left-${index}`);
+            if (fixedCell) {
+                xOffset += (fixedCell.clientWidth || parseInt(getComputedStyle(fixedCell).width, 10));
+            }
+        });
+        this.stylesheet.setRule(`.dash-spreadsheet`, `padding-left: ${xOffset}px; padding-top: ${frozenTop ? frozenTop.clientHeight : 0}px;`);
+
+        R.forEach(
+            cell => { cell.style.height = cell.parentElement.clientHeight },
+            container.querySelectorAll('tr th.frozen-left')
+        );
+    }
+
+    onContainerScroll(ev) {
+        const { n_fixed_columns } = this.props;
+        if (!n_fixed_columns) {
+            return;
+        }
+
+        const { spreadsheet } = this.refs;
+        if (ev.target !== spreadsheet) {
+            return;
+        }
+
+        this.stylesheet.setRule(`.frozen-left`, `margin-top: ${-ev.target.scrollTop}px;`);
     }
 
     render() {
         const {
-            collapsable,
-            columns,
-            dataframe,
-            display_row_count: n,
-            display_tail_count: m,
             id,
-            table_style,
+            columns,
             n_fixed_columns,
             n_fixed_rows,
-            row_selectable,
+            row_deletable,
+            row_selectable
         } = this.props;
 
+        const rows = [
+            ...HeaderFactory.createHeaders(this.props),
+            ...RowFactory.createRows(this.props)
+        ];
+
+        const fixedRows = rows.splice(0, n_fixed_rows);
+        const hasFixedRows = fixedRows.length !== 0;
+
+        let typeIndex = 0;
+        if (row_deletable) {
+            this.stylesheet.setRule(
+                `.dash-spreadsheet td:nth-of-type(${++typeIndex})`,
+                `width: 30px; max-width: 30px; min-width: 30px;`
+            );
+            this.stylesheet.setRule(
+                `.dash-spreadsheet th:nth-of-type(${typeIndex})`,
+                `width: 30px; max-width: 30px; min-width: 30px;`
+            );
+        }
+
+        if (row_selectable) {
+            this.stylesheet.setRule(
+                `.dash-spreadsheet td:nth-of-type(${++typeIndex})`,
+                `width: 30px; max-width: 30px; min-width: 30px;`
+            );
+            this.stylesheet.setRule(
+                `.dash-spreadsheet th:nth-of-type(${typeIndex})`,
+                `width: 30px; max-width: 30px; min-width: 30px;`
+            );
+        }
+
+        R.forEach(column => {
+            const width = Stylesheet.unit(column.width || DEFAULT_CELL_WIDTH, 'px');
+
+            this.stylesheet.setRule(
+                `.dash-spreadsheet tr:last-of-type td:nth-of-type(${++typeIndex})`,
+                `width: ${width}; max-width: ${width}; min-width: ${width};`
+            );
+            this.stylesheet.setRule(
+                `.dash-spreadsheet th:nth-of-type(${typeIndex})`,
+                `width: ${width}; max-width: ${width}; min-width: ${width};`
+            );
+        }, columns)
+
+
         const table_component = (
-            <table
-                id={id}
-                key={`${id}-table`}
-                onPaste={this.onPaste}
-                tabIndex={-1}
-                style={table_style}
+            <div
+                className={[
+                    'dash-spreadsheet',
+                    ...(hasFixedRows ? ['freeze-top'] : []),
+                    ...(n_fixed_columns ? ['freeze-left'] : [])
+                ].join(' ')}
+                onKeyDown={this.handleKeyDown}
+                onScroll={this.onContainerScroll}
+                key={`${id}-table-container`}
+                ref='spreadsheet'
             >
-                <Header {...this.props} />
+                <table
+                    id={id}
+                    key={`${id}-table`}
+                    onPaste={this.onPaste}
+                    tabIndex={-1}
+                >
+                    {hasFixedRows ? <tbody
+                        className={'frozen-top'}
+                        ref='frozenTop'
+                    >
+                        {fixedRows}
+                    </tbody> : null}
 
-                <tbody>
-                    {this.collectRows(dataframe.slice(0, n), 0)}
-
-                    {dataframe.length < n + m ? null : (
-                        <tr>
-                            {!collapsable ? null : (
-                                <td className="expanded-row--empty-cell" />
-                            )}
-                            <td
-                                className="elip"
-                                colSpan={
-                                    columns.length + (row_selectable ? 1 : 0)
-                                }
-                            >
-                                {'...'}
-                            </td>
-                        </tr>
-                    )}
-
-                    {dataframe.length < n
-                        ? null
-                        : this.collectRows(
-                              dataframe.slice(
-                                  R.max(dataframe.length - m, n),
-                                  dataframe.length
-                              ),
-                              R.max(dataframe.length - m, n)
-                          )}
-                </tbody>
-            </table>
+                    {<tbody>
+                        {rows}
+                    </tbody>}
+                </table>
+            </div>
         );
 
-        let tableStyle = null;
-        if (n_fixed_columns || n_fixed_rows) {
-            tableStyle = computedStyles.scroll.containerDiv(this.props);
-        }
         return (
-            <div
-                className="dash-spreadsheet"
-                style={tableStyle}
-                onKeyDown={this.handleKeyDown}
-                key={`${id}-table-container`}
-            >
-                {table_component}
+            <div id={id}>
+                <div className={[
+                    'dash-spreadsheet-clipper',
+                    ...(hasFixedRows ? ['freeze-top'] : []),
+                    ...(n_fixed_columns ? ['freeze-left'] : [])
+                ].join(' ')}>
+                    <div
+                        className='dash-spreadsheet-container'
+                        ref='container'
+                    >
+                        {table_component}
+                    </div>
+                </div>
+                {!this.displayPagination ? null : (
+                    <div>
+                        <button onClick={this.loadPrevious}>Previous</button>
+                        <button onClick={this.loadNext}>Next</button>
+                    </div>
+                )}
             </div>
         );
     }
 }
 
-Table.defaultProps = {
-    changed_data: {},
-    dataframe: [],
-    columns: [],
-    editable: false,
-    active_cell: [],
-    index_name: '',
-    types: {},
-    merged_styles: {},
-    selected_cell: [[]],
-    selected_rows: [],
-    row_selectable: false,
-    display_row_count: 20,
-    display_tail_count: 5,
-    base_styles: {
-        numeric: {
-            'text-align': 'right',
-            'font-family': "'Droid Sans Mono', Courier, monospace",
-        },
-
-        string: {
-            'text-align': 'left',
-        },
-
-        input: {
-            padding: 0,
-            margin: 0,
-            width: '80px',
-            border: 'none',
-            'font-size': '1rem',
-        },
-
-        'input-active': {
-            outline: '#7FDBFF auto 3px',
-        },
-
-        table: {},
-
-        thead: {},
-
-        th: {},
-
-        td: {},
-    },
-    update_on_unfocus: true
-};
-
-Table.propTypes = {
-    active_cell: PropTypes.array,
-    collapsable: PropTypes.bool,
-    columns: PropTypes.arrayOf(PropTypes.object),
-
-    dataframe: PropTypes.arrayOf(PropTypes.object),
-    dataframe_previous: PropTypes.arrayOf(PropTypes.object),
-    dataframe_timestamp: PropTypes.any,
-    /**
-     * Only send an update of  `dataframe_previous` and `dataframe_timestamp`
-     * when the cell is unfocused ()
-     */
-    update_on_unfocus: PropTypes.bool,
-
-    display_row_count: PropTypes.number,
-    display_tail_count: PropTypes.number,
-
-    dropdown_properties: PropTypes.objectOf(
-        PropTypes.arrayOf(PropTypes.shape({
-            'options': PropTypes.shape({
-                'label': PropTypes.string,
-                'value': PropTypes.string,
-                'required': PropTypes.bool
-            }),
-            'disabled': PropTypes.bool,
-            // And the rest of the dropdown props...
-        }))
-    ),
-
-    editable: PropTypes.bool,
-    end_cell: PropTypes.arrayOf(PropTypes.number),
-    // TODO - Remove `expanded_rows`
-    expanded_rows: PropTypes.array,
-    id: PropTypes.string.isRequired,
-    is_focused: PropTypes.bool,
-    merge_duplicate_headers: PropTypes.bool,
-    n_fixed_columns: PropTypes.number,
-    n_fixed_rows: PropTypes.number,
-    row_deletable: PropTypes.bool,
-    row_selectable: PropTypes.oneOf(['single', 'multi']),
-    selected_cell: PropTypes.arrayOf(PropTypes.number),
-    selected_rows: PropTypes.arrayOf(PropTypes.number),
-    setProps: PropTypes.any,
-    sort: PropTypes.array,
-    sortable: PropTypes.bool,
-    start_cell: PropTypes.arrayOf(PropTypes.number),
-    style_as_list_view: PropTypes.bool,
-    table_style: PropTypes.any,
-};
-
-ControlledTable.propTypes = Table.propTypes;
+ControlledTable.propTypes = propTypes;

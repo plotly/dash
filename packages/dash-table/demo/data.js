@@ -1,7 +1,7 @@
 /* eslint no-magic-numbers: 0 */
 import * as R from 'ramda';
 
-const N_DATA = 50;
+const N_DATA = 5000;
 
 export const mockData = unpackIntoColumnsAndDataFrames([
     {
@@ -55,7 +55,7 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         name: ['City', 'America', 'New York City'],
         type: 'numeric',
         style: {
-            'white-space': 'pre-line',
+            'whiteSpace': 'pre-line',
         },
         width: 150,
         data: gendata(i => i),

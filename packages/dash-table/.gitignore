@@ -5,7 +5,6 @@
 
 # production
 /build
-/demo
 
 # testing
 /coverage

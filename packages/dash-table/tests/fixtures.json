@@ -1,5 +1,39 @@
 [
     {
+        "name": "fixed rows -> dropdown",
+        "props": {
+            "id": "table",
+            "columns": [
+                {
+                    "name": "Column 1",
+                    "id": "column-1",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "label": "Montréal",
+                            "value": "mtl"
+                        },
+                        {
+                            "label": "San Francisco",
+                            "value": "sf"
+                        }
+                    ]
+                }
+            ],
+            "dataframe": [
+                {"column-1": "mtl"},
+                {"column-1": "sf"},
+                {"column-1": "mtl"},
+                {"column-1": "boston"}
+            ],
+            "n_fixed_rows": 1,
+            "table_style": [{
+                "selector": ".dash-spreadsheet.freeze-top",
+                "rule": "height: 100px;"
+            }]
+        }
+    },
+    {
         "name": "minimal",
         "props": {
             "id": "table"

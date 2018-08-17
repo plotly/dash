@@ -104,7 +104,7 @@
     "yoda": ["error"],
     "spaced-comment": ["error", "always", {
       "block": {
-        exceptions: ["*"]
+        "exceptions": ["*"]
       }
     }],
     "no-unused-vars": ["error", {
