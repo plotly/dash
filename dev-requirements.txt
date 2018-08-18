@@ -3,6 +3,7 @@ dash_html_components>=0.11.0rc1
 dash_flow_example==0.0.3
 dash-dangerously-set-inner-html
 dash_renderer
+cerberus==1.2
 percy
 selenium
 mock

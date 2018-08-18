@@ -1,5 +1,6 @@
 appnope==0.1.0
 backports.shutil-get-terminal-size==1.0.0
+cerberus==1.2
 click==6.7
 dash-core-components==0.3.3
 dash-html-components==0.11.0rc1

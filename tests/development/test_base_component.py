@@ -731,6 +731,131 @@ class TestGenerateClass(unittest.TestCase):
                 ['None'] + ['undefined'] * 19
             )
 
+    def test_schema_generation(self):
+        self.assertEqual(
+            self.ComponentClass()._schema,
+            {
+                'optionalNumber': {
+                    'nullable': True,
+                    'type': 'number'
+                },
+                'optionalEnum': {
+                    'nullable': True,
+                    'anyof': [{}, {}]
+                },
+                'customArrayProp': {
+                    'allow_unknown': False,
+                    'nullable': True,
+                    'type': 'list',
+                    'schema': {
+                        'nullable': True
+                    }
+                },
+                'optionalArray': {
+                    'nullable': True,
+                    'type': 'list'
+                },
+                'optionalSymbol': {
+                    'nullable': True
+                },
+                'id': {
+                    'nullable': True,
+                    'type': 'string'
+                },
+                'optionalString': {
+                    'nullable': True,
+                    'type': 'string'
+                },
+                'dashEvents': {
+                    'nullable': True,
+                    'anyof': [{}, {}, {}]
+                },
+                'children': {
+                    'nullable': True,
+                    'type': 'component'
+                },
+                'optionalObject': {
+                    'nullable': True,
+                    'type': 'dict'
+                },
+                'optionalArrayOf': {
+                    'allow_unknown': False,
+                    'nullable': True,
+                    'type': 'list',
+                    'schema': {
+                        'nullable': True
+                    }
+                },
+                'optionalObjectWithShapeAndNestedDescription': {
+                    'allow_unknown': False,
+                    'nullable': True,
+                    'type': 'dict',
+                    'schema': {
+                        'color': {
+                            'nullable': True
+                        },
+                        'figure': {
+                            'nullable': True
+                        },
+                        'fontSize': {
+                            'nullable': True
+                        }
+                    }
+                },
+                'in': {
+                    'nullable': True,
+                    'type': 'string'
+                },
+                'optionalElement': {
+                    'nullable': True,
+                    'type': 'component'
+                },
+                'optionalAny': {
+                    'nullable': True,
+                    'anyof': [
+                        {'type': 'boolean'},
+                        {'type': 'number'},
+                        {'type': 'string'},
+                        {'type': 'dict'},
+                        {'type': 'list'}
+                    ]
+                },
+                'customProp': {
+                    'nullable': True
+                },
+                'optionalMessage': {
+                    'nullable': True
+                },
+                'optionalBool': {
+                    'nullable': True,
+                    'type': 'boolean'
+                },
+                'optionalUnion': {
+                    'nullable': True,
+                    'anyof': [
+                        {'type': 'string'},
+                        {'type': 'number'},
+                        {}
+                    ]
+                },
+                'optionalNode': {
+                    'nullable': True,
+                    'type': 'component'
+                },
+                'optionalObjectOf': {
+                    'allow_unknown': False,
+                    'nullable': True,
+                    'type': 'dict',
+                    'schema': {
+                        'nullable': True
+                    }
+                },
+                'optionalFunc': {
+                    'nullable': True
+                }
+            }
+        )
+
     def test_required_props(self):
         with self.assertRaises(Exception):
             self.ComponentClassRequired()

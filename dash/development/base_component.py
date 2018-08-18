@@ -316,8 +316,10 @@ def js_to_cerberus_type(type_object):
     converters = {
         'None': lambda x: {},
         'func': lambda x: {},
+        'symbol': lambda x: {},
         'custom': lambda x: {},
         'node': lambda x: {'type': 'component'},
+        'element': lambda x: {'type': 'component'},
         'enum': lambda x: {
             'anyof': [js_to_cerberus_type(v) for v in x['value']]
         },
@@ -325,7 +327,7 @@ def js_to_cerberus_type(type_object):
             'anyof': [js_to_cerberus_type(v) for v in x['value']]
         },
         'any': lambda x: {
-            'anyof_type': ['bool', 'number', 'string', 'dict', 'list']
+            'anyof_type': ['boolean', 'number', 'string', 'dict', 'list']
         },
         'string': lambda x: {'type': 'string'},
         'bool': lambda x: {'type': 'boolean'},
@@ -335,27 +337,29 @@ def js_to_cerberus_type(type_object):
         'objectOf': lambda x: {
             'type': 'dict',
             'allow_unknown': False,
-            'schema': js_to_cerberus_type(x['value'])
+            'schema': generate_property_schema(x['value'])
         },
         'array': lambda x: {'type': 'list'},
         'arrayOf': lambda x: {
             'type': 'list',
             'allow_unknown': False,
-            'schema': js_to_cerberus_type(x['value'])
+            'schema': generate_property_schema(x['value'])
         },
         'shape': lambda x: {
             'type': 'dict',
             'allow_unknown': False,
             'schema': {
-                k: js_to_cerberus_type(v) for k, v in x['value'].items()
+                k: generate_property_schema(v) for k, v in x['value'].items()
             }
         },
         'instanceOf': lambda x: dict(
             Date={'type': 'datetime'},
-        )[x['value']]
+        ).get(x['value'], {})
     }
-    converter = converters[type_object.get('name', 'None')]
-    return converter(type_object)
+    if type_object:
+        converter = converters[type_object.get('name', 'None')]
+        return converter(type_object)
+    return None
 
 
 def generate_property_schema(jsonSchema):
