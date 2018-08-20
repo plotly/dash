@@ -1,3 +1,7 @@
+## 0.26.0 - 2018-08-20
+## Added
+- Added `assets_ignore` init keyword, regex filter for the assets files. [#318](https://github.com/plotly/dash/pull/318)
+
 ## 0.25.1 - 2018-08-20
 ## Fixed
 - Ensure CSS/JS external resources are loaded before the assets. [#335](https://github.com/plotly/dash/pull/335)
