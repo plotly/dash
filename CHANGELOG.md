@@ -1,3 +1,7 @@
+## 0.25.1 - 2018-08-20
+## Fixed
+- Ensure CSS/JS external resources are loaded before the assets. [#335](https://github.com/plotly/dash/pull/335)
+
 ## 0.25.0 - 2018-08-14
 ## Added
 - Take configs values from init or environ variables (Prefixed with `DASH_`). [#322](https://github.com/plotly/dash/pull/322)
