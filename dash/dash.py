@@ -104,10 +104,11 @@ class Dash(object):
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
 
-        self.server.register_blueprint(
-            flask.Blueprint('assets', 'assets',
-                            static_folder=self._assets_folder,
-                            static_url_path=assets_url_path))
+        if 'assets' not in self.server.blueprints:
+            self.server.register_blueprint(
+                flask.Blueprint('assets', 'assets',
+                                static_folder=self._assets_folder,
+                                static_url_path=assets_url_path))
 
         env_configs = _configs.env_configs()
 
