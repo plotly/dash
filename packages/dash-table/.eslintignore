@@ -1,2 +1,3 @@
 *.css
+cypress/**
 registerServiceWorker.js

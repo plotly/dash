@@ -59,6 +59,7 @@ module.exports = {
     },
     resolve: {
         alias: {
+            'cypress': path.resolve('./tests/e2e/cypress/src'),
             'dash-table': path.resolve('./src/dash-table'),
             'core': path.resolve('./src/core'),
             'tests': path.resolve('./tests')

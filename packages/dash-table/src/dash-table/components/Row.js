@@ -141,7 +141,6 @@ export default class Row extends Component {
             dataframe
         );
         setProps({
-            is_focused: true,
             dataframe: newDataframe,
         });
     }

@@ -1,29 +1,26 @@
 {
     "compilerOptions": {
-        "outDir": "./dist",
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
-        "baseUrl": ".",
+        "baseUrl": "./..",
         "emitDecoratorMetadata": false,
         "experimentalDecorators": true,
-        "jsx": "react",
+        "lib": ["esnext", "dom"],
         "module": "esnext",
         "moduleResolution": "node",
         "noImplicitAny": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "paths": {
-            "core/*": ["src/core/*"],
-            "dash-table/*": ["src/dash-table/*"],
-            "tests": ["src/tests"]
+            "cypress/*": ["cypress/src/*"],
         },
         "sourceMap": false,
         "strict": true,
         "strictPropertyInitialization": false,
         "target": "esnext",
-        "traceResolution": true
-    },
-    "exclude": [
-        "tests/*"
-    ]
+        "traceResolution": true,
+        "types": [
+            "cypress"
+        ]
+    }
 }

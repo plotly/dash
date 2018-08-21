@@ -1,6 +1,59 @@
 version: 2
 
 jobs:
+    "test":
+        docker:
+            - image: circleci/python:3.6-node-browsers
+            - image: cypress/base:8
+
+        steps:
+            - checkout
+            - restore_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+            - run:
+                name: Install npm packages
+                command: npm install
+            - run:
+                name: Cypress Install
+                command: |
+                    $(npm bin)/cypress install
+
+            - save_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+                paths:
+                    - node_modules
+                    - /home/circleci/.cache/Cypress
+
+            - run:
+                name: Create virtualenv
+                command: |
+                    python3 -m venv venv
+
+            - run:
+                name: Install requirements
+                command: |
+                    . venv/bin/activate
+                    pip install -r tests/python_fixtures/requirements.txt --quiet
+
+            - save_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "tests/python_fixtures/requirements.txt" }}
+                paths:
+                    - "venv"
+
+            - run:
+                name: Run build:js
+                command: npm run build:js
+
+            - run:
+                name: Run build:py
+                command: npm run build:py
+
+            - run:
+                name: Run hosts
+                command: |
+                    . venv/bin/activate
+                    npm run test
+
     "node":
         docker:
             - image: circleci/node:8.11.3
@@ -48,10 +101,10 @@ jobs:
                 name: Install requirements
                 command: |
                     . venv/bin/activate
-                    pip install -r tests/requirements.txt --quiet
+                    pip install -r tests/python_fixtures/requirements.txt --quiet
 
             - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "tests/requirements.txt" }}
+                key: deps1-{{ .Branch }}-{{ checksum "tests/python_fixtures/requirements.txt" }}
                 paths:
                     - "venv"
 
@@ -73,7 +126,7 @@ jobs:
                 name: Integration Tests
                 command: |
                     . venv/bin/activate
-                    python -m unittest tests.test_render
+                    python -m unittest tests.python_fixtures.test_render
                 when: always
 
 
@@ -83,3 +136,4 @@ workflows:
         jobs:
             - "python-3.6"
             - "node"
+            - "test"

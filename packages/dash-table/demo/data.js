@@ -11,28 +11,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         editable: false,
         data: gendata(i => i),
     },
-    {
-        id: 'aaa',
-        name: ['', 'Weather', 'Temperature'],
-        type: 'numeric',
-        width: 150,
-        data: gendata(i => i + 1),
-    },
-
-    {
-        id: 'bbb',
-        name: ['', 'Weather', 'Climate'],
-        type: 'numeric',
-        options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
-            label: i,
-            value: i,
-        })),
-        clearable: true,
-        width: 200,
-        data: gendata(
-            i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
-        ),
-    },
 
     {
         id: 'ccc',
@@ -77,6 +55,29 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         width: 150,
         data: gendata(i => i * 10),
     },
+
+    {
+        id: 'bbb',
+        name: ['', 'Weather', 'Climate'],
+        type: 'dropdown',
+        options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
+            label: i,
+            value: i,
+        })),
+        clearable: true,
+        width: 200,
+        data: gendata(
+            i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
+        ),
+    },
+
+    {
+        id: 'aaa',
+        name: ['', 'Weather', 'Temperature'],
+        type: 'numeric',
+        width: 150,
+        data: gendata(i => i + 1),
+    }
 ]);
 
 export const mockDataSimple = unpackIntoColumnsAndDataFrames([

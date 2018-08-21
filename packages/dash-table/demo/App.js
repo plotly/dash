@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {Table} from 'dash-table';
 import {mockData} from './data';
 import Dropdown from 'react-select';
-import TestFixtures from 'tests/fixtures.json';
+import TestFixtures from 'tests/python_fixtures/fixtures.json';
 import {merge} from 'ramda';
 import { memoizeOne } from 'core/memoizer';
 

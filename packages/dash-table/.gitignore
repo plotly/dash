@@ -8,6 +8,8 @@
 
 # testing
 /coverage
+/tests/e2e/cypress/screenshots/**
+/storybook-static/**
 
 # misc
 .DS_Store

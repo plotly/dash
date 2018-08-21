@@ -34,7 +34,7 @@ def create_test(test_case):
     return test
 
 
-with open(os.path.join('tests', 'fixtures.json'), 'r') as f:
+with open(os.path.join('tests', 'python_fixtures', 'fixtures.json'), 'r') as f:
     SAMPLE_TABLE_PROPS = json.loads(f.read())
 
 for test_data in SAMPLE_TABLE_PROPS:

@@ -7,6 +7,7 @@ dash-core-components
 dash-html-components
 dash-renderer
 ipdb
+pandas
 percy
 selenium
 flake8

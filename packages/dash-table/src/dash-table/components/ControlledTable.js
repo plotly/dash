@@ -649,7 +649,7 @@ export default class ControlledTable extends Component {
             const width = Stylesheet.unit(column.width || DEFAULT_CELL_WIDTH, 'px');
 
             this.stylesheet.setRule(
-                `.dash-spreadsheet tr:last-of-type td:nth-of-type(${++typeIndex})`,
+                `.dash-spreadsheet td:nth-of-type(${++typeIndex})`,
                 `width: ${width}; max-width: ${width}; min-width: ${width};`
             );
             this.stylesheet.setRule(
@@ -707,8 +707,8 @@ export default class ControlledTable extends Component {
                 </div>
                 {!this.displayPagination ? null : (
                     <div>
-                        <button onClick={this.loadPrevious}>Previous</button>
-                        <button onClick={this.loadNext}>Next</button>
+                        <button className='previous-page' onClick={this.loadPrevious}>Previous</button>
+                        <button className='next-page' onClick={this.loadNext}>Next</button>
                     </div>
                 )}
             </div>

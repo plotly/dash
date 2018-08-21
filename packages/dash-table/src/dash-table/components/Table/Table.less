@@ -96,8 +96,16 @@
             td, th {
                 .inset-shadow(var(--border), 1px, 0px, 0px, -1px);
 
+                &:focus {
+                    outline: none;
+                }
+
                 &.focused + td {
                     .inset-shadow(var(--border), 0px, 0px, 0px, -1px);
+
+                    &:last-of-type {
+                        .inset-shadow(var(--border), 0px, 0px, -1px, -1px);
+                    }
                 }
 
                 &:last-of-type {

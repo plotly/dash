@@ -166,6 +166,8 @@ export default class Cell extends Component<IProps, IState> {
         } = this.props;
 
         return (<td
+            ref='td'
+            tabIndex={-1}
             className={this.classes.join(' ')}
             style={style}
         >
@@ -205,6 +207,10 @@ export default class Cell extends Component<IProps, IState> {
 
         if (active && this.refs.textInput) {
             (this.refs.textInput as HTMLElement).focus();
+        }
+
+        if (active && this.refs.dropdown) {
+            (this.refs.td as HTMLElement).focus();
         }
 
         if (!active && this.state.value !==  value) {
