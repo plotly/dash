@@ -6,8 +6,8 @@ cffi==1.10.0
 chardet==3.0.4
 click==6.7
 cryptography==2.0.3
-dash==0.23.1
-dash-core-components==0.18.1
+dash==0.25.1
+dash-core-components==0.27.1
 dash-renderer==0.12.2rc1
 decorator==4.1.2
 enum34==1.1.6
@@ -15,7 +15,6 @@ Flask==0.12.2
 Flask-Compress==1.4.0
 Flask-SeaSurf==0.2.2
 funcsigs==1.0.2
-functools32==3.2.3.post2
 idna==2.6
 ipaddress==1.0.18
 ipdb==0.10.3
@@ -29,8 +28,8 @@ loremipsum==1.0.5
 MarkupSafe==1.0
 mock==2.0.0
 nbformat==4.4.0
-numpy==1.13.1
-pandas==0.20.3
+numpy
+pandas
 pathlib2==2.3.0
 pbr==3.1.1
 percy==1.0.6
@@ -53,8 +52,6 @@ scandir==1.5
 selenium==3.5.0
 simplegeneric==0.8.1
 six==1.10.0
-tox==2.8.2
-tox-pyenv==1.1.0
 tqdm==4.15.0
 traitlets==4.3.2
 twine==1.9.1
@@ -63,3 +60,5 @@ virtualenv==15.1.0
 wcwidth==0.1.7
 Werkzeug==0.12.2
 xlrd==1.1.0
+pylint==1.9.2
+flake8

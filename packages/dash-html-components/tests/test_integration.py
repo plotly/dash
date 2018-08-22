@@ -30,24 +30,26 @@ class Tests(IntegrationTests):
 
     def wait_for_element_by_css_selector(self, selector):
         start_time = time.time()
+        error = None
         while time.time() < start_time + 20:
             try:
                 return self.driver.find_element_by_css_selector(selector)
             except Exception as e:
-                pass
-            time.sleep(0.25)
-        raise e
+                error = e
+            self.driver.implicitly_wait(1)
+        raise error
 
     def wait_for_text_to_equal(self, selector, assertion_text):
         start_time = time.time()
+        error = None
         while time.time() < start_time + 20:
             el = self.wait_for_element_by_css_selector(selector)
             try:
                 return self.assertEqual(el.text, assertion_text)
             except Exception as e:
-                pass
+                error = e
             time.sleep(0.25)
-        raise e
+        raise error
 
     def snapshot(self, name):
         if 'PERCY_PROJECT' in os.environ and 'PERCY_TOKEN' in os.environ:

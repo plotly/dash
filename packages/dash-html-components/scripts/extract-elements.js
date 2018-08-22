@@ -33,7 +33,7 @@ function extractElements($) {
     return $('td:first-child')
         .toArray()
         .map(el => {
-            return cheerio(el).text().replace(/[\<\>]/g, '')
+            return cheerio(el).text().replace(/[<>]/g, '')
         })
         .reduce((list, element) => {
             const subList = element.split(', ');

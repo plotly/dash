@@ -62,7 +62,7 @@ function extractAttributes($) {
         const attribute = $children.eq(0).text();
 
         const elements = $children.eq(1).text()
-            .replace(/[\<\>\s]/g, '')
+            .replace(/[<>\s]/g, '')
             .split(',');
 
         const description = $children.eq(2).text()

@@ -1,20 +1,30 @@
-from __future__ import absolute_import
 import multiprocessing
+import sys
 import time
 import unittest
-import percy
 from selenium import webdriver
+import percy
 
 
 class IntegrationTests(unittest.TestCase):
 
+    def percy_snapshot(cls, name=''):
+        snapshot_name = '{} - {}'.format(name, sys.version_info)
+        print(snapshot_name)
+        cls.percy_runner.snapshot(
+            name=snapshot_name
+        )
+
     @classmethod
     def setUpClass(cls):
         super(IntegrationTests, cls).setUpClass()
-
         cls.driver = webdriver.Chrome()
-        loader = percy.ResourceLoader(webdriver=cls.driver)
+
+        loader = percy.ResourceLoader(
+            webdriver=cls.driver
+        )
         cls.percy_runner = percy.Runner(loader=loader)
+
         cls.percy_runner.initialize_build()
 
     @classmethod
@@ -23,31 +33,31 @@ class IntegrationTests(unittest.TestCase):
         cls.driver.quit()
         cls.percy_runner.finalize_build()
 
-    def setUp(self):
+    def setUp(s):
         pass
 
-    def tearDown(self):
-        time.sleep(3)
-        self.server_process.terminate()
-        time.sleep(3)
+    def tearDown(s):
+        time.sleep(2)
+        s.server_process.terminate()
+        time.sleep(2)
 
-    def startServer(self, app):
+    def startServer(s, dash):
         def run():
-            app.scripts.config.serve_locally = True
-            app.css.config.serve_locally = True
-            app.run_server(
+            dash.scripts.config.serve_locally = True
+            dash.run_server(
                 port=8050,
                 debug=False,
-                processes=4
+                processes=4,
+                threaded=False
             )
 
         # Run on a separate process so that it doesn't block
-        self.server_process = multiprocessing.Process(target=run)
-        self.server_process.start()
-        time.sleep(5)
+        s.server_process = multiprocessing.Process(target=run)
+        s.server_process.start()
+        time.sleep(0.5)
 
         # Visit the dash page
-        self.driver.get('http://localhost:8050')
+        s.driver.get('http://localhost:8050')
         time.sleep(0.5)
 
         # Inject an error and warning logger
@@ -74,4 +84,4 @@ class IntegrationTests(unittest.TestCase):
             return _error.apply(console, arguments);
         };
         '''
-        self.driver.execute_script(logger)
+        s.driver.execute_script(logger)

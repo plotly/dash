@@ -5,10 +5,10 @@ import dash_html_components
 class TestDashHtmlComponents(unittest.TestCase):
     def test_imports(self):
         with open('./scripts/data/elements.txt') as f:
-            elements = map(
-                lambda s: s[0].upper() + s[1:],
+            elements = [
+                s[0].upper() + s[1:] for s in
                 f.read().split('\n')
-            )
+            ]
             elements += ['MapEl', 'ObjectEl', 'version']
             for s in ['Map', 'Object']:
                 elements.remove(s)
