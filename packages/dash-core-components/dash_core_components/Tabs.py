@@ -23,7 +23,7 @@ components in an app.
 - content_style (dict; optional): Appends (inline) styles to the tab content container holding the children of the Tab that is selected.
 - vertical (boolean; optional): Renders the tabs vertically (on the side)
 - mobile_breakpoint (number; optional): Breakpoint at which tabs are rendered full width (can be 0 if you don't want full width tabs on mobile)
-- colors (optional): Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so: 
+- colors (optional): Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:
 colors: {
    border: '#d6d6d6',
    primary: '#1975FA',

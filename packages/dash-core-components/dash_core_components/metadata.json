@@ -1,6 +1,6 @@
 {
   "src/components/Checklist.react.js": {
-    "description": "Checklist is a component that encapsulates several checkboxes.\r\nThe values and labels of the checklist is specified in the `options`\r\nproperty and the checked items are specified with the `values` property.\r\nEach checkbox is rendered as an input with a surrounding label.",
+    "description": "Checklist is a component that encapsulates several checkboxes.\nThe values and labels of the checklist is specified in the `options`\nproperty and the checked items are specified with the `values` property.\nEach checkbox is rendered as an input with a surrounding label.",
     "displayName": "Checklist",
     "methods": [],
     "props": {
@@ -24,7 +24,7 @@
               },
               "value": {
                 "name": "string",
-                "description": "The value of the checkbox. This value\r\ncorresponds to the items specified in the\r\n`values` property.",
+                "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
                 "required": false
               },
               "disabled": {
@@ -93,7 +93,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "The style of the <label> that wraps the checkbox input\r\n and the option's label",
+        "description": "The style of the <label> that wraps the checkbox input\n and the option's label",
         "defaultValue": {
           "value": "{}",
           "computed": false
@@ -104,7 +104,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "The class of the <label> that wraps the checkbox input\r\n and the option's label",
+        "description": "The class of the <label> that wraps the checkbox input\n and the option's label",
         "defaultValue": {
           "value": "''",
           "computed": false
@@ -140,7 +140,7 @@
     }
   },
   "src/components/ConfirmDialog.react.js": {
-    "description": "ConfirmDialog is used to display the browser's native \"confirm\" modal,\r\nwith an optional message and two buttons (\"OK\" and \"Cancel\").\r\nThis ConfirmDialog can be used in conjunction with buttons when the user\r\nis performing an action that should require an extra step of verification.",
+    "description": "ConfirmDialog is used to display the browser's native \"confirm\" modal,\nwith an optional message and two buttons (\"OK\" and \"Cancel\").\nThis ConfirmDialog can be used in conjunction with buttons when the user\nis performing an action that should require an extra step of verification.",
     "displayName": "ConfirmDialog",
     "methods": [
       {
@@ -246,7 +246,7 @@
     }
   },
   "src/components/ConfirmDialogProvider.react.js": {
-    "description": "A wrapper component that will display a confirmation dialog\r\nwhen its child component has been clicked on.\r\n\nFor example:\r\n```\r\ndcc.ConfirmDialogProvider(\r\n    html.Button('click me', id='btn'),\r\n    message='Danger - Are you sure you want to continue.'\r\n    id='confirm')\r\n```",
+    "description": "A wrapper component that will display a confirmation dialog\nwhen its child component has been clicked on.\n\nFor example:\n```\ndcc.ConfirmDialogProvider(\n    html.Button('click me', id='btn'),\n    message='Danger - Are you sure you want to continue.'\n    id='confirm')\n```",
     "displayName": "ConfirmDialogProvider",
     "methods": [],
     "props": {
@@ -332,7 +332,7 @@
     }
   },
   "src/components/DatePickerRange.react.js": {
-    "description": "DatePickerRange is a tailor made component designed for selecting\r\ntimespan across multiple days off of a calendar.\r\n\nThe DatePicker integrates well with the Python datetime module with the\r\nstartDate and endDate being returned in a string format suitable for\r\ncreating datetime objects.\r\n\nThis component is based off of Airbnb's react-dates react component\r\nwhich can be found here: https://github.com/airbnb/react-dates",
+    "description": "DatePickerRange is a tailor made component designed for selecting\ntimespan across multiple days off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates",
     "displayName": "DatePickerRange",
     "methods": [
       {
@@ -385,56 +385,56 @@
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the starting date for the component.\r\nAccepts datetime.datetime objects or strings\r\nin the format 'YYYY-MM-DD'"
+        "description": "Specifies the starting date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "end_date": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the ending date for the component.\r\nAccepts datetime.datetime objects or strings\r\nin the format 'YYYY-MM-DD'"
+        "description": "Specifies the ending date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "min_date_allowed": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the lowest selectable date for the component.\r\nAccepts datetime.datetime objects or strings\r\nin the format 'YYYY-MM-DD'"
+        "description": "Specifies the lowest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "max_date_allowed": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the highest selectable date for the component.\r\nAccepts datetime.datetime objects or strings\r\nin the format 'YYYY-MM-DD'"
+        "description": "Specifies the highest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "initial_visible_month": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the month that is initially presented when the user\r\nopens the calendar. Accepts datetime.datetime objects or strings\r\nin the format 'YYYY-MM-DD'"
+        "description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "start_date_placeholder_text": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Text that will be displayed in the first input\r\nbox of the date picker when no date is selected. Default value is 'Start Date'"
+        "description": "Text that will be displayed in the first input\nbox of the date picker when no date is selected. Default value is 'Start Date'"
       },
       "end_date_placeholder_text": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Text that will be displayed in the second input\r\nbox of the date picker when no date is selected. Default value is 'End Date'"
+        "description": "Text that will be displayed in the second input\nbox of the date picker when no date is selected. Default value is 'End Date'"
       },
       "day_size": {
         "type": {
           "name": "number"
         },
         "required": false,
-        "description": "Size of rendered calendar days, higher number\r\nmeans bigger day size and larger calendar overall",
+        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
         "defaultValue": {
           "value": "39",
           "computed": false
@@ -455,7 +455,7 @@
           ]
         },
         "required": false,
-        "description": "Orientation of calendar, either vertical or horizontal.\r\nValid options are 'vertical' or 'horizontal'.",
+        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
         "defaultValue": {
           "value": "'horizontal'",
           "computed": false
@@ -466,7 +466,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "Determines whether the calendar and days operate\r\nfrom left to right or from right to left",
+        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -499,7 +499,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, calendar will open in a screen overlay portal,\r\nnot supported on vertical calendar",
+        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -510,7 +510,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, calendar will open in a full screen overlay portal, will\r\ntake precedent over 'withPortal' if both are set to true,\r\nnot supported on vertical calendar",
+        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true,\nnot supported on vertical calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -551,7 +551,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies what day is the first day of the week, values must be\r\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday",
+        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday",
         "defaultValue": {
           "value": "0",
           "computed": false
@@ -562,14 +562,14 @@
           "name": "number"
         },
         "required": false,
-        "description": "Specifies a minimum number of nights that must be selected between\r\nthe startDate and the endDate"
+        "description": "Specifies a minimum number of nights that must be selected between\nthe startDate and the endDate"
       },
       "stay_open_on_select": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If True the calendar will not close when the user has selected a value\r\nand will wait until the user clicks off the calendar",
+        "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -580,21 +580,21 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True the calendar will display days that rollover into\r\nthe next month"
+        "description": "If True the calendar will display days that rollover into\nthe next month"
       },
       "month_format": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the format that the month will be displayed in the calendar,\r\nvalid formats are variations of \"MM YY\". For example:\r\n\"MM YY\" renders as '05 97' for May 1997\r\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\r\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
       },
       "display_format": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the format that the selected dates will be displayed\r\nvalid formats are variations of \"MM YY DD\". For example:\r\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\r\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\r\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\r\n\"MMMM\" renders as 'May' for May 10 1997"
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
       },
       "disabled": {
         "type": {
@@ -612,7 +612,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\r\nnot a small \"x\" appears on the right of the dropdown that removes\r\nthe selected value.",
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -653,7 +653,7 @@
           ]
         },
         "required": false,
-        "description": "Determines when the component should update\r\nits value. If `bothdates`, then the DatePicker \r\nwill only trigger its value when the user has\r\nfinished picking both dates. If `singledate`, then\r\nthe DatePicker will update its value \r\nas one date is picked.",
+        "description": "Determines when the component should update\nits value. If `bothdates`, then the DatePicker \nwill only trigger its value when the user has\nfinished picking both dates. If `singledate`, then\nthe DatePicker will update its value \nas one date is picked.",
         "defaultValue": {
           "value": "'singledate'",
           "computed": false
@@ -662,7 +662,7 @@
     }
   },
   "src/components/DatePickerSingle.react.js": {
-    "description": "DatePickerSingle is a tailor made component designed for selecting\r\na single day off of a calendar.\r\n\nThe DatePicker integrates well with the Python datetime module with the\r\nstartDate and endDate being returned in a string format suitable for\r\ncreating datetime objects.\r\n\nThis component is based off of Airbnb's react-dates react component\r\nwhich can be found here: https://github.com/airbnb/react-dates",
+    "description": "DatePickerSingle is a tailor made component designed for selecting\na single day off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates",
     "displayName": "DatePickerSingle",
     "methods": [
       {
@@ -715,35 +715,35 @@
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the starting date for the component, best practice is to pass\r\nvalue via datetime object"
+        "description": "Specifies the starting date for the component, best practice is to pass\nvalue via datetime object"
       },
       "min_date_allowed": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the lowest selectable date for the component.\r\nAccepts datetime.datetime objects or strings\r\nin the format 'YYYY-MM-DD'"
+        "description": "Specifies the lowest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "max_date_allowed": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the highest selectable date for the component.\r\nAccepts datetime.datetime objects or strings\r\nin the format 'YYYY-MM-DD'"
+        "description": "Specifies the highest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "initial_visible_month": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the month that is initially presented when the user\r\nopens the calendar. Accepts datetime.datetime objects or strings\r\nin the format 'YYYY-MM-DD'"
+        "description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
       "day_size": {
         "type": {
           "name": "number"
         },
         "required": false,
-        "description": "Size of rendered calendar days, higher number\r\nmeans bigger day size and larger calendar overall",
+        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
         "defaultValue": {
           "value": "39",
           "computed": false
@@ -764,7 +764,7 @@
           ]
         },
         "required": false,
-        "description": "Orientation of calendar, either vertical or horizontal.\r\nValid options are 'vertical' or 'horizontal'.",
+        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
         "defaultValue": {
           "value": "'horizontal'",
           "computed": false
@@ -775,7 +775,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "Determines whether the calendar and days operate\r\nfrom left to right or from right to left",
+        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -786,7 +786,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "Text that will be displayed in the input\r\nbox of the date picker when no date is selected.\r\nDefault value is 'Start Date'"
+        "description": "Text that will be displayed in the input\nbox of the date picker when no date is selected.\nDefault value is 'Start Date'"
       },
       "reopen_calendar_on_clear": {
         "type": {
@@ -815,7 +815,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, calendar will open in a screen overlay portal,\r\nnot supported on vertical calendar",
+        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -826,7 +826,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, calendar will open in a full screen overlay portal, will\r\ntake precedent over 'withPortal' if both are set to True,\r\nnot supported on vertical calendar",
+        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to True,\nnot supported on vertical calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -867,7 +867,7 @@
           ]
         },
         "required": false,
-        "description": "Specifies what day is the first day of the week, values must be\r\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday",
+        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday",
         "defaultValue": {
           "value": "0",
           "computed": false
@@ -878,7 +878,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True the calendar will not close when the user has selected a value\r\nand will wait until the user clicks off the calendar",
+        "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -889,7 +889,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True the calendar will display days that rollover into\r\nthe next month",
+        "description": "If True the calendar will display days that rollover into\nthe next month",
         "defaultValue": {
           "value": "true",
           "computed": false
@@ -900,14 +900,14 @@
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the format that the month will be displayed in the calendar,\r\nvalid formats are variations of \"MM YY\". For example:\r\n\"MM YY\" renders as '05 97' for May 1997\r\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\r\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
       },
       "display_format": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "Specifies the format that the selected dates will be displayed\r\nvalid formats are variations of \"MM YY DD\". For example:\r\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\r\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\r\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\r\n\"MMMM\" renders as 'May' for May 10 1997"
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
       },
       "disabled": {
         "type": {
@@ -925,7 +925,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\r\nnot a small \"x\" appears on the right of the dropdown that removes\r\nthe selected value.",
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -954,7 +954,7 @@
     }
   },
   "src/components/Dropdown.react.js": {
-    "description": "Dropdown is an interactive dropdown element for selecting one or more\r\nitems.\r\nThe values and labels of the dropdown items are specified in the `options`\r\nproperty and the selected item(s) are specified with the `value` property.\r\n\nUse a dropdown when you have many options (more than 5) or when you are\r\nconstrained for space. Otherwise, you can use RadioItems or a Checklist,\r\nwhich have the benefit of showing the users all of the items at once.",
+    "description": "Dropdown is an interactive dropdown element for selecting one or more\nitems.\nThe values and labels of the dropdown items are specified in the `options`\nproperty and the selected item(s) are specified with the `value` property.\n\nUse a dropdown when you have many options (more than 5) or when you are\nconstrained for space. Otherwise, you can use RadioItems or a Checklist,\nwhich have the benefit of showing the users all of the items at once.",
     "displayName": "Dropdown",
     "methods": [],
     "props": {
@@ -978,7 +978,7 @@
               },
               "value": {
                 "name": "string",
-                "description": "The value of the checkbox. This value\r\ncorresponds to the items specified in the\r\n`values` property.",
+                "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
                 "required": false
               },
               "disabled": {
@@ -1008,7 +1008,7 @@
           ]
         },
         "required": false,
-        "description": "The value of the input. If `multi` is false (the default)\r\nthen value is just a string that corresponds to the values\r\nprovided in the `options` property. If `multi` is true, then\r\nmultiple values can be selected at once, and `value` is an\r\narray of items with values corresponding to those in the\r\n`options` prop."
+        "description": "The value of the input. If `multi` is false (the default)\nthen value is just a string that corresponds to the values\nprovided in the `options` property. If `multi` is true, then\nmultiple values can be selected at once, and `value` is an\narray of items with values corresponding to those in the\n`options` prop."
       },
       "className": {
         "type": {
@@ -1022,7 +1022,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\r\nnot a small \"x\" appears on the right of the dropdown that removes\r\nthe selected value.",
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
         "defaultValue": {
           "value": "true",
           "computed": false
@@ -1149,7 +1149,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, `clear_on_unhover` will clear the `hoverData` property\r\nwhen the user \"unhovers\" from a point.\r\nIf False, then the `hoverData` property will be equal to the\r\ndata from the last point that was hovered over.",
+        "description": "If True, `clear_on_unhover` will clear the `hoverData` property\nwhen the user \"unhovers\" from a point.\nIf False, then the `hoverData` property will be equal to the\ndata from the last point that was hovered over.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -1171,7 +1171,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "Data from latest relayout event which occurs\r\nwhen the user zooms or pans on the plot",
+        "description": "Data from latest relayout event which occurs\nwhen the user zooms or pans on the plot",
         "defaultValue": {
           "value": "null",
           "computed": false
@@ -1182,7 +1182,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "Plotly `figure` object. See schema:\r\nhttps://plot.ly/javascript/reference",
+        "description": "Plotly `figure` object. See schema:\nhttps://plot.ly/javascript/reference",
         "defaultValue": {
           "value": "{data: [], layout: {}}",
           "computed": false
@@ -1207,7 +1207,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "Beta: If true, animate between updates using\r\nplotly.js's `animate` function",
+        "description": "Beta: If true, animate between updates using\nplotly.js's `animate` function",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -1218,9 +1218,9 @@
           "name": "object"
         },
         "required": false,
-        "description": "Beta: Object containing animation settings.\r\nOnly applies if `animate` is `true`",
+        "description": "Beta: Object containing animation settings.\nOnly applies if `animate` is `true`",
         "defaultValue": {
-          "value": "{\r\n    frame: {\r\n        redraw: false\r\n    },\r\n    transition: {\r\n        duration: 750,\r\n        ease: 'cubic-in-out'\r\n    }\r\n}",
+          "value": "{\n    frame: {\n        redraw: false\n    },\n    transition: {\n        duration: 750,\n        ease: 'cubic-in-out'\n    }\n}",
           "computed": false
         }
       },
@@ -1235,7 +1235,7 @@
             },
             "editable": {
               "name": "bool",
-              "description": "we can edit titles, move annotations, etc - sets all pieces of `edits`\r\nunless a separate `edits` config item overrides individual parts",
+              "description": "we can edit titles, move annotations, etc - sets all pieces of `edits`\nunless a separate `edits` config item overrides individual parts",
               "required": false
             },
             "edits": {
@@ -1243,7 +1243,7 @@
               "value": {
                 "annotationPosition": {
                   "name": "bool",
-                  "description": "annotationPosition: the main anchor of the annotation, which is the\r\ntext (if no arrow) or the arrow (which drags the whole thing leaving\r\nthe arrow length & direction unchanged)",
+                  "description": "annotationPosition: the main anchor of the annotation, which is the\ntext (if no arrow) or the arrow (which drags the whole thing leaving\nthe arrow length & direction unchanged)",
                   "required": false
                 },
                 "annotationTail": {
@@ -1291,7 +1291,7 @@
             },
             "autosizable": {
               "name": "bool",
-              "description": "DO autosize once regardless of layout.autosize\r\n(use default width or height values otherwise)",
+              "description": "DO autosize once regardless of layout.autosize\n(use default width or height values otherwise)",
               "required": false
             },
             "queueLength": {
@@ -1349,7 +1349,7 @@
             },
             "showAxisRangeEntryBoxes": {
               "name": "bool",
-              "description": "enable direct range entry at the pan/zoom drag points\r\n(drag handles must be enabled above)",
+              "description": "enable direct range entry at the pan/zoom drag points\n(drag handles must be enabled above)",
               "required": false
             },
             "showLink": {
@@ -1388,7 +1388,7 @@
             },
             "modeBarButtonsToRemove": {
               "name": "array",
-              "description": "remove mode bar button by name.\r\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\r\nCommon names include:\r\n - sendDataToCloud\r\n- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d\r\n- (Cartesian): hoverClosestCartesian, hoverCompareCartesian\r\n- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d\r\n- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo\r\n- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews",
+              "description": "remove mode bar button by name.\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\nCommon names include:\n - sendDataToCloud\n- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d\n- (Cartesian): hoverClosestCartesian, hoverCompareCartesian\n- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d\n- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo\n- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews",
               "required": false
             },
             "modeBarButtonsToAdd": {
@@ -1398,7 +1398,7 @@
             },
             "modeBarButtons": {
               "name": "any",
-              "description": "fully custom mode bar buttons as nested array,\r\nwhere the outer arrays represents button groups, and\r\nthe inner arrays have buttons config objects or names of default buttons",
+              "description": "fully custom mode bar buttons as nested array,\nwhere the outer arrays represents button groups, and\nthe inner arrays have buttons config objects or names of default buttons",
               "required": false
             },
             "displaylogo": {
@@ -1418,15 +1418,15 @@
             },
             "mapboxAccessToken": {
               "name": "any",
-              "description": "Mapbox access token (required to plot mapbox trace types)\r\nIf using an Mapbox Atlas server, set this option to '',\r\nso that plotly.js won't attempt to authenticate to the public Mapbox server.",
+              "description": "Mapbox access token (required to plot mapbox trace types)\nIf using an Mapbox Atlas server, set this option to '',\nso that plotly.js won't attempt to authenticate to the public Mapbox server.",
               "required": false
             }
           }
         },
         "required": false,
-        "description": "Plotly.js config options.\r\nSee https://plot.ly/javascript/configuration-options/\r\nfor more info.",
+        "description": "Plotly.js config options.\nSee https://plot.ly/javascript/configuration-options/\nfor more info.",
         "defaultValue": {
-          "value": "{\r\n    staticPlot: false,\r\n    editable: false,\r\n    edits: {\r\n        annotationPosition: false,\r\n        annotationTail: false,\r\n        annotationText: false,\r\n        axisTitleText: false,\r\n        colorbarPosition: false,\r\n        colorbarTitleText: false,\r\n        legendPosition: false,\r\n        legendText: false,\r\n        shapePosition: false,\r\n        titleText: false\r\n    },\r\n    autosizable: false,\r\n    queueLength: 0,\r\n    fillFrame: false,\r\n    frameMargins: 0,\r\n    scrollZoom: false,\r\n    doubleClick: 'reset+autosize',\r\n    showTips: true,\r\n    showAxisDragHandles: true,\r\n    showAxisRangeEntryBoxes: true,\r\n    showLink: false,\r\n    sendData: true,\r\n    linkText: 'Edit chart',\r\n    showSources: false,\r\n    displayModeBar: 'hover',\r\n    modeBarButtonsToRemove: [],\r\n    modeBarButtonsToAdd: [],\r\n    modeBarButtons: false,\r\n    displaylogo: true,\r\n    plotGlPixelRatio: 2,\r\n    topojsonURL: 'https://cdn.plot.ly/',\r\n    mapboxAccessToken: null\r\n}",
+          "value": "{\n    staticPlot: false,\n    editable: false,\n    edits: {\n        annotationPosition: false,\n        annotationTail: false,\n        annotationText: false,\n        axisTitleText: false,\n        colorbarPosition: false,\n        colorbarTitleText: false,\n        legendPosition: false,\n        legendText: false,\n        shapePosition: false,\n        titleText: false\n    },\n    autosizable: false,\n    queueLength: 0,\n    fillFrame: false,\n    frameMargins: 0,\n    scrollZoom: false,\n    doubleClick: 'reset+autosize',\n    showTips: true,\n    showAxisDragHandles: true,\n    showAxisRangeEntryBoxes: true,\n    showLink: false,\n    sendData: true,\n    linkText: 'Edit chart',\n    showSources: false,\n    displayModeBar: 'hover',\n    modeBarButtonsToRemove: [],\n    modeBarButtonsToAdd: [],\n    modeBarButtons: false,\n    displaylogo: true,\n    plotGlPixelRatio: 2,\n    topojsonURL: 'https://cdn.plot.ly/',\n    mapboxAccessToken: null\n}",
           "computed": false
         }
       },
@@ -1476,7 +1476,7 @@
     }
   },
   "src/components/Input.react.js": {
-    "description": "A basic HTML input control for entering text, numbers, or passwords.\r\n\nNote that checkbox and radio types are supported through\r\nthe Checklist and RadioItems component. Dates, times, and file uploads\r\nare also supported through separate components.",
+    "description": "A basic HTML input control for entering text, numbers, or passwords.\n\nNote that checkbox and radio types are supported through\nthe Checklist and RadioItems component. Dates, times, and file uploads\nare also supported through separate components.",
     "displayName": "Input",
     "methods": [],
     "props": {
@@ -1485,7 +1485,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "The ID of this component, used to identify dash components\r\nin callbacks. The ID needs to be unique across all of the\r\ncomponents in an app."
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "value": {
         "type": {
@@ -1632,7 +1632,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "Identifies a list of pre-defined options to suggest to the user.\r\nThe value must be the id of a <datalist> element in the same document.\r\nThe browser displays only options that are valid values for this\r\ninput element.\r\nThis attribute is ignored when the type attribute's value is\r\nhidden, checkbox, radio, file, or a button type."
+        "description": "Identifies a list of pre-defined options to suggest to the user.\nThe value must be the id of a <datalist> element in the same document.\nThe browser displays only options that are valid values for this\ninput element.\nThis attribute is ignored when the type attribute's value is\nhidden, checkbox, radio, file, or a button type."
       },
       "max": {
         "type": {
@@ -1780,7 +1780,7 @@
     }
   },
   "src/components/Interval.react.js": {
-    "description": "A component that repeatedly fires an event (\"interval\")\r\nwith a fixed time delay between each event.\r\nInterval is good for triggering a component on a recurring basis.\r\nThe time delay is set with the property \"interval\" in milliseconds.",
+    "description": "A component that repeatedly fires an event (\"interval\")\nwith a fixed time delay between each event.\nInterval is good for triggering a component on a recurring basis.\nThe time delay is set with the property \"interval\" in milliseconds.",
     "displayName": "Interval",
     "methods": [
       {
@@ -1809,7 +1809,7 @@
           "name": "number"
         },
         "required": false,
-        "description": "This component will fire an event every `interval`\r\nmilliseconds with the event name `setInterval`",
+        "description": "This component will fire an event every `interval`\nmilliseconds with the event name `setInterval`",
         "defaultValue": {
           "value": "1000",
           "computed": false
@@ -1820,7 +1820,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, the interval will no longer trigger\r\nan event."
+        "description": "If True, the interval will no longer trigger\nan event."
       },
       "n_intervals": {
         "type": {
@@ -1940,7 +1940,7 @@
     }
   },
   "src/components/Location.react.js": {
-    "description": "Update and track the current window.location object through the window.history state.\r\nUse in conjunction with the `dash_core_components.Link` component to make apps with multiple pages.",
+    "description": "Update and track the current window.location object through the window.history state.\nUse in conjunction with the `dash_core_components.Link` component to make apps with multiple pages.",
     "displayName": "Location",
     "methods": [
       {
@@ -2006,7 +2006,7 @@
     }
   },
   "src/components/Markdown.react.js": {
-    "description": "A component that renders Markdown text as specified by the\r\nCommonMark spec.",
+    "description": "A component that renders Markdown text as specified by the\nCommonMark spec.",
     "displayName": "DashMarkdown",
     "methods": [],
     "props": {
@@ -2029,7 +2029,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "An object containing custom element props to put on the container\r\nelement such as id or style"
+        "description": "An object containing custom element props to put on the container\nelement such as id or style"
       },
       "children": {
         "type": {
@@ -2052,7 +2052,7 @@
     }
   },
   "src/components/RadioItems.react.js": {
-    "description": "RadioItems is a component that encapsulates several radio item inputs.\r\nThe values and labels of the RadioItems is specified in the `options`\r\nproperty and the seleced item is specified with the `value` property.\r\nEach radio item is rendered as an input with a surrounding label.",
+    "description": "RadioItems is a component that encapsulates several radio item inputs.\nThe values and labels of the RadioItems is specified in the `options`\nproperty and the seleced item is specified with the `value` property.\nEach radio item is rendered as an input with a surrounding label.",
     "displayName": "RadioItems",
     "methods": [],
     "props": {
@@ -2076,7 +2076,7 @@
               },
               "value": {
                 "name": "string",
-                "description": "The value of the radio item. This value\r\ncorresponds to the items specified in the\r\n`values` property.",
+                "description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`values` property.",
                 "required": false
               },
               "disabled": {
@@ -2142,7 +2142,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "The style of the <label> that wraps the radio input\r\n and the option's label",
+        "description": "The style of the <label> that wraps the radio input\n and the option's label",
         "defaultValue": {
           "value": "{}",
           "computed": false
@@ -2153,7 +2153,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "The class of the <label> that wraps the radio input\r\n and the option's label",
+        "description": "The class of the <label> that wraps the radio input\n and the option's label",
         "defaultValue": {
           "value": "''",
           "computed": false
@@ -2189,7 +2189,7 @@
     }
   },
   "src/components/RangeSlider.react.js": {
-    "description": "A double slider with two handles.\r\nUsed for specifying a range of numerical values.",
+    "description": "A double slider with two handles.\nUsed for specifying a range of numerical values.",
     "displayName": "RangeSlider",
     "methods": [],
     "props": {
@@ -2229,7 +2229,7 @@
           }
         },
         "required": false,
-        "description": "Marks on the slider.\r\nThe key determines the position,\r\nand the value determines what will show.\r\nIf you want to set the style of a specific mark point,\r\nthe value should be an object which\r\ncontains style and label properties."
+        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
       },
       "value": {
         "type": {
@@ -2260,7 +2260,7 @@
           "name": "number"
         },
         "required": false,
-        "description": "Determine how many ranges to render, and multiple handles\r\nwill be rendered (number + 1)."
+        "description": "Determine how many ranges to render, and multiple handles\nwill be rendered (number + 1)."
       },
       "disabled": {
         "type": {
@@ -2274,14 +2274,14 @@
           "name": "bool"
         },
         "required": false,
-        "description": "When the step value is greater than 1,\r\nyou can set the dots to true if you want to\r\nrender the slider with dots."
+        "description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots."
       },
       "included": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If the value is true, it means a continuous\r\nvalue is included. Otherwise, it is an independent value."
+        "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
       },
       "min": {
         "type": {
@@ -2310,7 +2310,7 @@
           ]
         },
         "required": false,
-        "description": "pushable could be set as true to allow pushing of\r\nsurrounding handles when moving an handle.\r\nWhen set to a number, the number will be the\r\nminimum ensured distance between handles."
+        "description": "pushable could be set as true to allow pushing of\nsurrounding handles when moving an handle.\nWhen set to a number, the number will be the\nminimum ensured distance between handles."
       },
       "step": {
         "type": {
@@ -2341,7 +2341,7 @@
           ]
         },
         "required": false,
-        "description": "Determines when the component should update\r\nits value. If `mouseup`, then the slider\r\nwill only trigger its value when the user has\r\nfinished dragging the slider. If `drag`, then\r\nthe slider will update its value continuously\r\nas it is being dragged.\r\nOnly use `drag` if your updates are fast.",
+        "description": "Determines when the component should update\nits value. If `mouseup`, then the slider\nwill only trigger its value when the user has\nfinished dragging the slider. If `drag`, then\nthe slider will update its value continuously\nas it is being dragged.\nOnly use `drag` if your updates are fast.",
         "defaultValue": {
           "value": "'mouseup'",
           "computed": false
@@ -2417,7 +2417,7 @@
           }
         },
         "required": false,
-        "description": "Marks on the slider.\r\nThe key determines the position,\r\nand the value determines what will show.\r\nIf you want to set the style of a specific mark point,\r\nthe value should be an object which\r\ncontains style and label properties."
+        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
       },
       "value": {
         "type": {
@@ -2445,14 +2445,14 @@
           "name": "bool"
         },
         "required": false,
-        "description": "When the step value is greater than 1,\r\nyou can set the dots to true if you want to\r\nrender the slider with dots."
+        "description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots."
       },
       "included": {
         "type": {
           "name": "bool"
         },
         "required": false,
-        "description": "If the value is true, it means a continuous\r\nvalue is included. Otherwise, it is an independent value."
+        "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
       },
       "min": {
         "type": {
@@ -2497,7 +2497,7 @@
           ]
         },
         "required": false,
-        "description": "Determines when the component should update\r\nits value. If `mouseup`, then the slider\r\nwill only trigger its value when the user has\r\nfinished dragging the slider. If `drag`, then\r\nthe slider will update its value continuously\r\nas it is being dragged.\r\nOnly use `drag` if your updates are fast.",
+        "description": "Determines when the component should update\nits value. If `mouseup`, then the slider\nwill only trigger its value when the user has\nfinished dragging the slider. If `drag`, then\nthe slider will update its value continuously\nas it is being dragged.\nOnly use `drag` if your updates are fast.",
         "defaultValue": {
           "value": "'mouseup'",
           "computed": false
@@ -2661,7 +2661,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "The ID of this component, used to identify dash components\r\nin callbacks. The ID needs to be unique across all of the\r\ncomponents in an app."
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "label": {
         "type": {
@@ -2703,7 +2703,7 @@
         "required": false,
         "description": "Overrides the default (inline) styles when disabled",
         "defaultValue": {
-          "value": "{\r\n  color: '#d6d6d6'\r\n}",
+          "value": "{\n    color: '#d6d6d6',\n}",
           "computed": false
         }
       },
@@ -2745,7 +2745,7 @@
     }
   },
   "src/components/Tabs.react.js": {
-    "description": "A Dash component that lets you render pages with tabs - the Tabs component's children\r\ncan be dcc.Tab components, which can hold a label that will be displayed as a tab, and can in turn hold\r\nchildren components that will be that tab's content.",
+    "description": "A Dash component that lets you render pages with tabs - the Tabs component's children\ncan be dcc.Tab components, which can hold a label that will be displayed as a tab, and can in turn hold\nchildren components that will be that tab's content.",
     "displayName": "Tabs",
     "methods": [
       {
@@ -2767,7 +2767,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "The ID of this component, used to identify dash components\r\nin callbacks. The ID needs to be unique across all of the\r\ncomponents in an app."
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "value": {
         "type": {
@@ -2862,9 +2862,9 @@
           }
         },
         "required": false,
-        "description": "Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so: \r\ncolors: {\r\n   border: '#d6d6d6',\r\n   primary: '#1975FA',\r\n   background: '#f9f9f9'\r\n }",
+        "description": "Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:\ncolors: {\n   border: '#d6d6d6',\n   primary: '#1975FA',\n   background: '#f9f9f9'\n }",
         "defaultValue": {
-          "value": "{\r\n  border: '#d6d6d6',\r\n  primary: '#1975FA',\r\n  background: '#f9f9f9'\r\n}",
+          "value": "{\n    border: '#d6d6d6',\n    primary: '#1975FA',\n    background: '#f9f9f9',\n}",
           "computed": false
         }
       }
@@ -2880,7 +2880,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "The ID of this component, used to identify dash components\r\nin callbacks. The ID needs to be unique across all of the\r\ncomponents in an app."
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "value": {
         "type": {
@@ -3117,7 +3117,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "ID of the component. Used to identify component\r\nin Dash callback functions."
+        "description": "ID of the component. Used to identify component\nin Dash callback functions."
       },
       "contents": {
         "type": {
@@ -3153,7 +3153,7 @@
           ]
         },
         "required": false,
-        "description": "The name of the file(s) that was(were) uploaded.\r\nNote that this does not include the path of the file\r\n(for security reasons)."
+        "description": "The name of the file(s) that was(were) uploaded.\nNote that this does not include the path of the file\n(for security reasons)."
       },
       "last_modified": {
         "type": {
@@ -3171,7 +3171,7 @@
           ]
         },
         "required": false,
-        "description": "The last modified date of the file that was uploaded in unix time\r\n(seconds since 1970)."
+        "description": "The last modified date of the file that was uploaded in unix time\n(seconds since 1970)."
       },
       "children": {
         "type": {
@@ -3193,7 +3193,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "Allow specific types of files.\r\nSee https://github.com/okonet/attr-accept for more information.\r\nKeep in mind that mime type determination is not reliable across\r\nplatforms. CSV files, for example, are reported as text/plain\r\nunder macOS but as application/vnd.ms-excel under Windows.\r\nIn some cases there might not be a mime type set at all.\r\nSee: https://github.com/react-dropzone/react-dropzone/issues/276"
+        "description": "Allow specific types of files.\nSee https://github.com/okonet/attr-accept for more information.\nKeep in mind that mime type determination is not reliable across\nplatforms. CSV files, for example, are reported as text/plain\nunder macOS but as application/vnd.ms-excel under Windows.\nIn some cases there might not be a mime type set at all.\nSee: https://github.com/react-dropzone/react-dropzone/issues/276"
       },
       "disabled": {
         "type": {
@@ -3296,7 +3296,7 @@
         "required": false,
         "description": "CSS styles to apply while active",
         "defaultValue": {
-          "value": "{\r\n    borderStyle: 'solid',\r\n    borderColor: '#6c6',\r\n    backgroundColor: '#eee'\r\n}",
+          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#6c6',\n    backgroundColor: '#eee'\n}",
           "computed": false
         }
       },
@@ -3307,7 +3307,7 @@
         "required": false,
         "description": "CSS styles if rejected",
         "defaultValue": {
-          "value": "{\r\n    borderStyle: 'solid',\r\n    borderColor: '#c66',\r\n    backgroundColor: '#eee'\r\n}",
+          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#c66',\n    backgroundColor: '#eee'\n}",
           "computed": false
         }
       },
@@ -3318,7 +3318,7 @@
         "required": false,
         "description": "CSS styles if disabled",
         "defaultValue": {
-          "value": "{\r\n    opacity: 0.5\r\n}",
+          "value": "{\n    opacity: 0.5\n}",
           "computed": false
         }
       },

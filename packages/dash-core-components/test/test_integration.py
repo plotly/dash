@@ -456,6 +456,18 @@ class Tests(IntegrationTests):
         time.sleep(2)
         self.assertEqual(tabs_content.text, 'Test content 1')
 
+    def test_tabs_with_children_undefined(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.H1('Dash Tabs component demo'),
+            dcc.Tabs(id="tabs", value='tab-1'),
+            html.Div(id='tabs-content')
+        ])
+
+        self.startServer(app=app)
+
+        self.snapshot('Tabs component with children undefined')
 
     def test_location_link(self):
         app = dash.Dash(__name__)
