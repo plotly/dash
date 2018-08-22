@@ -509,7 +509,7 @@ export default class ControlledTable extends Component {
                 );
                 setProps({
                     dataframe: newDataframe,
-                    columns: newColumns,
+                    columns: newColumns
                 });
             }
         }

@@ -101,13 +101,19 @@ export default class Cell extends Component<IProps, IState> {
             />);
     }
 
+    private onPaste = (e: React.ClipboardEvent<Element>) => {
+        const { onPaste } = this.propsWithDefaults;
+
+        onPaste(e);
+        e.stopPropagation();
+    }
+
     private renderInput() {
         const {
             active,
             focused,
             onClick,
-            onDoubleClick,
-            onPaste
+            onDoubleClick
         } = this.propsWithDefaults;
 
         const classes = [
@@ -129,7 +135,7 @@ export default class Cell extends Component<IProps, IState> {
                 type='text'
                 value={this.state.value}
                 onChange={this.handleChange}
-                onPaste={onPaste}
+                onPaste={this.onPaste}
                 {...attributes}
             />);
     }

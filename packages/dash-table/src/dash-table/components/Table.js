@@ -55,32 +55,12 @@ export default class Table extends Component {
             <ControlledTable
                 {...R.merge(this.props, {
                     virtualizer: this.virtualizer,
-
                     setProps: newProps => {
+                        if (R.has('dataframe', newProps)) {
+                            const { dataframe } = this.props;
 
-                        // !is_focused -> is_focused: save the current dataframe
-                        if (newProps.is_focused && !this.props.is_focused) {
-                            console.warn('Saving dataframe', this.props.dataframe);
-                            this.dataframe_previous = this.props.dataframe;
-                        }
-
-                        // unfocused -> send the old dataframe and the update time
-                        if (!newProps.is_focused && this.props.is_focused &&
-                            this.props.update_on_unfocus) {
-                            console.warn('Updating timestamp');
                             newProps.dataframe_timestamp = Date.now();
-                            newProps.dataframe_previous = this.dataframe_previous;
-
-                        // table is unfocused but user copied and pasted data
-                        } else if (!this.props.is_focused &&
-                                   R.has('dataframe', newProps)) {
-                            newProps.dataframe_previous = this.props.dataframe;
-                            newProps.dataframe_timestamp = Date.now();
-                        // user wants the new dataframe on every letter press
-                        } else if (!this.props.update_on_unfocus &&
-                                   R.has('dataframe', newProps)) {
-                            newProps.dataframe_previous = this.dataframe_previous;
-                            newProps.dataframe_timestamp = Date.now();
+                            newProps.dataframe_previous = dataframe;
                         }
 
                         this.props.setProps(newProps);
@@ -154,8 +134,7 @@ export const defaultProps = {
         th: {},
 
         td: {},
-    },
-    update_on_unfocus: true
+    }
 };
 
 export const propTypes = {
@@ -165,11 +144,6 @@ export const propTypes = {
     dataframe: PropTypes.arrayOf(PropTypes.object),
     dataframe_previous: PropTypes.arrayOf(PropTypes.object),
     dataframe_timestamp: PropTypes.any,
-    /**
-     * Only send an update of  `dataframe_previous` and `dataframe_timestamp`
-     * when the cell is unfocused ()
-     */
-    update_on_unfocus: PropTypes.bool,
 
     dropdown_properties: PropTypes.objectOf(
         PropTypes.arrayOf(PropTypes.shape({

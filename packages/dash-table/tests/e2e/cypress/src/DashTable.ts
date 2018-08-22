@@ -3,10 +3,6 @@ export default class DashTable {
         return cy.get(`#table tbody tr td.column-${column}`).eq(row);
     }
 
-    static getCellInput(row: number, column: number) {
-        return DashTable.getCell(row, column).get('input');
-    }
-
     static getSelectedCells() {
         return cy.get(`#table tbody td.cell--selected`);
     }

@@ -60,17 +60,6 @@
         "required": false,
         "description": ""
       },
-      "update_on_unfocus": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "Only send an update of  `dataframe_previous` and `dataframe_timestamp`\nwhen the cell is unfocused ()",
-        "defaultValue": {
-          "value": "true",
-          "computed": false
-        }
-      },
       "dropdown_properties": {
         "type": {
           "name": "objectOf",
