@@ -19,9 +19,9 @@ from flask_compress import Compress
 
 from .dependencies import Event, Input, Output, State
 from .resources import Scripts, Css
-from .development.base_component import (Component,
-                                         generate_validation_error_message)
-from .development.validator import DashValidator
+from .development.base_component import Component
+from .development.validator import (DashValidator,
+                                    generate_validation_error_message)
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
