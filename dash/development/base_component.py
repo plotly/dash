@@ -2,19 +2,10 @@ import collections
 import copy
 import os
 import inspect
-import json
 import keyword
-import cerberus
+import pprint
 
-
-
-# Forward declated Component class, see below.
-class Component:
-    pass
-
-
-cerberus.Validator.types_mapping['component'] =\
-   cerberus.TypeDefinition('component', (Component,), ())
+from .validator import DashValidator, generate_validation_error_message
 
 
 def is_number(s):
@@ -102,35 +93,20 @@ class Component(collections.MutableMapping):
                 )
 
         # Make sure arguments have valid values
-        self._validator = cerberus.Validator(self._schema, allow_unknown=True)
+        DashValidator.set_component_class(Component)
+        self._validator = DashValidator(
+            self._schema,
+            allow_unknown=True,
+        )
         valid = self._validator.validate(kwargs)
         if not valid:
-            raise TypeError("""
-                Invalid initialization of component {}.
-                The errors are as follows:
-                Errors:
+            error_message = ("Initialization of  `{}` did not validate.\n"
+                             .format(self.__class__.__name__))
+            error_message += "The errors in validation are as follows:\n\n"
 
-                {}
-            """.format(
-                self.__class__.__name__,
-                "\n\n".join([(
-                    "Invalid value {} for property {}.\n"
-                    "This broke the rule {} which should be {}\n"
-                    "Here is the expected schema for the {} prop:\n\n"
-                    "{}"
-                )
-                 .format(
-                     e.value,
-                     e.schema_path[0],
-                     e.schema_path,
-                     e.constraint,
-                     e.schema_path[0],
-                     json.dumps(
-                         self._schema[e.schema_path[0]],
-                         indent=1
-                     ))
-                 for e in self._validator._errors]))
-               .replace('    ', ''))
+            raise TypeError(
+                generate_validation_error_message(
+                    self._validator._errors, 0, error_message))
 
         # Set object attributes once validations have passed
         for k, v in list(kwargs.items()):
@@ -321,13 +297,13 @@ def js_to_cerberus_type(type_object):
         'node': lambda x: {'type': 'component'},
         'element': lambda x: {'type': 'component'},
         'enum': lambda x: {
-            'anyof': [js_to_cerberus_type(v) for v in x['value']]
+            'anyof': [js_to_cerberus_type(v) for v in x['value']],
         },
         'union': lambda x: {
-            'anyof': [js_to_cerberus_type(v) for v in x['value']]
+            'anyof': [js_to_cerberus_type(v) for v in x['value']],
         },
         'any': lambda x: {
-            'anyof_type': ['boolean', 'number', 'string', 'dict', 'list']
+            'anyof_type': ['boolean', 'number', 'string', 'dict', 'list'],
         },
         'string': lambda x: {'type': 'string'},
         'bool': lambda x: {'type': 'boolean'},
@@ -337,19 +313,19 @@ def js_to_cerberus_type(type_object):
         'objectOf': lambda x: {
             'type': 'dict',
             'allow_unknown': False,
-            'schema': generate_property_schema(x['value'])
+            'schema': js_to_cerberus_type(x['value'])
         },
         'array': lambda x: {'type': 'list'},
         'arrayOf': lambda x: {
             'type': 'list',
             'allow_unknown': False,
-            'schema': generate_property_schema(x['value'])
+            'schema': js_to_cerberus_type(x['value'])
         },
         'shape': lambda x: {
             'type': 'dict',
             'allow_unknown': False,
             'schema': {
-                k: generate_property_schema(v) for k, v in x['value'].items()
+                k: js_to_cerberus_type(v) for k, v in x['value'].items()
             }
         },
         'instanceOf': lambda x: dict(
@@ -358,7 +334,9 @@ def js_to_cerberus_type(type_object):
     }
     if type_object:
         converter = converters[type_object.get('name', 'None')]
-        return converter(type_object)
+        schema = converter(type_object)
+        schema.update({'nullable': True})
+        return schema
     return None
 
 
@@ -410,11 +388,14 @@ def generate_class_string(typename, props, description, namespace):
     # it to be `null` or whether that was just the default value.
     # The solution might be to deal with default values better although
     # not all component authors will supply those.
-    c = '''class {typename}(Component):
+    c = '''
+schema = {schema}
+
+class {typename}(Component):
     """{docstring}"""
+    _schema = schema
     @_explicitize_args
     def __init__(self, {default_argtext}):
-        self._schema = {schema}
         self._prop_names = {list_of_valid_keys}
         self._type = '{typename}'
         self._namespace = '{namespace}'
@@ -494,6 +475,7 @@ def generate_class_string(typename, props, description, namespace):
     )
     schema = {str(k): generate_property_schema(v)
               for k, v in props.items() if not k.endswith("-*")}
+    schema = pprint.pformat(schema, indent=2)
     required_args = required_props(props)
     return c.format(**locals())
 

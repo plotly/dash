@@ -19,13 +19,17 @@ from flask_compress import Compress
 
 from .dependencies import Event, Input, Output, State
 from .resources import Scripts, Css
-from .development.base_component import Component
+from .development.base_component import (Component,
+                                         generate_validation_error_message)
+from .development.validator import DashValidator
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
 from . import _configs
 
+
+DashValidator.set_component_class(Component)
 
 _default_index = '''
 <!DOCTYPE html>
@@ -159,9 +163,9 @@ class Dash(object):
         self._external_stylesheets = external_stylesheets or []
 
         self.registered_paths = {}
+        self.namespaces = {}
 
         # urls
-
         def add_url(name, view_func, methods=('GET',)):
             self.server.add_url_rule(
                 name,
@@ -233,13 +237,6 @@ class Dash(object):
                 'a dash component.')
 
         self._layout = value
-
-        self._components = {}
-        for component in self.layout.traverse():
-            component_id = getattr(component, 'id', None)
-            if component_id:
-                self._components.update({component_id: component})
-
         layout_value = self._layout_value()
         # pylint: disable=protected-access
         self.css._update_layout(layout_value)
@@ -380,6 +377,24 @@ class Dash(object):
             '{}'
             '</script>'
         ).format(json.dumps(self._config()))
+
+    def _infer_namespaces(self):
+        namespaces = {}
+        layout = self.layout
+
+        def extract_namespace_from_component(component):
+            # pylint: disable=protected-access
+            if (isinstance(component, Component) and
+                    component._namespace not in namespaces):
+                namespace = component._namespace
+                namespaces.update({
+                    namespace: importlib.import_module(namespace)
+                })
+
+        extract_namespace_from_component(layout)
+        for t in layout.traverse():
+            extract_namespace_from_component(t)
+        return namespaces
 
     def _generate_meta_html(self):
         has_ie_compat = any(
@@ -811,22 +826,6 @@ class Dash(object):
             def add_context(*args, **kwargs):
 
                 output_value = func(*args, **kwargs)
-                setattr(
-                    self._components[output.component_id],
-                    output.component_property,
-                    output_value
-                )
-                self._components[output.component_id]._validator.validate({
-                    output.component_property: output_value
-                })
-                if output.component_property == 'children':
-                    fake_updated_component =\
-                        self._components[output.component_id]\
-                            .__class__(children=output_value)
-                    for component in fake_updated_component.traverse():
-                        component_id = getattr(component, 'id', None)
-                        if component_id:
-                            self._components.update({component_id: component})
 
                 response = {
                     'response': {
@@ -859,6 +858,7 @@ class Dash(object):
                     mimetype='application/json'
                 )
 
+            self.callback_map[callback_id]['func'] = func
             self.callback_map[callback_id]['callback'] = add_context
 
             return add_context
@@ -874,34 +874,41 @@ class Dash(object):
         target_id = '{}.{}'.format(output['id'], output['property'])
         args = []
         for component_registration in self.callback_map[target_id]['inputs']:
-            matched_input = {}
-            for c in inputs:
-                if (c['property'] == component_registration['property'] and
-                   c['id'] == component_registration['id']):
-                    matched_input = c
-                    break
-            matched_input_value = matched_input.get('value', None)
-            args.append(matched_input_value)
-            setattr(
-                self._components[matched_input['id']],
-                matched_input['property'],
-                matched_input_value
-            )
+            args.append([
+                c.get('value', None) for c in inputs if
+                c['property'] == component_registration['property'] and
+                c['id'] == component_registration['id']
+            ][0])
 
         for component_registration in self.callback_map[target_id]['state']:
-            matched_state = {}
-            for c in state:
-                if (c['property'] == component_registration['property'] and
-                   c['id'] == component_registration['id']):
-                    matched_state = c
-                    break
-            matched_state_value = matched_state.get('value', None)
-            args.append(matched_state_value)
-            setattr(
-                self._components[matched_input['id']],
-                matched_state['property'],
-                matched_state_value
+            args.append([
+                c.get('value', None) for c in state if
+                c['property'] == component_registration['property'] and
+                c['id'] == component_registration['id']
+            ][0])
+
+        output_value = self.callback_map[target_id]['func'](*args)
+
+        namespace = self.namespaces[output['namespace']]
+        component = getattr(namespace, output['type'])
+        validator = DashValidator({
+            output['property']: component._schema[output['property']]
+        })
+        valid = validator.validate({output['property']: output_value})
+        if not valid:
+            error_message = (
+                "Callback to prop `{}` of `{}(id={})` did not validate.\n"
+                .format(
+                    output['property'],
+                    component.__name__,
+                    output['id']
+                )
             )
+            error_message += "The errors in validation are as follows:\n\n"
+
+            raise TypeError(
+                generate_validation_error_message(
+                    validator._errors, 0, error_message))
 
         return self.callback_map[target_id]['callback'](*args)
 
@@ -933,6 +940,7 @@ class Dash(object):
 
         self._generate_scripts_html()
         self._generate_css_dist_html()
+        self.namespaces = self._infer_namespaces()
 
     def _walk_assets_directory(self):
         walk_dir = self._assets_folder
