@@ -1,9 +1,9 @@
+import os
 import unittest
 # noinspection PyProtectedMember
 from dash import _configs
 from dash import exceptions as _exc
 from dash._utils import get_asset_path
-import os
 
 
 class MyTestCase(unittest.TestCase):

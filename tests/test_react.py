@@ -2,9 +2,9 @@ import unittest
 import json
 import pkgutil
 import plotly
-import dash_core_components as dcc
 from dash_html_components import Div
 import dash_renderer
+import dash_core_components as dcc
 import dash
 
 from dash.dependencies import Event, Input, Output, State
@@ -36,7 +36,7 @@ class IntegrationTest(unittest.TestCase):
 
         self.client = self.app.server.test_client()
 
-        self.maxDiff = 100*1000
+        self.maxDiff = 100 * 1000
 
     @unittest.skip('')
     def test_route_list(self):

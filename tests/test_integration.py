@@ -3,13 +3,13 @@ from multiprocessing import Value
 import datetime
 import itertools
 import re
+import time
 import dash_html_components as html
+import dash_dangerously_set_inner_html
 import dash_core_components as dcc
 import dash_flow_example
-import dash_dangerously_set_inner_html
 
 import dash
-import time
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -199,7 +199,7 @@ class Tests(IntegrationTests):
 
         # React wraps text and numbers with e.g. <!-- react-text: 20 -->
         # Remove those
-        comment_regex = '<!--[^\[](.*?)-->'
+        comment_regex = '<!--[^\[](.*?)-->'  # noqa: W605
 
         # Somehow the html attributes are unordered.
         # Try different combinations (they're all valid html)

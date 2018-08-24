@@ -195,7 +195,6 @@ class TestGenerateClasses(unittest.TestCase):
             'baz': 'Lemons',
             'data-foo': 'Blah',
             'aria-bar': 'Seven',
-            'baz': 'Lemons',
             'children': 'Child'
         }
         AKwargs = {
