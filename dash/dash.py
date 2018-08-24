@@ -385,7 +385,7 @@ class Dash(object):
         if not has_ie_compat:
             tags.append('<meta equiv="X-UA-Compatible" content="IE=edge">')
         if not has_charset:
-            tags.append('<meta charset="UTF-8"/>')
+            tags.append('<meta charset="UTF-8">')
 
         tags = tags + [
             _format_tag('meta', x, opened=True) for x in self._meta_tags
