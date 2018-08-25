@@ -96,6 +96,7 @@ class Dash(object):
                 See https://github.com/plotly/dash/issues/141 for details.
                 ''', DeprecationWarning)
 
+        name = name if server is None else server.name
         self._assets_folder = assets_folder or os.path.join(
             flask.helpers.get_root_path(name), 'assets'
         )
