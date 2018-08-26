@@ -874,6 +874,7 @@ class Dash(object):
                 importlib.import_module(output['namespace'])
         namespace = self.namespaces[output['namespace']]
         component = getattr(namespace, output['type'])
+        # pylint: disable=protected-access
         validator = DashValidator({
             output['property']: component._schema.get(output['property'], {})
         })
@@ -889,6 +890,7 @@ class Dash(object):
             )
             error_message += "The errors in validation are as follows:\n\n"
 
+            # pylint: disable=protected-access
             raise TypeError(
                 generate_validation_error_message(
                     validator._errors, 0, error_message))

@@ -106,6 +106,7 @@ class Component(collections.MutableMapping):
                              .format(self.__class__.__name__))
             error_message += "The errors in validation are as follows:\n\n"
 
+            # pylint: disable=protected-access
             raise TypeError(
                 generate_validation_error_message(
                     validator._errors, 0, error_message
@@ -367,9 +368,9 @@ def js_to_cerberus_type(type_object):
 def generate_property_schema(jsonSchema):
     type_object = jsonSchema.get('type', None)
     schema = {'nullable': True}
-    type = js_to_cerberus_type(type_object)
-    if type:
-        schema.update(type)
+    propType = js_to_cerberus_type(type_object)
+    if propType:
+        schema.update(propType)
     required = jsonSchema.get('required', None)
     if required:
         schema.update({'required': True})
@@ -412,6 +413,7 @@ def generate_class_string(typename, props, description, namespace):
     # it to be `null` or whether that was just the default value.
     # The solution might be to deal with default values better although
     # not all component authors will supply those.
+    # pylint: disable=too-many-locals
     c = '''
 schema = {schema}
 
