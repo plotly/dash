@@ -2,6 +2,25 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.28.0]
+- Upgraded Plotly.js, the underlying library behind the
+`dash_core_components.Graph` component, to [version 1.40.1](https://github.com/plotly/plotly.js/releases/tag/v1.40.1).
+See https://github.com/plotly/plotly.js/releases/tag/v1.40.1 for the official notes.
+
+As part of plotly.js release:
+### Changed
+- Bump `browserify` to `v16` [#2923]
+- Bump `glslify` to `v6.2.1` [#2923]
+- Use `color-normlize@1.3.0` throughout code base [#2923]
+### Fixed
+- Fix logic for hiding zero lines when they conflict with axis lines [#2936]
+- Fix `exponentformat` values `'e'` and `'E'` on log axes [#2921]
+- Fix dynamic layer ordering of heatmap and carpet traces [#2917]
+- Fix `Plotly.downloadImage` when using graph id or figure object
+as first argument [#2931]
+- Fix regl-based rendering when WebGL buffer dimensions don't match canvas
+dimensions [#2939]
+
 ## [0.27.2]
 ### Fixed
 - `Tabs.children` can now be undefined, so you can update them dynamically. [#265](https://github.com/plotly/dash-core-components/issues/265)
