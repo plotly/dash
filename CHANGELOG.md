@@ -1,3 +1,7 @@
+## 0.26.1 - 2018-08-26
+## Fixed
+- Fix bug in `_validate_layout` which would not let a user set `app.layout` to be a function that returns a layout [(fixes #334)](https://github.com/plotly/dash/issues/334). [#336](https://github.com/plotly/dash/pull/336)
+
 ## 0.26.0 - 2018-08-20
 ## Added
 - Added `assets_ignore` init keyword, regex filter for the assets files. [#318](https://github.com/plotly/dash/pull/318)

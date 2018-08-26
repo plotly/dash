@@ -521,3 +521,14 @@ class Tests(IntegrationTests):
         # ensure ramda was loaded before the assets so they can use it.
         lo_test = self.driver.find_element_by_id('ramda-test')
         self.assertEqual('Hello World', lo_test.text)
+
+    def test_func_layout_accepted(self):
+
+        app = dash.Dash()
+
+        def create_layout():
+            return html.Div('Hello World')
+        app.layout = create_layout
+
+        self.startServer(app)
+        time.sleep(0.5)
