@@ -3,11 +3,15 @@ import json
 import os
 import shutil
 import unittest
-from dash.development.component_loader import load_components, generate_classes
+from dash.development.component_loader import (
+    load_components,
+    generate_classes
+)
 from dash.development.base_component import (
     generate_class,
     Component
 )
+from dash._utils import convert_unicode_to_string
 
 METADATA_PATH = 'metadata.json'
 
@@ -27,7 +31,7 @@ METADATA_STRING = '''{
             },
             "children": {
                 "type": {
-                    "name": "object"
+                    "name": "node"
                 },
                 "description": "Children",
                 "required": false
@@ -89,7 +93,7 @@ METADATA_STRING = '''{
             },
             "children": {
                 "type": {
-                    "name": "object"
+                    "name": "node"
                 },
                 "description": "Children",
                 "required": false
@@ -97,9 +101,9 @@ METADATA_STRING = '''{
         }
     }
 }'''
-METADATA = json\
+METADATA = convert_unicode_to_string(json\
     .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
-    .decode(METADATA_STRING)
+    .decode(METADATA_STRING))
 
 
 class TestLoadComponents(unittest.TestCase):
@@ -128,7 +132,7 @@ class TestLoadComponents(unittest.TestCase):
         c = load_components(METADATA_PATH)
 
         MyComponentKwargs = {
-            'foo': 'Hello World',
+            'foo': 42,
             'bar': 'Lah Lah',
             'baz': 'Lemons',
             'data-foo': 'Blah',
@@ -190,7 +194,7 @@ class TestGenerateClasses(unittest.TestCase):
         from default_namespace.A import A as A_buildtime
 
         MyComponentKwargs = {
-            'foo': 'Hello World',
+            'foo': 42,
             'bar': 'Lah Lah',
             'baz': 'Lemons',
             'data-foo': 'Blah',

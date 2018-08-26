@@ -7,6 +7,7 @@ import shutil
 import unittest
 import plotly
 
+from dash.development.component_loader import _get_metadata
 from dash.development.base_component import (
     generate_class,
     generate_class_string,
@@ -495,12 +496,7 @@ class TestComponent(unittest.TestCase):
 class TestGenerateClassFile(unittest.TestCase):
     def setUp(self):
         json_path = os.path.join('tests', 'development', 'metadata_test.json')
-        with open(json_path) as data_file:
-            json_string = data_file.read()
-            data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
-                .decode(json_string)
-            self.data = data
+        data = _get_metadata(json_path)
 
         # Create a folder for the new component file
         os.makedirs('TableComponents')
@@ -733,127 +729,86 @@ class TestGenerateClass(unittest.TestCase):
 
     def test_schema_generation(self):
         self.assertEqual(
-            self.ComponentClass()._schema,
-            {
-                'optionalNumber': {
-                    'nullable': True,
-                    'type': 'number'
-                },
-                'optionalEnum': {
-                    'nullable': True,
-                    'anyof': [{}, {}]
-                },
-                'customArrayProp': {
-                    'allow_unknown': False,
-                    'nullable': True,
-                    'type': 'list',
-                    'schema': {
-                        'nullable': True
-                    }
-                },
-                'optionalArray': {
-                    'nullable': True,
-                    'type': 'list'
-                },
-                'optionalSymbol': {
-                    'nullable': True
-                },
-                'id': {
-                    'nullable': True,
-                    'type': 'string'
-                },
-                'optionalString': {
-                    'nullable': True,
-                    'type': 'string'
-                },
-                'dashEvents': {
-                    'nullable': True,
-                    'anyof': [{}, {}, {}]
-                },
-                'children': {
-                    'nullable': True,
-                    'type': 'component'
-                },
-                'optionalObject': {
-                    'nullable': True,
-                    'type': 'dict'
-                },
-                'optionalArrayOf': {
-                    'allow_unknown': False,
-                    'nullable': True,
-                    'type': 'list',
-                    'schema': {
-                        'nullable': True
-                    }
-                },
-                'optionalObjectWithShapeAndNestedDescription': {
-                    'allow_unknown': False,
-                    'nullable': True,
-                    'type': 'dict',
-                    'schema': {
-                        'color': {
-                            'nullable': True
-                        },
-                        'figure': {
-                            'nullable': True
-                        },
-                        'fontSize': {
-                            'nullable': True
-                        }
-                    }
-                },
-                'in': {
-                    'nullable': True,
-                    'type': 'string'
-                },
-                'optionalElement': {
-                    'nullable': True,
-                    'type': 'component'
-                },
-                'optionalAny': {
-                    'nullable': True,
-                    'anyof': [
+            self.ComponentClass._schema,
+            {'children': {'anyof': [{'type': 'component'},
                         {'type': 'boolean'},
                         {'type': 'number'},
                         {'type': 'string'},
-                        {'type': 'dict'},
-                        {'type': 'list'}
-                    ]
-                },
-                'customProp': {
-                    'nullable': True
-                },
-                'optionalMessage': {
-                    'nullable': True
-                },
-                'optionalBool': {
-                    'nullable': True,
-                    'type': 'boolean'
-                },
-                'optionalUnion': {
-                    'nullable': True,
-                    'anyof': [
-                        {'type': 'string'},
-                        {'type': 'number'},
-                        {}
-                    ]
-                },
-                'optionalNode': {
-                    'nullable': True,
-                    'type': 'component'
-                },
-                'optionalObjectOf': {
-                    'allow_unknown': False,
-                    'nullable': True,
-                    'type': 'dict',
-                    'schema': {
-                        'nullable': True
-                    }
-                },
-                'optionalFunc': {
-                    'nullable': True
-                }
-            }
+                        {'nullable': True,
+                         'schema': {'anyof': [{'type': 'component'},
+                                              {'type': 'boolean'},
+                                              {'type': 'number'},
+                                              {'type': 'string'}]},
+                         'type': 'list'}],
+              'nullable': True},
+ 'customArrayProp': {'allow_unknown': False,
+                     'nullable': True,
+                     'schema': {'nullable': True},
+                     'type': 'list'},
+ 'customProp': {'nullable': True},
+ 'dashEvents': {'anyof': [{'nullable': True},
+                          {'nullable': True},
+                          {'nullable': True}],
+                'nullable': True},
+ 'id': {'nullable': True, 'type': 'string'},
+ 'in': {'nullable': True, 'type': 'string'},
+ 'optionalAny': {'anyof_type': ['boolean',
+                                'number',
+                                'string',
+                                'dict',
+                                'list'],
+                 'nullable': True},
+ 'optionalArray': {'nullable': True, 'type': 'list'},
+ 'optionalArrayOf': {'allow_unknown': False,
+                     'nullable': True,
+                     'schema': {'nullable': True, 'type': 'number'},
+                     'type': 'list'},
+ 'optionalBool': {'nullable': True, 'type': 'boolean'},
+ 'optionalElement': {'nullable': True, 'type': 'component'},
+ 'optionalEnum': {'anyof': [{'nullable': True}, {'nullable': True}],
+                  'nullable': True},
+ 'optionalFunc': {'nullable': True},
+ 'optionalMessage': {'nullable': True},
+ 'optionalNode': {'anyof': [{'type': 'component'},
+                            {'type': 'boolean'},
+                            {'type': 'number'},
+                            {'type': 'string'},
+                            {'nullable': True,
+                             'schema': {'anyof': [{'type': 'component'},
+                                                  {'type': 'boolean'},
+                                                  {'type': 'number'},
+                                                  {'type': 'string'}]},
+                             'type': 'list'}],
+                  'nullable': True},
+ 'optionalNumber': {'nullable': True, 'type': 'number'},
+ 'optionalObject': {'nullable': True, 'type': 'dict'},
+ 'optionalObjectOf': {'allow_unknown': False,
+                      'nullable': True,
+                      'schema': {'nullable': True, 'type': 'number'},
+                      'type': 'dict'},
+ 'optionalObjectWithShapeAndNestedDescription': {'allow_unknown': False,
+                                                 'nullable': True,
+                                                 'schema': {'color': {'nullable': True,
+                                                                      'type': 'string'},
+                                                            'figure': {'allow_unknown': False,
+                                                                       'nullable': True,
+                                                                       'schema': {'data': {'allow_unknown': False,
+                                                                                           'nullable': True,
+                                                                                           'schema': {'nullable': True,
+                                                                                                      'type': 'dict'},
+                                                                                           'type': 'list'},
+                                                                                  'layout': {'nullable': True,
+                                                                                             'type': 'dict'}},
+                                                                       'type': 'dict'},
+                                                            'fontSize': {'nullable': True,
+                                                                         'type': 'number'}},
+                                                 'type': 'dict'},
+ 'optionalString': {'nullable': True, 'type': 'string'},
+ 'optionalSymbol': {'nullable': True},
+ 'optionalUnion': {'anyof': [{'nullable': True, 'type': 'string'},
+                             {'nullable': True, 'type': 'number'},
+                             {'nullable': True}],
+                   'nullable': True}}
         )
 
     def test_required_props(self):

@@ -26,6 +26,7 @@ from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
+from ._utils import convert_unicode_to_string as _convert_unicode_to_string
 from . import _configs
 
 
@@ -377,24 +378,6 @@ class Dash(object):
             '{}'
             '</script>'
         ).format(json.dumps(self._config()))
-
-    def _infer_namespaces(self):
-        namespaces = {}
-        layout = self.layout
-
-        def extract_namespace_from_component(component):
-            # pylint: disable=protected-access
-            if (isinstance(component, Component) and
-                    component._namespace not in namespaces):
-                namespace = component._namespace
-                namespaces.update({
-                    namespace: importlib.import_module(namespace)
-                })
-
-        extract_namespace_from_component(layout)
-        for t in layout.traverse():
-            extract_namespace_from_component(t)
-        return namespaces
 
     def _generate_meta_html(self):
         has_ie_compat = any(
@@ -823,14 +806,11 @@ class Dash(object):
 
         def wrap_func(func):
             @wraps(func)
-            def add_context(*args, **kwargs):
-
-                output_value = func(*args, **kwargs)
-
+            def add_context(validated_output):
                 response = {
                     'response': {
                         'props': {
-                            output.component_property: output_value
+                            output.component_property: validated_output
                         }
                     }
                 }
@@ -841,7 +821,7 @@ class Dash(object):
                         cls=plotly.utils.PlotlyJSONEncoder
                     )
                 except TypeError:
-                    self._validate_callback_output(output_value, output)
+                    self._validate_callback_output(validated_output, output)
                     raise exceptions.InvalidCallbackReturnValue('''
                     The callback for property `{property:s}`
                     of component `{id:s}` returned a value
@@ -866,7 +846,7 @@ class Dash(object):
         return wrap_func
 
     def dispatch(self):
-        body = flask.request.get_json()
+        body = _convert_unicode_to_string(flask.request.get_json())
         inputs = body.get('inputs', [])
         state = body.get('state', [])
         output = body['output']
@@ -889,10 +869,13 @@ class Dash(object):
 
         output_value = self.callback_map[target_id]['func'](*args)
 
+        if output['namespace'] not in self.namespaces:
+            self.namespaces[output['namespace']] =\
+                importlib.import_module(output['namespace'])
         namespace = self.namespaces[output['namespace']]
         component = getattr(namespace, output['type'])
         validator = DashValidator({
-            output['property']: component._schema[output['property']]
+            output['property']: component._schema.get(output['property'], {})
         })
         valid = validator.validate({output['property']: output_value})
         if not valid:
@@ -910,7 +893,7 @@ class Dash(object):
                 generate_validation_error_message(
                     validator._errors, 0, error_message))
 
-        return self.callback_map[target_id]['callback'](*args)
+        return self.callback_map[target_id]['callback'](output_value)
 
     def _validate_layout(self):
         if self.layout is None:
@@ -940,7 +923,6 @@ class Dash(object):
 
         self._generate_scripts_html()
         self._generate_css_dist_html()
-        self.namespaces = self._infer_namespaces()
 
     def _walk_assets_directory(self):
         walk_dir = self._assets_folder

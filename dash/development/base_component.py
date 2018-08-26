@@ -74,6 +74,8 @@ class Component(collections.MutableMapping):
 
     REQUIRED = _REQUIRED()
 
+    _schema = {}
+
     def __init__(self, **kwargs):
         # pylint: disable=super-init-not-called
         # Make sure arguments have valid names
@@ -94,11 +96,11 @@ class Component(collections.MutableMapping):
 
         # Make sure arguments have valid values
         DashValidator.set_component_class(Component)
-        self._validator = DashValidator(
+        validator = DashValidator(
             self._schema,
             allow_unknown=True,
         )
-        valid = self._validator.validate(kwargs)
+        valid = validator.validate(kwargs)
         if not valid:
             error_message = ("Initialization of  `{}` did not validate.\n"
                              .format(self.__class__.__name__))
@@ -106,7 +108,9 @@ class Component(collections.MutableMapping):
 
             raise TypeError(
                 generate_validation_error_message(
-                    self._validator._errors, 0, error_message))
+                    validator._errors, 0, error_message
+                )
+            )
 
         # Set object attributes once validations have passed
         for k, v in list(kwargs.items()):
@@ -294,7 +298,27 @@ def js_to_cerberus_type(type_object):
         'func': lambda x: {},
         'symbol': lambda x: {},
         'custom': lambda x: {},
-        'node': lambda x: {'type': 'component'},
+        'node': lambda x: {
+            'nullable': True,
+            'anyof': [
+                {'type': 'component'},
+                {'type': 'boolean'},
+                {'type': 'number'},
+                {'type': 'string'},
+                {
+                    'type': 'list',
+                    'nullable': True,
+                    'schema': {
+                        'anyof': [
+                            {'type': 'component'},
+                            {'type': 'boolean'},
+                            {'type': 'number'},
+                            {'type': 'string'}
+                        ]
+                    }
+                }
+            ]
+        },
         'element': lambda x: {'type': 'component'},
         'enum': lambda x: {
             'anyof': [js_to_cerberus_type(v) for v in x['value']],
@@ -475,7 +499,7 @@ class {typename}(Component):
     )
     schema = {str(k): generate_property_schema(v)
               for k, v in props.items() if not k.endswith("-*")}
-    schema = pprint.pformat(schema, indent=2)
+    schema = pprint.pformat(schema)
     required_args = required_props(props)
     return c.format(**locals())
 

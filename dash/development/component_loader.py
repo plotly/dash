@@ -1,6 +1,7 @@
 import collections
 import json
 import os
+from dash._utils import convert_unicode_to_string
 from .base_component import generate_class
 from .base_component import generate_class_file
 
@@ -12,7 +13,7 @@ def _get_metadata(metadata_path):
         data = json\
             .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
             .decode(json_string)
-    return data
+    return convert_unicode_to_string(data)
 
 
 def load_components(metadata_path,
