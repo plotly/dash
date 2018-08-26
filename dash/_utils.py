@@ -7,7 +7,7 @@ def convert_unicode_to_string(data):
     if type(data).__name__ == 'unicode':
         return str(data)
     elif isinstance(data, collections.Mapping):
-        return dict(map(convert_unicode_to_string, data.iteritems()))
+        return dict(map(convert_unicode_to_string, data.items()))
     elif isinstance(data, collections.Iterable):
         return type(data)(map(convert_unicode_to_string, data))
     return data
