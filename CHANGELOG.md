@@ -1,3 +1,7 @@
+## 0.26.2 - 2018-08-26
+## Fixed
+- Only create the assets blueprint once for app that provide the same flask instance to multiple dash instance. [#343](https://github.com/plotly/dash/pull/343)
+
 ## 0.26.1 - 2018-08-26
 ## Fixed
 - Fix bug in `_validate_layout` which would not let a user set `app.layout` to be a function that returns a layout [(fixes #334)](https://github.com/plotly/dash/issues/334). [#336](https://github.com/plotly/dash/pull/336)
