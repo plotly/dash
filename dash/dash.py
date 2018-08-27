@@ -24,6 +24,7 @@ from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
+from ._utils import get_asset_path as _get_asset_path
 from . import _configs
 
 
@@ -329,9 +330,9 @@ class Dash(object):
                     'Serving files from absolute_path isn\'t supported yet'
                 )
             elif 'asset_path' in resource:
-                static_url = flask.url_for('assets.static',
-                                           filename=resource['asset_path'],
-                                           mod=resource['ts'])
+                static_url = self.get_asset_url(resource['asset_path'])
+                # Add a bust query param
+                static_url += '?m={}'.format(resource['ts'])
                 srcs.append(static_url)
         return srcs
 
@@ -941,6 +942,12 @@ class Dash(object):
                     self.css.append_css(add_resource(path, full))
                 elif f == 'favicon.ico':
                     self._favicon = path
+
+    def get_asset_url(self, path):
+        return _get_asset_path(
+            self.config.requests_pathname_prefix,
+            self.config.routes_pathname_prefix,
+            path)
 
     def run_server(self,
                    port=8050,
