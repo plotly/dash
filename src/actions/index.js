@@ -426,8 +426,18 @@ function updateOutput(
      * }
      *
      */
+
+     const { type: outputType, namespace: outputNamespace } = view(
+      lensPath(paths[outputComponentId]),
+      layout
+    )
      const payload = {
-         output: {id: outputComponentId, property: outputProp}
+         output: {
+           id: outputComponentId,
+           property: outputProp,
+           type: outputType,
+           namespace: outputNamespace,
+         }
      };
 
      if (event) {
