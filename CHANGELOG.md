@@ -1,3 +1,10 @@
+## 0.26.3 - 2018-08-27
+## Fixed
+- Prefix assets files with `requests_pathname_prefix`. [#351](https://github.com/plotly/dash/pull/351)
+
+## Added
+- `Dash.get_asset_url` will give the prefixed url for the asset file.
+
 ## 0.26.2 - 2018-08-26
 ## Fixed
 - Only create the assets blueprint once for app that provide the same flask instance to multiple dash instance. [#343](https://github.com/plotly/dash/pull/343)
