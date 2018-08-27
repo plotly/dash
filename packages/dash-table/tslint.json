@@ -20,6 +20,7 @@
         "no-conditional-assignment": false,
         "no-empty": false,
         "no-unused-expression": [true, "allow-new"],
+        "object-literal-key-quotes": [true, "as-needed"],
         "object-literal-sort-keys": false,
         "object-literal-shorthand": false,
         "one-line": [true,

@@ -1,0 +1,294 @@
+import * as R from 'ramda';
+import React, { Component, CSSProperties } from 'react';
+import Dropdown from 'react-select';
+
+import { isEqual } from 'core/comparer';
+import { memoizeOne } from 'core/memoizer';
+import memoizerCache from 'core/memoizerCache';
+import SyntaxTree from 'core/syntax-tree';
+
+import {
+    ICellDefaultProps,
+    ICellProps,
+    ICellPropsWithDefaults,
+    ICellState
+} from 'dash-table/components/Cell/props';
+
+import {
+    IDropdownOptions,
+    IConditionalDropdown,
+    IConditionalStyle
+} from 'dash-table/components/Cell/types';
+
+export default class Cell extends Component<ICellProps, ICellState> {
+    private static readonly dropdownAstCache = memoizerCache<[string, string | number, number], [string], SyntaxTree>(
+        (query: string) => new SyntaxTree(query)
+    );
+
+    private static readonly styleAstCache = memoizerCache<[string, string | number, number], [string], SyntaxTree>(
+        (query: string) => new SyntaxTree(query)
+    );
+
+    public static defaultProps: ICellDefaultProps = {
+        classes: [],
+        conditionalDropdowns: [],
+        conditionalStyles: [],
+        staticStyle: {},
+        type: 'text'
+    };
+
+    constructor(props: ICellProps) {
+        super(props);
+
+        this.state = {
+            value: props.value
+        };
+    }
+
+    private get propsWithDefaults(): ICellPropsWithDefaults {
+        return this.props as ICellPropsWithDefaults;
+    }
+
+    private get classes(): string[] {
+        let {
+            active,
+            classes,
+            editable,
+            selected,
+            type
+        } = this.propsWithDefaults;
+
+        return [
+            ...(active ? ['focused'] : []),
+            ...(!editable ? ['cell--uneditable'] : []),
+            ...(selected ? ['cell--selected'] : []),
+            ...(type === 'dropdown' ? ['dropdown'] : []),
+            ...classes
+        ];
+    }
+
+    private renderDropdown() {
+        const {
+            clearable,
+            onChange,
+            value
+        } = this.propsWithDefaults;
+
+        const dropdown = this.dropdown;
+
+        return !dropdown ?
+            this.renderValue() :
+            (<Dropdown
+                ref='dropdown'
+                clearable={clearable}
+                onChange={(newValue: any) => {
+                    onChange(newValue ? newValue.value : newValue);
+                }}
+                onOpen={this.handleOpenDropdown}
+                options={dropdown}
+                placeholder={''}
+                value={value}
+            />);
+    }
+
+    private onPaste = (e: React.ClipboardEvent<Element>) => {
+        const { onPaste } = this.propsWithDefaults;
+
+        onPaste(e);
+        e.stopPropagation();
+    }
+
+    private renderInput() {
+        const {
+            active,
+            focused,
+            onClick,
+            onDoubleClick
+        } = this.propsWithDefaults;
+
+        const classes = [
+            ...(active ? ['input-active'] : []),
+            ...(focused ? ['focused'] : ['unfocused']),
+            ...['cell-value']
+        ];
+
+        const attributes = {
+            className: classes.join(' '),
+            onClick: onClick,
+            onDoubleClick: onDoubleClick
+        };
+
+        return !active ?
+            this.renderValue(attributes) :
+            (<input
+                ref='textInput'
+                type='text'
+                value={this.state.value}
+                onChange={this.handleChange}
+                onPaste={this.onPaste}
+                {...attributes}
+            />);
+    }
+
+    private renderValue(attributes = {}) {
+        const { value } = this.propsWithDefaults;
+
+        return (<div
+            {...attributes}
+        >
+            {value}
+        </div>);
+    }
+
+    private renderInner() {
+        const {
+            type
+        } = this.props;
+
+        switch (type) {
+            case 'text':
+            case 'numeric':
+                return this.renderInput();
+            case 'dropdown':
+                return this.renderDropdown();
+            default:
+                return this.renderValue();
+        }
+    }
+
+    private getDropdown = memoizeOne((...dropdowns: IDropdownOptions[]): IDropdownOptions | undefined => {
+        return dropdowns.length ? dropdowns.slice(-1)[0] : undefined;
+    });
+
+    private get dropdown() {
+        let {
+            conditionalDropdowns,
+            datum,
+            property,
+            staticDropdown,
+            tableId
+        } = this.propsWithDefaults;
+
+        const dropdowns = [
+            ...(staticDropdown ? [staticDropdown] : []),
+            ...R.map(
+                ([cd]) => cd.dropdown,
+                R.filter(
+                    ([cd, i]) => Cell.dropdownAstCache([tableId, property, i], [cd.condition]).evaluate(datum),
+                    R.addIndex<IConditionalDropdown, [IConditionalDropdown, number]>(R.map)(
+                        (cd, i) => [cd, i],
+                        conditionalDropdowns
+                    ))
+            )
+        ];
+
+        return this.getDropdown(...dropdowns);
+    }
+
+    private getStyle = memoizeOne((...styles: CSSProperties[]) => {
+        return styles.length ? R.mergeAll<CSSProperties>(styles) : undefined;
+    });
+
+    private get style() {
+        let {
+            conditionalStyles,
+            datum,
+            property,
+            staticStyle,
+            tableId
+        } = this.propsWithDefaults;
+
+        const styles = [staticStyle, ...R.map(
+            ([cs]) => cs.style,
+            R.filter(
+                ([cs, i]) => Cell.styleAstCache([tableId, property, i], [cs.condition]).evaluate(datum),
+                R.addIndex<IConditionalStyle, [IConditionalStyle, number]>(R.map)(
+                    (cs, i) => [cs, i],
+                    conditionalStyles
+                )
+            )
+        )];
+
+        return this.getStyle(...styles);
+    }
+
+    render() {
+        return (<td
+            ref='td'
+            tabIndex={-1}
+            className={this.classes.join(' ')}
+            style={this.style}
+        >
+            {this.renderInner()}
+        </td>);
+    }
+
+    handleChange = (e: any) => {
+        this.setState({ value: e.target.value });
+    }
+
+    handleOpenDropdown = () => {
+        const { dropdown, td }: { [key: string]: any } = this.refs;
+
+        const menu: HTMLElement = dropdown.wrapper.querySelector('.Select-menu-outer');
+        const parentBounds = td.getBoundingClientRect();
+
+        let relativeParent = menu;
+        while (getComputedStyle(relativeParent).position !== 'relative') {
+            if (!relativeParent.parentElement) {
+                break;
+            }
+
+            relativeParent = relativeParent.parentElement;
+        }
+
+        const relativeBounds = relativeParent.getBoundingClientRect();
+
+        const left = (parentBounds.left - relativeBounds.left) + relativeParent.scrollLeft;
+        const top = (parentBounds.top - relativeBounds.top) + relativeParent.scrollTop + parentBounds.height;
+
+        menu.style.width = `${parentBounds.width}px`;
+        menu.style.top = `${top}px`;
+        menu.style.left = `${left}px`;
+        menu.style.position = 'absolute';
+    }
+
+    componentWillReceiveProps(nextProps: ICellPropsWithDefaults) {
+        const { value } = this.props;
+        const { value: nextValue } = nextProps;
+
+        if (value !== nextValue) {
+            this.setState({
+                value: nextValue
+            });
+        }
+    }
+
+    componentDidUpdate() {
+        const { active, onChange, value } = this.propsWithDefaults;
+
+        if (active && this.refs.textInput) {
+            (this.refs.textInput as HTMLElement).focus();
+        }
+
+        if (active && this.refs.dropdown) {
+            (this.refs.td as HTMLElement).focus();
+        }
+
+        if (!active && this.state.value !==  value) {
+            onChange({
+                target: {
+                    value: this.state.value
+                }
+            } as any);
+        }
+    }
+
+    shouldComponentUpdate(nextProps: ICellPropsWithDefaults, nextState: ICellState) {
+        const props = this.props;
+        const state = this.state;
+
+        return !isEqual(props, nextProps, true) ||
+            !isEqual(state, nextState, true);
+    }
+}

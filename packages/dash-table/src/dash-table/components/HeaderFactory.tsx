@@ -138,7 +138,7 @@ export default class HeaderFactory {
                     maxWidth: width,
                     minWidth: width,
                     width: width
-                } : {}}
+                } : undefined}
             >
                 {rowIsSortable ? (
                     <span
@@ -190,7 +190,7 @@ export default class HeaderFactory {
                     'expanded-row--empty-cell ' +
                     (n_fixed_columns > 0 ? 'frozen-left frozen-left-0' : '')
                 }
-                style={n_fixed_columns > 0 ? { width: `30px` } : {}}
+                style={n_fixed_columns > 0 ? { width: `30px` } : undefined}
 
             />
         );
@@ -207,7 +207,7 @@ export default class HeaderFactory {
                     'expanded-row--empty-cell ' +
                     (n_fixed_columns > rowSelectableFixedIndex ? `frozen-left frozen-left-${rowSelectableFixedIndex}` : '')
                 }
-                style={n_fixed_columns > rowSelectableFixedIndex ? { width: `30px` } : {}}
+                style={n_fixed_columns > rowSelectableFixedIndex ? { width: `30px` } : undefined}
             />
         );
     }

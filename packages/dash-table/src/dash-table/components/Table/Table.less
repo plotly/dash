@@ -70,6 +70,11 @@
         position: static;
     }
 
+    .Select,
+    .Select-control {
+        background-color: inherit;
+    }
+
     .Select-value {
         display: flex;
         flex-direction: column;
@@ -133,8 +138,12 @@
         }
     }
 
-    td {
+    tr {
         background-color: white;
+    }
+
+    td {
+        background-color: inherit;
 
         &.cell--selected {
             background-color: var(--selected-background);

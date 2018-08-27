@@ -60,43 +60,6 @@
         "required": false,
         "description": ""
       },
-      "dropdown_properties": {
-        "type": {
-          "name": "objectOf",
-          "value": {
-            "name": "arrayOf",
-            "value": {
-              "name": "shape",
-              "value": {
-                "options": {
-                  "name": "shape",
-                  "value": {
-                    "label": {
-                      "name": "string",
-                      "required": false
-                    },
-                    "value": {
-                      "name": "string",
-                      "required": false
-                    },
-                    "required": {
-                      "name": "bool",
-                      "required": false
-                    }
-                  },
-                  "required": false
-                },
-                "disabled": {
-                  "name": "bool",
-                  "required": false
-                }
-              }
-            }
-          }
-        },
-        "required": false,
-        "description": ""
-      },
       "editable": {
         "type": {
           "name": "bool"
@@ -280,7 +243,21 @@
       },
       "virtualization": {
         "type": {
-          "name": "string"
+          "name": "enum",
+          "value": [
+            {
+              "value": "'fe'",
+              "computed": false
+            },
+            {
+              "value": "'be'",
+              "computed": false
+            },
+            {
+              "value": "'none'",
+              "computed": false
+            }
+          ]
         },
         "required": false,
         "description": "",
@@ -325,37 +302,214 @@
           "computed": false
         }
       },
-      "filtering": {
+      "column_conditional_dropdowns": {
         "type": {
-          "name": "shape",
+          "name": "arrayOf",
           "value": {
-            "type": {
-              "name": "string",
-              "required": false
-            },
-            "options": {
-              "name": "arrayOf",
-              "value": {
-                "name": "shape",
-                "value": {
-                  "field": {
-                    "name": "string",
-                    "required": false
-                  },
-                  "rule": {
-                    "name": "any",
-                    "required": false
-                  }
-                }
+            "name": "shape",
+            "value": {
+              "id": {
+                "name": "string",
+                "required": false
               },
-              "required": false
+              "dropdowns": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "shape",
+                  "value": {
+                    "condition": {
+                      "name": "string",
+                      "required": false
+                    },
+                    "dropdown": {
+                      "name": "arrayOf",
+                      "value": {
+                        "name": "shape",
+                        "value": {
+                          "label": {
+                            "name": "string",
+                            "required": false
+                          },
+                          "value": {
+                            "name": "any",
+                            "required": false
+                          }
+                        }
+                      },
+                      "required": false
+                    }
+                  }
+                },
+                "required": false
+              }
             }
           }
         },
         "required": false,
         "description": "",
         "defaultValue": {
-          "value": "{\n    type: 'fe',\n    options: []\n}",
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "column_static_dropdown": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "id": {
+                "name": "string",
+                "required": false
+              },
+              "dropdown": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "shape",
+                  "value": {
+                    "label": {
+                      "name": "string",
+                      "required": false
+                    },
+                    "value": {
+                      "name": "any",
+                      "required": false
+                    }
+                  }
+                },
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "column_conditional_style": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "id": {
+                "name": "string",
+                "required": false
+              },
+              "styles": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "shape",
+                  "value": {
+                    "condition": {
+                      "name": "string",
+                      "required": false
+                    },
+                    "style": {
+                      "name": "object",
+                      "required": false
+                    }
+                  }
+                },
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": ""
+      },
+      "column_static_style": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "id": {
+                "name": "string",
+                "required": false
+              },
+              "style": {
+                "name": "object",
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "row_conditional_styles": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "condition": {
+                "name": "string",
+                "required": false
+              },
+              "style": {
+                "name": "object",
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "row_static_style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "filtering": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'fe'",
+              "computed": false
+            },
+            {
+              "value": "'be'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "'fe'",
+          "computed": false
+        }
+      },
+      "filtering_settings": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "''",
           "computed": false
         }
       },
@@ -421,6 +575,13 @@
           "value": "[]",
           "computed": false
         }
+      },
+      "column_conditional_styles": {
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        },
+        "required": false
       },
       "changed_data": {
         "defaultValue": {

@@ -80,10 +80,8 @@ export const defaultProps = {
     },
     navigation: 'page',
 
-    filtering: {
-        type: 'fe',
-        options: []
-    },
+    filtering: 'fe',
+    filtering_settings: '',
     sorting: {
         type: 'fe',
         options: []
@@ -91,6 +89,15 @@ export const defaultProps = {
 
     virtual_dataframe: [],
     virtual_dataframe_indices: [],
+
+    column_conditional_dropdowns: [],
+    column_static_dropdown: [],
+
+    column_conditional_styles: [],
+    column_static_style: [],
+
+    row_conditional_styles: [],
+    row_static_style: {},
 
     changed_data: {},
     dataframe: [],
@@ -145,18 +152,6 @@ export const propTypes = {
     dataframe_previous: PropTypes.arrayOf(PropTypes.object),
     dataframe_timestamp: PropTypes.any,
 
-    dropdown_properties: PropTypes.objectOf(
-        PropTypes.arrayOf(PropTypes.shape({
-            'options': PropTypes.shape({
-                'label': PropTypes.string,
-                'value': PropTypes.string,
-                'required': PropTypes.bool
-            }),
-            'disabled': PropTypes.bool,
-            // And the rest of the dropdown props...
-        }))
-    ),
-
     editable: PropTypes.bool,
     end_cell: PropTypes.arrayOf(PropTypes.number),
     id: PropTypes.string.isRequired,
@@ -178,7 +173,7 @@ export const propTypes = {
         rule: PropTypes.string
     })),
 
-    virtualization: PropTypes.string,
+    virtualization: PropTypes.oneOf(['fe', 'be', 'none']),
     virtualization_settings: PropTypes.shape({
         displayed_pages: PropTypes.number,
         current_page: PropTypes.number,
@@ -186,15 +181,45 @@ export const propTypes = {
     }),
     navigation: PropTypes.string,
 
-    filtering: PropTypes.shape({
-        type: PropTypes.string,
-        options: PropTypes.arrayOf(
-            PropTypes.shape({
-                field: PropTypes.string,
-                rule: PropTypes.any
-            })
-        )
-    }),
+    column_conditional_dropdowns: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        dropdowns: PropTypes.arrayOf(PropTypes.shape({
+            condition: PropTypes.string,
+            dropdown: PropTypes.arrayOf(PropTypes.shape({
+                label: PropTypes.string,
+                value: PropTypes.any
+            }))
+        }))
+    })),
+    column_static_dropdown: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        dropdown: PropTypes.arrayOf(PropTypes.shape({
+            label: PropTypes.string,
+            value: PropTypes.any
+        }))
+    })),
+
+    column_conditional_style: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        styles: PropTypes.arrayOf(PropTypes.shape({
+            condition: PropTypes.string,
+            style: PropTypes.object
+        }))
+    })),
+    column_static_style: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        style: PropTypes.object
+    })),
+
+    row_conditional_styles: PropTypes.arrayOf(PropTypes.shape({
+        condition: PropTypes.string,
+        style: PropTypes.object
+    })),
+    row_static_style: PropTypes.object,
+
+    filtering: PropTypes.oneOf(['fe', 'be']),
+    filtering_settings: PropTypes.string,
+
     sorting: PropTypes.shape({
         type: PropTypes.string,
         options: PropTypes.arrayOf(

@@ -2,13 +2,22 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as R from 'ramda';
 
+import { memoizeOne } from 'core/memoizer';
+import memoizerCache from 'core/memoizerCache';
 import Stylesheet from 'core/Stylesheet';
+import SyntaxTree from 'core/syntax-tree';
+
 import Cell from 'dash-table/components/Cell';
 import * as actions from 'dash-table/utils/actions';
+import { isEqual } from 'core/comparer';
 
 export const DEFAULT_CELL_WIDTH = 200;
 
 const handlers = new Map();
+
+const astCache = memoizerCache(
+    query => new SyntaxTree(query)
+);
 
 export default class Row extends Component {
     constructor(props) {
@@ -19,6 +28,8 @@ export default class Row extends Component {
         this.handleClick = this.handleClick.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.handlePaste = this.handlePaste.bind(this);
+
+        this.getStyle = memoizeOne((...styles) => styles.length ? R.mergeAll(styles) : undefined);
     }
 
     getEventHandler(fn, idx, i) {
@@ -177,7 +188,7 @@ export default class Row extends Component {
                 }
                 style={n_fixed_columns > rowSelectableFixedIndex ? {
                     width: `30px`
-                } : {}}
+                } : undefined}
             >
                 <input
                     type={row_selectable === 'single' ? 'radio' : 'checkbox'}
@@ -215,7 +226,7 @@ export default class Row extends Component {
                 onClick={() => setProps(actions.deleteRow(idx, this.props))}
                 style={n_fixed_columns > 0 ? {
                     width: `30px`
-                } : {}}
+                } : undefined}
             >
                 {'×'}
             </td>
@@ -225,15 +236,19 @@ export default class Row extends Component {
     renderCells() {
         const {
             active_cell,
+            column_conditional_dropdowns,
+            column_conditional_styles,
+            column_static_dropdown,
+            column_static_style,
             columns,
-            dataframe,
-            dropdown_properties,
-            idx,
+            datum,
             editable,
+            idx,
             is_focused,
             n_fixed_columns,
             row_deletable,
-            row_selectable
+            row_selectable,
+            tableId
         } = this.props;
 
         const visibleColumns = columns.filter(column => !column.hidden);
@@ -261,30 +276,136 @@ export default class Row extends Component {
                 (isFixed ? { maxWidth: width, minWidth: width, width: width } : {})
             );
 
-            const dropdown = ((
-                dropdown_properties &&
-                dropdown_properties[column.id] &&
-                (dropdown_properties[column.id].length > idx ? dropdown_properties[column.id][idx] : null)
-            ) || column || {}).options;
+            let conditionalDropdowns = column_conditional_dropdowns.find(cd => cd.id === column.id);
+            let staticDropdown = column_static_dropdown.find(sd => sd.id === column.id);
+
+            conditionalDropdowns = conditionalDropdowns && conditionalDropdowns.dropdowns;
+            staticDropdown = staticDropdown && staticDropdown.dropdown;
+
+            let conditionalStyles = column_conditional_styles.find(cs => cs.id === column.id);
+            let staticStyle = column_static_style.find(ss => ss.id === column.id);
+
+            conditionalStyles = conditionalStyles && conditionalStyles.styles;
+            staticStyle = staticStyle && staticStyle.style;
 
             return (<Cell
                 key={`${column.id}-${i}`}
                 active={active_cell[0] === idx && active_cell[1] === i}
                 classes={classes}
                 clearable={column.clearable}
-                dropdown={dropdown}
+                conditionalDropdowns={conditionalDropdowns}
+                conditionalStyles={conditionalStyles}
+                datum={datum}
                 editable={editable}
                 focused={is_focused}
                 onClick={this.getEventHandler(this.handleClick, idx, i)}
                 onDoubleClick={this.getEventHandler(this.handleDoubleClick, idx, i)}
                 onPaste={this.getEventHandler(this.handlePaste, idx, i)}
                 onChange={this.getEventHandler(this.handleChange, idx, i)}
+                property={column.id}
                 selected={this.isCellSelected(idx, i)}
+                staticDropdown={staticDropdown}
+                staticStyle={staticStyle}
                 style={style}
+                tableId={tableId}
                 type={column.type}
-                value={dataframe[idx][column.id]}
+                value={datum[column.id]}
             />);
         });
+    }
+
+    get style() {
+        const {
+            datum,
+            row_conditional_styles,
+            row_static_style,
+            tableId
+        } = this.props;
+
+        const styles = [row_static_style, ...R.map(
+            ([cs]) => cs.style,
+            R.filter(
+                ([cs, i]) => astCache([tableId, i], [cs.condition]).evaluate(datum),
+                R.addIndex(R.map)(
+                    (cs, i) => [cs, i],
+                    row_conditional_styles
+                )
+            )
+        )];
+
+        return this.getStyle(...styles);
+    }
+
+    inSelection(props) {
+        const { active_cell, selected_cell, idx } = props;
+
+        const range = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
+        if (active_cell.length) {
+            range[0] = Math.max(active_cell[0] - 1, 0);
+            range[1] = active_cell[0] + 1;
+        }
+
+        if (selected_cell.length) {
+            const minRow = R.reduce(
+                R.min,
+                Number.POSITIVE_INFINITY,
+                R.map(cell => cell[0], selected_cell)
+            );
+
+            const maxRow = R.reduce(
+                R.max,
+                Number.NEGATIVE_INFINITY,
+                R.map(cell => cell[0], selected_cell)
+            );
+
+            range[0] = Math.min(range[0], Math.max(minRow - 1, 0));
+            range[1] = Math.max(range[1], maxRow + 1);
+        }
+
+        return (
+            (range[0] <= idx || range[0] === Number.POSITIVE_INFINITY) &&
+            (range[1] >= idx || range[1] === Number.NEGATIVE_INFINITY)
+        );
+    }
+
+    shouldComponentUpdate(nextProps) {
+        const watchedProperties = [
+            'column_conditional_dropdowns',
+            'column_conditional_styles',
+            'column_static_dropdown',
+            'column_static_style',
+            'columns',
+            'datum',
+            'editable',
+            'idx',
+            'is_focused',
+            'n_fixed_columns',
+            'row_conditional_styles',
+            'row_deletable',
+            'row_selectable',
+            'row_static_style',
+            'selected_rows',
+            'tableId'
+        ];
+
+        // evals active_cell and selected_cell
+        const inSelection =
+            this.inSelection(this.props) ||
+            this.inSelection(nextProps);
+
+        return !isEqual(
+            Object.assign(
+                {},
+                R.pick(watchedProperties, this.props),
+                { inSelection: false }
+            ),
+            Object.assign(
+                {},
+                R.pick(watchedProperties, nextProps),
+                { inSelection }
+            ),
+            true
+        );
     }
 
     render() {
@@ -301,6 +422,7 @@ export default class Row extends Component {
         return (
             <tr
                 className={R.contains(idx, selected_rows) ? 'selected-row' : ''}
+                style={this.style}
             >
                 {deleteCell}
                 {rowSelectable}
@@ -313,8 +435,8 @@ export default class Row extends Component {
 Row.propTypes = {
     columns: PropTypes.any,
     dataframe: PropTypes.any,
+    datum: PropTypes.any,
     idx: PropTypes.any,
-    dropdown_properties: PropTypes.any,
     editable: PropTypes.any,
     is_focused: PropTypes.any,
     setProps: PropTypes.any,
@@ -323,5 +445,13 @@ Row.propTypes = {
     n_fixed_columns: PropTypes.any,
     selected_rows: PropTypes.any,
     row_deletable: PropTypes.bool,
-    row_selectable: PropTypes.any
+    row_selectable: PropTypes.any,
+    tableId: PropTypes.any,
+
+    column_conditional_dropdowns: PropTypes.any,
+    column_conditional_styles: PropTypes.any,
+    column_static_dropdown: PropTypes.any,
+    column_static_style: PropTypes.any,
+    row_conditional_styles: PropTypes.any,
+    row_static_style: PropTypes.any
 };

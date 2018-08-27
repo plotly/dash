@@ -497,47 +497,7 @@
                     "column-1": "apples",
                     "column-2": 1
                 }
-            ],
-            "dropdown_properties": {
-                "column-1": [
-                    {
-                        "options": [
-                            {
-                                "label": "Alpha Label",
-                                "value": "alpha"
-                            },
-                            {
-                                "label": "Beta Label",
-                                "value": "beta"
-                            }
-                        ]
-                    },
-                    {
-                        "options": [
-                            {
-                                "label": "Blue Label",
-                                "value": "blue"
-                            },
-                            {
-                                "label": "Orange Label",
-                                "value": "orange"
-                            }
-                        ]
-                    },
-                    {
-                        "options": [
-                            {
-                                "label": "Mangos Label",
-                                "value": "mangos"
-                            },
-                            {
-                                "label": "Apples Apples Apples Apples Apples Apples Apples Apples Apples Apples Apples Label",
-                                "value": "apples"
-                            }
-                        ]
-                    }
-                ]
-            }
+            ]
         }
     },
 

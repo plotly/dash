@@ -9,7 +9,7 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         type: 'numeric',
         width: 40,
         editable: false,
-        data: gendata(i => i),
+        data: gendata(i => i)
     },
 
     {
@@ -32,9 +32,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         id: 'eee',
         name: ['City', 'America', 'New York City'],
         type: 'numeric',
-        style: {
-            'whiteSpace': 'pre-line',
-        },
         width: 150,
         data: gendata(i => i),
     },
@@ -44,7 +41,7 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         name: ['City', 'America', 'Boston'],
         type: 'numeric',
         width: 150,
-        data: gendata(i => i + 1),
+        data: gendata(i => i + 1)
     },
 
     {
@@ -60,15 +57,11 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         id: 'bbb',
         name: ['', 'Weather', 'Climate'],
         type: 'dropdown',
-        options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
-            label: i,
-            value: i,
-        })),
         clearable: true,
         width: 200,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
-        ),
+        )
     },
 
     {

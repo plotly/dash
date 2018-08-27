@@ -13,6 +13,9 @@
         "noUnusedParameters": true,
         "paths": {
             "cypress/*": ["cypress/src/*"],
+            "core/*": ["./../../src/core/*"],
+            "dash-table/*": ["./../../src/dash-table/*"]
+
         },
         "sourceMap": false,
         "strict": true,
