@@ -5,6 +5,7 @@ import json
 import os
 import shutil
 import unittest
+import oyaml
 import plotly
 
 from dash.development.component_loader import _get_metadata
@@ -555,11 +556,7 @@ class TestGenerateClass(unittest.TestCase):
     def setUp(self):
         path = os.path.join('tests', 'development', 'metadata_test.json')
         with open(path) as data_file:
-            json_string = data_file.read()
-            data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
-                .decode(json_string)
-            self.data = data
+            data = oyaml.safe_load(data_file.read())
 
         self.ComponentClass = generate_class(
             typename='Table',

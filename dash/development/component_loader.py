@@ -1,7 +1,5 @@
-import collections
-import json
 import os
-from dash._utils import convert_unicode_to_string
+import oyaml
 from .base_component import generate_class
 from .base_component import generate_class_file
 
@@ -9,11 +7,7 @@ from .base_component import generate_class_file
 def _get_metadata(metadata_path):
     # Start processing
     with open(metadata_path) as data_file:
-        json_string = data_file.read()
-        data = json\
-            .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
-            .decode(json_string)
-    return convert_unicode_to_string(data)
+        return oyaml.safe_load(data_file.read())
 
 
 def load_components(metadata_path,

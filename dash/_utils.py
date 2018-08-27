@@ -1,18 +1,3 @@
-import collections
-
-
-def convert_unicode_to_string(data):
-    """Recursively converts dictionary keys to strings.
-    This ensures python2.7 does not load a dict with unicode keys."""
-    if type(data).__name__ == 'unicode':
-        return str(data)
-    elif isinstance(data, collections.Mapping):
-        return dict(map(convert_unicode_to_string, data.items()))
-    elif isinstance(data, collections.Iterable):
-        return type(data)(map(convert_unicode_to_string, data))
-    return data
-
-
 def interpolate_str(template, **data):
     s = template
     for k, v in data.items():

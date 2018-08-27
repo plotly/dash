@@ -1,8 +1,7 @@
-import collections
-import json
 import os
 import shutil
 import unittest
+import oyaml
 from dash.development.component_loader import (
     load_components,
     generate_classes
@@ -11,7 +10,6 @@ from dash.development.base_component import (
     generate_class,
     Component
 )
-from dash._utils import convert_unicode_to_string
 
 METADATA_PATH = 'metadata.json'
 
@@ -101,9 +99,7 @@ METADATA_STRING = '''{
         }
     }
 }'''
-METADATA = convert_unicode_to_string(json\
-    .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
-    .decode(METADATA_STRING))
+METADATA = oyaml.safe_load(METADATA_STRING)
 
 
 class TestLoadComponents(unittest.TestCase):

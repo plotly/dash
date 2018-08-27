@@ -26,7 +26,6 @@ from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
-from ._utils import convert_unicode_to_string as _convert_unicode_to_string
 from . import _configs
 
 
@@ -846,7 +845,7 @@ class Dash(object):
         return wrap_func
 
     def dispatch(self):
-        body = _convert_unicode_to_string(flask.request.get_json())
+        body = flask.request.get_json()
         inputs = body.get('inputs', [])
         state = body.get('state', [])
         output = body['output']
@@ -869,6 +868,9 @@ class Dash(object):
 
         output_value = self.callback_map[target_id]['func'](*args)
 
+        # Python2.7 might make these keys and values unicode
+        output['namespace'] = str(output['namespace'])
+        output['type'] = str(output['type'])
         if output['namespace'] not in self.namespaces:
             self.namespaces[output['namespace']] =\
                 importlib.import_module(output['namespace'])
