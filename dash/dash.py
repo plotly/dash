@@ -868,34 +868,37 @@ class Dash(object):
 
         output_value = self.callback_map[target_id]['func'](*args)
 
-        # Python2.7 might make these keys and values unicode
-        output['namespace'] = str(output['namespace'])
-        output['type'] = str(output['type'])
-        if output['namespace'] not in self.namespaces:
-            self.namespaces[output['namespace']] =\
-                importlib.import_module(output['namespace'])
-        namespace = self.namespaces[output['namespace']]
-        component = getattr(namespace, output['type'])
-        # pylint: disable=protected-access
-        validator = DashValidator({
-            output['property']: component._schema.get(output['property'], {})
-        })
-        valid = validator.validate({output['property']: output_value})
-        if not valid:
-            error_message = (
-                "Callback to prop `{}` of `{}(id={})` did not validate.\n"
-                .format(
-                    output['property'],
-                    component.__name__,
-                    output['id']
-                )
-            )
-            error_message += "The errors in validation are as follows:\n\n"
-
+        # Only validate if we get required information from renderer
+        if 'namespace' in output and 'type' in output:
+            # Python2.7 might make these keys and values unicode
+            output['namespace'] = str(output['namespace'])
+            output['type'] = str(output['type'])
+            if output['namespace'] not in self.namespaces:
+                self.namespaces[output['namespace']] =\
+                    importlib.import_module(output['namespace'])
+            namespace = self.namespaces[output['namespace']]
+            component = getattr(namespace, output['type'])
             # pylint: disable=protected-access
-            raise TypeError(
-                generate_validation_error_message(
-                    validator._errors, 0, error_message))
+            validator = DashValidator({
+                output['property']:
+                    component._schema.get(output['property'], {})
+            })
+            valid = validator.validate({output['property']: output_value})
+            if not valid:
+                error_message = (
+                    "Callback to prop `{}` of `{}(id={})` did not validate.\n"
+                    .format(
+                        output['property'],
+                        component.__name__,
+                        output['id']
+                    )
+                )
+                error_message += "The errors in validation are as follows:\n\n"
+
+                # pylint: disable=protected-access
+                raise TypeError(
+                    generate_validation_error_message(
+                        validator._errors, 0, error_message))
 
         return self.callback_map[target_id]['callback'](output_value)
 
