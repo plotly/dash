@@ -498,8 +498,10 @@ class {typename}(Component):
          p not in keyword.kwlist and
          p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
     )
-    schema = {str(k): generate_property_schema(v)
-              for k, v in props.items() if not k.endswith("-*")}
+    schema = {
+        k: generate_property_schema(v)
+        for k, v in props.items() if not k.endswith("-*")
+    }
     required_args = required_props(props)
     return c.format(**locals())
 
