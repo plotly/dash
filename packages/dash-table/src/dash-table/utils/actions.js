@@ -93,44 +93,6 @@ export function deleteColumn(column, headerRowIndex, props) {
     }
 }
 
-export function sort(colId, options) {
-    const { dataframe, setProps, sort } = options;
-
-    let newSort = sort;
-    const colSort = R.find(R.propEq('column', colId))(sort);
-
-    if (colSort) {
-        if (colSort.direction === 'desc') {
-            colSort.direction = 'asc';
-        } else if (colSort.direction === 'asc') {
-            newSort = newSort.filter(
-                R.complement(R.propEq('column', colId))
-            );
-        }
-    } else {
-        newSort.push({
-            column: colId,
-            direction: 'desc',
-        });
-    }
-
-    newSort = newSort.filter(R.complement(R.isEmpty));
-
-    setProps({
-        sort: newSort.filter(R.complement(R.not)),
-
-        dataframe: R.sortWith(
-            newSort.map(
-                s =>
-                    s.direction === 'desc'
-                        ? R.descend(R.prop(s.column))
-                        : R.ascend(R.prop(s.column))
-            ),
-            dataframe
-        ),
-    });
-}
-
 export function editColumnName(column, headerRowIndex, props) {
     const {columns} = props;
     const {groupIndexFirst, groupIndexLast} = getGroupedColumnIndices(

@@ -2,6 +2,7 @@ import * as R from 'ramda';
 
 import { Dataframe, ISettings, ITarget, IViewport } from 'dash-table/virtualization/AbstractStrategy';
 import { memoizeOne } from 'core/memoizer';
+import sort, { SortSettings } from 'core/sorting';
 import SyntaxTree from 'core/syntax-tree';
 
 export default class VirtualizationAdapter implements ITarget {
@@ -9,20 +10,44 @@ export default class VirtualizationAdapter implements ITarget {
 
     }
 
-    private getDataframe = memoizeOne((dataframe: Dataframe, filtering: string, filtering_settings: string) => {
-        if (filtering === 'be') {
-            return dataframe;
+    private getDataframe = memoizeOne((
+        dataframe: Dataframe,
+        filtering: string | boolean,
+        filtering_settings: string,
+        sorting: string | boolean,
+        sorting_settings: SortSettings = []
+    ): Dataframe => {
+        if (filtering === 'fe' || filtering === true) {
+            const tree = new SyntaxTree(filtering_settings);
+
+            dataframe = tree.isValid ?
+                tree.filter(dataframe) :
+                dataframe;
         }
 
-        const tree = new SyntaxTree(filtering_settings);
+        if (sorting === 'fe' || sorting === true) {
+            dataframe = sort(dataframe, sorting_settings);
+        }
 
-        return tree.isValid ? tree.filter(dataframe) : dataframe;
+        return dataframe;
     });
 
     get dataframe(): Dataframe {
-        const { dataframe, filtering, filtering_settings } = this.target.props;
+        const {
+            dataframe,
+            filtering,
+            filtering_settings,
+            sorting,
+            sorting_settings
+        } = this.target.props;
 
-        return this.getDataframe(dataframe, filtering, filtering_settings);
+        return this.getDataframe(
+            dataframe,
+            filtering,
+            filtering_settings,
+            sorting,
+            sorting_settings
+        );
     }
 
     get settings(): ISettings {

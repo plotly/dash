@@ -38,7 +38,7 @@
 
 ## RC5 (Conditional Style, Conditional Dropdown, Filter)
     New props
-        - filtering -> ['fe', 'be'] (default: 'fe')
+        - filtering -> ['fe', 'be', true, false] (default: false)
         - filtering_settings -> AST query string (default: '')
         - column_conditional_dropdowns
         - column_static_dropdown
@@ -50,3 +50,22 @@
         - column style
         - column options
         - dropdown_properties
+
+## Towards RC6
+    * First steps to make sorting work from both FE and BE *
+    * and consistent with Virtualization settings *
+
+    New Props
+        - sorting -> ['fe', 'be', true, false] (default: false) -- replaces 'sortable' prop
+        - sorting_settings -> array of { field, ascending } -- replaces 'sort' prop
+        - virtual_dataframe (READONLY)
+        - virtual_dataframe_indices (READONLY; not officially supported yet -- IN DEVELOPMENT)
+    Deprecated
+        - sortable
+        - sort
+        - dataframe behavior on sort (see below)
+
+    virtual_dataframe vs. dataframe
+        - the virtual dataframe is the content of the viewport for the user (e.g. user has a 10k rows dataframe with FE/250 lines paging, on 1st page -> the virtual_dataframe contains items [0,250[ of the dataframe); the dataframe still contains 10k items
+        - 10k rows, no paging, sorting and filtering -> the virtual dataframe contains items visible in the viewport, in the visible order; the dataframe still contains 10k items
+        - if the user modifies a cell, the dataframe and the virtual_dataframe are updated with the new data

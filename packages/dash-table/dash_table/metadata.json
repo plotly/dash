@@ -182,24 +182,6 @@
         "required": false,
         "description": ""
       },
-      "sort": {
-        "type": {
-          "name": "array"
-        },
-        "required": false,
-        "description": "",
-        "defaultValue": {
-          "value": "[]",
-          "computed": false
-        }
-      },
-      "sortable": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": ""
-      },
       "start_cell": {
         "type": {
           "name": "arrayOf",
@@ -492,13 +474,21 @@
             {
               "value": "'be'",
               "computed": false
+            },
+            {
+              "value": "true",
+              "computed": false
+            },
+            {
+              "value": "false",
+              "computed": false
             }
           ]
         },
         "required": false,
         "description": "",
         "defaultValue": {
-          "value": "'fe'",
+          "value": "false",
           "computed": false
         }
       },
@@ -515,36 +505,72 @@
       },
       "sorting": {
         "type": {
-          "name": "shape",
-          "value": {
-            "type": {
-              "name": "string",
-              "required": false
+          "name": "enum",
+          "value": [
+            {
+              "value": "'fe'",
+              "computed": false
             },
-            "options": {
-              "name": "arrayOf",
-              "value": {
-                "name": "shape",
-                "value": {
-                  "field": {
-                    "name": "string",
-                    "required": false
+            {
+              "value": "'be'",
+              "computed": false
+            },
+            {
+              "value": "true",
+              "computed": false
+            },
+            {
+              "value": "false",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "sorting_settings": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "columnId": {
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
                   },
-                  "ascending": {
-                    "name": "custom",
-                    "raw": "PropTypes.boolean",
-                    "required": false
+                  {
+                    "name": "number"
                   }
-                }
+                ],
+                "required": false
               },
-              "required": false
+              "direction": {
+                "name": "enum",
+                "value": [
+                  {
+                    "value": "'asc'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'desc'",
+                    "computed": false
+                  }
+                ],
+                "required": false
+              }
             }
           }
         },
         "required": false,
         "description": "",
         "defaultValue": {
-          "value": "{\n    type: 'fe',\n    options: []\n}",
+          "value": "[]",
           "computed": false
         }
       },

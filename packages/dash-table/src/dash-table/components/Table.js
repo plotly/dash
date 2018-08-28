@@ -80,12 +80,10 @@ export const defaultProps = {
     },
     navigation: 'page',
 
-    filtering: 'fe',
+    filtering: false,
     filtering_settings: '',
-    sorting: {
-        type: 'fe',
-        options: []
-    },
+    sorting: false,
+    sorting_settings: [],
 
     virtual_dataframe: [],
     virtual_dataframe_indices: [],
@@ -110,7 +108,6 @@ export const defaultProps = {
     selected_cell: [[]],
     selected_rows: [],
     row_selectable: false,
-    sort: [],
     table_style: [],
     base_styles: {
         numeric: {
@@ -164,8 +161,6 @@ export const propTypes = {
     selected_cell: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
     selected_rows: PropTypes.arrayOf(PropTypes.number),
     setProps: PropTypes.any,
-    sort: PropTypes.array,
-    sortable: PropTypes.bool,
     start_cell: PropTypes.arrayOf(PropTypes.number),
     style_as_list_view: PropTypes.bool,
     table_style: PropTypes.arrayOf(PropTypes.shape({
@@ -217,18 +212,15 @@ export const propTypes = {
     })),
     row_static_style: PropTypes.object,
 
-    filtering: PropTypes.oneOf(['fe', 'be']),
+    filtering: PropTypes.oneOf(['fe', 'be', true, false]),
     filtering_settings: PropTypes.string,
 
-    sorting: PropTypes.shape({
-        type: PropTypes.string,
-        options: PropTypes.arrayOf(
-            PropTypes.shape({
-                field: PropTypes.string,
-                ascending: PropTypes.boolean
-            })
-        )
-    }),
+    sorting: PropTypes.oneOf(['fe', 'be', true, false]),
+    sorting_settings: PropTypes.arrayOf(PropTypes.shape({
+            columnId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            direction: PropTypes.oneOf(['asc', 'desc'])
+        })
+    ),
 
     virtual_dataframe: PropTypes.arrayOf(PropTypes.object),
     virtual_dataframe_indices: PropTypes.arrayOf(PropTypes.number),
