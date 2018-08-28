@@ -2,6 +2,8 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import DashTable from 'dash-table/components/Table';
 
+import fixtures from './fixtures';
+
 const setProps = () => { };
 
 storiesOf('DashTable/Without Data', module)
@@ -15,6 +17,9 @@ storiesOf('DashTable/Without Data', module)
         row_deletable={false}
         row_selectable={false}
     />));
+
+const fixtureStories = storiesOf('DashTable/Fixtures');
+fixtures.forEach(fixture => fixtureStories.add(fixture.name, () => (<DashTable {...Object.assign(fixture.props)} />)));
 
 storiesOf('DashTable/With Data')
     .add('with 3 columns and 3 rows, not actionable', () => (<DashTable
