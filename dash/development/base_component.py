@@ -3,7 +3,6 @@ import copy
 import os
 import inspect
 import keyword
-import pprint
 
 from .validator import DashValidator, generate_validation_error_message
 
@@ -501,7 +500,6 @@ class {typename}(Component):
     )
     schema = {str(k): generate_property_schema(v)
               for k, v in props.items() if not k.endswith("-*")}
-    schema = pprint.pformat(schema)
     required_args = required_props(props)
     return c.format(**locals())
 

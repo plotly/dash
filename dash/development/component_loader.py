@@ -1,13 +1,30 @@
 import os
-import oyaml
+import json
+import collections
 from .base_component import generate_class
 from .base_component import generate_class_file
 
 
+def _decode_hook(pairs):
+    new_pairs = []
+    for key, value in pairs:
+        if type(value).__name__ == 'unicode':
+            value = value.encode('utf-8')
+        if type(key).__name__ == 'unicode':
+            key = key.encode('utf-8')
+        new_pairs.append((key, value))
+    return collections.OrderedDict(new_pairs)
+
+
 def _get_metadata(metadata_path):
+
     # Start processing
     with open(metadata_path) as data_file:
-        return oyaml.safe_load(data_file.read())
+        json_string = data_file.read()
+        data = json\
+            .JSONDecoder(object_pairs_hook=_decode_hook)\
+            .decode(json_string)
+    return data
 
 
 def load_components(metadata_path,

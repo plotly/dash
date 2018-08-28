@@ -1,10 +1,11 @@
 import os
 import shutil
 import unittest
-import oyaml
+import json
 from dash.development.component_loader import (
     load_components,
-    generate_classes
+    generate_classes,
+    _decode_hook
 )
 from dash.development.base_component import (
     generate_class,
@@ -99,7 +100,9 @@ METADATA_STRING = '''{
         }
     }
 }'''
-METADATA = oyaml.safe_load(METADATA_STRING)
+METADATA = json\
+    .JSONDecoder(object_pairs_hook=_decode_hook)\
+    .decode(METADATA_STRING)
 
 
 class TestLoadComponents(unittest.TestCase):
