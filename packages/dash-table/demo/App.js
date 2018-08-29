@@ -47,9 +47,9 @@ class App extends Component {
         const setProps = memoizeOne(() => {
             return newProps => {
                 console.info('--->', newProps);
-                this.setState({
-                    tableProps: R.merge(this.state.tableProps, newProps),
-                });
+                this.setState(prevState => ({
+                    tableProps: R.merge(prevState.tableProps, newProps)
+                }));
             };
         });
 
