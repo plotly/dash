@@ -1,7 +1,6 @@
 import collections
 import copy
 import os
-import json
 import inspect
 import keyword
 
@@ -327,9 +326,13 @@ def js_to_cerberus_type(type_object):
         'union': lambda x: {
             'anyof': [js_to_cerberus_type(v) for v in x['value']],
         },
-        'any': lambda x: {'type': (
-            'boolean', 'number', 'string', 'dict', 'list', 'component'
-            )
+        'any': lambda x: {
+            'type': ('boolean',
+                     'number',
+                     'string',
+                     'dict',
+                     'list',
+                     'component')
         },
         'string': lambda x: {'type': 'string'},
         'bool': lambda x: {'type': 'boolean'},
