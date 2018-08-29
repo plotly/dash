@@ -19,14 +19,42 @@ class TestGenerateClass(unittest.TestCase):
             namespace='TableComponents'
         )
 
+        path = os.path.join(
+            'tests', 'development', 'metadata_required_test.json'
+        )
+        with open(path) as data_file:
+            json_string = data_file.read()
+            required_data = json\
+                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .decode(json_string)
+            self.required_data = required_data
+
+        self.ComponentClassRequired = generate_class(
+            typename='TableRequired',
+            props=required_data['props'],
+            description=required_data['description'],
+            namespace='TableComponents'
+        )
+
         DashValidator.set_component_class(Component)
 
         def make_validator(schema):
             return DashValidator(schema, allow_unknown=True)
 
         self.component_validator = make_validator(self.ComponentClass._schema)
+        self.required_validator =\
+            make_validator(self.ComponentClassRequired._schema)
 
-    def test_string_initial_validation(self):
+    def test_required_validation(self):
+        self.assertTrue(self.required_validator.validate({
+            'id': 'required',
+            'children': 'hello world'
+        }))
+        self.assertFalse(self.required_validator.validate({
+            'children': 'hello world'
+        }))
+
+    def test_string_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalString': "bananas"
         }))
@@ -37,7 +65,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalString': None
         }))
 
-    def test_boolean_initial_validation(self):
+    def test_boolean_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalBool': False
         }))
@@ -48,7 +76,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalBool': None
         }))
 
-    def test_number_initial_validation(self):
+    def test_number_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalNumber': 7
         }))
@@ -59,7 +87,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalNumber': None
         }))
 
-    def test_object_initial_validation(self):
+    def test_object_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalObject': {'foo': 'bar'}
         }))
@@ -70,7 +98,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalObject': None
         }))
 
-    def test_node_initial_validation(self):
+    def test_node_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalNode': 7
         }))
@@ -98,7 +126,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalNode': [["Invalid Nested Dict"]]
         }))
 
-    def test_element_initial_validation(self):
+    def test_element_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalElement': self.ComponentClass()
         }))
@@ -115,7 +143,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalElement': None
         }))
 
-    def test_enum_initial_validation(self):
+    def test_enum_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalEnum': "News"
         }))
@@ -129,7 +157,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalEnum': None
         }))
 
-    def test_union_initial_validation(self):
+    def test_union_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalUnion': "string"
         }))
@@ -151,7 +179,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalUnion': None
         }))
 
-    def test_arrayof_initial_validation(self):
+    def test_arrayof_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalArrayOf': [1, 2, 3]
         }))
@@ -165,7 +193,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalArrayOf': None
         }))
 
-    def test_objectof_initial_validation(self):
+    def test_objectof_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalObjectOf': {'one': 1, 'two': 2, 'three': 3}
         }))
@@ -179,7 +207,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalObjectOf': None
         }))
 
-    def test_object_with_shape_and_nested_description_initial_validation(self):
+    def test_object_with_shape_and_nested_description_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalObjectWithShapeAndNestedDescription': {
                 'color': "#431234",
@@ -234,7 +262,7 @@ class TestGenerateClass(unittest.TestCase):
             'optionalObjectWithShapeAndNestedDescription': None
         }))
 
-    def test_any_initial_validation(self):
+    def test_any_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalAny': 7
         }))
