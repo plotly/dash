@@ -1,5 +1,9 @@
 import * as R from 'ramda';
-import React, { Component, CSSProperties } from 'react';
+import React, {
+    Component,
+    CSSProperties,
+    KeyboardEvent
+} from 'react';
 import Dropdown from 'react-select';
 
 import { isEqual } from 'core/comparer';
@@ -19,6 +23,10 @@ import {
     IConditionalDropdown,
     IConditionalStyle
 } from 'dash-table/components/Cell/types';
+
+import {
+    KEY_CODES
+} from 'dash-table/utils/unicode';
 
 export default class Cell extends Component<ICellProps, ICellState> {
     private static readonly dropdownAstCache = memoizerCache<[string, string | number, number], [string], SyntaxTree>(
@@ -125,6 +133,7 @@ export default class Cell extends Component<ICellProps, ICellState> {
                 type='text'
                 value={this.state.value}
                 onChange={this.handleChange}
+                onKeyDown={this.handleKeyDown}
                 onPaste={this.onPaste}
                 {...attributes}
             />);
@@ -227,6 +236,20 @@ export default class Cell extends Component<ICellProps, ICellState> {
         this.setState({ value: e.target.value });
     }
 
+    handleKeyDown = (e: KeyboardEvent) => {
+        if (e.keyCode !== KEY_CODES.ENTER) {
+            return;
+        }
+
+        const { onChange } = this.props;
+
+        onChange({
+            target: {
+                value: this.state.value
+            }
+        } as any);
+    }
+
     handleOpenDropdown = () => {
         const { dropdown, td }: { [key: string]: any } = this.refs;
 
@@ -275,7 +298,7 @@ export default class Cell extends Component<ICellProps, ICellState> {
             (this.refs.td as HTMLElement).focus();
         }
 
-        if (!active && this.state.value !==  value) {
+        if (!active && this.state.value !== value) {
             onChange({
                 target: {
                     value: this.state.value

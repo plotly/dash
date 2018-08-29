@@ -43,7 +43,7 @@ export const KEY_CODES = {
     A: 65,
     X: 88,
     C: 67,
-    V: 86,
+    V: 86
 };
 
 const META_KEYS = [
@@ -74,14 +74,14 @@ const META_KEYS = [
     KEY_CODES.ESCAPE,
     KEY_CODES.SHIFT,
     KEY_CODES.CAPS_LOCK,
-    KEY_CODES.ALT,
+    KEY_CODES.ALT
 ];
 
 const ARROW_KEYS = [
     KEY_CODES.ARROW_DOWN,
     KEY_CODES.ARROW_UP,
     KEY_CODES.ARROW_LEFT,
-    KEY_CODES.ARROW_RIGHT,
+    KEY_CODES.ARROW_RIGHT
 ];
 
 const NAVIGATION_KEYS = [...ARROW_KEYS, KEY_CODES.TAB, KEY_CODES.ENTER];
@@ -92,10 +92,10 @@ const NAVIGATION_KEYS = [...ARROW_KEYS, KEY_CODES.TAB, KEY_CODES.ENTER];
  * @param {Number} keyCode
  * @returns {Boolean}
  */
-export function isPrintableChar(keyCode) {
+export function isPrintableChar(keyCode: number) {
     return (
         // space
-        keyCode == 32 ||
+        keyCode === 32 ||
         // 0-9
         (keyCode >= 48 && keyCode <= 57) ||
         // numpad
@@ -115,7 +115,7 @@ export function isPrintableChar(keyCode) {
  * @param {Number} keyCode
  * @returns {Boolean}
  */
-export function isMetaKey(keyCode) {
+export function isMetaKey(keyCode: number) {
     return META_KEYS.indexOf(keyCode) !== -1;
 }
 
@@ -124,7 +124,7 @@ export function isMetaKey(keyCode) {
  * This doesn't mean we must navigate. Enter for example can also
  * bring the cell Input into focus.
  */
-export function isNavKey(keyCode) {
+export function isNavKey(keyCode: number) {
     return NAVIGATION_KEYS.indexOf(keyCode) !== -1;
 }
 
@@ -133,7 +133,7 @@ export function isNavKey(keyCode) {
  * This doesn't mean we must navigate. Enter for example can also
  * bring the cell Input into focus.
  */
-export function isArrowKey(keyCode) {
+export function isArrowKey(keyCode: number) {
     return ARROW_KEYS.indexOf(keyCode) !== -1;
 }
 
@@ -144,7 +144,7 @@ export function isArrowKey(keyCode) {
  * @param {Number} keyCode Key code to check.
  * @returns {Boolean}
  */
-export function isCtrlKey(keyCode) {
+export function isCtrlKey(keyCode: number) {
     const keys = [];
 
     if (window.navigator.platform.includes('Mac')) {
@@ -167,14 +167,14 @@ export function isCtrlKey(keyCode) {
  * @param {Number} keyCode Key code to check.
  * @returns {Boolean}
  */
-export function isCtrlMetaKey(keyCode) {
+export function isCtrlMetaKey(keyCode: number) {
     return [
         KEY_CODES.CONTROL,
         KEY_CODES.COMMAND_LEFT,
         KEY_CODES.COMMAND_RIGHT,
-        KEY_CODES.COMMAND_FIREFOX,
+        KEY_CODES.COMMAND_FIREFOX
     ].includes(keyCode);
 }
 
 // catch CTRL but not right ALT (which in some systems triggers ALT+CTRL)
-export const isCtrlDown = e => (e.ctrlKey || e.metaKey) && !e.altKey;
+export const isCtrlDown = (e: KeyboardEvent) => (e.ctrlKey || e.metaKey) && !e.altKey;

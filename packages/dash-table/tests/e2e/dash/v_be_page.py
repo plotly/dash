@@ -17,7 +17,7 @@ sys.path.append(
     )
 )
 module_names = ['dash_table']
-modules = [__import__(x) for x in module_names]
+modules = [__import__(module) for module in module_names]
 dash_table = modules[0]
 
 url = (
@@ -83,6 +83,31 @@ def updateDataframe(virtualization_settings):
     print(str(start_index) + ',' + str(end_index))
 
     return df[start_index:end_index]
+
+
+@app.callback(
+    Output('container', 'children'),
+    [
+        Input('table', 'dataframe'),
+        Input('table', 'dataframe_previous')
+    ]
+)
+def findModifiedValue(dataframe, previous):
+    modification = 'None'
+
+    if dataframe is None or previous is None:
+        return modification
+
+    for (y, row) in enumerate(dataframe):
+        row_prev = previous[y]
+
+        for (x, col) in enumerate(row):
+            if col != row_prev[x]:
+                modification = '[{}][{}] = {} -> {}'.format(
+                    y, x, row_prev[x], col
+                )
+
+    return modification
 
 
 if __name__ == '__main__':
