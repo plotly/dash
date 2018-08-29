@@ -40,23 +40,21 @@ class DashValidator(cerberus.Validator):
         cls.types_mapping['dict'] = d_type
 
 
-def generate_validation_error_message(error_list, level=0, error_message=''):
-    for e in error_list:
-        curr = e.document_path[-1]
-        message = DASH_ERROR_MESSAGES[e.code].format(
-            *([''] * len(e.info)),
-            constraint=e.constraint,
-            value=e.value
-        )
-        new_line = (
-            '  ' * level +
-            ('[{0}]' if isinstance(curr, int) else '* {0}\t<- {1}')
-            .format(curr, '' + message) + '\n'
-        )
-        error_message += new_line
-        for nested_error_list in e.info:
+def generate_validation_error_message(errors, level=0, error_message=''):
+    for prop, error_tuple in errors.items():
+        error_message += (' ' * level) + '* {}'.format(prop)
+        if len(error_tuple) == 2:
+            error_message += '\t<- {}\n'.format(error_tuple[0])
             error_message = generate_validation_error_message(
-                nested_error_list,
+                error_tuple[1],
                 level + 1,
                 error_message)
+        else:
+            if isinstance(error_tuple[0], str):
+                error_message += '\t<- {}\n'.format(error_tuple[0])
+            elif isinstance(error_tuple[0], dict):
+                error_message = generate_validation_error_message(
+                    error_tuple[0],
+                    level + 1,
+                    error_message + "\n")
     return error_message

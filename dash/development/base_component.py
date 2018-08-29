@@ -5,6 +5,7 @@ import inspect
 import keyword
 
 from .validator import DashValidator, generate_validation_error_message
+import dash.exceptions as exceptions
 
 
 def is_number(s):
@@ -106,9 +107,9 @@ class Component(collections.MutableMapping):
             error_message += "The errors in validation are as follows:\n\n"
 
             # pylint: disable=protected-access
-            raise TypeError(
+            raise exceptions.InitialLayoutValidationError(
                 generate_validation_error_message(
-                    validator._errors, 0, error_message
+                    validator.errors, 0, error_message
                 )
             )
 

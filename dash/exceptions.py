@@ -60,3 +60,9 @@ class InvalidCallbackReturnValue(CallbackException):
 
 class InvalidConfig(DashException):
     pass
+
+class InitialLayoutValidationError(DashException):
+    pass
+
+class CallbackOutputValidationError(CallbackException):
+    pass

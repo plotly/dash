@@ -879,10 +879,7 @@ class Dash(object):
             namespace = self.namespaces[output['namespace']]
             component = getattr(namespace, output['type'])
             # pylint: disable=protected-access
-            validator = DashValidator({
-                output['property']:
-                    component._schema.get(output['property'], {})
-            })
+            validator = DashValidator(component._schema)
             valid = validator.validate({output['property']: output_value})
             if not valid:
                 error_message = (
@@ -895,10 +892,9 @@ class Dash(object):
                 )
                 error_message += "The errors in validation are as follows:\n\n"
 
-                # pylint: disable=protected-access
-                raise TypeError(
+                raise exceptions.CallbackOutputValidationError(
                     generate_validation_error_message(
-                        validator._errors, 0, error_message))
+                        validator.errors, 0, error_message))
 
         return self.callback_map[target_id]['callback'](output_value)
 
