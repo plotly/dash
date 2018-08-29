@@ -40,6 +40,7 @@ jobs:
               python --version
               python -m unittest tests.development.test_base_component
               python -m unittest tests.development.test_component_loader
+              python -m unittest tests.development.test_component_validation
               python -m unittest tests.test_integration
               python -m unittest tests.test_resources
               python -m unittest tests.test_configs

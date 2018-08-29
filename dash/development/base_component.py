@@ -1,6 +1,7 @@
 import collections
 import copy
 import os
+import json
 import inspect
 import keyword
 
@@ -321,13 +322,14 @@ def js_to_cerberus_type(type_object):
         },
         'element': lambda x: {'type': 'component'},
         'enum': lambda x: {
-            'anyof': [js_to_cerberus_type(v) for v in x['value']],
+            'allowed': [None] + [v['value'].strip("'\"'") for v in x['value']],
         },
         'union': lambda x: {
             'anyof': [js_to_cerberus_type(v) for v in x['value']],
         },
-        'any': lambda x: {
-            'anyof_type': ['boolean', 'number', 'string', 'dict', 'list'],
+        'any': lambda x: {'type': (
+            'boolean', 'number', 'string', 'dict', 'list', 'component'
+            )
         },
         'string': lambda x: {'type': 'string'},
         'bool': lambda x: {'type': 'boolean'},
@@ -336,8 +338,7 @@ def js_to_cerberus_type(type_object):
         'object': lambda x: {'type': 'dict'},
         'objectOf': lambda x: {
             'type': 'dict',
-            'allow_unknown': False,
-            'schema': js_to_cerberus_type(x['value'])
+            'valueschema': js_to_cerberus_type(x['value'])
         },
         'array': lambda x: {'type': 'list'},
         'arrayOf': lambda x: {
