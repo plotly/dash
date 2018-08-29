@@ -331,8 +331,7 @@ def js_to_cerberus_type(type_object):
                      'number',
                      'string',
                      'dict',
-                     'list',
-                     'component')
+                     'list')
         },
         'string': lambda x: {'type': 'string'},
         'bool': lambda x: {'type': 'boolean'},

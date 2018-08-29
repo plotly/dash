@@ -36,6 +36,8 @@ class DashValidator(cerberus.Validator):
     def set_component_class(cls, component_cls):
         c_type = cerberus.TypeDefinition('component', (component_cls,), ())
         cls.types_mapping['component'] = c_type
+        d_type = cerberus.TypeDefinition('dict', (dict,), ())
+        cls.types_mapping['dict'] = d_type
 
 
 def generate_validation_error_message(error_list, level=0, error_message=''):

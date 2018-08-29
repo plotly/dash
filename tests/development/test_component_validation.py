@@ -94,6 +94,9 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.component_validator.validate({
             'optionalObject': "not a dict"
         }))
+        self.assertFalse(self.component_validator.validate({
+            'optionalAny': self.ComponentClass()
+        }))
         self.assertTrue(self.component_validator.validate({
             'optionalObject': None
         }))
@@ -278,7 +281,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertTrue(self.component_validator.validate({
             'optionalAny': {}
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalAny': self.ComponentClass()
         }))
         self.assertTrue(self.component_validator.validate({
