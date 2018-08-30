@@ -2,6 +2,7 @@ import os
 import json
 import unittest
 import collections
+import plotly.graph_objs as go
 from dash.development.component_loader import _get_metadata
 from dash.development.base_component import generate_class, Component
 from dash.development.validator import DashValidator
@@ -44,6 +45,11 @@ class TestGenerateClass(unittest.TestCase):
         self.component_validator = make_validator(self.ComponentClass._schema)
         self.required_validator =\
             make_validator(self.ComponentClassRequired._schema)
+        self.figure_validator = make_validator({
+            'figure': {
+                'validator': 'plotly_figure'
+            }
+        })
 
     def test_required_validation(self):
         self.assertTrue(self.required_validator.validate({
@@ -285,5 +291,32 @@ class TestGenerateClass(unittest.TestCase):
             'optionalAny': self.ComponentClass()
         }))
         self.assertTrue(self.component_validator.validate({
+            'optionalAny': None
+        }))
+
+    def test_figure_validation(self):
+        self.assertFalse(self.figure_validator.validate({
+            'figure': 7
+        }))
+        self.assertFalse(self.figure_validator.validate({
+            'figure': {}
+        }))
+        self.assertTrue(self.figure_validator.validate({
+            'figure': {'data': [{'x': [1, 2, 3],
+                                 'y': [1, 2, 3],
+                                 'type': 'scatter'}]}
+        }))
+        self.assertTrue(self.figure_validator.validate({
+            'figure': go.Figure(
+                data=[go.Scatter(x=[1, 2, 3], y=[1, 2, 3])],
+                layout=go.Layout()
+            )
+        }))
+        self.assertFalse(self.figure_validator.validate({
+            'figure': {'doto': [{'x': [1, 2, 3],
+                                 'y': [1, 2, 3],
+                                 'type': 'scatter'}]}
+        }))
+        self.assertTrue(self.figure_validator.validate({
             'optionalAny': None
         }))
