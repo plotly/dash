@@ -2,35 +2,14 @@ import plotly
 import cerberus
 
 
-def _merge(x, y):
-    z = x.copy()
-    z.update(y)
-    return z
-
-
-DASH_ERROR_MESSAGES = _merge(
-    cerberus.errors.BasicErrorHandler.messages,
-    {
-        0x101: "Invalid Plotly Figure"
-    }
-)
-
-
 class DashValidator(cerberus.Validator):
     def _validator_plotly_figure(self, field, value):
         try:
             plotly.graph_objs.Figure(value)
-        except ValueError:
-            error = cerberus.errors.ValidationError(
-                document_path=self.document_path + (field,),
-                schema_path=self.schema_path,
-                code=0x101,
-                rule="Plotly Figure must be valid!",
-                constraint="https://plot.ly/javascript/reference",
-                value=value,
-                info=()
-            )
-            self._error([error])
+        except ValueError as e:
+            self._error(
+                field,
+                "Invalid Plotly Figure:\n\n{}".format(e))
 
     @classmethod
     def set_component_class(cls, component_cls):
