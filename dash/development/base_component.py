@@ -4,8 +4,8 @@ import os
 import inspect
 import keyword
 
-from .validator import DashValidator, generate_validation_error_message
 import dash.exceptions as exceptions
+from .validator import DashValidator, generate_validation_error_message
 
 
 def is_number(s):
