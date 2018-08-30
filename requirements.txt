@@ -24,7 +24,6 @@ MarkupSafe==1.0
 mock==2.0.0
 nbformat==4.3.0
 numpy==1.11.0
-oyaml==0.5
 pathlib2==2.2.1
 pbr==2.1.0
 pexpect==4.2.1

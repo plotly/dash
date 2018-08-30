@@ -107,6 +107,18 @@ class TestGenerateClass(unittest.TestCase):
             'optionalObject': None
         }))
 
+    def test_children_validation(self):
+        self.assertTrue(self.component_validator.validate({
+            'children': None
+        }))
+        self.assertTrue(self.component_validator.validate({}))
+        self.assertFalse(self.component_validator.validate({
+            'children': [[]]
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'children': ['hi', None]
+        }))
+
     def test_node_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalNode': 7

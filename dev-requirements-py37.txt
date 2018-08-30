@@ -15,4 +15,3 @@ requests[security]
 flake8
 pylint==2.1.1
 astroid==2.0.4
-oyaml==0.5

@@ -310,12 +310,12 @@ def js_to_cerberus_type(type_object):
                     'type': 'list',
                     'nullable': True,
                     'schema': {
-                        'anyof': [
-                            {'type': 'component'},
-                            {'type': 'boolean'},
-                            {'type': 'number'},
-                            {'type': 'string'}
-                        ]
+                        'nullable': True,
+                        'type': (
+                             'component',
+                             'boolean',
+                             'number',
+                             'string')
                     }
                 }
             ]
