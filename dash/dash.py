@@ -879,7 +879,9 @@ class Dash(object):
             namespace = self.namespaces[output['namespace']]
             component = getattr(namespace, output['type'])
             # pylint: disable=protected-access
-            validator = DashValidator(component._schema)
+            validator = DashValidator({
+                output['property']: component._schema[output['property']]
+            })
             valid = validator.validate({output['property']: output_value})
             if not valid:
                 error_message = (
