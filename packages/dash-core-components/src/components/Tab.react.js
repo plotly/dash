@@ -63,14 +63,14 @@ Tab.propTypes = {
     /**
      * Overrides the default (inline) styles for the Tab component when it is selected.
      */
-    selected_style: PropTypes.object,
+    selected_style: PropTypes.object
 };
 
 Tab.defaultProps = {
     disabled: false,
     disabled_style: {
-        color: '#d6d6d6',
-    },
+        color: '#d6d6d6'
+    }
 };
 
 export default Tab;

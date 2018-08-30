@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.28.1] - 2018-08-29
+### Changed
+- `candlestick` and `OHLC` charts are now plotted using the `Plotly.react` method instead of the `Plotly.newPlot` method.
+### Fixed
+- Fix bug where front-end error was thrown when setting `Graph.figure = {}` (fixes [#260]).
+
 ## [0.28.0]
 - Upgraded Plotly.js, the underlying library behind the
 `dash_core_components.Graph` component, to [version 1.40.1](https://github.com/plotly/plotly.js/releases/tag/v1.40.1).

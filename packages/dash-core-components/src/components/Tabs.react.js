@@ -17,7 +17,7 @@ const EnhancedTab = ({
     disabled_className,
     mobile_breakpoint,
     amountOfTabs,
-    colors,
+    colors
 }) => {
     let tabStyle = style;
     if (disabled) {
@@ -110,14 +110,14 @@ export default class Tabs extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selected: this.props.value || 'tab-1',
+            selected: this.props.value || 'tab-1'
         };
 
         this.selectHandler = this.selectHandler.bind(this);
     }
     selectHandler(value) {
         this.setState({
-            selected: value,
+            selected: value
         });
         if (this.props.setProps) {
             this.props.setProps({value: value});
@@ -126,7 +126,7 @@ export default class Tabs extends Component {
     componentWillReceiveProps(newProps) {
         const value = newProps.value;
         this.setState({
-            selected: value,
+            selected: value
         });
     }
     render() {
@@ -270,8 +270,8 @@ Tabs.defaultProps = {
     colors: {
         border: '#d6d6d6',
         primary: '#1975FA',
-        background: '#f9f9f9',
-    },
+        background: '#f9f9f9'
+    }
 };
 
 Tabs.propTypes = {
@@ -343,6 +343,6 @@ Tabs.propTypes = {
     colors: PropTypes.shape({
         border: PropTypes.string,
         primary: PropTypes.string,
-        background: PropTypes.string,
-    }),
+        background: PropTypes.string
+    })
 };
