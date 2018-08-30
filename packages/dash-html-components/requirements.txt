@@ -17,9 +17,6 @@ Flask-SeaSurf==0.2.2
 funcsigs==1.0.2
 idna==2.6
 ipaddress==1.0.18
-ipdb==0.10.3
-ipython==5.4.1
-ipython-genutils==0.2.0
 itsdangerous==0.24
 Jinja2==2.9.6
 jsonschema==2.6.0

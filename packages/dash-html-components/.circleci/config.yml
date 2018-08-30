@@ -42,6 +42,7 @@ jobs:
           name: Build
           command: |
               . venv/bin/activate
+              python --version
               npm run clean
               npm run generate-components
               npm run build:js
@@ -78,3 +79,4 @@ workflows:
     jobs:
       - "python-2.7"
       - "python-3.6"
+      - "python-3.7"
