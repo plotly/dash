@@ -4,5 +4,4 @@ dash==0.18.3
 percy
 selenium
 mock
-tox
 six
