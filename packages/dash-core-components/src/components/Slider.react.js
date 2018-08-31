@@ -24,14 +24,14 @@ export default class Slider extends Component {
                 onChange={value => {
                     this.setState({value});
                     if (updatemode === 'drag') {
-                        if (setProps) setProps({value});
-                        if (fireEvent) fireEvent('change');
+                        if (setProps) {setProps({value});}
+                        if (fireEvent) {fireEvent('change');}
                     }
                 }}
                 onAfterChange={value => {
                     if (updatemode === 'mouseup') {
-                        if (setProps) setProps({value});
-                        if (fireEvent) fireEvent('change');
+                        if (setProps) {setProps({value});}
+                        if (fireEvent) {fireEvent('change');}
                     }
                 }}
                 value={value}

@@ -55,8 +55,8 @@ export default class Checklist extends Component {
                                     newValues = append(option.value, values);
                                 }
                                 this.setState({values: newValues});
-                                if (setProps) setProps({values: newValues});
-                                if (fireEvent) fireEvent({event: 'change'});
+                                if (setProps) {setProps({values: newValues});}
+                                if (fireEvent) {fireEvent({event: 'change'});}
                             }}
                         />
                         {option.label}

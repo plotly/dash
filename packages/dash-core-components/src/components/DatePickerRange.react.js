@@ -137,13 +137,13 @@ export default class DatePickerRange extends Component {
                 initialVisibleMonth={() => {
                     if (initial_visible_month) {
                         return initial_visible_month
-                    } else {
+                    } 
                         if (focusedInput === 'endDate') {
                             return end_date;
-                        } else {
+                        } 
                             return start_date;
-                        }
-                    }
+                        
+                    
                 }}
                 isOutsideRange={this.isOutsideRange}
                 isRTL={is_RTL}
@@ -330,7 +330,9 @@ DatePickerRange.propTypes = {
      * the DatePicker will update its value 
      * as one date is picked.
      */
-    updatemode: PropTypes.oneOf(['singledate', 'bothdates'])
+    updatemode: PropTypes.oneOf(['singledate', 'bothdates']),
+
+    fireEvent: PropTypes.func,
 };
 
 DatePickerRange.defaultProps = {

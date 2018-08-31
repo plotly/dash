@@ -14,7 +14,7 @@ export default class Upload extends Component {
             contents: [],
             filename: [],
             last_modified: []
-        }
+        };
         files.forEach(file => {
             const reader = new FileReader();
             reader.onload = () => {
@@ -26,8 +26,9 @@ export default class Upload extends Component {
                     */
                     newProps.contents.push(reader.result);
                     newProps.filename.push(file.name);
+                    // eslint-disable-next-line no-magic-numbers
                     newProps.last_modified.push(file.lastModified / 1000);
-                    if (newProps.contents.length == files.length) {
+                    if (newProps.contents.length === files.length) {
                         if (multiple) {
                             setProps(newProps);
                         } else {

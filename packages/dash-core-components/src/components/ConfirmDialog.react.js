@@ -21,7 +21,7 @@ export default class ConfirmDialog extends Component {
     _setStateAndProps(value) {
         const { setProps } = this.props;
         this.setState({displayed: value.displayed});
-        if (setProps) setProps(value);
+        if (setProps) {setProps(value);}
     }
 
     componentWillReceiveProps(props) {

@@ -253,7 +253,7 @@ class Tests(IntegrationTests):
             ),
 
             html.Label('Vertical Tabs'),
-            dcc.Tabs(id="tabs", vertical=True, children=[
+            dcc.Tabs(id="tabs1", vertical=True, children=[
                 dcc.Tab(label='Tab one', children=[
                     html.Div(['Test'])
                 ]),
@@ -618,6 +618,8 @@ class Tests(IntegrationTests):
 
         self.startServer(app=app)
 
+        time.sleep(2)
+
         #callback is called twice when defined
         self.assertEqual(
             call_count.value,
@@ -642,7 +644,7 @@ class Tests(IntegrationTests):
         #test if callback is only fired once (offset of 2)
         self.assertEqual(
             call_count.value,
-            2 + 1
+            3
         )
 
     def test_candlestick(self):
@@ -753,7 +755,8 @@ class Tests(IntegrationTests):
                 if not submit_n_clicks and not cancel_n_clicks:
                     return ''
                 count.value += 1
-                if submit_timestamp > cancel_timestamp:
+                if (submit_timestamp and cancel_timestamp is None) or\
+                        (submit_timestamp > cancel_timestamp):
                     return 'confirmed'
                 else:
                     return 'canceled'

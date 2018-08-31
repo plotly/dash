@@ -5,13 +5,15 @@ import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
-const REGEX = /\s+/; // Split on spaces
+// Split on spaces
+const REGEX = /\s+/;
 const TOKENIZER = {
   tokenize(text) {
     return text
       .split(REGEX)
       .filter(
-        (text) => text // Filter empty tokens
+        // Filter empty tokens
+        (text) => text
       );
   }
 }
@@ -78,7 +80,7 @@ export default class Dropdown extends Component {
                                 value = R.pluck('value', selectedOption);
                             }
                             this.setState({value});
-                            if (setProps) setProps({value});
+                            if (setProps) {setProps({value});}
                         } else {
                             let value;
                             if (R.isNil(selectedOption)) {
@@ -87,9 +89,9 @@ export default class Dropdown extends Component {
                                 value = selectedOption.value;
                             }
                             this.setState({value});
-                            if (setProps) setProps({value});
+                            if (setProps) {setProps({value});}
                         }
-                        if (fireEvent) fireEvent('change');
+                        if (fireEvent) {fireEvent('change');}
                     }}
                     {...omit(['fireEvent', 'setProps', 'value'], this.props)}
                 />
@@ -176,7 +178,11 @@ Dropdown.propTypes = {
      */
     setProps: PropTypes.func,
 
-    dashEvents: PropTypes.oneOf(['change'])
+    style: PropTypes.object,
+
+    dashEvents: PropTypes.oneOf(['change']),
+
+    fireEvent: PropTypes.func,
 };
 
 Dropdown.defaultProps = {

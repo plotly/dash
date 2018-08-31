@@ -28,14 +28,14 @@ export default class Textarea extends Component {
                 value={value}
                 onChange={e => {
                     this.setState({value: e.target.value});
-                    if (setProps) setProps({value: e.target.value});
-                    if (fireEvent) fireEvent({event: 'change'});
+                    if (setProps) {setProps({value: e.target.value});}
+                    if (fireEvent) {fireEvent({event: 'change'});}
                 }}
                 onBlur={() => {
-                    if (fireEvent) fireEvent({event: 'blur'});
+                    if (fireEvent) {fireEvent({event: 'blur'});}
                 }}
                 onClick={() => {
-                    if (fireEvent) fireEvent({event: 'click'});
+                    if (fireEvent) {fireEvent({event: 'click'});}
                 }}
                 {...omit(['fireEvent', 'setProps', 'value'], this.props)}
             />

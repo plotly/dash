@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import R from 'ramda';
@@ -56,8 +57,8 @@ const EnhancedTab = ({
             <style jsx>{`
                 .tab {
                     display: inline-block;
-                    background-color: ${colors['background']};
-                    border: 1px solid ${colors['border']};
+                    background-color: ${colors.background};
+                    border: 1px solid ${colors.border};
                     border-bottom: none;
                     padding: 20px 25px;
                     transition: background-color, color 200ms;
@@ -66,14 +67,14 @@ const EnhancedTab = ({
                     box-sizing: border-box;
                 }
                 .tab:last-of-type {
-                    border-right: 1px solid ${colors['border']};
-                    border-bottom: 1px solid ${colors['border']};
+                    border-right: 1px solid ${colors.border};
+                    border-bottom: 1px solid ${colors.border};
                 }
                 .tab:hover {
                     cursor: pointer;
                 }
                 .tab--selected {
-                    border-top: 2px solid ${colors['primary']};
+                    border-top: 2px solid ${colors.primary};
                     color: black;
                     background-color: white;
                 }
@@ -86,14 +87,14 @@ const EnhancedTab = ({
 
                 @media screen and (min-width: ${mobile_breakpoint}px) {
                     .tab {
-                        border: 1px solid ${colors['border']};
+                        border: 1px solid ${colors.border};
                         border-right: none;
                         width: calc(100% / ${amountOfTabs});
                     }
                     .tab--selected,
                     .tab:last-of-type.tab--selected {
                         border-bottom: none;
-                        border-top: 2px solid ${colors['primary']};
+                        border-top: 2px solid ${colors.primary};
                     }
                 }
             `}</style>
@@ -245,12 +246,12 @@ export default class Tabs extends Component {
                         }
                         :global(.tab-container--vert .tab:last-of-type) {
                             border-bottom: 1px solid
-                                ${this.props.colors['border']} !important;
+                                ${this.props.colors.border} !important;
                         }
                         :global(.tab-container--vert .tab--selected) {
-                            border: 1px solid ${this.props.colors['border']};
+                            border: 1px solid ${this.props.colors.border};
                             border-left: 2px solid
-                                ${this.props.colors['primary']};
+                                ${this.props.colors.primary};
                             border-right: none;
                         }
 

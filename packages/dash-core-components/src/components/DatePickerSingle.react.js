@@ -268,8 +268,10 @@ DatePickerSingle.propTypes = {
     /**
     * Dash-assigned callback that gets fired when the value changes.
     */
-    dashEvents: PropTypes.oneOf(['change'])
-    };
+    dashEvents: PropTypes.oneOf(['change']),
+
+    fireEvent: PropTypes.func,
+};
 
 DatePickerSingle.defaultProps = {
     calendar_orientation: 'horizontal',

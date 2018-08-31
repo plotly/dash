@@ -38,10 +38,10 @@ export default class Input extends Component {
                             setProps({value: e.target.value});
                         }
                     }
-                    if (fireEvent) fireEvent({event: 'change'});
+                    if (fireEvent) {fireEvent({event: 'change'});}
                 }}
                 onBlur={() => {
-                    if (fireEvent) fireEvent({event: 'blur'});
+                    if (fireEvent) {fireEvent({event: 'blur'});}
                 }}
                 value={value}
                 {...omit(['fireEvent', 'setProps', 'value'], this.props)}

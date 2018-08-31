@@ -31,7 +31,7 @@ const filterEventData = (gd, eventData, event) => {
                 has('pointNumber', fullPoint) &&
                 has('customdata', data[pointData.curveNumber])
             ) {
-                pointData['customdata'] = data[
+                pointData.customdata = data[
                     pointData.curveNumber
                 ].customdata[fullPoint.pointNumber];
             }
@@ -76,18 +76,16 @@ export default class PlotlyGraph extends Component {
 
         if (animate && this._hasPlotted && figure.data.length === gd.data.length) {
             return Plotly.animate(id, figure, animation_options);
-        } else {
-            return Plotly.react(id, figure.data, figure.layout, config).then(
-                () => {
-                    if (!this._hasPlotted) {
-                        this.bindEvents();
-                        Plotly.Plots.resize(document.getElementById(id));
-                        this._hasPlotted = true;
-                    }
-                }
-            );
-
         }
+        return Plotly.react(id, figure.data, figure.layout, config).then(
+            () => {
+                if (!this._hasPlotted) {
+                    this.bindEvents();
+                    Plotly.Plots.resize(document.getElementById(id));
+                    this._hasPlotted = true;
+                }
+            }
+        );
     }
 
     bindEvents() {
@@ -98,39 +96,39 @@ export default class PlotlyGraph extends Component {
         gd.on('plotly_click', (eventData) => {
             const clickData = filterEventData(gd, eventData, 'click');
             if (!isNil(clickData)) {
-                if (setProps) setProps({clickData});
-                if (fireEvent) fireEvent({event: 'click'});
+                if (setProps) {setProps({clickData});}
+                if (fireEvent) {fireEvent({event: 'click'});}
             }
         });
         gd.on('plotly_hover', (eventData) => {
             const hoverData = filterEventData(gd, eventData, 'hover');
             if (!isNil(hoverData)) {
-                if (setProps) setProps({hoverData});
-                if (fireEvent) fireEvent({event: 'hover'})
+                if (setProps) {setProps({hoverData});}
+                if (fireEvent) {fireEvent({event: 'hover'})}
             }
         });
         gd.on('plotly_selected', (eventData) => {
             const selectedData = filterEventData(gd, eventData, 'selected');
             if (!isNil(selectedData)) {
-                if (setProps) setProps({selectedData});
-                if (fireEvent) fireEvent({event: 'selected'});
+                if (setProps) {setProps({selectedData});}
+                if (fireEvent) {fireEvent({event: 'selected'});}
             }
         });
         gd.on('plotly_deselect', () => {
-            if (setProps) setProps({selectedData: null});
-            if (fireEvent) fireEvent({event: 'selected'});
+            if (setProps) {setProps({selectedData: null});}
+            if (fireEvent) {fireEvent({event: 'selected'});}
         });
         gd.on('plotly_relayout', (eventData) => {
             const relayoutData = filterEventData(gd, eventData, 'relayout');
             if (!isNil(relayoutData)) {
-                if (setProps) setProps({relayoutData});
-                if (fireEvent) fireEvent({event: 'relayout'});
+                if (setProps) {setProps({relayoutData});}
+                if (fireEvent) {fireEvent({event: 'relayout'});}
             }
         });
         gd.on('plotly_unhover', () => {
             if (clear_on_unhover) {
-                if (setProps) setProps({hoverData: null});
-                if (fireEvent) fireEvent({event: 'unhover'});
+                if (setProps) {setProps({hoverData: null});}
+                if (fireEvent) {fireEvent({event: 'unhover'});}
             }
         });
     }

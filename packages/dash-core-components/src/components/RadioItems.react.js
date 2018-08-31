@@ -49,8 +49,8 @@ export default class RadioItems extends Component {
                             type="radio"
                             onChange={() => {
                                 this.setState({value: option.value});
-                                if (setProps) setProps({value: option.value});
-                                if (fireEvent) fireEvent({event: 'change'});
+                                if (setProps) {setProps({value: option.value});}
+                                if (fireEvent) {fireEvent({event: 'change'});}
                             }}
                         />
                         {option.label}

@@ -44,6 +44,7 @@ class IntegrationTests(unittest.TestCase):
             requests.get('http://localhost:8050/stop')
         else:
             self.server_process.terminate()
+        self.driver.back()
         time.sleep(3)
 
     def startServer(self, app):
@@ -64,7 +65,8 @@ class IntegrationTests(unittest.TestCase):
             app.run_server(
                 port=8050,
                 debug=False,
-                processes=processes
+                processes=processes,
+                threaded=False,
             )
 
         def run_windows():
@@ -97,7 +99,7 @@ class IntegrationTests(unittest.TestCase):
 
         # Visit the dash page
         self.driver.get('http://localhost:8050')
-        time.sleep(0.5)
+        self.driver.implicitly_wait(2)
 
         # Inject an error and warning logger
         logger = '''

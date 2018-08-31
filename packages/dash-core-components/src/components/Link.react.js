@@ -9,12 +9,14 @@ import React, {Component} from 'react';
  * https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
  */
 function CustomEvent(event, params) {
+    // eslint-disable-next-line no-param-reassign
     params = params || {
         bubbles: false,
         cancelable: false,
+        // eslint-disable-next-line no-undefined
         detail: undefined
     };
-    var evt = document.createEvent('CustomEvent');
+    const evt = document.createEvent('CustomEvent');
     evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
     return evt;
 }
@@ -27,7 +29,8 @@ export default class Link extends Component {
     }
 
     updateLocation(e) {
-        e.preventDefault(); // prevent anchor from updating location
+        // prevent anchor from updating location
+        e.preventDefault();
         const { href, refresh } = this.props;
         if (refresh) {
             window.location.pathname = href;
@@ -35,7 +38,8 @@ export default class Link extends Component {
             window.history.pushState({}, '', href);
             window.dispatchEvent(new CustomEvent('onpushstate'));
         }
-        window.scrollTo(0, 0); // scroll back to top
+        // scroll back to top
+        window.scrollTo(0, 0);
     }
 
     render() {

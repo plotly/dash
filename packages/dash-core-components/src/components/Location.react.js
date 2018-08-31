@@ -44,17 +44,20 @@ export default class Location extends Component {
                 && R.type(window.location[fieldName]) !== 'Undefined') {
                 // propVal is undefined or null, but window.location has this fieldName defined
                 propsToSet[fieldName] = window.location[fieldName];
-            } else if (propVal !== window.location[fieldName]) { // Prop has changed?
-                if (refresh) { // Refresh the page?
+            } else if (propVal !== window.location[fieldName]) {
+                // Prop has changed?
+                if (refresh) {
+                    // Refresh the page?
                     window.location[fieldName] = propVal;
-                } else if (this.props[fieldName] !== propVal) { // If this prop has changed, need to setProps
+                } else if (this.props[fieldName] !== propVal) {
+                    // If this prop has changed, need to setProps
                     propsToSet[fieldName] = propVal;
-
-                    return true; // This (`${fieldName}`: propVal) needs to be pushed in the window.history
+                    // This (`${fieldName}`: propVal) needs to be pushed in the window.history
+                    return true;
                 }
             }
-
-            return false; // This (`${fieldName}`: propVal) DOES NOT need to be pushed in the window.history
+            // This (`${fieldName}`: propVal) DOES NOT need to be pushed in the window.history
+            return false;
         };
 
         // Check if the prop value needs to be updated (note that this mutates propsToSet)
@@ -68,9 +71,11 @@ export default class Location extends Component {
             setProps(propsToSet);
         }
 
-        if (hrefUpdated) // Special case -- overrides everything!
-            window.history.pushState({}, '', href);
-        else if (pathnameUpdated || hashUpdated || searchUpdated) { // Otherwise, we can mash everything together
+        // Special case -- overrides everything!
+        if (hrefUpdated)
+            {window.history.pushState({}, '', href);}
+        else if (pathnameUpdated || hashUpdated || searchUpdated) {
+            // Otherwise, we can mash everything together
             const searchVal = R.type(search) !== 'Undefined' ? search : '';
             const hashVal = R.type(hash) !== 'Undefined'  ? hash : '';
             window.history.pushState({}, '', `${pathname}${searchVal}${hashVal}`);
@@ -82,12 +87,12 @@ export default class Location extends Component {
             return () => {
                 const {setProps} = this.props;
                 if (setProps)
-                    setProps({
+                    {setProps({
                         pathname: window.location.pathname,
                         href: window.location.href,
                         hash: window.location.hash,
                         search: window.location.search
-                    });
+                    });}
             }
         };
         window.addEventListener('onpopstate', listener());
@@ -120,7 +125,9 @@ Location.propTypes = {
     href: PropTypes.string,
 
     /** Refresh the page when the location is updated? */
-    refresh: PropTypes.bool
+    refresh: PropTypes.bool,
+
+    setProps: PropTypes.func,
 };
 
 Location.defaultProps = {

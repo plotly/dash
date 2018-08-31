@@ -37,7 +37,7 @@ export default class ConfirmDialogProvider extends React.Component {
             {
                 const update = {displayed: true};
                 this.setState(update);
-                if (setProps) setProps(update);
+                if (setProps) {setProps(update);}
             }
         });
 

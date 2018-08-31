@@ -4,6 +4,7 @@ import {omit, type} from 'ramda';
 import React from 'react';
 import ReactSyntaxHighlighter from 'react-syntax-highlighter';
 
+// eslint-disable-next-line valid-jsdoc
 /**
  * A component for pretty printing code.
  */

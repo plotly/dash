@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {type} from 'ramda';
 import Markdown from 'react-markdown';
 
+// eslint-disable-next-line valid-jsdoc
 /**
  * A component that renders Markdown text as specified by the
  * CommonMark spec.
