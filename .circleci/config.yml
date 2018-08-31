@@ -41,6 +41,7 @@ jobs:
               . venv/bin/activate
               pylint dash setup.py --rcfile=$PYLINTRC
               flake8 dash setup.py
+              bash ./run_black.sh
 
       - run:
           name: Run tests
