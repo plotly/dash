@@ -1,5 +1,6 @@
 {
   "description": "This is a description of the component.\nIt's multiple lines long.",
+  "displayName": "ReactComponent",
   "methods": [],
   "props": {
     "optionalArray": {
@@ -202,28 +203,59 @@
     },
     "children": {
       "type": {
-        "name": "node"
-      },
-      "required": false,
-      "description": ""
-    },
-    "data-*": {
-      "type": {
-        "name": "string"
-      },
-      "required": false,
-      "description": ""
-    },
-    "aria-*": {
-      "type": {
-        "name": "string"
-      },
-      "required": false,
-      "description": ""
-    },
-    "in": {
-      "type": {
-        "name": "string"
+        "name": "union",
+        "value": [
+          {
+            "name": "string"
+          },
+          {
+            "name": "number"
+          },
+          {
+            "name": "bool"
+          },
+          {
+            "name": "element"
+          },
+          {
+            "name": "enum",
+            "value": [
+              {
+                "value": "null",
+                "computed": false
+              }
+            ]
+          },
+          {
+            "name": "arrayOf",
+            "value": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                },
+                {
+                  "name": "bool"
+                },
+                {
+                  "name": "element"
+                },
+                {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "null",
+                      "computed": false
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
       },
       "required": false,
       "description": ""

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 // A react component with all of the available proptypes to run tests over
 
 /**
@@ -12,8 +13,8 @@ class ReactComponent extends Component {
 }
 
 ReactComponent.propTypes = {
-    children: React.PropTypes.node,
-    id: React.PropTypes.string.isRequired,
+    children: PropTypes.node,
+    id: PropTypes.string.isRequired,
 };
 
 export default ReactComponent;

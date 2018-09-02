@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 // A react component with all of the available proptypes to run tests over
 
 /**
@@ -15,63 +16,63 @@ ReactComponent.propTypes = {
     /**
      * Description of optionalArray
      */
-    optionalArray: React.PropTypes.array,
-    optionalBool: React.PropTypes.bool,
-    optionalFunc: React.PropTypes.func,
-    optionalNumber: React.PropTypes.number,
-    optionalObject: React.PropTypes.object,
-    optionalString: React.PropTypes.string,
-    optionalSymbol: React.PropTypes.symbol,
+    optionalArray: PropTypes.array,
+    optionalBool: PropTypes.bool,
+    optionalFunc: PropTypes.func,
+    optionalNumber: PropTypes.number,
+    optionalObject: PropTypes.object,
+    optionalString: PropTypes.string,
+    optionalSymbol: PropTypes.symbol,
 
     // Anything that can be rendered: numbers, strings, elements or an array
     // (or fragment) containing these types.
-    optionalNode: React.PropTypes.node,
+    optionalNode: PropTypes.node,
 
     // A React element.
-    optionalElement: React.PropTypes.element,
+    optionalElement: PropTypes.element,
 
     // You can also declare that a prop is an instance of a class. This uses
     // JS's instanceof operator.
-    optionalMessage: React.PropTypes.instanceOf(Message),
+    optionalMessage: PropTypes.instanceOf(Message),
 
     // You can ensure that your prop is limited to specific values by treating
     // it as an enum.
-    optionalEnum: React.PropTypes.oneOf(['News', 'Photos']),
+    optionalEnum: PropTypes.oneOf(['News', 'Photos']),
 
     // An object that could be one of many types
-    optionalUnion: React.PropTypes.oneOfType([
-        React.PropTypes.string,
-        React.PropTypes.number,
-        React.PropTypes.instanceOf(Message)
+    optionalUnion: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.instanceOf(Message)
     ]),
 
     // An array of a certain type
-    optionalArrayOf: React.PropTypes.arrayOf(React.PropTypes.number),
+    optionalArrayOf: PropTypes.arrayOf(PropTypes.number),
 
     // An object with property values of a certain type
-    optionalObjectOf: React.PropTypes.objectOf(React.PropTypes.number),
+    optionalObjectOf: PropTypes.objectOf(PropTypes.number),
 
     // An object taking on a particular shape
-    optionalObjectWithShapeAndNestedDescription: React.PropTypes.shape({
-        color: React.PropTypes.string,
-        fontSize: React.PropTypes.number,
+    optionalObjectWithShapeAndNestedDescription: PropTypes.shape({
+        color: PropTypes.string,
+        fontSize: PropTypes.number,
         /**
          * Figure is a plotly graph object
          */
-        figure: React.PropTypes.shape({
+        figure: PropTypes.shape({
             /**
              * data is a collection of traces
              */
-            data: React.PropTypes.arrayOf(React.PropTypes.object),
+            data: PropTypes.arrayOf(PropTypes.object),
             /**
              * layout describes the rest of the figure
              */
-            layout: React.PropTypes.object
+            layout: PropTypes.object
         })
     }),
 
     // A value of any data type
-    optionalAny: React.PropTypes.any,
+    optionalAny: PropTypes.any,
 
     customProp: function(props, propName, componentName) {
         if (!/matchme/.test(props[propName])) {
@@ -82,7 +83,7 @@ ReactComponent.propTypes = {
         }
     },
 
-    customArrayProp: React.PropTypes.arrayOf(function(propValue, key, componentName, location, propFullName) {
+    customArrayProp: PropTypes.arrayOf(function(propValue, key, componentName, location, propFullName) {
         if (!/matchme/.test(propValue[key])) {
             return new Error(
             'Invalid prop `' + propFullName + '` supplied to' +
@@ -93,13 +94,28 @@ ReactComponent.propTypes = {
 
     // special dash events
 
-    children: React.PropTypes.node,
+    children: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.bool,
+      PropTypes.element,
+      PropTypes.oneOf([null]),
+      PropTypes.arrayOf(
+        PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.number,
+          PropTypes.bool,
+        PropTypes.element,
+          PropTypes.oneOf([null])
+        ])
+      )
+    ]),
 
-    id: React.PropTypes.string,
+    id: PropTypes.string,
 
 
     // dashEvents is a special prop that is used to events validation
-    dashEvents: React.PropTypes.oneOf([
+    dashEvents: PropTypes.oneOf([
         'restyle',
         'relayout',
         'click'

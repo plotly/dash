@@ -67,7 +67,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.component_validator.validate({
             'optionalString': 7
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalString': None
         }))
 
@@ -78,7 +78,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.component_validator.validate({
             'optionalBool': "False"
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalBool': None
         }))
 
@@ -89,7 +89,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.component_validator.validate({
             'optionalNumber': "seven"
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalNumber': None
         }))
 
@@ -101,22 +101,43 @@ class TestGenerateClass(unittest.TestCase):
             'optionalObject': "not a dict"
         }))
         self.assertFalse(self.component_validator.validate({
-            'optionalAny': self.ComponentClass()
+            'optionalObject': self.ComponentClass()
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalObject': None
         }))
 
     def test_children_validation(self):
+        self.assertTrue(self.component_validator.validate({}))
         self.assertTrue(self.component_validator.validate({
             'children': None
         }))
-        self.assertTrue(self.component_validator.validate({}))
-        self.assertFalse(self.component_validator.validate({
-            'children': [[]]
+        self.assertTrue(self.component_validator.validate({
+            'children': 'one'
         }))
         self.assertTrue(self.component_validator.validate({
-            'children': ['hi', None]
+            'children': 1
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'children': False
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'children': self.ComponentClass()
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'children': [None]
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'children': ['one']
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'children': [1]
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'children': [self.ComponentClass()]
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'children': ()
         }))
 
     def test_node_validation(self):
@@ -126,7 +147,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertTrue(self.component_validator.validate({
             'optionalNode': "seven"
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalNode': None
         }))
         self.assertTrue(self.component_validator.validate({
@@ -160,7 +181,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.component_validator.validate({
             'optionalElement': False
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalElement': None
         }))
 
@@ -174,7 +195,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.component_validator.validate({
             'optionalEnum': "not_in_enum"
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalEnum': None
         }))
 
@@ -196,7 +217,7 @@ class TestGenerateClass(unittest.TestCase):
         # self.assertFalse(self.component_validator.validate({
         #     'optionalUnion': [1, 2, 3]
         # }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalUnion': None
         }))
 
@@ -210,7 +231,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.component_validator.validate({
             'optionalArrayOf': ["one", "two", "three"]
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalArrayOf': None
         }))
 
@@ -224,7 +245,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.component_validator.validate({
             'optionalObjectOf': [1, 2, 3]
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalObjectOf': None
         }))
 
@@ -279,7 +300,7 @@ class TestGenerateClass(unittest.TestCase):
                 },
             }
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalObjectWithShapeAndNestedDescription': None
         }))
 
@@ -302,7 +323,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.component_validator.validate({
             'optionalAny': self.ComponentClass()
         }))
-        self.assertTrue(self.component_validator.validate({
+        self.assertFalse(self.component_validator.validate({
             'optionalAny': None
         }))
 
@@ -329,6 +350,6 @@ class TestGenerateClass(unittest.TestCase):
                                  'y': [1, 2, 3],
                                  'type': 'scatter'}]}
         }))
-        self.assertTrue(self.figure_validator.validate({
-            'optionalAny': None
+        self.assertFalse(self.figure_validator.validate({
+            'figure': None
         }))
