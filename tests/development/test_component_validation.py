@@ -125,9 +125,6 @@ class TestGenerateClass(unittest.TestCase):
             'children': self.ComponentClass()
         }))
         self.assertTrue(self.component_validator.validate({
-            'children': [None]
-        }))
-        self.assertTrue(self.component_validator.validate({
             'children': ['one']
         }))
         self.assertTrue(self.component_validator.validate({
@@ -135,6 +132,9 @@ class TestGenerateClass(unittest.TestCase):
         }))
         self.assertTrue(self.component_validator.validate({
             'children': [self.ComponentClass()]
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'children': [None]
         }))
         self.assertTrue(self.component_validator.validate({
             'children': ()

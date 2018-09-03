@@ -308,6 +308,10 @@ def schema_is_nullable(type_object):
 
 
 def js_to_cerberus_type(type_object):
+    def _merge(x, y):
+        z = x.copy()
+        z.update(y)
+        return z
 
     def _enum(x):
         schema = {'allowed': [],
@@ -370,8 +374,10 @@ def js_to_cerberus_type(type_object):
         'array': lambda x: {'type': 'list'},
         'arrayOf': lambda x: {
             'type': 'list',
-            'nullable': schema_is_nullable(x),
-            'schema': js_to_cerberus_type(x['value'])
+            'schema': _merge(
+                js_to_cerberus_type(x['value']),
+                {'nullable': schema_is_nullable(x['value'])}
+            )
         },
         'shape': lambda x: {
             'type': 'dict',
