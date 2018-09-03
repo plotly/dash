@@ -1,8 +1,8 @@
-dash_core_components>=0.27.2
-dash_html_components>=0.12.0rc3
-dash-flow-example==0.0.3
+dash_core_components==0.29.0rc2
+dash_html_components==0.13.0rc3
+dash_flow_example==0.0.3
 dash-dangerously-set-inner-html
-dash_renderer
+dash_renderer==0.14.0-rc5
 cerberus==1.2
 percy
 selenium

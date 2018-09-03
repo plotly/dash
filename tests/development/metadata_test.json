@@ -182,6 +182,20 @@
       "required": false,
       "description": ""
     },
+    "data-*": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    },
+    "aria-*": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    },
     "customProp": {
       "type": {
         "name": "custom",
@@ -256,6 +270,13 @@
             }
           }
         ]
+      },
+      "required": false,
+      "description": ""
+    },
+    "in": {
+      "type": {
+        "name": "string"
       },
       "required": false,
       "description": ""

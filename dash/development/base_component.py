@@ -294,16 +294,17 @@ class Component(collections.MutableMapping):
 
 
 def schema_is_nullable(type_object):
-    if type_object.get('name', None) == 'enum':
-        values = type_object['value']
-        for v in values:
-            value = v['value']
-            if value == 'null':
+    if type_object:
+        if type_object.get('name', None) == 'enum':
+            values = type_object['value']
+            for v in values:
+                value = v['value']
+                if value == 'null':
+                    return True
+        if type_object.get('name', None) == 'union':
+            values = type_object['value']
+            if any([schema_is_nullable(v) for v in values]):
                 return True
-    if type_object.get('name', None) == 'union':
-        values = type_object['value']
-        if any([schema_is_nullable(v) for v in values]):
-            return True
     return False
 
 

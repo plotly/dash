@@ -608,14 +608,14 @@ class TestGenerateClass(unittest.TestCase):
             }
         })
 
-        c = self.ComponentClass(id='my-id', optionalArray=None)
+        c = self.ComponentClass(id='my-id', optionalArray=[])
         self.assertEqual(c.to_plotly_json(), {
             'namespace': 'TableComponents',
             'type': 'Table',
             'props': {
                 'children': None,
                 'id': 'my-id',
-                'optionalArray': None
+                'optionalArray': []
             }
         })
 
@@ -733,7 +733,7 @@ class TestGenerateClass(unittest.TestCase):
     def test_schema_generation(self):
         self.assertEqual(
             self.ComponentClass._schema,
-            {'customArrayProp': {'schema': {'nullable': True}, 'type': 'list', 'allow_unknown': False, 'nullable': True}, 'optionalObjectWithShapeAndNestedDescription': {'schema': {'color': {'type': 'string', 'nullable': True}, 'fontSize': {'type': 'number', 'nullable': True}, 'figure': {'nullable': True, 'type': 'dict', 'allow_unknown': False, 'schema': {'layout': {'type': 'dict', 'nullable': True}, 'data': {'nullable': True, 'type': 'list', 'allow_unknown': False, 'schema': {'type': 'dict', 'nullable': True}}}}}, 'type': 'dict', 'allow_unknown': False, 'nullable': True}, 'optionalBool': {'type': 'boolean', 'nullable': True}, 'optionalFunc': {'nullable': True}, 'optionalSymbol': {'nullable': True}, 'in': {'type': 'string', 'nullable': True}, 'customProp': {'nullable': True}, 'children': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'schema': {'type': ('component', 'boolean', 'number', 'string'), 'nullable': True}, 'type': 'list', 'nullable': True}], 'nullable': True}, 'optionalMessage': {'nullable': True}, 'optionalNumber': {'type': 'number', 'nullable': True}, 'optionalObject': {'type': 'dict', 'nullable': True}, 'dashEvents': {'allowed': [None, 'restyle', 'relayout', 'click'], 'nullable': True}, 'id': {'type': 'string', 'nullable': True}, 'optionalString': {'type': 'string', 'nullable': True}, 'optionalElement': {'type': 'component', 'nullable': True}, 'optionalArray': {'type': 'list', 'nullable': True}, 'optionalNode': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'schema': {'type': ('component', 'boolean', 'number', 'string'), 'nullable': True}, 'type': 'list', 'nullable': True}], 'nullable': True}, 'optionalObjectOf': {'type': 'dict', 'valueschema': {'type': 'number', 'nullable': True}, 'nullable': True}, 'optionalEnum': {'allowed': [None, 'News', 'Photos'], 'nullable': True}, 'optionalArrayOf': {'schema': {'type': 'number', 'nullable': True}, 'type': 'list', 'allow_unknown': False, 'nullable': True}, 'optionalUnion': {'anyof': [{'type': 'string', 'nullable': True}, {'type': 'number', 'nullable': True}, {'nullable': True}], 'nullable': True}, 'optionalAny': {'type': ('boolean', 'number', 'string', 'dict', 'list'), 'nullable': True}}
+            {'children': {'nullable': True, 'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}, {'type': 'list', 'schema': {'nullable': True, 'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}]}}]}, 'in': {'type': 'string'}, 'optionalNumber': {'type': 'number'}, 'optionalObject': {'type': 'dict'}, 'optionalFunc': {}, 'customProp': {}, 'optionalArray': {'type': 'list'}, 'customArrayProp': {'type': 'list', 'schema': {'nullable': False}}, 'optionalEnum': {'allowed': ['News', 'Photos'], 'type': ('string', 'number')}, 'optionalNode': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'type': 'list', 'schema': {'type': ('component', 'boolean', 'number', 'string')}}]}, 'dashEvents': {'allowed': ['restyle', 'relayout', 'click'], 'type': ('string', 'number')}, 'optionalString': {'type': 'string'}, 'optionalBool': {'type': 'boolean'}, 'optionalObjectOf': {'nullable': False, 'type': 'dict', 'valueschema': {'type': 'number'}}, 'optionalArrayOf': {'type': 'list', 'schema': {'nullable': False, 'type': 'number'}}, 'optionalElement': {'type': 'component'}, 'optionalAny': {'type': ('boolean', 'number', 'string', 'dict', 'list')}, 'optionalUnion': {'anyof': [{'type': 'string'}, {'type': 'number'}, {}]}, 'optionalSymbol': {}, 'id': {'type': 'string'}, 'optionalMessage': {}, 'optionalObjectWithShapeAndNestedDescription': {'allow_unknown': False, 'type': 'dict', 'nullable': False, 'schema': {'figure': {'allow_unknown': False, 'type': 'dict', 'nullable': False, 'schema': {'data': {'type': 'list', 'schema': {'nullable': False, 'type': 'dict'}}, 'layout': {'type': 'dict'}}}, 'color': {'type': 'string'}, 'fontSize': {'type': 'number'}}}}
         )
 
     def test_required_props(self):
@@ -758,7 +758,7 @@ class TestMetaDataConversions(unittest.TestCase):
 
         self.expected_arg_strings = OrderedDict([
             ['children',
-             'a list of or a singular dash component, string or number'],
+             'string | number | boolean | dash component | a value equal to: null | list'],
 
             ['optionalArray', 'list'],
 
@@ -848,7 +848,7 @@ def assert_docstring(assertEqual, docstring):
             "It's multiple lines long.",
             '',
             "Keyword arguments:",
-            "- children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
+            "- children (string | number | boolean | dash component | a value equal to: null | list; optional)",  # noqa: E501
             "- optionalArray (list; optional): Description of optionalArray",
             "- optionalBool (boolean; optional)",
             "- optionalNumber (number; optional)",
@@ -888,10 +888,10 @@ def assert_docstring(assertEqual, docstring):
             "- optionalAny (boolean | number | string | dict | "
             "list; optional)",
 
-            "- customProp (optional)",
-            "- customArrayProp (list; optional)",
             '- data-* (string; optional)',
             '- aria-* (string; optional)',
+            "- customProp (optional)",
+            "- customArrayProp (list; optional)",
             '- in (string; optional)',
             '- id (string; optional)',
             '',

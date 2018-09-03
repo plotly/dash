@@ -74,6 +74,9 @@ ReactComponent.propTypes = {
     // A value of any data type
     optionalAny: PropTypes.any,
 
+    "data-*": PropTypes.string,
+    "aria-*": PropTypes.string,
+
     customProp: function(props, propName, componentName) {
         if (!/matchme/.test(props[propName])) {
             return new Error(
@@ -111,6 +114,7 @@ ReactComponent.propTypes = {
       )
     ]),
 
+    in: PropTypes.string,
     id: PropTypes.string,
 
 

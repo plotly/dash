@@ -4,7 +4,7 @@ from dash.development.base_component import Component, _explicitize_args
 
 
 
-schema = {'customArrayProp': {'schema': {'nullable': True}, 'type': 'list', 'allow_unknown': False, 'nullable': True}, 'optionalObjectWithShapeAndNestedDescription': {'schema': {'color': {'type': 'string', 'nullable': True}, 'fontSize': {'type': 'number', 'nullable': True}, 'figure': {'nullable': True, 'type': 'dict', 'allow_unknown': False, 'schema': {'layout': {'type': 'dict', 'nullable': True}, 'data': {'nullable': True, 'type': 'list', 'allow_unknown': False, 'schema': {'type': 'dict', 'nullable': True}}}}}, 'type': 'dict', 'allow_unknown': False, 'nullable': True}, 'optionalBool': {'type': 'boolean', 'nullable': True}, 'optionalFunc': {'nullable': True}, 'optionalSymbol': {'nullable': True}, 'in': {'type': 'string', 'nullable': True}, 'customProp': {'nullable': True}, 'children': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'schema': {'type': ('component', 'boolean', 'number', 'string'), 'nullable': True}, 'type': 'list', 'nullable': True}], 'nullable': True}, 'optionalMessage': {'nullable': True}, 'optionalNumber': {'type': 'number', 'nullable': True}, 'optionalObject': {'type': 'dict', 'nullable': True}, 'dashEvents': {'allowed': [None, 'restyle', 'relayout', 'click'], 'nullable': True}, 'id': {'type': 'string', 'nullable': True}, 'optionalString': {'type': 'string', 'nullable': True}, 'optionalElement': {'type': 'component', 'nullable': True}, 'optionalArray': {'type': 'list', 'nullable': True}, 'optionalNode': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'schema': {'type': ('component', 'boolean', 'number', 'string'), 'nullable': True}, 'type': 'list', 'nullable': True}], 'nullable': True}, 'optionalObjectOf': {'type': 'dict', 'valueschema': {'type': 'number', 'nullable': True}, 'nullable': True}, 'optionalEnum': {'allowed': [None, 'News', 'Photos'], 'nullable': True}, 'optionalArrayOf': {'schema': {'type': 'number', 'nullable': True}, 'type': 'list', 'allow_unknown': False, 'nullable': True}, 'optionalUnion': {'anyof': [{'type': 'string', 'nullable': True}, {'type': 'number', 'nullable': True}, {'nullable': True}], 'nullable': True}, 'optionalAny': {'type': ('boolean', 'number', 'string', 'dict', 'list'), 'nullable': True}}
+schema = {'children': {'nullable': True, 'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}, {'type': 'list', 'schema': {'nullable': True, 'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}]}}]}, 'in': {'type': 'string'}, 'optionalNumber': {'type': 'number'}, 'optionalObject': {'type': 'dict'}, 'optionalFunc': {}, 'customProp': {}, 'optionalArray': {'type': 'list'}, 'customArrayProp': {'type': 'list', 'schema': {'nullable': False}}, 'optionalEnum': {'allowed': ['News', 'Photos'], 'type': ('string', 'number')}, 'optionalNode': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'type': 'list', 'schema': {'type': ('component', 'boolean', 'number', 'string')}}]}, 'dashEvents': {'allowed': ['restyle', 'relayout', 'click'], 'type': ('string', 'number')}, 'optionalString': {'type': 'string'}, 'optionalBool': {'type': 'boolean'}, 'optionalObjectOf': {'nullable': False, 'type': 'dict', 'valueschema': {'type': 'number'}}, 'optionalArrayOf': {'type': 'list', 'schema': {'nullable': False, 'type': 'number'}}, 'optionalElement': {'type': 'component'}, 'optionalAny': {'type': ('boolean', 'number', 'string', 'dict', 'list')}, 'optionalUnion': {'anyof': [{'type': 'string'}, {'type': 'number'}, {}]}, 'optionalSymbol': {}, 'id': {'type': 'string'}, 'optionalMessage': {}, 'optionalObjectWithShapeAndNestedDescription': {'allow_unknown': False, 'type': 'dict', 'nullable': False, 'schema': {'figure': {'allow_unknown': False, 'type': 'dict', 'nullable': False, 'schema': {'data': {'type': 'list', 'schema': {'nullable': False, 'type': 'dict'}}, 'layout': {'type': 'dict'}}}, 'color': {'type': 'string'}, 'fontSize': {'type': 'number'}}}}
 
 class Table(Component):
     """A Table component.
@@ -12,7 +12,7 @@ This is a description of the component.
 It's multiple lines long.
 
 Keyword arguments:
-- children (a list of or a singular dash component, string or number; optional)
+- children (string | number | boolean | dash component | a value equal to: null | list; optional)
 - optionalArray (list; optional): Description of optionalArray
 - optionalBool (boolean; optional)
 - optionalNumber (number; optional)
@@ -33,10 +33,10 @@ Those keys have the following types:
   - data (list; optional): data is a collection of traces
   - layout (dict; optional): layout describes the rest of the figure
 - optionalAny (boolean | number | string | dict | list; optional)
-- customProp (optional)
-- customArrayProp (list; optional)
 - data-* (string; optional)
 - aria-* (string; optional)
+- customProp (optional)
+- customArrayProp (list; optional)
 - in (string; optional)
 - id (string; optional)
 
@@ -44,12 +44,12 @@ Available events: 'restyle', 'relayout', 'click'"""
     _schema = schema
     @_explicitize_args
     def __init__(self, children=None, optionalArray=Component.UNDEFINED, optionalBool=Component.UNDEFINED, optionalFunc=Component.UNDEFINED, optionalNumber=Component.UNDEFINED, optionalObject=Component.UNDEFINED, optionalString=Component.UNDEFINED, optionalSymbol=Component.UNDEFINED, optionalNode=Component.UNDEFINED, optionalElement=Component.UNDEFINED, optionalMessage=Component.UNDEFINED, optionalEnum=Component.UNDEFINED, optionalUnion=Component.UNDEFINED, optionalArrayOf=Component.UNDEFINED, optionalObjectOf=Component.UNDEFINED, optionalObjectWithShapeAndNestedDescription=Component.UNDEFINED, optionalAny=Component.UNDEFINED, customProp=Component.UNDEFINED, customArrayProp=Component.UNDEFINED, id=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
+        self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'data-*', 'aria-*', 'customProp', 'customArrayProp', 'in', 'id']
         self._type = 'Table'
         self._namespace = 'TableComponents'
         self._valid_wildcard_attributes =            ['data-', 'aria-']
         self.available_events = ['restyle', 'relayout', 'click']
-        self.available_properties = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
+        self.available_properties = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'data-*', 'aria-*', 'customProp', 'customArrayProp', 'in', 'id']
         self.available_wildcard_properties =            ['data-', 'aria-']
 
         _explicit_args = kwargs.pop('_explicit_args')

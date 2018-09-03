@@ -13,7 +13,22 @@ class ReactComponent extends Component {
 }
 
 ReactComponent.propTypes = {
-    children: PropTypes.node,
+    children: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.bool,
+      PropTypes.element,
+      PropTypes.oneOf([null]),
+      PropTypes.arrayOf(
+        PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.number,
+          PropTypes.bool,
+        PropTypes.element,
+          PropTypes.oneOf([null])
+        ])
+      )
+    ]),
     id: PropTypes.string.isRequired,
 };
 
