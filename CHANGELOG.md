@@ -1,3 +1,26 @@
+## 0.26.3 - 2018-08-27
+## Fixed
+- Prefix assets files with `requests_pathname_prefix`. [#351](https://github.com/plotly/dash/pull/351)
+
+## Added
+- `Dash.get_asset_url` will give the prefixed url for the asset file.
+
+## 0.26.2 - 2018-08-26
+## Fixed
+- Only create the assets blueprint once for app that provide the same flask instance to multiple dash instance. [#343](https://github.com/plotly/dash/pull/343)
+
+## 0.26.1 - 2018-08-26
+## Fixed
+- Fix bug in `_validate_layout` which would not let a user set `app.layout` to be a function that returns a layout [(fixes #334)](https://github.com/plotly/dash/issues/334). [#336](https://github.com/plotly/dash/pull/336)
+
+## 0.26.0 - 2018-08-20
+## Added
+- Added `assets_ignore` init keyword, regex filter for the assets files. [#318](https://github.com/plotly/dash/pull/318)
+
+## 0.25.1 - 2018-08-20
+## Fixed
+- Ensure CSS/JS external resources are loaded before the assets. [#335](https://github.com/plotly/dash/pull/335)
+
 ## 0.25.0 - 2018-08-14
 ## Added
 - Take configs values from init or environ variables (Prefixed with `DASH_`). [#322](https://github.com/plotly/dash/pull/322)

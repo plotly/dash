@@ -26,6 +26,7 @@ from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
+from ._utils import get_asset_path as _get_asset_path
 from . import _configs
 
 
@@ -77,9 +78,10 @@ class Dash(object):
             static_folder='static',
             assets_folder=None,
             assets_url_path='/assets',
+            assets_ignore='',
+            include_assets_files=True,
+            url_base_pathname='/',
             assets_external_path=None,
-            include_assets_files=None,
-            url_base_pathname=None,
             requests_pathname_prefix=None,
             routes_pathname_prefix=None,
             compress=True,
@@ -99,6 +101,7 @@ class Dash(object):
                 See https://github.com/plotly/dash/issues/141 for details.
                 ''', DeprecationWarning)
 
+        name = name if server is None else server.name
         self._assets_folder = assets_folder or os.path.join(
             flask.helpers.get_root_path(name), 'assets'
         )
@@ -106,10 +109,11 @@ class Dash(object):
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
 
-        self.server.register_blueprint(
-            flask.Blueprint('assets', 'assets',
-                            static_folder=self._assets_folder,
-                            static_url_path=assets_url_path))
+        if 'assets' not in self.server.blueprints:
+            self.server.register_blueprint(
+                flask.Blueprint('assets', 'assets',
+                                static_folder=self._assets_folder,
+                                static_url_path=assets_url_path))
 
         env_configs = _configs.env_configs()
 
@@ -161,6 +165,8 @@ class Dash(object):
 
         self._external_scripts = external_scripts or []
         self._external_stylesheets = external_stylesheets or []
+
+        self.assets_ignore = assets_ignore
 
         self.registered_paths = {}
         self.namespaces = {}
@@ -327,16 +333,15 @@ class Dash(object):
                     'Serving files from absolute_path isn\'t supported yet'
                 )
             elif 'asset_path' in resource:
-                static_url = flask.url_for('assets.static',
-                                           filename=resource['asset_path'],
-                                           mod=resource['ts'])
+                static_url = self.get_asset_url(resource['asset_path'])
+                # Add a bust query param
+                static_url += '?m={}'.format(resource['ts'])
                 srcs.append(static_url)
         return srcs
 
     def _generate_css_dist_html(self):
-        links = self._collect_and_register_resources(
-            self.css.get_all_css()
-        ) + self._external_stylesheets
+        links = self._external_stylesheets + \
+                self._collect_and_register_resources(self.css.get_all_css())
 
         return '\n'.join([
             _format_tag('link', link, opened=True)
@@ -356,13 +361,11 @@ class Dash(object):
         srcs = self._collect_and_register_resources(
             self.scripts._resources._filter_resources(
                 dash_renderer._js_dist_dependencies
-            ) +
-            self.scripts.get_all_scripts() +
-            self.scripts._resources._filter_resources(
-                dash_renderer._js_dist
-            )
-        )
-        srcs = srcs[:-1] + self._external_scripts + [srcs[-1]]
+            )) + self._external_scripts + self._collect_and_register_resources(
+                self.scripts.get_all_scripts() +
+                self.scripts._resources._filter_resources(
+                    dash_renderer._js_dist
+                ))
 
         return '\n'.join([
             _format_tag('script', src)
@@ -910,10 +913,12 @@ class Dash(object):
                 'Make sure to set the `layout` attribute of your application '
                 'before running the server.')
 
+        to_validate = self._layout_value()
+
         layout_id = getattr(self.layout, 'id', None)
 
         component_ids = {layout_id} if layout_id else set()
-        for component in self.layout.traverse():
+        for component in to_validate.traverse():
             component_id = getattr(component, 'id', None)
             if component_id and component_id in component_ids:
                 raise exceptions.DuplicateIdError(
@@ -933,6 +938,8 @@ class Dash(object):
     def _walk_assets_directory(self):
         walk_dir = self._assets_folder
         slash_splitter = re.compile(r'[\\/]+')
+        ignore_filter = re.compile(self.assets_ignore) \
+            if self.assets_ignore else None
 
         def add_resource(p, filepath):
             res = {'asset_path': p, 'filepath': filepath}
@@ -952,7 +959,10 @@ class Dash(object):
                 else:
                     base = splitted[0]
 
-            for f in sorted(files):
+            files_gen = (x for x in files if not ignore_filter.search(x)) \
+                if ignore_filter else files
+
+            for f in sorted(files_gen):
                 if base:
                     path = '/'.join([base, f])
                 else:
@@ -967,6 +977,12 @@ class Dash(object):
                     self.css.append_css(add_resource(path, full))
                 elif f == 'favicon.ico':
                     self._favicon = path
+
+    def get_asset_url(self, path):
+        return _get_asset_path(
+            self.config.requests_pathname_prefix,
+            self.config.routes_pathname_prefix,
+            path)
 
     def run_server(self,
                    port=8050,
