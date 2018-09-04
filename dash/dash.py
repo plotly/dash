@@ -86,6 +86,7 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             suppress_callback_exceptions=None,
+            serve_dev_bundles=False,
             components_cache_max_age=None,
             **kwargs):
 
@@ -221,6 +222,7 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self.routes = []
+        self._serve_dev_bundle = serve_dev_bundles
 
         # add a handler for components suites errors to return 404
         self.server.errorhandler(exceptions.InvalidResourceError)(
@@ -373,11 +375,14 @@ class Dash(object):
         # pylint: disable=protected-access
         srcs = self._collect_and_register_resources(
             self.scripts._resources._filter_resources(
-                dash_renderer._js_dist_dependencies
+                dash_renderer._js_dist_dependencies,
+                dev_bundles=self._serve_dev_bundle
             )) + self._external_scripts + self._collect_and_register_resources(
-                self.scripts.get_all_scripts() +
+                self.scripts.get_all_scripts(
+                    dev_bundles=self._serve_dev_bundle) +
                 self.scripts._resources._filter_resources(
-                    dash_renderer._js_dist
+                    dash_renderer._js_dist,
+                    dev_bundles=self._serve_dev_bundle
                 ))
 
         return '\n'.join([
