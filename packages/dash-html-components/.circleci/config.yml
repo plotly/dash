@@ -47,7 +47,6 @@ jobs:
               npm run generate-components
               npm run build:js
               npm run build:py
-              npm run generate-python-classes
 
       - run:
           name: Run tests

@@ -1,3 +1,4 @@
 {
-    "extends": "./node_modules/dash-components-archetype/config/babel/babelrc"
+    "presets": ["env", "react"],
+    "plugins": ["transform-object-rest-spread"]
 }
