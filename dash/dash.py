@@ -27,7 +27,6 @@ from ._utils import format_tag as _format_tag
 from ._utils import get_asset_path as _get_asset_path
 from . import _configs
 
-
 _default_index = '''
 <!DOCTYPE html>
 <html>
@@ -42,6 +41,7 @@ _default_index = '''
         <footer>
             {%config%}
             {%scripts%}
+            {%renderer%}
         </footer>
     </body>
 </html>
@@ -378,6 +378,13 @@ class Dash(object):
             '</script>'
         ).format(json.dumps(self._config()))
 
+    def _generate_renderer(self):
+        return (
+            '<script id="_dash-renderer" type"application/json">'
+            '''const renderer = new DashRenderer()'''
+            '</script'
+        )
+
     def _generate_meta_html(self):
         has_ie_compat = any(
             x.get('http-equiv', '') == 'X-UA-Compatible'
@@ -431,6 +438,7 @@ class Dash(object):
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
         metas = self._generate_meta_html()
+        renderer = self._generate_renderer()
         title = getattr(self, 'title', 'Dash')
         if self._favicon:
             favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
@@ -440,7 +448,7 @@ class Dash(object):
 
         index = self.interpolate_index(
             metas=metas, title=title, css=css, config=config,
-            scripts=scripts, app_entry=_app_entry, favicon=favicon)
+            scripts=scripts, app_entry=_app_entry, favicon=favicon, renderer=renderer)
 
         checks = (
             (_re_index_entry_id.search(index), '#react-entry-point'),
@@ -462,7 +470,7 @@ class Dash(object):
 
     def interpolate_index(self,
                           metas='', title='', css='', config='',
-                          scripts='', app_entry='', favicon=''):
+                          scripts='', app_entry='', favicon='', renderer=''):
         """
         Called to create the initial HTML string that is loaded on page.
         Override this method to provide you own custom HTML.
@@ -506,6 +514,7 @@ class Dash(object):
                             config=config,
                             scripts=scripts,
                             favicon=favicon,
+                            renderer=renderer,
                             app_entry=app_entry)
 
     def dependencies(self):
