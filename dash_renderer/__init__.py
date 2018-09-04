@@ -74,6 +74,7 @@ _set_react_version(_DEFAULT_REACT_VERSION)
 _js_dist = [
     {
         'relative_package_path': 'bundle.js',
+        'dev_package_path': 'bundle.dev.js',
         "external_url": (
             'https://unpkg.com/dash-renderer@{}'
             '/dash_renderer/bundle.js'
