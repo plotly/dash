@@ -3,7 +3,7 @@ const packagejson = require('./package.json');
 
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
-module.exports = {
+module.exports = (env, argv) => ({
     entry: {main: './src/index.js'},
     output: {
         path: path.resolve(__dirname, dashLibraryName),
@@ -27,4 +27,5 @@ module.exports = {
             }
         ],
     },
-};
+    devtool: argv.mode === 'development' ? "eval-source-map" : 'source-map'
+});
