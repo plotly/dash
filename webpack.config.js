@@ -27,5 +27,5 @@ module.exports = (env, argv) => ({
             }
         ],
     },
-    devtool: argv.mode === 'development' ? "eval-source-map" : 'source-map'
+    devtool: argv.mode === 'development' ? "eval-source-map" : 'none'
 });

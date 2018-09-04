@@ -13,6 +13,7 @@ dist
 *egg-info*
 npm-debug*
 dash_renderer/bundle.js
+dash_renderer/bundle.dev.js
 dash_renderer/bundle.js.map
 dash_renderer/react@*.min.js
 dash_renderer/react-dom@*.min.js
