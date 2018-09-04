@@ -381,7 +381,7 @@ class Dash(object):
     def _generate_renderer(self):
         return (
             '<script id="_dash-renderer" type"application/json">'
-            '''const renderer = new DashRenderer()'''
+            'const renderer = new DashRenderer();'
             '</script'
         )
 
