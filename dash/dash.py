@@ -451,7 +451,7 @@ class Dash(object):
 
         index = self.interpolate_index(
             metas=metas, title=title, css=css, config=config,
-            scripts=scripts, app_entry=_app_entry, favicon=favicon, 
+            scripts=scripts, app_entry=_app_entry, favicon=favicon,
             renderer=renderer)
 
         checks = (
