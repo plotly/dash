@@ -535,3 +535,82 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
         time.sleep(0.5)
+
+    def test_with_custom_renderer(self):
+        app = dash.Dash(__name__)
+
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {%metas%}
+                <title>{%title%}</title>
+                {%favicon%}
+                {%css%}
+            </head>
+            <body>
+                <div>Testing custom DashRenderer</div>
+                {%app_entry%}
+                <footer>
+                    {%config%}
+                    {%scripts%}
+                    <script id="_dash-renderer" type"application/json">
+                        console.log('firing up a custom renderer!')
+                        const renderer = new DashRenderer({
+                            request_pre: () => {
+                                var output = document.getElementById('output-pre')
+                                if(output) {
+                                    output.innerHTML = 'request_pre changed this text!';
+                                }
+                            },
+                            request_post: () => {
+                                var output = document.getElementById('output-post')
+                                if(output) {
+                                    output.innerHTML = 'request_post changed this text!';
+                                }
+                            }
+                        })
+                    </script>
+                </footer>
+                <div>With request hooks</div>
+            </body>
+        </html>
+        '''
+
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+                value='initial value'
+            ),
+            html.Div(
+                html.Div([
+                    html.Div(id='output-1'),
+                    html.Div(id='output-pre'),
+                    html.Div(id='output-post')
+                ])
+            )
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            call_count.value = call_count.value + 1
+            return value
+        call_count = Value('i', 0)
+
+        self.startServer(app)
+
+        input1 = self.wait_for_element_by_id('input')
+        input1.clear()
+
+        input1.send_keys('fire request hooks')
+
+        output1 = self.wait_for_element_by_id('output-1')
+        output_pre = self.wait_for_element_by_id('output-pre')
+        output_post = self.wait_for_element_by_id('output-post')
+
+        self.assertEqual('fire request hooks', output1.text)
+        self.assertEqual('request_pre changed this text!', output_pre.text)
+        self.assertEqual('request_post changed this text!', output_post.text)
+        self.percy_snapshot(name='request-hooks')
