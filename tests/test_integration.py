@@ -327,6 +327,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
+                    {%renderer%}
                 </footer>
                 <div id="custom-footer">My custom footer</div>
                 <script>
@@ -379,6 +380,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
+                    {%renderer%}
                 </footer>
             </body>
         </html>
@@ -494,6 +496,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
+                    {%renderer%}
                 </footer>
             </body>
         </html>
