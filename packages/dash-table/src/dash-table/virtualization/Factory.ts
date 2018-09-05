@@ -7,8 +7,9 @@ import NoVirtualization from 'dash-table/virtualization/NoVirtualization';
 export default class VirtualizationFactory {
     public static getVirtualizer(target: ITarget) {
         switch (target.virtualization) {
-            case 'none':
+            case false:
                 return new NoVirtualization(target);
+            case true:
             case 'fe':
                 return new FrontEndVirtualization(target);
             case 'be':

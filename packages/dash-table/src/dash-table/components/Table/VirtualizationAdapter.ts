@@ -1,12 +1,14 @@
 import * as R from 'ramda';
 
-import { Dataframe, ISettings, ITarget, IViewport } from 'dash-table/virtualization/AbstractStrategy';
+import { ITarget, IViewport } from 'dash-table/virtualization/AbstractStrategy';
 import { memoizeOne } from 'core/memoizer';
 import sort, { SortSettings } from 'core/sorting';
 import SyntaxTree from 'core/syntax-tree';
+import Table from 'dash-table/components/Table';
+import { Dataframe, IVirtualizationSettings, Virtualization } from 'dash-table/components/Table/props';
 
 export default class VirtualizationAdapter implements ITarget {
-    constructor(private readonly target: any) {
+    constructor(private readonly target: Table) {
 
     }
 
@@ -50,11 +52,11 @@ export default class VirtualizationAdapter implements ITarget {
         );
     }
 
-    get settings(): ISettings {
+    get settings(): IVirtualizationSettings {
         return this.target.props.virtualization_settings;
     }
 
-    get virtualization(): string {
+    get virtualization(): Virtualization {
         return this.target.props.virtualization;
     }
 

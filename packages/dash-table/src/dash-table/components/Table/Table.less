@@ -12,51 +12,31 @@
         0px @bottom 0px 0px @color;
 }
 
-.dash-spreadsheet-clipper {
-    &.freeze-left {
-        overflow: hidden;
-    }
-
-    // freeze rows
-    &.freeze-top {
-        overflow: hidden;
-    }
-}
-
 .dash-spreadsheet-container {
+    display: flex;
+    flex-direction: row;
     position: relative;
 }
 
 .dash-spreadsheet {
     box-sizing: border-box;
+    border-left: lightgrey 1px solid;
+    border-top: lightgrey 1px solid;
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
 
-    // freeze columns
-    &.freeze-left {
-        overflow-x: scroll;
-        overflow-y: scroll;
-
-        .frozen-left {
-            overflow: hidden;
-            position: absolute;
-            z-index: 1000;
-            left: 0;
-        }
+    &.freeze-left,
+    &.freeze-top {
+        overflow: hidden !important;
     }
 
-    // freeze rows
+    &.freeze-left {
+        width: 500px;
+    }
+
     &.freeze-top {
-        overflow-y: auto;
-
-        table {
-            width: 0 !important;
-        }
-
-        .frozen-top {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 2000;
-        }
+        height: 500px;
     }
 
     *,
@@ -94,40 +74,44 @@
         }
     }
 
+    .row-0 {
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: row;
+    }
 
-    // cell border styling
-    tbody {
-        tr {
-            td, th {
-                .inset-shadow(var(--border), 1px, 0px, 0px, -1px);
+    .row-1 {
+        display: flex;
+        flex-direction: row;
+        overflow: scroll;
+    }
 
-                &:focus {
-                    outline: none;
-                }
+    .cell-0-0,
+    .cell-1-0 {
+        flex: 0 0 auto;
+        left: 0;
+        position: sticky;
+        z-index: 1;
+    }
 
-                &.focused + td {
-                    .inset-shadow(var(--border), 0px, 0px, 0px, -1px);
+    .cell-0-1 {
+        flex: 0 0 auto;
+    }
 
-                    &:last-of-type {
-                        .inset-shadow(var(--border), 0px, 0px, -1px, -1px);
-                    }
-                }
+    .cell-1-1 {
+        flex: 0 0 auto;
+    }
 
-                &:last-of-type {
-                    .inset-shadow(var(--border), 1px, 0px, -1px, -1px);
-                }
+    .cell {
+        td, th {
+            .inset-shadow(var(--border), 0px, 0px, -1px, -1px);
+
+            &:focus {
+                outline: none;
             }
-        }
 
-        &:first-of-type {
-            tr:first-of-type {
-                td, th {
-                    .inset-shadow(var(--border), 1px, 1px, 0px, -1px);
-
-                    &:last-of-type {
-                        .inset-shadow(var(--border), 1px, 1px, -1px, -1px);
-                    }
-                }
+            &.focused + td {
+                .inset-shadow(var(--border), 0px, 0px, 0px, -1px);
             }
         }
     }

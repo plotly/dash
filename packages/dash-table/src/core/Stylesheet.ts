@@ -1,3 +1,5 @@
+import Logger from 'core/Logger';
+
 interface IRule {
     cssText: string;
     selectorText: string;
@@ -84,7 +86,8 @@ export default class Stylesheet {
 
         const result = this.stylesheet.findRule(selector);
         if (result) {
-            if (result.rule.cssText === css) {
+
+            if (result.rule.cssText === css || result.rule.cssText === `${selector} { ${css} }`) {
                 return;
             } else {
                 this.stylesheet.deleteRule(result.index);
@@ -92,5 +95,6 @@ export default class Stylesheet {
         }
 
         this.stylesheet.addRule(selector, css);
+        Logger.debug('stylesheet', selector, css);
     }
 }

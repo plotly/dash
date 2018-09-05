@@ -1,73 +1,13 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import * as R from 'ramda';
 
-import ControlledTable from 'dash-table/components/ControlledTable';
+import RealTable from 'dash-table/components/Table';
 
-import 'react-select/dist/react-select.css';
-import './Table/Table.less';
-import './Table/Dropdown.css';
-
-import VirtualizationFactory from 'dash-table/virtualization/Factory';
-
-import { memoizeOne } from 'core/memoizer';
-import VirtualizationAdapter from 'dash-table/components/Table/VirtualizationAdapter';
+import 'dash-table/style/component.less';
 
 export default class Table extends Component {
-    constructor(props) {
-        super(props);
-
-        const setProps = memoizeOne(target => {
-            return this.props.setProps || (newProps => target.setState(newProps));
-        });
-
-        const getVirtualizer = memoizeOne((target, virtualization) => {
-            return VirtualizationFactory.getVirtualizer(target, virtualization);
-        });
-
-        const getAdapter = memoizeOne(target => new VirtualizationAdapter(target));
-
-        Object.defineProperty(this, 'virtualizer', {
-            get: () => getVirtualizer(getAdapter(this))
-        });
-
-        Object.defineProperty(this, 'setProps', {
-            get: () => setProps(this)
-        });
-    }
-
     render() {
-        this.virtualizer.refresh();
-
-        if (!this.props.setProps) {
-            const newProps = R.mergeAll([
-                this.props,
-                this.state,
-                {
-                    virtualizer: this.virtualizer,
-                    setProps: this.setProps,
-                },
-            ]);
-            return <ControlledTable {...newProps} />;
-        }
-
-        return (
-            <ControlledTable
-                {...R.merge(this.props, {
-                    virtualizer: this.virtualizer,
-                    setProps: newProps => {
-                        if (R.has('dataframe', newProps)) {
-                            const { dataframe } = this.props;
-
-                            newProps.dataframe_timestamp = Date.now();
-                            newProps.dataframe_previous = dataframe;
-                        }
-
-                        this.props.setProps(newProps);
-                    },
-                })}
-            />
-        );
+        return (<RealTable {...this.props} />);
     }
 }
 
@@ -112,11 +52,11 @@ export const defaultProps = {
     base_styles: {
         numeric: {
             'text-align': 'right',
-            'font-family': "'Droid Sans Mono', Courier, monospace",
+            'font-family': `'Droid Sans Mono', Courier, monospace`
         },
 
         string: {
-            'text-align': 'left',
+            'text-align': 'left'
         },
 
         input: {
@@ -124,11 +64,11 @@ export const defaultProps = {
             margin: 0,
             width: '80px',
             border: 'none',
-            'font-size': '1rem',
+            'font-size': '1rem'
         },
 
         'input-active': {
-            outline: '#7FDBFF auto 3px',
+            outline: '#7FDBFF auto 3px'
         },
 
         table: {},
@@ -137,7 +77,7 @@ export const defaultProps = {
 
         th: {},
 
-        td: {},
+        td: {}
     }
 };
 
@@ -157,7 +97,7 @@ export const propTypes = {
     n_fixed_columns: PropTypes.number,
     n_fixed_rows: PropTypes.number,
     row_deletable: PropTypes.bool,
-    row_selectable: PropTypes.oneOf(['single', 'multi']),
+    row_selectable: PropTypes.oneOf(['single', 'multi', false]),
     selected_cell: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
     selected_rows: PropTypes.arrayOf(PropTypes.number),
     setProps: PropTypes.any,
@@ -168,7 +108,7 @@ export const propTypes = {
         rule: PropTypes.string
     })),
 
-    virtualization: PropTypes.oneOf(['fe', 'be', 'none']),
+    virtualization: PropTypes.oneOf(['fe', 'be', true, false]),
     virtualization_settings: PropTypes.shape({
         displayed_pages: PropTypes.number,
         current_page: PropTypes.number,
@@ -217,13 +157,13 @@ export const propTypes = {
 
     sorting: PropTypes.oneOf(['fe', 'be', true, false]),
     sorting_settings: PropTypes.arrayOf(PropTypes.shape({
-            columnId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-            direction: PropTypes.oneOf(['asc', 'desc'])
-        })
+        columnId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        direction: PropTypes.oneOf(['asc', 'desc'])
+    })
     ),
 
     virtual_dataframe: PropTypes.arrayOf(PropTypes.object),
-    virtual_dataframe_indices: PropTypes.arrayOf(PropTypes.number),
+    virtual_dataframe_indices: PropTypes.arrayOf(PropTypes.number)
 };
 
 Table.defaultProps = defaultProps;

@@ -4,7 +4,7 @@ import App from './App';
 
 import Logger, { DebugLevel, LogLevel } from 'core/Logger';
 
-Logger.setDebugLevel(DebugLevel.NONE);
+Logger.setDebugLevel(DebugLevel.DEBUG);
 Logger.setLogLevel(LogLevel.WARNING);
 
 ReactDOM.render(<App />, document.getElementById('root'));

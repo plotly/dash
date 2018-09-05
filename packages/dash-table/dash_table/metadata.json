@@ -1,5 +1,5 @@
 {
-  "src/dash-table/components/Table.js": {
+  "src/dash-table/Table.js": {
     "description": "",
     "displayName": "Table",
     "methods": [],
@@ -134,6 +134,10 @@
             {
               "value": "'multi'",
               "computed": false
+            },
+            {
+              "value": "false",
+              "computed": false
             }
           ]
         },
@@ -236,7 +240,11 @@
               "computed": false
             },
             {
-              "value": "'none'",
+              "value": "true",
+              "computed": false
+            },
+            {
+              "value": "false",
               "computed": false
             }
           ]
@@ -639,7 +647,7 @@
       },
       "base_styles": {
         "defaultValue": {
-          "value": "{\n    numeric: {\n        'text-align': 'right',\n        'font-family': \"'Droid Sans Mono', Courier, monospace\",\n    },\n\n    string: {\n        'text-align': 'left',\n    },\n\n    input: {\n        padding: 0,\n        margin: 0,\n        width: '80px',\n        border: 'none',\n        'font-size': '1rem',\n    },\n\n    'input-active': {\n        outline: '#7FDBFF auto 3px',\n    },\n\n    table: {},\n\n    thead: {},\n\n    th: {},\n\n    td: {},\n}",
+          "value": "{\n    numeric: {\n        'text-align': 'right',\n        'font-family': `'Droid Sans Mono', Courier, monospace`\n    },\n\n    string: {\n        'text-align': 'left'\n    },\n\n    input: {\n        padding: 0,\n        margin: 0,\n        width: '80px',\n        border: 'none',\n        'font-size': '1rem'\n    },\n\n    'input-active': {\n        outline: '#7FDBFF auto 3px'\n    },\n\n    table: {},\n\n    thead: {},\n\n    th: {},\n\n    td: {}\n}",
           "computed": false
         },
         "required": false

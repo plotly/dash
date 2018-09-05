@@ -2,11 +2,12 @@
 import * as R from 'ramda';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {Table} from 'dash-table';
+import { Table } from 'dash-table';
 import {mockData} from './data';
 import { memoizeOne } from 'core/memoizer';
 
 const clone = o => JSON.parse(JSON.stringify(o));
+
 
 class App extends Component {
     constructor() {
@@ -27,9 +28,9 @@ class App extends Component {
                 editable: true,
                 filtering: true,
                 sorting: true,
-                // n_fixed_rows: 3,
-                // n_fixed_columns: 2,
-                merge_duplicate_headers: true,
+                n_fixed_rows: 3,
+                n_fixed_columns: 2,
+                merge_duplicate_headers: false,
                 row_deletable: true,
                 row_selectable: 'single',
                 column_static_dropdown: [
@@ -41,6 +42,9 @@ class App extends Component {
                         }))
                     }
                 ],
+                table_style: [
+                    { selector: '.dash-spreadsheet.freeze-left', rule: 'width: 1000px' }
+                ]
             }
         };
 

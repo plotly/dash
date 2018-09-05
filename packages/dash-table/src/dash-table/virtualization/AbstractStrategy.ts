@@ -1,15 +1,9 @@
-export type Dataframe = any[];
-
-export interface ISettings {
-    displayed_pages: number;
-    current_page: number;
-    page_size: number;
-}
+import { Dataframe, IVirtualizationSettings, Virtualization } from 'dash-table/components/Table/props';
 
 export interface IViewport {
     readonly dataframe: Dataframe;
-    readonly settings: ISettings;
-    readonly virtualization: string;
+    readonly settings: IVirtualizationSettings;
+    readonly virtualization: Virtualization;
 
     readonly viewportDataframe: Dataframe;
     readonly viewportIndices: number[];

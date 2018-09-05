@@ -1,7 +1,6 @@
 import DashTable from 'cypress/DashTable';
 import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
-import Resolve from 'cypress/Resolve';
 
 describe('copy paste', () => {
     beforeEach(() => {
@@ -14,22 +13,25 @@ describe('copy paste', () => {
 
         DashTable
             .getCell(0, 0)
-            .within(() => cy.get('.cell-value').should('have.html', '10'));
-
-        DashTable.getCell(0, 1)
-            .within(() => cy.get('.cell-value').should('have.html', 'MODIFIED'));
+            .within(() => cy.get('.cell-value').should('have.html', '10'))
+            .then(() => {
+                DashTable.getCell(0, 1)
+                    .within(() => cy.get('.cell-value').should('have.html', 'MODIFIED'));
+            });
     });
 
-    it('can do BE roundtrip on copy-paste', async () => {
-        await Resolve(DashTable.getCell(0, 0).click());
-        await Resolve(DOM.focused.type(`${Key.Control}c`));
+    // Commenting this test as Cypress team is having issues with the copy/paste scenario
+    // https://github.com/cypress-io/cypress/issues/2386
 
-        await Resolve(DashTable.getCell(1, 0).click());
-        await Resolve(DOM.focused.type(`${Key.Control}v`));
+    // it('can do BE roundtrip on copy-paste', () => {
+    //     DashTable.getCell(0, 0).click();
+    //     DOM.focused.type(`${Key.Meta}c`);
 
-        DashTable
-            .getCell(1, 1)
-            .within(() => cy.get('.cell-value').should('have.html', 'MODIFIED'));
+    //     DashTable.getCell(1, 0).click();
+    //     DOM.focused.type(`${Key.Meta}v`);
 
-    });
+    //     DashTable
+    //         .getCell(1, 1)
+    //         .within(() => cy.get('.cell-value').should('have.html', 'MODIFIED'));
+    // });
 });

@@ -5,7 +5,9 @@ import Stylesheet from 'core/Stylesheet';
 import { updateSettings, SortDirection, SortSettings } from 'core/sorting';
 
 import * as actions from 'dash-table/utils/actions';
-import { DEFAULT_CELL_WIDTH } from 'dash-table/components/Row';
+import { RowSelection, SetProps } from 'dash-table/components/Table/props';
+
+export const DEFAULT_CELL_WIDTH = 200;
 
 interface ICellOptions {
     columns: any[];
@@ -15,17 +17,26 @@ interface ICellOptions {
     mergeCells?: boolean;
     n_fixed_columns: number;
     row_deletable: boolean;
-    row_selectable: boolean;
+    row_selectable: RowSelection;
     rowSorting: string | boolean;
-    setProps: (...args: any[]) => any;
+    setProps: SetProps;
     sorting_settings: SortSettings;
     virtualization: any;
 }
 
-interface IOptions extends ICellOptions {
+interface IOptions {
+    columns: any[];
+    dataframe: any;
+    mergeCells?: boolean;
     merge_duplicate_headers: boolean;
+    n_fixed_columns: number;
     n_fixed_rows: number;
+    row_deletable: boolean;
+    row_selectable: RowSelection;
+    setProps: SetProps;
     sorting: string | boolean;
+    sorting_settings: SortSettings;
+    virtualization: any;
 }
 
 const getColLength = (c: any) => (Array.isArray(c.name) ? c.name.length : 1);
@@ -130,7 +141,7 @@ export default class HeaderFactory {
             (row_deletable ? 1 : 0) +
             (row_selectable ? 1 : 0);
 
-        return columnIndices.map((columnId, spanId) => {
+        return R.filter(column => !!column, columnIndices.map((columnId, spanId) => {
             const c = columns[columnId];
             if (c.hidden) {
                 return null;
@@ -144,8 +155,8 @@ export default class HeaderFactory {
             } else {
                 const nHiddenColumns = (
                     R.slice(columnId, columnIndices[spanId + 1] || Infinity, columns)
-                     .filter(R.propEq('hidden', true))
-                     .length);
+                        .filter(R.propEq('hidden', true))
+                        .length);
                 if (columnId === R.last(columnIndices)) {
                     colSpan = labels.length - columnId - nHiddenColumns;
                 } else {
@@ -172,8 +183,9 @@ export default class HeaderFactory {
                 key={`header-cell-${columnId}`}
                 colSpan={colSpan}
                 className={
-                    (columnId === columns.length - 1 || columnId === R.last(columnIndices) ? 'cell--right-last ' : '') +
-                    (visibleIndex < n_fixed_columns ? `frozen-left frozen-left-${visibleIndex}` : '')
+                    `column-${columnId + columnIndexOffset} ` +
+                    (columnId === columns.length - 1 || columnId === R.last(columnIndices) ? 'cell--right-last ' : '')
+                    // (visibleIndex < n_fixed_columns ? `frozen-left frozen-left-${visibleIndex}` : '')
 
                 }
                 style={visibleIndex < n_fixed_columns ? {
@@ -216,35 +228,30 @@ export default class HeaderFactory {
 
                 <span>{labels[columnId]}</span>
             </th>);
-        });
+        }));
     }
 
     private static createDeletableHeader(options: IOptions) {
-        const { n_fixed_columns, row_deletable } = options;
+        const { row_deletable } = options;
+
         return !row_deletable ? null : (
             <th
-                className={
-                    'expanded-row--empty-cell ' +
-                    (n_fixed_columns > 0 ? 'frozen-left frozen-left-0' : '')
-                }
-                style={n_fixed_columns > 0 ? { width: `30px` } : undefined}
+                key='delete'
+                className='expanded-row--empty-cell'
+                style={{ width: `30px`, maxWidth: `30px`, minWidth: `30px` }}
 
             />
         );
     }
 
     private static createSelectableHeader(options: IOptions) {
-        const { n_fixed_columns, row_deletable, row_selectable } = options;
-
-        const rowSelectableFixedIndex = row_deletable ? 1 : 0;
+        const { row_selectable } = options;
 
         return !row_selectable ? null : (
             <th
-                className={
-                    'expanded-row--empty-cell ' +
-                    (n_fixed_columns > rowSelectableFixedIndex ? `frozen-left frozen-left-${rowSelectableFixedIndex}` : '')
-                }
-                style={n_fixed_columns > rowSelectableFixedIndex ? { width: `30px` } : undefined}
+                key='select'
+                className='expanded-row--empty-cell'
+                style={{ width: `30px`, maxWidth: `30px`, minWidth: `30px` }}
             />
         );
     }
@@ -269,52 +276,49 @@ export default class HeaderFactory {
         const headerDepth = Math.max.apply(Math, columns.map(getColLength));
 
         if (headerDepth === 1) {
-            return [(
-                <tr key={`header-0`}>
-                    {selectableCell}
-                    {HeaderFactory.createHeaderCells({
-                        columns,
-                        columnRowIndex: 0,
-                        dataframe,
-                        labels: R.pluck('name', columns),
-                        n_fixed_columns,
-                        row_deletable,
-                        row_selectable,
-                        rowSorting: sorting,
-                        setProps,
-                        sorting_settings,
-                        virtualization
-                    })}
-                </tr>
-            )];
+            return [[
+                ...(deletableCell ? [deletableCell] : []),
+                ...(selectableCell ? [selectableCell] : []),
+                ...(HeaderFactory.createHeaderCells({
+                    columns,
+                    columnRowIndex: 0,
+                    dataframe,
+                    labels: R.pluck('name', columns),
+                    n_fixed_columns,
+                    row_deletable,
+                    row_selectable,
+                    rowSorting: sorting,
+                    setProps,
+                    sorting_settings,
+                    virtualization
+                }))
+            ]];
         } else {
-            return R.range(0, headerDepth).map(i => (
-                <tr key={`header-${i}`}>
-                    {deletableCell}
-                    {selectableCell}
-                    {HeaderFactory.createHeaderCells({
-                        columns,
-                        columnRowIndex: i,
-                        dataframe,
-                        labels: columns.map(
-                            c =>
-                                R.isNil(c.name) && i === headerDepth - 1
-                                    ? c.id
-                                    : getColNameAt(c, i)
-                        ),
-                        n_fixed_columns,
-                        row_deletable,
-                        row_selectable,
-                        rowSorting: !!sorting && i + 1 === headerDepth,
-                        mergeCells:
-                            merge_duplicate_headers &&
-                            i + 1 !== headerDepth,
-                        setProps,
-                        sorting_settings,
-                        virtualization
-                    })}
-                </tr>
-            ));
+            return R.range(0, headerDepth).map(i => ([
+                ...(deletableCell ? [deletableCell] : []),
+                ...(selectableCell ? [selectableCell] : []),
+                ...(HeaderFactory.createHeaderCells({
+                    columns,
+                    columnRowIndex: i,
+                    dataframe,
+                    labels: columns.map(
+                        c =>
+                            R.isNil(c.name) && i === headerDepth - 1
+                                ? c.id
+                                : getColNameAt(c, i)
+                    ),
+                    n_fixed_columns,
+                    row_deletable,
+                    row_selectable,
+                    rowSorting: !!sorting && i + 1 === headerDepth,
+                    mergeCells:
+                        merge_duplicate_headers &&
+                        i + 1 !== headerDepth,
+                    setProps,
+                    sorting_settings,
+                    virtualization
+                }))
+            ]));
         }
     }
 }

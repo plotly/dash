@@ -5,7 +5,7 @@ const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
 module.exports = {
     entry: {
-        bundle: './src/dash-table/index.js',
+        bundle: './src/dash-table/index.ts',
         demo: ['./demo/index.js', './demo/index.html'],
     },
     output: {

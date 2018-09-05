@@ -1,22 +1,22 @@
 import DashTable from 'cypress/DashTable';
 import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
-import Resolve from 'cypress/Resolve';
 
 describe('navigate', () => {
     beforeEach(() => {
         cy.visit('http://localhost:8080');
     });
 
-    it('does not change column width', async () => {
-        const startWidth = await Resolve(DashTable.getCell(3, 3)).then(res => res.outerWidth());
+    it('does not change column width', () => {
+        DashTable.getCell(3, 3).then(startCell => {
+            const startWidth = startCell.outerWidth();
 
-        await Resolve(DashTable.getCell(3, 3).click());
+            DashTable.getCell(3, 3).then(endCell => {
+                const endWidth = endCell.outerWidth();
 
-        const endWidth = await Resolve(DashTable.getCell(3, 3).then(res => res.outerWidth()));
-
-        expect(endWidth).to.equal(startWidth);
-
+                expect(endWidth).to.equal(startWidth);
+            });
+        });
     });
 
     describe('with keyboard', () => {
@@ -38,7 +38,7 @@ describe('navigate', () => {
                 DashTable.getCell(4, 3).within(() => cy.get('.cell-value').should('not.have.class', 'focused'));
             });
 
-            it('does not focus on next cell input on "tab"', async () => {
+            it('does not focus on next cell input on "tab"', () => {
                 cy.tab();
 
                 DashTable.getCell(3, 3).should('not.have.class', 'focused');
@@ -58,7 +58,7 @@ describe('navigate', () => {
 
                 DashTable.getCell(3, 8).should('have.class', 'focused');
                 DashTable.getCell(3, 8).get('.Select').should('exist');
-                DOM.focused.type(Key.ArrowLeft);
+                DOM.focused.type(Key.ArrowLeft, { force: true });
 
                 DashTable.getCell(3, 8).should('not.have.class', 'focused');
                 DashTable.getCell(3, 7).should('have.class', 'focused');

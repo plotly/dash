@@ -1,7 +1,6 @@
 import DashTable from 'cypress/DashTable';
 import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
-import Resolve from 'cypress/Resolve';
 
 describe('dash basic', () => {
     beforeEach(() => {
@@ -17,15 +16,16 @@ describe('dash basic', () => {
     });
 
     // https://github.com/plotly/dash-table/issues/50
-    it('can edit last and update dataframe on "enter"', async () => {
+    it('can edit last and update dataframe on "enter"', () => {
         DashTable.getCell(249, 0).click();
+        DOM.focused.then($input => {
+            const initialValue = $input.val();
 
-        const initialValue = await Resolve(DOM.focused.then($input => {
-            return $input.val();
-        }));
+            DOM.focused.type(`abc${Key.Enter}`);
 
-        DOM.focused.type(`abc${Key.Enter}`);
-
-        cy.get('#container').should('have.value', `[249][0] = ${initialValue} -> abc${initialValue}`);
+            cy.get('#container').should($container => {
+                expect($container.first()[0].innerText).to.equal(`[249][0] = ${initialValue} -> abc${initialValue}`);
+            });
+        });
     });
 });
