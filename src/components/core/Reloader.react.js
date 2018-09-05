@@ -7,27 +7,39 @@ class Reloader extends React.Component {
     constructor(props) {
         super(props);
         if (props.config.hot_reload) {
-            const { hash, interval } = props.config.hot_reload;
+            const { interval } = props.config.hot_reload;
             this.state = {
-                hash: hash,
-                interval
+                hash: null,
+                interval,
+                reloading: false,
+                disabled: false
             }
         } else {
             this.state = {
                 disabled: true
             }
         }
+        this._intervalId = null;
     }
 
     componentDidUpdate() {
-        const { reloadHash } = this.props;
+        const {reloadHash, dispatch} = this.props;
         if (reloadHash.status === 200) {
-            if (reloadHash.content.reloadHash !== this.state.hash) {
-                // TODO add soft & hard reload option
-                // soft -> rebuild the app layout (python reloaded)
-                // hard -> reload the window (css/js reloaded)
+            if (this.state.hash === null) {
+                this.setState({hash: reloadHash.content.reloadHash});
+                return;
+            }
+            if (reloadHash.content.reloadHash !== this.state.hash && !this.state.reloading ) {
                 // eslint-disable-next-line no-undef
-                window.top.location.reload();
+                window.clearInterval(this._intervalId);
+                if (reloadHash.content.hard) {
+                    // Assets file have changed, need to reload them.
+                    // eslint-disable-next-line no-undef
+                    window.top.location.reload();
+                } else if (!this.state.reloading) {
+                    // Py file has changed, just rebuild the reducers.
+                    dispatch({'type': 'RELOAD'});
+                }
             }
         }
     }
@@ -35,10 +47,19 @@ class Reloader extends React.Component {
     componentDidMount() {
         const { dispatch } = this.props;
         const { disabled, interval } = this.state;
-        if (!disabled) {
-            setInterval(() => {
-                dispatch(getReloadHash())
+        if (!disabled && !this._intervalId) {
+            this._intervalId = setInterval(() => {
+                if (!this.state.reloading) {
+                    dispatch(getReloadHash());
+                }
             }, interval);
+        }
+    }
+
+    componentWillUnmount() {
+        if (!this.state.disabled) {
+            // eslint-disable-next-line no-undef
+            window.clearInterval(this._intervalId);
         }
     }
 
@@ -53,7 +74,8 @@ Reloader.propTypes = {
     id: PropTypes.string,
     config: PropTypes.object,
     reloadHash: PropTypes.object,
-    dispatch: PropTypes.func
+    dispatch: PropTypes.func,
+    interval: PropTypes.number
 };
 
 export default connect(

@@ -94,4 +94,14 @@ function recordHistory(reducer) {
     };
 }
 
-export default recordHistory(reducer);
+function rootReducer(reducer) {
+    return function(state, action) {
+        if (action.type === 'RELOAD') {
+            const {history} = state;
+            state = {history};
+        }
+        return reducer(state, action);
+    }
+}
+
+export default rootReducer(recordHistory(reducer));
