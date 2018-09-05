@@ -378,7 +378,7 @@ class Dash(object):
             '</script>'
         ).format(json.dumps(self._config()))
 
-    def _generate_renderer(self):
+    def _generate_renderer():
         return (
             '<script id="_dash-renderer" type"application/json">'
             'const renderer = new DashRenderer();'
