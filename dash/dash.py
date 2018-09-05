@@ -217,6 +217,9 @@ class Dash(object):
         self._cached_layout = None
         self.routes = []
 
+        # default renderer string
+        self.renderer = 'const renderer = new DashRenderer();'
+
     @property
     def layout(self):
         return self._layout
@@ -378,12 +381,12 @@ class Dash(object):
             '</script>'
         ).format(json.dumps(self._config()))
 
-    def generate_renderer():
+    def _generate_renderer(self):
         return (
             '<script id="_dash-renderer" type"application/json">'
-            'const renderer = new DashRenderer();'
+            '{}'
             '</script'
-        )
+        ).format(self.renderer)
 
     def _generate_meta_html(self):
         has_ie_compat = any(
@@ -438,7 +441,7 @@ class Dash(object):
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
         metas = self._generate_meta_html()
-        renderer = self.generate_renderer()
+        renderer = self._generate_renderer()
         title = getattr(self, 'title', 'Dash')
         if self._favicon:
             favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
