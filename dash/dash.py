@@ -378,7 +378,7 @@ class Dash(object):
             '</script>'
         ).format(json.dumps(self._config()))
 
-    def _generate_renderer():
+    def generate_renderer():
         return (
             '<script id="_dash-renderer" type"application/json">'
             'const renderer = new DashRenderer();'
@@ -438,7 +438,7 @@ class Dash(object):
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
         metas = self._generate_meta_html()
-        renderer = self._generate_renderer()
+        renderer = self.generate_renderer()
         title = getattr(self, 'title', 'Dash')
         if self._favicon:
             favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
