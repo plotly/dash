@@ -9,14 +9,13 @@ def _get_metadata(metadata_path):
     # Start processing
     with open(metadata_path) as data_file:
         json_string = data_file.read()
-        data = json\
-            .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
-            .decode(json_string)
+        data = json.JSONDecoder(
+            object_pairs_hook=collections.OrderedDict
+        ).decode(json_string)
     return data
 
 
-def load_components(metadata_path,
-                    namespace='default_namespace'):
+def load_components(metadata_path, namespace='default_namespace'):
     """Load React component metadata into a format Dash can parse.
 
     Usage: load_components('../../component-suites/lib/metadata.json')
@@ -48,7 +47,7 @@ def load_components(metadata_path,
             name,
             componentData['props'],
             componentData['description'],
-            namespace
+            namespace,
         )
 
         components.append(component)
@@ -92,7 +91,7 @@ def generate_classes(namespace, metadata_path='lib/metadata.json'):
             name,
             componentData['props'],
             componentData['description'],
-            namespace
+            namespace,
         )
 
         # Add an import statement for this component

@@ -25,9 +25,9 @@ class Resources:
             if 'external_url' in s and not self.config.serve_locally:
                 filtered_resource['external_url'] = s['external_url']
             elif 'relative_package_path' in s:
-                filtered_resource['relative_package_path'] = (
-                    s['relative_package_path']
-                )
+                filtered_resource['relative_package_path'] = s[
+                    'relative_package_path'
+                ]
             elif 'absolute_path' in s:
                 filtered_resource['absolute_path'] = s['absolute_path']
             elif 'asset_path' in s:
@@ -45,9 +45,7 @@ class Resources:
                 raise Exception(
                     '{} does not have a '
                     'relative_package_path, absolute_path, or an '
-                    'external_url.'.format(
-                        json.dumps(filtered_resource)
-                    )
+                    'external_url.'.format(json.dumps(filtered_resource))
                 )
 
             filtered_resources.append(filtered_resource)
@@ -57,9 +55,7 @@ class Resources:
     def get_all_resources(self):
         all_resources = []
         if self.config.infer_from_layout:
-            all_resources = (
-                self.get_inferred_resources() + self._resources
-            )
+            all_resources = self.get_inferred_resources() + self._resources
         else:
             all_resources = self._resources
 
@@ -72,8 +68,10 @@ class Resources:
 
         def extract_resource_from_component(component):
             # pylint: disable=protected-access
-            if (isinstance(component, Component) and
-                    component._namespace not in namespaces):
+            if (
+                isinstance(component, Component)
+                and component._namespace not in namespaces
+            ):
 
                 namespaces.append(component._namespace)
 

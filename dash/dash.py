@@ -68,34 +68,38 @@ _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
     def __init__(
-            self,
-            name='__main__',
-            server=None,
-            static_folder='static',
-            assets_folder=None,
-            assets_url_path='/assets',
-            assets_ignore='',
-            include_assets_files=True,
-            url_base_pathname=None,
-            assets_external_path=None,
-            requests_pathname_prefix=None,
-            routes_pathname_prefix=None,
-            compress=True,
-            meta_tags=None,
-            index_string=_default_index,
-            external_scripts=None,
-            external_stylesheets=None,
-            suppress_callback_exceptions=None,
-            **kwargs):
+        self,
+        name='__main__',
+        server=None,
+        static_folder='static',
+        assets_folder=None,
+        assets_url_path='/assets',
+        assets_ignore='',
+        include_assets_files=True,
+        url_base_pathname=None,
+        assets_external_path=None,
+        requests_pathname_prefix=None,
+        routes_pathname_prefix=None,
+        compress=True,
+        meta_tags=None,
+        index_string=_default_index,
+        external_scripts=None,
+        external_stylesheets=None,
+        suppress_callback_exceptions=None,
+        **kwargs
+    ):
 
         # pylint-disable: too-many-instance-attributes
         if 'csrf_protect' in kwargs:
-            warnings.warn('''
+            warnings.warn(
+                '''
                 `csrf_protect` is no longer used,
                 CSRF protection has been removed as it is no longer
                 necessary.
                 See https://github.com/plotly/dash/issues/141 for details.
-                ''', DeprecationWarning)
+                ''',
+                DeprecationWarning,
+            )
 
         name = name if server is None else server.name
         self._assets_folder = assets_folder or os.path.join(
@@ -107,35 +111,48 @@ class Dash(object):
 
         if 'assets' not in self.server.blueprints:
             self.server.register_blueprint(
-                flask.Blueprint('assets', 'assets',
-                                static_folder=self._assets_folder,
-                                static_url_path=assets_url_path))
+                flask.Blueprint(
+                    'assets',
+                    'assets',
+                    static_folder=self._assets_folder,
+                    static_url_path=assets_url_path,
+                )
+            )
 
         env_configs = _configs.env_configs()
 
-        url_base_pathname, routes_pathname_prefix, requests_pathname_prefix = \
-            _configs.pathname_configs(
-                url_base_pathname,
-                routes_pathname_prefix,
-                requests_pathname_prefix,
-                environ_configs=env_configs)
+        url_base_pathname, routes_pathname_prefix, requests_pathname_prefix = _configs.pathname_configs(
+            url_base_pathname,
+            routes_pathname_prefix,
+            requests_pathname_prefix,
+            environ_configs=env_configs,
+        )
 
         self.url_base_pathname = url_base_pathname
-        self.config = _AttributeDict({
-            'suppress_callback_exceptions': _configs.get_config(
-                'suppress_callback_exceptions',
-                suppress_callback_exceptions, env_configs, False
-            ),
-            'routes_pathname_prefix': routes_pathname_prefix,
-            'requests_pathname_prefix': requests_pathname_prefix,
-            'include_assets_files': _configs.get_config(
-                'include_assets_files',
-                include_assets_files,
-                env_configs,
-                True),
-            'assets_external_path': _configs.get_config(
-                'assets_external_path', assets_external_path, env_configs, ''),
-        })
+        self.config = _AttributeDict(
+            {
+                'suppress_callback_exceptions': _configs.get_config(
+                    'suppress_callback_exceptions',
+                    suppress_callback_exceptions,
+                    env_configs,
+                    False,
+                ),
+                'routes_pathname_prefix': routes_pathname_prefix,
+                'requests_pathname_prefix': requests_pathname_prefix,
+                'include_assets_files': _configs.get_config(
+                    'include_assets_files',
+                    include_assets_files,
+                    env_configs,
+                    True,
+                ),
+                'assets_external_path': _configs.get_config(
+                    'assets_external_path',
+                    assets_external_path,
+                    env_configs,
+                    '',
+                ),
+            }
+        )
 
         # list of dependencies
         self.callback_map = {}
@@ -170,46 +187,50 @@ class Dash(object):
 
         def add_url(name, view_func, methods=('GET',)):
             self.server.add_url_rule(
-                name,
-                view_func=view_func,
-                endpoint=name,
-                methods=list(methods)
+                name, view_func=view_func, endpoint=name, methods=list(methods)
             )
 
         add_url(
             '{}_dash-layout'.format(self.config['routes_pathname_prefix']),
-            self.serve_layout)
+            self.serve_layout,
+        )
 
         add_url(
             '{}_dash-dependencies'.format(
-                self.config['routes_pathname_prefix']),
-            self.dependencies)
+                self.config['routes_pathname_prefix']
+            ),
+            self.dependencies,
+        )
 
         add_url(
             '{}_dash-update-component'.format(
-                self.config['routes_pathname_prefix']),
+                self.config['routes_pathname_prefix']
+            ),
             self.dispatch,
-            ['POST'])
+            ['POST'],
+        )
 
-        add_url((
-            '{}_dash-component-suites'
-            '/<string:package_name>'
-            '/<path:path_in_package_dist>').format(
-                self.config['routes_pathname_prefix']),
-                self.serve_component_suites)
+        add_url(
+            (
+                '{}_dash-component-suites'
+                '/<string:package_name>'
+                '/<path:path_in_package_dist>'
+            ).format(self.config['routes_pathname_prefix']),
+            self.serve_component_suites,
+        )
 
         add_url(
             '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
-            self.serve_routes)
+            self.serve_routes,
+        )
 
-        add_url(
-            self.config['routes_pathname_prefix'],
-            self.index)
+        add_url(self.config['routes_pathname_prefix'], self.index)
 
         # catch-all for front-end routes
         add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
-            self.index)
+            self.index,
+        )
 
         self.server.before_first_request(self._setup_server)
 
@@ -230,13 +251,15 @@ class Dash(object):
 
     @layout.setter
     def layout(self, value):
-        if (not isinstance(value, Component) and
-                not isinstance(value, collections.Callable)):
+        if not isinstance(value, Component) and not isinstance(
+            value, collections.Callable
+        ):
             raise Exception(
                 ''
                 'Layout must be a dash component '
                 'or a function that returns '
-                'a dash component.')
+                'a dash component.'
+            )
 
         self._layout = value
 
@@ -253,7 +276,7 @@ class Dash(object):
     def index_string(self, value):
         checks = (
             (_re_index_entry.search(value), 'app_entry'),
-            (_re_index_config.search(value), 'config',),
+            (_re_index_config.search(value), 'config'),
             (_re_index_scripts.search(value), 'scripts'),
         )
         missing = [missing for check, missing in checks if not check]
@@ -270,22 +293,20 @@ class Dash(object):
 
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
-            json.dumps(layout,
-                       cls=plotly.utils.PlotlyJSONEncoder),
-            mimetype='application/json'
+            json.dumps(layout, cls=plotly.utils.PlotlyJSONEncoder),
+            mimetype='application/json',
         )
 
     def _config(self):
         return {
             'url_base_pathname': self.url_base_pathname,
-            'requests_pathname_prefix': self.config['requests_pathname_prefix']
+            'requests_pathname_prefix': self.config['requests_pathname_prefix'],
         }
 
     def serve_routes(self):
         return flask.Response(
-            json.dumps(self.routes,
-                       cls=plotly.utils.PlotlyJSONEncoder),
-            mimetype='application/json'
+            json.dumps(self.routes, cls=plotly.utils.PlotlyJSONEncoder),
+            mimetype='application/json',
         )
 
     def _collect_and_register_resources(self, resources):
@@ -305,7 +326,7 @@ class Dash(object):
                 self.config['requests_pathname_prefix'],
                 namespace,
                 relative_package_path,
-                importlib.import_module(namespace).__version__
+                importlib.import_module(namespace).__version__,
             )
 
         srcs = []
@@ -315,10 +336,12 @@ class Dash(object):
                     srcs.append(_relative_url_path(**resource))
                 else:
                     for rel_path in resource['relative_package_path']:
-                        srcs.append(_relative_url_path(
-                            relative_package_path=rel_path,
-                            namespace=resource['namespace']
-                        ))
+                        srcs.append(
+                            _relative_url_path(
+                                relative_package_path=rel_path,
+                                namespace=resource['namespace'],
+                            )
+                        )
             elif 'external_url' in resource:
                 if isinstance(resource['external_url'], str):
                     srcs.append(resource['external_url'])
@@ -337,15 +360,19 @@ class Dash(object):
         return srcs
 
     def _generate_css_dist_html(self):
-        links = self._external_stylesheets + \
-                self._collect_and_register_resources(self.css.get_all_css())
+        links = (
+            self._external_stylesheets
+            + self._collect_and_register_resources(self.css.get_all_css())
+        )
 
-        return '\n'.join([
-            _format_tag('link', link, opened=True)
-            if isinstance(link, dict)
-            else '<link rel="stylesheet" href="{}">'.format(link)
-            for link in links
-        ])
+        return '\n'.join(
+            [
+                _format_tag('link', link, opened=True)
+                if isinstance(link, dict)
+                else '<link rel="stylesheet" href="{}">'.format(link)
+                for link in links
+            ]
+        )
 
     def _generate_scripts_html(self):
         # Dash renderer has dependencies like React which need to be rendered
@@ -355,21 +382,29 @@ class Dash(object):
         # The rest of the scripts can just be loaded after React but before
         # dash renderer.
         # pylint: disable=protected-access
-        srcs = self._collect_and_register_resources(
-            self.scripts._resources._filter_resources(
-                dash_renderer._js_dist_dependencies
-            )) + self._external_scripts + self._collect_and_register_resources(
-                self.scripts.get_all_scripts() +
+        srcs = (
+            self._collect_and_register_resources(
                 self.scripts._resources._filter_resources(
+                    dash_renderer._js_dist_dependencies
+                )
+            )
+            + self._external_scripts
+            + self._collect_and_register_resources(
+                self.scripts.get_all_scripts()
+                + self.scripts._resources._filter_resources(
                     dash_renderer._js_dist
-                ))
+                )
+            )
+        )
 
-        return '\n'.join([
-            _format_tag('script', src)
-            if isinstance(src, dict)
-            else '<script src="{}"></script>'.format(src)
-            for src in srcs
-        ])
+        return '\n'.join(
+            [
+                _format_tag('script', src)
+                if isinstance(src, dict)
+                else '<script src="{}"></script>'.format(src)
+                for src in srcs
+            ]
+        )
 
     def _generate_config_html(self):
         return (
@@ -381,7 +416,8 @@ class Dash(object):
     def _generate_meta_html(self):
         has_ie_compat = any(
             x.get('http-equiv', '') == 'X-UA-Compatible'
-            for x in self._meta_tags)
+            for x in self._meta_tags
+        )
         has_charset = any('charset' in x for x in self._meta_tags)
 
         tags = []
@@ -402,28 +438,26 @@ class Dash(object):
             raise Exception(
                 'Error loading dependency.\n'
                 '"{}" is not a registered library.\n'
-                'Registered libraries are: {}'
-                .format(package_name, list(self.registered_paths.keys())))
+                'Registered libraries are: {}'.format(
+                    package_name, list(self.registered_paths.keys())
+                )
+            )
 
         elif path_in_package_dist not in self.registered_paths[package_name]:
             raise Exception(
                 '"{}" is registered but the path requested is not valid.\n'
                 'The path requested: "{}"\n'
-                'List of registered paths: {}'
-                .format(
-                    package_name,
-                    path_in_package_dist,
-                    self.registered_paths
+                'List of registered paths: {}'.format(
+                    package_name, path_in_package_dist, self.registered_paths
                 )
             )
 
-        mimetype = ({
-            'js': 'application/JavaScript',
-            'css': 'text/css'
-        })[path_in_package_dist.split('.')[-1]]
+        mimetype = ({'js': 'application/JavaScript', 'css': 'text/css'})[
+            path_in_package_dist.split('.')[-1]
+        ]
         return Response(
             pkgutil.get_data(package_name, path_in_package_dist),
-            mimetype=mimetype
+            mimetype=mimetype,
         )
 
     def index(self, *args, **kwargs):  # pylint: disable=unused-argument
@@ -434,13 +468,20 @@ class Dash(object):
         title = getattr(self, 'title', 'Dash')
         if self._favicon:
             favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
-                flask.url_for('assets.static', filename=self._favicon))
+                flask.url_for('assets.static', filename=self._favicon)
+            )
         else:
             favicon = ''
 
         index = self.interpolate_index(
-            metas=metas, title=title, css=css, config=config,
-            scripts=scripts, app_entry=_app_entry, favicon=favicon)
+            metas=metas,
+            title=title,
+            css=css,
+            config=config,
+            scripts=scripts,
+            app_entry=_app_entry,
+            favicon=favicon,
+        )
 
         checks = (
             (_re_index_entry_id.search(index), '#react-entry-point'),
@@ -453,16 +494,22 @@ class Dash(object):
             plural = 's' if len(missing) > 1 else ''
             raise Exception(
                 'Missing element{pl} {ids} in index.'.format(
-                    ids=', '.join(missing),
-                    pl=plural
+                    ids=', '.join(missing), pl=plural
                 )
             )
 
         return index
 
-    def interpolate_index(self,
-                          metas='', title='', css='', config='',
-                          scripts='', app_entry='', favicon=''):
+    def interpolate_index(
+        self,
+        metas='',
+        title='',
+        css='',
+        config='',
+        scripts='',
+        app_entry='',
+        favicon='',
+    ):
         """
         Called to create the initial HTML string that is loaded on page.
         Override this method to provide you own custom HTML.
@@ -499,63 +546,76 @@ class Dash(object):
         :param favicon: A favicon <link> tag if found in assets folder.
         :return: The interpolated HTML string for the index.
         """
-        return _interpolate(self.index_string,
-                            metas=metas,
-                            title=title,
-                            css=css,
-                            config=config,
-                            scripts=scripts,
-                            favicon=favicon,
-                            app_entry=app_entry)
+        return _interpolate(
+            self.index_string,
+            metas=metas,
+            title=title,
+            css=css,
+            config=config,
+            scripts=scripts,
+            favicon=favicon,
+            app_entry=app_entry,
+        )
 
     def dependencies(self):
-        return flask.jsonify([
-            {
-                'output': {
-                    'id': k.split('.')[0],
-                    'property': k.split('.')[1]
-                },
-                'inputs': v['inputs'],
-                'state': v['state'],
-                'events': v['events']
-            } for k, v in list(self.callback_map.items())
-        ])
+        return flask.jsonify(
+            [
+                {
+                    'output': {
+                        'id': k.split('.')[0],
+                        'property': k.split('.')[1],
+                    },
+                    'inputs': v['inputs'],
+                    'state': v['state'],
+                    'events': v['events'],
+                }
+                for k, v in list(self.callback_map.items())
+            ]
+        )
 
     # pylint: disable=unused-argument, no-self-use
     def react(self, *args, **kwargs):
         raise exceptions.DashException(
             'Yo! `react` is no longer used. \n'
             'Use `callback` instead. `callback` has a new syntax too, '
-            'so make sure to call `help(app.callback)` to learn more.')
+            'so make sure to call `help(app.callback)` to learn more.'
+        )
 
     def _validate_callback(self, output, inputs, state, events):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
 
-        if (layout is None and
-                not self.config.first('suppress_callback_exceptions',
-                                      'supress_callback_exceptions')):
+        if layout is None and not self.config.first(
+            'suppress_callback_exceptions', 'supress_callback_exceptions'
+        ):
             # Without a layout, we can't do validation on the IDs and
             # properties of the elements in the callback.
-            raise exceptions.LayoutIsNotDefined('''
+            raise exceptions.LayoutIsNotDefined(
+                '''
                 Attempting to assign a callback to the application but
                 the `layout` property has not been assigned.
                 Assign the `layout` property before assigning callbacks.
                 Alternatively, suppress this warning by setting
                 `app.config['suppress_callback_exceptions']=True`
-            '''.replace('    ', ''))
+            '''.replace(
+                    '    ', ''
+                )
+            )
 
-        for args, obj, name in [([output], Output, 'Output'),
-                                (inputs, Input, 'Input'),
-                                (state, State, 'State'),
-                                (events, Event, 'Event')]:
+        for args, obj, name in [
+            ([output], Output, 'Output'),
+            (inputs, Input, 'Input'),
+            (state, State, 'State'),
+            (events, Event, 'Event'),
+        ]:
 
             if not isinstance(args, list):
                 raise exceptions.IncorrectTypeException(
                     'The {} argument `{}` is '
                     'not a list of `dash.dependencies.{}`s.'.format(
                         name.lower(), str(args), name
-                    ))
+                    )
+                )
 
             for arg in args:
                 if not isinstance(arg, obj):
@@ -563,13 +623,19 @@ class Dash(object):
                         'The {} argument `{}` is '
                         'not of type `dash.{}`.'.format(
                             name.lower(), str(arg), name
-                        ))
+                        )
+                    )
 
-                if (not self.config.first('suppress_callback_exceptions',
-                                          'supress_callback_exceptions') and
-                        arg.component_id not in layout and
-                        arg.component_id != getattr(layout, 'id', None)):
-                    raise exceptions.NonExistantIdException('''
+                if (
+                    not self.config.first(
+                        'suppress_callback_exceptions',
+                        'supress_callback_exceptions',
+                    )
+                    and arg.component_id not in layout
+                    and arg.component_id != getattr(layout, 'id', None)
+                ):
+                    raise exceptions.NonExistantIdException(
+                        '''
                         Attempting to assign a callback to the
                         component with the id "{}" but no
                         components with id "{}" exist in the
@@ -581,59 +647,80 @@ class Dash(object):
                         you can suppress this exception by setting
                         `app.config['suppress_callback_exceptions']=True`.
                     '''.format(
-                        arg.component_id,
-                        arg.component_id,
-                        list(layout.keys()) + (
-                            [] if not hasattr(layout, 'id') else
-                            [layout.id]
+                            arg.component_id,
+                            arg.component_id,
+                            list(layout.keys())
+                            + (
+                                [] if not hasattr(layout, 'id') else [layout.id]
+                            ),
+                        ).replace(
+                            '    ', ''
                         )
-                    ).replace('    ', ''))
+                    )
 
-                if not self.config.first('suppress_callback_exceptions',
-                                         'supress_callback_exceptions'):
+                if not self.config.first(
+                    'suppress_callback_exceptions',
+                    'supress_callback_exceptions',
+                ):
 
                     if getattr(layout, 'id', None) == arg.component_id:
                         component = layout
                     else:
                         component = layout[arg.component_id]
 
-                    if (hasattr(arg, 'component_property') and
-                            arg.component_property not in
-                            component.available_properties and not
-                            any(arg.component_property.startswith(w) for w in
-                                component.available_wildcard_properties)):
-                        raise exceptions.NonExistantPropException('''
+                    if (
+                        hasattr(arg, 'component_property')
+                        and arg.component_property
+                        not in component.available_properties
+                        and not any(
+                            arg.component_property.startswith(w)
+                            for w in component.available_wildcard_properties
+                        )
+                    ):
+                        raise exceptions.NonExistantPropException(
+                            '''
                             Attempting to assign a callback with
                             the property "{}" but the component
                             "{}" doesn't have "{}" as a property.\n
                             Here is a list of the available properties in "{}":
                             {}
                         '''.format(
-                            arg.component_property,
-                            arg.component_id,
-                            arg.component_property,
-                            arg.component_id,
-                            component.available_properties).replace(
-                                '    ', ''))
+                                arg.component_property,
+                                arg.component_id,
+                                arg.component_property,
+                                arg.component_id,
+                                component.available_properties,
+                            ).replace(
+                                '    ', ''
+                            )
+                        )
 
-                    if (hasattr(arg, 'component_event') and
-                            arg.component_event not in
-                            component.available_events):
-                        raise exceptions.NonExistantEventException('''
+                    if (
+                        hasattr(arg, 'component_event')
+                        and arg.component_event
+                        not in component.available_events
+                    ):
+                        raise exceptions.NonExistantEventException(
+                            '''
                             Attempting to assign a callback with
                             the event "{}" but the component
                             "{}" doesn't have "{}" as an event.\n
                             Here is a list of the available events in "{}":
                             {}
                         '''.format(
-                            arg.component_event,
-                            arg.component_id,
-                            arg.component_event,
-                            arg.component_id,
-                            component.available_events).replace('    ', ''))
+                                arg.component_event,
+                                arg.component_id,
+                                arg.component_event,
+                                arg.component_id,
+                                component.available_events,
+                            ).replace(
+                                '    ', ''
+                            )
+                        )
 
         if state and not events and not inputs:
-            raise exceptions.MissingEventsException('''
+            raise exceptions.MissingEventsException(
+                '''
                 This callback has {} `State` {}
                 but no `Input` elements or `Event` elements.\n
                 Without `Input` or `Event` elements, this callback
@@ -643,38 +730,52 @@ class Dash(object):
                 change and subscribing to an event will cause the
                 callback to be called whenever the event is fired.)
             '''.format(
-                len(state),
-                'elements' if len(state) > 1 else 'element'
-            ).replace('    ', ''))
+                    len(state), 'elements' if len(state) > 1 else 'element'
+                ).replace(
+                    '    ', ''
+                )
+            )
 
         if '.' in output.component_id:
-            raise exceptions.IDsCantContainPeriods('''The Output element
+            raise exceptions.IDsCantContainPeriods(
+                '''The Output element
             `{}` contains a period in its ID.
             Periods are not allowed in IDs right now.'''.format(
-                output.component_id
-            ))
+                    output.component_id
+                )
+            )
 
         callback_id = '{}.{}'.format(
-            output.component_id, output.component_property)
+            output.component_id, output.component_property
+        )
         if callback_id in self.callback_map:
-            raise exceptions.CantHaveMultipleOutputs('''
+            raise exceptions.CantHaveMultipleOutputs(
+                '''
                 You have already assigned a callback to the output
                 with ID "{}" and property "{}". An output can only have
                 a single callback function. Try combining your inputs and
                 callback functions together into one function.
             '''.format(
-                output.component_id,
-                output.component_property).replace('    ', ''))
+                    output.component_id, output.component_property
+                ).replace(
+                    '    ', ''
+                )
+            )
 
     def _validate_callback_output(self, output_value, output):
         valid = [str, dict, int, float, type(None), Component]
 
-        def _raise_invalid(bad_val, outer_val, bad_type, path, index=None,
-                           toplevel=False):
-            outer_id = "(id={:s})".format(outer_val.id) \
-                        if getattr(outer_val, 'id', False) else ''
+        def _raise_invalid(
+            bad_val, outer_val, bad_type, path, index=None, toplevel=False
+        ):
+            outer_id = (
+                "(id={:s})".format(outer_val.id)
+                if getattr(outer_val, 'id', False)
+                else ''
+            )
             outer_type = type(outer_val).__name__
-            raise exceptions.InvalidCallbackReturnValue('''
+            raise exceptions.InvalidCallbackReturnValue(
+                '''
             The callback for property `{property:s}` of component `{id:s}`
             returned a {object:s} having type `{type:s}`
             which is not JSON serializable.
@@ -687,30 +788,42 @@ class Dash(object):
             dash components, strings, dictionaries, numbers, None,
             or lists of those.
             '''.format(
-                property=output.component_property,
-                id=output.component_id,
-                object='tree with one value' if not toplevel else 'value',
-                type=bad_type,
-                location_header=(
-                    'The value in question is located at'
-                    if not toplevel else
-                    '''The value in question is either the only value returned,
+                    property=output.component_property,
+                    id=output.component_id,
+                    object='tree with one value' if not toplevel else 'value',
+                    type=bad_type,
+                    location_header=(
+                        'The value in question is located at'
+                        if not toplevel
+                        else '''The value in question is either the only value returned,
                     or is in the top level of the returned list,'''
-                ),
-                location=(
-                    "\n" +
-                    ("[{:d}] {:s} {:s}".format(index, outer_type, outer_id)
-                     if index is not None
-                     else ('[*] ' + outer_type + ' ' + outer_id))
-                    + "\n" + path + "\n"
-                ) if not toplevel else '',
-                bad_val=bad_val).replace('    ', ''))
+                    ),
+                    location=(
+                        "\n"
+                        + (
+                            "[{:d}] {:s} {:s}".format(
+                                index, outer_type, outer_id
+                            )
+                            if index is not None
+                            else ('[*] ' + outer_type + ' ' + outer_id)
+                        )
+                        + "\n"
+                        + path
+                        + "\n"
+                    )
+                    if not toplevel
+                    else '',
+                    bad_val=bad_val,
+                ).replace(
+                    '    ', ''
+                )
+            )
 
         def _value_is_valid(val):
             return (
                 # pylint: disable=unused-variable
-                any([isinstance(val, x) for x in valid]) or
-                type(val).__name__ == 'unicode'
+                any([isinstance(val, x) for x in valid])
+                or type(val).__name__ == 'unicode'
             )
 
         def _validate_value(val, index=None):
@@ -724,7 +837,7 @@ class Dash(object):
                             outer_val=val,
                             bad_type=type(j).__name__,
                             path=p,
-                            index=index
+                            index=index,
                         )
 
                     # Children that are not of type Component or
@@ -737,7 +850,7 @@ class Dash(object):
                                 outer_val=val,
                                 bad_type=type(child).__name__,
                                 path=p + "\n" + "[*] " + type(child).__name__,
-                                index=index
+                                index=index,
                             )
 
                 # Also check the child of val, as it will not be returned
@@ -749,7 +862,7 @@ class Dash(object):
                             outer_val=val,
                             bad_type=type(child).__name__,
                             path=type(child).__name__,
-                            index=index
+                            index=index,
                         )
 
             # val is not a Component, but is at the top level of tree
@@ -761,7 +874,7 @@ class Dash(object):
                         bad_type=type(val).__name__,
                         path='',
                         index=index,
-                        toplevel=True
+                        toplevel=True,
                     )
 
         if isinstance(output_value, list):
@@ -800,7 +913,7 @@ class Dash(object):
             'events': [
                 {'id': c.component_id, 'event': c.component_event}
                 for c in events
-            ]
+            ],
         }
 
         def wrap_func(func):
@@ -810,20 +923,18 @@ class Dash(object):
                 output_value = func(*args, **kwargs)
                 response = {
                     'response': {
-                        'props': {
-                            output.component_property: output_value
-                        }
+                        'props': {output.component_property: output_value}
                     }
                 }
 
                 try:
                     jsonResponse = json.dumps(
-                        response,
-                        cls=plotly.utils.PlotlyJSONEncoder
+                        response, cls=plotly.utils.PlotlyJSONEncoder
                     )
                 except TypeError:
                     self._validate_callback_output(output_value, output)
-                    raise exceptions.InvalidCallbackReturnValue('''
+                    raise exceptions.InvalidCallbackReturnValue(
+                        '''
                     The callback for property `{property:s}`
                     of component `{id:s}` returned a value
                     which is not JSON serializable.
@@ -831,13 +942,13 @@ class Dash(object):
                     In general, Dash properties can only be
                     dash components, strings, dictionaries, numbers, None,
                     or lists of those.
-                    '''.format(property=output.component_property,
-                               id=output.component_id))
+                    '''.format(
+                            property=output.component_property,
+                            id=output.component_id,
+                        )
+                    )
 
-                return flask.Response(
-                    jsonResponse,
-                    mimetype='application/json'
-                )
+                return flask.Response(jsonResponse, mimetype='application/json')
 
             self.callback_map[callback_id]['callback'] = add_context
 
@@ -854,18 +965,24 @@ class Dash(object):
         target_id = '{}.{}'.format(output['id'], output['property'])
         args = []
         for component_registration in self.callback_map[target_id]['inputs']:
-            args.append([
-                c.get('value', None) for c in inputs if
-                c['property'] == component_registration['property'] and
-                c['id'] == component_registration['id']
-            ][0])
+            args.append(
+                [
+                    c.get('value', None)
+                    for c in inputs
+                    if c['property'] == component_registration['property']
+                    and c['id'] == component_registration['id']
+                ][0]
+            )
 
         for component_registration in self.callback_map[target_id]['state']:
-            args.append([
-                c.get('value', None) for c in state if
-                c['property'] == component_registration['property'] and
-                c['id'] == component_registration['id']
-            ][0])
+            args.append(
+                [
+                    c.get('value', None)
+                    for c in state
+                    if c['property'] == component_registration['property']
+                    and c['id'] == component_registration['id']
+                ][0]
+            )
 
         return self.callback_map[target_id]['callback'](*args)
 
@@ -876,7 +993,8 @@ class Dash(object):
                 'The layout was `None` '
                 'at the time that `run_server` was called. '
                 'Make sure to set the `layout` attribute of your application '
-                'before running the server.')
+                'before running the server.'
+            )
 
         to_validate = self._layout_value()
 
@@ -888,7 +1006,8 @@ class Dash(object):
             if component_id and component_id in component_ids:
                 raise exceptions.DuplicateIdError(
                     'Duplicate component id found'
-                    ' in the initial layout: `{}`'.format(component_id))
+                    ' in the initial layout: `{}`'.format(component_id)
+                )
             component_ids.add(component_id)
 
     def _setup_server(self):
@@ -903,14 +1022,16 @@ class Dash(object):
     def _walk_assets_directory(self):
         walk_dir = self._assets_folder
         slash_splitter = re.compile(r'[\\/]+')
-        ignore_filter = re.compile(self.assets_ignore) \
-            if self.assets_ignore else None
+        ignore_filter = (
+            re.compile(self.assets_ignore) if self.assets_ignore else None
+        )
 
         def add_resource(p, filepath):
             res = {'asset_path': p, 'filepath': filepath}
             if self.config.assets_external_path:
                 res['external_url'] = '{}{}'.format(
-                    self.config.assets_external_path, path)
+                    self.config.assets_external_path, path
+                )
             return res
 
         for current, _, files in os.walk(walk_dir):
@@ -924,8 +1045,11 @@ class Dash(object):
                 else:
                     base = splitted[0]
 
-            files_gen = (x for x in files if not ignore_filter.search(x)) \
-                if ignore_filter else files
+            files_gen = (
+                (x for x in files if not ignore_filter.search(x))
+                if ignore_filter
+                else files
+            )
 
             for f in sorted(files_gen):
                 if base:
@@ -936,8 +1060,7 @@ class Dash(object):
                 full = os.path.join(current, f)
 
                 if f.endswith('js'):
-                    self.scripts.append_script(
-                        add_resource(path, full))
+                    self.scripts.append_script(add_resource(path, full))
                 elif f.endswith('css'):
                     self.css.append_css(add_resource(path, full))
                 elif f == 'favicon.ico':
@@ -947,10 +1070,8 @@ class Dash(object):
         return _get_asset_path(
             self.config.requests_pathname_prefix,
             self.config.routes_pathname_prefix,
-            path)
+            path,
+        )
 
-    def run_server(self,
-                   port=8050,
-                   debug=False,
-                   **flask_run_options):
+    def run_server(self, port=8050, debug=False, **flask_run_options):
         self.server.run(port=port, debug=debug, **flask_run_options)
