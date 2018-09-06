@@ -1,3 +1,7 @@
+## 0.26.4 - 2018-08-28
+## Fixed
+- Set `url_base_pathname` to `None` in `Dash.__init__`. Fix [#364](https://github.com/plotly/dash/issues/364)
+
 ## 0.26.3 - 2018-08-27
 ## Fixed
 - Prefix assets files with `requests_pathname_prefix`. [#351](https://github.com/plotly/dash/pull/351)
