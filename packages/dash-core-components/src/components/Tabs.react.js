@@ -18,7 +18,7 @@ const EnhancedTab = ({
     disabled_className,
     mobile_breakpoint,
     amountOfTabs,
-    colors
+    colors,
 }) => {
     let tabStyle = style;
     if (disabled) {
@@ -110,15 +110,41 @@ const EnhancedTab = ({
 export default class Tabs extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            selected: this.props.value || 'tab-1'
-        };
 
         this.selectHandler = this.selectHandler.bind(this);
+        this.parseChildrenToArray = this.parseChildrenToArray.bind(this);
+
+        this.parseChildrenToArray();
+
+        if (!this.props.value) {
+            // if no value specified on Tabs component, set it to the first child's (which should be a Tab component) value
+            const value =
+                this.props.children[0].props.children.props.value || 'tab-1';
+            this.state = {
+                selected: value,
+            };
+            if (this.props.setProps) {
+                // updating the prop in Dash is necessary so that callbacks work
+                this.props.setProps({
+                    value: value,
+                });
+            }
+        } else {
+            this.state = {
+                selected: this.props.value,
+            };
+        }
+    }
+    parseChildrenToArray() {
+        if (this.props.children && !R.is(Array, this.props.children)) {
+            // if dcc.Tabs.children contains just one single element, it gets passed as an object
+            // instead of an array - so we put in in a array ourselves!
+            this.props.children = [this.props.children];
+        }
     }
     selectHandler(value) {
         this.setState({
-            selected: value
+            selected: value,
         });
         if (this.props.setProps) {
             this.props.setProps({value: value});
@@ -126,9 +152,11 @@ export default class Tabs extends Component {
     }
     componentWillReceiveProps(newProps) {
         const value = newProps.value;
-        this.setState({
-            selected: value
-        });
+        if (typeof value !== 'undefined') {
+            this.setState({
+                selected: value,
+            });
+        }
     }
     render() {
         let EnhancedTabs;
@@ -136,24 +164,24 @@ export default class Tabs extends Component {
         let selectedTabContent;
 
         if (this.props.children) {
-            if (!R.is(Array, this.props.children)) {
-                // if dcc.Tabs.children contains just one single element, it gets passed as an object
-                // instead of an array - so we put in in a array ourselves!
-                this.props.children = [this.props.children];
-            }
+            this.parseChildrenToArray();
 
             const amountOfTabs = this.props.children.length;
 
+            window.console.log('this.props.children', this.props.children);
             EnhancedTabs = this.props.children.map((child, index) => {
                 // TODO: handle components that are not dcc.Tab components (throw error)
                 // enhance Tab components coming from Dash (as dcc.Tab) with methods needed for handling logic
                 let childProps;
+
+                window.console.log('child', child);
 
                 if (child.props.children) {
                     // if props appears on .children, props are coming from Dash
                     childProps = child.props.children.props;
                 } else {
                     // else props are coming from React (Demo.react.js)
+                    window.console.log('child props', child.props);
                     childProps = child.props;
                 }
 
@@ -186,7 +214,9 @@ export default class Tabs extends Component {
             selectedTab = this.props.children.filter(child => {
                 return child.props.children.props.value === this.state.selected;
             });
-            selectedTabContent = selectedTab[0].props.children;
+            if ('props' in selectedTab[0]) {
+                selectedTabContent = selectedTab[0].props.children;
+            }
         }
 
         const tabContainerClass = this.props.vertical
@@ -245,13 +275,11 @@ export default class Tabs extends Component {
                             border-bottom: none;
                         }
                         :global(.tab-container--vert .tab:last-of-type) {
-                            border-bottom: 1px solid
-                                ${this.props.colors.border} !important;
+                            border-bottom: 1px solid ${this.props.colors.border} !important;
                         }
                         :global(.tab-container--vert .tab--selected) {
                             border: 1px solid ${this.props.colors.border};
-                            border-left: 2px solid
-                                ${this.props.colors.primary};
+                            border-left: 2px solid ${this.props.colors.primary};
                             border-right: none;
                         }
 
@@ -271,8 +299,8 @@ Tabs.defaultProps = {
     colors: {
         border: '#d6d6d6',
         primary: '#1975FA',
-        background: '#f9f9f9'
-    }
+        background: '#f9f9f9',
+    },
 };
 
 Tabs.propTypes = {
@@ -344,6 +372,6 @@ Tabs.propTypes = {
     colors: PropTypes.shape({
         border: PropTypes.string,
         primary: PropTypes.string,
-        background: PropTypes.string
-    })
+        background: PropTypes.string,
+    }),
 };

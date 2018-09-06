@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.28.2] - 2018-09-06
+### Fixed
+- Fixed bug in Tabs component where initial tab content wasn't rendering, [#282](https://github.com/plotly/dash-core-components/issues/282)
+- Fixed bug in Tabs component where no default Tab is selected if Tabs.value is empty
+
 ## [0.28.1] - 2018-08-29
 ### Changed
 - `candlestick` and `OHLC` charts are now plotted using the `Plotly.react` method instead of the `Plotly.newPlot` method.

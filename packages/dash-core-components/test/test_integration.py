@@ -12,6 +12,8 @@ from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_table_experiments as dt
+from dash.exceptions import PreventUpdate
+from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import InvalidElementStateException
 
@@ -467,6 +469,110 @@ class Tests(IntegrationTests):
         self.startServer(app=app)
 
         self.snapshot('Tabs component with children undefined')
+
+    def test_tabs_render_without_selected(self):
+        app = dash.Dash(__name__)
+
+        data = [
+            {'id': 'one', 'value': 1},
+            {'id': 'two', 'value': 2},
+        ]
+
+
+        menu = html.Div([
+            html.Div('one', id='one'),
+            html.Div('two', id='two')
+        ])
+
+        tabs_one = html.Div([
+            dcc.Tabs([
+                dcc.Tab(dcc.Graph(id='graph-one'), label='tab-one-one'),
+            ])
+        ], id='tabs-one', style={'display': 'none'})
+
+        tabs_two = html.Div([
+            dcc.Tabs([
+                dcc.Tab(dcc.Graph(id='graph-two'), label='tab-two-one'),
+            ])
+        ], id='tabs-two', style={'display': 'none'})
+
+
+        app.layout = html.Div([
+            menu,
+            tabs_one,
+            tabs_two
+        ])
+
+        for i in ('one', 'two'):
+
+            @app.callback(Output('tabs-{}'.format(i), 'style'),
+                        [Input(i, 'n_clicks')])
+            def on_click(n_clicks):
+                if n_clicks is None:
+                    raise PreventUpdate
+
+                if n_clicks % 2 == 1:
+                    return {'display': 'block'}
+                return {'display': 'none'}
+
+
+            @app.callback(Output('graph-{}'.format(i), 'figure'),
+                        [Input(i, 'n_clicks')])
+            def on_click(n_clicks):
+                if n_clicks is None:
+                    raise PreventUpdate
+
+                return {
+                    'data': [
+                        {
+                            'x': [1,2,3,4],
+                            'y': [4,3,2,1]
+                        }
+                    ]
+                }
+        
+        self.startServer(app=app)
+
+        button_one = self.wait_for_element_by_css_selector('#one')
+        button_two = self.wait_for_element_by_css_selector('#two')
+
+        button_one.click()
+
+        self.snapshot("Tabs 1 rendered ")
+
+        button_two.click()
+        time.sleep(1)
+
+        self.snapshot("Tabs 2 rendered ")
+
+    def test_tabs_without_value(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.H1('Dash Tabs component demo'),
+            dcc.Tabs(id="tabs-example", children=[
+                dcc.Tab(label='Tab One', value='tab-1-example'),
+                dcc.Tab(label='Tab Two', value='tab-2-example'),
+            ]),
+            html.Div(id='tabs-content-example')
+        ])
+
+
+        @app.callback(Output('tabs-content-example', 'children'),
+                    [Input('tabs-example', 'value')])
+        def render_content(tab):
+            if tab == 'tab-1-example':
+                return html.H3('Default selected Tab content 1')
+            elif tab == 'tab-2-example':
+                return html.H3('Tab content 2')
+
+        self.startServer(app=app)
+
+        default_tab_content = self.wait_for_element_by_css_selector('#tabs-content-example')
+
+        self.assertEqual(default_tab_content.text, 'Default selected Tab content 1')
+
+        self.snapshot('Tab 1 should be selected by default')
 
     def test_location_link(self):
         app = dash.Dash(__name__)
