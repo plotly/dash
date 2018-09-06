@@ -21,26 +21,26 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-              python -m venv venv || virtualenv venv
-              . venv/bin/activate
+              python -m venv ~/venv || virtualenv ~/venv
+              . ~/venv/bin/activate
               pip install -r $REQUIREMENTS_FILE
 
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "reqs.txt" }}
           paths:
-              - "venv"
+              - "~/venv"
 
       - run:
           name: Run lint
           command: |
-              . venv/bin/activate
+              . ~/venv/bin/activate
               pylint dash setup.py --rcfile=$PYLINTRC
               flake8 dash setup.py
 
       - run:
           name: Run tests
           command: |
-              . venv/bin/activate
+              . ~/venv/bin/activate
               python --version
               python -m unittest tests.development.test_base_component
               python -m unittest tests.development.test_component_loader
