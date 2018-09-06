@@ -1,5 +1,3 @@
-import * as R from 'ramda';
-
 import AbstractStrategy, { ITarget } from 'dash-table/virtualization/AbstractStrategy';
 
 export default class FrontEndPageStrategy extends AbstractStrategy {
@@ -11,7 +9,7 @@ export default class FrontEndPageStrategy extends AbstractStrategy {
     }
 
     protected getDataframe() {
-        let { settings, dataframe } = this.target;
+        let { settings, dataframe, indices } = this.target;
 
         let currentPage = Math.min(
             settings.current_page,
@@ -30,7 +28,10 @@ export default class FrontEndPageStrategy extends AbstractStrategy {
                 this.firstIndex,
                 this.lastIndex
             ),
-            indices: R.range(this.firstIndex, this.lastIndex)
+            indices: indices.slice(
+                this.firstIndex,
+                this.lastIndex
+            )
         };
     }
 

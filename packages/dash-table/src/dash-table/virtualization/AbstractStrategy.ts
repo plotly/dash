@@ -1,7 +1,8 @@
-import { Dataframe, IVirtualizationSettings, Virtualization } from 'dash-table/components/Table/props';
+import { Dataframe, IVirtualizationSettings, Virtualization, Indices } from 'dash-table/components/Table/props';
 
 export interface IViewport {
     readonly dataframe: Dataframe;
+    readonly indices: Indices;
     readonly settings: IVirtualizationSettings;
     readonly virtualization: Virtualization;
 
@@ -16,6 +17,7 @@ export interface ITarget extends IViewport {
 export default abstract class AbstractVirtualizationStrategy
 {
     protected __dataframe: Dataframe;
+    protected __indices: Indices;
 
     constructor(protected readonly target: ITarget) {
 
@@ -23,6 +25,10 @@ export default abstract class AbstractVirtualizationStrategy
 
     public get dataframe(): Dataframe {
         return this.__dataframe;
+    }
+
+    public get indices(): Indices {
+        return this.__indices;
     }
 
     public refresh() {
@@ -38,6 +44,8 @@ export default abstract class AbstractVirtualizationStrategy
         }
 
         this.__dataframe = dataframe;
+        this.__indices = indices;
+
         this.target.update({
             viewportDataframe: dataframe,
             viewportIndices: indices

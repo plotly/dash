@@ -1,5 +1,3 @@
-import * as R from 'ramda';
-
 import AbstractStrategy, { ITarget } from 'dash-table/virtualization/AbstractStrategy';
 
 export default class BackEndPageStrategy extends AbstractStrategy {
@@ -8,9 +6,9 @@ export default class BackEndPageStrategy extends AbstractStrategy {
     }
 
     protected getDataframe() {
-        let { dataframe } = this.target;
+        let { dataframe, indices } = this.target;
 
-        return { dataframe, indices: R.range(0, dataframe.length) };
+        return { dataframe, indices };
     }
 
     public get offset() {

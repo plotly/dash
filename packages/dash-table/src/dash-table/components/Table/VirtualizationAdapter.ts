@@ -5,7 +5,7 @@ import { memoizeOne } from 'core/memoizer';
 import sort, { SortSettings } from 'core/sorting';
 import SyntaxTree from 'core/syntax-tree';
 import Table from 'dash-table/components/Table';
-import { Dataframe, IVirtualizationSettings, Virtualization } from 'dash-table/components/Table/props';
+import { Dataframe, IVirtualizationSettings, Virtualization, Datum, Indices } from 'dash-table/components/Table/props';
 
 export default class VirtualizationAdapter implements ITarget {
     constructor(private readonly target: Table) {
@@ -18,7 +18,12 @@ export default class VirtualizationAdapter implements ITarget {
         filtering_settings: string,
         sorting: string | boolean,
         sorting_settings: SortSettings = []
-    ): Dataframe => {
+    ): { dataframe: Dataframe, indices: Indices } => {
+        const map = new Map<Datum, number>();
+        R.addIndex(R.forEach)((datum, index) => {
+            map.set(datum, index);
+        }, dataframe);
+
         if (filtering === 'fe' || filtering === true) {
             const tree = new SyntaxTree(filtering_settings);
 
@@ -31,10 +36,13 @@ export default class VirtualizationAdapter implements ITarget {
             dataframe = sort(dataframe, sorting_settings);
         }
 
-        return dataframe;
+        // virtual_indices
+        const indices = R.map(datum => map.get(datum) as number, dataframe);
+
+        return { dataframe, indices };
     });
 
-    get dataframe(): Dataframe {
+    private get dataframeAndIndices() {
         const {
             dataframe,
             filtering,
@@ -50,6 +58,14 @@ export default class VirtualizationAdapter implements ITarget {
             sorting,
             sorting_settings
         );
+    }
+
+    get dataframe(): Dataframe {
+        return this.dataframeAndIndices.dataframe;
+    }
+
+    get indices(): Indices {
+        return this.dataframeAndIndices.indices;
     }
 
     get settings(): IVirtualizationSettings {

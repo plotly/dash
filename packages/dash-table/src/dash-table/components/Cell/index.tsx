@@ -277,10 +277,9 @@ export default class Cell extends Component<ICellProps, ICellState> {
     }
 
     componentWillReceiveProps(nextProps: ICellPropsWithDefaults) {
-        const { value } = this.props;
         const { value: nextValue } = nextProps;
 
-        if (value !== nextValue) {
+        if (this.state.value !== nextValue) {
             this.setState({
                 value: nextValue
             });

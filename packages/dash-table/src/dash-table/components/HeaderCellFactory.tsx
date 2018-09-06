@@ -2,10 +2,12 @@ import React from 'react';
 import * as R from 'ramda';
 
 import Stylesheet from 'core/Stylesheet';
-import { updateSettings, SortDirection, SortSettings } from 'core/sorting';
+import { SortDirection, SortSettings } from 'core/sorting';
+import multiUpdateSettings from 'core/sorting/multi';
+import singleUpdateSettings from 'core/sorting/single';
 
 import * as actions from 'dash-table/utils/actions';
-import { RowSelection, SetProps } from 'dash-table/components/Table/props';
+import { RowSelection, SetProps, SortingType } from 'dash-table/components/Table/props';
 
 export const DEFAULT_CELL_WIDTH = 200;
 
@@ -21,6 +23,7 @@ interface ICellOptions {
     rowSorting: string | boolean;
     setProps: SetProps;
     sorting_settings: SortSettings;
+    sorting_type: SortingType;
     virtualization: any;
 }
 
@@ -36,6 +39,7 @@ interface IOptions {
     setProps: SetProps;
     sorting: string | boolean;
     sorting_settings: SortSettings;
+    sorting_type: SortingType;
     virtualization: any;
 }
 
@@ -65,7 +69,7 @@ export default class HeaderFactory {
 
     private static doSort(columnId: string | number, options: ICellOptions) {
         return () => {
-            const { sorting_settings } = options;
+            const { sorting_settings, sorting_type } = options;
 
             let direction: SortDirection;
             switch (HeaderFactory.getSorting(columnId, sorting_settings)) {
@@ -81,8 +85,12 @@ export default class HeaderFactory {
                     break;
             }
 
+            const sortingStrategy = sorting_type === 'single' ?
+                singleUpdateSettings :
+                multiUpdateSettings;
+
             options.setProps({
-                sorting_settings: updateSettings(
+                sorting_settings: sortingStrategy(
                     sorting_settings,
                     { columnId, direction }
                 )
@@ -267,6 +275,7 @@ export default class HeaderFactory {
             row_selectable,
             setProps,
             sorting_settings,
+            sorting_type,
             virtualization
         } = options;
 
@@ -290,6 +299,7 @@ export default class HeaderFactory {
                     rowSorting: sorting,
                     setProps,
                     sorting_settings,
+                    sorting_type,
                     virtualization
                 }))
             ]];
@@ -316,6 +326,7 @@ export default class HeaderFactory {
                         i + 1 !== headerDepth,
                     setProps,
                     sorting_settings,
+                    sorting_type,
                     virtualization
                 }))
             ]));

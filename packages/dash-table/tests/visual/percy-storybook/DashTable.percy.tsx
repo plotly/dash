@@ -46,35 +46,35 @@ storiesOf('DashTable/With Data', module)
 const columns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
     .map(id => ({ id: id, name: id.toUpperCase(), width: '100px' }));
 
-const idMap: { [key: string]: number } = {
-    a: 0,
-    b: 0,
-    c: 1,
-    d: 1,
-    e: 2,
-    f: 2,
-    g: 2,
-    h: 3,
-    i: 3,
-    j: 3
+const idMap: { [key: string]: string } = {
+    a: 'A',
+    b: 'A',
+    c: 'B',
+    d: 'B',
+    e: 'C',
+    f: 'C',
+    g: 'C',
+    h: 'D',
+    i: 'D',
+    j: 'D'
 };
 
 const mergedColumns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
     .map(id => ({ id: id, name: [idMap[id], id.toUpperCase()], width: '100px' }));
 
 const dataframe = (() => {
-    const r = random(0);
+    const r = random(1);
 
     return R.range(0, 100).map(() => (
         ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'].reduce((obj: any, key) => {
-            obj[key] = r() % 1000;
+            obj[key] = Math.floor(r() * 1000);
             return obj;
         }, {})
     ));
 })();
 
 storiesOf('DashTable/Fixed Rows & Columns', module)
-    .add('with 1 fixed row, 2 fixed columns, default height/width', () => (<DashTable
+    .add('with 1 fixed row, 2 fixed columns', () => (<DashTable
         setProps={setProps}
         id='table'
         dataframe={dataframe}
@@ -84,7 +84,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         row_deletable={true}
         row_selectable={true}
     />))
-    .add('with 1 fixed row, default height', () => (<DashTable
+    .add('with 1 fixed row', () => (<DashTable
         setProps={setProps}
         id='table'
         dataframe={dataframe}
@@ -93,7 +93,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         row_deletable={true}
         row_selectable={true}
     />))
-    .add('with 2 fixed columns, default width', () => (<DashTable
+    .add('with 2 fixed columns', () => (<DashTable
         setProps={setProps}
         id='table'
         dataframe={dataframe}
@@ -112,7 +112,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         n_fixed_rows={2}
     />))
     .add('with 2 fixed rows, 3 fixed columns, hidden columns and merged cells', () => {
-        const testColumns = JSON.parse(JSON.stringify(mergedColumns));
+        const testColumns = JSON.parse(JSON.stringify(columns));
         testColumns[2].hidden = true;
 
         return (<DashTable

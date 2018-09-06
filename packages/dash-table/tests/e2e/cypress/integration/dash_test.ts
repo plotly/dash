@@ -8,16 +8,16 @@ describe('dash basic', () => {
     });
 
     it('can get cell', () => {
-        DashTable.getCell(0, 0).click();
-        DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', '0'));
+        DashTable.getCell(0, 2).click();
+        DashTable.getCell(0, 2).within(() => cy.get('input').should('have.value', '0'));
 
         cy.get('button.next-page').click();
-        DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', '250'));
+        DashTable.getCell(0, 2).within(() => cy.get('input').should('have.value', '250'));
     });
 
     // https://github.com/plotly/dash-table/issues/50
     it('can edit last and update dataframe on "enter"', () => {
-        DashTable.getCell(249, 0).click();
+        DashTable.getCell(249, 2).click();
         DOM.focused.then($input => {
             const initialValue = $input.val();
 

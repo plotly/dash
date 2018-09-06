@@ -15,7 +15,7 @@ import HeaderCellFactory, { DEFAULT_CELL_WIDTH } from 'dash-table/components/Hea
 import Logger from 'core/Logger';
 import TableClipboardHelper from 'dash-table/utils/TableClipboardHelper';
 import CellFactory from 'dash-table/components/CellFactory';
-import { ControlledTableProps, Dataframe, Columns, RowSelection } from 'dash-table/components/Table/props';
+import { ControlledTableProps, Columns, RowSelection } from 'dash-table/components/Table/props';
 
 const sortNumerical = R.sort<number>((a, b) => a - b);
 
@@ -559,10 +559,10 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             null
     )
 
-    getFragments = (dataframe: Dataframe, fixedColumns: number, fixedRows: number) => {
+    getFragments = (fixedColumns: number, fixedRows: number) => {
         const cells = [
             ...HeaderCellFactory.createHeaders(this.props),
-            ...this.cellFactory.createCells(dataframe)
+            ...this.cellFactory.createCells()
         ];
 
         // slice out fixed columns
@@ -611,11 +611,8 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             n_fixed_columns,
             n_fixed_rows,
             row_deletable,
-            row_selectable,
-            virtualizer
+            row_selectable
         } = this.props;
-
-        const dataframe = virtualizer.dataframe;
 
         this.applyStyle(columns, row_deletable, row_selectable);
 
@@ -625,7 +622,7 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             ...(n_fixed_columns ? ['freeze-left'] : [])
         ];
 
-        const grid = this.getFragments(dataframe, n_fixed_columns, n_fixed_rows);
+        const grid = this.getFragments(n_fixed_columns, n_fixed_rows);
 
         return (<div id={id}>
             <div className='dash-spreadsheet-container'>

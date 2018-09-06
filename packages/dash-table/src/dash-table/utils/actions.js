@@ -10,6 +10,7 @@ export function deleteRow(rowIndex, props) {
         selected_rows,
         start_cell
     } = props;
+
     const newProps = {
         dataframe: R.remove(rowIndex, 1, dataframe),
     };

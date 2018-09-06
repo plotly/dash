@@ -1,5 +1,4 @@
 import * as R from 'ramda';
-import Logger from 'core/Logger';
 
 export interface ISortSetting {
     columnId: string | number;
@@ -13,33 +12,6 @@ export enum SortDirection {
 }
 
 export type SortSettings = ISortSetting[];
-
-export function updateSettings(
-    settings: SortSettings,
-    setting: ISortSetting
-): SortSettings {
-    Logger.trace('updateSettings', settings, setting);
-
-    settings = R.clone(settings);
-
-    if (setting.direction === SortDirection.None) {
-        const currentIndex = R.findIndex(s => s.columnId === setting.columnId, settings);
-
-        if (currentIndex !== -1) {
-            settings.splice(currentIndex, 1);
-        }
-    } else {
-        const currentSetting = R.find(s => s.columnId === setting.columnId, settings);
-
-        if (currentSetting) {
-            currentSetting.direction = setting.direction;
-        } else {
-            settings.push(setting);
-        }
-    }
-
-    return settings;
-}
 
 export default (dataframe: any[], settings: SortSettings): any[] => {
     if (!settings.length) {

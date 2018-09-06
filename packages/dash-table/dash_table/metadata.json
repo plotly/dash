@@ -540,6 +540,27 @@
           "computed": false
         }
       },
+      "sorting_type": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'single'",
+              "computed": false
+            },
+            {
+              "value": "'multi'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "'single'",
+          "computed": false
+        }
+      },
       "sorting_settings": {
         "type": {
           "name": "arrayOf",

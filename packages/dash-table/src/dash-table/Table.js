@@ -23,6 +23,7 @@ export const defaultProps = {
     filtering: false,
     filtering_settings: '',
     sorting: false,
+    sorting_type: 'single',
     sorting_settings: [],
 
     virtual_dataframe: [],
@@ -156,6 +157,7 @@ export const propTypes = {
     filtering_settings: PropTypes.string,
 
     sorting: PropTypes.oneOf(['fe', 'be', true, false]),
+    sorting_type: PropTypes.oneOf(['single', 'multi']),
     sorting_settings: PropTypes.arrayOf(PropTypes.shape({
         columnId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         direction: PropTypes.oneOf(['asc', 'desc'])
