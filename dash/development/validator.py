@@ -11,10 +11,7 @@ class DashValidator(cerberus.Validator):
             return
         try:
             plotly.graph_objs.Figure(value)
-        except (
-            ValueError,
-            plotly.exceptions.PlotlyDictKeyError
-        ) as e:
+        except (ValueError, plotly.exceptions.PlotlyDictKeyError) as e:
             self._error(
                 field,
                 "Invalid Plotly Figure:\n\n{}".format(e))
