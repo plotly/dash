@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import * as R from 'ramda';
 
 import { memoizeOne } from 'core/memoizer';
@@ -6,7 +6,7 @@ import { memoizeOne } from 'core/memoizer';
 import VirtualizationFactory from 'dash-table/virtualization/Factory';
 
 import ControlledTable from 'dash-table/components/ControlledTable';
-import { PropsWithDefaults } from './props';
+import { PropsWithDefaults, SetProps } from './props';
 import VirtualizationAdapter from './VirtualizationAdapter';
 
 import 'react-select/dist/react-select.css';
@@ -19,7 +19,7 @@ export default class Table extends Component<PropsWithDefaults> {
     }
 
     public get setProps() {
-        return this.__setProps();
+        return this.__setProps(this.props.setProps);
     }
 
     render() {
@@ -53,9 +53,7 @@ export default class Table extends Component<PropsWithDefaults> {
         () => new VirtualizationAdapter(this)
     );
 
-    private __setProps = memoizeOne(() => {
-        const { setProps } = this.props;
-
+    private __setProps = memoizeOne((setProps?: SetProps) => {
         return setProps ? (newProps: any) => {
             if (R.has('dataframe', newProps)) {
                 const { dataframe } = this.props;
