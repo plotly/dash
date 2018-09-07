@@ -214,9 +214,7 @@ class Tests(IntegrationTests):
             'data-number="512"',
             'data-date="%s"' % test_date,
             'aria-progress="5"',
-            'n_clicks="0"',
-            'n_clicks_timestamp="-1"'
-        ], 7)
+        ], 5)
         passed = False
         for permutation in permutations:
             actual_cleaned = re.sub(comment_regex, '',

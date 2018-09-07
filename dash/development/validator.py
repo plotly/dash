@@ -4,9 +4,17 @@ import cerberus
 
 class DashValidator(cerberus.Validator):
     def _validator_plotly_figure(self, field, value):
+        if not isinstance(value, dict):
+            self._error(
+                field,
+                "Invalid Plotly Figure: Not a dict")
+            return
         try:
             plotly.graph_objs.Figure(value)
-        except ValueError as e:
+        except (
+            ValueError,
+            plotly.exceptions.PlotlyDictKeyError
+        ) as e:
             self._error(
                 field,
                 "Invalid Plotly Figure:\n\n{}".format(e))

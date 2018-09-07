@@ -331,7 +331,7 @@ class TestGenerateClass(unittest.TestCase):
         self.assertFalse(self.figure_validator.validate({
             'figure': 7
         }))
-        self.assertFalse(self.figure_validator.validate({
+        self.assertTrue(self.figure_validator.validate({
             'figure': {}
         }))
         self.assertTrue(self.figure_validator.validate({
