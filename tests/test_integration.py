@@ -202,39 +202,21 @@ class Tests(IntegrationTests):
 
         div = self.wait_for_element_by_id('data-element')
 
-        # React wraps text and numbers with e.g. <!-- react-text: 20 -->
-        # Remove those
-        comment_regex = '<!--[^\[](.*?)-->'
-
-        # Somehow the html attributes are unordered.
-        # Try different combinations (they're all valid html)
-        permutations = itertools.permutations([
+        attributes = [
             'id="inner-element"',
             'data-string="multiple words"',
             'data-number="512"',
             'data-date="%s"' % test_date,
             'aria-progress="5"',
-        ], 5)
-        passed = False
-        for permutation in permutations:
-            actual_cleaned = re.sub(comment_regex, '',
-                                    div.get_attribute('innerHTML'))
-            expected_cleaned = re.sub(
-                comment_regex,
-                '',
-                "<div PERMUTE></div>"
-                .replace('PERMUTE', ' '.join(list(permutation)))
-            )
-            passed = passed or (actual_cleaned == expected_cleaned)
-            if passed:
-                break
-        if not passed:
-            raise Exception(
-                'HTML does not match\nActual:\n{}\n\nExpected:\n{}'.format(
-                    actual_cleaned,
-                    expected_cleaned
+        ]
+        actual = div.get_attribute('innerHTML')
+        for attr in attributes:
+            if attr not in actual:
+                raise Exception(
+                    'Attribute {}\nnot in actual HTML\n{}'.format(
+                        attr, actual
+                    )
                 )
-            )
 
         assert_clean_console(self)
 
