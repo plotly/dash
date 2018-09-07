@@ -34,7 +34,7 @@ jobs:
 
       - run:
           name: Build
-          command: npm run build-prod
+          command: npm run build:prod
 
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "dev-requirements.txt" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
