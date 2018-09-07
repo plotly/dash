@@ -60,6 +60,7 @@ jobs:
         environment:
           REQUIREMENTS_FILE: dev-requirements.txt
           PYLINTRC: .pylintrc
+          PERCY_ENABLE: 0
 
   "python-3.7":
     <<: *test-template
@@ -68,6 +69,7 @@ jobs:
         environment:
           REQUIREMENTS_FILE: dev-requirements-py37.txt
           PYLINTRC: .pylintrc37
+          PERCY_ENABLE: 0
 
 
 workflows:
