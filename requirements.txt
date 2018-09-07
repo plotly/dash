@@ -3,7 +3,7 @@ backports.shutil-get-terminal-size==1.0.0
 cerberus==1.2
 click==6.7
 dash-core-components==0.3.3
-dash-html-components==0.11.0rc1
+dash-html-components==0.12.0
 dash-renderer==0.2.9
 dash.ly==0.14.0
 decorator==4.0.11
