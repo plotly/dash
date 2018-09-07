@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.28.2] - 2018-09-07
+### Fixed
+- Fixed bug where Graph would resize randomly when rerendered, for example in a dcc.Tabs component.
+
 ## [0.28.2] - 2018-09-06
 ### Fixed
 - Fixed bug in Tabs component where initial tab content wasn't rendering, [#282](https://github.com/plotly/dash-core-components/issues/282)

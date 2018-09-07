@@ -16,6 +16,9 @@ from dash.exceptions import PreventUpdate
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import InvalidElementStateException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from textwrap import dedent
 try:
@@ -445,8 +448,6 @@ class Tests(IntegrationTests):
 
         self.startServer(app=app)
 
-        self.snapshot('tabs - without children')
-
         initial_tab = self.wait_for_element_by_css_selector('#tab-2')
         tabs_content = self.wait_for_element_by_css_selector('#tabs-content')
         self.assertEqual(tabs_content.text, 'Test content 2')
@@ -573,6 +574,71 @@ class Tests(IntegrationTests):
         self.assertEqual(default_tab_content.text, 'Default selected Tab content 1')
 
         self.snapshot('Tab 1 should be selected by default')
+
+    def test_graph_does_not_resize_in_tabs(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.H1('Dash Tabs component demo'),
+            dcc.Tabs(id="tabs-example", value='tab-1-example', children=[
+                dcc.Tab(label='Tab One', value='tab-1-example', id='tab-1'),
+                dcc.Tab(label='Tab Two', value='tab-2-example', id='tab-2'),
+            ]),
+            html.Div(id='tabs-content-example')
+        ])
+
+        @app.callback(Output('tabs-content-example', 'children'),
+                    [Input('tabs-example', 'value')])
+        def render_content(tab):
+            if tab == 'tab-1-example':
+                return html.Div([
+                    html.H3('Tab content 1'),
+                    dcc.Graph(
+                        id='graph-1-tabs',
+                        figure={
+                            'data': [{
+                                'x': [1, 2, 3],
+                                'y': [3, 1, 2],
+                                'type': 'bar'
+                            }]
+                        }
+                    )
+                ])
+            elif tab == 'tab-2-example':
+                return html.Div([
+                    html.H3('Tab content 2'),
+                    dcc.Graph(
+                        id='graph-2-tabs',
+                        figure={
+                            'data': [{
+                                'x': [1, 2, 3],
+                                'y': [5, 10, 6],
+                                'type': 'bar'
+                            }]
+                        }
+                    )
+                ])
+        self.startServer(app=app)
+
+        tab_one = self.wait_for_element_by_css_selector('#tab-1')
+        tab_two = self.wait_for_element_by_css_selector('#tab-2')
+
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "tab-2"))
+        )
+
+        self.snapshot("Tabs with Graph - initial (graph should not resize)")
+        tab_two.click()
+
+        self.snapshot("Tabs with Graph - clicked tab 2 (graph should not resize)")
+
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "tab-1"))
+        )
+
+        tab_one.click()
+
+        self.snapshot("Tabs with Graph - clicked tab 1 (graph should not resize)")
+
 
     def test_location_link(self):
         app = dash.Dash(__name__)
