@@ -2,8 +2,8 @@ appnope==0.1.0
 backports.shutil-get-terminal-size==1.0.0
 click==6.7
 dash-core-components==0.3.3
-dash-html-components==0.11.0rc1
 dash_renderer-0.13.1.tar.gz
+dash-html-components==0.12.0
 dash.ly==0.14.0
 decorator==4.0.11
 enum34==1.1.6

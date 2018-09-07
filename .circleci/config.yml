@@ -15,8 +15,12 @@ jobs:
           name: Write deps cache key
           command: cat "$REQUIREMENTS_FILE" > reqs.txt
 
+      - run:
+          name: Write job name
+          command: echo $CIRCLE_JOB > circlejob.txt
+
       - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "reqs.txt" }}
+          key: deps1-{{ .Branch }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
 
       - run:
           name: Install dependencies
@@ -27,7 +31,7 @@ jobs:
               pip install -r $REQUIREMENTS_FILE
 
       - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "reqs.txt" }}
+          key: deps1-{{ .Branch }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
           paths:
               - "venv"
 

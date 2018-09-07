@@ -76,7 +76,7 @@ class Dash(object):
             assets_url_path='/assets',
             assets_ignore='',
             include_assets_files=True,
-            url_base_pathname='/',
+            url_base_pathname=None,
             assets_external_path=None,
             requests_pathname_prefix=None,
             routes_pathname_prefix=None,
