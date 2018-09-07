@@ -101,6 +101,7 @@ class Dash(object):
         self._assets_folder = assets_folder or os.path.join(
             flask.helpers.get_root_path(name), 'assets'
         )
+        self._assets_url_path = assets_url_path
 
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
@@ -944,10 +945,14 @@ class Dash(object):
                     self._favicon = path
 
     def get_asset_url(self, path):
-        return _get_asset_path(
+        asset = _get_asset_path(
             self.config.requests_pathname_prefix,
             self.config.routes_pathname_prefix,
-            path)
+            path,
+            self._assets_url_path.lstrip('/')
+        )
+
+        return asset
 
     def run_server(self,
                    port=8050,
