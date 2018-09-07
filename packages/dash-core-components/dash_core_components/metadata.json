@@ -1147,8 +1147,12 @@
         "type": {
           "name": "string"
         },
-        "required": true,
-        "description": ""
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app.",
+        "defaultValue": {
+          "value": "'graph-' + Math.random().toString(36).substring(2,7)",
+          "computed": false
+        }
       },
       "clickData": {
         "type": {

@@ -193,7 +193,12 @@ export default class PlotlyGraph extends Component {
 }
 
 PlotlyGraph.propTypes = {
-    id: PropTypes.string.isRequired,
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id: PropTypes.string,
     /**
      * Data from latest click event
      */
@@ -453,6 +458,9 @@ PlotlyGraph.propTypes = {
 }
 
 PlotlyGraph.defaultProps = {
+    /* eslint-disable no-magic-numbers */
+    id: 'graph-' + Math.random().toString(36).substring(2,7),
+    /* eslint-enable no-magic-numbers */
     clickData: null,
     hoverData: null,
     selectedData: null,
