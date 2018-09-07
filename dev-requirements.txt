@@ -1,9 +1,8 @@
-dash_core_components==0.29.0rc6
-dash_html_components==0.13.0rc5
+dash_core_components>=0.27.2
+dash_html_components>=0.12.0rc3
 dash_flow_example==0.0.3
 dash-dangerously-set-inner-html
-dash_renderer==0.14.0-rc5
-cerberus==1.2
+dash_renderer
 percy
 selenium
 mock
@@ -15,3 +14,4 @@ plotly>=2.0.8
 requests[security]
 flake8
 pylint==1.9.2
+Cerberus==1.2
