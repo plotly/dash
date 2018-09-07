@@ -913,6 +913,57 @@ class Tests(IntegrationTests):
         output = self.wait_for_element_by_css_selector('#output')
         self.assertEqual(output.text, '2')
 
+    def test_if_interval_can_be_restarted(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            dcc.Interval(
+                id='interval',
+                interval=100,
+                n_intervals=0,
+                max_intervals=-1
+            ),
+
+            html.Button('Start', id='start', n_clicks_timestamp=-1),
+            html.Button('Stop', id='stop', n_clicks_timestamp=-1),
+
+            html.Div(id='output')
+
+        ])
+
+
+        @app.callback(
+            Output('interval', 'max_intervals'),
+            [Input('start', 'n_clicks_timestamp'),
+            Input('stop', 'n_clicks_timestamp')])
+        def start_stop(start, stop):
+            if start < stop:
+                return 0
+            else:
+                return -1
+
+
+        @app.callback(Output('output', 'children'), [Input('interval', 'n_intervals')])
+        def display_data(n_intervals):
+            return 'Updated {}'.format(n_intervals)
+
+        self.startServer(app=app)
+
+        start_button = self.wait_for_element_by_css_selector('#start')
+        stop_button = self.wait_for_element_by_css_selector('#stop')
+
+        time.sleep(1) # interval will start itself, we wait a second before pressing 'stop'
+
+        # get the output after running it for a bit
+        output = self.wait_for_element_by_css_selector('#output')
+        stop_button.click()
+
+        time.sleep(1)
+
+        # get the output after it's stopped, it shouldn't be higher than before
+        output_stopped = self.wait_for_element_by_css_selector('#output')
+
+        self.assertEqual(output.text, output_stopped.text)
+
     def _test_confirm(self, app, test_name, add_callback=True):
         count = Value('i', 0)
 

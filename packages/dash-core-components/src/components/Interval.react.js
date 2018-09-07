@@ -22,7 +22,7 @@ export default class Interval extends Component {
                     fireEvent({event: 'interval'});
                 }
                 if (setProps && !props.disabled) {
-                    setProps({n_intervals: this.props.n_intervals + 1})
+                    setProps({n_intervals: this.props.n_intervals + 1});
                 }
             }, interval)
         });
@@ -35,8 +35,12 @@ export default class Interval extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if(nextProps.n_intervals < this.props.max_intervals || this.props.max_intervals === -1) {
-            if ((!this.props.fireEvent && nextProps.fireEvent) ||
+        if (
+            nextProps.n_intervals < this.props.max_intervals ||
+            this.props.max_intervals === -1
+        ) {
+            if (
+                (!this.props.fireEvent && nextProps.fireEvent) ||
                 (!this.props.setProps && nextProps.setProps)
             ) {
                 this.setInterval(nextProps);
@@ -47,9 +51,15 @@ export default class Interval extends Component {
                 window.clearInterval(this.state.intervalId);
                 this.setInterval(nextProps);
             }
-        }
-        else {
-            window.clearInterval(this.state.intervalId);
+        } else {
+            // So we can restart the interval after it was 0
+            if(this.props.max_intervals === 0 && nextProps.max_intervals !== 0) {
+                if (this.props.fireEvent || this.props.setProps) {
+                    this.setInterval(nextProps);
+                }
+            } else {
+                window.clearInterval(this.state.intervalId);
+            }
         }
     }
 
@@ -71,9 +81,9 @@ Interval.propTypes = {
     interval: PropTypes.number,
 
     /**
-    * If True, the interval will no longer trigger
-    * an event.
-    */
+     * If True, the interval will no longer trigger
+     * an event.
+     */
     disabled: PropTypes.bool,
 
     /**

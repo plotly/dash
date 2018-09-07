@@ -3,8 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.28.2] - 2018-09-07
+### Changed
+- The `Interval` component's `max_interval` prop can now be used to stop/restart the interval. Fixes [#266](https://github.com/plotly/dash-core-components/issues/266)
 ### Fixed
 - Fixed bug where Graph would resize randomly when rerendered, for example in a dcc.Tabs component.
+- 
 
 ## [0.28.2] - 2018-09-06
 ### Fixed
