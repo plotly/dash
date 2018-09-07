@@ -7,9 +7,14 @@ jobs:
         environment:
           REQUIREMENTS_FILE: dev-requirements.txt
           PYLINTRC: .pylintrc
+          PERCY_PARALLEL_TOTAL: 1
 
     steps:
       - checkout
+
+      - run:
+          name: Set PERCY_NONCE
+          command: echo export PERCY_PARALLEL_NONCE=$CIRCLE_SHA1 >> $HOME/.circlerc
 
       - run:
           name: Write deps cache key
@@ -60,6 +65,8 @@ jobs:
         environment:
           REQUIREMENTS_FILE: dev-requirements.txt
           PYLINTRC: .pylintrc
+          PERCY_PARALLEL_TOTAL: 1
+          PERCY_ENABLE: 0
 
   "python-3.7":
     <<: *test-template
@@ -68,6 +75,8 @@ jobs:
         environment:
           REQUIREMENTS_FILE: dev-requirements-py37.txt
           PYLINTRC: .pylintrc37
+          PERCY_PARALLEL_TOTAL: 1
+          PERCY_ENABLE: 0
 
 
 workflows:
