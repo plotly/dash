@@ -188,7 +188,7 @@ class Dash(object):
             '/<string:package_name>'
             '/<path:path_in_package_dist>').format(
                 self.config['routes_pathname_prefix']),
-                self.serve_component_suites)
+                     self.serve_component_suites)
 
         self.add_url(
             '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
