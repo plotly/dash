@@ -168,46 +168,38 @@ class Dash(object):
 
         # urls
 
-        def add_url(name, view_func, methods=('GET',)):
-            self.server.add_url_rule(
-                name,
-                view_func=view_func,
-                endpoint=name,
-                methods=list(methods)
-            )
-
-        add_url(
+        self.add_url(
             '{}_dash-layout'.format(self.config['routes_pathname_prefix']),
             self.serve_layout)
 
-        add_url(
+        self.add_url(
             '{}_dash-dependencies'.format(
                 self.config['routes_pathname_prefix']),
             self.dependencies)
 
-        add_url(
+        self.add_url(
             '{}_dash-update-component'.format(
                 self.config['routes_pathname_prefix']),
             self.dispatch,
             ['POST'])
 
-        add_url((
+        self.add_url((
             '{}_dash-component-suites'
             '/<string:package_name>'
             '/<path:path_in_package_dist>').format(
                 self.config['routes_pathname_prefix']),
                 self.serve_component_suites)
 
-        add_url(
+        self.add_url(
             '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
             self.serve_routes)
 
-        add_url(
+        self.add_url(
             self.config['routes_pathname_prefix'],
             self.index)
 
         # catch-all for front-end routes
-        add_url(
+        self.add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
             self.index)
 
@@ -216,6 +208,14 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self.routes = []
+
+    def add_url(self, name, view_func, methods=('GET',)):
+        self.server.add_url_rule(
+            name,
+            view_func=view_func,
+            endpoint=name,
+            methods=list(methods)
+        )
 
     @property
     def layout(self):
