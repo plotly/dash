@@ -14,6 +14,8 @@ Use the [GitHub flow][] when proposing contributions to this repository (i.e. cr
 
 ## Running the Tests
 
+**Warning:** _Tests to not currently run on windows._
+
 To run the tests, you can use Python's `unittest` module, or a test runner like `nose2`.
 
 To run all of the tests:
@@ -37,7 +39,7 @@ DASH_TEST_CHROMEPATH=/bin/google-chrome-beta DASH_TEST_PROCESSES=1 python -m uni
 
 ## Making a contribution
 
-1. Create a pull request and tag the Plotly team (`@plotly/dash`) as well as an appropriate reviewer (frequent [contributors][] are a safe bet).
+1. Create a pull request and tag the Plotly team (`@plotly/dash`) and tag / request review from from [@rmarren1](https://github.com/rmarren1) and [@T4rk1n](https://github.com/T4rk1n).
 2. After a review has been done and your changes have been approved, create a prerelease and comment in the PR. Version numbers should follow [semantic versioning][]. To create a prerelease:
     * Add `rc1` to `version.py` (`./dash/version.py`) e.g. `0.13.0rc1`
         - If needed, ask @chriddyp to get PyPi package publishing access.
@@ -61,13 +63,18 @@ DASH_TEST_CHROMEPATH=/bin/google-chrome-beta DASH_TEST_PROCESSES=1 python -m uni
 - [ ] You have updated the `dash/version.py` file and the top of `CHANGELOG.md`
 - [ ] Two people have :dancer:'d the pull request. You can be one of these people if you are a Dash core contributor.
 
+### Post-Merge checklist
+- [ ] You have tagged the release using `git tag v<version_number`.
+
 ### Pre-Release checklist
-- [ ] Everything in the Pre-Merge checklist is completed. (Except the last one if this is a release candidate).
+- [ ] Everything in the Pre-Merge checklist is completed. (Except the last two if this is a release candidate).
 - [ ] `git remote show origin` shows you are in the correct repository.
 - [ ] `git branch` shows that you are on the expected branch.
 - [ ] `git status` shows that there are no unexpected changes.
 - [ ] `dash/version.py` is at the correct version.
-- [ ] You have tagged the release using `git tag v<version_number`.
+
+### Post-Release checklist
+- [ ] You have closed all issues that this pull request solves, and commented the new version number users should install.
 
 ## Financial Contributions
 
