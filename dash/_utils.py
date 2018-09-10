@@ -20,14 +20,19 @@ def format_tag(tag_name, attributes, inner='', closed=False, opened=False):
             '{}="{}"'.format(k, v) for k, v in attributes.items()]))
 
 
-def get_asset_path(requests_pathname, routes_pathname, asset_path):
+def get_asset_path(
+        requests_pathname,
+        routes_pathname,
+        asset_path,
+        asset_url_path):
+
     i = requests_pathname.rfind(routes_pathname)
     req = requests_pathname[:i]
 
     return '/'.join([
         # Only take the first part of the pathname
         req,
-        'assets',
+        asset_url_path,
         asset_path
     ])
 

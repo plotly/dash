@@ -1,3 +1,7 @@
+## 0.26.5 - 2018-09-10
+## Fixed
+- Fix `get_asset_url` with a different `assets_url_path`. [#374](https://github.com/plotly/dash/pull/374)
+
 ## 0.26.4 - 2018-08-28
 ## Fixed
 - Set `url_base_pathname` to `None` in `Dash.__init__`. Fix [#364](https://github.com/plotly/dash/issues/364)
