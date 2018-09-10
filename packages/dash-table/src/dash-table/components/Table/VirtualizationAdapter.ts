@@ -2,7 +2,7 @@ import * as R from 'ramda';
 
 import { ITarget, IViewport } from 'dash-table/virtualization/AbstractStrategy';
 import { memoizeOne } from 'core/memoizer';
-import sort, { SortSettings } from 'core/sorting';
+import sort, { defaultIsNully, SortSettings } from 'core/sorting';
 import SyntaxTree from 'core/syntax-tree';
 import Table from 'dash-table/components/Table';
 import { Dataframe, IVirtualizationSettings, Virtualization, Datum, Indices } from 'dash-table/components/Table/props';
@@ -17,7 +17,8 @@ export default class VirtualizationAdapter implements ITarget {
         filtering: string | boolean,
         filtering_settings: string,
         sorting: string | boolean,
-        sorting_settings: SortSettings = []
+        sorting_settings: SortSettings = [],
+        sorting_treat_empty_string_as_none: boolean
     ): { dataframe: Dataframe, indices: Indices } => {
         const map = new Map<Datum, number>();
         R.addIndex(R.forEach)((datum, index) => {
@@ -32,8 +33,12 @@ export default class VirtualizationAdapter implements ITarget {
                 dataframe;
         }
 
+        const isNully = sorting_treat_empty_string_as_none ?
+            (value: any) => value === '' || defaultIsNully(value) :
+            undefined;
+
         if (sorting === 'fe' || sorting === true) {
-            dataframe = sort(dataframe, sorting_settings);
+            dataframe = sort(dataframe, sorting_settings, isNully);
         }
 
         // virtual_indices
@@ -48,7 +53,8 @@ export default class VirtualizationAdapter implements ITarget {
             filtering,
             filtering_settings,
             sorting,
-            sorting_settings
+            sorting_settings,
+            sorting_treat_empty_string_as_none
         } = this.target.props;
 
         return this.getDataframe(
@@ -56,7 +62,8 @@ export default class VirtualizationAdapter implements ITarget {
             filtering,
             filtering_settings,
             sorting,
-            sorting_settings
+            sorting_settings,
+            sorting_treat_empty_string_as_none
         );
     }
 

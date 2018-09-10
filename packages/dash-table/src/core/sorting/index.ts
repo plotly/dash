@@ -13,7 +13,11 @@ export enum SortDirection {
 
 export type SortSettings = ISortSetting[];
 
-export default (dataframe: any[], settings: SortSettings): any[] => {
+type IsNullyFn = (value: any) => boolean;
+
+export const defaultIsNully: IsNullyFn = (value: any) => value === undefined || value === null;
+
+export default (dataframe: any[], settings: SortSettings, isNully: IsNullyFn = defaultIsNully): any[] => {
     if (!settings.length) {
         return dataframe;
     }
@@ -27,9 +31,9 @@ export default (dataframe: any[], settings: SortSettings): any[] => {
                     const prop1 = d1[id];
                     const prop2 = d2[id];
 
-                    if (prop1 === undefined || prop1 === null) {
+                    if (isNully(prop1)) {
                         return false;
-                    } else if (prop2 === undefined || prop2 === null) {
+                    } else if (isNully(prop2)) {
                         return true;
                     }
 
@@ -41,9 +45,9 @@ export default (dataframe: any[], settings: SortSettings): any[] => {
                     const prop1 = d1[id];
                     const prop2 = d2[id];
 
-                    if (prop1 === undefined || prop1 === null) {
+                    if (isNully(prop1)) {
                         return false;
-                    } else if (prop2 === undefined || prop2 === null) {
+                    } else if (isNully(prop2)) {
                         return true;
                     }
 

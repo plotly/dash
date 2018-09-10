@@ -125,3 +125,50 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             n_fixed_rows={2}
         />);
     });
+
+const sparseDataframe = (() => {
+    const r = random(1);
+
+    return R.range(0, 10).map(index => (
+        ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'].reduce((obj: any, key) => {
+            obj[key] = index <= 5 ? '' : Math.floor(r() * 1000);
+            return obj;
+        }, {})
+    ));
+})();
+
+storiesOf('DashTable/Sorting', module)
+    .add('"a" ascending', () => (<DashTable
+        setProps={setProps}
+        id='table'
+        dataframe={sparseDataframe}
+        columns={mergedColumns}
+        sorting={true}
+        sorting_settings={[{ columnId: 'a', direction: 'asc' }]}
+    />))
+    .add('"a" descending', () => (<DashTable
+        setProps={setProps}
+        id='table'
+        dataframe={sparseDataframe}
+        columns={mergedColumns}
+        sorting={true}
+        sorting_settings={[{ columnId: 'a', direction: 'desc' }]}
+    />))
+    .add('"a" ascending -- empty string override', () => (<DashTable
+        setProps={setProps}
+        id='table'
+        dataframe={sparseDataframe}
+        columns={mergedColumns}
+        sorting={true}
+        sorting_settings={[{ columnId: 'a', direction: 'asc' }]}
+        sorting_treat_empty_string_as_none={true}
+    />))
+    .add('"a" descending -- empty string override', () => (<DashTable
+        setProps={setProps}
+        id='table'
+        dataframe={sparseDataframe}
+        columns={mergedColumns}
+        sorting={true}
+        sorting_settings={[{ columnId: 'a', direction: 'desc' }]}
+        sorting_treat_empty_string_as_none={true}
+    />));

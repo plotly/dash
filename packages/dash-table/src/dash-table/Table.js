@@ -25,6 +25,7 @@ export const defaultProps = {
     sorting: false,
     sorting_type: 'single',
     sorting_settings: [],
+    sorting_treat_empty_string_as_none: false,
 
     virtual_dataframe: [],
     virtual_dataframe_indices: [],
@@ -158,11 +159,13 @@ export const propTypes = {
 
     sorting: PropTypes.oneOf(['fe', 'be', true, false]),
     sorting_type: PropTypes.oneOf(['single', 'multi']),
-    sorting_settings: PropTypes.arrayOf(PropTypes.shape({
-        columnId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        direction: PropTypes.oneOf(['asc', 'desc'])
-    })
+    sorting_settings: PropTypes.arrayOf(
+        PropTypes.shape({
+            columnId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            direction: PropTypes.oneOf(['asc', 'desc'])
+        })
     ),
+    sorting_treat_empty_string_as_none: PropTypes.bool,
 
     virtual_dataframe: PropTypes.arrayOf(PropTypes.object),
     virtual_dataframe_indices: PropTypes.arrayOf(PropTypes.number)

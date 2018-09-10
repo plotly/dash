@@ -603,6 +603,17 @@
           "computed": false
         }
       },
+      "sorting_treat_empty_string_as_none": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
       "virtual_dataframe": {
         "type": {
           "name": "arrayOf",
