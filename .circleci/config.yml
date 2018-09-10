@@ -58,11 +58,16 @@ jobs:
     <<: *test-template
     docker:
       - image: circleci/python:3.6-stretch-node-browsers
+    environment:
+      PERCY_ENABLE: 0
 
   "python-3.7":
     <<: *test-template
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
+    environment:
+      PERCY_ENABLE: 0
+
 
 workflows:
   version: 2
