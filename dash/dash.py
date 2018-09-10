@@ -168,6 +168,7 @@ class Dash(object):
         self.registered_paths = {}
 
         # urls
+        self.routes = []
 
         def add_url(name, view_func, methods=('GET',)):
             self.server.add_url_rule(
@@ -176,6 +177,7 @@ class Dash(object):
                 endpoint=name,
                 methods=list(methods)
             )
+            self.routes.append(name)
 
         add_url(
             '{}_dash-layout'.format(self.config['routes_pathname_prefix']),
@@ -216,7 +218,6 @@ class Dash(object):
 
         self._layout = None
         self._cached_layout = None
-        self.routes = []
 
     @property
     def layout(self):
