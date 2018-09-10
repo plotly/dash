@@ -84,3 +84,5 @@
     Note: This is a stopgag prop, full implementation of sorting overrides will most probably deprecate it.
 
     Default value is False.
+
+## RC10 - Fix double click regression

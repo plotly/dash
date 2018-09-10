@@ -101,6 +101,8 @@ export default class CellFactory {
         const {
             editable,
             is_focused,
+            row_deletable,
+            row_selectable,
             setProps
         } = this.props;
 
@@ -108,11 +110,18 @@ export default class CellFactory {
             return;
         }
 
+        // visible col indices
+        const columnIndexOffset =
+            (row_deletable ? 1 : 0) +
+            (row_selectable ? 1 : 0);
+
+        const cellLocation: [number, number] = [idx, i + columnIndexOffset];
+
         if (!is_focused) {
             e.preventDefault();
             const newProps = {
-                selected_cell: [[idx, i]],
-                active_cell: [idx, i],
+                selected_cell: [cellLocation],
+                active_cell: cellLocation,
                 is_focused: true
             };
             setProps(newProps);

@@ -62,6 +62,8 @@ app.layout = html.Div([
             {'id': 12, 'name': 'Timely response?'},
             {'id': 13, 'name': 'Consumer disputed?'}
         ],
+        n_fixed_columns=2,
+        n_fixed_rows=1,
         row_selectable=True,
         row_deletable=True,
         sorting=True,

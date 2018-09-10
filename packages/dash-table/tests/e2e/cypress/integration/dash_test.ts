@@ -28,4 +28,9 @@ describe('dash basic', () => {
             });
         });
     });
+
+    it('can get cell with double click', () => {
+        DashTable.getCell(3, 3).within(() => cy.get('div').dblclick());
+        DashTable.getCell(3, 3).should('have.class', 'focused');
+    });
 });
