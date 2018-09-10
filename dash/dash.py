@@ -447,6 +447,7 @@ class Dash(object):
                 self.config.components_cache_max_age)
         }
 
+
         return Response(
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype,
@@ -983,11 +984,29 @@ class Dash(object):
 
         return asset
 
+    def activate_dev_tools(self,
+                           dev_tools=True,
+                           dev_tools_bundles=True):
+        """
+        Activate the dev tools, called by `run_server`. If your application is
+        served by wsgi and you want to activate the dev tools, you can call
+        this method out of `__main__`.
+
+        :param dev_tools: If false no tools will be activated.
+        :type dev_tools: bool
+        :param dev_tools_bundles: Serve the dev bundles of component libs.
+        :type dev_tools_bundles: bool
+        :return:
+        """
+        if not dev_tools:
+            return
+        self._serve_dev_bundle = dev_tools_bundles
+
     def run_server(self,
                    port=8050,
                    debug=False,
                    dev_tools=True,
-                   dev_tools_bundles=False,
+                   dev_tools_bundles=True,
                    **flask_run_options):
         """
         Start the flask server in local mode, you should not run this on a
@@ -1005,6 +1024,6 @@ class Dash(object):
         :param flask_run_options: Given to `Flask.run`
         :return:
         """
-        self._serve_dev_bundle = dev_tools_bundles or dev_tools
+        self.activate_dev_tools(dev_tools, dev_tools_bundles)
         self.server.run(port=port, debug=dev_tools or debug,
                         **flask_run_options)
