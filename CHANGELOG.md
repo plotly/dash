@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.29.0] - 2018-09-12
+### Added
+- Unminified dev bundle support. [#77](https://github.com/plotly/dash-renderer/pull/77)
+
 ## [0.13.2] - 2018-07-24
 ### Fixed
 - Attempting to render a `Boolean` value to the page no longer crashes the app.
