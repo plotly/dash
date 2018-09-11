@@ -240,11 +240,7 @@ export default class Cell extends Component<ICellProps, ICellState> {
 
         const { onChange } = this.props;
 
-        onChange({
-            target: {
-                value: this.state.value
-            }
-        } as any);
+        onChange(this.state.value);
     }
 
     handleChange = (e: any) => {

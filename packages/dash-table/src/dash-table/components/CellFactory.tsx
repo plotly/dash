@@ -128,7 +128,7 @@ export default class CellFactory {
         }
     }
 
-    private handleChange = (idx: number, i: number, e: any) => {
+    private handleChange = (idx: number, i: number, value: any) => {
         const {
             columns,
             dataframe,
@@ -144,7 +144,7 @@ export default class CellFactory {
 
         const newDataframe = R.set(
             R.lensPath([idx, c.id]),
-            e.target.value,
+            value,
             dataframe
         );
         setProps({

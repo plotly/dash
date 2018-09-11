@@ -45,11 +45,13 @@ export default class ControlledTable extends Component<ControlledTableProps> {
 
         // Fallback method for paste handling in Chrome
         // when no input element has focused inside the table
+        window.addEventListener('resize', this.handleResize);
         document.addEventListener('paste', this.handlePaste);
         document.addEventListener('mousedown', this.handleClickOutside);
     }
 
     componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize);
         document.removeEventListener('mousedown', this.handleClickOutside);
         document.removeEventListener('paste', this.handlePaste);
     }
@@ -63,6 +65,28 @@ export default class ControlledTable extends Component<ControlledTableProps> {
     }
 
     componentDidUpdate() {
+        this.handleResize();
+    }
+
+    handleClickOutside = (event: any) => {
+        const $el = this.$el;
+
+        if ($el && !$el.contains(event.target as Node)) {
+            this.props.setProps({ is_focused: false });
+        }
+    }
+
+    handlePaste = (event: any) => {
+        // no need to check for target as this will only be called if
+        // a child fails to handle the paste event (e.g table, table input)
+        // make sure the active element is in the scope of the component
+        const $el = this.$el;
+        if ($el && $el.contains(document.activeElement)) {
+            this.onPaste(event);
+        }
+    }
+
+    handleResize = () => {
         const { r0c0, r0c1, r1c0, r1c1 } = this.refs as { [key: string]: HTMLElement };
 
         // Adjust [fixed columns/fixed rows combo] to fixed rows height
@@ -88,24 +112,6 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             const contentTr = contentTd.parentElement as HTMLElement;
 
             this.stylesheet.setRule('.cell-1-0 tr', `height: ${getComputedStyle(contentTr).height}`);
-        }
-    }
-
-    handleClickOutside = (event: any) => {
-        const $el = this.$el;
-
-        if ($el && !$el.contains(event.target as Node)) {
-            this.props.setProps({ is_focused: false });
-        }
-    }
-
-    handlePaste = (event: any) => {
-        // no need to check for target as this will only be called if
-        // a child fails to handle the paste event (e.g table, table input)
-        // make sure the active element is in the scope of the component
-        const $el = this.$el;
-        if ($el && $el.contains(document.activeElement)) {
-            this.onPaste(event);
         }
     }
 

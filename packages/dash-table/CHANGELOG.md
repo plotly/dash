@@ -94,3 +94,9 @@
     Issue: https://github.com/plotly/dash-table/issues/64
     Issue: https://github.com/plotly/dash-table/issues/65
     Issue: https://github.com/plotly/dash-table/issues/67
+
+## RC12 - Dropdown regression fix, border style fix, zoom/resize fix
+
+    Issue: https://github.com/plotly/dash-table/issues/68
+    Issue: https://github.com/plotly/dash-table/issues/73
+    Issue: https://github.com/plotly/dash-table/issues/76
