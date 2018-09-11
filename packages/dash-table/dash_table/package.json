@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "3.0.0rc10",
+  "version": "3.0.0rc11",
   "description": "Dash table",
   "main": "build/index.js",
   "scripts": {
@@ -20,12 +20,13 @@
     "private::test-e2e": "run-p --race private::host* private::runtests",
     "private::test-visual": "build-storybook && percy-storybook",
     "build.watch": "webpack-dev-server --content-base dash_table --mode development",
-    "build:js-dev": "run-s \"private::build -- --mode development\"",
     "build:js": "run-s \"private::build -- --mode production\"",
+    "build:js-dev": "run-s \"private::build -- --mode development\"",
+    "build:js-test": "webpack --display-reasons --bail --config webpack.test.config.js",
     "build:py": "./extract-meta src/dash-table/Table.js > dash_table/metadata.json && cp package.json dash_table",
     "lint": "run-s private::lint.js private::lint.ts",
     "test": "run-s private::test-*",
-    "test.watch": "run-p --race \"private::build -- --mode development --watch\" --race private::host* private::opentests"
+    "test.watch": "run-p --race \"build:js-test -- --watch\" --race private::host* private::opentests"
   },
   "author": "Chris P <chris@plot.ly",
   "license": "MIT",
@@ -69,7 +70,8 @@
     "wait-on": "^2.1.0",
     "webpack": "^4.8.3",
     "webpack-cli": "^2.1.3",
-    "webpack-dev-server": "^3.1.5"
+    "webpack-dev-server": "^3.1.5",
+    "webpack-preprocessor": "^0.1.11"
   },
   "peerDependencies": {
     "react": ">=0.14",

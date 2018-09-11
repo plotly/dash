@@ -56,7 +56,8 @@ app.layout = html.Div([
             {'id': 12, 'name': 'Timely response?'},
             {'id': 13, 'name': 'Consumer disputed?'}
         ],
-        editable=True
+        editable=True,
+        sorting=True
     )
 ])
 

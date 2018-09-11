@@ -42,7 +42,7 @@ jobs:
 
             - run:
                 name: Run build:js
-                command: npm run build:js
+                command: npm run build:js-test
 
             - run:
                 name: Run build:py

@@ -86,3 +86,11 @@
     Default value is False.
 
 ## RC10 - Fix double click regression
+
+    Issue: https://github.com/plotly/dash-table/issues/62
+
+## RC11 - Fix copy/paste regression, fix delete regression, fix click/blur regression
+
+    Issue: https://github.com/plotly/dash-table/issues/64
+    Issue: https://github.com/plotly/dash-table/issues/65
+    Issue: https://github.com/plotly/dash-table/issues/67

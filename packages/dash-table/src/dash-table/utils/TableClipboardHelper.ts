@@ -27,8 +27,11 @@ export default class TableClipboardHelper {
     public static fromClipboard(
         ev: ClipboardEvent,
         activeCell: ActiveCell,
+        virtual_dataframe_indices: number[],
         columns: Columns,
-        dataframe: Dataframe
+        dataframe: Dataframe,
+        overflowColumns: boolean = true,
+        overflowRows: boolean = true
     ): { dataframe: Dataframe, columns: Columns } | void {
         const text = Clipboard.get(ev);
         Logger.warning('clipboard data: ', text);
@@ -42,7 +45,7 @@ export default class TableClipboardHelper {
         let newDataframe = dataframe;
         const newColumns = columns;
 
-        if (values[0].length + activeCell[1] >= columns.length) {
+        if (overflowColumns && values[0].length + activeCell[1] >= columns.length) {
             for (
                 let i = columns.length;
                 i < values[0].length + activeCell[1];
@@ -50,33 +53,44 @@ export default class TableClipboardHelper {
             ) {
                 newColumns.push({
                     id: `Column ${i + 1}`,
+                    name: `Column ${i + 1}`,
                     type: 'numeric'
                 });
                 newDataframe.forEach(row => (row[`Column ${i}`] = ''));
             }
         }
 
-        if (values.length + activeCell[0] >= dataframe.length) {
+        if (overflowRows) {
+            Logger.debug(`Clipboard -- Sorting or filtering active, do not create new rows`);
+        }
+
+        const realActiveRow = virtual_dataframe_indices[activeCell[0]];
+        if (overflowRows && values.length + realActiveRow >= dataframe.length) {
             const emptyRow: any = {};
             columns.forEach(c => (emptyRow[c.id] = ''));
             newDataframe = R.concat(
                 newDataframe,
                 R.repeat(
                     emptyRow,
-                    values.length + activeCell[0] - dataframe.length
+                    values.length + realActiveRow - dataframe.length
                 )
             );
         }
 
-        values.forEach((row: any, i: any) =>
-            row.forEach((cell: any, j: any) => {
+        values.forEach((row: string[], i: number) =>
+            row.forEach((cell: string, j: number) => {
                 const iOffset = activeCell[0] + i;
+                if (virtual_dataframe_indices.length <= activeCell[0] + i) {
+                    return;
+                }
+                const iRealCell = virtual_dataframe_indices[iOffset];
+
                 const jOffset = activeCell[1] + j;
                 // let newDataframe = dataframe;
                 const col = newColumns[jOffset];
-                if (colIsEditable(true, col)) {
+                if (col && colIsEditable(true, col)) {
                     newDataframe = R.set(
-                        R.lensPath([iOffset, col.id]),
+                        R.lensPath([iRealCell, col.id]),
                         cell,
                         newDataframe
                     );

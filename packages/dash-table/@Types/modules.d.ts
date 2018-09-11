@@ -1,4 +1,9 @@
 declare module 'sheetclip' {
-    const value: any;
+    const value: {
+        prototype: {
+            parse: (text: string) => string[][];
+        }
+    };
+
     export default value;
 }

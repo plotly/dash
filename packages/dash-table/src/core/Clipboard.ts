@@ -1,5 +1,13 @@
 export default class Clipboard {
+    /*#if TEST_COPY_PASTE*/
+    private static value: string;
+    /*#endif*/
+
     public static set(value: string): void {
+        /*#if TEST_COPY_PASTE*/
+        Clipboard.value = value;
+        /*#endif*/
+
         const el = document.createElement('textarea');
         el.value = value;
 
@@ -34,9 +42,17 @@ export default class Clipboard {
         }
     }
 
-    public static get(ev: ClipboardEvent) {
-        return ev.clipboardData ?
-            ev.clipboardData.getData('text/plain') :
+    public static get(_ev: ClipboardEvent) {
+        let value;
+
+        /*#if TEST_COPY_PASTE*/
+        value = Clipboard.value;
+        /*#else*/
+        value = _ev.clipboardData ?
+            _ev.clipboardData.getData('text/plain') :
             undefined;
+        /*#endif*/
+
+        return value;
     }
 }

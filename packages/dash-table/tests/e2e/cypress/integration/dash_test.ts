@@ -29,6 +29,20 @@ describe('dash basic', () => {
         });
     });
 
+    it('can edit last and update dataframe when clicking outside of cell', () => {
+        DashTable.getCell(249, 2).click();
+        DOM.focused.then($input => {
+            const initialValue = $input.val();
+
+            DOM.focused.type(`abc`);
+            DashTable.getCell(248, 2).click();
+
+            cy.get('#container').should($container => {
+                expect($container.first()[0].innerText).to.equal(`[249][0] = ${initialValue} -> abc${initialValue}`);
+            });
+        });
+    });
+
     it('can get cell with double click', () => {
         DashTable.getCell(3, 3).within(() => cy.get('div').dblclick());
         DashTable.getCell(3, 3).should('have.class', 'focused');
