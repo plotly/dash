@@ -43,7 +43,7 @@ describe('edit cell', () => {
         DOM.focused.then($input => {
             const initialValue = $input.val();
 
-        DOM.focused.type(`abc${Key.Enter}`);
+            DOM.focused.type(`abc${Key.Enter}`);
             DashTable.getCell(0, 3).within(() => cy.get('.cell-value').should('have.html', `abc${initialValue}`));
         });
     });
@@ -53,8 +53,8 @@ describe('edit cell', () => {
         DOM.focused.then($input => {
             const initialValue = $input.val();
 
-        DOM.focused.type(`abc`);
-        DashTable.getCell(0, 2).click();
+            DOM.focused.type(`abc`);
+            DashTable.getCell(0, 2).click();
             DashTable.getCell(0, 3).within(() => cy.get('.cell-value').should('have.html', `abc${initialValue}`));
         });
     });
