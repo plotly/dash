@@ -59,6 +59,7 @@ jobs:
       - image: circleci/python:3.6-stretch-node-browsers
         environment:
           PYTHON_VERSION: py36
+          PERCY_ENABLE: 0
 
   "python-3.7":
     <<: *test-template
@@ -66,6 +67,7 @@ jobs:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
           PYTHON_VERSION: py37
+          PERCY_ENABLE: 0
 
 
 workflows:
