@@ -38,7 +38,7 @@ describe('dash basic', () => {
             DashTable.getCell(248, 2).click();
 
             cy.get('#container').should($container => {
-                expect($container.first()[0].innerText).to.equal(`[249][0] = ${initialValue} -> abc`);
+                expect($container.first()[0].innerText).to.equal(`[249][0] = ${initialValue} -> abc${initialValue}`);
             });
         });
     });
