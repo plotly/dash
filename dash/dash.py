@@ -330,9 +330,14 @@ class Dash(object):
         return config
 
     def serve_reload_hash(self):
+        hard = self._hard_reload
+        self._lock.acquire()
+        self._hard_reload = False
+        self._lock.release()
+
         return flask.jsonify({
             'reloadHash': self._reload_hash,
-            'hard': self._hard_reload
+            'hard': hard
         })
 
     def serve_routes(self):
