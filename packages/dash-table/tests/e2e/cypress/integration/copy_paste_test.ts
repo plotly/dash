@@ -9,7 +9,7 @@ describe('copy paste', () => {
 
     it('can do BE roundtrip on cell modification', () => {
         DashTable.getCell(0, 0).click();
-        DOM.focused.type(`10${Key.Enter}`);
+        DOM.focused.type(`1${Key.Enter}`);
 
         DashTable
             .getCell(0, 0)
