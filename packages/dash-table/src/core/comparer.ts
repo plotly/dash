@@ -1,5 +1,8 @@
 function isPlainObject(candidate: any) {
-    return typeof candidate === 'object' && candidate.constructor === Object;
+    return candidate !== undefined &&
+        candidate !== null &&
+        typeof candidate === 'object' &&
+        candidate.constructor === Object;
 }
 
 export function isEqual(obj1: object, obj2: object, deep: boolean = false) {

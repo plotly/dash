@@ -108,3 +108,7 @@
 
     First click selects the cell's content and will cause user input to override the cell content.
     Second click into the cell will remove the selection and position the cursor accordingly.
+    
+## RC14 - Empty dropdown setting value regression fix
+
+    Issue: https://github.com/plotly/dash-table/issues/83
