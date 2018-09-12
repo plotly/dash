@@ -1073,6 +1073,8 @@ class Dash(object):
         return debug
 
     def _on_assets_change(self, _):
+        # The `_` argument is the name of the file that changed.
+        # If we ever setup a logging system, we could use the parameter.
         self._lock.acquire()
         self._hard_reload = True
         self._reload_hash = _generate_hash()
