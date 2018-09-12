@@ -11,7 +11,6 @@ class Reloader extends React.Component {
             this.state = {
                 hash: null,
                 interval,
-                reloading: false,
                 disabled: false
             }
         } else {
@@ -29,14 +28,14 @@ class Reloader extends React.Component {
                 this.setState({hash: reloadHash.content.reloadHash});
                 return;
             }
-            if (reloadHash.content.reloadHash !== this.state.hash && !this.state.reloading ) {
+            if (reloadHash.content.reloadHash !== this.state.hash) {
                 // eslint-disable-next-line no-undef
                 window.clearInterval(this._intervalId);
                 if (reloadHash.content.hard) {
                     // Assets file have changed, need to reload them.
                     // eslint-disable-next-line no-undef
                     window.top.location.reload();
-                } else if (!this.state.reloading) {
+                } else {
                     // Py file has changed, just rebuild the reducers.
                     dispatch({'type': 'RELOAD'});
                 }
@@ -49,9 +48,7 @@ class Reloader extends React.Component {
         const { disabled, interval } = this.state;
         if (!disabled && !this._intervalId) {
             this._intervalId = setInterval(() => {
-                if (!this.state.reloading) {
-                    dispatch(getReloadHash());
-                }
+                dispatch(getReloadHash());
             }, interval);
         }
     }
