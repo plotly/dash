@@ -293,9 +293,11 @@ export default class Cell extends Component<ICellProps, ICellState> {
 
     componentDidUpdate() {
         const { active } = this.propsWithDefaults;
+        const input = this.refs.textInput as HTMLInputElement;
 
-        if (active && this.refs.textInput) {
-            (this.refs.textInput as HTMLElement).focus();
+        if (active && input && document.activeElement !== input) {
+            input.focus();
+            input.setSelectionRange(0, input.value ? input.value.length : 0);
         }
 
         if (active && this.refs.dropdown) {

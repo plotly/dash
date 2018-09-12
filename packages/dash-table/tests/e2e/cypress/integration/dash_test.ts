@@ -15,6 +15,18 @@ describe('dash basic', () => {
         DashTable.getCell(0, 2).within(() => cy.get('input').should('have.value', '250'));
     });
 
+    it('cell click selects all text', () => {
+        DashTable.getCell(0, 3).click();
+        DashTable.getCell(0, 3).within(() =>
+            cy.get('input').then($inputs => {
+                const $input = $inputs[0];
+
+                expect($input.selectionStart).to.equal(0);
+                expect($input.selectionEnd).to.equal($input.value.length);
+            })
+        );
+    });
+
     // https://github.com/plotly/dash-table/issues/50
     it('can edit last and update dataframe on "enter"', () => {
         DashTable.getCell(249, 2).click();
@@ -24,7 +36,7 @@ describe('dash basic', () => {
             DOM.focused.type(`abc${Key.Enter}`);
 
             cy.get('#container').should($container => {
-                expect($container.first()[0].innerText).to.equal(`[249][0] = ${initialValue} -> abc${initialValue}`);
+                expect($container.first()[0].innerText).to.equal(`[249][0] = ${initialValue} -> abc`);
             });
         });
     });
@@ -38,7 +50,7 @@ describe('dash basic', () => {
             DashTable.getCell(248, 2).click();
 
             cy.get('#container').should($container => {
-                expect($container.first()[0].innerText).to.equal(`[249][0] = ${initialValue} -> abc${initialValue}`);
+                expect($container.first()[0].innerText).to.equal(`[249][0] = ${initialValue} -> abc`);
             });
         });
     });
