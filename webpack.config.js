@@ -7,7 +7,7 @@ module.exports = (env, argv) => ({
     entry: {main: './src/index.js'},
     output: {
         path: path.resolve(__dirname, dashLibraryName),
-        filename: argv.mode === 'development' ? 'bundle.dev.js' : 'bundle.js',
+        filename: argv.mode === 'development' ? `${dashLibraryName}.dev.js` : `${dashLibraryName}.min.js`,
         library: dashLibraryName,
         libraryTarget: 'window',
     },
