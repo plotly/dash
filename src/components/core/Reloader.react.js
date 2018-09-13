@@ -11,27 +11,27 @@ class Reloader extends React.Component {
             this.state = {
                 hash: null,
                 interval,
-                disabled: false
+                disabled: false,
+                intervalId: null
             }
         } else {
             this.state = {
                 disabled: true
             }
         }
-        this._intervalId = null;
     }
 
     componentDidUpdate() {
-        const {reloadHash, dispatch} = this.props;
-        if (reloadHash.status === 200) {
+        const {reloadRequest, dispatch} = this.props;
+        if (reloadRequest.status === 200) {
             if (this.state.hash === null) {
-                this.setState({hash: reloadHash.content.reloadHash});
+                this.setState({hash: reloadRequest.content.reloadHash});
                 return;
             }
-            if (reloadHash.content.reloadHash !== this.state.hash) {
+            if (reloadRequest.content.reloadHash !== this.state.hash) {
                 // eslint-disable-next-line no-undef
                 window.clearInterval(this._intervalId);
-                if (reloadHash.content.hard) {
+                if (reloadRequest.content.hard) {
                     // Assets file have changed, need to reload them.
                     // eslint-disable-next-line no-undef
                     window.top.location.reload();
@@ -46,17 +46,18 @@ class Reloader extends React.Component {
     componentDidMount() {
         const { dispatch } = this.props;
         const { disabled, interval } = this.state;
-        if (!disabled && !this._intervalId) {
-            this._intervalId = setInterval(() => {
+        if (!disabled && !this.state.intervalId) {
+            const intervalId = setInterval(() => {
                 dispatch(getReloadHash());
             }, interval);
+            this.setState({intervalId})
         }
     }
 
     componentWillUnmount() {
-        if (!this.state.disabled) {
+        if (!this.state.disabled && this.state.intervalId) {
             // eslint-disable-next-line no-undef
-            window.clearInterval(this._intervalId);
+            window.clearInterval(this.state.intervalId);
         }
     }
 
@@ -70,7 +71,7 @@ Reloader.defaultProps = {};
 Reloader.propTypes = {
     id: PropTypes.string,
     config: PropTypes.object,
-    reloadHash: PropTypes.object,
+    reloadRequest: PropTypes.object,
     dispatch: PropTypes.func,
     interval: PropTypes.number
 };
@@ -78,7 +79,7 @@ Reloader.propTypes = {
 export default connect(
     state => ({
         config: state.config,
-        reloadHash: state.reloadHash
+        reloadRequest: state.reloadRequest
     }),
     dispatch => ({dispatch})
 )(Reloader);
