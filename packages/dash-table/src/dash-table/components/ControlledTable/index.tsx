@@ -491,7 +491,6 @@ export default class ControlledTable extends Component<ControlledTableProps> {
 
         const noOffsetActiveCell: [number, number] = [active_cell[0], active_cell[1] - columnIndexOffset];
 
-
         const result = TableClipboardHelper.fromClipboard(
             e,
             noOffsetActiveCell,

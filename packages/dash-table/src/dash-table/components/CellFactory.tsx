@@ -210,6 +210,7 @@ export default class CellFactory {
             column_conditional_styles,
             column_static_dropdown,
             column_static_style,
+            dropdown_properties, // legacy
             editable,
             id,
             is_focused,
@@ -236,6 +237,18 @@ export default class CellFactory {
             const cells = visibleColumns.map((column, visibleIndex) => {
                 visibleIndex += offset;
 
+                let legacyDropdown: any = (
+                    (
+                        dropdown_properties &&
+                        dropdown_properties[column.id] &&
+                        (
+                            dropdown_properties[column.id].length > realIdx ?
+                                dropdown_properties[column.id][realIdx] :
+                                null
+                        )
+                    ) || column || {}
+                ).options;
+
                 const index = columns.indexOf(column);
 
                 const classes = [`column-${index + offset}`];
@@ -244,7 +257,7 @@ export default class CellFactory {
                 let staticDropdown = column_static_dropdown.find((sd: any) => sd.id === column.id);
 
                 conditionalDropdowns = conditionalDropdowns && conditionalDropdowns.dropdowns;
-                staticDropdown = staticDropdown && staticDropdown.dropdown;
+                staticDropdown = legacyDropdown || (staticDropdown && staticDropdown.dropdown);
 
                 let conditionalStyles = column_conditional_styles.find((cs: any) => cs.id === column.id);
                 let staticStyle = column_static_style.find((ss: any) => ss.id === column.id);

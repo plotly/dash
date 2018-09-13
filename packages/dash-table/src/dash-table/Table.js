@@ -168,7 +168,9 @@ export const propTypes = {
     sorting_treat_empty_string_as_none: PropTypes.bool,
 
     virtual_dataframe: PropTypes.arrayOf(PropTypes.object),
-    virtual_dataframe_indices: PropTypes.arrayOf(PropTypes.number)
+    virtual_dataframe_indices: PropTypes.arrayOf(PropTypes.number),
+
+    dropdown_properties: PropTypes.any,
 };
 
 Table.defaultProps = defaultProps;

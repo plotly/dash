@@ -19,6 +19,7 @@ export type Virtualization = 'fe' | 'be' | boolean;
 interface IColumn {
     id: string | number;
     editable?: boolean;
+    options?: { label: string | number, value: any }[]; // legacy
     [key: string]: any;
 }
 
@@ -48,6 +49,7 @@ interface IProps {
     column_static_dropdown?: any;
     column_static_style?: any;
     dataframe?: Dataframe;
+    dropdown_properties: any; // legacy
     editable?: boolean;
     filtering?: Filtering;
     filtering_settings?: string;
@@ -118,6 +120,7 @@ export interface ICellFactoryOptions {
     column_static_dropdown: any;
     column_static_style: any;
     dataframe: Dataframe;
+    dropdown_properties: any; // legacy
     editable: boolean;
     id: string;
     is_focused?: boolean;
