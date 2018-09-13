@@ -2,6 +2,59 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.29.0] -- 2018-09-13
+### Added
+
+- Upgraded Plotly.js, the underlying library behind the dash_core_components.Graph component, to version 1.41.0. See https://github.com/plotly/plotly.js/releases/tag/v1.41.0 for the official notes. 
+Many of these features were funded directly by companies that rely on this library. If your organization or company would like to sponsor particular features or bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
+
+As part of plotly.js release:
+
+- Enable selection by clicking on points via new layout attribute `clickmode`
+  and flag `'select'` [#2944]
+- Add stacked area charts via new attributes `stackgroup` and `stackgaps` in
+  `scatter` traces [#2960]
+- Add `barpolar` traces - which replace and augment `area` traces [#2954]
+- Add `polar.hole` to punch hole at the middle of polar subplot offsetting the
+  start of the radial range [#2977, #2996]
+- Add an 'inner' radial axis drag box on polar subplots [#2977]
+- Add `{responsive: true}` plot config option [#2974]
+- Emit `plotly_webglcontextlost` event on WebGL context lost [#2986]
+- Support all numbered HTML entities (decimal and hex) in text elements [#2932]
+- Add Welsh (`cy`) locale [#2945]
+
+### Changed
+As part of plotly.js release:
+
+- Attribute meta information is now stripped be stripped out of bundles (made
+  with bundlers that support browserify transforms) by default [#1584]
+- Draw polar axis ticks above polar axis lines [#2977]
+- Improve ordering of trace hover labels for matching positions [#2960]
+- Speed polar subplot radial drag interactions [#2954]
+- Improve pseudo-html conversion performance [#2932]
+- Bump `regl-splom` requirement to `^1.0.4` [#2956]
+- Bump `glslify` requirement to `^6.3.1` [#2990]
+- Use `gl-text` instead of `@etpinard/gl-text` [#2956]
+
+### Fixed
+As part of plotly.js release:
+
+- Fix `scatter` ordering in inner SVG `<g>` on some restyle calls [#2978]
+- Fix cartesian axis autorange edge cases [#2960]
+- Fix double-decoding of some HTML entities in text nodes [#2927]
+- Fix `scattergl` line traces rendered after non-line traces [#2990]
+- Fix legend positioning on graphs with very large margins [#2983]
+- Fix rendering of ternary subplots fix with `showticklabels: false` [#2993]
+- Fix show/hide updates of tick and tick labels on ternary subplots [#2993]
+- Fix handling of multi-selections in ternary subplots [#2944]
+- Fix `sankey` hover under `hovermode: false` [#2949]
+- Fix `sankey` positioning for non-default `domain.x` values [#2984]
+- Fix `type: 'date'` polar radial axes [#2954]
+- Fix send-to-cloud modebar buttons on graphs with typed arrays [#2995]
+- Fix handling of custom transforms that make their own data arrays in
+  `Plotly.react`[#2973]
+- Fix missing violin and colorbar attributes in `gd._fullData` [#2850]
+
 ## [0.28.3] - 2018-09-07
 ### Changed
 - The `Interval` component's `max_interval` prop can now be used to stop/restart the interval. Fixes [#266](https://github.com/plotly/dash-core-components/issues/266)
