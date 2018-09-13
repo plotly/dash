@@ -8,20 +8,23 @@ import { colIsEditable } from 'dash-table/components/derivedState';
 import { ActiveCell, Columns, Dataframe, SelectedCells } from 'dash-table/components/Table/props';
 
 export default class TableClipboardHelper {
-    public static toClipboard(selectedCells: SelectedCells, columns: Columns, dataframe: Dataframe) {
+    public static toClipboard(e: any, selectedCells: SelectedCells, columns: Columns, dataframe: Dataframe) {
         const selectedRows = R.uniq(R.pluck(0, selectedCells).sort());
         const selectedCols: any = R.uniq(R.pluck(1, selectedCells).sort());
 
-        const value = R.slice(
+        const df = R.slice(
             R.head(selectedRows) as any,
             R.last(selectedRows) as any + 1,
             dataframe
         ).map(row =>
             R.props(selectedCols, R.props(R.pluck('id', columns) as any, row) as any)
-        ).map(row => R.values(row).join('\t')
-        ).join('\r\n');
+        );
 
-        Clipboard.set(value);
+        const value = SheetClip.prototype.stringify(df);
+
+        Logger.trace('TableClipboard -- set clipboard data: ', value);
+
+        Clipboard.set(e, value);
     }
 
     public static fromClipboard(
@@ -34,7 +37,7 @@ export default class TableClipboardHelper {
         overflowRows: boolean = true
     ): { dataframe: Dataframe, columns: Columns } | void {
         const text = Clipboard.get(ev);
-        Logger.warning('clipboard data: ', text);
+        Logger.trace('TableClipboard -- get clipboard data: ', text);
 
         if (!text) {
             return;

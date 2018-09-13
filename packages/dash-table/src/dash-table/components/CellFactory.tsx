@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import React from 'react';
+import React, { ClipboardEvent } from 'react';
 
 import Cell from 'dash-table/components/Cell';
 import { ICellFactoryOptions, SelectedCells } from 'dash-table/components/Table/props';
@@ -152,17 +152,8 @@ export default class CellFactory {
         });
     }
 
-    private handlePaste = (idx: number, i: number, e: any) => {
-        const {
-            is_focused,
-            selected_cell
-        } = this.props;
-
-        const selected = this.isCellSelected(selected_cell, idx, i);
-
-        if (!(selected && is_focused)) {
-            e.preventDefault();
-        }
+    private handlePaste = (e: ClipboardEvent) => {
+        e.preventDefault();
     }
 
     private rowSelectCell(idx: number) {
@@ -273,7 +264,7 @@ export default class CellFactory {
                     focused={!!is_focused}
                     onClick={this.getEventHandler(this.handleClick, virtualIdx, index)}
                     onDoubleClick={this.getEventHandler(this.handleDoubleClick, virtualIdx, index)}
-                    onPaste={this.getEventHandler(this.handlePaste, virtualIdx, index)}
+                    onPaste={this.handlePaste}
                     onChange={this.getEventHandler(this.handleChange, realIdx, index)}
                     property={column.id}
                     selected={R.contains([virtualIdx, index + offset], selected_cell)}
