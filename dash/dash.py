@@ -238,6 +238,8 @@ class Dash(object):
         self._hard_reload = False
         self._lock = threading.RLock()
         self._watch_thread = None
+        self._hot_reload = hot_reload
+
         if hot_reload:
             self._watch_thread = threading.Thread(
                 target=lambda: _watch.watch([self._assets_folder],
