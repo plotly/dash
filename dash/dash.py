@@ -501,13 +501,15 @@ class Dash(object):
                     '''.format(
                         app_entry=kwargs.get('app_entry'),
                         config=kwargs.get('config'),
-                        scripts=kwargs.get('scripts'))
+                        scripts=kwargs.get('scripts'),
+                        renderer=kwargs.get('renderer'))
 
         :param metas: Collected & formatted meta tags.
         :param title: The title of the app.
         :param css: Collected & formatted css dependencies as <link> tags.
         :param config: Configs needed by dash-renderer.
         :param scripts: Collected & formatted scripts tags.
+        :param renderer: The DashRenderer instance.
         :param app_entry: Where the app will render.
         :param favicon: A favicon <link> tag if found in assets folder.
         :return: The interpolated HTML string for the index.
