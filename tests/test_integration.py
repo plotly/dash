@@ -554,7 +554,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
-                    <script id="_dash-renderer" type"application/javascript">
+                    <script id="_dash-renderer" type="application/javascript">
                         console.log('firing up a custom renderer!')
                         const renderer = new DashRenderer({
                             request_pre: () => {
@@ -646,7 +646,7 @@ class Tests(IntegrationTests):
         </div>
         '''
         renderer = '''
-        <script id="_dash-renderer" type"application/javascript">
+        <script id="_dash-renderer" type="application/javascript">
             console.log('firing up a custom renderer!')
             const renderer = new DashRenderer({
                 request_pre: () => {
