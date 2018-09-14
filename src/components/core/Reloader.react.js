@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+import R from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux'
@@ -12,7 +14,8 @@ class Reloader extends React.Component {
                 hash: null,
                 interval,
                 disabled: false,
-                intervalId: null
+                intervalId: null,
+                packages: null
             }
         } else {
             this.state = {
@@ -25,22 +28,31 @@ class Reloader extends React.Component {
         const {reloadRequest, dispatch} = this.props;
         if (reloadRequest.status === 200) {
             if (this.state.hash === null) {
-                this.setState({hash: reloadRequest.content.reloadHash});
+                this.setState({
+                    hash: reloadRequest.content.reloadHash,
+                    packages: reloadRequest.content.packages
+                });
                 return;
             }
             if (reloadRequest.content.reloadHash !== this.state.hash) {
-                // eslint-disable-next-line no-undef
                 window.clearInterval(this._intervalId);
-                if (reloadRequest.content.hard) {
-                    // Assets file have changed, need to reload them.
-                    // eslint-disable-next-line no-undef
+                if (reloadRequest.content.hard
+                    || reloadRequest.content.packages.length !== this.state.length
+                    || !R.all(R.map(x => R.contains(x, this.state.packages),
+                        reloadRequest.content.packages))
+                ) {
+                    // Assets file have changed
+                    // or a component lib has been added/removed
                     window.top.location.reload();
                 } else {
-                    // Py file has changed, just rebuild the reducers.
                     dispatch({'type': 'RELOAD'});
                 }
             }
         }
+    }
+
+    componentWillMount() {
+
     }
 
     componentDidMount() {
@@ -56,7 +68,6 @@ class Reloader extends React.Component {
 
     componentWillUnmount() {
         if (!this.state.disabled && this.state.intervalId) {
-            // eslint-disable-next-line no-undef
             window.clearInterval(this.state.intervalId);
         }
     }
@@ -73,13 +84,15 @@ Reloader.propTypes = {
     config: PropTypes.object,
     reloadRequest: PropTypes.object,
     dispatch: PropTypes.func,
-    interval: PropTypes.number
+    interval: PropTypes.number,
+    packagesRequest: PropTypes.object,
 };
 
 export default connect(
     state => ({
         config: state.config,
-        reloadRequest: state.reloadRequest
+        reloadRequest: state.reloadRequest,
+        packagesRequest: state.packagesRequest
     }),
     dispatch => ({dispatch})
 )(Reloader);
