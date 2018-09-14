@@ -1,8 +1,8 @@
 import * as R from 'ramda';
 
 export function selectionCycle(nextCell, selected_cell) {
-    const selectedRows = R.uniq(R.pluck(0, selected_cell)).sort();
-    const selectedCols = R.uniq(R.pluck(1, selected_cell)).sort();
+    const selectedRows = R.uniq(R.pluck(0, selected_cell)).sort((a, b) => a - b);
+    const selectedCols = R.uniq(R.pluck(1, selected_cell)).sort((a, b) => a - b);
 
     const minRow = selectedRows[0];
     const minCol = selectedCols[0];

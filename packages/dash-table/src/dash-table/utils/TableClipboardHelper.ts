@@ -9,8 +9,8 @@ import { ActiveCell, Columns, Dataframe, SelectedCells } from 'dash-table/compon
 
 export default class TableClipboardHelper {
     public static toClipboard(e: any, selectedCells: SelectedCells, columns: Columns, dataframe: Dataframe) {
-        const selectedRows = R.uniq(R.pluck(0, selectedCells).sort());
-        const selectedCols: any = R.uniq(R.pluck(1, selectedCells).sort());
+        const selectedRows = R.uniq(R.pluck(0, selectedCells).sort((a, b) => a - b));
+        const selectedCols: any = R.uniq(R.pluck(1, selectedCells).sort((a, b) => a - b));
 
         const df = R.slice(
             R.head(selectedRows) as any,

@@ -68,17 +68,28 @@ describe('select', () => {
     });
 
     describe('with mouse', () => {
-        beforeEach(() => {
-            DashTable.getCell(3, 3).click();
-        });
-
         it('can select (5, 5)', () => {
+            DashTable.getCell(3, 3).click();
             DOM.focused.type(Key.Shift, { release: false });
             DashTable.getCell(5, 5).click();
             DashTable.getSelectedCells().should('have.length', 9);
 
             for (let row = 3; row <= 5; ++row) {
                 for (let column = 3; column <= 5; ++column) {
+                    DashTable.getCell(row, column).should('have.class', 'cell--selected');
+                }
+            }
+        });
+
+        it('can select 9-10 correctly', () => {
+            DashTable.getCell(9, 3).click();
+            DOM.focused.type(Key.Shift, { release: false });
+            DashTable.getCell(10, 3).click();
+            DOM.focused.type(Key.Shift, { release: false });
+            DashTable.getCell(10, 4).click();
+
+            for (let row = 9; row <= 10; ++row) {
+                for (let column = 3; column <= 4; ++column) {
                     DashTable.getCell(row, column).should('have.class', 'cell--selected');
                 }
             }

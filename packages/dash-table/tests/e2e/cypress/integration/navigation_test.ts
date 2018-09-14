@@ -65,8 +65,32 @@ describe('navigate', () => {
             });
         });
 
+        it('can navigate 9-10 selected cells', () => {
+            DashTable.getCell(9, 3).click();
+            DOM.focused.type(Key.Shift, { release: false });
+            DashTable.getCell(10, 3).click();
+            DOM.focused.type(Key.Shift, { release: false });
+            DashTable.getCell(10, 4).click();
+
+            for (let row = 9; row <= 10; ++row) {
+                for (let column = 3; column <= 4; ++column) {
+                    DashTable.getCell(row, column).should('have.class', 'cell--selected');
+                }
+            }
+
+            DashTable.getCell(10, 4).should('have.class', 'cell--selected');
+            DOM.focused.type(`${Key.Enter}${Key.Enter}`);
+            DashTable.getCell(9, 3).should('have.class', 'cell--selected');
+            DOM.focused.type(`${Key.Enter}${Key.Enter}`);
+            DashTable.getCell(9, 4).should('have.class', 'cell--selected');
+            DOM.focused.type(`${Key.Enter}${Key.Enter}`);
+            DashTable.getCell(10, 3).should('have.class', 'cell--selected');
+            DOM.focused.type(`${Key.Enter}${Key.Enter}`);
+            DashTable.getCell(10, 4).should('have.class', 'cell--selected');
+        });
+
         // Issue: https://github.com/plotly/dash-table/issues/49
-        it.only('can move after ctrl+c', () => {
+        it('can move after ctrl+c', () => {
             DOM.focused.type(`${Key.Meta}c`);
             DOM.focused.type(Key.ArrowDown);
             DashTable.getCell(4, 3).should('have.class', 'focused');

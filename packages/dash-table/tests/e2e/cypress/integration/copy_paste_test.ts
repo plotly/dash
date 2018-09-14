@@ -22,6 +22,20 @@ describe('copy paste', () => {
         }
     });
 
+    it('can copy rows 9 and 10', () => {
+        DashTable.getCell(9, 0).click();
+        DOM.focused.type(`${Key.Shift}${Key.ArrowDown}`);
+
+        DOM.focused.type(`${Key.Meta}c`);
+        DashTable.getCell(1, 0).click();
+        DOM.focused.type(`${Key.Meta}v`);
+        DashTable.getCell(0, 0).click();
+
+        DashTable.getCell(1, 0).within(() => cy.get('.cell-value').should('have.html', '9'));
+        DashTable.getCell(2, 0).within(() => cy.get('.cell-value').should('have.html', '10'));
+
+    });
+
     it('can copy multiple rows and columns', () => {
         DashTable.getCell(0, 1).click();
         DOM.focused.type(Key.Shift, { release: false });
