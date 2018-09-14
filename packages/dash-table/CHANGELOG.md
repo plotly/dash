@@ -117,3 +117,7 @@
 
     Issue: https://github.com/plotly/dash-table/issues/75
     Issue: https://github.com/plotly/dash-table/issues/88
+
+## RC16 - Fix incorrect keyboard navigation
+
+    Issue: https://github.com/plotly/dash-table/issues/49

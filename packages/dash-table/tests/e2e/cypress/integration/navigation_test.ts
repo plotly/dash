@@ -65,6 +65,14 @@ describe('navigate', () => {
             });
         });
 
+        // Issue: https://github.com/plotly/dash-table/issues/49
+        it.only('can move after ctrl+c', () => {
+            DOM.focused.type(`${Key.Meta}c`);
+            DOM.focused.type(Key.ArrowDown);
+            DashTable.getCell(4, 3).should('have.class', 'focused');
+            DashTable.getCell(3, 3).should('not.have.class', 'focused');
+        });
+
         it('can move down', () => {
             DOM.focused.type(Key.ArrowDown);
             DashTable.getCell(4, 3).should('have.class', 'focused');
