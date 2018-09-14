@@ -494,6 +494,7 @@ class Dash(object):
                             {app_entry}
                             {config}
                             {scripts}
+                            {renderer}
                             <div id="custom-footer">My custom footer</div>
                         </body>
                     </html>
