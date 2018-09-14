@@ -231,6 +231,8 @@ class Dash(object):
         self.server.errorhandler(exceptions.InvalidResourceError)(
             self._invalid_resources_handler)
 
+        self._assets_files = []
+
         # hot reload
         self._reload_hash = _generate_hash() \
             if hot_reload else ''
@@ -989,18 +991,19 @@ class Dash(object):
         self._generate_scripts_html()
         self._generate_css_dist_html()
 
+    def _add_assets_resource(self, url_path, file_path):
+        res = {'asset_path': url_path, 'filepath': file_path}
+        if self.config.assets_external_path:
+            res['external_url'] = '{}{}'.format(
+                self.config.assets_external_path, url_path)
+        self._assets_files.append(file_path)
+        return res
+
     def _walk_assets_directory(self):
         walk_dir = self._assets_folder
         slash_splitter = re.compile(r'[\\/]+')
         ignore_filter = re.compile(self.assets_ignore) \
             if self.assets_ignore else None
-
-        def add_resource(p, filepath):
-            res = {'asset_path': p, 'filepath': filepath}
-            if self.config.assets_external_path:
-                res['external_url'] = '{}{}'.format(
-                    self.config.assets_external_path, path)
-            return res
 
         for current, _, files in os.walk(walk_dir):
             if current == walk_dir:
@@ -1026,9 +1029,9 @@ class Dash(object):
 
                 if f.endswith('js'):
                     self.scripts.append_script(
-                        add_resource(path, full))
+                        self._add_assets_resource(path, full))
                 elif f.endswith('css'):
-                    self.css.append_css(add_resource(path, full))
+                    self.css.append_css(self._add_assets_resource(path, full))
                 elif f == 'favicon.ico':
                     self._favicon = path
 
@@ -1079,12 +1082,43 @@ class Dash(object):
         )
         return debug
 
-    def _on_assets_change(self, _):
-        # The `_` argument is the name of the file that changed.
-        # If we ever setup a logging system, we could use the parameter.
+    # noinspection PyProtectedMember
+    def _on_assets_change(self, filename, _, deleted):
+        # The `_` argument is the time modified, to be used later.
         self._lock.acquire()
-        self._hard_reload = True
+        self._hard_reload = True  # filename.endswith('js')
         self._reload_hash = _generate_hash()
+
+        asset_path = filename.replace(self._assets_folder, '')\
+            .replace('\\', '/').lstrip('/')
+
+        if filename not in self._assets_files and not deleted:
+            res = self._add_assets_resource(asset_path, filename)
+            if filename.endswith('js'):
+                self.scripts.append_script(res)
+            elif filename.endswith('css'):
+                self.css.append_css(res)
+
+        if deleted:
+            if filename in self._assets_files:
+                self._assets_files.remove(filename)
+
+            def delete_resource(resources):
+                to_delete = None
+                for r in resources:
+                    if r.get('asset_path') == asset_path:
+                        to_delete = r
+                        break
+                if to_delete:
+                    resources.remove(to_delete)
+
+            if filename.endswith('js'):
+                # pylint: disable=protected-access
+                delete_resource(self.scripts._resources._resources)
+            elif filename.endswith('css'):
+                # pylint: disable=protected-access
+                delete_resource(self.css._resources._resources)
+
         self._lock.release()
 
     def run_server(self,
