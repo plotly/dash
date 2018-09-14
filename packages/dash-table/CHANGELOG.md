@@ -121,3 +121,9 @@
 ## RC16 - Fix incorrect keyboard navigation
 
     Issue: https://github.com/plotly/dash-table/issues/49
+
+## RC17 - UX Improvements
+
+    Issue: https://github.com/plotly/dash-table/issues/91
+
+    - Navigation and selection UX fine tuning
