@@ -26,6 +26,32 @@ class Tests(IntegrationTests):
             return self.driver.find_element_by_id(id)
         self.wait_for_element_by_id = wait_for_element_by_id
 
+
+    def wait_for_element_by_css_selector(self, selector):
+        start_time = time.time()
+        error = None
+        while time.time() < start_time + 20:
+            try:
+                return self.driver.find_element_by_css_selector(selector)
+            except Exception as e:
+                error = e
+                pass
+            time.sleep(0.25)
+        raise error
+
+    def wait_for_text_to_equal(self, selector, assertion_text):
+        start_time = time.time()
+        error = None
+        while time.time() < start_time + 20:
+            el = self.wait_for_element_by_css_selector(selector)
+            try:
+                return self.assertEqual(el.text, assertion_text)
+            except Exception as e:
+                error = e
+                pass
+            time.sleep(0.25)
+        raise error
+
     def test_simple_callback(self):
         app = dash.Dash(__name__)
         app.layout = html.Div([
@@ -602,13 +628,10 @@ class Tests(IntegrationTests):
 
         input1.send_keys('fire request hooks')
 
-        output1 = self.wait_for_element_by_id('output-1')
-        output_pre = self.wait_for_element_by_id('output-pre')
-        output_post = self.wait_for_element_by_id('output-post')
+        self.wait_for_text_to_equal('#output-1', 'fire request hooks')
+        self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
+        self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
 
-        self.assertEqual('fire request hooks', output1.text)
-        self.assertEqual('request_pre changed this text!', output_pre.text)
-        self.assertEqual('request_post changed this text!', output_post.text)
         self.percy_snapshot(name='request-hooks')
 
     def test_with_custom_renderer_interpolated(self):
@@ -677,11 +700,8 @@ class Tests(IntegrationTests):
 
         input1.send_keys('fire request hooks')
 
-        output1 = self.wait_for_element_by_id('output-1')
-        output_pre = self.wait_for_element_by_id('output-pre')
-        output_post = self.wait_for_element_by_id('output-post')
+        self.wait_for_text_to_equal('#output-1', 'fire request hooks')
+        self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
+        self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
 
-        self.assertEqual('fire request hooks', output1.text)
-        self.assertEqual('request_pre changed this text!', output_pre.text)
-        self.assertEqual('request_post changed this text!', output_post.text)
         self.percy_snapshot(name='request-hooks interpolated')
