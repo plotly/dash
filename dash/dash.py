@@ -383,7 +383,7 @@ class Dash(object):
 
     def _generate_renderer(self):
         return (
-            '<script id="_dash-renderer" type"application/json">'
+            '<script id="_dash-renderer" type"application/javascript">'
             '{}'
             '</script'
         ).format(self.renderer)

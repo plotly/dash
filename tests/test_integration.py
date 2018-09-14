@@ -554,7 +554,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
-                    <script id="_dash-renderer" type"application/json">
+                    <script id="_dash-renderer" type"application/javascript">
                         console.log('firing up a custom renderer!')
                         const renderer = new DashRenderer({
                             request_pre: () => {
