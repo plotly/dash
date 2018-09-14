@@ -8,6 +8,7 @@ dash-renderer==0.13.2
 decorator==4.3.0
 Flask==1.0.2
 Flask-Compress==1.4.0
+gunicorn==19.9.0
 idna==2.7
 ipython-genutils==0.2.0
 itsdangerous==0.24
