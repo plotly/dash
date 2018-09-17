@@ -221,7 +221,9 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self.routes = []
-        self._serve_dev_bundle = False
+        self._dev_tools = _AttributeDict({
+            'serve_dev_bundles': False
+        })
 
         # add a handler for components suites errors to return 404
         self.server.errorhandler(exceptions.InvalidResourceError)(
@@ -375,13 +377,13 @@ class Dash(object):
         srcs = self._collect_and_register_resources(
             self.scripts._resources._filter_resources(
                 dash_renderer._js_dist_dependencies,
-                dev_bundles=self._serve_dev_bundle
+                dev_bundles=self._dev_tools.serve_dev_bundles
             )) + self._external_scripts + self._collect_and_register_resources(
                 self.scripts.get_all_scripts(
-                    dev_bundles=self._serve_dev_bundle) +
+                    dev_bundles=self._dev_tools.serve_dev_bundles) +
                 self.scripts._resources._filter_resources(
                     dash_renderer._js_dist,
-                    dev_bundles=self._serve_dev_bundle
+                    dev_bundles=self._dev_tools.serve_dev_bundles
                 ))
 
         return '\n'.join([
@@ -984,46 +986,46 @@ class Dash(object):
 
         return asset
 
-    def activate_dev_tools(self,
-                           dev_tools=True,
-                           dev_tools_bundles=True):
+    def enable_dev_tools(self,
+                         debug=False,
+                         dev_tools_serve_bundles=None):
         """
         Activate the dev tools, called by `run_server`. If your application is
         served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
 
-        :param dev_tools: If false no tools will be activated.
-        :type dev_tools: bool
-        :param dev_tools_bundles: Serve the dev bundles of component libs.
-        :type dev_tools_bundles: bool
+        :param debug: If false no tools will be activated.
+        :type debug: bool
+        :param dev_tools_serve_bundles: Serve the dev bundles of component libs.
+        :type dev_tools_serve_bundles: bool
         :return:
         """
-        if not dev_tools:
+        if not debug:
             return
-        self._serve_dev_bundle = dev_tools_bundles
+
+        env = _configs.env_configs()
+
+        self._dev_tools['serve_dev_bundles'] = _configs.get_config(
+            'serve_dev_bundles', dev_tools_serve_bundles, env, True)
 
     def run_server(self,
                    port=8050,
                    debug=False,
-                   dev_tools=True,
-                   dev_tools_bundles=True,
+                   dev_tools_serve_dev_bundles=None,
                    **flask_run_options):
         """
         Start the flask server in local mode, you should not run this on a
-        production server and use gunicorn/waitress instead. By default will
-        activate the dev tools (dev bundles).
+        production server and use gunicorn/waitress instead.
 
         :param port: Port the application
         :type port: int
-        :param debug: Set the debug mode of flask.
+        :param debug: Set the debug mode of flask and enable the dev tools.
         :type debug: bool
-        :param dev_tools: Activate all the dev tools.
-        :type dev_tools: bool
-        :param dev_tools_bundles: Serve the dev bundles of component libs.
-        :type dev_tools_bundles: bool
+        :param dev_tools_serve_dev_bundles: Serve the dev bundles of component libs.
+        :type dev_tools_serve_dev_bundles: bool
         :param flask_run_options: Given to `Flask.run`
         :return:
         """
-        self.activate_dev_tools(dev_tools, dev_tools_bundles)
-        self.server.run(port=port, debug=dev_tools or debug,
+        self.enable_dev_tools(debug, dev_tools_serve_dev_bundles)
+        self.server.run(port=port, debug=debug,
                         **flask_run_options)
