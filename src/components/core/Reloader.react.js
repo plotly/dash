@@ -36,7 +36,6 @@ class Reloader extends React.Component {
                 return;
             }
             if (reloadRequest.content.reloadHash !== this.state.hash) {
-                window.clearInterval(this._intervalId);
                 if (reloadRequest.content.hard
                     || reloadRequest.content.packages.length !== this.state.length
                     || !R.all(R.map(x => R.contains(x, this.state.packages),
@@ -83,9 +82,10 @@ class Reloader extends React.Component {
                         // we just change the hash.
                         this.setState({
                             hash: reloadRequest.content.reloadHash
-                        })
+                        });
                     }
                 } else {
+                    window.clearInterval(this.state.intervalId);
                     dispatch({'type': 'RELOAD'});
                 }
             }
