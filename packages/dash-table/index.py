@@ -6,9 +6,12 @@ import dash_table
 import logging
 import os
 
+
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 app = dash.Dash(__name__)
+app.config['suppress_callback_exceptions'] = True
+
 server = app.server
 
 apps = {
