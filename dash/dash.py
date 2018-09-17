@@ -1000,13 +1000,18 @@ class Dash(object):
         :type dev_tools_serve_bundles: bool
         :return:
         """
+        env = _configs.env_configs()
+        debug = debug or _configs.get_config('debug', None, env, debug,
+                                             is_bool=True)
+
         if not debug:
             return
 
-        env = _configs.env_configs()
-
         self._dev_tools['serve_dev_bundles'] = _configs.get_config(
-            'serve_dev_bundles', dev_tools_serve_bundles, env, True)
+            'serve_dev_bundles', dev_tools_serve_bundles, env,
+            default=True,
+            is_bool=True
+        )
 
     def run_server(self,
                    port=8050,
