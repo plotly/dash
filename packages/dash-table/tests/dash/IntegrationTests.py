@@ -63,7 +63,9 @@ class IntegrationTests(unittest.TestCase):
             processes = 4
 
         def run():
-            app.run_server(port=8050, debug=False, processes=processes, threaded=False)
+            app.run_server(
+                port=8050, debug=False, processes=processes, threaded=False
+            )
 
         def run_windows():
             @app.server.route("/stop")
