@@ -84,13 +84,19 @@ jobs:
             - image: circleci/python:3.6-stretch-browsers
 
         environment:
-            PERCY_ENABLED: False
+            PERCY_ENABLED: True
+            PERCY_PROJECT: plotly/dash-table-python
 
         steps:
             - checkout
 
+            - run:
+                name: Inject Percy Environment variables
+                command: |
+                  echo 'export PERCY_TOKEN="$PERCY_PYTHON_TOKEN"' >> $BASH_ENV
+
             - restore_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "tests/requirements.txt" }}
+                key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
 
             - run:
                 name: Create virtualenv
@@ -101,26 +107,33 @@ jobs:
                 name: Install requirements
                 command: |
                     . venv/bin/activate
-                    pip install -r .circleci/python-requirements.txt --quiet
+                    pip install -r requirements.txt --quiet
 
             - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum ".circleci/python-requirements.txt" }}
+                key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
                 paths:
                     - "venv"
+
+            - run:
+                name: Run black
+                command: |
+                    . venv/bin/activate
+                    black tests/dash --check
+                when: always
 
             - run:
                 name: Run pylint
                 command: |
                     . venv/bin/activate
-                    pylint usage.py tests
+                    flake8 tests.dash
                 when: always
 
             - run:
-                name: Run flake8
+                name: Run integration tests
                 command: |
-                    . venv/bin/activate
-                    flake8 usage.py tests
-                when: always
+                  . venv/bin/activate
+                  python -m unittest tests.test_integration
+
 
 
 workflows:
