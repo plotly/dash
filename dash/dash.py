@@ -996,7 +996,7 @@ class Dash(object):
 
         :param debug: If false no tools will be activated.
         :type debug: bool
-        :param dev_tools_serve_bundles: Serve the dev bundles of component libs.
+        :param dev_tools_serve_bundles: Serve the dev bundles of component libs
         :type dev_tools_serve_bundles: bool
         :return:
         """
@@ -1021,7 +1021,7 @@ class Dash(object):
         :type port: int
         :param debug: Set the debug mode of flask and enable the dev tools.
         :type debug: bool
-        :param dev_tools_serve_dev_bundles: Serve the dev bundles of component libs.
+        :param dev_tools_serve_dev_bundles: Serve the dev bundles of components
         :type dev_tools_serve_dev_bundles: bool
         :param flask_run_options: Given to `Flask.run`
         :return:

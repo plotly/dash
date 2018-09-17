@@ -48,8 +48,7 @@ class IntegrationTests(unittest.TestCase):
                 port=8050,
                 debug=False,
                 processes=4,
-                threaded=False,
-                dev_tools=False
+                threaded=False
             )
 
         # Run on a separate process so that it doesn't block
