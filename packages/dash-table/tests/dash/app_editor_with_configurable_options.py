@@ -7,6 +7,8 @@ import pandas as pd
 import dash_table
 from index import app
 
+df = pd.read_csv("./datasets/gapminder.csv")
+
 
 def layout():
     return html.Div(
@@ -98,7 +100,6 @@ def layout():
     ],
 )
 def update_table(*args):
-    df = pd.read_csv("./datasets/gapminder.csv")
     return dash_table.Table(
         id=__name__,
         columns=[{"name": i, "id": i} for i in df.columns],
