@@ -16,6 +16,7 @@ decorator==4.3.0
 flake8==3.5.0
 Flask==1.0.2
 Flask-Compress==1.4.0
+gunicorn==19.9.0
 idna==2.7
 ipdb==0.11
 ipython==6.5.0
