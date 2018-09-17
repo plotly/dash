@@ -29,11 +29,3 @@ def layout():
         ],
         merge_duplicate_headers=True,
     )
-
-
-if __name__ == "__main__":
-    import dash
-
-    app = dash.Dash()
-    app.layout = layout()
-    app.run_server(debug=True)
