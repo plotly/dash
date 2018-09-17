@@ -241,6 +241,7 @@ class Dash(object):
         self._lock = threading.RLock()
         self._watch_thread = None
         self._hot_reload = hot_reload
+        self._changed_assets = []
 
         if hot_reload:
             self._watch_thread = threading.Thread(
@@ -335,14 +336,17 @@ class Dash(object):
 
     def serve_reload_hash(self):
         hard = self._hard_reload
+        changed = self._changed_assets
         self._lock.acquire()
         self._hard_reload = False
+        self._changed_assets = []
         self._lock.release()
 
         return flask.jsonify({
             'reloadHash': self._reload_hash,
             'hard': hard,
-            'packages': self.registered_paths.keys()
+            'packages': self.registered_paths.keys(),
+            'files': list(changed)
         })
 
     def serve_routes(self):
@@ -1084,14 +1088,19 @@ class Dash(object):
         return debug
 
     # noinspection PyProtectedMember
-    def _on_assets_change(self, filename, _, deleted):
-        # The `_` argument is the time modified, to be used later.
+    def _on_assets_change(self, filename, modified, deleted):
         self._lock.acquire()
-        self._hard_reload = True  # filename.endswith('js')
+        self._hard_reload = True
         self._reload_hash = _generate_hash()
 
         asset_path = filename.replace(self._assets_folder, '')\
             .replace('\\', '/').lstrip('/')
+
+        self._changed_assets.append({
+            'url': self.get_asset_url(asset_path),
+            'modified': int(modified),
+            'is_css': filename.endswith('css')
+        })
 
         if filename not in self._assets_files and not deleted:
             res = self._add_assets_resource(asset_path, filename)
