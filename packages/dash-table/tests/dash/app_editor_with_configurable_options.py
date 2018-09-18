@@ -47,7 +47,7 @@ CONTROLS = [
     html.Label("Row Selectable"),
     dcc.RadioItems(
         id="row_selectable",
-        options=[{"label": str(i), "value": i} for i in ["single", "multi"]],
+        options=[{"label": str(i), "value": i} for i in ["single", "multi", False]],
         value="single",
     ),
     html.Label("Virtualization"),
