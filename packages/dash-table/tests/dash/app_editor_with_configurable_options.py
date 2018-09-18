@@ -114,7 +114,7 @@ def update_table(*args):
     return dash_table.Table(
         id=__name__,
         columns=[{"name": i, "id": i} for i in df.columns],
-        dataframe=df.to_dict("rows"),
+        dataframe=rows,
         editable=args[0],
         sorting=args[1],
         sorting_type=args[2],
