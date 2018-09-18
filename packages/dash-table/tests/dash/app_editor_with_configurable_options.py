@@ -77,8 +77,8 @@ def layout():
                     [
                         html.Div(
                             CONTROLS,
-                            style={"maxHeight": "50vh", "overflowY": "scroll"},
-                        ),
+                            style={"maxHeight": "100vh", "overflowY": "scroll"},
+                        )
                     ]
                 ),
             ),
@@ -86,9 +86,9 @@ def layout():
                 className="four columns",
                 children=html.Div(
                     id="output",
-                    style={"maxHeight": "50vh", "overflowY": "scroll"},
-                )
-            )
+                    style={"maxHeight": "100vh", "overflowY": "scroll"},
+                ),
+            ),
         ],
     )
 
