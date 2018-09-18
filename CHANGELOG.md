@@ -1,3 +1,8 @@
+## 0.26.6 - 2018-09-18
+## Fixed
+- Added `Cache-Control` headers to files served by `Dash.serve_components_suites`. [#387](https://github.com/plotly/dash/pull/387)
+- Added time modified query string to collected components suites resources.
+
 ## 0.26.5 - 2018-09-10
 ## Fixed
 - Fix `get_asset_url` with a different `assets_url_path`. [#374](https://github.com/plotly/dash/pull/374)
