@@ -88,6 +88,7 @@ class Dash(object):
             external_stylesheets=None,
             hot_reload=False,
             hot_reload_interval=3000,
+            hot_reload_watch_interval=0.5,
             suppress_callback_exceptions=None,
             components_cache_max_age=None,
             **kwargs):
@@ -245,9 +246,11 @@ class Dash(object):
 
         if hot_reload:
             self._watch_thread = threading.Thread(
-                target=lambda: _watch.watch([self._assets_folder],
-                                            self._on_assets_change,
-                                            sleep_time=0.5))
+                target=lambda: _watch.watch(
+                    [self._assets_folder],
+                    self._on_assets_change,
+                    sleep_time=hot_reload_watch_interval)
+            )
             self._watch_thread.daemon = True
             self._watch_thread.start()
 
