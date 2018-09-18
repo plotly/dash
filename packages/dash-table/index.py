@@ -10,7 +10,7 @@ import os
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 app = dash.Dash(
-    __name__, external_scripts=["https://codepen.io/chriddyp/pen/dZVMbK.css"]
+    __name__, external_stylesheets=["https://codepen.io/chriddyp/pen/dZVMbK.css"]
 )
 app.config["suppress_callback_exceptions"] = True
 
