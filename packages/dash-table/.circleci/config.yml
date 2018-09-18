@@ -33,10 +33,10 @@ jobs:
                 name: Install requirements
                 command: |
                     . venv/bin/activate
-                    pip install -r .circleci/python-requirements.txt --quiet
+                    pip install -r requirements.txt --quiet
 
             - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum ".circleci/python-requirements.txt" }}
+                key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
                 paths:
                     - "venv"
 
