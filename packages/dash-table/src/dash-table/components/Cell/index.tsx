@@ -28,6 +28,7 @@ import {
     KEY_CODES
 } from 'dash-table/utils/unicode';
 import { ColumnId } from 'dash-table/components/Table/props';
+import dropdownHelper from 'dash-table/components/dropdownHelper';
 
 export default class Cell extends Component<ICellProps, ICellState> {
     private static readonly dropdownAstCache = memoizerCache<[string, ColumnId, number], [string], SyntaxTree>(
@@ -253,27 +254,10 @@ export default class Cell extends Component<ICellProps, ICellState> {
     handleOpenDropdown = () => {
         const { dropdown, td }: { [key: string]: any } = this.refs;
 
-        const menu: HTMLElement = dropdown.wrapper.querySelector('.Select-menu-outer');
-        const parentBounds = td.getBoundingClientRect();
-
-        let relativeParent = menu;
-        while (getComputedStyle(relativeParent).position !== 'relative') {
-            if (!relativeParent.parentElement) {
-                break;
-            }
-
-            relativeParent = relativeParent.parentElement;
-        }
-
-        const relativeBounds = relativeParent.getBoundingClientRect();
-
-        const left = (parentBounds.left - relativeBounds.left) + relativeParent.scrollLeft;
-        const top = (parentBounds.top - relativeBounds.top) + relativeParent.scrollTop + parentBounds.height;
-
-        menu.style.width = `${parentBounds.width}px`;
-        menu.style.top = `${top}px`;
-        menu.style.left = `${left}px`;
-        menu.style.position = 'absolute';
+        dropdownHelper(
+            dropdown.wrapper.querySelector('.Select-menu-outer'),
+            td
+        );
     }
 
     componentWillReceiveProps(nextProps: ICellPropsWithDefaults) {

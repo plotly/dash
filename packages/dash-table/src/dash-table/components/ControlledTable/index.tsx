@@ -19,6 +19,7 @@ import lexer from 'core/syntax-tree/lexer';
 import TableClipboardHelper from 'dash-table/utils/TableClipboardHelper';
 import CellFactory from 'dash-table/components/CellFactory';
 import { ControlledTableProps, Columns, RowSelection } from 'dash-table/components/Table/props';
+import dropdownHelper from 'dash-table/components/dropdownHelper';
 import HeaderFilterFactory from 'dash-table/components/FilterFactory';
 
 const sortNumerical = R.sort<number>((a, b) => a - b);
@@ -96,6 +97,7 @@ export default class ControlledTable extends Component<ControlledTableProps> {
 
     componentDidUpdate() {
         this.handleResize();
+        this.handleDropdown();
     }
 
     handleClickOutside = (event: any) => {
@@ -582,11 +584,11 @@ export default class ControlledTable extends Component<ControlledTableProps> {
         if (deletable) {
 
             this.stylesheet.setRule(
-                `.dash-spreadsheet td.column-${typeIndex}`,
+                `.dash-spreadsheet-inner td.column-${typeIndex}`,
                 `width: 30px; max-width: 30px; min-width: 30px;`
             );
             this.stylesheet.setRule(
-                `.dash-spreadsheet th.column-${typeIndex}`,
+                `.dash-spreadsheet-inner th.column-${typeIndex}`,
                 `width: 30px; max-width: 30px; min-width: 30px;`
             );
 
@@ -595,11 +597,11 @@ export default class ControlledTable extends Component<ControlledTableProps> {
 
         if (selectable) {
             this.stylesheet.setRule(
-                `.dash-spreadsheet td.column-${typeIndex}`,
+                `.dash-spreadsheet-inner td.column-${typeIndex}`,
                 `width: 30px; max-width: 30px; min-width: 30px;`
             );
             this.stylesheet.setRule(
-                `.dash-spreadsheet th.column-${typeIndex}`,
+                `.dash-spreadsheet-inner th.column-${typeIndex}`,
                 `width: 30px; max-width: 30px; min-width: 30px;`
             );
 
@@ -610,11 +612,11 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             const width = Stylesheet.unit(column.width || DEFAULT_CELL_WIDTH, 'px');
 
             this.stylesheet.setRule(
-                `.dash-spreadsheet td.column-${typeIndex}`,
+                `.dash-spreadsheet-inner td.column-${typeIndex}`,
                 `width: ${width}; max-width: ${width}; min-width: ${width};`
             );
             this.stylesheet.setRule(
-                `.dash-spreadsheet th.column-${typeIndex}`,
+                `.dash-spreadsheet-inner th.column-${typeIndex}`,
                 `width: ${width}; max-width: ${width}; min-width: ${width};`
             );
 
@@ -677,11 +679,19 @@ export default class ControlledTable extends Component<ControlledTableProps> {
         ];
     }
 
+    handleDropdown = () => {
+        const { r1c1 } = this.refs as { [key: string]: HTMLElement };
+
+        dropdownHelper(r1c1.querySelector('.Select-menu-outer'));
+    }
+
     onScroll = (ev: any) => {
         const { r0c1 } = this.refs as { [key: string]: HTMLElement };
 
         Logger.trace(`ControlledTable fragment scrolled to (left,top)=(${ev.target.scrollLeft},${ev.target.scrollTop})`);
         r0c1.style.marginLeft = `${-ev.target.scrollLeft}px`;
+
+        this.handleDropdown();
     }
 
     render() {
@@ -697,10 +707,18 @@ export default class ControlledTable extends Component<ControlledTableProps> {
         this.applyStyle(columns, row_deletable, row_selectable);
 
         const classes = [
+            'dash-spreadsheet-inner',
             'dash-spreadsheet',
             ...(n_fixed_rows ? ['freeze-top'] : []),
             ...(n_fixed_columns ? ['freeze-left'] : [])
         ];
+
+        const containerClasses = [
+            'dash-spreadsheet',
+            'dash-spreadsheet-container',
+            ...(n_fixed_rows ? ['freeze-top'] : []),
+            ...(n_fixed_columns ? ['freeze-left'] : [])
+        ]
 
         const cells = this.getCells();
         const grid = this.getFragments(cells, n_fixed_columns, n_fixed_rows);
@@ -711,7 +729,7 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             onKeyDown={this.handleKeyDown}
             onPaste={this.onPaste}
         >
-            <div className='dash-spreadsheet-container'>
+            <div className={containerClasses.join(' ')}>
                 <div className={classes.join(' ')}>
                     {grid.map((row, rowIndex) => (<div
                         key={`r${rowIndex}`}

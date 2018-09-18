@@ -156,3 +156,9 @@
         The default value is ['basic']
 
         Note: This value needs to be consistent with filtering_type
+
+## RC19 - Fix dropdown position & behavior on scroll
+
+    Issue: https://github.com/plotly/dash-table/issues/96
+
+    Limitation: The dropdown in fixed columns behaves differently from the dropdown in the non-fixed portion of the table. Because of layers of overflow & positioning, the dropdown does not show outside of the table is instead part of it. Opening the dropdown in bottom rows will require scrolling vs. displaying on top of the table.

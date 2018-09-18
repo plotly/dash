@@ -4,9 +4,13 @@ import CookieStorage from 'core/storage/Cookie';
 const DASH_DEBUG = 'dash_debug';
 const DASH_LOG = 'dash_log';
 
+interface ISearchParams {
+    get: (key: string) => string | null;
+}
+
 export default class Environment {
-    private static get searchParams() {
-        return new URL(window.location.href).searchParams;
+    private static get searchParams(): ISearchParams {
+        return new URL(window.location.href).searchParams || { get: () => null };
     }
 
     public static get debugLevel(): DebugLevel {
