@@ -222,6 +222,10 @@ class Dash(object):
         self._cached_layout = None
         self.routes = []
 
+        # add a handler for components suites errors to return 404
+        self.server.errorhandler(exceptions.InvalidResourceError)(
+            self._invalid_resources_handler)
+
     @property
     def layout(self):
         return self._layout
@@ -411,14 +415,14 @@ class Dash(object):
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
         if package_name not in self.registered_paths:
-            raise Exception(
+            raise exceptions.InvalidResourceError(
                 'Error loading dependency.\n'
                 '"{}" is not a registered library.\n'
                 'Registered libraries are: {}'
                 .format(package_name, list(self.registered_paths.keys())))
 
         elif path_in_package_dist not in self.registered_paths[package_name]:
-            raise Exception(
+            raise exceptions.InvalidResourceError(
                 '"{}" is registered but the path requested is not valid.\n'
                 'The path requested: "{}"\n'
                 'List of registered paths: {}'
@@ -961,6 +965,9 @@ class Dash(object):
                     self.css.append_css(add_resource(path, full))
                 elif f == 'favicon.ico':
                     self._favicon = path
+
+    def _invalid_resources_handler(self, err):
+        return err.args[0], 404
 
     def get_asset_url(self, path):
         asset = _get_asset_path(
