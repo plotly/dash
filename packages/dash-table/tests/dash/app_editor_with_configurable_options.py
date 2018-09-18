@@ -3,11 +3,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import pandas as pd
+import pprint
 
 import dash_table
 from index import app
 
+
 df = pd.read_csv("./datasets/gapminder.csv")
+df_small = pd.read_csv("./datasets/gapminder-small.csv")
 
 
 def layout():
@@ -95,11 +98,16 @@ def layout():
             "row_selectable",  # 4
             "virtualization",  # 5
             "n_fixed_rows",  # 6
-            "n_fixed_columns",
+            "n_fixed_columns",  # 7
+            "dataset",
         ]
     ],
 )
 def update_table(*args):
+    if args[8] == "1700 Rows":
+        rows = df.to_dict("rows")
+    else:
+        rows = df_small.to_dict("rows")
     return dash_table.Table(
         id=__name__,
         columns=[{"name": i, "id": i} for i in df.columns],
