@@ -68,7 +68,7 @@ def layout():
         className="row",
         children=[
             html.Div(
-                className="eight columns",
+                className="four columns",
                 children=html.Div(id="table-container"),
             ),
             html.Div(
@@ -79,13 +79,16 @@ def layout():
                             CONTROLS,
                             style={"maxHeight": "50vh", "overflowY": "scroll"},
                         ),
-                        html.Div(
-                            id="output",
-                            style={"maxHeight": "50vh", "overflowY": "scroll"},
-                        ),
                     ]
                 ),
             ),
+            html.Div(
+                className="four columns",
+                children=html.Div(
+                    id="output",
+                    style={"maxHeight": "50vh", "overflowY": "scroll"},
+                )
+            )
         ],
     )
 
