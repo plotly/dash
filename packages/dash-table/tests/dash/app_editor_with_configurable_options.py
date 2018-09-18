@@ -13,6 +13,56 @@ df = pd.read_csv("./datasets/gapminder.csv")
 df_small = pd.read_csv("./datasets/gapminder-small.csv")
 
 
+CONTROLS = [
+    html.Label("Dataset"),
+    dcc.RadioItems(
+        id="dataset",
+        options=[{"label": i, "value": i} for i in ["1700 Rows", "13 Rows"]],
+        value="13 Rows",
+    ),
+    html.Label("Editable"),
+    dcc.RadioItems(
+        id="editable",
+        options=[{"label": str(i), "value": i} for i in [True, False]],
+        value=True,
+    ),
+    html.Label("Sorting"),
+    dcc.RadioItems(
+        id="sorting",
+        options=[{"label": str(i), "value": i} for i in ["fe", True, False]],
+        value=True,
+    ),
+    html.Label("Sorting Type"),
+    dcc.RadioItems(
+        id="sorting_type",
+        options=[{"label": str(i), "value": i} for i in ["single", "multi"]],
+        value="single",
+    ),
+    html.Label("Sorting Treat Empty String As None"),
+    dcc.RadioItems(
+        id="sorting_treat_empty_string_as_none",
+        options=[{"label": str(i), "value": i} for i in [True, False]],
+        value=True,
+    ),
+    html.Label("Row Selectable"),
+    dcc.RadioItems(
+        id="row_selectable",
+        options=[{"label": str(i), "value": i} for i in ["single", "multi"]],
+        value="single",
+    ),
+    html.Label("Virtualization"),
+    dcc.RadioItems(
+        id="virtualization",
+        options=[{"label": str(i), "value": i} for i in ["fe", True, False]],
+        value="fe",
+    ),
+    html.Label("Number of Fixed Rows"),
+    html.Div(dcc.Input(id="n_fixed_rows", type="number", value="0")),
+    html.Label("Number of Fixed Columns"),
+    html.Div(dcc.Input(id="n_fixed_columns", type="number", value="0")),
+]
+
+
 def layout():
     return html.Div(
         className="row",
@@ -23,64 +73,18 @@ def layout():
             ),
             html.Div(
                 className="four columns",
-                children=[
-                    html.Label("Editable"),
-                    dcc.RadioItems(
-                        id="editable",
-                        options=[
-                            {"label": str(i), "value": i} for i in [True, False]
-                        ],
-                        value=True,
-                    ),
-                    html.Label("Sorting"),
-                    dcc.RadioItems(
-                        id="sorting",
-                        options=[
-                            {"label": str(i), "value": i}
-                            for i in ["fe", True, False]
-                        ],
-                        value=True,
-                    ),
-                    html.Label("Sorting Type"),
-                    dcc.RadioItems(
-                        id="sorting_type",
-                        options=[
-                            {"label": str(i), "value": i}
-                            for i in ["single", "multi"]
-                        ],
-                        value="single",
-                    ),
-                    html.Label("Sorting Treat Empty String As None"),
-                    dcc.RadioItems(
-                        id="sorting_treat_empty_string_as_none",
-                        options=[
-                            {"label": str(i), "value": i} for i in [True, False]
-                        ],
-                        value=True,
-                    ),
-                    html.Label("Row Selectable"),
-                    dcc.RadioItems(
-                        id="row_selectable",
-                        options=[
-                            {"label": str(i), "value": i}
-                            for i in ["single", "multi"]
-                        ],
-                        value="single",
-                    ),
-                    html.Label("Virtualization"),
-                    dcc.RadioItems(
-                        id="virtualization",
-                        options=[
-                            {"label": str(i), "value": i}
-                            for i in ["fe", True, False]
-                        ],
-                        value="fe",
-                    ),
-                    html.Label("Number of Fixed Rows"),
-                    dcc.Input(id="n_fixed_rows", type="number", value="0"),
-                    html.Label("Number of Fixed Columns"),
-                    dcc.Input(id="n_fixed_columns", type="number", value="0"),
-                ],
+                children=html.Div(
+                    [
+                        html.Div(
+                            CONTROLS,
+                            style={"maxHeight": "50vh", "overflowY": "scroll"},
+                        ),
+                        html.Div(
+                            id="output",
+                            style={"maxHeight": "50vh", "overflowY": "scroll"},
+                        ),
+                    ]
+                ),
             ),
         ],
     )
@@ -120,4 +124,29 @@ def update_table(*args):
         virtualization=args[5],
         n_fixed_rows=args[6],
         n_fixed_columns=args[7],
+    )
+
+
+AVAILABLE_PROPERTIES = dash_table.Table(id="req").available_properties
+
+
+@app.callback(
+    Output("output", "children"),
+    [Input(__name__, prop) for prop in AVAILABLE_PROPERTIES],
+)
+def display_propeties(*args):
+    return html.Div(
+        [
+            html.Details(
+                open=True,
+                children=[
+                    html.Summary(html.Code(prop)),
+                    html.Pre(
+                        str(pprint.pformat(args[i])),
+                        style={"maxHeight": 200, "overflowY": "scroll"},
+                    ),
+                ],
+            )
+            for (i, prop) in enumerate(AVAILABLE_PROPERTIES)
+        ]
     )
