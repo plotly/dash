@@ -511,6 +511,43 @@
           "computed": false
         }
       },
+      "filtering_type": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'basic'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "'basic'",
+          "computed": false
+        }
+      },
+      "filtering_types": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "enum",
+            "value": [
+              {
+                "value": "'basic'",
+                "computed": false
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "['basic']",
+          "computed": false
+        }
+      },
       "sorting": {
         "type": {
           "name": "enum",
@@ -608,11 +645,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
+        "description": ""
       },
       "virtual_dataframe": {
         "type": {

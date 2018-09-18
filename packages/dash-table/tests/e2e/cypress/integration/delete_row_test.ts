@@ -11,7 +11,7 @@ describe('delete', () => {
         });
 
         it('can delete row when sorted', () => {
-            cy.get('tr th.column-2 .filter').click();
+            cy.get('tr th.column-2 .sort').click({ force: true });
             DashTable.getCell(0, 2).within(() => cy.get('.cell-value').should('have.html', '249'));
             DashTable.getDelete(0).click();
             DashTable.getCell(0, 2).within(() => cy.get('.cell-value').should('have.html', '248'));
@@ -28,7 +28,7 @@ describe('delete', () => {
         });
 
         it('can delete row when sorted', () => {
-            cy.get('tr th.column-2 .filter').click();
+            cy.get('tr th.column-2 .sort').click({ force: true });
             DashTable.getCell(0, 2).within(() => cy.get('.cell-value').should('have.html', '4999'));
             DashTable.getDelete(0).click();
             DashTable.getCell(0, 2).within(() => cy.get('.cell-value').should('have.html', '4998'));

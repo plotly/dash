@@ -26,9 +26,8 @@ class App extends Component {
                 //     type: 'dropdown'
                 })),
                 editable: true,
-                filtering: true,
                 sorting: true,
-                n_fixed_rows: 3,
+                n_fixed_rows: 4,
                 n_fixed_columns: 2,
                 merge_duplicate_headers: false,
                 row_deletable: true,
@@ -66,7 +65,7 @@ class App extends Component {
         return (<Table
             setProps={this.setProps}
             {...this.state.tableProps}
-            {...{ filtering: 'fe', filtering_settings: this.state.filter }}
+            {...{ filtering: 'fe' }}
         />);
     }
 }

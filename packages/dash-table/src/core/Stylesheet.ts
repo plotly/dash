@@ -95,6 +95,6 @@ export default class Stylesheet {
         }
 
         this.stylesheet.addRule(selector, css);
-        Logger.debug('stylesheet', selector, css);
+        Logger.trace('stylesheet', selector, css);
     }
 }

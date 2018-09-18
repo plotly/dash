@@ -1,8 +1,14 @@
 import { SortSettings } from 'core/sorting';
 import AbstractVirtualizationStrategy from 'dash-table/virtualization/AbstractStrategy';
 
+export enum FilteringType {
+    Advanced = 'advanced',
+    Basic = 'basic'
+}
+
 export type ActiveCell = CellCoordinates | [];
 export type CellCoordinates = [number, number];
+export type ColumnId = string | number;
 export type Columns = IColumn[];
 export type Dataframe = Datum[];
 export type Datum =  IDatumObject | any;
@@ -16,15 +22,21 @@ export type Sorting = 'fe' | 'be' | boolean;
 export type SortingType = 'multi' | 'single';
 export type Virtualization = 'fe' | 'be' | boolean;
 
-interface IColumn {
-    id: string | number;
+export interface IColumn {
+    id: ColumnId;
     editable?: boolean;
+    name: string;
     options?: { label: string | number, value: any }[]; // legacy
     [key: string]: any;
 }
 
 interface IDatumObject {
     [key: string]: any;
+}
+
+interface IStylesheetRule {
+    selector: string;
+    rule: string;
 }
 
 export interface IVirtualizationSettings {
@@ -53,6 +65,8 @@ interface IProps {
     editable?: boolean;
     filtering?: Filtering;
     filtering_settings?: string;
+    filtering_type?: FilteringType;
+    filtering_types?: FilteringType[];
     merge_duplicate_headers?: boolean;
     navigation?: Navigation;
     n_fixed_columns?: number;
@@ -67,7 +81,7 @@ interface IProps {
     sorting?: Sorting;
     sorting_settings?: SortSettings;
     sorting_type?: SortingType;
-    table_style?: { selector: string, rule: string }[];
+    table_style?: IStylesheetRule[];
     sorting_treat_empty_string_as_none?: boolean;
     virtualization?: Virtualization;
     virtualization_settings?: IVirtualizationSettings;
@@ -84,6 +98,8 @@ interface IDefaultProps {
     editable: boolean;
     filtering: Filtering;
     filtering_settings: string;
+    filtering_type: FilteringType;
+    filtering_types: FilteringType[];
     merge_duplicate_headers: boolean;
     navigation: Navigation;
     n_fixed_columns: number;
@@ -97,7 +113,7 @@ interface IDefaultProps {
     sorting: Sorting;
     sorting_settings: SortSettings;
     sorting_type: SortingType;
-    table_style: { selector: string, rule: string }[];
+    table_style: IStylesheetRule[];
     sorting_treat_empty_string_as_none: boolean;
     virtual_dataframe: Dataframe;
     virtual_dataframe_indices: Indices;

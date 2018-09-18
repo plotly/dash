@@ -11,11 +11,15 @@ import {
 } from 'dash-table/utils/unicode';
 import { selectionCycle } from 'dash-table/utils/navigation';
 
-import HeaderCellFactory, { DEFAULT_CELL_WIDTH } from 'dash-table/components/HeaderCellFactory';
+import HeaderCellFactory, { DEFAULT_CELL_WIDTH } from 'dash-table/components/HeaderFactory';
 import Logger from 'core/Logger';
+import { memoizeOne } from 'core/memoizer';
+import lexer from 'core/syntax-tree/lexer';
+
 import TableClipboardHelper from 'dash-table/utils/TableClipboardHelper';
 import CellFactory from 'dash-table/components/CellFactory';
 import { ControlledTableProps, Columns, RowSelection } from 'dash-table/components/Table/props';
+import HeaderFilterFactory from 'dash-table/components/FilterFactory';
 
 const sortNumerical = R.sort<number>((a, b) => a - b);
 
@@ -27,12 +31,38 @@ interface IAccumulator {
 export default class ControlledTable extends Component<ControlledTableProps> {
     private stylesheet: Stylesheet;
     private cellFactory: CellFactory;
+    private filterFactory: HeaderFilterFactory;
 
     constructor(props: ControlledTableProps) {
         super(props);
 
         this.cellFactory = new CellFactory(() => this.props);
+        this.filterFactory = new HeaderFilterFactory(() => {
+            const { row_deletable, row_selectable } = this.props;
+
+            const offset =
+                (row_deletable ? 1 : 0) +
+                (row_selectable ? 1 : 0);
+
+            return {
+                columns: this.props.columns,
+                filtering: this.props.filtering,
+                filtering_settings: this.props.filtering_settings,
+                filtering_type: this.props.filtering_type,
+                id: this.props.id,
+                offset,
+                setFilter: this.handleSetFilter
+            };
+        });
         this.stylesheet = new Stylesheet(`#${props.id}`);
+    }
+
+    getLexerResult = memoizeOne(lexer);
+
+    get lexerResult() {
+        const { filtering_settings } = this.props;
+
+        return this.getLexerResult(filtering_settings);
     }
 
     componentDidMount() {
@@ -604,12 +634,17 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             null
     )
 
-    getFragments = (fixedColumns: number, fixedRows: number) => {
-        const cells = [
+    handleSetFilter = (filtering_settings: string) => this.props.setProps({ filtering_settings });
+
+    getCells = () => {
+        return [
             ...HeaderCellFactory.createHeaders(this.props),
+            ...this.filterFactory.createFilters(),
             ...this.cellFactory.createCells()
         ];
+    }
 
+    getFragments = (cells: any, fixedColumns: number, fixedRows: number) => {
         // slice out fixed columns
         const fixedColumnCells = fixedColumns ?
             R.map(row =>
@@ -645,7 +680,7 @@ export default class ControlledTable extends Component<ControlledTableProps> {
     onScroll = (ev: any) => {
         const { r0c1 } = this.refs as { [key: string]: HTMLElement };
 
-        Logger.debug(`ControlledTable fragment scrolled to (left,top)=(${ev.target.scrollLeft},${ev.target.scrollTop})`);
+        Logger.trace(`ControlledTable fragment scrolled to (left,top)=(${ev.target.scrollLeft},${ev.target.scrollTop})`);
         r0c1.style.marginLeft = `${-ev.target.scrollLeft}px`;
     }
 
@@ -667,7 +702,8 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             ...(n_fixed_columns ? ['freeze-left'] : [])
         ];
 
-        const grid = this.getFragments(n_fixed_columns, n_fixed_rows);
+        const cells = this.getCells();
+        const grid = this.getFragments(cells, n_fixed_columns, n_fixed_rows);
 
         return (<div
             id={id}

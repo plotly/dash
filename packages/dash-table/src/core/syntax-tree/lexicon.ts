@@ -1,6 +1,18 @@
 import Logger from 'core/Logger';
 import { ISyntaxTree } from 'core/syntax-tree/syntaxer';
 
+export enum LexemeType {
+    And = 'and',
+    BlockClose = 'close-block',
+    BlockOpen = 'open-block',
+    BinaryOperator = 'logical-binary-operator',
+    Expression = 'expression',
+    Or = 'or',
+    Operand = 'operand',
+    UnaryNot = 'unary-not',
+    UnaryOperator = 'logical-unary-operator'
+}
+
 export interface ILexeme {
     evaluate?: (target: any, tree: ISyntaxTree) => boolean;
     resolve?: (target: any, tree: ISyntaxTree) => any;
@@ -57,7 +69,7 @@ const lexicon: ILexeme[] = [
             const rv = t.right.lexeme.evaluate(target, t.right);
             return lv && rv;
         },
-        name: 'and',
+        name: LexemeType.And,
         priority: 2,
         regexp: /^(and\s|&&)/i,
         syntaxer: (lexs: any[], pivot: any, pivotIndex: number) => {
@@ -76,7 +88,7 @@ const lexicon: ILexeme[] = [
             return t.left.lexeme.evaluate(target, t.left) ||
                 t.right.lexeme.evaluate(target, t.right);
         },
-        name: 'or',
+        name: LexemeType.Or,
         priority: 3,
         regexp: /^(or\s|\|\|)/i,
         syntaxer: (lexs: any[], pivot: any, pivotIndex: number) => {
@@ -87,7 +99,7 @@ const lexicon: ILexeme[] = [
         }
     },
     {
-        name: 'close-block',
+        name: LexemeType.BlockClose,
         nesting: -1,
         regexp: /^\)/
     },
@@ -99,7 +111,7 @@ const lexicon: ILexeme[] = [
 
             return t.block.lexeme.evaluate(target, t.block);
         },
-        name: 'open-block',
+        name: LexemeType.BlockOpen,
         nesting: 1,
         priority: 1,
         regexp: /^\(/,
@@ -108,10 +120,10 @@ const lexicon: ILexeme[] = [
                 block: lexs.slice(1, lexs.length - 1)
             }, lexs[0]);
         },
-        when: ['unary-not']
+        when: [LexemeType.UnaryNot]
     },
     Object.assign({
-        name: 'operand'
+        name: LexemeType.Operand
     }, baseOperand),
     {
         evaluate: (target, tree) => {
@@ -146,7 +158,7 @@ const lexicon: ILexeme[] = [
                     throw new Error();
             }
         },
-        name: 'logical-binary-operator',
+        name: LexemeType.BinaryOperator,
         priority: 0,
         regexp: /^(>=|<=|>|<|!=|=|ge|le|gt|lt|eq|ne)/i,
         syntaxer: (lexs: any[]) => {
@@ -154,7 +166,7 @@ const lexicon: ILexeme[] = [
 
             return Object.assign({ left, right }, lexeme);
         },
-        when: ['operand']
+        when: [LexemeType.Operand]
     },
     {
         evaluate: (target, tree) => {
@@ -175,9 +187,7 @@ const lexicon: ILexeme[] = [
                 case 'is num':
                     return typeof opValue === 'number';
                 case 'is object':
-                    return opValue !== null &&
-                        opValue !== undefined &&
-                        typeof opValue === 'object';
+                    return opValue !== null && typeof opValue === 'object';
                 case 'is str':
                     return typeof opValue === 'string';
                 case 'is prime':
@@ -186,7 +196,7 @@ const lexicon: ILexeme[] = [
                     throw new Error();
             }
         },
-        name: 'logical-unary-operator',
+        name: LexemeType.UnaryOperator,
         priority: 0,
         regexp: /^((is nil)|(is odd)|(is even)|(is bool)|(is num)|(is object)|(is str)|(is prime))/i,
         syntaxer: (lexs: any[]) => {
@@ -194,17 +204,17 @@ const lexicon: ILexeme[] = [
 
             return Object.assign({ block }, lexeme);
         },
-        when: ['operand']
+        when: [LexemeType.Operand]
     },
     {
         evaluate: (target, tree) => {
-            Logger.debug('evaluate -> unary not', target, tree);
+            Logger.trace('evaluate -> unary not', target, tree);
 
             const t = tree as any;
 
             return !t.block.lexeme.evaluate(target, t.block);
         },
-        name: 'unary-not',
+        name: LexemeType.UnaryNot,
         priority: 1.5,
         regexp: /^!/,
         syntaxer: (lexs: any[]) => {
@@ -212,11 +222,11 @@ const lexicon: ILexeme[] = [
                 block: lexs.slice(1, lexs.length)
             }, lexs[0]);
         },
-        when: ['unary-not']
+        when: [LexemeType.UnaryNot]
     },
     Object.assign({
-        name: 'expression',
-        when: ['logical-binary-operator']
+        name: LexemeType.Expression,
+        when: [LexemeType.BinaryOperator]
     }, baseOperand)
 ];
 

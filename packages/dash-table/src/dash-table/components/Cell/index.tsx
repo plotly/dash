@@ -27,13 +27,14 @@ import {
 import {
     KEY_CODES
 } from 'dash-table/utils/unicode';
+import { ColumnId } from 'dash-table/components/Table/props';
 
 export default class Cell extends Component<ICellProps, ICellState> {
-    private static readonly dropdownAstCache = memoizerCache<[string, string | number, number], [string], SyntaxTree>(
+    private static readonly dropdownAstCache = memoizerCache<[string, ColumnId, number], [string], SyntaxTree>(
         (query: string) => new SyntaxTree(query)
     );
 
-    private static readonly styleAstCache = memoizerCache<[string, string | number, number], [string], SyntaxTree>(
+    private static readonly styleAstCache = memoizerCache<[string, ColumnId, number], [string], SyntaxTree>(
         (query: string) => new SyntaxTree(query)
     );
 

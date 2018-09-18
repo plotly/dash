@@ -1,6 +1,12 @@
-import { ILexerResult } from 'core/syntax-tree/lexer';
-import { ILexeme } from 'core/syntax-tree/lexicon';
 import Logger from 'core/Logger';
+import { ILexemeResult, ILexerResult } from 'core/syntax-tree/lexer';
+import { ILexeme } from 'core/syntax-tree/lexicon';
+
+export interface ISyntaxerResult {
+    tree?: ISyntaxTree;
+    valid: boolean;
+    error?: string;
+}
 
 export interface ISyntaxTree {
     lexeme: ILexeme;
@@ -10,7 +16,7 @@ export interface ISyntaxTree {
     value: string;
 }
 
-export default function parser(lexs: ILexerResult[]): ISyntaxTree {
+const parser = (lexs: ILexemeResult[]): ISyntaxTree => {
     let nesting = 0;
 
     const nestedLexs = lexs.map(lex => {
@@ -49,4 +55,18 @@ export default function parser(lexs: ILexerResult[]): ISyntaxTree {
     } else {
         throw new Error(pivot.lexeme.name);
     }
-}
+};
+
+export default (lexerResult: ILexerResult): ISyntaxerResult => {
+    const { lexemes } = lexerResult;
+
+    if (!lexerResult.valid) {
+        return { valid: false, error: `lexer -- ${lexerResult.error}` };
+    }
+
+    try {
+        return { tree: parser(lexemes), valid: true };
+    } catch (error) {
+        return { valid: false, error };
+    }
+};

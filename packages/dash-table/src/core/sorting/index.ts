@@ -1,7 +1,9 @@
 import * as R from 'ramda';
 
+import { ColumnId } from 'dash-table/components/Table/props';
+
 export interface ISortSetting {
-    columnId: string | number;
+    columnId: ColumnId;
     direction: SortDirection;
 }
 
@@ -12,11 +14,8 @@ export enum SortDirection {
 }
 
 export type SortSettings = ISortSetting[];
-
 type IsNullyFn = (value: any) => boolean;
-
 export const defaultIsNully: IsNullyFn = (value: any) => value === undefined || value === null;
-
 export default (dataframe: any[], settings: SortSettings, isNully: IsNullyFn = defaultIsNully): any[] => {
     if (!settings.length) {
         return dataframe;

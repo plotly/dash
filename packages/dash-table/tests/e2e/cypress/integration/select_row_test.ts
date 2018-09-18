@@ -10,7 +10,7 @@ describe('delete', () => {
         });
 
         it('can select row when sorted', () => {
-            cy.get('tr th.column-2 .filter').click();
+            cy.get('tr th.column-2 .sort').click({ force: true });
             DashTable.getSelect(0).within(() => cy.get('input').click());
             DashTable.getSelect(0).within(() => cy.get('input').should('be.checked'));
         });
@@ -18,7 +18,7 @@ describe('delete', () => {
         it('select, sort, new row is not selected', () => {
             DashTable.getSelect(0).within(() => cy.get('input').click());
             DashTable.getSelect(0).within(() => cy.get('input').should('be.checked'));
-            cy.get('tr th.column-2 .filter').click();
+            cy.get('tr th.column-2 .sort').click({ force: true });
             DashTable.getSelect(0).within(() => cy.get('input').should('not.be.checked'));
         });
     });
@@ -32,7 +32,7 @@ describe('delete', () => {
         });
 
         it('can select row when sorted', () => {
-            cy.get('tr th.column-2 .filter').click();
+            cy.get('tr th.column-2 .sort').click({ force: true });
             DashTable.getSelect(0).within(() => cy.get('input').click());
             DashTable.getSelect(0).within(() => cy.get('input').should('be.checked'));
         });
@@ -40,7 +40,7 @@ describe('delete', () => {
         it('select, sort, new row is not selected', () => {
             DashTable.getSelect(0).within(() => cy.get('input').click());
             DashTable.getSelect(0).within(() => cy.get('input').should('be.checked'));
-            cy.get('tr th.column-2 .filter').click();
+            cy.get('tr th.column-2 .sort').click({ force: true });
             DashTable.getSelect(0).within(() => cy.get('input').should('not.be.checked'));
         });
     });

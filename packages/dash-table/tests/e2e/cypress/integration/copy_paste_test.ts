@@ -98,7 +98,7 @@ describe('copy paste', () => {
         });
 
         it('BE rountrip with sorted, unfiltered data', () => {
-            cy.get('tr th.column-0 .filter').click();
+            cy.get('tr th.column-0 .sort').click();
 
             DashTable.getCell(0, 0).click();
             DashTable.getCell(0, 0).within(() => cy.get('.cell-value').should('have.value', '249'));

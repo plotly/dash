@@ -1,14 +1,20 @@
 import Lexicon, { ILexeme } from 'core/syntax-tree/lexicon';
 
 export interface ILexerResult {
+    lexemes: ILexemeResult[];
+    valid: boolean;
+    error?: string;
+}
+
+export interface ILexemeResult {
     lexeme: ILexeme;
     value?: string;
 }
 
-export default function lexer(query: string): ILexerResult[] {
+export default function lexer(query: string): ILexerResult {
     let lexeme: ILexeme | null = null;
 
-    let res: ILexerResult[] = [];
+    let result: ILexemeResult[] = [];
     while (query.length) {
         query = query.replace(/^\s+/, '');
 
@@ -23,14 +29,14 @@ export default function lexer(query: string): ILexerResult[] {
 
         lexeme = lexemes.find(_lexeme => _lexeme.regexp.test(query)) || null;
         if (!lexeme) {
-            throw new Error('no matching lexeme');
+            return { lexemes: result, valid: false, error: query };
         }
 
         const value = (query.match(lexeme.regexp) || [])[0];
-        res.push({ lexeme, value });
+        result.push({ lexeme, value });
 
         query = query.substring(value.length);
     }
 
-    return res;
+    return { lexemes: result, valid: true };
 }

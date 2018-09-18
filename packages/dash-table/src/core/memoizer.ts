@@ -1,6 +1,5 @@
 import { isEqualArgs } from 'core/comparer';
-
-type ResultFn<TArgs extends any[], TEntry> = (...args: TArgs) => TEntry;
+import { ResultFn } from 'core/generic';
 
 export function memoizeOne<
     TArgs extends any[],

@@ -7,19 +7,18 @@ import multiUpdateSettings from 'core/sorting/multi';
 import singleUpdateSettings from 'core/sorting/single';
 
 import * as actions from 'dash-table/utils/actions';
-import { RowSelection, SetProps, SortingType } from 'dash-table/components/Table/props';
+import { ColumnId, Columns, Dataframe, RowSelection, SetProps, SortingType } from 'dash-table/components/Table/props';
 
 export const DEFAULT_CELL_WIDTH = 200;
 
 interface ICellOptions {
-    columns: any[];
+    columns: Columns;
     columnRowIndex: any;
-    dataframe: any;
+    dataframe: Dataframe;
     labels: any[];
     mergeCells?: boolean;
     n_fixed_columns: number;
-    row_deletable: boolean;
-    row_selectable: RowSelection;
+    offset: number;
     rowSorting: string | boolean;
     setProps: SetProps;
     sorting_settings: SortSettings;
@@ -28,8 +27,8 @@ interface ICellOptions {
 }
 
 interface IOptions {
-    columns: any[];
-    dataframe: any;
+    columns: Columns;
+    dataframe: Dataframe;
     mergeCells?: boolean;
     merge_duplicate_headers: boolean;
     n_fixed_columns: number;
@@ -61,13 +60,13 @@ function deleteColumn(column: any, columnRowIndex: any, options: ICellOptions) {
 }
 
 export default class HeaderFactory {
-    private static getSorting(columnId: string | number, settings: SortSettings): SortDirection {
+    private static getSorting(columnId: ColumnId, settings: SortSettings): SortDirection {
         const setting = R.find(s => s.columnId === columnId, settings);
 
         return setting ? setting.direction : SortDirection.None;
     }
 
-    private static doSort(columnId: string | number, options: ICellOptions) {
+    private static doSort(columnId: ColumnId, options: ICellOptions) {
         return () => {
             const { sorting_settings, sorting_type } = options;
 
@@ -98,7 +97,7 @@ export default class HeaderFactory {
         };
     }
 
-    private static getSortingIcon(columnId: string | number, options: ICellOptions) {
+    private static getSortingIcon(columnId: ColumnId, options: ICellOptions) {
         const { sorting_settings } = options;
 
         switch (HeaderFactory.getSorting(columnId, sorting_settings)) {
@@ -119,8 +118,7 @@ export default class HeaderFactory {
             labels,
             mergeCells,
             n_fixed_columns,
-            row_deletable,
-            row_selectable,
+            offset,
             rowSorting,
             virtualization
         } = options;
@@ -145,17 +143,13 @@ export default class HeaderFactory {
 
         const visibleColumns = columns.filter(column => !column.hidden);
 
-        const columnIndexOffset =
-            (row_deletable ? 1 : 0) +
-            (row_selectable ? 1 : 0);
-
         return R.filter(column => !!column, columnIndices.map((columnId, spanId) => {
             const c = columns[columnId];
             if (c.hidden) {
                 return null;
             }
 
-            const visibleIndex = visibleColumns.indexOf(c) + columnIndexOffset;
+            const visibleIndex = visibleColumns.indexOf(c) + offset;
 
             let colSpan: number;
             if (!mergeCells) {
@@ -181,7 +175,7 @@ export default class HeaderFactory {
                 !column.hidden &&
                 index >= visibleColumnId &&
                 index < visibleColumnId + colSpan &&
-                index + columnIndexOffset < n_fixed_columns
+                index + offset < n_fixed_columns
             );
 
             // Calculate the width of all those columns combined
@@ -191,7 +185,7 @@ export default class HeaderFactory {
                 key={`header-cell-${columnId}`}
                 colSpan={colSpan}
                 className={
-                    `column-${columnId + columnIndexOffset} ` +
+                    `column-${columnId + offset} ` +
                     (columnId === columns.length - 1 || columnId === R.last(columnIndices) ? 'cell--right-last ' : '')
                     // (visibleIndex < n_fixed_columns ? `frozen-left frozen-left-${visibleIndex}` : '')
 
@@ -204,7 +198,7 @@ export default class HeaderFactory {
             >
                 {rowSorting ? (
                     <span
-                        className='filter'
+                        className='sort'
                         onClick={HeaderFactory.doSort(c.id, options)}
                     >
                         {HeaderFactory.getSortingIcon(c.id, options)}
@@ -279,13 +273,18 @@ export default class HeaderFactory {
             virtualization
         } = options;
 
+        const offset =
+            (row_deletable ? 1 : 0) +
+            (row_selectable ? 1 : 0);
+
         const deletableCell = this.createDeletableHeader(options);
         const selectableCell = this.createSelectableHeader(options);
 
         const headerDepth = Math.max.apply(Math, columns.map(getColLength));
 
+        let headers: any[][];
         if (headerDepth === 1) {
-            return [[
+            headers = [[
                 ...(deletableCell ? [deletableCell] : []),
                 ...(selectableCell ? [selectableCell] : []),
                 ...(HeaderFactory.createHeaderCells({
@@ -294,8 +293,7 @@ export default class HeaderFactory {
                     dataframe,
                     labels: R.pluck('name', columns),
                     n_fixed_columns,
-                    row_deletable,
-                    row_selectable,
+                    offset,
                     rowSorting: sorting,
                     setProps,
                     sorting_settings,
@@ -304,7 +302,7 @@ export default class HeaderFactory {
                 }))
             ]];
         } else {
-            return R.range(0, headerDepth).map(i => ([
+            headers = R.range(0, headerDepth).map(i => ([
                 ...(deletableCell ? [deletableCell] : []),
                 ...(selectableCell ? [selectableCell] : []),
                 ...(HeaderFactory.createHeaderCells({
@@ -318,8 +316,7 @@ export default class HeaderFactory {
                                 : getColNameAt(c, i)
                     ),
                     n_fixed_columns,
-                    row_deletable,
-                    row_selectable,
+                    offset,
                     rowSorting: !!sorting && i + 1 === headerDepth,
                     mergeCells:
                         merge_duplicate_headers &&
@@ -331,5 +328,7 @@ export default class HeaderFactory {
                 }))
             ]));
         }
+
+        return headers;
     }
 }

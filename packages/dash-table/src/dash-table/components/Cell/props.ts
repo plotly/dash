@@ -6,6 +6,7 @@ import {
     IDropdownOptions,
     IStyle
 } from 'dash-table/components/Cell/types';
+import { ColumnId } from 'dash-table/components/Table/props';
 
 export interface ICellProps {
     active: boolean;
@@ -20,7 +21,7 @@ export interface ICellProps {
     onClick: (e: React.MouseEvent) => void;
     onDoubleClick: (e: React.MouseEvent) => void;
     onPaste: (e: React.ClipboardEvent<Element>) => void;
-    property: string | number;
+    property: ColumnId;
     selected: boolean;
     staticDropdown?: IDropdownOptions;
     staticStyle?: IStyle;
