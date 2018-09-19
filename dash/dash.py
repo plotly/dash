@@ -1012,6 +1012,7 @@ class Dash(object):
             default=True,
             is_bool=True
         )
+        return debug
 
     def run_server(self,
                    port=8050,
@@ -1031,6 +1032,6 @@ class Dash(object):
         :param flask_run_options: Given to `Flask.run`
         :return:
         """
-        self.enable_dev_tools(debug, dev_tools_serve_dev_bundles)
+        debug = self.enable_dev_tools(debug, dev_tools_serve_dev_bundles)
         self.server.run(port=port, debug=debug,
                         **flask_run_options)
