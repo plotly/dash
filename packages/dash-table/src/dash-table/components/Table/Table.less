@@ -12,6 +12,42 @@
         0px @bottom 0px 0px @color;
 }
 
+.top-left-cells() {
+    .left-cells();
+    .top-cells();
+
+    tr:first-of-type {
+        td:first-of-type,
+        th:first-of-type {
+            .inset-shadow(var(--border), 1px, 1px, -1px, -1px);
+        }
+    }
+}
+
+.top-cells() {
+    tr:first-of-type {
+        td, th {
+            .inset-shadow(var(--border), 0px, 1px, -1px, -1px);
+        }
+    }
+}
+
+.left-cells() {
+    tr {
+        td:first-of-type,
+        th:first-of-type {
+            .inset-shadow(var(--border), 1px, 0px, -1px, -1px);
+        }
+    }
+}
+
+.fit-content-polyfill() {
+    width: auto; // MS Edge, IE
+    width: fit-content; // Chrome
+    width: -moz-fit-content; // Firefox
+    width: -webkit-fit-content; // Safari
+}
+
 .not-selectable() {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -24,11 +60,13 @@
 
 .dash-spreadsheet {
     &.freeze-left {
-        width: 500px;
+        .fit-content-polyfill();
+        max-width: 500px;
     }
 
     &.freeze-top {
-        height: 500px;
+        .fit-content-polyfill();
+        max-height: 500px;
     }
 }
 
@@ -40,8 +78,6 @@
 
 .dash-spreadsheet-inner {
     box-sizing: border-box;
-    border-left: lightgrey 1px solid;
-    border-top: lightgrey 1px solid;
     display: flex;
     flex-direction: column;
 
@@ -105,6 +141,46 @@
         z-index: 400;
     }
 
+    &:not(.freeze-top):not(.freeze-left) {
+        .cell-1-1 {
+            .top-left-cells();
+        }
+    }
+
+    &:not(.freeze-top).freeze-left {
+        .cell-1-0 {
+            .top-left-cells();
+        }
+
+        .cell-1-1 {
+            .top-cells();
+        }
+    }
+
+    &.freeze-top:not(.freeze-left) {
+        .cell-0-1 {
+            .top-left-cells();
+        }
+
+        .cell-1-1 {
+            .left-cells();
+        }
+    }
+
+    &.freeze-top.freeze-left {
+        .cell-0-0 {
+            .top-left-cells();
+        }
+
+        .cell-0-1 {
+            .top-cells();
+        }
+
+        .cell-1-0 {
+            .left-cells();
+        }
+    }
+
     .cell-0-1 {
         z-index: 300;
         flex: 0 0 auto;
@@ -120,10 +196,6 @@
 
             &:focus {
                 outline: none;
-            }
-
-            &.focused + td {
-                .inset-shadow(var(--border), 0px, 0px, -1px, -1px);
             }
         }
     }
