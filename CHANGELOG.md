@@ -1,7 +1,9 @@
-## 0.26.6 - 2018-09-18
+## 0.26.6 - 2018-09-19
 ## Fixed
-- Added `Cache-Control` headers to files served by `Dash.serve_components_suites`. [#387](https://github.com/plotly/dash/pull/387)
+- Added `Cache-Control` headers to files served by `Dash.serve_component_suites`. [#387](https://github.com/plotly/dash/pull/387)
 - Added time modified query string to collected components suites resources.
+- Added `InvalidResourceError`. [#393](https://github.com/plotly/dash/pull/393)
+- Added a flask errorhandler to catch `InvalidResourceError` from `serve_component_suites` and return a 404.
 
 ## 0.26.5 - 2018-09-10
 ## Fixed
