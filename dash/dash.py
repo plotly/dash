@@ -86,6 +86,7 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             suppress_callback_exceptions=None,
+            components_cache_max_age=None,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -136,6 +137,9 @@ class Dash(object):
                 True),
             'assets_external_path': _configs.get_config(
                 'assets_external_path', assets_external_path, env_configs, ''),
+            'components_cache_max_age': int(_configs.get_config(
+                'components_cache_max_age', components_cache_max_age,
+                env_configs, 2678400))
         })
 
         # list of dependencies
@@ -302,11 +306,18 @@ class Dash(object):
             else:
                 self.registered_paths[namespace] = [relative_package_path]
 
-            return '{}_dash-component-suites/{}/{}?v={}'.format(
+            module_path = os.path.join(
+                os.path.dirname(sys.modules[namespace].__file__),
+                relative_package_path)
+
+            modified = int(os.stat(module_path).st_mtime)
+
+            return '{}_dash-component-suites/{}/{}?v={}&m={}'.format(
                 self.config['requests_pathname_prefix'],
                 namespace,
                 relative_package_path,
-                importlib.import_module(namespace).__version__
+                importlib.import_module(namespace).__version__,
+                modified
             )
 
         srcs = []
@@ -422,9 +433,16 @@ class Dash(object):
             'js': 'application/JavaScript',
             'css': 'text/css'
         })[path_in_package_dist.split('.')[-1]]
+
+        headers = {
+            'Cache-Control': 'public, max-age={}'.format(
+                self.config.components_cache_max_age)
+        }
+
         return Response(
             pkgutil.get_data(package_name, path_in_package_dist),
-            mimetype=mimetype
+            mimetype=mimetype,
+            headers=headers
         )
 
     def index(self, *args, **kwargs):  # pylint: disable=unused-argument
@@ -435,7 +453,7 @@ class Dash(object):
         title = getattr(self, 'title', 'Dash')
         if self._favicon:
             favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
-                flask.url_for('assets.static', filename=self._favicon))
+                self.get_asset_url(self._favicon))
         else:
             favicon = ''
 
