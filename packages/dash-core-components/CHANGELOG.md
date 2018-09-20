@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.30.1] - 2018-09-20
+### Fixed
+- Renamed `__init__.py` external_path to dash_core_components.min.js
+
 ## [0.30.0] - 2018-09-20
 ### Added
 - Unminified dev bundle support. [#293](https://github.com/plotly/dash-core-components/pull/293)
