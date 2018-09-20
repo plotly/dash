@@ -449,7 +449,6 @@ class Dash(object):
                 self.config.components_cache_max_age)
         }
 
-
         return Response(
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype,
