@@ -40,7 +40,7 @@ _js_dist = [
         "dev_package_path": '{}.dev.js'.format(__name__),
         "external_url": (
             "https://unpkg.com/dash-html-components@{}"
-            "/dash_html_components/bundle.js"
+            "/dash_html_components/dash_html_components.min.js"
         ).format(__version__),
         "namespace": "dash_html_components"
     }
