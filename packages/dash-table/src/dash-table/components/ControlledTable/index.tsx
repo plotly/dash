@@ -103,7 +103,14 @@ export default class ControlledTable extends Component<ControlledTableProps> {
     handleClickOutside = (event: any) => {
         const $el = this.$el;
 
-        if ($el && !$el.contains(event.target as Node)) {
+        if ($el &&
+            !$el.contains(event.target as Node) &&
+            /*
+             * setProps is expensive, it causes excessive re-rendering in Dash.
+             * so, only call when the table isn't already focussed, otherwise
+             * the app will excessively re-render on _every click on the page_
+             */
+            this.props.is_focused) {
             this.props.setProps({ is_focused: false });
         }
     }
