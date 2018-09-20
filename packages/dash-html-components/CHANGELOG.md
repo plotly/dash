@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.13.0] - 2018-09-20
+### Added
+- Unminified dev bundle support. [#64](https://github.com/plotly/dash-html-components/pull/64)
+
 ## Unreleased
 
 ## [0.12.0] - 2018-06-01

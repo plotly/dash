@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -20,12 +20,13 @@
     "generate-python-classes": "python -c 'import dash; dash.development.component_loader.generate_classes(\"dash_html_components\", \"dash_html_components/metadata.json\")'",
     "generate-components": "cd scripts && sh generate-all.sh && cd -",
     "install-local": "npm run copy-lib && python setup.py install",
-    "prepublish": "npm run clean && npm run generate-components && npm test && npm run build:js && npm run build:py",
+    "prepublish": "npm run clean && npm run generate-components && npm test && npm run build:js && npm run build:js-dev && npm run build:py",
     "publish-all": "npm publish && python setup.py sdist upload",
-    "start": "./node_modules/.bin/builder run build-dev",
-    "test": "./node_modules/.bin/eslint --fix src",
+    "start": "webpack-serve ./webpack.serve.config.js --open",
+    "test": "eslint --fix src",
     "uninstall-local": "pip uninstall dash-html-components -y",
     "build:js": "webpack --mode production",
+    "build:js-dev": "webpack --mode development",
     "build:py": "node ./extract-meta src/components > dash_html_components/metadata.json && cp package.json dash_html_components && npm run generate-python-classes"
   },
   "author": "Chris Parmer <chris@plot.ly>",
