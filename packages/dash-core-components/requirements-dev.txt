@@ -1,4 +1,4 @@
-dash_html_components
+dash_html_components==0.12.0rc3
 dash_renderer
 dash
 percy

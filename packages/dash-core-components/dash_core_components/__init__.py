@@ -40,7 +40,8 @@ _js_dist = [
         'namespace': 'dash_core_components'
     },
     {
-        'relative_package_path': 'bundle.js',
+        'relative_package_path': '{}.min.js'.format(__name__),
+        'dev_package_path': '{}.dev.js'.format(__name__),
         'external_url': (
             'https://unpkg.com/dash-core-components@{}'
             '/dash_core_components/bundle.js'
