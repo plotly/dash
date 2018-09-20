@@ -211,7 +211,7 @@ class Dash(object):
             self.config['routes_pathname_prefix'],
             self.index)
 
-        # catch-all for front-end routes
+        # catch-all for front-end routes, used by dcc.Location
         add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
             self.index)
