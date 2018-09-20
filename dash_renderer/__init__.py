@@ -77,7 +77,7 @@ _js_dist = [
         'dev_package_path': '{}.dev.js'.format(__name__),
         "external_url": (
             'https://unpkg.com/dash-renderer@{}'
-            '/dash_renderer/bundle.js'
+            '/dash_renderer/dash_renderer.min.js'
         ).format(__version__),
         'namespace': 'dash_renderer'
     }
