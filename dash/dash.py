@@ -987,7 +987,7 @@ class Dash(object):
 
     def enable_dev_tools(self,
                          debug=False,
-                         dev_tools_serve_bundles=None):
+                         dev_tools_serve_dev_bundles=None):
         """
         Activate the dev tools, called by `run_server`. If your application is
         served by wsgi and you want to activate the dev tools, you can call
@@ -995,8 +995,8 @@ class Dash(object):
 
         :param debug: If false no tools will be activated.
         :type debug: bool
-        :param dev_tools_serve_bundles: Serve the dev bundles of component libs
-        :type dev_tools_serve_bundles: bool
+        :param dev_tools_serve_dev_bundles: Serve the dev bundles.
+        :type dev_tools_serve_dev_bundles: bool
         :return:
         """
         env = _configs.env_configs()
@@ -1004,7 +1004,7 @@ class Dash(object):
                                              is_bool=True)
 
         self._dev_tools['serve_dev_bundles'] = _configs.get_config(
-            'serve_dev_bundles', dev_tools_serve_bundles, env,
+            'serve_dev_bundles', dev_tools_serve_dev_bundles, env,
             default=debug,
             is_bool=True
         )
