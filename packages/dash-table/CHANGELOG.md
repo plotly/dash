@@ -171,3 +171,14 @@
 
     - frozen rows: { height: 500px } to { height: fit-content, max-height: 500px }
     - frozen columns: { width: 500px } to { width: fit-content, max-width: 500px }
+
+## RC21 - Improve performance when the user clicks outside of the table
+
+    Pull Request: https://github.com/plotly/dash-table/pull/104
+
+    Clicking outside of the table was setting the table's `is_focused` property.
+    Setting component properties in Dash can be expensive: it can cause the
+    entire app to re-render.
+    Now, clicking outside the table will update the component more efficiently,
+    prevent excessive application re-renders.
+    
