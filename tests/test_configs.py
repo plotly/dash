@@ -92,16 +92,16 @@ class MyTestCase(unittest.TestCase):
     def test_pathname_prefix_assets(self):
         req = '/'
         routes = '/'
-        path = get_asset_path(req, routes, 'reset.css')
+        path = get_asset_path(req, routes, 'reset.css', 'assets')
         self.assertEqual('/assets/reset.css', path)
 
         req = '/requests/'
-        path = get_asset_path(req, routes, 'reset.css')
+        path = get_asset_path(req, routes, 'reset.css', 'assets')
         self.assertEqual('/requests/assets/reset.css', path)
 
         req = '/requests/routes/'
         routes = '/routes/'
-        path = get_asset_path(req, routes, 'reset.css')
+        path = get_asset_path(req, routes, 'reset.css', 'assets')
         self.assertEqual('/requests/assets/reset.css', path)
 
 

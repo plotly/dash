@@ -60,3 +60,7 @@ class InvalidCallbackReturnValue(CallbackException):
 
 class InvalidConfig(DashException):
     pass
+
+
+class InvalidResourceError(DashException):
+    pass
