@@ -11,8 +11,6 @@ venv/
 .DS_Store
 dist
 *egg-info*
-npm-debug*
-dash_renderer/bundle.js
-dash_renderer/bundle.js.map
-dash_renderer/react@*.min.js
-dash_renderer/react-dom@*.min.js
+
+dash_renderer/**/*.min.js
+dash_renderer/**/*.dev.js

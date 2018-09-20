@@ -7,7 +7,7 @@ module.exports = (env, argv) => ({
     entry: {main: './src/index.js'},
     output: {
         path: path.resolve(__dirname, dashLibraryName),
-        filename: 'bundle.js',
+        filename: argv.mode === 'development' ? `${dashLibraryName}.dev.js` : `${dashLibraryName}.min.js`,
         library: dashLibraryName,
         libraryTarget: 'window',
     },
@@ -27,5 +27,5 @@ module.exports = (env, argv) => ({
             }
         ],
     },
-    devtool: argv.mode === 'development' ? "eval-source-map" : 'source-map'
+    devtool: argv.mode === 'development' ? "eval-source-map" : 'none'
 });

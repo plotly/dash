@@ -1,11 +1,11 @@
 {
   "name": "dash-renderer",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "description": "render dash components in react",
   "main": "src/index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint --quiet --fix .",
-    "prepublish": "npm test && npm run build:prod",
+    "prepublish": "npm test && npm run build:prod && npm run build:dev",
     "publish-all": "npm publish && echo \"twine!!!\"",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "server": "serv -p 8080 .",
