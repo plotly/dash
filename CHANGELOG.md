@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.14.1] - 2018-09-20
+### Fixed
+- Renamed `__init__.py` external_path to dash_renderer.min.js
+
 ## [0.14.0] - 2018-09-20
 ### Added
 - Unminified dev bundle support. [#77](https://github.com/plotly/dash-renderer/pull/77)
