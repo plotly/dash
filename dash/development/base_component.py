@@ -471,12 +471,13 @@ class {typename}(Component):
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
+        args = {{k: _locals[k] for k in _explicit_args}}
 
         for k in {required_args}:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
+        args.pop('children', None)
         super({typename}, self).__init__({argtext})
 
     def __repr__(self):
@@ -519,22 +520,22 @@ class {typename}(Component):
     events = '[' + ', '.join(parse_events(props)) + ']'
     prop_keys = list(props.keys())
     if 'children' in props:
-        prop_keys.remove('children')
-        default_argtext = "children=None, "
-        # pylint: disable=unused-variable
-        argtext = 'children=children, **args'
+        default_argtext = 'children=None, '
+        argtext = 'children=children, **args'  # Children will be popped before
     else:
-        default_argtext = ""
+        default_argtext = ''
         argtext = '**args'
-    default_argtext += ", ".join(
-        [('{:s}=Component.REQUIRED'.format(p)
-          if props[p]['required'] else
-          '{:s}=Component.UNDEFINED'.format(p))
-         for p in prop_keys
-         if not p.endswith("-*") and
-         p not in keyword.kwlist and
-         p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
-    )
+    for p in list(props.keys()):
+        if (
+            not p.endswith("-*") and  # Not a wildcard attribute
+            p not in keyword.kwlist and  # Not a protected keyword
+            p not in ['dashEvents', 'fireEvent', 'setProps'] and
+            p != 'children'  # Already accounted for
+        ):
+            default_argtext += ('{:s}=Component.REQUIRED, '.format(p)
+                                if props[p]['required'] else
+                                '{:s}=Component.UNDEFINED, '.format(p))
+    default_argtext += '**kwargs'
     schema = {
         k: generate_property_schema(v)
         for k, v in props.items() if not k.endswith("-*")
