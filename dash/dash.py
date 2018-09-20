@@ -548,7 +548,7 @@ class Dash(object):
                 'inputs': v['inputs'],
                 'state': v['state'],
                 'events': v['events']
-            } for k, v in list(self.callback_map.items())
+            } for k, v in self.callback_map.items()
         ])
 
     # pylint: disable=unused-argument, no-self-use
@@ -1004,12 +1004,9 @@ class Dash(object):
         debug = debug or _configs.get_config('debug', None, env, debug,
                                              is_bool=True)
 
-        if not debug:
-            return
-
         self._dev_tools['serve_dev_bundles'] = _configs.get_config(
             'serve_dev_bundles', dev_tools_serve_bundles, env,
-            default=True,
+            default=debug,
             is_bool=True
         )
         return debug
