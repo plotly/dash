@@ -527,10 +527,10 @@ class {typename}(Component):
         argtext = '**args'
     for p in list(props.keys()):
         if (
-            not p.endswith("-*") and  # Not a wildcard attribute
-            p not in keyword.kwlist and  # Not a protected keyword
-            p not in ['dashEvents', 'fireEvent', 'setProps'] and
-            p != 'children'  # Already accounted for
+                not p.endswith("-*") and  # Not a wildcard attribute
+                p not in keyword.kwlist and  # Not a protected keyword
+                p not in ['dashEvents', 'fireEvent', 'setProps'] and
+                p != 'children'  # Already accounted for
         ):
             default_argtext += ('{:s}=Component.REQUIRED, '.format(p)
                                 if props[p]['required'] else
