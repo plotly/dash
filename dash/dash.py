@@ -90,6 +90,7 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             suppress_callback_exceptions=None,
+            components_cache_max_age=None,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -105,6 +106,7 @@ class Dash(object):
         self._assets_folder = assets_folder or os.path.join(
             flask.helpers.get_root_path(name), 'assets'
         )
+        self._assets_url_path = assets_url_path
 
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
@@ -139,6 +141,9 @@ class Dash(object):
                 True),
             'assets_external_path': _configs.get_config(
                 'assets_external_path', assets_external_path, env_configs, ''),
+            'components_cache_max_age': int(_configs.get_config(
+                'components_cache_max_age', components_cache_max_age,
+                env_configs, 2678400))
         })
 
         # list of dependencies
@@ -210,7 +215,7 @@ class Dash(object):
             self.config['routes_pathname_prefix'],
             self.index)
 
-        # catch-all for front-end routes
+        # catch-all for front-end routes, used by dcc.Location
         add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
             self.index)
@@ -220,6 +225,10 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self.routes = []
+
+        # add a handler for components suites errors to return 404
+        self.server.errorhandler(exceptions.InvalidResourceError)(
+            self._invalid_resources_handler)
 
     @property
     def layout(self):
@@ -304,11 +313,18 @@ class Dash(object):
             else:
                 self.registered_paths[namespace] = [relative_package_path]
 
-            return '{}_dash-component-suites/{}/{}?v={}'.format(
+            module_path = os.path.join(
+                os.path.dirname(sys.modules[namespace].__file__),
+                relative_package_path)
+
+            modified = int(os.stat(module_path).st_mtime)
+
+            return '{}_dash-component-suites/{}/{}?v={}&m={}'.format(
                 self.config['requests_pathname_prefix'],
                 namespace,
                 relative_package_path,
-                importlib.import_module(namespace).__version__
+                importlib.import_module(namespace).__version__,
+                modified
             )
 
         srcs = []
@@ -391,7 +407,7 @@ class Dash(object):
         if not has_ie_compat:
             tags.append('<meta equiv="X-UA-Compatible" content="IE=edge">')
         if not has_charset:
-            tags.append('<meta charset="UTF-8"/>')
+            tags.append('<meta charset="UTF-8">')
 
         tags = tags + [
             _format_tag('meta', x, opened=True) for x in self._meta_tags
@@ -402,14 +418,14 @@ class Dash(object):
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
         if package_name not in self.registered_paths:
-            raise Exception(
+            raise exceptions.InvalidResourceError(
                 'Error loading dependency.\n'
                 '"{}" is not a registered library.\n'
                 'Registered libraries are: {}'
                 .format(package_name, list(self.registered_paths.keys())))
 
         elif path_in_package_dist not in self.registered_paths[package_name]:
-            raise Exception(
+            raise exceptions.InvalidResourceError(
                 '"{}" is registered but the path requested is not valid.\n'
                 'The path requested: "{}"\n'
                 'List of registered paths: {}'
@@ -424,9 +440,16 @@ class Dash(object):
             'js': 'application/JavaScript',
             'css': 'text/css'
         })[path_in_package_dist.split('.')[-1]]
+
+        headers = {
+            'Cache-Control': 'public, max-age={}'.format(
+                self.config.components_cache_max_age)
+        }
+
         return Response(
             pkgutil.get_data(package_name, path_in_package_dist),
-            mimetype=mimetype
+            mimetype=mimetype,
+            headers=headers
         )
 
     def index(self, *args, **kwargs):  # pylint: disable=unused-argument
@@ -437,7 +460,7 @@ class Dash(object):
         title = getattr(self, 'title', 'Dash')
         if self._favicon:
             favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
-                flask.url_for('assets.static', filename=self._favicon))
+                self.get_asset_url(self._favicon))
         else:
             favicon = ''
 
@@ -978,11 +1001,18 @@ class Dash(object):
                 elif f == 'favicon.ico':
                     self._favicon = path
 
+    def _invalid_resources_handler(self, err):
+        return err.args[0], 404
+
     def get_asset_url(self, path):
-        return _get_asset_path(
+        asset = _get_asset_path(
             self.config.requests_pathname_prefix,
             self.config.routes_pathname_prefix,
-            path)
+            path,
+            self._assets_url_path.lstrip('/')
+        )
+
+        return asset
 
     def run_server(self,
                    port=8050,

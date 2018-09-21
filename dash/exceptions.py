@@ -68,3 +68,7 @@ class InitialLayoutValidationError(DashException):
 
 class CallbackOutputValidationError(CallbackException):
     pass
+
+
+class InvalidResourceError(DashException):
+    pass

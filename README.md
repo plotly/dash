@@ -34,7 +34,7 @@ View the [Dash User Guide](https://plot.ly/dash). It's chock-full of examples, p
 
 Dash is licensed under MIT.
 
-Plotly offers an enterprise-ready deployment and permissioning server teams that are working with Dash apps behind-the-firewall. [Learn more about Dash On-Premises](https://plot.ly/products/on-premise).
+For companies with software budgets, Plotly offers [Dash Deployment Server](https://plot.ly/dash/pricing/), an enterprise-ready platform for hosting Dash apps in a private cloud or on your own servers. [Learn more about Dash Deployment Server](https://plot.ly/dash/pricing/).
 
 ### Contact and Support
 
