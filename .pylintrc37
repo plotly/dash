@@ -63,6 +63,7 @@ confidence=
 disable=invalid-name,
         missing-docstring,
         print-statement,
+        too-many-lines,
         parameter-unpacking,
         unpacking-in-except,
         old-raise-syntax,
