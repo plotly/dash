@@ -1072,8 +1072,7 @@ class Dash(object):
                          dev_tools_hot_reload=None,
                          dev_tools_hot_reload_interval=None,
                          dev_tools_hot_reload_watch_interval=None,
-                         dev_tools_silence_routes_logging=None,
-                         ):
+                         dev_tools_silence_routes_logging=None):
         """
         Activate the dev tools, called by `run_server`. If your application is
         served by wsgi and you want to activate the dev tools, you can call
@@ -1247,9 +1246,9 @@ class Dash(object):
             host = flask_run_options.get('host', '127.0.0.1')
             ssl_context = flask_run_options.get('ssl_context')
             self.logger.info(
-                'Running on {}://{}:{}{}'.format(
-                    'https' if ssl_context else 'http',
-                    host, port, self.config.requests_pathname_prefix)
+                'Running on %s://%s:%s%s',
+                'https' if ssl_context else 'http',
+                host, port, self.config.requests_pathname_prefix
             )
 
         self.server.run(port=port, debug=debug,
