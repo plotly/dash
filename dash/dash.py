@@ -993,7 +993,7 @@ class Dash(object):
         served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
 
-        :param debug: If false no tools will be activated.
+        :param debug: If True, then activate all the tools unless specified.
         :type debug: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles.
         :type dev_tools_serve_dev_bundles: bool
