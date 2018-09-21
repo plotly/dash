@@ -1188,6 +1188,9 @@ class Dash(object):
                    port=8050,
                    debug=False,
                    dev_tools_serve_dev_bundles=None,
+                   dev_tools_hot_reload=None,
+                   dev_tools_hot_reload_interval=None,
+                   dev_tools_hot_reload_watch_interval=None,
                    **flask_run_options):
         """
         Start the flask server in local mode, you should not run this on a
@@ -1199,9 +1202,21 @@ class Dash(object):
         :type debug: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles of components
         :type dev_tools_serve_dev_bundles: bool
+        :param dev_tools_hot_reload: Enable the hot reload.
+        :type dev_tools_hot_reload: bool
+        :param dev_tools_hot_reload_interval: Reload request interval.
+        :type dev_tools_hot_reload_interval: int
+        :param dev_tools_hot_reload_watch_interval:
+        :type dev_tools_hot_reload_watch_interval: float
         :param flask_run_options: Given to `Flask.run`
         :return:
         """
-        debug = self.enable_dev_tools(debug, dev_tools_serve_dev_bundles)
+        debug = self.enable_dev_tools(
+            debug,
+            dev_tools_serve_dev_bundles,
+            dev_tools_hot_reload,
+            dev_tools_hot_reload_interval,
+            dev_tools_hot_reload_watch_interval
+        )
         self.server.run(port=port, debug=debug,
                         **flask_run_options)
