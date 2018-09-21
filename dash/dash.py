@@ -9,6 +9,7 @@ import pkgutil
 import threading
 import warnings
 import re
+import logging
 
 from functools import wraps
 
@@ -240,6 +241,9 @@ class Dash(object):
         self._lock = threading.RLock()
         self._watch_thread = None
         self._changed_assets = []
+
+        self.logger = logging.getLogger(name)
+        self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
         if hot_reload:
             self._watch_thread = threading.Thread(
@@ -1067,7 +1071,9 @@ class Dash(object):
                          dev_tools_serve_dev_bundles=None,
                          dev_tools_hot_reload=None,
                          dev_tools_hot_reload_interval=None,
-                         dev_tools_hot_reload_watch_interval=None):
+                         dev_tools_hot_reload_watch_interval=None,
+                         dev_tools_silence_routes_logging=None,
+                         ):
         """
         Activate the dev tools, called by `run_server`. If your application is
         served by wsgi and you want to activate the dev tools, you can call
@@ -1095,6 +1101,9 @@ class Dash(object):
             assets folder are walked for changes. Available as
             `DASH_HOT_RELOAD_WATCH_INTERVAL` environ var.
         :type dev_tools_hot_reload_watch_interval: float
+        :param dev_tools_silence_routes_logging: Silence the `werkzeug` logger,
+            will remove all routes logging.
+        :type dev_tools_silence_routes_logging: bool
         :return: debug
         """
         env = _configs.env_configs()
@@ -1123,6 +1132,15 @@ class Dash(object):
                 default=0.5
             )
         )
+        self._dev_tools['silence_routes_logging'] = _configs.get_config(
+            'silence_routes_logging', dev_tools_silence_routes_logging, env,
+            default=debug,
+            is_bool=True,
+        )
+
+        if self._dev_tools.silence_routes_logging:
+            logging.getLogger('werkzeug').setLevel(logging.ERROR)
+            self.logger.setLevel(logging.INFO)
 
         if self._dev_tools.hot_reload:
             self._reload_hash = _generate_hash()
@@ -1192,6 +1210,7 @@ class Dash(object):
                    dev_tools_hot_reload=None,
                    dev_tools_hot_reload_interval=None,
                    dev_tools_hot_reload_watch_interval=None,
+                   dev_tools_silence_routes_logging=None,
                    **flask_run_options):
         """
         Start the flask server in local mode, you should not run this on a
@@ -1209,6 +1228,8 @@ class Dash(object):
         :type dev_tools_hot_reload_interval: int
         :param dev_tools_hot_reload_watch_interval:
         :type dev_tools_hot_reload_watch_interval: float
+        :param dev_tools_silence_routes_logging: Silence the routes logs.
+        :type dev_tools_silence_routes_logging: bool
         :param flask_run_options: Given to `Flask.run`
         :return:
         """
@@ -1217,7 +1238,19 @@ class Dash(object):
             dev_tools_serve_dev_bundles,
             dev_tools_hot_reload,
             dev_tools_hot_reload_interval,
-            dev_tools_hot_reload_watch_interval
+            dev_tools_hot_reload_watch_interval,
+            dev_tools_silence_routes_logging
         )
+
+        if self._dev_tools.silence_routes_logging:
+            # Since it's silenced, the address don't show anymore.
+            host = flask_run_options.get('host', '127.0.0.1')
+            ssl_context = flask_run_options.get('ssl_context')
+            self.logger.info(
+                'Running on {}://{}:{}{}'.format(
+                    'https' if ssl_context else 'http',
+                    host, port, self.config.requests_pathname_prefix)
+            )
+
         self.server.run(port=port, debug=debug,
                         **flask_run_options)

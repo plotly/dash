@@ -25,7 +25,8 @@ def env_configs():
         'DASH_DEBUG',
         'DASH_HOT_RELOAD',
         'DASH_HOT_RELOAD_INTERVAL',
-        'DASH_HOT_RELOAD_WATCH_INTERVAL'
+        'DASH_HOT_RELOAD_WATCH_INTERVAL',
+        'DASH_SILENCE_ROUTES_LOGGING'
     )})
 
 
