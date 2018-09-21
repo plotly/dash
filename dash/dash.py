@@ -86,9 +86,6 @@ class Dash(object):
             index_string=_default_index,
             external_scripts=None,
             external_stylesheets=None,
-            hot_reload=False,
-            hot_reload_interval=3000,
-            hot_reload_watch_interval=0.5,
             suppress_callback_exceptions=None,
             components_cache_max_age=None,
             **kwargs):
@@ -225,7 +222,10 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self._dev_tools = _AttributeDict({
-            'serve_dev_bundles': False
+            'serve_dev_bundles': False,
+            'hot_reload': False,
+            'hot_reload_interval': 3000,
+            'hot_reload_watch_interval': 0.5
         })
 
         # add a handler for components suites errors to return 404
@@ -235,13 +235,10 @@ class Dash(object):
         self._assets_files = []
 
         # hot reload
-        self._reload_hash = _generate_hash() \
-            if hot_reload else ''
-        self._reload_interval = hot_reload_interval
+        self._reload_hash = None
         self._hard_reload = False
         self._lock = threading.RLock()
         self._watch_thread = None
-        self._hot_reload = hot_reload
         self._changed_assets = []
 
         if hot_reload:
@@ -331,9 +328,9 @@ class Dash(object):
             'url_base_pathname': self.url_base_pathname,
             'requests_pathname_prefix': self.config['requests_pathname_prefix']
         }
-        if self._reload_hash:
+        if self._dev_tools.hot_reload:
             config['hot_reload'] = {
-                'interval': self._reload_interval
+                'interval': self._dev_tools.hot_reload_interval
             }
         return config
 
@@ -1067,7 +1064,10 @@ class Dash(object):
 
     def enable_dev_tools(self,
                          debug=False,
-                         dev_tools_serve_dev_bundles=None):
+                         dev_tools_serve_dev_bundles=None,
+                         dev_tools_hot_reload=None,
+                         dev_tools_hot_reload_interval=None,
+                         dev_tools_hot_reload_watch_interval=None):
         """
         Activate the dev tools, called by `run_server`. If your application is
         served by wsgi and you want to activate the dev tools, you can call
@@ -1077,7 +1077,15 @@ class Dash(object):
         :type debug: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles.
         :type dev_tools_serve_dev_bundles: bool
-        :return:
+        :param dev_tools_hot_reload: Activate the hot reloading.
+        :type dev_tools_hot_reload: bool
+        :param dev_tools_hot_reload_interval: Interval at which the client will
+            request the reload hash.
+        :type dev_tools_hot_reload_interval: int
+        :param dev_tools_hot_reload_watch_interval: Interval at which the
+            assets folder are walked for changes.
+        :type dev_tools_hot_reload_watch_interval: float
+        :return: debug
         """
         env = _configs.env_configs()
         debug = debug or _configs.get_config('debug', None, env, debug,
@@ -1088,6 +1096,33 @@ class Dash(object):
             default=debug,
             is_bool=True
         )
+        self._dev_tools['hot_reload'] = _configs.get_config(
+            'hot_reload', dev_tools_hot_reload, env,
+            default=debug,
+            is_bool=True
+        )
+        self._dev_tools['hot_reload_interval'] = int(_configs.get_config(
+            'hot_reload_interval', dev_tools_hot_reload_interval, env,
+            default=3000
+        ))
+        self._dev_tools['hot_reload_watch_interval'] = float(_configs.get_config(
+            'hot_reload_watch_interval',
+            dev_tools_hot_reload_watch_interval,
+            env,
+            default=0.5
+        ))
+
+        if self._dev_tools.hot_reload:
+            self._reload_hash = _generate_hash()
+            self._watch_thread = threading.Thread(
+                target=lambda: _watch.watch(
+                    [self._assets_folder],
+                    self._on_assets_change,
+                    sleep_time=self._dev_tools.hot_reload_watch_interval)
+            )
+            self._watch_thread.daemon = True
+            self._watch_thread.start()
+
         return debug
 
     # noinspection PyProtectedMember
