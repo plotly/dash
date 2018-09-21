@@ -1073,17 +1073,27 @@ class Dash(object):
         served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
 
-        :param debug: If True, then activate all the tools unless specified.
+        If an argument is not provided, it can be set with environ variables.
+
+        Available dev_tools environ variables:
+
+        :param debug: If True, then activate all the tools unless specifically
+            disabled by the arguments or by environ variables. Available as
+            `DASH_DEBUG` environ var.
         :type debug: bool
-        :param dev_tools_serve_dev_bundles: Serve the dev bundles.
+        :param dev_tools_serve_dev_bundles: Serve the dev bundles. Available
+            as `DASH_SERVE_DEV_BUNDLES` environ var.
         :type dev_tools_serve_dev_bundles: bool
-        :param dev_tools_hot_reload: Activate the hot reloading.
+        :param dev_tools_hot_reload: Activate the hot reloading. Available as
+            `DASH_HOT_RELOAD` environ var.
         :type dev_tools_hot_reload: bool
         :param dev_tools_hot_reload_interval: Interval at which the client will
-            request the reload hash.
+            request the reload hash. Available as `DASH_HOT_RELOAD_INTERVAL`
+            environ var.
         :type dev_tools_hot_reload_interval: int
         :param dev_tools_hot_reload_watch_interval: Interval at which the
-            assets folder are walked for changes.
+            assets folder are walked for changes. Available as
+            `DASH_HOT_RELOAD_WATCH_INTERVAL` environ var.
         :type dev_tools_hot_reload_watch_interval: float
         :return: debug
         """
@@ -1105,12 +1115,14 @@ class Dash(object):
             'hot_reload_interval', dev_tools_hot_reload_interval, env,
             default=3000
         ))
-        self._dev_tools['hot_reload_watch_interval'] = float(_configs.get_config(
-            'hot_reload_watch_interval',
-            dev_tools_hot_reload_watch_interval,
-            env,
-            default=0.5
-        ))
+        self._dev_tools['hot_reload_watch_interval'] = float(
+            _configs.get_config(
+                'hot_reload_watch_interval',
+                dev_tools_hot_reload_watch_interval,
+                env,
+                default=0.5
+            )
+        )
 
         if self._dev_tools.hot_reload:
             self._reload_hash = _generate_hash()
@@ -1122,6 +1134,9 @@ class Dash(object):
             )
             self._watch_thread.daemon = True
             self._watch_thread.start()
+
+        if debug:
+            self.scripts.config.serve_locally = True
 
         return debug
 
