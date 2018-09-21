@@ -1,3 +1,10 @@
+## 0.27.0 - 2018-09-20
+## Added
+- Added support for serving dev bundles from the components suite, enable with `app.run_server(dev_tools_serve_dev_bundles=True)` [#369](https://github.com/plotly/dash/pull/369)
+
+## Fixed
+- Use HTML5 syntax for the meta tag [#350](https://github.com/plotly/dash/pull/350)
+
 ## 0.26.6 - 2018-09-19
 ## Fixed
 - Added `Cache-Control` headers to files served by `Dash.serve_component_suites`. [#387](https://github.com/plotly/dash/pull/387)
