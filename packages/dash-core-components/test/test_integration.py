@@ -539,10 +539,19 @@ class Tests(IntegrationTests):
 
         button_one.click()
 
+        # wait for tabs to be loaded after clicking
+        WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph-one .main-svg"))
+        )
+
         self.snapshot("Tabs 1 rendered ")
 
         button_two.click()
-        time.sleep(1)
+
+        # wait for tabs to be loaded after clicking
+        WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph-two .main-svg"))
+        )
 
         self.snapshot("Tabs 2 rendered ")
 
@@ -629,6 +638,11 @@ class Tests(IntegrationTests):
         self.snapshot("Tabs with Graph - initial (graph should not resize)")
         tab_two.click()
 
+        # wait for Graph's internal svg to be loaded after clicking
+        WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph-2-tabs .main-svg"))
+        )
+
         self.snapshot("Tabs with Graph - clicked tab 2 (graph should not resize)")
 
         WebDriverWait(self.driver, 10).until(
@@ -636,6 +650,11 @@ class Tests(IntegrationTests):
         )
 
         tab_one.click()
+
+        # wait for Graph to be loaded after clicking
+        WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph-1-tabs .main-svg"))
+        )
 
         self.snapshot("Tabs with Graph - clicked tab 1 (graph should not resize)")
 

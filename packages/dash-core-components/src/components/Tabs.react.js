@@ -168,20 +168,17 @@ export default class Tabs extends Component {
 
             const amountOfTabs = this.props.children.length;
 
-            window.console.log('this.props.children', this.props.children);
             EnhancedTabs = this.props.children.map((child, index) => {
                 // TODO: handle components that are not dcc.Tab components (throw error)
                 // enhance Tab components coming from Dash (as dcc.Tab) with methods needed for handling logic
                 let childProps;
 
-                window.console.log('child', child);
 
                 if (child.props.children) {
                     // if props appears on .children, props are coming from Dash
                     childProps = child.props.children.props;
                 } else {
                     // else props are coming from React (Demo.react.js)
-                    window.console.log('child props', child.props);
                     childProps = child.props;
                 }
 

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {contains, filter, has, isNil, type} from 'ramda';
+import {contains, filter, clone, has, isNil, type} from 'ramda';
 /* global Plotly:true */
 
 const filterEventData = (gd, eventData, event) => {
@@ -77,15 +77,13 @@ export default class PlotlyGraph extends Component {
         if (animate && this._hasPlotted && figure.data.length === gd.data.length) {
             return Plotly.animate(id, figure, animation_options);
         }
-        return Plotly.react(id, figure.data, figure.layout, config).then(
-            () => {
-                if (!this._hasPlotted) {
-                    this.bindEvents();
-                    Plotly.Plots.resize(document.getElementById(id));
-                    this._hasPlotted = true;
-                }
+        return Plotly.react(id, figure.data, clone(figure.layout), config).then(() => {
+            if (!this._hasPlotted) {
+                this.bindEvents();
+                Plotly.Plots.resize(document.getElementById(id));
+                this._hasPlotted = true;
             }
-        );
+        });
     }
 
     bindEvents() {

@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.30.2] - 2018-09-21
+### Fixed
+- Fixed regression in Graph component where it wouldn't resize correctly [#256](https://github.com/plotly/dash-core-components/issues/256)
+
 ## [0.30.1] - 2018-09-20
 ### Fixed
 - Renamed `__init__.py` external_path to dash_core_components.min.js
