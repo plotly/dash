@@ -181,4 +181,10 @@
     entire app to re-render.
     Now, clicking outside the table will update the component more efficiently,
     prevent excessive application re-renders.
-    
+
+## RC22 - Fix regression for user select
+
+    Regression from: https://github.com/plotly/dash-table/pull/93
+    Issue: https://github.com/plotly/dash-table/issues/91
+
+    Sorting arrow will no longer highlight.
