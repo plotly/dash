@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.13.2] - 2018-09-21
+### Fixed
+- Fixes Python3.7 incompatibility with `0.13.0` and `0.13.1`.
+
+### Changed
+- Regenerated classes with Python3.7 to remove `async` keyword.
+
 ## [0.13.1] - 2018-09-20
 ### Fixed
 - Renamed `__init__.py` external_path to dash_html_components.min.js
