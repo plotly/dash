@@ -214,6 +214,10 @@ class Dash(object):
         self._cached_layout = None
         self.routes = []
 
+        # add a handler for components suites errors to return 404
+        self.server.errorhandler(exceptions.InvalidResourceError)(
+            self._invalid_resources_handler)
+
     def _add_url(self, name, view_func, methods=('GET',)):
         self.server.add_url_rule(
             name,
@@ -221,10 +225,6 @@ class Dash(object):
             endpoint=name,
             methods=list(methods)
         )
-
-        # add a handler for components suites errors to return 404
-        self.server.errorhandler(exceptions.InvalidResourceError)(
-            self._invalid_resources_handler)
 
     @property
     def layout(self):
