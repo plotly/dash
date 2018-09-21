@@ -1,4 +1,3 @@
-# pylint: disable=too-many-lines
 from __future__ import print_function
 
 import os
