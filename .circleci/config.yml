@@ -32,19 +32,19 @@ jobs:
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
           paths:
-              - "~/venv"
+              - "venv"
 
       - run:
           name: Run lint
           command: |
-              ~/venv/bin/activate
+              . venv/bin/activate
               pylint dash setup.py --rcfile=$PYLINTRC
               flake8 dash setup.py
 
       - run:
           name: Run tests
           command: |
-              ~/venv/bin/activate
+              . venv/bin/activate
               python --version
               python -m unittest tests.development.test_base_component
               python -m unittest tests.development.test_component_loader
