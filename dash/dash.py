@@ -899,46 +899,13 @@ class Dash(object):
         def wrap_func(func):
             @wraps(func)
             def add_context(*args, **kwargs):
-
                 output_value = func(*args, **kwargs)
-
-                if isinstance(output_value, DashResponse):
-                    output_value.jsonify_response(output)
-                    return output_value
-
-                response = {
-                    'response': {
-                        'props': {
-                            output.component_property: output_value
-                        }
-                    }
-                }
-
-                try:
-                    jsonResponse = json.dumps(
-                        response,
-                        cls=plotly.utils.PlotlyJSONEncoder
-                    )
-                except TypeError:
-                    self._validate_callback_output(output_value, output)
-                    raise exceptions.InvalidCallbackReturnValue('''
-                    The callback for property `{property:s}`
-                    of component `{id:s}` returned a value
-                    which is not JSON serializable.
-
-                    In general, Dash properties can only be
-                    dash components, strings, dictionaries, numbers, None,
-                    or lists of those.
-                    '''.format(property=output.component_property,
-                               id=output.component_id))
-
-                return flask.Response(
-                    jsonResponse,
-                    mimetype='application/json'
-                )
+                if not isinstance(output_value, DashResponse):
+                    output_value = DashResponse(output_value)
+                return output_value.jsonify_response(
+                    output, self._validate_callback_output)
 
             self.callback_map[callback_id]['callback'] = add_context
-
             return add_context
 
         return wrap_func
