@@ -555,3 +555,36 @@ class Tests(IntegrationTests):
         time.sleep(1)
 
         self.wait_for_element_by_css_selector('#inserted-input')
+
+    def test_dash_response(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+                value='initial value'
+            ),
+            html.Div(
+                id='output'
+            )
+        ])
+
+        @app.callback(Output('output', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            response = dash.response.DashResponse(value)
+            response.set_cookie('dash cookie', value)
+            return response
+
+        self.startServer(app)
+        output1 = self.wait_for_text_to_equal('#output', 'initial value')
+
+        input1 = self.wait_for_element_by_id('input')
+        input1.clear()
+        input1.send_keys('Hello World')
+
+        output1 = self.wait_for_text_to_equal('#output', 'Hello World')
+
+        cookie = [cookie for cookie in self.driver.get_cookies()
+                  if cookie['name'] == 'dash cookie'][0]
+        self.assertEqual(cookie['value'], '"Hello World"')  # gets json encoded
+
+        assert_clean_console(self)
