@@ -28,8 +28,7 @@ from ._utils import get_asset_path as _get_asset_path
 from . import _configs
 
 
-_default_index = '''
-<!DOCTYPE html>
+_default_index = '''<!DOCTYPE html>
 <html>
     <head>
         {%metas%}
@@ -44,8 +43,7 @@ _default_index = '''
             {%scripts%}
         </footer>
     </body>
-</html>
-'''
+</html>'''
 
 _app_entry = '''
 <div id="react-entry-point">
