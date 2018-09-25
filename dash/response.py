@@ -28,9 +28,9 @@ class DashResponse(Response):
         """
         Convert the response to valid Dash json-encoded format.
 
-        :param output: output element for the callback
-        :param validator: called if json serialization fails with
-                          the output value and the `output` element
+        :param output: Output element for the callback.
+        :param validator: Called if json serialization fails with
+                          the output value and the `output` element.
         """
         response = {
             'response': {
