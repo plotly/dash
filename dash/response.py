@@ -62,11 +62,11 @@ class DashResponse(Response):
 def _validate_callback_output(output_value, output):
     valid = [str, dict, int, float, type(None), Component]
 
-    def _raise_invalid(bad_val, outer_val, bad_type, path, index=None,
-                       toplevel=False):
+    def _raise_invalid(bad_val, outer_val, path, index=None, toplevel=False):
         outer_id = "(id={:s})".format(outer_val.id) \
                     if getattr(outer_val, 'id', False) else ''
         outer_type = type(outer_val).__name__
+        bad_type = type(bad_val).__name__
         raise exceptions.InvalidCallbackReturnValue('''
         The callback for property `{property:s}` of component `{id:s}`
         returned a {object:s} having type `{type:s}`
@@ -115,7 +115,6 @@ def _validate_callback_output(output_value, output):
                     _raise_invalid(
                         bad_val=j,
                         outer_val=val,
-                        bad_type=type(j).__name__,
                         path=p,
                         index=index
                     )
@@ -129,7 +128,6 @@ def _validate_callback_output(output_value, output):
                         _raise_invalid(
                             bad_val=child,
                             outer_val=val,
-                            bad_type=type(child).__name__,
                             path=p + "\n" + "[*] " + type(child).__name__,
                             index=index
                         )
@@ -141,7 +139,6 @@ def _validate_callback_output(output_value, output):
                     _raise_invalid(
                         bad_val=child,
                         outer_val=val,
-                        bad_type=type(child).__name__,
                         path=type(child).__name__,
                         index=index
                     )
@@ -152,7 +149,6 @@ def _validate_callback_output(output_value, output):
                 _raise_invalid(
                     bad_val=val,
                     outer_val=type(val).__name__,
-                    bad_type=type(val).__name__,
                     path='',
                     index=index,
                     toplevel=True
