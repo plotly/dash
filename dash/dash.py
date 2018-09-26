@@ -64,11 +64,6 @@ _re_index_config_id = re.compile(r'id="_dash-config"')
 _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 
 
-def _serve_default_favicon():
-    return flask.Response(pkgutil.get_data('dash', 'favicon.ico'),
-                          content_type='image/x-icon')
-
-
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
@@ -222,7 +217,7 @@ class Dash(object):
             self.index)
 
         add_url('{}_favicon'.format(self.config['routes_pathname_prefix']),
-                _serve_default_favicon)
+                self._serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
 
@@ -980,6 +975,15 @@ class Dash(object):
 
     def _invalid_resources_handler(self, err):
         return err.args[0], 404
+
+    def _serve_default_favicon(self):
+        headers = {
+            'Cache-Control': 'public, max-age={}'.format(
+                self.config.components_cache_max_age)
+        }
+        return flask.Response(pkgutil.get_data('dash', 'favicon.ico'),
+                              headers=headers,
+                              content_type='image/x-icon')
 
     def get_asset_url(self, path):
         asset = _get_asset_path(
