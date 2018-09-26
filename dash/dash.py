@@ -216,7 +216,7 @@ class Dash(object):
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
             self.index)
 
-        add_url('{}_favicon'.format(self.config['routes_pathname_prefix']),
+        add_url('{}_favicon.ico'.format(self.config['routes_pathname_prefix']),
                 self._serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
@@ -464,9 +464,22 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
-        favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
-            self.get_asset_url(self._favicon) if self._favicon
-            else '{}_favicon'.format(self.config.requests_pathname_prefix))
+
+        if self._favicon:
+            favicon_mod_time = os.path.getmtime(
+                os.path.join(self._assets_folder, self._favicon))
+            favicon_url = self.get_asset_url(self._favicon) + '?m={}'.format(
+                favicon_mod_time
+            )
+        else:
+            favicon_url = '{}_favicon.ico'.format(
+                self.config.requests_pathname_prefix)
+
+        favicon = _format_tag('link', {
+            'rel': 'icon',
+            'type': 'image/x-icon',
+            'href': favicon_url
+        }, opened=True)
 
         index = self.interpolate_index(
             metas=metas, title=title, css=css, config=config,
