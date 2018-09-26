@@ -1,3 +1,7 @@
+## 0.28.1 - 2018-09-26
+## Fixed
+- Missing favicon package_data from setup.py [#407](https://github.com/plotly/dash/pull/407)
+
 ## 0.28.0 - 2018-09-26
 ## Added
 - Default favicon for dash apps. [#406](https://github.com/plotly/dash/pull/406#issuecomment-424821743)
