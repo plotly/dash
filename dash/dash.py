@@ -465,8 +465,8 @@ class Dash(object):
         metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
         favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
-                self.get_asset_url(self._favicon) if self._favicon
-                else '{}_favicon'.format(self.config.requests_pathname_prefix))
+            self.get_asset_url(self._favicon) if self._favicon
+            else '{}_favicon'.format(self.config.requests_pathname_prefix))
 
         index = self.interpolate_index(
             metas=metas, title=title, css=css, config=config,
