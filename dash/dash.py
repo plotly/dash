@@ -64,6 +64,11 @@ _re_index_config_id = re.compile(r'id="_dash-config"')
 _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 
 
+def _serve_default_favicon():
+    return flask.Response(pkgutil.get_data('dash', 'favicon.ico'),
+                          content_type='image/x-icon')
+
+
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
@@ -215,6 +220,9 @@ class Dash(object):
         add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
             self.index)
+
+        add_url('{}_favicon'.format(self.config['routes_pathname_prefix']),
+                _serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
 
@@ -461,11 +469,9 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
-        if self._favicon:
-            favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
-                self.get_asset_url(self._favicon))
-        else:
-            favicon = ''
+        favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
+                self.get_asset_url(self._favicon) if self._favicon
+                else '{}_favicon'.format(self.config.requests_pathname_prefix))
 
         index = self.interpolate_index(
             metas=metas, title=title, css=css, config=config,
