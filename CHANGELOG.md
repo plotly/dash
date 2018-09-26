@@ -1,3 +1,11 @@
+## 0.28.0 - 2018-09-26
+## Added
+- Default favicon for dash apps. [#406](https://github.com/plotly/dash/pull/406#issuecomment-424821743)
+- Bust the cache of the assets favicon.
+
+## Fixed
+- Remove the first and last blank lines from the HTML index string. [#403](https://github.com/plotly/dash/pull/403)
+
 ## 0.27.0 - 2018-09-20
 ## Added
 - Added support for serving dev bundles from the components suite, enable with `app.run_server(dev_tools_serve_dev_bundles=True)` [#369](https://github.com/plotly/dash/pull/369)
