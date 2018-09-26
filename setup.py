@@ -10,6 +10,7 @@ setup(
     author='chris p',
     author_email='chris@plot.ly',
     packages=find_packages(exclude=['tests*']),
+    include_package_data=True,
     license='MIT',
     description=('A Python framework for building reactive web-apps. '
                  'Developed by Plotly.'),
