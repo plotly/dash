@@ -18,11 +18,11 @@ class DashResponse(Response):
     Return a `DashResponse` object from a Dash callback in order to set
     other properties of the response like headers or cookies.
     """
-    def __init__(self, response, **kwargs):
+    def __init__(self, output_value, **kwargs):
         super(DashResponse, self).__init__(
             '',  # filled in by set_data later
             mimetype='application/json', **kwargs)
-        self.output_value = response
+        self.output_value = output_value
 
     def jsonify_response(self, output):
         """
