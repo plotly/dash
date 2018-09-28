@@ -14,7 +14,7 @@ Use the [GitHub flow][] when proposing contributions to this repository (i.e. cr
 
 ## Running the Tests
 
-**Warning:** _Tests do not currently run on windows._
+**Warning:** _Tests do not currently run on windows. Track our progress: [#409](https://github.com/plotly/dash/issues/409)._
 
 To run the tests, you can use Python's `unittest` module, or a test runner like `nose2`.
 
