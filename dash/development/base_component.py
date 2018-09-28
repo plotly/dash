@@ -324,7 +324,18 @@ def js_to_cerberus_type(type_object):
                 schema.update({'nullable': True})
                 schema['allowed'].append(None)
             else:
-                schema['allowed'].append(v['value'].strip("'\"'"))
+                string_value = v['value'].strip("'\"'")
+                schema['allowed'].append(string_value)
+                try:
+                    int_value = int(string_value)
+                    schema['allowed'].append(int_value)
+                except ValueError:
+                    pass
+                try:
+                    float_value = float(string_value)
+                    schema['allowed'].append(float_value)
+                except ValueError:
+                    pass
         return schema
 
     converters = {
