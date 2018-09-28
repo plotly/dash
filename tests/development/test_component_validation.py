@@ -85,6 +85,15 @@ class TestGenerateClass(unittest.TestCase):
         }))
 
     def test_number_validation(self):
+        numpy_types = [
+            np.int_, np.intc, np.intp, np.int8, np.int16, np.int32, np.int64,
+            np.uint8, np.uint16, np.uint32, np.uint64,
+            np.float_, np.float32, np.float64
+        ]
+        for t in numpy_types:
+            self.assertTrue(self.component_validator.validate({
+                'optionalNumber': t(7)
+            }))
         self.assertTrue(self.component_validator.validate({
             'optionalNumber': 7
         }))
