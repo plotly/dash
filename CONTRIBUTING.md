@@ -61,7 +61,7 @@ _For larger features, your contribution will have a higher likelihood of getting
 - [ ] All tests on CircleCI have passed.
 - [ ] All visual regression differences have been approved.
 - [ ] If changes are significant, a release candidate has been created and posted to Slack, the Plotly forums, and at the very top of the pull request.
-- [ ] You have updated the `dash/version.py` file and the top of `CHANGELOG.md`
+- [ ] You have updated the `dash/version.py` file and the top of `CHANGELOG.md`. For larger additions, your `CHANGELOG.md` entry includes sample code about how the feature works. The entry should also link to the original pull request(s).
 - [ ] Two people have :dancer:'d the pull request. You can be one of these people if you are a Dash core contributor.
 
 ### Post-Merge checklist
