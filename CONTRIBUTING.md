@@ -76,6 +76,7 @@ _For larger features, your contribution will have a higher likelihood of getting
 
 ### Post-Release checklist
 - [ ] You have closed all issues that this pull request solves, and commented the new version number users should install.
+- [ ] You have created an issue about documenting the new feature or change and you have added it to the [Documentation] project.
 
 ## Financial Contributions
 
@@ -94,3 +95,4 @@ Dash, and many of Plotly's open source products, have been funded through direct
 [Confirmation Modal component]: https://github.com/plotly/dash-core-components/pull/211#issue-195280462
 [Confirmation Modal announcement]: https://community.plot.ly/t/announcing-dash-confirmation-modal-feedback-welcome/11627
 [Get in touch]: https://plot.ly/products/consulting-and-oem
+[Documentation]: https://github.com/orgs/plotly/projects/8
