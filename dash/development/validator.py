@@ -3,6 +3,9 @@ import cerberus
 
 
 class DashValidator(cerberus.Validator):
+    types_mapping = cerberus.Validator.types_mapping.copy()
+    types_mapping.pop('list')  # To be replaced by our custom method
+
     def _validator_plotly_figure(self, field, value):
         if not isinstance(value, (dict, plotly.graph_objs.Figure)):
             self._error(
@@ -16,8 +19,22 @@ class DashValidator(cerberus.Validator):
                     field,
                     "Invalid Plotly Figure:\n\n{}".format(e))
 
+    def _validate_type_list(self, value):
+        if isinstance(value, list):
+            return True
+        elif isinstance(value, (self.component_class, str)):
+            return False
+        try:
+            value_list = list(value)
+            if not isinstance(value_list, list):
+                return False
+        except (ValueError, TypeError):
+            return False
+        return True
+
     @classmethod
     def set_component_class(cls, component_cls):
+        cls.component_class = component_cls
         c_type = cerberus.TypeDefinition('component', (component_cls,), ())
         cls.types_mapping['component'] = c_type
         d_type = cerberus.TypeDefinition('dict', (dict,), ())
