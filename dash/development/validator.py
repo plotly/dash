@@ -5,6 +5,7 @@ import cerberus
 class DashValidator(cerberus.Validator):
     types_mapping = cerberus.Validator.types_mapping.copy()
     types_mapping.pop('list')  # To be replaced by our custom method
+    types_mapping.pop('number')  # To be replaced by our custom method
 
     def _validator_plotly_figure(self, field, value):
         if not isinstance(value, (dict, plotly.graph_objs.Figure)):
@@ -31,6 +32,24 @@ class DashValidator(cerberus.Validator):
         except (ValueError, TypeError):
             return False
         return True
+
+    # pylint: disable=no-self-use
+    def _validate_type_number(self, value):
+        if isinstance(value, (int, float)):
+            return True
+        if isinstance(value, str):  # Since int('3') works
+            return False
+        try:
+            int(value)
+            return True
+        except (ValueError, TypeError):
+            pass
+        try:
+            float(value)
+            return True
+        except (ValueError, TypeError):
+            pass
+        return False
 
     @classmethod
     def set_component_class(cls, component_cls):
