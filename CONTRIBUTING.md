@@ -79,7 +79,7 @@ _For larger features, your contribution will have a higher likelihood of getting
 
 ## Financial Contributions
 
-If your company wishes to sponsor development of open source dash components, please [get in touch][].
+Dash, and many of Plotly's open source products, have been funded through direct sponsorship by companies. [Get in touch] about funding feature additions, consulting, or custom app development.
 
 [Dash Core Components]: https://dash.plot.ly/dash-core-components
 [Dash HTML Components]: https://github.com/plotly/dash-html-components
@@ -93,4 +93,4 @@ If your company wishes to sponsor development of open source dash components, pl
 [Dash Community Forum]: https://community.plot.ly/c/dash
 [Confirmation Modal component]: https://github.com/plotly/dash-core-components/pull/211#issue-195280462
 [Confirmation Modal announcement]: https://community.plot.ly/t/announcing-dash-confirmation-modal-feedback-welcome/11627
-[get in touch]: https://plot.ly/products/consulting-and-oem
+[Get in touch]: https://plot.ly/products/consulting-and-oem
