@@ -6,7 +6,7 @@ Refer to the [readme](README.md) for installation and development instructions.
 
 ## Coding Style
 
-Please lint any additions to react components with `pylint` and `flake8`.
+Please lint any additions to Python code with `pylint` and `flake8`.
 
 ## Pull Request Guidelines
 
