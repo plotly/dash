@@ -2,6 +2,8 @@ import os
 import json
 import unittest
 import collections
+import numpy as np
+import pandas as pd
 import plotly.graph_objs as go
 from dash.development.component_loader import _get_metadata
 from dash.development.base_component import generate_class, Component
@@ -224,6 +226,12 @@ class TestGenerateClass(unittest.TestCase):
     def test_arrayof_validation(self):
         self.assertTrue(self.component_validator.validate({
             'optionalArrayOf': [1, 2, 3]
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'optionalArrayOf': np.array([1, 2, 3])
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'optionalArrayOf': pd.Series([1, 2, 3])
         }))
         self.assertFalse(self.component_validator.validate({
             'optionalArrayOf': 7
