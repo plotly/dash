@@ -38,6 +38,7 @@ DASH_TEST_CHROMEPATH=/bin/google-chrome-beta DASH_TEST_PROCESSES=1 python -m uni
 ```
 
 ## Making a contribution
+_For larger features, your contribution will have a higher likelihood of getting merged if you create an issue to discuss the changes that you'd like to make before you create a pull request._
 
 1. Create a pull request and tag the Plotly team (`@plotly/dash`) and tag / request review from [@rmarren1](https://github.com/rmarren1) and [@T4rk1n](https://github.com/T4rk1n).
 2. After a review has been done and your changes have been approved, create a prerelease and comment in the PR. Version numbers should follow [semantic versioning][]. To create a prerelease:
