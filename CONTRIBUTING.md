@@ -45,7 +45,7 @@ _For larger features, your contribution will have a higher likelihood of getting
     * Add `rc1` to `version.py` (`./dash/version.py`) e.g. `0.13.0rc1`
         - If needed, ask @chriddyp to get PyPi package publishing access.
     * Run `python setup.py sdist` to build a distribution zip.
-    * Check the `dist` folder for a zip ending with your selected version number. Double check that this version number ends with `rc#`, as to not mistakenly publish the package.
+    * Check the `dist` folder for a `tar.gz` file ending with your selected version number. Double check that this version number ends with `rc#`, as to not mistakenly publish the package.
     * Run `twine upload dist/<package_name>`.
 3. Comment in the PR with the prerelease version
 4. Update the top-level comment to include info about how to install, a summary of the changes, and a simple example.
