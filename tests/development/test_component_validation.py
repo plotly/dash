@@ -194,6 +194,15 @@ class TestGenerateClass(unittest.TestCase):
         self.assertTrue(self.component_validator.validate({
             'optionalEnum': "Photos"
         }))
+        self.assertTrue(self.component_validator.validate({
+            'optionalEnum': 1
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'optionalEnum': 1.0
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'optionalEnum': "1"
+        }))
         self.assertFalse(self.component_validator.validate({
             'optionalEnum': "not_in_enum"
         }))

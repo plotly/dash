@@ -733,7 +733,7 @@ class TestGenerateClass(unittest.TestCase):
     def test_schema_generation(self):
         self.assertEqual(
             self.ComponentClass._schema,
-            {'children': {'nullable': True, 'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}, {'type': 'list', 'schema': {'nullable': True, 'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}]}}]}, 'in': {'type': 'string'}, 'optionalNumber': {'type': 'number'}, 'optionalObject': {'type': 'dict'}, 'optionalFunc': {}, 'customProp': {}, 'optionalArray': {'type': 'list'}, 'customArrayProp': {'type': 'list', 'schema': {'nullable': False}}, 'optionalEnum': {'allowed': ['News', 'Photos'], 'type': ('string', 'number')}, 'optionalNode': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'type': 'list', 'schema': {'type': ('component', 'boolean', 'number', 'string')}}]}, 'dashEvents': {'allowed': ['restyle', 'relayout', 'click'], 'type': ('string', 'number')}, 'optionalString': {'type': 'string'}, 'optionalBool': {'type': 'boolean'}, 'optionalObjectOf': {'nullable': False, 'type': 'dict', 'valueschema': {'type': 'number'}}, 'optionalArrayOf': {'type': 'list', 'schema': {'nullable': False, 'type': 'number'}}, 'optionalElement': {'type': 'component'}, 'optionalAny': {'type': ('boolean', 'number', 'string', 'dict', 'list')}, 'optionalUnion': {'anyof': [{'type': 'string'}, {'type': 'number'}, {}]}, 'optionalSymbol': {}, 'id': {'type': 'string'}, 'optionalMessage': {}, 'optionalObjectWithShapeAndNestedDescription': {'allow_unknown': False, 'type': 'dict', 'nullable': False, 'schema': {'figure': {'allow_unknown': False, 'type': 'dict', 'nullable': False, 'schema': {'data': {'type': 'list', 'schema': {'nullable': False, 'type': 'dict'}}, 'layout': {'type': 'dict'}}}, 'color': {'type': 'string'}, 'fontSize': {'type': 'number'}}}}
+            {'optionalArray': {'type': 'list'}, 'optionalBool': {'type': 'boolean'}, 'optionalFunc': {}, 'optionalNumber': {'type': 'number'}, 'optionalObject': {'type': 'dict'}, 'optionalString': {'type': 'string'}, 'optionalSymbol': {}, 'optionalNode': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'type': 'list', 'schema': {'type': ('component', 'boolean', 'number', 'string')}}]}, 'optionalElement': {'type': 'component'}, 'optionalMessage': {}, 'optionalEnum': {'allowed': ['News', 'Photos', '1', 1, 1.0, '2', 2, 2.0], 'type': ('string', 'number')}, 'optionalUnion': {'anyof': [{'type': 'string'}, {'type': 'number'}, {}]}, 'optionalArrayOf': {'type': 'list', 'schema': {'type': 'number', 'nullable': False}}, 'optionalObjectOf': {'type': 'dict', 'nullable': False, 'valueschema': {'type': 'number'}}, 'optionalObjectWithShapeAndNestedDescription': {'type': 'dict', 'allow_unknown': False, 'nullable': False, 'schema': {'color': {'type': 'string'}, 'fontSize': {'type': 'number'}, 'figure': {'type': 'dict', 'allow_unknown': False, 'nullable': False, 'schema': {'data': {'type': 'list', 'schema': {'type': 'dict', 'nullable': False}}, 'layout': {'type': 'dict'}}}}}, 'optionalAny': {'type': ('boolean', 'number', 'string', 'dict', 'list')}, 'customProp': {}, 'customArrayProp': {'type': 'list', 'schema': {'nullable': False}}, 'children': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}, {'type': 'list', 'schema': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}], 'nullable': True}}], 'nullable': True}, 'in': {'type': 'string'}, 'id': {'type': 'string'}, 'dashEvents': {'allowed': ['restyle', 'relayout', 'click'], 'type': ('string', 'number')}}
         )
 
     def test_required_props(self):
@@ -781,7 +781,7 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['optionalMessage', ''],
 
-            ['optionalEnum', 'a value equal to: \'News\', \'Photos\''],
+            ['optionalEnum', 'a value equal to: \'News\', \'Photos\', 1, 2'],
 
             ['optionalUnion', 'string | number'],
 
@@ -859,7 +859,7 @@ def assert_docstring(assertEqual, docstring):
             "string or number; optional)",
 
             "- optionalElement (dash component; optional)",
-            "- optionalEnum (a value equal to: 'News', 'Photos'; optional)",
+            "- optionalEnum (a value equal to: 'News', 'Photos', 1, 2; optional)",
             "- optionalUnion (string | number; optional)",
             "- optionalArrayOf (list; optional)",
 

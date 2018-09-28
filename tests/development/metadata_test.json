@@ -93,6 +93,14 @@
           {
             "value": "'Photos'",
             "computed": false
+          },
+          {
+            "value": "1",
+            "computed": false
+          },
+          {
+            "value": "2",
+            "computed": false
           }
         ]
       },
