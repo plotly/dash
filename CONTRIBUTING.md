@@ -77,6 +77,7 @@ _For larger features, your contribution will have a higher likelihood of getting
 ### Post-Release checklist
 - [ ] You have closed all issues that this pull request solves, and commented the new version number users should install.
 - [ ] You have created an issue about documenting the new feature or change and you have added it to the [Documentation] project.
+- [ ] You have created a pull request in `dash-docs` with the new release of your feature by editing that project's [`requirements.txt` file](https://github.com/plotly/dash-docs/blob/master/requirements.txt) and you have assigned `@chriddyp` to review.
 
 ## Financial Contributions
 
