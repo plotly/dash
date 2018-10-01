@@ -94,26 +94,6 @@ class Component(collections.MutableMapping):
                     )
                 )
 
-        # Make sure arguments have valid values
-        DashValidator.set_component_class(Component)
-        validator = DashValidator(
-            self._schema,
-            allow_unknown=True,
-        )
-        valid = validator.validate(kwargs)
-        if not valid:
-            error_message = ("Initialization of  `{}` did not validate.\n"
-                             .format(self.__class__.__name__))
-            error_message += "The errors in validation are as follows:\n\n"
-
-            # pylint: disable=protected-access
-            raise dash.exceptions.InitialLayoutValidationError(
-                generate_validation_error_message(
-                    validator.errors, 0, error_message
-                )
-            )
-
-        # Set object attributes once validations have passed
         for k, v in list(kwargs.items()):
             setattr(self, k, v)
 
@@ -238,7 +218,7 @@ class Component(collections.MutableMapping):
         """Yield each item with its path in the tree."""
         children = getattr(self, 'children', None)
         children_type = type(children).__name__
-        children_id = "(id={:s})".format(children.id) \
+        children_id = "(id={})".format(children.id) \
                       if getattr(children, 'id', False) else ''
         children_string = children_type + ' ' + children_id
 
@@ -251,16 +231,41 @@ class Component(collections.MutableMapping):
         # children is a list of components
         elif isinstance(children, collections.MutableSequence):
             for idx, i in enumerate(children):
-                list_path = "[{:d}] {:s} {}".format(
+                list_path = "[{}] {} {}".format(
                     idx,
                     type(i).__name__,
-                    "(id={:s})".format(i.id) if getattr(i, 'id', False) else ''
+                    "(id={})".format(i.id) if getattr(i, 'id', False) else ''
                 )
                 yield list_path, i
 
                 if isinstance(i, Component):
                     for p, t in i.traverse_with_paths():
                         yield "\n".join([list_path, p]), t
+
+    def validate(self):
+        # Make sure arguments have valid values
+        DashValidator.set_component_class(Component)
+        validator = DashValidator(
+            self._schema,
+            allow_unknown=True,
+        )
+        args = {
+            k: self.__dict__[k]
+            for k in self.__dict__['_prop_names']
+            if k in self.__dict__.keys()
+        }
+        valid = validator.validate(args)
+        if not valid:
+            error_message = ("Initialization of  `{}` did not validate.\n"
+                             .format(self.__class__.__name__))
+            error_message += "The errors in validation are as follows:\n\n"
+
+            # pylint: disable=protected-access
+            raise dash.exceptions.InitialLayoutValidationError(
+                generate_validation_error_message(
+                    validator.errors, 0, error_message
+                )
+            )
 
     def __iter__(self):
         """Yield IDs in the tree of children."""
