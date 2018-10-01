@@ -617,14 +617,16 @@ export default class ControlledTable extends Component<ControlledTableProps> {
 
         R.forEach(column => {
             const width = Stylesheet.unit(column.width || DEFAULT_CELL_WIDTH, 'px');
+            const maxWidth = Stylesheet.unit(column.maxWidth || column.width || DEFAULT_CELL_WIDTH, 'px');
+            const minWidth = Stylesheet.unit(column.minWidth || column.width || DEFAULT_CELL_WIDTH, 'px');
 
             this.stylesheet.setRule(
                 `.dash-spreadsheet-inner td.column-${typeIndex}`,
-                `width: ${width}; max-width: ${width}; min-width: ${width};`
+                `width: ${width}; max-width: ${maxWidth}; min-width: ${minWidth};`
             );
             this.stylesheet.setRule(
                 `.dash-spreadsheet-inner th.column-${typeIndex}`,
-                `width: ${width}; max-width: ${width}; min-width: ${width};`
+                `width: ${width}; max-width: ${maxWidth}; min-width: ${minWidth};`
             );
 
             ++typeIndex;
@@ -725,7 +727,7 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             'dash-spreadsheet-container',
             ...(n_fixed_rows ? ['freeze-top'] : []),
             ...(n_fixed_columns ? ['freeze-left'] : [])
-        ]
+        ];
 
         const cells = this.getCells();
         const grid = this.getFragments(cells, n_fixed_columns, n_fixed_rows);

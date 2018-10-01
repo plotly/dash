@@ -81,11 +81,6 @@
     display: flex;
     flex-direction: column;
 
-    &.freeze-left,
-    &.freeze-top {
-        overflow: hidden !important;
-    }
-
     *,
     *:after,
     *:before {
@@ -121,24 +116,38 @@
         }
     }
 
-    .row-0 {
-        display: flex;
-        flex: 0 0 auto;
-        flex-direction: row;
-    }
+    &.freeze-left,
+    &.freeze-top {
+        overflow: hidden !important;
 
-    .row-1 {
-        display: flex;
-        flex-direction: row;
-        overflow: scroll;
-    }
+        .row-0 {
+            display: flex;
+            flex: 0 0 auto;
+            flex-direction: row;
+        }
 
-    .cell-0-0,
-    .cell-1-0 {
-        flex: 0 0 auto;
-        left: 0;
-        position: sticky;
-        z-index: 400;
+        .row-1 {
+            display: flex;
+            flex-direction: row;
+            overflow: scroll;
+        }
+
+        .cell-0-0,
+        .cell-1-0 {
+            flex: 0 0 auto;
+            left: 0;
+            position: sticky;
+            z-index: 400;
+        }
+
+        .cell-0-1 {
+            z-index: 300;
+            flex: 0 0 auto;
+        }
+
+        .cell-1-1 {
+            flex: 0 0 auto;
+        }
     }
 
     &:not(.freeze-top):not(.freeze-left) {
@@ -179,15 +188,6 @@
         .cell-1-0 {
             .left-cells();
         }
-    }
-
-    .cell-0-1 {
-        z-index: 300;
-        flex: 0 0 auto;
-    }
-
-    .cell-1-1 {
-        flex: 0 0 auto;
     }
 
     .cell {

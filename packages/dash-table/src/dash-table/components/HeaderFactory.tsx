@@ -180,6 +180,8 @@ export default class HeaderFactory {
 
             // Calculate the width of all those columns combined
             const width = `calc(${spannedColumns.map(column => Stylesheet.unit(column.width || DEFAULT_CELL_WIDTH, 'px')).join(' + ')})`;
+            const maxWidth = `calc(${spannedColumns.map(column => Stylesheet.unit(column.maxWidth || column.width || DEFAULT_CELL_WIDTH, 'px')).join(' + ')})`;
+            const minWidth = `calc(${spannedColumns.map(column => Stylesheet.unit(column.minWidth || column.width || DEFAULT_CELL_WIDTH, 'px')).join(' + ')})`;
 
             return (<th
                 key={`header-cell-${columnId}`}
@@ -187,14 +189,8 @@ export default class HeaderFactory {
                 className={
                     `column-${columnId + offset} ` +
                     (columnId === columns.length - 1 || columnId === R.last(columnIndices) ? 'cell--right-last ' : '')
-                    // (visibleIndex < n_fixed_columns ? `frozen-left frozen-left-${visibleIndex}` : '')
-
                 }
-                style={visibleIndex < n_fixed_columns ? {
-                    maxWidth: width,
-                    minWidth: width,
-                    width: width
-                } : undefined}
+                style={visibleIndex < n_fixed_columns ? { maxWidth, minWidth, width } : undefined}
             >
                 {rowSorting ? (
                     <span

@@ -55,7 +55,7 @@ class StylesheetFacade {
 export default class Stylesheet {
     private stylesheet: StylesheetFacade;
 
-    static unit(dimension: any, defaultUnit: 'em' | 'rem' | 'px' = 'px') {
+    static unit(dimension: any, defaultUnit: 'em' | 'rem' | 'px' | '%' = 'px') {
         if (Stylesheet.hasUnit(dimension)) {
             return dimension;
         } else {
@@ -65,7 +65,7 @@ export default class Stylesheet {
 
     static hasUnit(dimension: any) {
         return typeof dimension === 'string' &&
-            /^\d+(\.\d+)?(px|em|rem)$/.test(dimension);
+            /^\d+(\.\d+)?(px|em|rem|%)$/.test(dimension);
     }
 
     constructor(private readonly prefix: string) {

@@ -27,6 +27,9 @@ export interface IColumn {
     editable?: boolean;
     name: string;
     options?: { label: string | number, value: any }[]; // legacy
+    width?: string | number;
+    maxWidth?: string | number;
+    minWidth?: string | number;
     [key: string]: any;
 }
 
