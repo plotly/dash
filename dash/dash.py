@@ -554,7 +554,7 @@ class Dash(object):
             'Use `callback` instead. `callback` has a new syntax too, '
             'so make sure to call `help(app.callback)` to learn more.')
 
-    def _validate_callback(self, output, inputs, state, events):
+    def _validate_callback_definition(self, output, inputs, state, events):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
 
@@ -809,7 +809,7 @@ class Dash(object):
     # relationships
     # pylint: disable=dangerous-default-value
     def callback(self, output, inputs=[], state=[], events=[]):
-        self._validate_callback(output, inputs, state, events)
+        self._validate_callback_definition(output, inputs, state, events)
 
         callback_id = '{}.{}'.format(
             output.component_id, output.component_property
