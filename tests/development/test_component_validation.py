@@ -5,12 +5,37 @@ import collections
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+import dash
+import dash_html_components as html
 from dash.development.component_loader import _get_metadata
 from dash.development.base_component import generate_class, Component
 from dash.development.validator import DashValidator
 
 
-class TestGenerateClass(unittest.TestCase):
+from ..IntegrationTests import IntegrationTests
+
+
+class TestComponentValidationIntegration(IntegrationTests):
+    def test_component_in_initial_layout_is_validated(self):
+        app = dash.Dash(__name__)
+        app.config['suppress_callback_exceptions'] = True
+
+        app.layout = html.Div(children=[
+            html.Button(id='hello', children=[[]]),
+            html.Div(id='container'),
+        ])
+
+        self.assertRaises(
+            dash.exceptions.InitialLayoutValidationError,
+            app._validate_layout
+        )
+
+        # Give teardown something to call terminate on
+        class s:
+            def terminate(self):
+                pass
+        self.server_process = s()
+class TestComponentValidation(unittest.TestCase):
     def setUp(self):
         path = os.path.join('tests', 'development', 'metadata_test.json')
         data = _get_metadata(path)
