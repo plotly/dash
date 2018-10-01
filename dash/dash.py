@@ -90,6 +90,7 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             suppress_callback_exceptions=None,
+            disable_component_validation=None,
             components_cache_max_age=None,
             **kwargs):
 
@@ -131,6 +132,10 @@ class Dash(object):
             'suppress_callback_exceptions': _configs.get_config(
                 'suppress_callback_exceptions',
                 suppress_callback_exceptions, env_configs, False
+            ),
+            'disable_component_validation': _configs.get_config(
+                'disable_component_validation',
+                disable_component_validation, env_configs, False
             ),
             'routes_pathname_prefix': routes_pathname_prefix,
             'requests_pathname_prefix': requests_pathname_prefix,
