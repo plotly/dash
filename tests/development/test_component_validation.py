@@ -16,14 +16,22 @@ from ..IntegrationTests import IntegrationTests
 
 
 class TestComponentValidationIntegration(IntegrationTests):
+    def setUp(self):
+        path = os.path.join('tests', 'development', 'metadata_test.json')
+        data = _get_metadata(path)
+
+        self.ComponentClass = generate_class(
+            typename='Table',
+            props=data['props'],
+            description=data['description'],
+            namespace='TableComponents'
+        )
+
     def test_component_in_initial_layout_is_validated(self):
         app = dash.Dash(__name__)
         app.config['suppress_callback_exceptions'] = True
 
-        app.layout = html.Div(children=[
-            html.Button(id='hello', children=[[]]),
-            html.Div(id='container'),
-        ])
+        app.layout = html.Div(self.ComponentClass(id='hello', children=[[]]))
 
         self.assertRaises(
             dash.exceptions.InitialLayoutValidationError,

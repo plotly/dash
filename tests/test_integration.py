@@ -2,7 +2,6 @@ import json
 from multiprocessing import Value
 import datetime
 import itertools
-import re
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_flow_example
@@ -141,6 +140,7 @@ class Tests(IntegrationTests):
             html.Div(initial_output, id='output1'),
             html.Div(initial_output, id='output2'),
         ])
+        app.config.disable_component_validation = True
 
         callback1_count = Value('i', 0)
         callback2_count = Value('i', 0)
