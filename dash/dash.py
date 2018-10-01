@@ -692,7 +692,7 @@ class Dash(object):
                 output.component_id,
                 output.component_property).replace('    ', ''))
 
-    def _validate_callback_output(self, output_value, output):
+    def _debug_callback_serialization_error(self, output_value, output):
         valid = [str, dict, int, float, type(None), Component]
 
         def _raise_invalid(bad_val, outer_val, bad_type, path, index=None,
@@ -846,7 +846,10 @@ class Dash(object):
                         cls=plotly.utils.PlotlyJSONEncoder
                     )
                 except TypeError:
-                    self._validate_callback_output(validated_output, output)
+                    self._debug_callback_serialization_error(
+                        validated_output,
+                        output
+                    )
                     raise exceptions.InvalidCallbackReturnValue('''
                     The callback for property `{property:s}`
                     of component `{id:s}` returned a value
