@@ -86,6 +86,45 @@ class TestComponentValidation(unittest.TestCase):
             }
         })
 
+    def test_callback_output_is_validated(self):
+        app = dash.Dash(__name__)
+        app.config['suppress_callback_exceptions'] = True
+
+        app.layout = html.Div(children=[
+            html.Button(id='put-components', children='Click me'),
+            html.Div(id='container'),
+        ])
+
+        @app.callback(
+            dash.dependencies.Output('container', 'children'),
+            [dash.dependencies.Input('put-components', 'n_clicks')]
+        )
+        def put_components(n_clicks):
+            if n_clicks:
+                return [[[[[[[]]]]]]]
+            return "empty"
+
+        with app.server.test_request_context(
+            "/_dash-update-component",
+            json={
+                'inputs': [{
+                    'id': 'put-components',
+                    'property': 'n_clicks',
+                    'value': 1
+                }],
+                'output': {
+                    'namespace': 'dash_html_components',
+                    'type': 'Div',
+                    'id': 'container',
+                    'property': 'children'
+                }
+            }
+        ):
+            self.assertRaises(
+                dash.exceptions.CallbackOutputValidationError,
+                app.dispatch
+            )
+
     def test_required_validation(self):
         self.assertTrue(self.required_validator.validate({
             'id': 'required',
@@ -182,6 +221,9 @@ class TestComponentValidation(unittest.TestCase):
         }))
         self.assertTrue(self.component_validator.validate({
             'children': ()
+        }))
+        self.assertFalse(self.component_validator.validate({
+            'children': [[]]
         }))
 
     def test_node_validation(self):
