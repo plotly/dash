@@ -63,7 +63,7 @@ class TestComponentValidation(unittest.TestCase):
         app.layout = html.Div(self.ComponentClass(id='hello', children=[[]]))
 
         self.assertRaises(
-            dash.exceptions.InitialLayoutValidationError,
+            dash.exceptions.ComponentInitializationValidationError,
             app._validate_layout
         )
 
@@ -145,7 +145,7 @@ class TestComponentValidation(unittest.TestCase):
             }
         ):
             self.assertRaises(
-                dash.exceptions.CallbackOutputValidationError,
+                dash.exceptions.ComponentInitializationValidationError,
                 app.dispatch
             )
 

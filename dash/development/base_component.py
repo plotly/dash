@@ -261,7 +261,7 @@ class Component(collections.MutableMapping):
             error_message += "The errors in validation are as follows:\n\n"
 
             # pylint: disable=protected-access
-            raise dash.exceptions.InitialLayoutValidationError(
+            raise dash.exceptions.ComponentInitializationValidationError(
                 generate_validation_error_message(
                     validator.errors, 0, error_message
                 )

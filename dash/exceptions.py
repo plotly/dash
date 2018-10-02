@@ -62,7 +62,7 @@ class InvalidConfig(DashException):
     pass
 
 
-class InitialLayoutValidationError(DashException):
+class ComponentInitializationValidationError(DashException):
     pass
 
 
