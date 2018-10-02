@@ -945,10 +945,11 @@ class Dash(object):
                     validator.errors, 0, error_message))
         # Must also validate initialization of newly created components
         if component_property == 'children':
-            value.validate()
-            for component in value.traverse():
-                if isinstance(component, Component):
-                    component.validate()
+            if isinstance(value, Component):
+                value.validate()
+                for component in value.traverse():
+                    if isinstance(component, Component):
+                        component.validate()
 
     def _validate_layout(self):
         if self.layout is None:
