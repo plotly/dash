@@ -11,27 +11,21 @@ import ReactSyntaxHighlighter from 'react-syntax-highlighter';
 export default function SyntaxHighlighter(props) {
     const {theme} = props;
     let style;
-    if(theme === 'dark') {
+    if (theme === 'dark') {
         style = monokai;
     } else {
         style = arduinoLight;
     }
 
     // must be a string or an array of strings
-    if(type(props.children) === 'Array') {
+    if (type(props.children) === 'Array') {
         props.children = props.children.join('\n');
     }
-    if(type(props.children) === 'Null') {
+    if (type(props.children) === 'Null') {
         props.children = '';
     }
-    return (
-        <ReactSyntaxHighlighter
-            style={style}
-            {...omit(['theme'], props)}
-        />
-    )
+    return <ReactSyntaxHighlighter style={style} {...omit(['theme'], props)} />;
 }
-
 
 SyntaxHighlighter.propTypes = {
     id: PropTypes.string,
@@ -40,7 +34,7 @@ SyntaxHighlighter.propTypes = {
      */
     children: PropTypes.oneOfType([
         PropTypes.string,
-        PropTypes.arrayOf(PropTypes.string)
+        PropTypes.arrayOf(PropTypes.string),
     ]),
 
     /**
@@ -87,5 +81,5 @@ SyntaxHighlighter.propTypes = {
     /**
      * inline style to be passed to the span wrapping each line if wrapLines is true. Can be either an object or a function that recieves current line number as argument and returns style object.
      */
-    lineStyle: PropTypes.object
+    lineStyle: PropTypes.object,
 };

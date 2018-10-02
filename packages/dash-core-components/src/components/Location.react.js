@@ -14,14 +14,7 @@ export default class Location extends Component {
     }
 
     updateLocation(props) {
-        const {
-            hash,
-            href,
-            pathname,
-            refresh,
-            search,
-            setProps
-        } = props;
+        const {hash, href, pathname, refresh, search, setProps} = props;
 
         // Keep track of props relating to window.location that may need to be updated via setProps
         const propsToSet = {};
@@ -37,11 +30,13 @@ export default class Location extends Component {
          * @returns {boolean}
          *  Returns true if the prop with fieldName is different and the window state needs to be updated
          */
-        const checkExistsUpdateWindowLocation = (fieldName) => {
+        const checkExistsUpdateWindowLocation = fieldName => {
             const propVal = props[fieldName];
 
-            if ((R.type(propVal) === 'Undefined' || propVal === null)
-                && R.type(window.location[fieldName]) !== 'Undefined') {
+            if (
+                (R.type(propVal) === 'Undefined' || propVal === null) &&
+                R.type(window.location[fieldName]) !== 'Undefined'
+            ) {
                 // propVal is undefined or null, but window.location has this fieldName defined
                 propsToSet[fieldName] = window.location[fieldName];
             } else if (propVal !== window.location[fieldName]) {
@@ -67,18 +62,25 @@ export default class Location extends Component {
         const searchUpdated = checkExistsUpdateWindowLocation('search');
 
         // propsToSet has been updated -- batch update to Dash
-        if (R.type(setProps) === 'Function' && (Object.keys(propsToSet).length > 0)) {
+        if (
+            R.type(setProps) === 'Function' &&
+            Object.keys(propsToSet).length > 0
+        ) {
             setProps(propsToSet);
         }
 
         // Special case -- overrides everything!
-        if (hrefUpdated)
-            {window.history.pushState({}, '', href);}
-        else if (pathnameUpdated || hashUpdated || searchUpdated) {
+        if (hrefUpdated) {
+            window.history.pushState({}, '', href);
+        } else if (pathnameUpdated || hashUpdated || searchUpdated) {
             // Otherwise, we can mash everything together
             const searchVal = R.type(search) !== 'Undefined' ? search : '';
-            const hashVal = R.type(hash) !== 'Undefined'  ? hash : '';
-            window.history.pushState({}, '', `${pathname}${searchVal}${hashVal}`);
+            const hashVal = R.type(hash) !== 'Undefined' ? hash : '';
+            window.history.pushState(
+                {},
+                '',
+                `${pathname}${searchVal}${hashVal}`
+            );
         }
     }
 
@@ -86,14 +88,15 @@ export default class Location extends Component {
         const listener = () => {
             return () => {
                 const {setProps} = this.props;
-                if (setProps)
-                    {setProps({
+                if (setProps) {
+                    setProps({
                         pathname: window.location.pathname,
                         href: window.location.href,
                         hash: window.location.hash,
-                        search: window.location.search
-                    });}
-            }
+                        search: window.location.search,
+                    });
+                }
+            };
         };
         window.addEventListener('onpopstate', listener());
         window.onpopstate = listener('POP');
@@ -131,5 +134,5 @@ Location.propTypes = {
 };
 
 Location.defaultProps = {
-    refresh: true
+    refresh: true,
 };

@@ -29,7 +29,7 @@ export default class Checklist extends Component {
             labelStyle,
             options,
             setProps,
-            style
+            style,
         } = this.props;
         const {values} = this.state;
 
@@ -55,8 +55,12 @@ export default class Checklist extends Component {
                                     newValues = append(option.value, values);
                                 }
                                 this.setState({values: newValues});
-                                if (setProps) {setProps({values: newValues});}
-                                if (fireEvent) {fireEvent({event: 'change'});}
+                                if (setProps) {
+                                    setProps({values: newValues});
+                                }
+                                if (fireEvent) {
+                                    fireEvent({event: 'change'});
+                                }
                             }}
                         />
                         {option.label}
@@ -73,8 +77,8 @@ Checklist.propTypes = {
     /**
      * An array of options
      */
-     options: PropTypes.arrayOf(
-         PropTypes.shape({
+    options: PropTypes.arrayOf(
+        PropTypes.shape({
             /**
              * The checkbox's label
              */
@@ -90,7 +94,7 @@ Checklist.propTypes = {
             /**
              * If true, this checkbox is disabled and can't be clicked on.
              */
-            disabled: PropTypes.bool
+            disabled: PropTypes.bool,
         })
     ),
 
@@ -108,7 +112,6 @@ Checklist.propTypes = {
      * The style of the container (div)
      */
     style: PropTypes.object,
-
 
     /**
      * The style of the <input> checkbox element
@@ -142,7 +145,7 @@ Checklist.propTypes = {
      */
     setProps: PropTypes.func,
 
-    dashEvents: PropTypes.oneOf(['change'])
+    dashEvents: PropTypes.oneOf(['change']),
 };
 
 Checklist.defaultProps = {
@@ -150,5 +153,5 @@ Checklist.defaultProps = {
     inputClassName: '',
     labelStyle: {},
     labelClassName: '',
-    options: []
+    options: [],
 };

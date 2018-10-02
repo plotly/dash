@@ -25,21 +25,29 @@ export default class RangeSlider extends Component {
                 onChange={value => {
                     this.setState({value});
                     if (updatemode === 'drag') {
-                        if (setProps) {setProps({value});}
-                        if (fireEvent) {fireEvent('change');}
+                        if (setProps) {
+                            setProps({value});
+                        }
+                        if (fireEvent) {
+                            fireEvent('change');
+                        }
                     }
                 }}
                 onAfterChange={value => {
                     if (updatemode === 'mouseup') {
-                        if (setProps) {setProps({value});}
-                        if (fireEvent) {fireEvent('change');}
+                        if (setProps) {
+                            setProps({value});
+                        }
+                        if (fireEvent) {
+                            fireEvent('change');
+                        }
                     }
                 }}
                 value={value}
                 {...omit(
                     ['value', 'fireEvent', 'setProps', 'updatemode'],
-                     this.props
-                 )}
+                    this.props
+                )}
             />
         );
     }
@@ -68,9 +76,9 @@ RangeSlider.propTypes = {
              */
             PropTypes.shape({
                 style: PropTypes.object,
-                label: PropTypes.string
-            })
-        ])
+                label: PropTypes.string,
+            }),
+        ]),
     }),
 
     /**
@@ -161,10 +169,9 @@ RangeSlider.propTypes = {
      */
     setProps: PropTypes.func,
 
-    dashEvents: PropTypes.oneOf(['change'])
-
+    dashEvents: PropTypes.oneOf(['change']),
 };
 
 RangeSlider.defaultProps = {
-    updatemode: 'mouseup'
+    updatemode: 'mouseup',
 };

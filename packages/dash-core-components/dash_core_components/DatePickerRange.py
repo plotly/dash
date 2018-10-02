@@ -73,10 +73,10 @@ valid formats are variations of "MM YY DD". For example:
 not a small "x" appears on the right of the dropdown that removes
 the selected value.
 - updatemode (a value equal to: 'singledate', 'bothdates'; optional): Determines when the component should update
-its value. If `bothdates`, then the DatePicker 
+its value. If `bothdates`, then the DatePicker
 will only trigger its value when the user has
 finished picking both dates. If `singledate`, then
-the DatePicker will update its value 
+the DatePicker will update its value
 as one date is picked.
 
 Available events: 'change'"""

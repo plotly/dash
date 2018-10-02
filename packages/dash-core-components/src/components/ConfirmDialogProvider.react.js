@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import ConfirmDialog from './ConfirmDialog.react'
-
-
+import ConfirmDialog from './ConfirmDialog.react';
 
 /**
  * A wrapper component that will display a confirmation dialog
@@ -24,22 +22,25 @@ export default class ConfirmDialogProvider extends React.Component {
     }
 
     componentWillReceiveProps(props) {
-        this.setState({displayed: props.displayed})
+        this.setState({displayed: props.displayed});
     }
 
     render() {
-        const { id, setProps, children } = this.props;
+        const {id, setProps, children} = this.props;
 
         const displayed = this.state.displayed;
 
         // Will lose the previous onClick of the child
-        const wrapClick = (child) => React.cloneElement(child, {onClick: () =>
-            {
-                const update = {displayed: true};
-                this.setState(update);
-                if (setProps) {setProps(update);}
-            }
-        });
+        const wrapClick = child =>
+            React.cloneElement(child, {
+                onClick: () => {
+                    const update = {displayed: true};
+                    this.setState(update);
+                    if (setProps) {
+                        setProps(update);
+                    }
+                },
+            });
 
         const realChild = children.props
             ? children.props.children
@@ -47,16 +48,12 @@ export default class ConfirmDialogProvider extends React.Component {
 
         return (
             <div id={id}>
-                {
-                    realChild && realChild.length
-                        ? realChild.map(wrapClick)
-                        : wrapClick(realChild)
-                }
-                <ConfirmDialog
-                    {...this.props}
-                    displayed={displayed}/>
+                {realChild && realChild.length
+                    ? realChild.map(wrapClick)
+                    : wrapClick(realChild)}
+                <ConfirmDialog {...this.props} displayed={displayed} />
             </div>
-        )
+        );
     }
 }
 
@@ -64,7 +61,7 @@ ConfirmDialogProvider.defaultProps = {
     submit_n_clicks: 0,
     submit_n_clicks_timestamp: -1,
     cancel_n_clicks: 0,
-    cancel_n_clicks_timestamp: -1
+    cancel_n_clicks_timestamp: -1,
 };
 
 ConfirmDialogProvider.propTypes = {
@@ -102,5 +99,5 @@ ConfirmDialogProvider.propTypes = {
     /**
      * The children to hijack clicks from and display the popup.
      */
-    children: PropTypes.any
+    children: PropTypes.any,
 };

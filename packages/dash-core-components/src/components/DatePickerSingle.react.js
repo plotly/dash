@@ -34,8 +34,8 @@ export default class DatePickerSingle extends Component {
             'date',
             'initial_visible_month',
             'max_date_allowed',
-            'min_date_allowed'
-        ]
+            'min_date_allowed',
+        ];
         momentProps.forEach(prop => {
             if (R.type(newProps[prop]) !== 'Undefined') {
                 newState[prop] = moment(newProps[prop]);
@@ -48,7 +48,7 @@ export default class DatePickerSingle extends Component {
     }
 
     componentWillReceiveProps(newProps) {
-        this.propsToState(newProps)
+        this.propsToState(newProps);
     }
 
     componentWillMount() {
@@ -57,13 +57,17 @@ export default class DatePickerSingle extends Component {
 
     isOutsideRange(date) {
         const {min_date_allowed, max_date_allowed} = this.state;
-        const notUndefined = R.complement(R.pipe(R.type, R.equals('Undefined')));
+        const notUndefined = R.complement(
+            R.pipe(
+                R.type,
+                R.equals('Undefined')
+            )
+        );
         return (
             (notUndefined(min_date_allowed) && date < min_date_allowed) ||
             (notUndefined(max_date_allowed) && date >= max_date_allowed)
         );
     }
-
 
     onDateChange(date) {
         const {setProps, fireEvent} = this.props;
@@ -78,11 +82,7 @@ export default class DatePickerSingle extends Component {
     }
 
     render() {
-        const {
-            date,
-            focused,
-            initial_visible_month
-        } = this.state;
+        const {date, focused, initial_visible_month} = this.state;
 
         const {
             calendar_orientation,
@@ -99,10 +99,10 @@ export default class DatePickerSingle extends Component {
             show_outside_days,
             stay_open_on_select,
             with_full_screen_portal,
-            with_portal
+            with_portal,
         } = this.props;
 
-        const verticalFlag = (calendar_orientation !== 'vertical');
+        const verticalFlag = calendar_orientation !== 'vertical';
 
         return (
             <SingleDatePicker
@@ -117,7 +117,6 @@ export default class DatePickerSingle extends Component {
                 withFullScreenPortal={with_full_screen_portal && verticalFlag}
                 firstDayOfWeek={first_day_of_week}
                 enableOutSideDays={show_outside_days}
-
                 monthFormat={month_format}
                 displayFormat={display_format}
                 placeholder={placeholder}
@@ -194,21 +193,21 @@ DatePickerSingle.propTypes = {
     reopen_calendar_on_clear: PropTypes.bool,
 
     /**
-    * Number of calendar months that are shown when calendar is opened
-    */
+     * Number of calendar months that are shown when calendar is opened
+     */
     number_of_months_shown: PropTypes.number,
 
     /**
-    * If True, calendar will open in a screen overlay portal,
-    * not supported on vertical calendar
-    */
+     * If True, calendar will open in a screen overlay portal,
+     * not supported on vertical calendar
+     */
     with_portal: PropTypes.bool,
 
     /**
-    * If True, calendar will open in a full screen overlay portal, will
-    * take precedent over 'withPortal' if both are set to True,
-    * not supported on vertical calendar
-    */
+     * If True, calendar will open in a full screen overlay portal, will
+     * take precedent over 'withPortal' if both are set to True,
+     * not supported on vertical calendar
+     */
     with_full_screen_portal: PropTypes.bool,
 
     /**
@@ -218,15 +217,15 @@ DatePickerSingle.propTypes = {
     first_day_of_week: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6]),
 
     /**
-    * If True the calendar will not close when the user has selected a value
-    * and will wait until the user clicks off the calendar
-    */
+     * If True the calendar will not close when the user has selected a value
+     * and will wait until the user clicks off the calendar
+     */
     stay_open_on_select: PropTypes.bool,
 
     /**
-    * If True the calendar will display days that rollover into
-    * the next month
-    */
+     * If True the calendar will display days that rollover into
+     * the next month
+     */
     show_outside_days: PropTypes.bool,
 
     /**
@@ -249,11 +248,11 @@ DatePickerSingle.propTypes = {
     display_format: PropTypes.string,
 
     /**
-    * If True, no dates can be selected.
-    */
+     * If True, no dates can be selected.
+     */
     disabled: PropTypes.bool,
 
-     /**
+    /**
      * Whether or not the dropdown is "clearable", that is, whether or
      * not a small "x" appears on the right of the dropdown that removes
      * the selected value.
@@ -261,13 +260,13 @@ DatePickerSingle.propTypes = {
     clearable: PropTypes.bool,
 
     /**
-    * Dash-assigned callback that gets fired when the value changes.
-    */
+     * Dash-assigned callback that gets fired when the value changes.
+     */
     setProps: PropTypes.func,
 
     /**
-    * Dash-assigned callback that gets fired when the value changes.
-    */
+     * Dash-assigned callback that gets fired when the value changes.
+     */
     dashEvents: PropTypes.oneOf(['change']),
 
     fireEvent: PropTypes.func,
@@ -285,5 +284,5 @@ DatePickerSingle.defaultProps = {
     stay_open_on_select: false,
     reopen_calendar_on_clear: false,
     clearable: false,
-    disabled: false
+    disabled: false,
 };

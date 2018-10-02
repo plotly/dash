@@ -18,14 +18,12 @@ $ npm i
 2. Build the code:
 
 ```
-$ npm run build-dev
+$ npm run build-all
 ```
 
 3. Install the library
 
 ```
-$ cd dash-core-components
-$ npm run copy-lib
 $ python setup.py install
 ```
 
@@ -51,8 +49,7 @@ You can start up a demo development server to see a demo of the rendered
 components:
 
 ```sh
-$ builder run demo
-$ open http://localhost:9000
+$ npm start 
 ```
 
 You have to maintain the list of components in `demo/Demo.react.js`.
@@ -60,48 +57,26 @@ You have to maintain the list of components in `demo/Demo.react.js`.
 ### Code quality and tests
 
 ### To run integration tests (test_integration.py)
-We run our integration tests on CircleCI with help from Tox. There’s a tox.ini file which holds the configuration, refer to [tox's documentation](http://tox.readthedocs.io/en/latest/index.html) for help. You may need to set environment variables in your terminal, like `TOX_PYTHON_27` to my version of python that I wanted tox to use. So running:
-
+You can run the unit tests with the 
 ```sh
-export TOX_PYTHON_27=python2
+npm test
 ```
-
-set the `TOX_PYTHON_27` env variable to point to `python2`, which is Python 2.7 running on my machine. 
-You could also look in `tox.ini` and see which tests it runs, and run those commands yourself: 
-
-```sh
-python -m unittest test.test_integration
-```
+command.
 
 ### Testing your components in Dash
+1. Run the build watcher by running
+        $ npm run build:watch
 
-1. Build development bundle to `lib/` and watch for changes
-
-        # Once this is started, you can just leave it running.
-        $ npm start
-
-2. Install module locally (after every change)
-
-        # Generate metadata, and build the JavaScript bundle
-        $ npm run install-local
-
-        # Now you're done. For subsequent changes, if you've got `npm start`
-        # running in a separate process, it's enough to just do:
-        $ python setup.py install
-
-3. Run the dash layout you want to test
+2. Run the dash layout you want to test
 
         # Import dash_core_components to your layout, then run it:
         $ python my_dash_layout.py
 
 ## Installing python package locally
 
-Before publishing to PyPi, you can test installing the module locally:
-
-```sh
-# Install in `site-packages` on your machine
-$ npm run install-local
-```
+You can run 
+        $ python setup.py install
+to install the package locally, so you can test it out in your current environment.
 
 ## Uninstalling python package locally
 
@@ -111,23 +86,19 @@ $ npm run uninstall-local
 
 ## Publishing
 
-See the [Publishing New Components/Features](CONTRIBUTING.md#publishing-new-componentsfeatures) section of the Contributing guide for step-by-step instructions on publishing new components.
-
-## Builder / Archetype
-
-We use [Builder][] to centrally manage build configuration, dependencies, and
-scripts.
-
-To see all `builder` scripts available:
+There's an npm script that will handle publish, provided you have the right credentials. You can run it by running
 
 ```sh
-$ builder help
+$ npm run publish-all 
 ```
 
-See the [dash-components-archetype][] repo for more information.
+See the [Publishing New Components/Features](CONTRIBUTING.md#publishing-new-componentsfeatures) section of the Contributing guide for step-by-step instructions on publishing new components.
 
-[Builder]: https://github.com/FormidableLabs/builder
+## Dash Component Boilerplate
+
+See the [dash-component-boilerplate](https://github.com/plotly/dash-component-boilerplate) repo for more information.
+
 [Dash]: https://plot.ly/dash
+[Dash Component Boilerplate]: (https://github.com/plotly/dash-component-boilerplate)
 [NPM package authors]: https://www.npmjs.com/package/dash-core-components/access
 [PyPi]: https://pypi.python.org/pypi
-[dash-components-archetype]: https://github.com/plotly/dash-components-archetype

@@ -29,7 +29,7 @@ export default class RadioItems extends Component {
             labelClassName,
             labelStyle,
             options,
-            setProps
+            setProps,
         } = this.props;
         const {value} = this.state;
 
@@ -40,7 +40,11 @@ export default class RadioItems extends Component {
         return (
             <div {...ids} className={className} style={style}>
                 {options.map(option => (
-                    <label style={labelStyle} className={labelClassName} key={option.value}>
+                    <label
+                        style={labelStyle}
+                        className={labelClassName}
+                        key={option.value}
+                    >
                         <input
                             checked={option.value === value}
                             className={inputClassName}
@@ -49,8 +53,12 @@ export default class RadioItems extends Component {
                             type="radio"
                             onChange={() => {
                                 this.setState({value: option.value});
-                                if (setProps) {setProps({value: option.value});}
-                                if (fireEvent) {fireEvent({event: 'change'});}
+                                if (setProps) {
+                                    setProps({value: option.value});
+                                }
+                                if (fireEvent) {
+                                    fireEvent({event: 'change'});
+                                }
                             }}
                         />
                         {option.label}
@@ -84,7 +92,7 @@ RadioItems.propTypes = {
             /**
              * If true, this radio item is disabled and can't be clicked on.
              */
-            disabled: PropTypes.bool
+            disabled: PropTypes.bool,
         })
     ),
 
@@ -135,7 +143,7 @@ RadioItems.propTypes = {
      */
     setProps: PropTypes.func,
 
-    dashEvents: PropTypes.oneOf(['change'])
+    dashEvents: PropTypes.oneOf(['change']),
 };
 
 RadioItems.defaultProps = {
@@ -143,5 +151,5 @@ RadioItems.defaultProps = {
     inputClassName: '',
     labelStyle: {},
     labelClassName: '',
-    options: []
+    options: [],
 };

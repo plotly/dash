@@ -24,18 +24,29 @@ export default class Slider extends Component {
                 onChange={value => {
                     this.setState({value});
                     if (updatemode === 'drag') {
-                        if (setProps) {setProps({value});}
-                        if (fireEvent) {fireEvent('change');}
+                        if (setProps) {
+                            setProps({value});
+                        }
+                        if (fireEvent) {
+                            fireEvent('change');
+                        }
                     }
                 }}
                 onAfterChange={value => {
                     if (updatemode === 'mouseup') {
-                        if (setProps) {setProps({value});}
-                        if (fireEvent) {fireEvent('change');}
+                        if (setProps) {
+                            setProps({value});
+                        }
+                        if (fireEvent) {
+                            fireEvent('change');
+                        }
                     }
                 }}
                 value={value}
-                {...omit(['fireEvent', 'setProps', 'updatemode', 'value'], this.props)}
+                {...omit(
+                    ['fireEvent', 'setProps', 'updatemode', 'value'],
+                    this.props
+                )}
             />
         );
     }
@@ -64,9 +75,9 @@ Slider.propTypes = {
              */
             PropTypes.shape({
                 style: PropTypes.object,
-                label: PropTypes.string
-            })
-        ])
+                label: PropTypes.string,
+            }),
+        ]),
     }),
 
     /**
@@ -138,10 +149,9 @@ Slider.propTypes = {
      */
     setProps: PropTypes.func,
 
-    dashEvents: PropTypes.oneOf(['change'])
-
+    dashEvents: PropTypes.oneOf(['change']),
 };
 
 Slider.defaultProps = {
-    updatemode: 'mouseup'
+    updatemode: 'mouseup',
 };

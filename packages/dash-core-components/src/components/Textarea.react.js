@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {omit} from 'ramda'
+import {omit} from 'ramda';
 
 /**
  * A basic HTML textarea for entering multiline text.
@@ -17,10 +17,7 @@ export default class Textarea extends Component {
     }
 
     render() {
-        const {
-            fireEvent,
-            setProps
-        } = this.props;
+        const {fireEvent, setProps} = this.props;
         const {value} = this.state;
 
         return (
@@ -28,21 +25,28 @@ export default class Textarea extends Component {
                 value={value}
                 onChange={e => {
                     this.setState({value: e.target.value});
-                    if (setProps) {setProps({value: e.target.value});}
-                    if (fireEvent) {fireEvent({event: 'change'});}
+                    if (setProps) {
+                        setProps({value: e.target.value});
+                    }
+                    if (fireEvent) {
+                        fireEvent({event: 'change'});
+                    }
                 }}
                 onBlur={() => {
-                    if (fireEvent) {fireEvent({event: 'blur'});}
+                    if (fireEvent) {
+                        fireEvent({event: 'blur'});
+                    }
                 }}
                 onClick={() => {
-                    if (fireEvent) {fireEvent({event: 'click'});}
+                    if (fireEvent) {
+                        fireEvent({event: 'click'});
+                    }
                 }}
                 {...omit(['fireEvent', 'setProps', 'value'], this.props)}
             />
         );
     }
 }
-
 
 Textarea.propTypes = {
     /**
@@ -187,6 +191,5 @@ Textarea.propTypes = {
      */
     fireEvent: PropTypes.func,
 
-    dashEvents: PropTypes.oneOf(['click', 'blur', 'change'])
-
+    dashEvents: PropTypes.oneOf(['click', 'blur', 'change']),
 };

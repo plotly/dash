@@ -13,7 +13,7 @@ export default class Upload extends Component {
         const newProps = {
             contents: [],
             filename: [],
-            last_modified: []
+            last_modified: [],
         };
         files.forEach(file => {
             const reader = new FileReader();
@@ -35,15 +35,14 @@ export default class Upload extends Component {
                             setProps({
                                 contents: newProps.contents[0],
                                 filename: newProps.filename[0],
-                                last_modified: newProps.last_modified[0]
+                                last_modified: newProps.last_modified[0],
                             });
                         }
                     }
                 }
-            }
+            };
             reader.readAsDataURL(file);
-        })
-
+        });
     }
 
     render() {
@@ -62,12 +61,11 @@ export default class Upload extends Component {
             style,
             style_active,
             style_reject,
-            style_disabled
+            style_disabled,
         } = this.props;
         return (
             <Dropzone
                 onDrop={this.onDrop}
-
                 accept={accept}
                 disabled={disabled}
                 disableClick={disable_click}
@@ -108,7 +106,7 @@ Upload.propTypes = {
         /**
          * If `multiple` is `true`, then the contents will be a list of strings
          */
-        PropTypes.arrayOf(PropTypes.string)
+        PropTypes.arrayOf(PropTypes.string),
     ]),
 
     /**
@@ -125,32 +123,29 @@ Upload.propTypes = {
         /**
          * If `multiple` is `true`, then the contents will be a list of strings
          */
-        PropTypes.arrayOf(PropTypes.string)
+        PropTypes.arrayOf(PropTypes.string),
     ]),
 
     /**
      * The last modified date of the file that was uploaded in unix time
      * (seconds since 1970).
      */
-     last_modified: PropTypes.oneOfType([
-         /**
-          * If `multiple` is `false`, then the contents will be a number
-          */
-         PropTypes.number,
+    last_modified: PropTypes.oneOfType([
+        /**
+         * If `multiple` is `false`, then the contents will be a number
+         */
+        PropTypes.number,
 
-         /**
-          * If `multiple` is `true`, then the contents will be a list of numbers
-          */
-         PropTypes.arrayOf(PropTypes.number)
-     ]),
+        /**
+         * If `multiple` is `true`, then the contents will be a list of numbers
+         */
+        PropTypes.arrayOf(PropTypes.number),
+    ]),
 
     /**
      * Contents of the upload component
      */
-    children: PropTypes.oneOfType([
-        PropTypes.node,
-        PropTypes.string
-    ]),
+    children: PropTypes.oneOfType([PropTypes.node, PropTypes.string]),
 
     /**
      * Allow specific types of files.
@@ -231,7 +226,7 @@ Upload.propTypes = {
     /**
      * Dash-supplied function for updating props
      */
-    setProps: PropTypes.func
+    setProps: PropTypes.func,
 };
 
 Upload.defaultProps = {
@@ -244,14 +239,14 @@ Upload.defaultProps = {
     style_active: {
         borderStyle: 'solid',
         borderColor: '#6c6',
-        backgroundColor: '#eee'
+        backgroundColor: '#eee',
     },
     style_disabled: {
-        opacity: 0.5
+        opacity: 0.5,
     },
     style_reject: {
         borderStyle: 'solid',
         borderColor: '#c66',
-        backgroundColor: '#eee'
-    }
+        backgroundColor: '#eee',
+    },
 };

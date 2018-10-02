@@ -8,15 +8,13 @@ import createFilterOptions from 'react-select-fast-filter-options';
 // Split on spaces
 const REGEX = /\s+/;
 const TOKENIZER = {
-  tokenize(text) {
-    return text
-      .split(REGEX)
-      .filter(
-        // Filter empty tokens
-        (text) => text
-      );
-  }
-}
+    tokenize(text) {
+        return text.split(REGEX).filter(
+            // Filter empty tokens
+            text => text
+        );
+    },
+};
 
 const DELIMETER = ',';
 
@@ -37,8 +35,8 @@ export default class Dropdown extends Component {
             value: props.value,
             filterOptions: createFilterOptions({
                 options: props.options,
-                tokenizer: TOKENIZER
-            })
+                tokenizer: TOKENIZER,
+            }),
         };
     }
 
@@ -48,16 +46,14 @@ export default class Dropdown extends Component {
             this.setState({
                 filterOptions: createFilterOptions({
                     options: newProps.options,
-                    tokenizer: TOKENIZER
-                })
+                    tokenizer: TOKENIZER,
+                }),
             });
         }
     }
 
     render() {
-        const {
-            id, fireEvent, multi, options, setProps, style
-        } = this.props;
+        const {id, fireEvent, multi, options, setProps, style} = this.props;
         const {filterOptions, value} = this.state;
         let selectedValue;
         if (R.type(value) === 'array') {
@@ -75,23 +71,29 @@ export default class Dropdown extends Component {
                         if (multi) {
                             let value;
                             if (R.isNil(selectedOption)) {
-                                value = []
+                                value = [];
                             } else {
                                 value = R.pluck('value', selectedOption);
                             }
                             this.setState({value});
-                            if (setProps) {setProps({value});}
+                            if (setProps) {
+                                setProps({value});
+                            }
                         } else {
                             let value;
                             if (R.isNil(selectedOption)) {
-                                value = null
+                                value = null;
                             } else {
                                 value = selectedOption.value;
                             }
                             this.setState({value});
-                            if (setProps) {setProps({value});}
+                            if (setProps) {
+                                setProps({value});
+                            }
                         }
-                        if (fireEvent) {fireEvent('change');}
+                        if (fireEvent) {
+                            fireEvent('change');
+                        }
                     }}
                     {...omit(['fireEvent', 'setProps', 'value'], this.props)}
                 />
@@ -106,8 +108,8 @@ Dropdown.propTypes = {
     /**
      * An array of options
      */
-     options: PropTypes.arrayOf(
-         PropTypes.shape({
+    options: PropTypes.arrayOf(
+        PropTypes.shape({
             /**
              * The checkbox's label
              */
@@ -123,7 +125,7 @@ Dropdown.propTypes = {
             /**
              * If true, this checkbox is disabled and can't be clicked on.
              */
-            disabled: PropTypes.bool
+            disabled: PropTypes.bool,
         })
     ),
 
@@ -137,14 +139,13 @@ Dropdown.propTypes = {
      */
     value: PropTypes.oneOfType([
         PropTypes.string,
-        PropTypes.arrayOf(PropTypes.string)
+        PropTypes.arrayOf(PropTypes.string),
     ]),
 
     /**
      * className of the dropdown element
      */
     className: PropTypes.string,
-
 
     /**
      * Whether or not the dropdown is "clearable", that is, whether or
@@ -189,5 +190,5 @@ Dropdown.defaultProps = {
     clearable: true,
     disabled: false,
     multi: false,
-    searchable: true
+    searchable: true,
 };

@@ -173,7 +173,6 @@ export default class Tabs extends Component {
                 // enhance Tab components coming from Dash (as dcc.Tab) with methods needed for handling logic
                 let childProps;
 
-
                 if (child.props.children) {
                     // if props appears on .children, props are coming from Dash
                     childProps = child.props.children.props;

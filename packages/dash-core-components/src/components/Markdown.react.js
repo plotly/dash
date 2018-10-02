@@ -8,19 +8,12 @@ import Markdown from 'react-markdown';
  * A component that renders Markdown text as specified by the
  * CommonMark spec.
  */
-function DashMarkdown (props) {
-
-    if(type(props.children) === 'Array') {
+function DashMarkdown(props) {
+    if (type(props.children) === 'Array') {
         props.children = props.children.join('\n');
     }
 
-    return (
-        <Markdown
-            source={props.children}
-            escapeHtml={true}
-            {...props}
-        />
-    )
+    return <Markdown source={props.children} escapeHtml={true} {...props} />;
 }
 
 DashMarkdown.propTypes = {
@@ -41,8 +34,8 @@ DashMarkdown.propTypes = {
      */
     children: PropTypes.oneOfType([
         PropTypes.string,
-        PropTypes.arrayOf(PropTypes.string)
-    ])
+        PropTypes.arrayOf(PropTypes.string),
+    ]),
 };
 
 export default DashMarkdown;

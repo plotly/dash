@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import {Component} from 'react';
 
-
 /**
  * ConfirmDialog is used to display the browser's native "confirm" modal,
  * with an optional message and two buttons ("OK" and "Cancel").
@@ -9,56 +8,54 @@ import {Component} from 'react';
  * is performing an action that should require an extra step of verification.
  */
 export default class ConfirmDialog extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
-            displayed: props.displayed
+            displayed: props.displayed,
         };
         this._update();
     }
 
     _setStateAndProps(value) {
-        const { setProps } = this.props;
+        const {setProps} = this.props;
         this.setState({displayed: value.displayed});
-        if (setProps) {setProps(value);}
+        if (setProps) {
+            setProps(value);
+        }
     }
 
     componentWillReceiveProps(props) {
-        this.setState({displayed: props.displayed})
+        this.setState({displayed: props.displayed});
     }
 
     _update() {
-        const {
-            message,
-            cancel_n_clicks,
-            submit_n_clicks
-        } = this.props;
+        const {message, cancel_n_clicks, submit_n_clicks} = this.props;
 
         const displayed = this.state.displayed;
 
         if (displayed) {
-            new Promise(resolve => resolve(window.confirm(message))).then(result => {
-
-                if (result) {
-                    this._setStateAndProps({
-                        submit_n_clicks:  submit_n_clicks + 1,
-                        submit_n_clicks_timestamp: Date.now(),
-                        displayed: false
-                    });
-                } else {
-                    this._setStateAndProps({
-                        cancel_n_clicks: cancel_n_clicks + 1,
-                        cancel_n_clicks_timestamp: Date.now(),
-                        displayed: false
-                    });
+            new Promise(resolve => resolve(window.confirm(message))).then(
+                result => {
+                    if (result) {
+                        this._setStateAndProps({
+                            submit_n_clicks: submit_n_clicks + 1,
+                            submit_n_clicks_timestamp: Date.now(),
+                            displayed: false,
+                        });
+                    } else {
+                        this._setStateAndProps({
+                            cancel_n_clicks: cancel_n_clicks + 1,
+                            cancel_n_clicks_timestamp: Date.now(),
+                            displayed: false,
+                        });
+                    }
                 }
-            });
+            );
         }
     }
 
     componentDidUpdate() {
-        this._update()
+        this._update();
     }
 
     render() {
@@ -70,7 +67,7 @@ ConfirmDialog.defaultProps = {
     submit_n_clicks: 0,
     submit_n_clicks_timestamp: -1,
     cancel_n_clicks: 0,
-    cancel_n_clicks_timestamp: -1
+    cancel_n_clicks_timestamp: -1,
 };
 
 ConfirmDialog.propTypes = {
@@ -105,5 +102,5 @@ ConfirmDialog.propTypes = {
     /**
      * Dash-assigned callback that gets fired when the value changes.
      */
-    setProps: PropTypes.func
+    setProps: PropTypes.func,
 };

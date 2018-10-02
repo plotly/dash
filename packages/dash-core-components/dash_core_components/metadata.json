@@ -653,7 +653,7 @@
           ]
         },
         "required": false,
-        "description": "Determines when the component should update\nits value. If `bothdates`, then the DatePicker \nwill only trigger its value when the user has\nfinished picking both dates. If `singledate`, then\nthe DatePicker will update its value \nas one date is picked.",
+        "description": "Determines when the component should update\nits value. If `bothdates`, then the DatePicker\nwill only trigger its value when the user has\nfinished picking both dates. If `singledate`, then\nthe DatePicker will update its value\nas one date is picked.",
         "defaultValue": {
           "value": "'singledate'",
           "computed": false
@@ -1150,7 +1150,7 @@
         "required": false,
         "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app.",
         "defaultValue": {
-          "value": "'graph-' + Math.random().toString(36).substring(2,7)",
+          "value": "'graph-' +\nMath.random()\n    .toString(36)\n    .substring(2, 7)",
           "computed": false
         }
       },
@@ -1252,7 +1252,7 @@
         "required": false,
         "description": "Beta: Object containing animation settings.\nOnly applies if `animate` is `true`",
         "defaultValue": {
-          "value": "{\n    frame: {\n        redraw: false\n    },\n    transition: {\n        duration: 750,\n        ease: 'cubic-in-out'\n    }\n}",
+          "value": "{\n    frame: {\n        redraw: false,\n    },\n    transition: {\n        duration: 750,\n        ease: 'cubic-in-out',\n    },\n}",
           "computed": false
         }
       },
@@ -1458,7 +1458,7 @@
         "required": false,
         "description": "Plotly.js config options.\nSee https://plot.ly/javascript/configuration-options/\nfor more info.",
         "defaultValue": {
-          "value": "{\n    staticPlot: false,\n    editable: false,\n    edits: {\n        annotationPosition: false,\n        annotationTail: false,\n        annotationText: false,\n        axisTitleText: false,\n        colorbarPosition: false,\n        colorbarTitleText: false,\n        legendPosition: false,\n        legendText: false,\n        shapePosition: false,\n        titleText: false\n    },\n    autosizable: false,\n    queueLength: 0,\n    fillFrame: false,\n    frameMargins: 0,\n    scrollZoom: false,\n    doubleClick: 'reset+autosize',\n    showTips: true,\n    showAxisDragHandles: true,\n    showAxisRangeEntryBoxes: true,\n    showLink: false,\n    sendData: true,\n    linkText: 'Edit chart',\n    showSources: false,\n    displayModeBar: 'hover',\n    modeBarButtonsToRemove: [],\n    modeBarButtonsToAdd: [],\n    modeBarButtons: false,\n    displaylogo: true,\n    plotGlPixelRatio: 2,\n    topojsonURL: 'https://cdn.plot.ly/',\n    mapboxAccessToken: null\n}",
+          "value": "{\n    staticPlot: false,\n    editable: false,\n    edits: {\n        annotationPosition: false,\n        annotationTail: false,\n        annotationText: false,\n        axisTitleText: false,\n        colorbarPosition: false,\n        colorbarTitleText: false,\n        legendPosition: false,\n        legendText: false,\n        shapePosition: false,\n        titleText: false,\n    },\n    autosizable: false,\n    queueLength: 0,\n    fillFrame: false,\n    frameMargins: 0,\n    scrollZoom: false,\n    doubleClick: 'reset+autosize',\n    showTips: true,\n    showAxisDragHandles: true,\n    showAxisRangeEntryBoxes: true,\n    showLink: false,\n    sendData: true,\n    linkText: 'Edit chart',\n    showSources: false,\n    displayModeBar: 'hover',\n    modeBarButtonsToRemove: [],\n    modeBarButtonsToAdd: [],\n    modeBarButtons: false,\n    displaylogo: true,\n    plotGlPixelRatio: 2,\n    topojsonURL: 'https://cdn.plot.ly/',\n    mapboxAccessToken: null,\n}",
           "computed": false
         }
       },
@@ -2742,7 +2742,7 @@
         "required": false,
         "description": "Overrides the default (inline) styles when disabled",
         "defaultValue": {
-          "value": "{\n    color: '#d6d6d6'\n}",
+          "value": "{\n    color: '#d6d6d6',\n}",
           "computed": false
         }
       },
@@ -3342,7 +3342,7 @@
         "required": false,
         "description": "CSS styles to apply while active",
         "defaultValue": {
-          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#6c6',\n    backgroundColor: '#eee'\n}",
+          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#6c6',\n    backgroundColor: '#eee',\n}",
           "computed": false
         }
       },
@@ -3353,7 +3353,7 @@
         "required": false,
         "description": "CSS styles if rejected",
         "defaultValue": {
-          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#c66',\n    backgroundColor: '#eee'\n}",
+          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#c66',\n    backgroundColor: '#eee',\n}",
           "computed": false
         }
       },
@@ -3364,7 +3364,7 @@
         "required": false,
         "description": "CSS styles if disabled",
         "defaultValue": {
-          "value": "{\n    opacity: 0.5\n}",
+          "value": "{\n    opacity: 0.5,\n}",
           "computed": false
         }
       },

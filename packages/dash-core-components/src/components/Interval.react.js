@@ -24,7 +24,7 @@ export default class Interval extends Component {
                 if (setProps && !props.disabled) {
                     setProps({n_intervals: this.props.n_intervals + 1});
                 }
-            }, interval)
+            }, interval),
         });
     }
 
@@ -53,7 +53,10 @@ export default class Interval extends Component {
             }
         } else {
             // So we can restart the interval after it was 0
-            if(this.props.max_intervals === 0 && nextProps.max_intervals !== 0) {
+            if (
+                this.props.max_intervals === 0 &&
+                nextProps.max_intervals !== 0
+            ) {
                 if (this.props.fireEvent || this.props.setProps) {
                     this.setInterval(nextProps);
                 }
@@ -106,11 +109,11 @@ Interval.propTypes = {
      */
     setProps: PropTypes.func,
 
-    dashEvents: PropTypes.oneOf(['interval'])
+    dashEvents: PropTypes.oneOf(['interval']),
 };
 
 Interval.defaultProps = {
     interval: 1000,
     n_intervals: 0,
-    max_intervals: -1
+    max_intervals: -1,
 };

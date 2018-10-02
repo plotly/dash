@@ -20,11 +20,7 @@ export default class Input extends Component {
     }
 
     render() {
-        const {
-            fireEvent,
-            setProps,
-            type
-        } = this.props;
+        const {fireEvent, setProps, type} = this.props;
         const {value} = this.state;
         return (
             <input
@@ -33,15 +29,18 @@ export default class Input extends Component {
                     if (setProps) {
                         if (type === 'number') {
                             setProps({value: Number(e.target.value)});
-                        }
-                        else {
+                        } else {
                             setProps({value: e.target.value});
                         }
                     }
-                    if (fireEvent) {fireEvent({event: 'change'});}
+                    if (fireEvent) {
+                        fireEvent({event: 'change'});
+                    }
                 }}
                 onBlur={() => {
-                    if (fireEvent) {fireEvent({event: 'blur'});}
+                    if (fireEvent) {
+                        fireEvent({event: 'blur'});
+                    }
                 }}
                 value={value}
                 {...omit(['fireEvent', 'setProps', 'value'], this.props)}
@@ -78,7 +77,15 @@ Input.propTypes = {
      */
     type: PropTypes.oneOf([
         // Only allowing the input types with wide browser compatability
-        'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden'
+        'text',
+        'number',
+        'password',
+        'email',
+        'range',
+        'search',
+        'tel',
+        'url',
+        'hidden',
     ]),
 
     /**
@@ -150,7 +157,7 @@ Input.propTypes = {
         /**
          * URL input. Use type="url" if possible instead.
          */
-        'url'
+        'url',
     ]),
 
     /**
@@ -172,7 +179,6 @@ Input.propTypes = {
      * If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed.
      */
     maxlength: PropTypes.string,
-
 
     /**
      * The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value.
@@ -254,5 +260,5 @@ Input.propTypes = {
      */
     setProps: PropTypes.func,
 
-    dashEvents: PropTypes.oneOf(['blur', 'change'])
+    dashEvents: PropTypes.oneOf(['blur', 'change']),
 };

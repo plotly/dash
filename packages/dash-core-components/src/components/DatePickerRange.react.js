@@ -35,8 +35,8 @@ export default class DatePickerRange extends Component {
             'end_date',
             'initial_visible_month',
             'max_date_allowed',
-            'min_date_allowed'
-        ]
+            'min_date_allowed',
+        ];
         momentProps.forEach(prop => {
             if (R.type(newProps[prop]) !== 'Undefined') {
                 newState[prop] = moment(newProps[prop]);
@@ -49,7 +49,7 @@ export default class DatePickerRange extends Component {
     }
 
     componentWillReceiveProps(newProps) {
-        this.propsToState(newProps)
+        this.propsToState(newProps);
     }
 
     componentWillMount() {
@@ -57,23 +57,25 @@ export default class DatePickerRange extends Component {
     }
     onDatesChange({startDate: start_date, endDate: end_date}) {
         const {setProps, fireEvent, updatemode} = this.props;
-        const old_start_date = this.state.start_date
-        const old_end_date = this.state.end_date
+        const old_start_date = this.state.start_date;
+        const old_end_date = this.state.end_date;
         const newState = {};
         if (setProps && start_date !== null && start_date !== old_start_date) {
-            if(updatemode === 'singledate') {
+            if (updatemode === 'singledate') {
                 setProps({start_date: start_date.format('YYYY-MM-DD')});
             }
-        } 
+        }
 
         newState.start_date = start_date;
 
         if (setProps && end_date !== null && end_date !== old_end_date) {
-            if(updatemode === 'singledate') {
+            if (updatemode === 'singledate') {
                 setProps({end_date: end_date.format('YYYY-MM-DD')});
-            }
-            else if (updatemode === 'bothdates') {
-                setProps({start_date: start_date.format('YYYY-MM-DD'), end_date: end_date.format('YYYY-MM-DD')});
+            } else if (updatemode === 'bothdates') {
+                setProps({
+                    start_date: start_date.format('YYYY-MM-DD'),
+                    end_date: end_date.format('YYYY-MM-DD'),
+                });
             }
         }
         newState.end_date = end_date;
@@ -87,7 +89,12 @@ export default class DatePickerRange extends Component {
 
     isOutsideRange(date) {
         const {min_date_allowed, max_date_allowed} = this.state;
-        const notUndefined = R.complement(R.pipe(R.type, R.equals('Undefined')));
+        const notUndefined = R.complement(
+            R.pipe(
+                R.type,
+                R.equals('Undefined')
+            )
+        );
         return (
             (notUndefined(min_date_allowed) && date < min_date_allowed) ||
             (notUndefined(max_date_allowed) && date >= max_date_allowed)
@@ -99,7 +106,7 @@ export default class DatePickerRange extends Component {
             start_date,
             end_date,
             focusedInput,
-            initial_visible_month
+            initial_visible_month,
         } = this.state;
 
         const {
@@ -119,10 +126,10 @@ export default class DatePickerRange extends Component {
             start_date_placeholder_text,
             stay_open_on_select,
             with_full_screen_portal,
-            with_portal
+            with_portal,
         } = this.props;
 
-        const verticalFlag = (calendar_orientation !== 'vertical');
+        const verticalFlag = calendar_orientation !== 'vertical';
 
         return (
             <DateRangePicker
@@ -136,14 +143,12 @@ export default class DatePickerRange extends Component {
                 focusedInput={focusedInput}
                 initialVisibleMonth={() => {
                     if (initial_visible_month) {
-                        return initial_visible_month
-                    } 
-                        if (focusedInput === 'endDate') {
-                            return end_date;
-                        } 
-                            return start_date;
-                        
-                    
+                        return initial_visible_month;
+                    }
+                    if (focusedInput === 'endDate') {
+                        return end_date;
+                    }
+                    return start_date;
                 }}
                 isOutsideRange={this.isOutsideRange}
                 isRTL={is_RTL}
@@ -305,7 +310,7 @@ DatePickerRange.propTypes = {
      */
     disabled: PropTypes.bool,
 
-     /**
+    /**
      * Whether or not the dropdown is "clearable", that is, whether or
      * not a small "x" appears on the right of the dropdown that removes
      * the selected value.
@@ -324,10 +329,10 @@ DatePickerRange.propTypes = {
 
     /**
      * Determines when the component should update
-     * its value. If `bothdates`, then the DatePicker 
+     * its value. If `bothdates`, then the DatePicker
      * will only trigger its value when the user has
      * finished picking both dates. If `singledate`, then
-     * the DatePicker will update its value 
+     * the DatePicker will update its value
      * as one date is picked.
      */
     updatemode: PropTypes.oneOf(['singledate', 'bothdates']),
@@ -347,5 +352,5 @@ DatePickerRange.defaultProps = {
     reopen_calendar_on_clear: false,
     clearable: false,
     disabled: false,
-    updatemode: 'singledate'
+    updatemode: 'singledate',
 };

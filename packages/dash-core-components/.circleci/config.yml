@@ -34,16 +34,21 @@ jobs:
           paths:
               - "venv"
               - "node_modules"
+
+      - run:
+          name: prettier --list-different
+          command: npm run format:test
+
+      - run:
+          name: npm run lint
+          command: npm run lint
+
       - run:
           name: Build
           command: |
               . venv/bin/activate
               npm run build:js
               npm run build:py
-
-      - run:
-          name: npm test
-          command: npm test
 
       - run:
           name: Run tests

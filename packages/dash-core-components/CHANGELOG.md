@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.31.0] - 2018-09-21
+### Changed
+- Updated NPM scripts:
+  - `test` now runs Selenium integration tests
+  - `format` runs Prettier formatter
+  - There are new `build` scripts, most notably `build:watch` runs a watcher and rebuilds upon changes
+  - There's a new `publish-all` script that publishes to NPM and PyPi
+### Fixed
+- The `start` script will now run the `Demo` application
+
 ## [0.30.2] - 2018-09-21
 ### Fixed
 - Fixed regression in Graph component where it wouldn't resize correctly [#256](https://github.com/plotly/dash-core-components/issues/256)
