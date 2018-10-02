@@ -12,39 +12,9 @@ from dash.development.base_component import generate_class, Component
 from dash.development.validator import DashValidator
 
 
-from ..IntegrationTests import IntegrationTests
-
-
-class TestComponentValidationIntegration(IntegrationTests):
-    def setUp(self):
-        path = os.path.join('tests', 'development', 'metadata_test.json')
-        data = _get_metadata(path)
-
-        self.ComponentClass = generate_class(
-            typename='Table',
-            props=data['props'],
-            description=data['description'],
-            namespace='TableComponents'
-        )
-
-    def test_component_in_initial_layout_is_validated(self):
-        app = dash.Dash(__name__)
-        app.config['suppress_callback_exceptions'] = True
-
-        app.layout = html.Div(self.ComponentClass(id='hello', children=[[]]))
-
-        self.assertRaises(
-            dash.exceptions.InitialLayoutValidationError,
-            app._validate_layout
-        )
-
-        # Give teardown something to call terminate on
-        class s:
-            def terminate(self):
-                pass
-        self.server_process = s()
 class TestComponentValidation(unittest.TestCase):
     def setUp(self):
+        self.validator = DashValidator
         path = os.path.join('tests', 'development', 'metadata_test.json')
         data = _get_metadata(path)
 
@@ -86,6 +56,17 @@ class TestComponentValidation(unittest.TestCase):
             }
         })
 
+    def test_component_in_initial_layout_is_validated(self):
+        app = dash.Dash(__name__)
+        app.config['suppress_callback_exceptions'] = True
+
+        app.layout = html.Div(self.ComponentClass(id='hello', children=[[]]))
+
+        self.assertRaises(
+            dash.exceptions.InitialLayoutValidationError,
+            app._validate_layout
+        )
+
     def test_callback_output_is_validated(self):
         app = dash.Dash(__name__)
         app.config['suppress_callback_exceptions'] = True
@@ -101,7 +82,50 @@ class TestComponentValidation(unittest.TestCase):
         )
         def put_components(n_clicks):
             if n_clicks:
-                return [[[[[[[]]]]]]]
+                return [[]]
+            return "empty"
+
+        with app.server.test_request_context(
+            "/_dash-update-component",
+            json={
+                'inputs': [{
+                    'id': 'put-components',
+                    'property': 'n_clicks',
+                    'value': 1
+                }],
+                'output': {
+                    'namespace': 'dash_html_components',
+                    'type': 'Div',
+                    'id': 'container',
+                    'property': 'children'
+                }
+            }
+        ):
+            self.assertRaises(
+                dash.exceptions.CallbackOutputValidationError,
+                app.dispatch
+            )
+
+    def test_component_initialization_in_callback_is_validated(self):
+        app = dash.Dash(__name__)
+        app.config['suppress_callback_exceptions'] = True
+
+        app.layout = html.Div(children=[
+            html.Button(id='put-components', children='Click me'),
+            html.Div(id='container'),
+        ])
+
+        @app.callback(
+            dash.dependencies.Output('container', 'children'),
+            [dash.dependencies.Input('put-components', 'n_clicks')]
+        )
+        def put_components(n_clicks):
+            if n_clicks:
+                return html.Button(
+                    children='hello',
+                    id=7,
+                    n_clicks="bad value"
+                )
             return "empty"
 
         with app.server.test_request_context(
