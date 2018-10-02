@@ -903,37 +903,46 @@ class Dash(object):
         output_value = self.callback_map[target_id]['func'](*args)
 
         # Only validate if we get required information from renderer
-        if 'namespace' in output and 'type' in output:
+        # and validation is not turned off by user
+        if (
+                (not self.config.disable_component_validation) and
+                'namespace' in output and
+                'type' in output
+        ):
             # Python2.7 might make these keys and values unicode
-            output['namespace'] = str(output['namespace'])
-            output['type'] = str(output['type'])
-            if output['namespace'] not in self.namespaces:
-                self.namespaces[output['namespace']] =\
-                    importlib.import_module(output['namespace'])
-            namespace = self.namespaces[output['namespace']]
-            component = getattr(namespace, output['type'])
-            # pylint: disable=protected-access
-            validator = DashValidator({
-                output['property']: component._schema.get(output['property'],
-                                                          {})
-            })
-            valid = validator.validate({output['property']: output_value})
-            if not valid:
-                error_message = (
-                    "Callback to prop `{}` of `{}(id={})` did not validate.\n"
-                    .format(
-                        output['property'],
-                        component.__name__,
-                        output['id']
-                    )
-                )
-                error_message += "The errors in validation are as follows:\n\n"
-
-                raise exceptions.CallbackOutputValidationError(
-                    generate_validation_error_message(
-                        validator.errors, 0, error_message))
+            namespace = str(output['namespace'])
+            component_type = str(output['type'])
+            component_id = str(output['id'])
+            component_property = str(output['property'])
+            self._validate_callback_output(namespace, component_type,
+                                           component_id, component_property,
+                                           output_value)
 
         return self.callback_map[target_id]['callback'](output_value)
+
+    def _validate_callback_output(self, namespace, component_type,
+                                  component_id, component_property, value):
+        if namespace not in self.namespaces:
+            self.namespaces[namespace] =\
+                importlib.import_module(namespace)
+        namespace = self.namespaces[namespace]
+        component = getattr(namespace, component_type)
+        # pylint: disable=protected-access
+        validator = DashValidator({
+            component_property: component._schema.get(component_property, {})
+        })
+        valid = validator.validate({component_property: value})
+        if not valid:
+            error_message = (
+                "Callback to prop `{}` of `{}(id={})` did not validate.\n"
+                .format(component_property, component.__name__, component_id)
+            )
+            error_message +=\
+                "The errors in validation are as follows:\n\n"
+
+            raise exceptions.CallbackOutputValidationError(
+                generate_validation_error_message(
+                    validator.errors, 0, error_message))
 
     def _validate_layout(self):
         if self.layout is None:
