@@ -122,9 +122,7 @@ class TestComponentValidation(unittest.TestCase):
         def put_components(n_clicks):
             if n_clicks:
                 return html.Button(
-                    children='hello',
-                    id=7,
-                    n_clicks="bad value"
+                    children=[[]],
                 )
             return "empty"
 
