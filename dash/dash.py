@@ -172,6 +172,7 @@ class Dash(object):
         self.registered_paths = {}
 
         # urls
+        self.routes = []
 
         self._add_url(
             '{}_dash-layout'.format(self.config['routes_pathname_prefix']),
@@ -212,7 +213,6 @@ class Dash(object):
 
         self._layout = None
         self._cached_layout = None
-        self.routes = []
         self._dev_tools = _AttributeDict({
             'serve_dev_bundles': False
         })
@@ -226,8 +226,11 @@ class Dash(object):
             name,
             view_func=view_func,
             endpoint=name,
-            methods=list(methods)
-        )
+            methods=list(methods))
+
+        # record the url in Dash.routes so that it can be accessed later
+        # e.g. for adding authentication with flask_login
+        self.routes.append(name)
 
     @property
     def layout(self):
