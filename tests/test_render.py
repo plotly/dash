@@ -114,7 +114,7 @@ class Tests(IntegrationTests):
 
         # TODO - Make less fragile with http://lxml.de/lxmlhtml.html#html-diff
         rendered_dom = '''
-            <div>
+            <div n_clicks="0" n_clicks_timestamp="-1">
                 Basic string
 
                 3.14
@@ -123,16 +123,16 @@ class Tests(IntegrationTests):
                     Child div with basic string
                 </div>
 
-                <div id="p.c.5">
+                <div id="p.c.5" n_clicks="0" n_clicks_timestamp="-1">
                 </div>
 
-                <div id="p.c.6">
-                    <div id="p.c.6.p.c.0">
+                <div id="p.c.6" n_clicks="0" n_clicks_timestamp="-1">
+                    <div id="p.c.6.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
                         Grandchild div
                     </div>
 
-                    <div id="p.c.6.p.c.1">
-                        <div id="p.c.6.p.c.1.p.c.0">
+                    <div id="p.c.6.p.c.1" n_clicks="0" n_clicks_timestamp="-1">
+                        <div id="p.c.6.p.c.1.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
                             Great grandchild
                         </div>
 
@@ -141,16 +141,16 @@ class Tests(IntegrationTests):
                         another basic string
                     </div>
 
-                    <div id="p.c.6.p.c.2">
-                        <div id="p.c.6.p.c.2.p.c.0">
-                            <div id="p.c.6.p.c.2.p.c.0.p.c">
-                                <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0">
+                    <div id="p.c.6.p.c.2" n_clicks="0" n_clicks_timestamp="-1">
+                        <div id="p.c.6.p.c.2.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
+                            <div id="p.c.6.p.c.2.p.c.0.p.c" n_clicks="0" n_clicks_timestamp="-1">
+                                <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
 
-                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0">
+                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
                                     </div>
 
 
-                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2">
+                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2" n_clicks="0" n_clicks_timestamp="-1">
                                     </div>
 
                                 </div>
@@ -175,7 +175,9 @@ class Tests(IntegrationTests):
             'id="p.c.4"',
             'class="my-class"',
             'title="tooltip"',
-        ], 3)
+            'n_clicks="0"',
+            'n_clicks_timestamp="-1"'
+        ], 5)
         passed = False
         for permutation in permutations:
             for style in style_permutations:
@@ -542,9 +544,9 @@ class Tests(IntegrationTests):
             lambda: (
                 self.driver.find_element_by_id('output')
                 .get_attribute('innerHTML') in ['''
-                    <div>
+                    <div n_clicks="0" n_clicks_timestamp="-1">
                         {}
-                        <div id="sub-output-1">
+                        <div id="sub-output-1" n_clicks="0" n_clicks_timestamp="-1">
                             sub input initial value
                         </div>
                     </div>'''.replace('\n', '').replace('  ', '').format(input)
@@ -554,7 +556,8 @@ class Tests(IntegrationTests):
                         '<input value="sub input initial value" id="sub-input-1">'
                     ]
                 ]
-            )
+            ),
+            lambda: self.driver.find_element_by_id('output').get_attribute('innerHTML')
         )
         self.percy_snapshot(name='callback-generating-function-1')
 
