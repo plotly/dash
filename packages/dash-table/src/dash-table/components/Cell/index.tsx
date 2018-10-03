@@ -244,7 +244,7 @@ export default class Cell extends Component<ICellProps, ICellState> {
     }
 
     handleKeyDown = (e: KeyboardEvent) => {
-        if (e.keyCode !== KEY_CODES.ENTER) {
+        if (e.keyCode !== KEY_CODES.ENTER && e.keyCode !== KEY_CODES.TAB) {
             return;
         }
 
