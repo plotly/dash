@@ -349,7 +349,7 @@ class Dash(object):
         return flask.jsonify({
             'reloadHash': self._reload_hash,
             'hard': hard,
-            'packages': self.registered_paths.keys(),
+            'packages': list(self.registered_paths.keys()),
             'files': list(changed)
         })
 
