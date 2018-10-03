@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import ConfirmDialog from './components/ConfirmDialog.react';
-import ConfirmDialogProvider from './components/ConfirmDialogProvider.react'
+import ConfirmDialogProvider from './components/ConfirmDialogProvider.react';
 import Dropdown from './components/Dropdown.react';
 import Input from './components/Input.react';
 import Graph from './components/Graph.react';
@@ -19,6 +19,7 @@ import DatePickerRange from './components/DatePickerRange.react';
 import Upload from './components/Upload.react';
 import Tabs from './components/Tabs.react';
 import Tab from './components/Tab.react';
+import Store from './components/Store.react';
 
 export {
     Checklist,
@@ -40,5 +41,6 @@ export {
     Textarea,
     DatePickerSingle,
     DatePickerRange,
-    Upload
+    Upload,
+    Store,
 };

@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.32.0] - 2018-10-2
+### Added
+- Added Store component [#248](https://github.com/plotly/dash-core-components/pull/248)
+
+
 ## [0.31.0] - 2018-09-21
 ### Changed
 - Updated NPM scripts:

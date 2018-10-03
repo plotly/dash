@@ -5,6 +5,7 @@ import io
 import os
 import sys
 import time
+import json
 import pandas as pd
 
 import dash
@@ -531,7 +532,7 @@ class Tests(IntegrationTests):
                         }
                     ]
                 }
-        
+
         self.startServer(app=app)
 
         button_one = self.wait_for_element_by_css_selector('#one')
@@ -951,6 +952,7 @@ class Tests(IntegrationTests):
         end_date.click()
 
         self.assertEquals(date_content.text, '1997-05-03 - 1997-05-04')
+
     def test_interval(self):
         app = dash.Dash(__name__)
         app.layout = html.Div([
@@ -1160,3 +1162,110 @@ class Tests(IntegrationTests):
         button.click()
         time.sleep(2)  # Wait for graph to re-render
         self.snapshot('render-empty-graph')
+
+    def test_storage_component(self):
+        app = dash.Dash(__name__)
+
+        getter = 'return JSON.parse(window.{}.getItem("{}"));'
+        clicked_getter = getter.format('localStorage', 'storage')
+        dummy_getter = getter.format('sessionStorage', 'dummy')
+        dummy_data = 'Hello dummy'
+
+        app.layout = html.Div([
+            dcc.Store(id='storage',
+                        storage_type='local'),
+            html.Button('click me', id='btn'),
+            html.Button('clear', id='clear-btn'),
+            html.Button('set-init-storage',
+                        id='set-init-storage'),
+            dcc.Store(id='dummy',
+                        storage_type='session',
+                        data=dummy_data),
+            dcc.Store(id='memory',
+                        storage_type='memory'),
+            html.Div(id='memory-output'),
+            dcc.Store(id='initial-storage',
+                        storage_type='session'),
+            html.Div(id='init-output')
+        ])
+
+        @app.callback(Output('storage', 'data'),
+                      [Input('btn', 'n_clicks')],
+                      [State('storage', 'data')])
+        def on_click(n_clicks, storage):
+            if n_clicks is None:
+                return
+            storage = storage or {}
+            return {'clicked': storage.get('clicked', 0) + 1}
+
+        @app.callback(Output('storage', 'clear_data'),
+                      [Input('clear-btn', 'n_clicks')])
+        def on_clear(n_clicks):
+            if n_clicks is None:
+                return
+            return True
+
+        @app.callback(Output('memory', 'data'), [Input('storage', 'data')])
+        def on_memory(data):
+            return data
+
+        @app.callback(Output('memory-output', 'children'),
+                      [Input('memory', 'data')])
+        def on_memory2(data):
+            if data is None:
+                return ''
+            return json.dumps(data)
+
+        @app.callback(Output('initial-storage', 'data'),
+                      [Input('set-init-storage', 'n_clicks')])
+        def on_init(n_clicks):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            return 'initialized'
+
+        @app.callback(Output('init-output', 'children'),
+                      [Input('initial-storage', 'modified_timestamp')],
+                      [State('initial-storage', 'data')])
+        def init_output(ts, data):
+            return json.dumps({'data': data, 'ts': ts})
+
+        self.startServer(app)
+
+        time.sleep(1)
+
+        dummy = self.driver.execute_script(dummy_getter)
+        self.assertEqual(dummy_data, dummy)
+
+        click_btn = self.wait_for_element_by_css_selector('#btn')
+        clear_btn = self.wait_for_element_by_css_selector('#clear-btn')
+        mem = self.wait_for_element_by_css_selector('#memory-output')
+
+        for i in range(1, 11):
+            click_btn.click()
+            time.sleep(1)
+
+            click_data = self.driver.execute_script(clicked_getter)
+            self.assertEqual(i, click_data.get('clicked'))
+            self.assertEquals(i, int(json.loads(mem.text).get('clicked')))
+
+        clear_btn.click()
+        time.sleep(1)
+
+        cleared_data = self.driver.execute_script(clicked_getter)
+        self.assertTrue(cleared_data is None)
+        # Did mem also got cleared ?
+        self.assertFalse(mem.text)
+
+        # Test initial timestamp output
+        init_btn = self.wait_for_element_by_css_selector('#set-init-storage')
+        init_btn.click()
+        ts = int(time.time() * 1000)
+        time.sleep(1)
+        self.driver.refresh()
+        time.sleep(3)
+        init = self.wait_for_element_by_css_selector('#init-output')
+        init = json.loads(init.text)
+        self.assertAlmostEqual(ts, init.get('ts'), delta=1000)
+        self.assertEqual('initialized', init.get('data'))
+
