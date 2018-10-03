@@ -1,0 +1,78 @@
+version: 2
+
+jobs:
+  "python-2.7": &test-template
+    docker:
+      - image: circleci/python:2.7-stretch-node-browsers
+    environment:
+      PERCY_PARALLEL_TOTAL: 2
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - run:
+          name: Set PERCY_NONCE
+          command: echo export PERCY_PARALLEL_NONCE=$CIRCLE_WORKFLOW_ID >> $HOME/.circlerc
+
+      - run:
+          name: Write Job name
+          command: echo $CIRCLE_JOB > circlejob.txt
+
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "dev-requirements.txt" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
+
+      - run:
+          name: Install dependencies
+          command: |
+              sudo pip install virtualenv --upgrade
+              python -m venv venv || virtualenv venv
+              . venv/bin/activate
+              pip install -r dev-requirements.txt --quiet
+              npm install --ignore-scripts
+
+      - run:
+          name: Build
+          command: npm run build:prod
+
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "dev-requirements.txt" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
+          paths:
+              - "venv"
+              - "node_modules"
+
+      - run:
+          name: Npm test
+          command:  npm test
+
+      - run:
+          name: Run tests
+          command: |
+              . venv/bin/activate
+              python --version
+              python -m unittest tests.test_render.Tests
+              python -m unittest tests.test_race_conditions.Tests
+
+  "python-3.6":
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.6-stretch-node-browsers
+    environment:
+      PERCY_ENABLE: 0
+
+  "python-3.7":
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.7-stretch-node-browsers
+    environment:
+      PERCY_ENABLE: 0
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - "python-2.7"
+      - "python-3.6"
+      - "python-3.7"
