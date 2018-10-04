@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { revert, resolveError } from '../../actions/index';
 import Radium from 'radium';
-
 import GlobalErrorOverlay from './GlobalErrorOverlay.react';
+import serverErrorCSS from './werkzueg.css';
 
 class UnconnectedGlobalErrorBoundary extends Component {
   constructor(props) {
@@ -26,8 +26,14 @@ class UnconnectedGlobalErrorBoundary extends Component {
             src="http://placehold.it/1x1"
             onLoad={(
               function() {
-                var newWin = open('url','windowName','height=600,width=400');
+                var newWin = open('error.html','werkzueg','height=1024,width=1280');
                 newWin.document.write(error.errorPage);
+                var debugger_css = newWin.document.getElementsByTagName('link')[0];
+                debugger_css.parentNode.removeChild(debugger_css);
+                var style = newWin.document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = serverErrorCSS;
+                newWin.document.getElementsByTagName('head')[0].appendChild(style);
                 newWin.document.close();
               })()} />
             <GlobalErrorOverlay resolve={() => this.resolveError(dispatch)}>
