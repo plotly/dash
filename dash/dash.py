@@ -226,7 +226,8 @@ class Dash(object):
             'serve_dev_bundles': False,
             'hot_reload': False,
             'hot_reload_interval': 3000,
-            'hot_reload_watch_interval': 0.5
+            'hot_reload_watch_interval': 0.5,
+            'hot_reload_max_retry': 8
         })
 
         # add a handler for components suites errors to return 404
@@ -334,7 +335,8 @@ class Dash(object):
         }
         if self._dev_tools.hot_reload:
             config['hot_reload'] = {
-                'interval': self._dev_tools.hot_reload_interval
+                'interval': self._dev_tools.hot_reload_interval,
+                'max_retry': self._dev_tools.hot_reload_max_retry
             }
         return config
 
@@ -1072,6 +1074,7 @@ class Dash(object):
                          dev_tools_hot_reload=None,
                          dev_tools_hot_reload_interval=None,
                          dev_tools_hot_reload_watch_interval=None,
+                         dev_tools_hot_reload_max_retry=None,
                          dev_tools_silence_routes_logging=None):
         """
         Activate the dev tools, called by `run_server`. If your application is
@@ -1100,6 +1103,8 @@ class Dash(object):
             assets folder are walked for changes. Available as
             `DASH_HOT_RELOAD_WATCH_INTERVAL` environ var.
         :type dev_tools_hot_reload_watch_interval: float
+        :param dev_tools_hot_reload_max_retry: Maximum amount of retries before
+            failing and display a pop up. Default 30.
         :param dev_tools_silence_routes_logging: Silence the `werkzeug` logger,
             will remove all routes logging.
         :type dev_tools_silence_routes_logging: bool
@@ -1129,6 +1134,14 @@ class Dash(object):
                 dev_tools_hot_reload_watch_interval,
                 env,
                 default=0.5
+            )
+        )
+        self._dev_tools['hot_reload_max_retry'] = int(
+            _configs.get_config(
+                'hot_reload_max_retry',
+                dev_tools_hot_reload_max_retry,
+                env,
+                default=8
             )
         )
         self._dev_tools['silence_routes_logging'] = _configs.get_config(
@@ -1209,6 +1222,7 @@ class Dash(object):
                    dev_tools_hot_reload=None,
                    dev_tools_hot_reload_interval=None,
                    dev_tools_hot_reload_watch_interval=None,
+                   dev_tools_hot_reload_max_retry=None,
                    dev_tools_silence_routes_logging=None,
                    **flask_run_options):
         """
@@ -1238,7 +1252,8 @@ class Dash(object):
             dev_tools_hot_reload,
             dev_tools_hot_reload_interval,
             dev_tools_hot_reload_watch_interval,
-            dev_tools_silence_routes_logging
+            dev_tools_hot_reload_max_retry,
+            dev_tools_silence_routes_logging,
         )
 
         if self._dev_tools.silence_routes_logging:
