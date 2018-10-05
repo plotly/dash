@@ -952,9 +952,9 @@ class Dash(object):
                 The expected schema for the `{component_property}` prop of the
                 `{component_name}` component is:
 
-                ```````````````````````````````````````````````````````````````
+                ***************************************************************
                 {component_schema}
-                ```````````````````````````````````````````````````````````````
+                ***************************************************************
 
             """.replace('    ', '').format(
                 component_property=component_property,

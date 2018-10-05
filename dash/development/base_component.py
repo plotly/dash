@@ -266,15 +266,15 @@ class Component(collections.MutableMapping):
                 Dash tried to create a `{component_name}` component with the
                 following arguments, which caused a validation failure:
 
-                ```````````````````````````````````````````````````````````````
+                ***************************************************************
                 {component_args}
-                ```````````````````````````````````````````````````````````````
+                ***************************************************************
 
                 The expected schema for the `{component_name}` component is:
 
-                ```````````````````````````````````````````````````````````````
+                ***************************************************************
                 {component_schema}
-                ```````````````````````````````````````````````````````````````
+                ***************************************************************
 
                 The errors in validation are as follows:
 
