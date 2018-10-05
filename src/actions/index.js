@@ -770,7 +770,12 @@ function updateOutput(
 
         });
     }).catch(err => {
-      err.text().then(text => {dispatch(onError(text))});
+      err.text().then(text => {
+        dispatch(onError({
+          type: 'backEnd',
+          errorPage: text
+        }))
+      });
     });
 
 }

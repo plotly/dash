@@ -72,7 +72,12 @@ function apiThunk(endpoint, method, store, id, body, headers={}) {
             /* eslint-disable no-console */
             console.error(err);
             /* eslint-enable no-console */
-            err.text().then(text => {dispatch(onError(text))});
+            err.text().then(text => {
+              dispatch(onError({
+                type: 'backEnd',
+                errorPage: text
+              }))
+            });
         });
     };
 }

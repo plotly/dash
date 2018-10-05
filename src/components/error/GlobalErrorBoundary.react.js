@@ -18,7 +18,7 @@ class UnconnectedGlobalErrorBoundary extends Component {
 
   render() {
     const { error, dispatch } = this.props;
-    if (error.error) {
+    if (error.backEnd.errorPage) {
       return (
         <div>
           <img
@@ -27,7 +27,7 @@ class UnconnectedGlobalErrorBoundary extends Component {
             onLoad={(
               function() {
                 var newWin = open('error.html','werkzueg','height=1024,width=1280');
-                newWin.document.write(error.errorPage);
+                newWin.document.write(error.backEnd.errorPage);
                 var debugger_css = newWin.document.getElementsByTagName('link')[0];
                 debugger_css.parentNode.removeChild(debugger_css);
                 var style = newWin.document.createElement('style');

@@ -8,7 +8,7 @@ app.scripts.config.serve_locally = True
 
 app.layout = html.Div([
     html.Button(id='click', children='click'),
-    html.Div(id='output', children=''),
+    dcc.Tabs(id='output2', children=[dcc.Tab(), dcc.Tab()]),
     dcc.RadioItems(
         id='radio',
         options=[{
@@ -19,7 +19,8 @@ app.layout = html.Div([
             'label': 'bad',
             'value': 'bad'
             }],
-        value='good')
+        value='good'),
+    html.Div(id='output1', children=''),
 ])
 
 
@@ -27,14 +28,20 @@ class MyCustomException(Exception):
     pass
 
 
-@app.callback(Output('output', 'children'),
-              [Input('click', 'n_clicks'),
-               Input('radio', 'value')])
-def crash_it(clicks, radio):
-    print(clicks, radio)
+@app.callback(Output('output1', 'children'),
+              [Input('radio', 'value')])
+def crash_it(radio):
     if radio == 'bad':
         raise MyCustomException("Something bad happened in the back-end")
-    return clicks
+    return 'hello'
+
+
+@app.callback(Output('output2', 'children'),
+              [Input('click', 'n_clicks')])
+def crash_it2(click):
+    if click:
+        return None
+    return [dcc.Tab('hello'), dcc.Tab('there')]
 
 
 app.run_server(debug=True, port=8000)

@@ -1,20 +1,42 @@
+import { findIndex, propEq, remove } from 'ramda';
+
 const initialError = {
-  error: false,
-  errorPage: ""
+  frontEnd: [],
+  backEnd: {}
 };
 
 function error (state = initialError, action) {
     switch (action.type) {
 
         case 'ON_ERROR': {
+          if (action.payload.type == 'frontEnd') {
             return {
-                error: true,
-                errorPage: action.payload
+                frontEnd: [...state.frontEnd, action.payload],
+                backEnd: state.backEnd
             };
+          } else if (action.payload.type == 'backEnd') {
+            return {
+                frontEnd: state.frontEnd,
+                backEnd: action.payload
+            };
+          }
         }
 
         case 'RESOLVE_ERROR': {
-          return initialError;
+          if (action.payload.type == 'frontEnd') {
+            const removeIdx = findIndex(
+              propEq('myId', action.payload.myId)
+            )(state.frontEnd)
+            return {
+                frontEnd: remove(removeIdx, 1, state.frontEnd),
+                backEnd: state.backEnd
+            };
+          } else if (action.payload.type == 'backEnd') {
+            return {
+                frontEnd: state.frontEnd,
+                backEnd: {}
+            };
+          }
         }
 
         default: {
