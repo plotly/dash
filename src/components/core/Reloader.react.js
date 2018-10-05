@@ -9,19 +9,21 @@ class Reloader extends React.Component {
     constructor(props) {
         super(props);
         if (props.config.hot_reload) {
-            const { interval } = props.config.hot_reload;
+            const { interval, max_retry } = props.config.hot_reload;
             this.state = {
                 hash: null,
                 interval,
                 disabled: false,
                 intervalId: null,
-                packages: null
+                packages: null,
+                max_retry: max_retry,
             }
         } else {
             this.state = {
                 disabled: true
             }
         }
+        this._retry = 0;
         this._head = document.querySelector('head');
     }
 
@@ -85,15 +87,24 @@ class Reloader extends React.Component {
                         });
                     }
                 } else {
+                    // Soft reload
                     window.clearInterval(this.state.intervalId);
                     dispatch({'type': 'RELOAD'});
                 }
             }
+        } else if (reloadRequest.status === 500) {
+            if (this._retry > this.state.max_retry) {
+                window.clearInterval(this.state.intervalId);
+                // Integrate with dev tools ui?!
+                window.alert(
+                    `
+                    Reloader failed after ${this.state.retry} times.
+                    Please check your application for errors. 
+                    `
+                )
+            }
+            this._retry++;
         }
-    }
-
-    componentWillMount() {
-
     }
 
     componentDidMount() {
@@ -126,14 +137,12 @@ Reloader.propTypes = {
     reloadRequest: PropTypes.object,
     dispatch: PropTypes.func,
     interval: PropTypes.number,
-    packagesRequest: PropTypes.object,
 };
 
 export default connect(
     state => ({
         config: state.config,
         reloadRequest: state.reloadRequest,
-        packagesRequest: state.packagesRequest
     }),
     dispatch => ({dispatch})
 )(Reloader);
