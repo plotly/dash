@@ -29,6 +29,27 @@
           "computed": false
         }
       },
+      "content_style": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'fit'",
+              "computed": false
+            },
+            {
+              "value": "'grow'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "'fit'",
+          "computed": false
+        }
+      },
       "dataframe": {
         "type": {
           "name": "arrayOf",

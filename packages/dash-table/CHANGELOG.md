@@ -188,3 +188,15 @@
     Issue: https://github.com/plotly/dash-table/issues/91
 
     Sorting arrow will no longer highlight.
+
+## RC23 - Width percentage
+
+    Columns can now accept '%' width, minWidth, maxWidth.
+
+    For the percentages to have meaning, the dash-table must be forced to have a width and the content of the dash-table must be forced to grow to fill the available space made available by the container (by default the table is only as big as it needs to be).
+
+    Added prop content_style that takes values 'fit' or 'grow' (Default='fit')
+
+    1. Add the prop content_style='grow' to make the table fill its space, this will make sure the % are applied to all the space available.
+    2. Add the following selector (with the proper values) to the table_style prop
+        { selector: '.dash-spreadsheet', rule: 'width: 100%; max-width: 100%' }

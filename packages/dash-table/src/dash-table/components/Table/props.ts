@@ -6,6 +6,11 @@ export enum FilteringType {
     Basic = 'basic'
 }
 
+export enum ContentStyle {
+    Fit = 'fit',
+    Grow = 'grow'
+}
+
 export type ActiveCell = CellCoordinates | [];
 export type CellCoordinates = [number, number];
 export type ColumnId = string | number;
@@ -63,6 +68,7 @@ interface IProps {
     column_conditional_styles?: any[];
     column_static_dropdown?: any;
     column_static_style?: any;
+    content_style: ContentStyle;
     dataframe?: Dataframe;
     dropdown_properties: any; // legacy
     editable?: boolean;

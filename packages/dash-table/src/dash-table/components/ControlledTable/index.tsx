@@ -74,6 +74,10 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             this.props.setProps({ active_cell: this.props.selected_cell[0] });
         }
 
+        this.handleResize();
+    }
+
+    componentWillMount() {
         // Fallback method for paste handling in Chrome
         // when no input element has focused inside the table
         window.addEventListener('resize', this.handleResize);
@@ -85,14 +89,6 @@ export default class ControlledTable extends Component<ControlledTableProps> {
         window.removeEventListener('resize', this.handleResize);
         document.removeEventListener('mousedown', this.handleClickOutside);
         document.removeEventListener('paste', this.handlePaste);
-    }
-
-    componentWillUpdate() {
-        const { table_style } = this.props;
-
-        R.forEach(({ selector, rule }) => {
-            this.stylesheet.setRule(selector, rule);
-        }, table_style);
     }
 
     componentDidUpdate() {
@@ -128,6 +124,12 @@ export default class ControlledTable extends Component<ControlledTableProps> {
     handleResize = () => {
         const { r0c0, r0c1, r1c0, r1c1 } = this.refs as { [key: string]: HTMLElement };
 
+        const { n_fixed_columns, n_fixed_rows, table_style } = this.props;
+
+        R.forEach(({ selector, rule }) => {
+            this.stylesheet.setRule(selector, rule);
+        }, table_style);
+
         // Adjust [fixed columns/fixed rows combo] to fixed rows height
         let trs = r0c1.querySelectorAll('tr');
         r0c0.querySelectorAll('tr').forEach((tr, index) => {
@@ -151,6 +153,28 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             const contentTr = contentTd.parentElement as HTMLElement;
 
             this.stylesheet.setRule('.cell-1-0 tr', `height: ${getComputedStyle(contentTr).height}`);
+        }
+
+        // Adjust the width of the fixed row header
+        if (n_fixed_rows) {
+            r1c1.querySelectorAll('tr:first-of-type td').forEach((td, index) => {
+                const width: any = getComputedStyle(td).width;
+                this.stylesheet.setRule(
+                    `.dash-fixed-row:not(.dash-fixed-column) th:nth-of-type(${index + 1})`,
+                    `width: ${width}; min-width: ${width}; max-width: ${width};`
+                );
+            });
+        }
+
+        // Adjust the width of the fixed row / fixed columns header
+        if (n_fixed_columns && n_fixed_rows) {
+            r1c0.querySelectorAll('tr:first-of-type td').forEach((td, index) => {
+                const width: any = getComputedStyle(td).width;
+                this.stylesheet.setRule(
+                    `.dash-fixed-column.dash-fixed-row th:nth-of-type(${index + 1})`,
+                    `width: ${width}; min-width: ${width}; max-width: ${width};`
+                );
+            });
         }
     }
 
@@ -594,10 +618,6 @@ export default class ControlledTable extends Component<ControlledTableProps> {
                 `.dash-spreadsheet-inner td.column-${typeIndex}`,
                 `width: 30px; max-width: 30px; min-width: 30px;`
             );
-            this.stylesheet.setRule(
-                `.dash-spreadsheet-inner th.column-${typeIndex}`,
-                `width: 30px; max-width: 30px; min-width: 30px;`
-            );
 
             ++typeIndex;
         }
@@ -605,10 +625,6 @@ export default class ControlledTable extends Component<ControlledTableProps> {
         if (selectable) {
             this.stylesheet.setRule(
                 `.dash-spreadsheet-inner td.column-${typeIndex}`,
-                `width: 30px; max-width: 30px; min-width: 30px;`
-            );
-            this.stylesheet.setRule(
-                `.dash-spreadsheet-inner th.column-${typeIndex}`,
                 `width: 30px; max-width: 30px; min-width: 30px;`
             );
 
@@ -624,6 +640,7 @@ export default class ControlledTable extends Component<ControlledTableProps> {
                 `.dash-spreadsheet-inner td.column-${typeIndex}`,
                 `width: ${width}; max-width: ${maxWidth}; min-width: ${minWidth};`
             );
+
             this.stylesheet.setRule(
                 `.dash-spreadsheet-inner th.column-${typeIndex}`,
                 `width: ${width}; max-width: ${maxWidth}; min-width: ${minWidth};`
@@ -707,6 +724,7 @@ export default class ControlledTable extends Component<ControlledTableProps> {
         const {
             id,
             columns,
+            content_style,
             n_fixed_columns,
             n_fixed_rows,
             row_deletable,
@@ -719,14 +737,27 @@ export default class ControlledTable extends Component<ControlledTableProps> {
             'dash-spreadsheet-inner',
             'dash-spreadsheet',
             ...(n_fixed_rows ? ['freeze-top'] : []),
-            ...(n_fixed_columns ? ['freeze-left'] : [])
+            ...(n_fixed_columns ? ['freeze-left'] : []),
+            [`dash-${content_style}`]
         ];
 
         const containerClasses = [
             'dash-spreadsheet',
             'dash-spreadsheet-container',
             ...(n_fixed_rows ? ['freeze-top'] : []),
-            ...(n_fixed_columns ? ['freeze-left'] : [])
+            ...(n_fixed_columns ? ['freeze-left'] : []),
+            [`dash-${content_style}`]
+        ];
+
+        const fragmentClasses = [
+            [
+                n_fixed_rows && n_fixed_columns ? 'dash-fixed-row dash-fixed-column' : '',
+                n_fixed_rows ? 'dash-fixed-row' : ''
+            ],
+            [
+                n_fixed_columns ? 'dash-fixed-column' : '',
+                'dash-fixed-content'
+            ]
         ];
 
         const cells = this.getCells();
@@ -748,7 +779,7 @@ export default class ControlledTable extends Component<ControlledTableProps> {
                     >{row.map((cell, columnIndex) => (<div
                         key={columnIndex}
                         ref={`r${rowIndex}c${columnIndex}`}
-                        className={`cell cell-${rowIndex}-${columnIndex}`}
+                        className={`cell cell-${rowIndex}-${columnIndex} ${fragmentClasses[rowIndex][columnIndex]}`}
                     >{cell}</div>))
                         }</div>))}
                 </div>

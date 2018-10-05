@@ -1,7 +1,6 @@
 import React from 'react';
 import * as R from 'ramda';
 
-import Stylesheet from 'core/Stylesheet';
 import { SortDirection, SortSettings } from 'core/sorting';
 import multiUpdateSettings from 'core/sorting/multi';
 import singleUpdateSettings from 'core/sorting/single';
@@ -117,7 +116,6 @@ export default class HeaderFactory {
             columnRowIndex,
             labels,
             mergeCells,
-            n_fixed_columns,
             offset,
             rowSorting,
             virtualization
@@ -141,15 +139,11 @@ export default class HeaderFactory {
             });
         }
 
-        const visibleColumns = columns.filter(column => !column.hidden);
-
         return R.filter(column => !!column, columnIndices.map((columnId, spanId) => {
             const c = columns[columnId];
             if (c.hidden) {
                 return null;
             }
-
-            const visibleIndex = visibleColumns.indexOf(c) + offset;
 
             let colSpan: number;
             if (!mergeCells) {
@@ -166,23 +160,6 @@ export default class HeaderFactory {
                 }
             }
 
-            // This is not efficient and can be improved upon...
-            // Fixed columns need to override the default cell behavior when they span multiple columns
-            // Find all columns that fit the header's range [index, index+colspan[ and keep the fixed/visible ones
-            const visibleColumnId = visibleColumns.indexOf(c);
-
-            const spannedColumns = visibleColumns.filter((column, index) =>
-                !column.hidden &&
-                index >= visibleColumnId &&
-                index < visibleColumnId + colSpan &&
-                index + offset < n_fixed_columns
-            );
-
-            // Calculate the width of all those columns combined
-            const width = `calc(${spannedColumns.map(column => Stylesheet.unit(column.width || DEFAULT_CELL_WIDTH, 'px')).join(' + ')})`;
-            const maxWidth = `calc(${spannedColumns.map(column => Stylesheet.unit(column.maxWidth || column.width || DEFAULT_CELL_WIDTH, 'px')).join(' + ')})`;
-            const minWidth = `calc(${spannedColumns.map(column => Stylesheet.unit(column.minWidth || column.width || DEFAULT_CELL_WIDTH, 'px')).join(' + ')})`;
-
             return (<th
                 key={`header-cell-${columnId}`}
                 colSpan={colSpan}
@@ -190,7 +167,6 @@ export default class HeaderFactory {
                     `column-${columnId + offset} ` +
                     (columnId === columns.length - 1 || columnId === R.last(columnIndices) ? 'cell--right-last ' : '')
                 }
-                style={visibleIndex < n_fixed_columns ? { maxWidth, minWidth, width } : undefined}
             >
                 {rowSorting ? (
                     <span
@@ -198,7 +174,7 @@ export default class HeaderFactory {
                         onClick={HeaderFactory.doSort(c.id, options)}
                     >
                         {HeaderFactory.getSortingIcon(c.id, options)}
-                    </span>) : ('')
+                    </span>) : ''
                 }
 
                 {((c.editable_name && R.type(c.editable_name) === 'Boolean') ||

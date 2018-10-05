@@ -20,6 +20,7 @@ export const defaultProps = {
     },
     navigation: 'page',
 
+    content_style: 'fit',
     filtering: false,
     filtering_settings: '',
     filtering_type: 'basic',
@@ -87,6 +88,7 @@ export const defaultProps = {
 export const propTypes = {
     active_cell: PropTypes.array,
     columns: PropTypes.arrayOf(PropTypes.object),
+    content_style: PropTypes.oneOf(['fit', 'grow']),
 
     dataframe: PropTypes.arrayOf(PropTypes.object),
     dataframe_previous: PropTypes.arrayOf(PropTypes.object),

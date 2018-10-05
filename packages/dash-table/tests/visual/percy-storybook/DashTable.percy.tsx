@@ -8,7 +8,7 @@ import fixtures from './fixtures';
 const setProps = () => { };
 
 // Legacy: Tests previously run in Python
-const fixtureStories = storiesOf('DashTable/Fixtures');
+const fixtureStories = storiesOf('DashTable/Fixtures', module);
 fixtures.forEach(fixture => fixtureStories.add(fixture.name, () => (<DashTable {...Object.assign(fixture.props)} />)));
 
 storiesOf('DashTable/Without Data', module)
