@@ -62,10 +62,12 @@ class TestComponentValidation(unittest.TestCase):
 
         app.layout = html.Div(self.ComponentClass(id='hello', children=[[]]))
 
-        self.assertRaises(
-            dash.exceptions.ComponentInitializationValidationError,
-            app._validate_layout
-        )
+        with self.assertRaises(
+            dash.exceptions.ComponentInitializationValidationError
+        ) as cm:
+            app._validate_layout()
+        the_exception = cm.exception
+        print(the_exception)
 
     def test_callback_output_is_validated(self):
         app = dash.Dash(__name__)
@@ -101,10 +103,12 @@ class TestComponentValidation(unittest.TestCase):
                 }
             }
         ):
-            self.assertRaises(
-                dash.exceptions.CallbackOutputValidationError,
-                app.dispatch
-            )
+            with self.assertRaises(
+                dash.exceptions.CallbackOutputValidationError
+            ) as cm:
+                app.dispatch()
+            the_exception = cm.exception
+            print(the_exception)
 
     def test_component_initialization_in_callback_is_validated(self):
         app = dash.Dash(__name__)

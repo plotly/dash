@@ -5,6 +5,7 @@ import sys
 import collections
 import importlib
 import json
+import pprint
 import pkgutil
 import warnings
 import re
@@ -914,14 +915,17 @@ class Dash(object):
             component_type = str(output['type'])
             component_id = str(output['id'])
             component_property = str(output['property'])
+            callback_func_name = self.callback_map[target_id]['func'].__name__
             self._validate_callback_output(namespace, component_type,
                                            component_id, component_property,
-                                           output_value)
+                                           callback_func_name,
+                                           args, output_value)
 
         return self.callback_map[target_id]['callback'](output_value)
 
     def _validate_callback_output(self, namespace, component_type,
-                                  component_id, component_property, value):
+                                  component_id, component_property,
+                                  callback_func_name, args, value):
         if namespace not in self.namespaces:
             self.namespaces[namespace] =\
                 importlib.import_module(namespace)
@@ -933,9 +937,35 @@ class Dash(object):
         })
         valid = validator.validate({component_property: value})
         if not valid:
-            error_message = (
-                "Callback to prop `{}` of `{}(id={})` did not validate.\n"
-                .format(component_property, component.__name__, component_id)
+            error_message = """
+
+
+                A Dash Callback produced an invalid value!
+
+                Dash tried to update the `{component_property}` prop of the
+                `{component_name}` with id `{component_id}` by calling the
+                `{callback_func_name}` function with `{args}` as arguments.
+
+                This function call returned `{value}`, which did not pass
+                validation tests for the `{component_name}` component.
+
+                The expected schema for the `{component_property}` prop of the
+                `{component_name}` component is:
+
+                ```````````````````````````````````````````````````````````````
+                {component_schema}
+                ```````````````````````````````````````````````````````````````
+
+            """.replace('    ', '').format(
+                component_property=component_property,
+                component_name=component.__name__,
+                component_id=component_id,
+                callback_func_name=callback_func_name,
+                args='({})'.format(", ".join(map(repr, args))),
+                value=value,
+                component_schema=pprint.pformat(
+                    component._schema[component_property]
+                )
             )
             error_message +=\
                 "The errors in validation are as follows:\n\n"

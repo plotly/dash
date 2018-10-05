@@ -3,6 +3,7 @@ import copy
 import os
 import inspect
 import keyword
+import pprint
 
 import dash.exceptions
 from .validator import DashValidator, generate_validation_error_message
@@ -256,9 +257,33 @@ class Component(collections.MutableMapping):
         }
         valid = validator.validate(args)
         if not valid:
-            error_message = ("Initialization of  `{}` did not validate.\n"
-                             .format(self.__class__.__name__))
-            error_message += "The errors in validation are as follows:\n\n"
+            # pylint: disable=protected-access
+            error_message = """
+
+
+                A Dash Component was initialized with invalid properties!
+
+                Dash tried to create a `{component_name}` component with the
+                following arguments, which caused a validation failure:
+
+                ```````````````````````````````````````````````````````````````
+                {component_args}
+                ```````````````````````````````````````````````````````````````
+
+                The expected schema for the `{component_name}` component is:
+
+                ```````````````````````````````````````````````````````````````
+                {component_schema}
+                ```````````````````````````````````````````````````````````````
+
+                The errors in validation are as follows:
+
+
+            """.replace('    ', '').format(
+                component_name=self.__class__.__name__,
+                component_args=pprint.pformat(args),
+                component_schema=pprint.pformat(self.__class__._schema)
+            )
 
             # pylint: disable=protected-access
             raise dash.exceptions.ComponentInitializationValidationError(
