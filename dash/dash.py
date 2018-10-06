@@ -207,8 +207,9 @@ class Dash(object):
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
             self.index)
 
-        add_url('{}_favicon.ico'.format(self.config['routes_pathname_prefix']),
-                self._serve_default_favicon)
+        self._add_url(
+            '{}_favicon.ico'.format(self.config['routes_pathname_prefix']),
+            self._serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
 
