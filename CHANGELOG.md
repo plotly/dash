@@ -1,3 +1,7 @@
+## 0.28.2 - 2018-10-05
+## Added
+- Moved `add_url` function definition out of `Dash.__init__` [#377](https://github.com/plotly/dash/pull/377)
+
 ## 0.28.1 - 2018-09-26
 ## Fixed
 - Missing favicon package_data from setup.py [#407](https://github.com/plotly/dash/pull/407)
