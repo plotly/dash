@@ -28,8 +28,7 @@ from ._utils import get_asset_path as _get_asset_path
 from . import _configs
 
 
-_default_index = '''
-<!DOCTYPE html>
+_default_index = '''<!DOCTYPE html>
 <html>
     <head>
         {%metas%}
@@ -44,8 +43,7 @@ _default_index = '''
             {%scripts%}
         </footer>
     </body>
-</html>
-'''
+</html>'''
 
 _app_entry = '''
 <div id="react-entry-point">
@@ -208,6 +206,9 @@ class Dash(object):
         self._add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
             self.index)
+
+        add_url('{}_favicon.ico'.format(self.config['routes_pathname_prefix']),
+                self._serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
 
@@ -464,11 +465,22 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
+
         if self._favicon:
-            favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
-                self.get_asset_url(self._favicon))
+            favicon_mod_time = os.path.getmtime(
+                os.path.join(self._assets_folder, self._favicon))
+            favicon_url = self.get_asset_url(self._favicon) + '?m={}'.format(
+                favicon_mod_time
+            )
         else:
-            favicon = ''
+            favicon_url = '{}_favicon.ico'.format(
+                self.config.requests_pathname_prefix)
+
+        favicon = _format_tag('link', {
+            'rel': 'icon',
+            'type': 'image/x-icon',
+            'href': favicon_url
+        }, opened=True)
 
         index = self.interpolate_index(
             metas=metas, title=title, css=css, config=config,
@@ -977,6 +989,15 @@ class Dash(object):
 
     def _invalid_resources_handler(self, err):
         return err.args[0], 404
+
+    def _serve_default_favicon(self):
+        headers = {
+            'Cache-Control': 'public, max-age={}'.format(
+                self.config.components_cache_max_age)
+        }
+        return flask.Response(pkgutil.get_data('dash', 'favicon.ico'),
+                              headers=headers,
+                              content_type='image/x-icon')
 
     def get_asset_url(self, path):
         asset = _get_asset_path(
