@@ -170,58 +170,51 @@ class Dash(object):
         self.registered_paths = {}
 
         # urls
+        self.routes = []
 
-        def add_url(name, view_func, methods=('GET',)):
-            self.server.add_url_rule(
-                name,
-                view_func=view_func,
-                endpoint=name,
-                methods=list(methods)
-            )
-
-        add_url(
+        self._add_url(
             '{}_dash-layout'.format(self.config['routes_pathname_prefix']),
             self.serve_layout)
 
-        add_url(
+        self._add_url(
             '{}_dash-dependencies'.format(
                 self.config['routes_pathname_prefix']),
             self.dependencies)
 
-        add_url(
+        self._add_url(
             '{}_dash-update-component'.format(
                 self.config['routes_pathname_prefix']),
             self.dispatch,
             ['POST'])
 
-        add_url((
+        self._add_url((
             '{}_dash-component-suites'
             '/<string:package_name>'
             '/<path:path_in_package_dist>').format(
                 self.config['routes_pathname_prefix']),
-                self.serve_component_suites)
+                      self.serve_component_suites)
 
-        add_url(
+        self._add_url(
             '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
             self.serve_routes)
 
-        add_url(
+        self._add_url(
             self.config['routes_pathname_prefix'],
             self.index)
 
         # catch-all for front-end routes, used by dcc.Location
-        add_url(
+        self._add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
             self.index)
 
-        add_url('{}_favicon.ico'.format(self.config['routes_pathname_prefix']),
-                self._serve_default_favicon)
+        self._add_url(
+            '{}_favicon.ico'.format(self.config['routes_pathname_prefix']),
+            self._serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
 
         self._layout = None
         self._cached_layout = None
-        self.routes = []
         self._dev_tools = _AttributeDict({
             'serve_dev_bundles': False
         })
@@ -229,6 +222,17 @@ class Dash(object):
         # add a handler for components suites errors to return 404
         self.server.errorhandler(exceptions.InvalidResourceError)(
             self._invalid_resources_handler)
+
+    def _add_url(self, name, view_func, methods=('GET',)):
+        self.server.add_url_rule(
+            name,
+            view_func=view_func,
+            endpoint=name,
+            methods=list(methods))
+
+        # record the url in Dash.routes so that it can be accessed later
+        # e.g. for adding authentication with flask_login
+        self.routes.append(name)
 
     @property
     def layout(self):
