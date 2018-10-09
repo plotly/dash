@@ -12,6 +12,8 @@
     "build:dev": "webpack --mode development",
     "build:prod": "webpack --mode production",
     "start": "webpack-serve ./webpack.serve.config.js",
+    "format": "prettier --config .prettierrc --write src/**/*.js",
+    "format:test": "prettier --config .prettierrc src/**/*.js --list-different",
     "test": "npm run lint"
   },
   "author": "chriddyp",
