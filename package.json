@@ -8,7 +8,6 @@
     "prepublish": "npm test && npm run build:prod && npm run build:dev",
     "publish-all": "npm publish && echo \"twine!!!\"",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
-    "server": "serv -p 8080 .",
     "build:dev": "webpack --mode development",
     "build:prod": "webpack --mode production",
     "start": "webpack-serve ./webpack.serve.config.js",
@@ -36,16 +35,15 @@
     "query-string": "^4.3.2",
     "radium": "^0.22.1",
     "ramda": "^0.23.0",
-    "react": "^16.5.2",
-    "react-dom": "^16.5.2",
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
     "react-redux": "^4.4.9",
     "redux": "^3.4.0",
     "redux-actions": "^0.9.1",
     "redux-thunk": "^2.3.0",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1",
-    "webpack-partial": "^1.2.0",
-    "webpack-serve": "^1.0.2",
+    "webpack-serve": "^2.0.2",
     "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {
@@ -57,7 +55,6 @@
     "prettier": "^1.14.3",
     "react-hot-loader": "^1.3.0",
     "redux-logger": "^2.8.0",
-    "serv": "^0.2.4",
     "webpack-dev-server": "^3.1.9"
   }
 }
