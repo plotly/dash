@@ -10,7 +10,8 @@ import {
     setLayout
 } from './actions/index';
 import {getDependencies, getLayout} from './actions/api';
-import {APP_STATES} from './reducers/constants';
+import {getAppState} from './reducers/constants';
+import {STATUS} from './constants/constants';
 
 /**
  * Fire off API calls for initialization
@@ -41,7 +42,7 @@ class UnconnectedContainer extends Component {
 
         if (isEmpty(layoutRequest)) {
             dispatch(getLayout());
-        } else if (layoutRequest.status === 200) {
+        } else if (layoutRequest.status === STATUS.OK) {
             if (isEmpty(layout)) {
                 dispatch(setLayout(layoutRequest.content));
             } else if (isNil(paths)) {
@@ -51,22 +52,22 @@ class UnconnectedContainer extends Component {
 
         if (isEmpty(dependenciesRequest)) {
             dispatch(getDependencies());
-        } else if (dependenciesRequest.status === 200 && isEmpty(graphs)) {
+        } else if (dependenciesRequest.status === STATUS.OK&& isEmpty(graphs)) {
             dispatch(computeGraphs(dependenciesRequest.content));
         }
 
         if (
             // dependenciesRequest and its computed stores
-            dependenciesRequest.status === 200 &&
+            dependenciesRequest.status === STATUS.OK&&
             !isEmpty(graphs) &&
 
             // LayoutRequest and its computed stores
-            layoutRequest.status === 200 &&
+            layoutRequest.status === STATUS.OK&&
             !isEmpty(layout) &&
             !isNil(paths) &&
 
             // Hasn't already hydrated
-            appLifecycle === APP_STATES('STARTED')
+            appLifecycle === getAppState('STARTED')
         ) {
             dispatch(hydrateInitialOutputs());
         }
@@ -81,7 +82,7 @@ class UnconnectedContainer extends Component {
         } = this.props;
 
         if (layoutRequest.status &&
-            !contains(layoutRequest.status, [200, 'loading'])
+            !contains(layoutRequest.status, [STATUS.OK, 'loading'])
         ) {
             return (<div className="_dash-error">{'Error loading layout'}</div>);
         }
@@ -89,13 +90,13 @@ class UnconnectedContainer extends Component {
 
         else if (
             dependenciesRequest.status &&
-            !contains(dependenciesRequest.status, [200, 'loading'])
+            !contains(dependenciesRequest.status, [STATUS.OK, 'loading'])
         ) {
             return (<div className="_dash-error">{'Error loading dependencies'}</div>);
         }
 
 
-        else if (appLifecycle === APP_STATES('HYDRATED')) {
+        else if (appLifecycle === getAppState('HYDRATED')) {
             return (
                 <div id="_dash-app-content">
                     <TreeContainer layout={layout}/>
@@ -103,15 +104,15 @@ class UnconnectedContainer extends Component {
             );
         }
 
-        else {
+        
             return (<div className="_dash-loading">{'Loading...'}</div>);
-        }
+        
     }
 }
 UnconnectedContainer.propTypes = {
     appLifecycle: PropTypes.oneOf([
-        APP_STATES('STARTED'),
-        APP_STATES('HYDRATED')
+        getAppState('STARTED'),
+        getAppState('HYDRATED')
     ]),
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,

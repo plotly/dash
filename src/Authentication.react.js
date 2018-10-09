@@ -7,10 +7,10 @@ import {login} from './actions/api';
 import {readConfig} from './actions/index';
 import {contains, isEmpty, merge, type} from 'ramda'
 import * as styles from './styles/styles.js';
-import {REDIRECT_URI_PATHNAME} from './constants/constants';
+import {REDIRECT_URI_PATHNAME, STATUS} from './constants/constants';
 
 // http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
-const PopupCenter = (url, title, w, h) => {
+const popupCenter = (url, title, w, h) => {
     // Fixes dual-screen position
     const screenLeft = window.screenLeft;
     const screenTop = window.screenTop;
@@ -57,7 +57,7 @@ class UnconnectedLogin extends Component {
     }
 
     oauthPopUp() {
-        const popupWindow = PopupCenter(
+        const popupWindow = popupCenter(
             this.buildOauthUrl(), 'Authorization', '500', '500'
         );
         if (window.focus) {
@@ -141,7 +141,7 @@ class UnconnectedOauthRedirect extends Component {
 
             content = <div className="_dash-loading">Loading...</div>;
 
-        } else if (loginRequest.status === 200) {
+        } else if (loginRequest.status === STATUS.OK) {
 
             window.close();
 
@@ -238,7 +238,7 @@ class Authentication extends Component {
 
             }
 
-            else {
+            
 
                 // Set oauth token cookie through an oauth flow
                 return (
@@ -250,14 +250,14 @@ class Authentication extends Component {
                     }/>
                 );
 
-            }
+            
         }
 
-        else {
+        
 
             return children;
 
-        }
+        
     }
 }
 

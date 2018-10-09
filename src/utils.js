@@ -28,7 +28,8 @@ export function urlBase(config) {
 
 export function uid() {
   function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
+    const h = 0x10000;
+    return Math.floor((1 + Math.random()) * h)
       .toString(16)
       .substring(1);
   }

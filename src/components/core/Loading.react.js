@@ -8,9 +8,9 @@ function Loading(props) {
         return (
             <div className="_dash-loading-callback"/>
         );
-    } else {
+    } 
         return null;
-    }
+    
 }
 
 Loading.propTypes = {

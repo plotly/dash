@@ -1,8 +1,10 @@
-export function APP_STATES(state) {
+export function getAppState(state) {
     const stateList = {
-        'STARTED': 'STARTED',
-        'HYDRATED': 'HYDRATED'
+        STARTED: 'STARTED',
+        HYDRATED: 'HYDRATED',
+    };
+    if (stateList[state]) {
+        return stateList[state];
     }
-    if (stateList[state]) return stateList[state];
-    else throw new Error (`${state} is not a valid app state.`);
+    throw new Error(`${state} is not a valid app state.`);
 }

@@ -48,6 +48,7 @@
       "import/no-named-as-default": ["error"],
       "import/no-unresolved": ["off"],
       "new-cap": ["error", {
+        "capIsNewExceptions": ["Radium"],
         "capIsNewExceptionPattern": "Immutable\\.*"
       }],
       "no-alert": ["off"],

@@ -27,23 +27,24 @@ import {
 } from 'ramda';
 import {createAction} from 'redux-actions';
 import {crawlLayout, hasId} from '../reducers/utils';
-import {APP_STATES} from '../reducers/constants';
-import {ACTIONS} from './constants';
+import {getAppState} from '../reducers/constants';
+import {getAction} from './constants';
 import cookie from 'cookie';
 import {uid, urlBase} from '../utils';
+import {STATUS} from "../constants/constants"
 
-export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
-export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
-export const computeGraphs = createAction(ACTIONS('COMPUTE_GRAPHS'));
-export const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
-export const setLayout = createAction(ACTIONS('SET_LAYOUT'));
-export const setAppLifecycle = createAction(ACTIONS('SET_APP_LIFECYCLE'));
-export const readConfig = createAction(ACTIONS('READ_CONFIG'));
+export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
+export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
+export const computeGraphs = createAction(getAction('COMPUTE_GRAPHS'));
+export const computePaths = createAction(getAction('COMPUTE_PATHS'));
+export const setLayout = createAction(getAction('SET_LAYOUT'));
+export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
+export const readConfig = createAction(getAction('READ_CONFIG'));
 
 export function hydrateInitialOutputs() {
     return function (dispatch, getState) {
         triggerDefaultState(dispatch, getState);
-        dispatch(setAppLifecycle(APP_STATES('HYDRATED')));
+        dispatch(setAppLifecycle(getAppState('HYDRATED')));
     }
 }
 
@@ -366,7 +367,9 @@ export function notifyObservers(payload) {
             ))
         }
 
+        /* eslint-disable consistent-return */
         return Promise.all(promises);
+        /* eslint-enableconsistent-return */
     }
 }
 
@@ -422,7 +425,7 @@ function updateOutput(
         payload.inputs = inputs.map(inputObject => {
             // Make sure the component id exists in the layout
             if (!contains(inputObject.id, validKeys)) {
-              throw ReferenceError(
+              throw new ReferenceError(
                 "An invalid input object was used in an " +
                 "`Input` of a Dash callback. " +
                 "The id of this object is `" +
@@ -447,7 +450,7 @@ function updateOutput(
         payload.state = state.map(stateObject => {
             // Make sure the component id exists in the layout
             if (!contains(stateObject.id, validKeys)) {
-              throw ReferenceError(
+              throw new ReferenceError(
                 "An invalid input object was used in a " +
                 "`State` object of a Dash callback. " +
                 "The id of this object is `" +
@@ -521,7 +524,8 @@ function updateOutput(
 
         const isRejected = () => {
             const latestRequestIndex = findLastIndex(
-                propEq('controllerId', `${outputComponentId}.${outputProp}`), // newRequestQueue[i].controllerId),
+                // newRequestQueue[i].controllerId),
+                propEq('controllerId', `${outputComponentId}.${outputProp}`),
                 getState().requestQueue
             );
             /*
@@ -534,7 +538,7 @@ function updateOutput(
             return rejected;
         }
 
-        if (res.status !== 200) {
+        if (res.status !== STATUS.OK) {
             // update the status of this request
             updateRequestQueue(true);
             return;
@@ -550,7 +554,7 @@ function updateOutput(
             return;
         }
 
-        return res.json().then(function handleJson(data) {
+        res.json().then(function handleJson(data) {
             /*
              * Even if the `res` was received in the correct order,
              * the remainder of the response (res.json()) could happen
@@ -683,7 +687,7 @@ function updateOutput(
                             intersection(
                                 InputGraph.dependantsOf(idAndProp),
                                 keys(newProps)
-                            ).length == 0
+                            ).length === 0
                         ) {
                             outputIds.push(idAndProp);
                             delete newProps[idAndProp];

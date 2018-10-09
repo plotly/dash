@@ -1,10 +1,10 @@
-import {ACTIONS} from '../actions/constants';
-import {APP_STATES} from './constants';
+import {getAction} from '../actions/constants';
+import {getAppState} from './constants';
 
-function appLifecycle(state=APP_STATES('STARTED'), action) {
+function appLifecycle(state=getAppState('STARTED'), action) {
     switch (action.type) {
-        case ACTIONS('SET_APP_LIFECYCLE'):
-            return APP_STATES(action.payload);
+        case getAction('SET_APP_LIFECYCLE'):
+            return getAppState(action.payload);
         default:
             return state;
     }

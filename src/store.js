@@ -7,8 +7,9 @@ import createLogger from 'redux-logger';
 
 
 let logger;
-if (process.env.NODE_ENV !== 'production')  // only set up logger in non-production mode
-    logger = createLogger();
+// only set up logger in non-production mode
+if (process.env.NODE_ENV !== 'production')
+    {logger = createLogger();}
 let store;
 
 /**
