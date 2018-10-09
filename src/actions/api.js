@@ -92,12 +92,7 @@ export function getDependencies() {
 }
 
 export function login(oauth_token) {
-    return apiThunk(
-        '_dash-login',
-        'POST',
-        'loginRequest',
-        '',
-        '',
-        {Authorization: `Bearer ${oauth_token}`}
-    );
+    return apiThunk('_dash-login', 'POST', 'loginRequest', '', '', {
+        Authorization: `Bearer ${oauth_token}`,
+    });
 }

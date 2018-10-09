@@ -1,12 +1,11 @@
 const initialHistory = {
     past: [],
     present: {},
-    future: []
+    future: [],
 };
 
-function history (state = initialHistory, action) {
+function history(state = initialHistory, action) {
     switch (action.type) {
-
         case 'UNDO': {
             const {past, present, future} = state;
             const previous = past[past.length - 1];
@@ -14,7 +13,7 @@ function history (state = initialHistory, action) {
             return {
                 past: newPast,
                 present: previous,
-                future: [ present, ...future ]
+                future: [present, ...future],
             };
         }
 
@@ -25,16 +24,14 @@ function history (state = initialHistory, action) {
             return {
                 past: [...past, present],
                 present: next,
-                future: newFuture
+                future: newFuture,
             };
         }
 
         default: {
             return state;
         }
-
     }
 }
-
 
 export default history;

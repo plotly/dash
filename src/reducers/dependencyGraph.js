@@ -27,13 +27,11 @@ const graphs = (state = initialGraph, action) => {
             });
 
             return {InputGraph: inputGraph, EventGraph: eventGraph};
-
         }
 
         default:
             return state;
-
     }
-}
+};
 
 export default graphs;
