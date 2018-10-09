@@ -1,6 +1,8 @@
 from __future__ import print_function
 
+import itertools
 import os
+import random
 import sys
 import collections
 import importlib
@@ -1264,6 +1266,18 @@ class Dash(object):
                 'Running on %s://%s:%s%s',
                 'https' if ssl_context else 'http',
                 host, port, self.config.requests_pathname_prefix
+            )
+
+            # Generate a debugger pin and log it to the screen.
+            debugger_pin = os.environ['WERKZEUG_DEBUG_PIN'] = '-'.join(
+                itertools.chain(
+                    ''.join([str(random.randint(0, 9)) for _ in range(3)])
+                    for _ in range(3))
+            )
+
+            self.logger.info(
+                'Debugger PIN: %s',
+                debugger_pin
             )
 
         self.server.run(port=port, debug=debug,
