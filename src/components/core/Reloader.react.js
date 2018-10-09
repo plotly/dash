@@ -39,7 +39,7 @@ class Reloader extends React.Component {
             }
             if (reloadRequest.content.reloadHash !== this.state.hash) {
                 if (reloadRequest.content.hard
-                    || reloadRequest.content.packages.length !== this.state.length
+                    || reloadRequest.content.packages.length !== this.state.packages.length
                     || !R.all(R.map(x => R.contains(x, this.state.packages),
                         reloadRequest.content.packages))
                 ) {
@@ -98,7 +98,7 @@ class Reloader extends React.Component {
                 // Integrate with dev tools ui?!
                 window.alert(
                     `
-                    Reloader failed after ${this.state.retry} times.
+                    Reloader failed after ${this._retry} times.
                     Please check your application for errors. 
                     `
                 )
