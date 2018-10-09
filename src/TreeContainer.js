@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 import R from 'ramda';
 import React, {Component} from 'react';
@@ -18,10 +18,12 @@ export default class TreeContainer extends Component {
 
 TreeContainer.propTypes = {
     layout: PropTypes.object,
-}
+};
 
 function render(component) {
-    if (R.contains(R.type(component), ['String', 'Number', 'Null', 'Boolean'])) {
+    if (
+        R.contains(R.type(component), ['String', 'Number', 'Null', 'Boolean'])
+    ) {
         return component;
     }
 
@@ -30,29 +32,30 @@ function render(component) {
 
     const componentProps = R.propOr({}, 'props', component);
 
-    if (!R.has('props', component) ||
+    if (
+        !R.has('props', component) ||
         !R.has('children', component.props) ||
-        typeof component.props.children === 'undefined') {
-
+        typeof component.props.children === 'undefined'
+    ) {
         // No children
         children = [];
-
-    } else if (R.contains(
-        R.type(component.props.children),
-        ['String', 'Number', 'Null', 'Boolean'])
+    } else if (
+        R.contains(R.type(component.props.children), [
+            'String',
+            'Number',
+            'Null',
+            'Boolean',
+        ])
     ) {
-
         children = [component.props.children];
-
     } else {
-
         // One or multiple objects
         // Recursively render the tree
         // TODO - I think we should pass in `key` here.
-        children = (Array.isArray(componentProps.children) ?
-                    componentProps.children : [componentProps.children])
-                    .map(render);
-
+        children = (Array.isArray(componentProps.children)
+            ? componentProps.children
+            : [componentProps.children]
+        ).map(render);
     }
 
     if (!component.type) {
@@ -75,13 +78,9 @@ function render(component) {
         ...children
     );
 
-    return (
-        <NotifyObservers id={componentProps.id}>
-            {parent}
-        </NotifyObservers>
-    );
+    return <NotifyObservers id={componentProps.id}>{parent}</NotifyObservers>;
 }
 
 render.propTypes = {
-    children: PropTypes.object
-}
+    children: PropTypes.object,
+};

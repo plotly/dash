@@ -10,10 +10,10 @@ function UnconnectedAppContainer() {
     return (
         <Authentication>
             <div>
-                <Toolbar/>
-                <APIController/>
-                <DocumentTitle/>
-                <Loading/>
+                <Toolbar />
+                <APIController />
+                <DocumentTitle />
+                <Loading />
             </div>
         </Authentication>
     );
@@ -21,7 +21,7 @@ function UnconnectedAppContainer() {
 
 const AppContainer = connect(
     state => ({
-        history: state.history
+        history: state.history,
     }),
     dispatch => ({dispatch})
 )(UnconnectedAppContainer);

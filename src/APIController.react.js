@@ -1,5 +1,5 @@
-import {connect} from 'react-redux'
-import {contains, isEmpty, isNil} from 'ramda'
+import {connect} from 'react-redux';
+import {contains, isEmpty, isNil} from 'ramda';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
@@ -7,7 +7,7 @@ import {
     computeGraphs,
     computePaths,
     hydrateInitialOutputs,
-    setLayout
+    setLayout,
 } from './actions/index';
 import {getDependencies, getLayout} from './actions/api';
 import {getAppState} from './reducers/constants';
@@ -37,7 +37,7 @@ class UnconnectedContainer extends Component {
             graphs,
             layout,
             layoutRequest,
-            paths
+            paths,
         } = props;
 
         if (isEmpty(layoutRequest)) {
@@ -52,20 +52,21 @@ class UnconnectedContainer extends Component {
 
         if (isEmpty(dependenciesRequest)) {
             dispatch(getDependencies());
-        } else if (dependenciesRequest.status === STATUS.OK&& isEmpty(graphs)) {
+        } else if (
+            dependenciesRequest.status === STATUS.OK &&
+            isEmpty(graphs)
+        ) {
             dispatch(computeGraphs(dependenciesRequest.content));
         }
 
         if (
             // dependenciesRequest and its computed stores
-            dependenciesRequest.status === STATUS.OK&&
+            dependenciesRequest.status === STATUS.OK &&
             !isEmpty(graphs) &&
-
             // LayoutRequest and its computed stores
-            layoutRequest.status === STATUS.OK&&
+            layoutRequest.status === STATUS.OK &&
             !isEmpty(layout) &&
             !isNil(paths) &&
-
             // Hasn't already hydrated
             appLifecycle === getAppState('STARTED')
         ) {
@@ -73,54 +74,51 @@ class UnconnectedContainer extends Component {
         }
     }
 
-    render () {
+    render() {
         const {
             appLifecycle,
             dependenciesRequest,
             layoutRequest,
-            layout
+            layout,
         } = this.props;
 
-        if (layoutRequest.status &&
+        if (
+            layoutRequest.status &&
             !contains(layoutRequest.status, [STATUS.OK, 'loading'])
         ) {
-            return (<div className="_dash-error">{'Error loading layout'}</div>);
-        }
-
-
-        else if (
+            return <div className="_dash-error">{'Error loading layout'}</div>;
+        } else if (
             dependenciesRequest.status &&
             !contains(dependenciesRequest.status, [STATUS.OK, 'loading'])
         ) {
-            return (<div className="_dash-error">{'Error loading dependencies'}</div>);
-        }
-
-
-        else if (appLifecycle === getAppState('HYDRATED')) {
+            return (
+                <div className="_dash-error">
+                    {'Error loading dependencies'}
+                </div>
+            );
+        } else if (appLifecycle === getAppState('HYDRATED')) {
             return (
                 <div id="_dash-app-content">
-                    <TreeContainer layout={layout}/>
+                    <TreeContainer layout={layout} />
                 </div>
             );
         }
 
-        
-            return (<div className="_dash-loading">{'Loading...'}</div>);
-        
+        return <div className="_dash-loading">{'Loading...'}</div>;
     }
 }
 UnconnectedContainer.propTypes = {
     appLifecycle: PropTypes.oneOf([
         getAppState('STARTED'),
-        getAppState('HYDRATED')
+        getAppState('HYDRATED'),
     ]),
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,
-    history: PropTypes.array
-}
+    history: PropTypes.array,
+};
 
 const Container = connect(
     // map state to props
@@ -131,7 +129,7 @@ const Container = connect(
         layout: state.layout,
         graphs: state.graphs,
         paths: state.paths,
-        history: state.history
+        history: state.history,
     }),
     dispatch => ({dispatch})
 )(UnconnectedContainer);
