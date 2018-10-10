@@ -20,6 +20,7 @@ function error (state = initialError, action) {
                 backEnd: action.payload
             };
           }
+          break;
         }
 
         case 'RESOLVE_ERROR': {
@@ -37,6 +38,7 @@ function error (state = initialError, action) {
                 backEnd: {}
             };
           }
+          break;
         }
 
         default: {

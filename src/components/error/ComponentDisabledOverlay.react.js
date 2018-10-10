@@ -1,3 +1,6 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+
 const styles = {
   root: {
     position: 'relative'
@@ -27,6 +30,10 @@ function ComponentDisabledOverlay({ children }) {
       </div>
     </div>
   )
-};
+}
+
+ComponentDisabledOverlay.propTypes = {
+    children: PropTypes.object,
+}
 
 export default ComponentDisabledOverlay;

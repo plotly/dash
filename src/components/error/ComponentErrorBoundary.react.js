@@ -19,7 +19,7 @@ class UnconnectedComponentErrorBoundary extends Component {
   }
 
   componentDidCatch(error, info) {
-    const { id, dispatch, children } = this.props;
+    const { dispatch } = this.props;
     dispatch(onError({
       myUID: this.state.myUID,
       myID: this.state.myID,
@@ -75,7 +75,7 @@ class UnconnectedComponentErrorBoundary extends Component {
       error,
       graphs
     } = this.props;
-    const { myID, myUID } = this.state;
+    const { myUID } = this.state;
     const hasError = R.contains(myUID, R.pluck('myUID')(error.frontEnd));
     const disabledComponents = this.getDisabledComponents(
       R.pluck('myID')(error.frontEnd),
@@ -109,7 +109,9 @@ UnconnectedComponentErrorBoundary.propTypes = {
     children: PropTypes.object,
     componentId: PropTypes.string,
     componentType: PropTypes.string,
-    dispatch: PropTypes.func
+    dispatch: PropTypes.func,
+    error: PropTypes.object,
+    graphs: PropTypes.object
 }
 
 const ComponentErrorBoundary = connect(
