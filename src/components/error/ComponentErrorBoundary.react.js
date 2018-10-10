@@ -12,24 +12,22 @@ class UnconnectedComponentErrorBoundary extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      oldChildren: (<div>Initial State</div>),
-      myId: uniqid()
+      myID: props.componentId,
+      myUID: uniqid(),
+      oldChildren: (<div>No Initial State</div>)
     };
   }
 
   componentDidCatch(error, info) {
-    const { dispatch } = this.props;
+    const { id, dispatch, children } = this.props;
     dispatch(onError({
+      myUID: this.state.myUID,
+      myID: this.state.myID,
       type: 'frontEnd',
       error,
-      info,
-      myId: this.state.myId
-    }));
-    this.setState({
-      hadError: true,
-      error,
       info
-    });
+    }));
+    dispatch(revert());
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -47,14 +45,18 @@ class UnconnectedComponentErrorBoundary extends Component {
 
   render() {
     const { componentType, componentId, dispatch, error } = this.props;
-    if (contains(this.state.myId, pluck('myId')(error.frontEnd))) {
+    const { myID, myUID } = this.state;
+    const hasError = R.contains(myUID, R.pluck('myUID')(error.frontEnd));
+    if ( hasError ) {
+      const errorToDisplay = R.find(
+        R.propEq('myUID', myUID)
+      )(error.frontEnd).error;
       return (
         <ComponentErrorOverlay
-           oldChildren={this.state.oldChildren}
-           error={find(propEq('myId', this.state.myId))(error.frontEnd).error}
+           error={errorToDisplay}
            componentId={componentId}
            componentType={componentType}
-           resolve={() => this.resolveError(dispatch)}
+           resolve={() => this.resolveError(dispatch, myUID)}
         />
       )
     }

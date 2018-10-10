@@ -25,7 +25,7 @@ function error (state = initialError, action) {
         case 'RESOLVE_ERROR': {
           if (action.payload.type == 'frontEnd') {
             const removeIdx = findIndex(
-              propEq('myId', action.payload.myId)
+              propEq('myUID', action.payload.myUID)
             )(state.frontEnd)
             return {
                 frontEnd: remove(removeIdx, 1, state.frontEnd),
