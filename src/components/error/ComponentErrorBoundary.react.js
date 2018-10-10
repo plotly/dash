@@ -30,12 +30,6 @@ class UnconnectedComponentErrorBoundary extends Component {
     dispatch(revert());
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!this.state.hadError &&
-        this.props != prevProps) {
-      this.setState({
-        oldChildren: prevProps.children
-      });
     }
   }
 
