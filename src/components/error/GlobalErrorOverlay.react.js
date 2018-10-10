@@ -1,25 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { isEmpty } from 'ramda';
 
-
-const styles = {
-  root: {
-    position: 'relative',
-  },
-  overlay: {
-    position: 'relative',
-    backgroundColor: 'rgb(255, 0, 0, .2)',
-    display: 'inline-block',
-    height: '100vh',
-    width: '100vw',
-    padding: 0,
-    margin: -8
-  },
-  childWrapper: {
-    position: 'relative',
-    zIndex: -1
-  }
-}
 
 export default class GlobalErrorOverlay extends Component {
   constructor(props) {
@@ -27,13 +9,34 @@ export default class GlobalErrorOverlay extends Component {
   }
 
   render() {
-    const { resolve } = this.props;
+    const { resolve, visible, error } = this.props;
     return (
-      <div style={styles.root}>
-        <div
-          style={styles.overlay}>
-          <div style={styles.childWrapper}>{this.props.children}</div>
-          <button onClick={resolve}>Resolve Error</button>
+      <div>
+        <div>{this.props.children}</div>
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          right: '10px',
+          height: '300px',
+          width: '400px',
+          overflowY: 'auto',
+          display: visible
+        }}>
+          {isEmpty(error.backEnd) ? null : (
+            <button onClick={() => resolve('backEnd')}>
+              Resolve BackEnd Error
+            </button>
+          )}
+          <ul>
+            {error.frontEnd.map((e) => (<li>
+              <h3>{e.error.name}</h3>
+              <p>{e.error.message}</p>
+              <button onClick={() => resolve('frontEnd', e.myUID)}>
+                Resolve Error
+              </button>
+              {e.error.stack.split('\n').map((line) => (<p>{line}</p>))}
+            </li>))}
+          </ul>
         </div>
       </div>
     )
@@ -42,5 +45,7 @@ export default class GlobalErrorOverlay extends Component {
 
 GlobalErrorOverlay.propTypes = {
     children: PropTypes.object,
-    resolve: PropTypes.func
+    resolve: PropTypes.func,
+    visible: PropTypes.bool,
+    error: PropTypes.object
 }
