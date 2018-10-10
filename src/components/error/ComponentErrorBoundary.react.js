@@ -33,8 +33,8 @@ class UnconnectedComponentErrorBoundary extends Component {
     }
   }
 
-  resolveError(dispatch, myId) {
-    dispatch(resolveError({type: 'frontEnd', myId}))
+  resolveError(dispatch, myUID) {
+    dispatch(resolveError({type: 'frontEnd', myUID}))
   }
 
   render() {
