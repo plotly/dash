@@ -7,8 +7,12 @@ app = dash.Dash()
 app.scripts.config.serve_locally = True
 
 app.layout = html.Div([
+    html.Button(id='clickParent', children='clickParent'),
     html.Button(id='click', children='click'),
     dcc.Tabs(id='output2', children=[dcc.Tab(), dcc.Tab()]),
+    html.Button(id='click2Parent', children='clickParent'),
+    html.Button(id='click2', children='click'),
+    dcc.Tabs(id='output3', children=[dcc.Tab(), dcc.Tab()]),
     dcc.RadioItems(
         id='radio',
         options=[{
@@ -42,6 +46,26 @@ def crash_it2(click):
     if click:
         return None
     return [dcc.Tab('hello'), dcc.Tab('there')]
+
+
+@app.callback(Output('click', 'n_clicks'),
+              [Input('clickParent', 'n_clicks')])
+def click_sync(click):
+    return click
+
+
+@app.callback(Output('output3', 'children'),
+              [Input('click2', 'n_clicks')])
+def crash_it3(click):
+    if click:
+        return None
+    return [dcc.Tab(), dcc.Tab()]
+
+
+@app.callback(Output('click2', 'n_clicks'),
+              [Input('click2Parent', 'n_clicks')])
+def click_sync2(click):
+    return click
 
 
 app.run_server(debug=True, port=8000)

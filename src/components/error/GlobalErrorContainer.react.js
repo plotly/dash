@@ -7,7 +7,7 @@ import { revert, resolveError } from '../../actions';
 import GlobalErrorOverlay from './GlobalErrorOverlay.react';
 import serverErrorCSS from './werkzueg.css';
 
-class UnconnectedGlobalErrorBoundary extends Component {
+class UnconnectedGlobalErrorContainer extends Component {
   constructor(props) {
     super(props);
   }
@@ -36,7 +36,7 @@ class UnconnectedGlobalErrorBoundary extends Component {
   render() {
     const { error, dispatch } = this.props;
     return (
-      <div>
+      <div id="_dash-global-error-container">
         <img
           style={{"display": "none"}}
           src="http://placehold.it/1x1"
@@ -54,17 +54,17 @@ class UnconnectedGlobalErrorBoundary extends Component {
   }
 }
 
-UnconnectedGlobalErrorBoundary.propTypes = {
+UnconnectedGlobalErrorContainer.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
     dispatch: PropTypes.func
 }
 
-const GlobalErrorBoundary = connect(
+const GlobalErrorContainer = connect(
     state => ({
       error: state.error
     }),
     dispatch => ({dispatch})
-)(Radium(UnconnectedGlobalErrorBoundary));
+)(Radium(UnconnectedGlobalErrorContainer));
 
-export default GlobalErrorBoundary;
+export default GlobalErrorContainer;

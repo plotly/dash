@@ -77,7 +77,9 @@ function render(component) {
     );
 
     return (
-        <ComponentErrorBoundary componentType={component.type} componentId={componentProps.id}>
+        <ComponentErrorBoundary
+          componentType={component.type}
+          componentId={componentProps.id}>
           <NotifyObservers id={componentProps.id}>
               {parent}
           </NotifyObservers>
