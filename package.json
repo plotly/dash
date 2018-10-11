@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "description": "render dash components in react",
   "main": "src/index.js",
   "scripts": {
@@ -18,6 +18,7 @@
   "author": "chriddyp",
   "license": "MIT",
   "dependencies": {
+    "@babel/polyfill": "^7.0.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
