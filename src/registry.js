@@ -14,5 +14,5 @@ export default {
         }
 
         throw new Error(`${namespace} was not found.`);
-    }
+    },
 };

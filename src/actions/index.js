@@ -22,29 +22,30 @@ import {
     slice,
     sort,
     type,
-//    values,
-    view
+    //    values,
+    view,
 } from 'ramda';
 import {createAction} from 'redux-actions';
 import {crawlLayout, hasId} from '../reducers/utils';
-import {APP_STATES} from '../reducers/constants';
-import {ACTIONS} from './constants';
+import {getAppState} from '../reducers/constants';
+import {getAction} from './constants';
 import cookie from 'cookie';
 import {uid, urlBase} from '../utils';
+import {STATUS} from '../constants/constants';
 
-export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
-export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
-export const computeGraphs = createAction(ACTIONS('COMPUTE_GRAPHS'));
-export const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
-export const setLayout = createAction(ACTIONS('SET_LAYOUT'));
-export const setAppLifecycle = createAction(ACTIONS('SET_APP_LIFECYCLE'));
-export const readConfig = createAction(ACTIONS('READ_CONFIG'));
+export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
+export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
+export const computeGraphs = createAction(getAction('COMPUTE_GRAPHS'));
+export const computePaths = createAction(getAction('COMPUTE_PATHS'));
+export const setLayout = createAction(getAction('SET_LAYOUT'));
+export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
+export const readConfig = createAction(getAction('READ_CONFIG'));
 
 export function hydrateInitialOutputs() {
-    return function (dispatch, getState) {
+    return function(dispatch, getState) {
         triggerDefaultState(dispatch, getState);
-        dispatch(setAppLifecycle(APP_STATES('HYDRATED')));
-    }
+        dispatch(setAppLifecycle(getAppState('HYDRATED')));
+    };
 }
 
 function triggerDefaultState(dispatch, getState) {
@@ -60,7 +61,8 @@ function triggerDefaultState(dispatch, getState) {
          * inputs that aren't leaves,
          * and the invisible inputs
          */
-        if (InputGraph.dependenciesOf(nodeId).length > 0 &&
+        if (
+            InputGraph.dependenciesOf(nodeId).length > 0 &&
             InputGraph.dependantsOf(nodeId).length === 0 &&
             has(componentId, getState().paths)
         ) {
@@ -72,66 +74,67 @@ function triggerDefaultState(dispatch, getState) {
         const [componentId, componentProp] = inputOutput.input.split('.');
         // Get the initial property
         const propLens = lensPath(
-            concat(getState().paths[componentId],
-            ['props', componentProp]
-        ));
-        const propValue = view(
-            propLens,
-            getState().layout
+            concat(getState().paths[componentId], ['props', componentProp])
         );
+        const propValue = view(propLens, getState().layout);
 
-        dispatch(notifyObservers({
-            id: componentId,
-            props: {[componentProp]: propValue},
-            excludedOutputs: inputOutput.excludedOutputs
-        }));
-
+        dispatch(
+            notifyObservers({
+                id: componentId,
+                props: {[componentProp]: propValue},
+                excludedOutputs: inputOutput.excludedOutputs,
+            })
+        );
     });
-
 }
 
 export function redo() {
-    return function (dispatch, getState) {
+    return function(dispatch, getState) {
         const history = getState().history;
         dispatch(createAction('REDO')());
         const next = history.future[0];
 
         // Update props
-        dispatch(createAction('REDO_PROP_CHANGE')({
-            itempath: getState().paths[next.id],
-            props: next.props
-        }));
+        dispatch(
+            createAction('REDO_PROP_CHANGE')({
+                itempath: getState().paths[next.id],
+                props: next.props,
+            })
+        );
 
         // Notify observers
-        dispatch(notifyObservers({
-            id: next.id,
-            props: next.props
-        }));
-    }
+        dispatch(
+            notifyObservers({
+                id: next.id,
+                props: next.props,
+            })
+        );
+    };
 }
 
-
 export function undo() {
-    return function (dispatch, getState) {
+    return function(dispatch, getState) {
         const history = getState().history;
         dispatch(createAction('UNDO')());
         const previous = history.past[history.past.length - 1];
 
         // Update props
-        dispatch(createAction('UNDO_PROP_CHANGE')({
-            itempath: getState().paths[previous.id],
-            props: previous.props
-        }));
+        dispatch(
+            createAction('UNDO_PROP_CHANGE')({
+                itempath: getState().paths[previous.id],
+                props: previous.props,
+            })
+        );
 
         // Notify observers
-        dispatch(notifyObservers({
-            id: previous.id,
-            props: previous.props
-        }));
-    }
+        dispatch(
+            notifyObservers({
+                id: previous.id,
+                props: previous.props,
+            })
+        );
+    };
 }
-
-
 
 function reduceInputIds(nodeIds, InputGraph) {
     /*
@@ -143,7 +146,7 @@ function reduceInputIds(nodeIds, InputGraph) {
         input: nodeId,
         // TODO - Does this include grandchildren?
         outputs: InputGraph.dependenciesOf(nodeId),
-        excludedOutputs: []
+        excludedOutputs: [],
     }));
 
     const sortedInputOutputPairs = sort(
@@ -163,8 +166,9 @@ function reduceInputIds(nodeIds, InputGraph) {
      * to exclude.
      */
     sortedInputOutputPairs.forEach((pair, i) => {
-        const outputsThatWillBeUpdated = flatten(pluck(
-            'outputs', slice(0, i, sortedInputOutputPairs)));
+        const outputsThatWillBeUpdated = flatten(
+            pluck('outputs', slice(0, i, sortedInputOutputPairs))
+        );
         pair.outputs.forEach(output => {
             if (contains(output, outputsThatWillBeUpdated)) {
                 pair.excludedOutputs.push(output);
@@ -175,21 +179,11 @@ function reduceInputIds(nodeIds, InputGraph) {
     return sortedInputOutputPairs;
 }
 
-
-
 export function notifyObservers(payload) {
-    return function (dispatch, getState) {
-        const {
-            id,
-            event,
-            props,
-            excludedOutputs
-        } = payload
+    return function(dispatch, getState) {
+        const {id, event, props, excludedOutputs} = payload;
 
-        const {
-            graphs,
-            requestQueue,
-        } = getState();
+        const {graphs, requestQueue} = getState();
         const {EventGraph, InputGraph} = graphs;
         /*
          * Figure out all of the output id's that depend on this
@@ -205,7 +199,7 @@ export function notifyObservers(payload) {
             const changedProps = keys(props);
             outputObservers = [];
             changedProps.forEach(propName => {
-                const node = `${id}.${propName}`
+                const node = `${id}.${propName}`;
                 if (!InputGraph.hasNode(node)) {
                     return;
                 }
@@ -269,13 +263,13 @@ export function notifyObservers(payload) {
              * this loop hits C because of the overallOrder sorting logic
              */
 
-
-             /*
+            /*
               * if the output just listens to events, then it won't be in
               * the InputGraph
               */
-            const controllers = (InputGraph.hasNode(outputIdAndProp) ?
-                InputGraph.dependantsOf(outputIdAndProp) : []);
+            const controllers = InputGraph.hasNode(outputIdAndProp)
+                ? InputGraph.dependantsOf(outputIdAndProp)
+                : [];
 
             const controllersInFutureQueue = intersection(
                 queuedObservers,
@@ -295,8 +289,10 @@ export function notifyObservers(payload) {
              * the change for Child. if this update has already been queued up,
              * then skip the update for the other component
              */
-            const controllerIsInExistingQueue = any(r =>
-                contains(r.controllerId, controllers) && r.status === 'loading',
+            const controllerIsInExistingQueue = any(
+                r =>
+                    contains(r.controllerId, controllers) &&
+                    r.status === 'loading',
                 requestQueue
             );
 
@@ -320,13 +316,13 @@ export function notifyObservers(payload) {
              * of a controller change.
              * for example, perhaps the user has hidden one of the observers
              */
-             if (
-                 (controllersInFutureQueue.length === 0) &&
-                 (has(outputComponentId, getState().paths)) &&
-                 !controllerIsInExistingQueue
-             ) {
-                 queuedObservers.push(outputIdAndProp)
-             }
+            if (
+                controllersInFutureQueue.length === 0 &&
+                has(outputComponentId, getState().paths) &&
+                !controllerIsInExistingQueue
+            ) {
+                queuedObservers.push(outputIdAndProp);
+            }
         });
 
         /*
@@ -334,20 +330,13 @@ export function notifyObservers(payload) {
          * updated in a queue. not all of these requests will be fired in this
          * action
          */
-        const newRequestQueue = queuedObservers.map(
-            i => ({
-                controllerId: i,
-                status: 'loading',
-                uid: uid(),
-                requestTime: Date.now()
-            })
-        )
-        dispatch(setRequestQueue(
-            concat(
-                requestQueue,
-                newRequestQueue
-            )
-        ));
+        const newRequestQueue = queuedObservers.map(i => ({
+            controllerId: i,
+            status: 'loading',
+            uid: uid(),
+            requestTime: Date.now(),
+        }));
+        dispatch(setRequestQueue(concat(requestQueue, newRequestQueue)));
 
         const promises = [];
         for (let i = 0; i < queuedObservers.length; i++) {
@@ -356,18 +345,22 @@ export function notifyObservers(payload) {
 
             const requestUid = newRequestQueue[i].uid;
 
-            promises.push(updateOutput(
-                outputComponentId,
-                outputProp,
-                event,
-                getState,
-                requestUid,
-                dispatch
-            ))
+            promises.push(
+                updateOutput(
+                    outputComponentId,
+                    outputProp,
+                    event,
+                    getState,
+                    requestUid,
+                    dispatch
+                )
+            );
         }
 
+        /* eslint-disable consistent-return */
         return Promise.all(promises);
-    }
+        /* eslint-enableconsistent-return */
+    };
 }
 
 function updateOutput(
@@ -378,13 +371,7 @@ function updateOutput(
     requestUid,
     dispatch
 ) {
-    const {
-        config,
-        layout,
-        graphs,
-        paths,
-        dependenciesRequest
-    } = getState();
+    const {config, layout, graphs, paths, dependenciesRequest} = getState();
     const {InputGraph} = graphs;
 
     /*
@@ -403,43 +390,44 @@ function updateOutput(
      * }
      *
      */
-     const payload = {
-         output: {id: outputComponentId, property: outputProp}
-     };
+    const payload = {
+        output: {id: outputComponentId, property: outputProp},
+    };
 
-     if (event) {
+    if (event) {
         payload.event = event;
     }
 
     const {inputs, state} = dependenciesRequest.content.find(
-        dependency => (
+        dependency =>
             dependency.output.id === outputComponentId &&
             dependency.output.property === outputProp
-        )
     );
     const validKeys = keys(paths);
     if (inputs.length > 0) {
         payload.inputs = inputs.map(inputObject => {
             // Make sure the component id exists in the layout
             if (!contains(inputObject.id, validKeys)) {
-              throw ReferenceError(
-                "An invalid input object was used in an " +
-                "`Input` of a Dash callback. " +
-                "The id of this object is `" +
-                inputObject.id + "` and the property is `" +
-                inputObject.property +
-                "`. The list of ids in the current layout is " +
-                "`[" + validKeys.join(", ") + "]`"
-              )
+                throw new ReferenceError(
+                    'An invalid input object was used in an ' +
+                        '`Input` of a Dash callback. ' +
+                        'The id of this object is `' +
+                        inputObject.id +
+                        '` and the property is `' +
+                        inputObject.property +
+                        '`. The list of ids in the current layout is ' +
+                        '`[' +
+                        validKeys.join(', ') +
+                        ']`'
+                );
             }
             const propLens = lensPath(
-                concat(paths[inputObject.id],
-                ['props', inputObject.property]
-            ));
+                concat(paths[inputObject.id], ['props', inputObject.property])
+            );
             return {
                 id: inputObject.id,
                 property: inputObject.property,
-                value: view(propLens, layout)
+                value: view(propLens, layout),
             };
         });
     }
@@ -447,24 +435,26 @@ function updateOutput(
         payload.state = state.map(stateObject => {
             // Make sure the component id exists in the layout
             if (!contains(stateObject.id, validKeys)) {
-              throw ReferenceError(
-                "An invalid input object was used in a " +
-                "`State` object of a Dash callback. " +
-                "The id of this object is `" +
-                stateObject.id + "` and the property is `" +
-                stateObject.property +
-                "`. The list of ids in the current layout is " +
-                "`[" + validKeys.join(", ") + "]`"
-              )
+                throw new ReferenceError(
+                    'An invalid input object was used in a ' +
+                        '`State` object of a Dash callback. ' +
+                        'The id of this object is `' +
+                        stateObject.id +
+                        '` and the property is `' +
+                        stateObject.property +
+                        '`. The list of ids in the current layout is ' +
+                        '`[' +
+                        validKeys.join(', ') +
+                        ']`'
+                );
             }
             const propLens = lensPath(
-                concat(paths[stateObject.id],
-                ['props', stateObject.property]
-            ));
+                concat(paths[stateObject.id], ['props', stateObject.property])
+            );
             return {
                 id: stateObject.id,
                 property: stateObject.property,
-                value: view(propLens, layout)
+                value: view(propLens, layout),
             };
         });
     }
@@ -473,12 +463,11 @@ function updateOutput(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
         },
         credentials: 'same-origin',
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
     }).then(function handleResponse(res) {
-
         const getThisRequestIndex = () => {
             const postRequestQueue = getState().requestQueue;
             const thisRequestIndex = findIndex(
@@ -486,10 +475,10 @@ function updateOutput(
                 postRequestQueue
             );
             return thisRequestIndex;
-        }
+        };
 
         const updateRequestQueue = rejected => {
-            const postRequestQueue = getState().requestQueue
+            const postRequestQueue = getState().requestQueue;
             const thisRequestIndex = getThisRequestIndex();
             if (thisRequestIndex === -1) {
                 // It was already pruned away
@@ -499,29 +488,28 @@ function updateOutput(
                 merge(__, {
                     status: res.status,
                     responseTime: Date.now(),
-                    rejected
+                    rejected,
                 }),
                 thisRequestIndex,
                 postRequestQueue
             );
             // We don't need to store any requests before this one
-            const thisControllerId = postRequestQueue[
-                thisRequestIndex].controllerId;
-            const prunedQueue = updatedQueue.filter(
-                (queueItem, index) => {
-                    return (
-                        queueItem.controllerId !== thisControllerId ||
-                        index >= thisRequestIndex
-                    );
-                }
-            );
+            const thisControllerId =
+                postRequestQueue[thisRequestIndex].controllerId;
+            const prunedQueue = updatedQueue.filter((queueItem, index) => {
+                return (
+                    queueItem.controllerId !== thisControllerId ||
+                    index >= thisRequestIndex
+                );
+            });
 
             dispatch(setRequestQueue(prunedQueue));
-        }
+        };
 
         const isRejected = () => {
             const latestRequestIndex = findLastIndex(
-                propEq('controllerId', `${outputComponentId}.${outputProp}`), // newRequestQueue[i].controllerId),
+                // newRequestQueue[i].controllerId),
+                propEq('controllerId', `${outputComponentId}.${outputProp}`),
                 getState().requestQueue
             );
             /*
@@ -532,9 +520,9 @@ function updateOutput(
              */
             const rejected = latestRequestIndex > getThisRequestIndex();
             return rejected;
-        }
+        };
 
-        if (res.status !== 200) {
+        if (res.status !== STATUS.OK) {
             // update the status of this request
             updateRequestQueue(true);
             return;
@@ -550,17 +538,17 @@ function updateOutput(
             return;
         }
 
-        return res.json().then(function handleJson(data) {
+        res.json().then(function handleJson(data) {
             /*
              * Even if the `res` was received in the correct order,
              * the remainder of the response (res.json()) could happen
              * at different rates causing the parsed responses to
              * get out of order
              */
-             if (isRejected()) {
-                 updateRequestQueue(true);
-                 return;
-             }
+            if (isRejected()) {
+                updateRequestQueue(true);
+                return;
+            }
 
             updateRequestQueue(false);
 
@@ -581,14 +569,16 @@ function updateOutput(
                 itempath: getState().paths[outputComponentId],
                 // new prop from the server
                 props: data.response.props,
-                source: 'response'
+                source: 'response',
             };
             dispatch(updateProps(observerUpdatePayload));
 
-            dispatch(notifyObservers({
-                id: outputComponentId,
-                props: data.response.props
-            }));
+            dispatch(
+                notifyObservers({
+                    id: outputComponentId,
+                    props: data.response.props,
+                })
+            );
 
             /*
              * If the response includes children, then we need to update our
@@ -596,24 +586,27 @@ function updateOutput(
              * TODO - Do we need to wait for updateProps to finish?
              */
             if (has('children', observerUpdatePayload.props)) {
-
-                dispatch(computePaths({
-                    subTree: observerUpdatePayload.props.children,
-                    startingPath: concat(
-                        getState().paths[outputComponentId],
-                        ['props', 'children']
-                    )
-                }));
+                dispatch(
+                    computePaths({
+                        subTree: observerUpdatePayload.props.children,
+                        startingPath: concat(
+                            getState().paths[outputComponentId],
+                            ['props', 'children']
+                        ),
+                    })
+                );
 
                 /*
                  * if children contains objects with IDs, then we
                  * need to dispatch a propChange for all of these
                  * new children components
                  */
-                if (contains(
-                        type(observerUpdatePayload.props.children),
-                        ['Array', 'Object']
-                    ) && !isEmpty(observerUpdatePayload.props.children)
+                if (
+                    contains(type(observerUpdatePayload.props.children), [
+                        'Array',
+                        'Object',
+                    ]) &&
+                    !isEmpty(observerUpdatePayload.props.children)
                 ) {
                     /*
                      * TODO: We're just naively crawling
@@ -628,18 +621,24 @@ function updateOutput(
                         function appendIds(child) {
                             if (hasId(child)) {
                                 keys(child.props).forEach(childProp => {
-                                    const componentIdAndProp = (
-                                        `${child.props.id}.${childProp}`
-                                    );
-                                    if (has(componentIdAndProp, InputGraph.nodes)) {
-                                        newProps[componentIdAndProp] = ({
+                                    const componentIdAndProp = `${
+                                        child.props.id
+                                    }.${childProp}`;
+                                    if (
+                                        has(
+                                            componentIdAndProp,
+                                            InputGraph.nodes
+                                        )
+                                    ) {
+                                        newProps[componentIdAndProp] = {
                                             id: child.props.id,
                                             props: {
-                                                [childProp]: child.props[childProp]
-                                            }
-                                        });
+                                                [childProp]:
+                                                    child.props[childProp],
+                                            },
+                                        };
                                     }
-                                })
+                                });
                             }
                         }
                     );
@@ -670,7 +669,6 @@ function updateOutput(
                      * special case (no input changed?)
                      */
 
-
                     const outputIds = [];
                     keys(newProps).forEach(idAndProp => {
                         if (
@@ -683,7 +681,7 @@ function updateOutput(
                             intersection(
                                 InputGraph.dependantsOf(idAndProp),
                                 keys(newProps)
-                            ).length == 0
+                            ).length === 0
                         ) {
                             outputIds.push(idAndProp);
                             delete newProps[idAndProp];
@@ -692,10 +690,14 @@ function updateOutput(
 
                     // Dispatch updates to inputs
                     const reducedNodeIds = reduceInputIds(
-                        keys(newProps), InputGraph);
+                        keys(newProps),
+                        InputGraph
+                    );
                     const depOrder = InputGraph.overallOrder();
-                    const sortedNewProps = sort((a, b) =>
-                        depOrder.indexOf(a.input) - depOrder.indexOf(b.input),
+                    const sortedNewProps = sort(
+                        (a, b) =>
+                            depOrder.indexOf(a.input) -
+                            depOrder.indexOf(b.input),
                         reducedNodeIds
                     );
                     sortedNewProps.forEach(function(inputOutput) {
@@ -707,15 +709,20 @@ function updateOutput(
                     // Dispatch updates to lone outputs
                     outputIds.forEach(idAndProp => {
                         const requestUid = uid();
-                        dispatch(setRequestQueue(
-                            append({
-                                // TODO - Are there any implications of doing this??
-                                controllerId: null,
-                                status: 'loading',
-                                uid: requestUid,
-                                requestTime: Date.now()
-                            }, getState().requestQueue)
-                        ));
+                        dispatch(
+                            setRequestQueue(
+                                append(
+                                    {
+                                        // TODO - Are there any implications of doing this??
+                                        controllerId: null,
+                                        status: 'loading',
+                                        uid: requestUid,
+                                        requestTime: Date.now(),
+                                    },
+                                    getState().requestQueue
+                                )
+                            )
+                        );
                         updateOutput(
                             idAndProp.split('.')[0],
                             idAndProp.split('.')[1],
@@ -724,16 +731,11 @@ function updateOutput(
                             requestUid,
                             dispatch
                         );
-                    })
-
+                    });
                 }
-
-
             }
-
         });
     });
-
 }
 
 export function serialize(state) {
@@ -748,22 +750,18 @@ export function serialize(state) {
          * Filter out the outputs,
          * and the invisible inputs
          */
-        if (InputGraph.dependenciesOf(nodeId).length > 0 &&
+        if (
+            InputGraph.dependenciesOf(nodeId).length > 0 &&
             has(componentId, paths)
         ) {
             // Get the property
             const propLens = lensPath(
-                concat(paths[componentId],
-                ['props', componentProp]
-            ));
-            const propValue = view(
-                propLens,
-                layout
+                concat(paths[componentId], ['props', componentProp])
             );
+            const propValue = view(propLens, layout);
             savedState[nodeId] = propValue;
         }
     });
 
     return savedState;
-
 }

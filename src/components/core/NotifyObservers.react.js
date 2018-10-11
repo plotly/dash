@@ -104,9 +104,9 @@ function NotifyObserversComponent ({
 
     if (!isEmpty(extraProps)) {
         return React.cloneElement(children, extraProps);
-    } else {
+    } 
         return children;
-    }
+    
 }
 
 NotifyObserversComponent.propTypes = {

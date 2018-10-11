@@ -1,34 +1,37 @@
-import {crawlLayout, hasId} from './utils'
-import R from 'ramda'
-import {ACTIONS} from '../actions/constants';
+import {crawlLayout, hasId} from './utils';
+import R from 'ramda';
+import {getAction} from '../actions/constants';
 
 const initialPaths = null;
 
-
 const paths = (state = initialPaths, action) => {
     switch (action.type) {
-        case ACTIONS('COMPUTE_PATHS'): {
+        case getAction('COMPUTE_PATHS'): {
             const {subTree, startingPath} = action.payload;
+            let oldState = state;
             if (R.isNil(state)) {
-                state = {};
+                oldState = {};
             }
             let newState;
 
             // if we're updating a subtree, clear out all of the existing items
             if (!R.isEmpty(startingPath)) {
-                const removeKeys = R.filter(k => (
-                    R.equals(startingPath, R.slice(0, startingPath.length, state[k]))
-                ), R.keys(state));
-                newState = R.omit(removeKeys, state);
+                const removeKeys = R.filter(
+                    k =>
+                        R.equals(
+                            startingPath,
+                            R.slice(0, startingPath.length, oldState[k])
+                        ),
+                    R.keys(oldState)
+                );
+                newState = R.omit(removeKeys, oldState);
             } else {
-                newState = R.merge({}, state);
+                newState = R.merge({}, oldState);
             }
 
             crawlLayout(subTree, function assignPath(child, itempath) {
-                if(hasId(child)) {
-
+                if (hasId(child)) {
                     newState[child.props.id] = R.concat(startingPath, itempath);
-
                 }
             });
 
@@ -39,6 +42,6 @@ const paths = (state = initialPaths, action) => {
             return state;
         }
     }
-}
+};
 
 export default paths;

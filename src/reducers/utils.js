@@ -1,36 +1,29 @@
 import R from 'ramda';
 
-const extend = R.reduce(R.flip(R.append))
+const extend = R.reduce(R.flip(R.append));
 
 // crawl a layout object, apply a function on every object
-export const crawlLayout = (object, func, path=[]) => {
+export const crawlLayout = (object, func, path = []) => {
     func(object, path);
 
     /*
      * object may be a string, a number, or null
      * R.has will return false for both of those types
      */
-    if (R.type(object) === 'Object' &&
+    if (
+        R.type(object) === 'Object' &&
         R.has('props', object) &&
         R.has('children', object.props)
     ) {
         const newPath = extend(path, ['props', 'children']);
         if (Array.isArray(object.props.children)) {
             object.props.children.forEach((child, i) => {
-                crawlLayout(
-                    child,
-                    func,
-                    R.append(i, newPath));
+                crawlLayout(child, func, R.append(i, newPath));
             });
         } else {
-            crawlLayout(
-                object.props.children,
-                func,
-                newPath
-            );
+            crawlLayout(object.props.children, func, newPath);
         }
-    }  else if (R.type(object) === 'Array') {
-
+    } else if (R.type(object) === 'Array') {
         /*
          * Sometimes when we're updating a sub-tree
          * (like when we're responding to a callback)
@@ -40,14 +33,10 @@ export const crawlLayout = (object, func, path=[]) => {
          */
 
         object.forEach((child, i) => {
-            crawlLayout(
-                child,
-                func,
-                R.append(i, path));
+            crawlLayout(child, func, R.append(i, path));
         });
-
     }
-}
+};
 
 export function hasId(child) {
     return (

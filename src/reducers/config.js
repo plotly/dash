@@ -1,10 +1,9 @@
 /* global document:true */
-import {ACTIONS} from '../actions/constants';
+import {getAction} from '../actions/constants';
 
-export default function config (state = null, action) {
-    if (action.type === ACTIONS('READ_CONFIG')) {
+export default function config(state = null, action) {
+    if (action.type === getAction('READ_CONFIG')) {
         return JSON.parse(document.getElementById('_dash-config').textContent);
-    } else {
-        return state;
     }
+    return state;
 }
