@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.14.2] - 2018-10-11
 ### Fixed
 - Upgraded dependencies to remove warnings
-- Restored whatgw-fetch
+- Restored whatgw-fetch [#87](https://github.com/plotly/dash-renderer/issues/87)
 ### Added
 - Prettier support
 - Better ESLint configs
