@@ -21,7 +21,7 @@ module.exports = (env, argv) => {
         mode = 'production';
     }
     return {
-        entry: {main: './src/index.js'},
+        entry: {main: ['whatwg-fetch', './src/index.js']},
         output: {
             path: path.resolve(__dirname, dashLibraryName),
             filename:
