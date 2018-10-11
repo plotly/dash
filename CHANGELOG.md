@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.14.2] - 2018-10-11
+### Fixed
+- Upgraded dependencies to remove warnings
+- Restored whatgw-fetch [#87](https://github.com/plotly/dash-renderer/issues/87)
+### Added
+- Prettier support
+- Better ESLint configs
+
+
 ## [0.14.1] - 2018-09-20
 ### Fixed
 - Renamed `__init__.py` external_path to dash_renderer.min.js
