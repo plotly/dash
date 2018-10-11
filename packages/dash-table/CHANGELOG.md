@@ -1,5 +1,16 @@
 # Changelog
 
+# Version 3.0 (ALPHA)
+
+Version 3.0 of the Dash-Table expands vastly on the capability of the 2.x table and provides features:
+
+    - visually freezing rows and/or columns
+    - filtering in either FE or BE, basic filtering UI
+    - sorting in either FE or BE, basic sorting UI
+    - pagination in either FE or BE, basic pagination UI
+    - performance optimizations
+    - basic coverage through e2e, integration and unit tests
+
 ## RC1, RC2, RC3, RC4 (Virtualization, Freeze, Deletable & Editable Columns, Performance)
 
 ### Virtualization
@@ -189,14 +200,111 @@
 
     Sorting arrow will no longer highlight.
 
-## RC23 - Width percentage
+# Version 3.1 (BETA)
 
-    Columns can now accept '%' width, minWidth, maxWidth.
+Version 3.1 of the Dash-Table builds upon the 3.0 table and solidifies the external facing API of the table
+
+    - introducing the notion of derived properties
+
+    - virtual and viewport dataframe and indices for more flexibility
+    - code refactoring to simplify and improve the existing implementation / prepare for the future
+    - documentation of the API and table features
+    - additional e2e, integration and unit tests for a more mature development platform
+
+### Derived Properties
+
+Derived properties are new to 3.1
+They are readonly properties that represent a transform from multiple 'first-class' properties of the component.
+
+For example, derived_viewport_dataframe is a readonly view based on
+    f(dataframe, filtering params, sorting params, pagination params) --> derived_viewport_dataframe
+
+Derived properties allow the component to expose complex state that can be useful for a Dash Server developer but without introducing dual states, a situation where multiple properties may represent the same state within the component, making it necessary to reconcile them on each prop update.
+
+## RC1 - Virtual and Viewport Dataframe
+
+    - 4 new external facing derived properties and 4 internal facing controlled properties that represent:
+        1. the filtered and sorted dataframe and the indices mapping
+        2. the filtered, sorted and paginated dataframe and the indices mapping
+
+        - derived_viewport_dataframe
+        - derived_viewport_indices
+        - derived_virtual_dataframe
+        - derived_virtual_indices
+
+        In the event where sorting, filtering or pagination is done on the Dash Server, it is possible that some or all derived dataframes will be equal to the dataframe prop.
+
+## RC2 - Clean up column offsets
+
+    - 1 new internal facing derived/controlled property:
+        columns: Columns -> columns: VisibleColumns
+        Gets rid of conditional processing for hidden columns in the cell and header factories as well as in navigation/selection handlers
+
+    - A bunch of offsets were introduced to the table in the previous development cycle (2.x -> 3.0). Turns out these offsets are neither useful or necessary
+    - Validate compatibility of filtering, sorting, pagination
+    - External facing classes and attributes
+        * (ATTRIBUTE) data-dash-column=<columnId>
+
+            .dash-cell,
+            .dash-header {
+                &[data-dash-column='ticker'] {
+                    // styling
+                }
+            }
+
+        * (CLASS) dash-cell
+        * (CLASS) dash-header
+
+        * (CLASS) dash-delete-cell
+        * (CLASS) dash-delete-header
+        * (CLASS) dash-select-cell
+        * (CLASS) dash-select-header
+
+        * (CLASS) dash-cell-value
+
+        * (CLASS) dash-freeze-left
+        * (CLASS) dash-freeze-top
+        * (CLASS) dash-spreadsheet
+        * (CLASS) dash-spreadsheet-container
+        * (CLASS) dash-spreadsheet-inner
+
+## RC3 - Miscellaneous fixes for pagination, virtual df and viewport df
+
+    Issue: https://github.com/plotly/dash-table/pull/112
+
+## RC4 - Columns width percentage and default (fit to content) support
+
+    * Added prop content_style that takes values 'fit' or 'grow' (Default='fit')
+    * Added width percentage support
+    * Modified default column behavior from fixed width to 'fit content'
+    * Modified width, min-width, max-width interaction on columns
+
+### Width percentage
+
+    Columns can now accept '%' width, minWidth, maxWidth
 
     For the percentages to have meaning, the dash-table must be forced to have a width and the content of the dash-table must be forced to grow to fill the available space made available by the container (by default the table is only as big as it needs to be).
 
-    Added prop content_style that takes values 'fit' or 'grow' (Default='fit')
+    To use percentage-based column widths, add:
 
-    1. Add the prop content_style='grow' to make the table fill its space, this will make sure the % are applied to all the space available.
-    2. Add the following selector (with the proper values) to the table_style prop
-        { selector: '.dash-spreadsheet', rule: 'width: 100%; max-width: 100%' }
+    * content style
+        content_style='grow'
+
+    * table style (example)
+        table_style=[{ selector: '.dash-spreadsheet', rule: 'width: 100%; max-width: 100%' }]
+
+    * column with %-based width
+        columns=[{
+            id: 'column',
+            width: '40%'
+        }]
+
+### Default column width
+
+    Columns now default to 'fit to content' when no width is defined
+
+    Note: If pagination is used or the dataframe modified, the column width will be re-evaluated on each modification.
+
+### Interaction between width, min-width and max-width
+
+    Column min-width and max-width do not default to width value is not defined.

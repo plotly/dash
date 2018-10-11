@@ -248,7 +248,7 @@
           "computed": false
         }
       },
-      "virtualization": {
+      "pagination_mode": {
         "type": {
           "name": "enum",
           "value": [
@@ -277,7 +277,7 @@
           "computed": false
         }
       },
-      "virtualization_settings": {
+      "pagination_settings": {
         "type": {
           "name": "shape",
           "value": {
@@ -668,7 +668,7 @@
         "required": false,
         "description": ""
       },
-      "virtual_dataframe": {
+      "derived_viewport_dataframe": {
         "type": {
           "name": "arrayOf",
           "value": {
@@ -682,7 +682,35 @@
           "computed": false
         }
       },
-      "virtual_dataframe_indices": {
+      "derived_viewport_indices": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "derived_virtual_dataframe": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "object"
+          }
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "derived_virtual_indices": {
         "type": {
           "name": "arrayOf",
           "value": {
@@ -706,41 +734,6 @@
       "column_conditional_styles": {
         "defaultValue": {
           "value": "[]",
-          "computed": false
-        },
-        "required": false
-      },
-      "changed_data": {
-        "defaultValue": {
-          "value": "{}",
-          "computed": false
-        },
-        "required": false
-      },
-      "index_name": {
-        "defaultValue": {
-          "value": "''",
-          "computed": false
-        },
-        "required": false
-      },
-      "types": {
-        "defaultValue": {
-          "value": "{}",
-          "computed": false
-        },
-        "required": false
-      },
-      "merged_styles": {
-        "defaultValue": {
-          "value": "{}",
-          "computed": false
-        },
-        "required": false
-      },
-      "base_styles": {
-        "defaultValue": {
-          "value": "{\n    numeric: {\n        'text-align': 'right',\n        'font-family': `'Droid Sans Mono', Courier, monospace`\n    },\n\n    string: {\n        'text-align': 'left'\n    },\n\n    input: {\n        padding: 0,\n        margin: 0,\n        width: '80px',\n        border: 'none',\n        'font-size': '1rem'\n    },\n\n    'input-active': {\n        outline: '#7FDBFF auto 3px'\n    },\n\n    table: {},\n\n    thead: {},\n\n    th: {},\n\n    td: {}\n}",
           "computed": false
         },
         "required": false

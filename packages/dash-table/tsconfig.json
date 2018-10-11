@@ -21,7 +21,7 @@
         "strict": true,
         "strictPropertyInitialization": false,
         "target": "esnext",
-        "traceResolution": true
+        "traceResolution": false
     },
     "exclude": [
         "tests/*"

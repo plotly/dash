@@ -50,9 +50,9 @@ CONTROLS = [
         options=[{"label": str(i), "value": i} for i in ["single", "multi", False]],
         value="single",
     ),
-    html.Label("Virtualization"),
+    html.Label("Pagination Mode"),
     dcc.RadioItems(
-        id="virtualization",
+        id="pagination_mode",
         options=[{"label": str(i), "value": i} for i in ["fe", True, False]],
         value="fe",
     ),
@@ -99,7 +99,7 @@ def layout():
             "sorting_type",  # 2
             "sorting_treat_empty_string_as_none",  # 3
             "row_selectable",  # 4
-            "virtualization",  # 5
+            "pagination_mode",  # 5
             "n_fixed_rows",  # 6
             "n_fixed_columns",  # 7
             "dataset",
@@ -120,7 +120,7 @@ def update_table(*args):
         sorting_type=args[2],
         sorting_treat_empty_string_as_none=args[3],
         row_selectable=args[4],
-        virtualization=args[5],
+        pagination_mode=args[5],
         n_fixed_rows=args[6],
         n_fixed_columns=args[7],
     )

@@ -1,45 +1,14 @@
-import { ChangeEvent, CSSProperties } from 'react';
+import { CSSProperties } from 'react';
 
 import {
-    IConditionalDropdown,
-    IConditionalStyle,
-    IDropdownOptions,
-    IStyle
-} from 'dash-table/components/Cell/types';
-import { ColumnId } from 'dash-table/components/Table/props';
+    ColumnId
+} from 'dash-table/components/Table/props';
 
 export interface ICellProps {
     active: boolean;
-    classes?: string[];
-    clearable: boolean;
-    conditionalDropdowns?: IConditionalDropdown[];
-    conditionalStyles?: IConditionalStyle[];
-    datum: any;
-    editable: boolean;
-    focused: boolean;
-    onChange: (e: ChangeEvent) => void;
-    onClick: (e: React.MouseEvent) => void;
-    onDoubleClick: (e: React.MouseEvent) => void;
-    onPaste: (e: React.ClipboardEvent<Element>) => void;
+    classes: string;
     property: ColumnId;
-    selected: boolean;
-    staticDropdown?: IDropdownOptions;
-    staticStyle?: IStyle;
-    tableId: string;
-    type?: string;
-    value: any;
+    style?: CSSProperties;
 }
 
-export interface ICellDefaultProps {
-    classes: string[];
-    conditionalDropdowns: IConditionalDropdown[];
-    conditionalStyles: IConditionalStyle[];
-    staticStyle: CSSProperties;
-    type: string;
-}
-
-export interface ICellState {
-    value: any;
-}
-
-export type ICellPropsWithDefaults = ICellProps & ICellDefaultProps;
+export type ICellPropsWithDefaults = ICellProps;

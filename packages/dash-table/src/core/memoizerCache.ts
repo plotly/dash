@@ -15,7 +15,7 @@ export default function memoizerCache<
 {
     const cache = new Map<CacheKeyFragment, any>();
 
-    return (key: TKey, args: TArgs): TEntry => {
+    return (key: TKey, ...args: TArgs): TEntry => {
         const lastKey = key.slice(-1)[0];
         const cacheKeys = key.slice(0, -1);
 

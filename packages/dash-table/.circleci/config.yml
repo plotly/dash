@@ -49,10 +49,39 @@ jobs:
                 command: npm run build:py
 
             - run:
-                name: Run hosts
+                name: Run tests
                 command: |
                     . venv/bin/activate
                     npm run test
+
+
+    "visual-test":
+        docker:
+            - image: circleci/node:8.11.3-browsers
+
+        steps:
+            - checkout
+
+            - restore_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}
+
+            - run:
+                name: Install package.json
+                command: npm i
+
+            - save_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}
+                paths:
+                    - node_modules
+
+            - run:
+                name: Run build:js
+                command: npm run build:js
+
+            - run:
+                name: Run visual tests
+                command: npm run test.visual
+
 
     "node":
         docker:
@@ -115,20 +144,6 @@ jobs:
                     - "venv"
 
             - run:
-                name: Run black
-                command: |
-                    . venv/bin/activate
-                    black tests/dash --check
-                when: always
-
-            - run:
-                name: Run pylint
-                command: |
-                    . venv/bin/activate
-                    flake8 tests.dash
-                when: always
-
-            - run:
                 name: Run integration tests
                 command: |
                   . venv/bin/activate
@@ -143,3 +158,4 @@ workflows:
             - "python-3.6"
             - "node"
             - "test"
+            - "visual-test"

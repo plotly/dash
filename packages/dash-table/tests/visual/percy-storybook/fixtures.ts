@@ -28,7 +28,7 @@ export default [
             ],
             n_fixed_rows: 1,
             table_style: [{
-                selector: '.dash-spreadsheet.freeze-top',
+                selector: '.dash-spreadsheet.dash-freeze-top',
                 rule: 'height: 100px;'
             }]
         }
@@ -357,6 +357,7 @@ export default [
         props: {
             id: 'table',
             editable: true,
+            active_cell: [2, 1],
             selected_cell: [[2, 1], [2, 2], [1, 1], [1, 2]],
             columns: [
                 {

@@ -137,6 +137,37 @@ const sparseDataframe = (() => {
     ));
 })();
 
+const hiddenColumns = R.addIndex(R.map)((column, index) =>
+    R.mergeAll([
+        {},
+        column,
+        { hidden: index % 2 === 0 }
+    ]),
+    columns
+);
+
+storiesOf('DashTable/Hidden Columns', module)
+    .add('hides', () => (<DashTable
+        setProps={setProps}
+        id='table'
+        dataframe={dataframe}
+        columns={hiddenColumns}
+    />))
+    .add('active cell', () => (<DashTable
+        setProps={setProps}
+        id='table'
+        dataframe={dataframe}
+        columns={hiddenColumns}
+        active_cell={[1, 1]}
+    />))
+    .add('selected cells', () => (<DashTable
+        setProps={setProps}
+        id='table'
+        dataframe={dataframe}
+        columns={hiddenColumns}
+        selected_cell={[[1, 1], [1, 2], [2, 1], [2, 2]]}
+    />));
+
 storiesOf('DashTable/Sorting', module)
     .add('"a" ascending', () => (<DashTable
         setProps={setProps}

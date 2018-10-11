@@ -5,7 +5,7 @@ import Clipboard from 'core/Clipboard';
 import Logger from 'core/Logger';
 
 import { colIsEditable } from 'dash-table/components/derivedState';
-import { ActiveCell, Columns, Dataframe, SelectedCells } from 'dash-table/components/Table/props';
+import { ActiveCell, Columns, Dataframe, SelectedCells, ColumnType } from 'dash-table/components/Table/props';
 
 export default class TableClipboardHelper {
     public static toClipboard(e: any, selectedCells: SelectedCells, columns: Columns, dataframe: Dataframe) {
@@ -30,7 +30,7 @@ export default class TableClipboardHelper {
     public static fromClipboard(
         ev: ClipboardEvent,
         activeCell: ActiveCell,
-        virtual_dataframe_indices: number[],
+        derived_viewport_indices: number[],
         columns: Columns,
         dataframe: Dataframe,
         overflowColumns: boolean = true,
@@ -41,6 +41,14 @@ export default class TableClipboardHelper {
 
         if (!text) {
             return;
+        }
+
+        if (!overflowRows) {
+            Logger.debug(`Clipboard -- Sorting or filtering active, do not create new rows`);
+        }
+
+        if (!overflowColumns) {
+            Logger.debug(`Clipboard -- Do not create new columns`);
         }
 
         const values = SheetClip.prototype.parse(text);
@@ -57,17 +65,13 @@ export default class TableClipboardHelper {
                 newColumns.push({
                     id: `Column ${i + 1}`,
                     name: `Column ${i + 1}`,
-                    type: 'numeric'
+                    type: ColumnType.Text
                 });
                 newDataframe.forEach(row => (row[`Column ${i}`] = ''));
             }
         }
 
-        if (overflowRows) {
-            Logger.debug(`Clipboard -- Sorting or filtering active, do not create new rows`);
-        }
-
-        const realActiveRow = virtual_dataframe_indices[activeCell[0]];
+        const realActiveRow = derived_viewport_indices[activeCell[0]];
         if (overflowRows && values.length + realActiveRow >= dataframe.length) {
             const emptyRow: any = {};
             columns.forEach(c => (emptyRow[c.id] = ''));
@@ -83,13 +87,12 @@ export default class TableClipboardHelper {
         values.forEach((row: string[], i: number) =>
             row.forEach((cell: string, j: number) => {
                 const iOffset = activeCell[0] + i;
-                if (virtual_dataframe_indices.length <= activeCell[0] + i) {
+                if (derived_viewport_indices.length <= activeCell[0] + i) {
                     return;
                 }
-                const iRealCell = virtual_dataframe_indices[iOffset];
+                const iRealCell = derived_viewport_indices[iOffset];
 
                 const jOffset = activeCell[1] + j;
-                // let newDataframe = dataframe;
                 const col = newColumns[jOffset];
                 if (col && colIsEditable(true, col)) {
                     newDataframe = R.set(

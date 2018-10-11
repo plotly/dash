@@ -1,9 +1,9 @@
 {
     "video": false,
-    "fixturesFolder": "./tests/e2e/cypress/fixtures",
-    "integrationFolder": "./tests/e2e/cypress/integration",
-    "pluginsFile": "./tests/e2e/cypress/plugins/index.js",
-    "screenshotsFolder": "./tests/e2e/cypress/screenshots",
-    "supportFile": "./tests/e2e/cypress/support/index.js",
-    "videoFolder": "./tests/e2e/cypress/videos"
+    "fixturesFolder": "./tests/cypress/fixtures",
+    "integrationFolder": "./tests/cypress/tests",
+    "pluginsFile": "./tests/cypress/plugins/index.js",
+    "screenshotsFolder": "./tests/cypress/screenshots",
+    "supportFile": "./tests/cypress/support/index.js",
+    "videoFolder": "./tests/cypress/videos"
 }

@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": ".",
+        "emitDecoratorMetadata": false,
+        "experimentalDecorators": true,
+        "lib": ["esnext", "dom"],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "paths": {
+            "cypress/*": ["./src/*"],
+            "core/*": ["./../../src/core/*"],
+            "dash-table/*": ["./../../src/dash-table/*"]
+
+        },
+        "sourceMap": false,
+        "strict": true,
+        "strictPropertyInitialization": false,
+        "target": "esnext",
+        "traceResolution": false,
+        "types": [
+            "cypress"
+        ]
+    }
+}

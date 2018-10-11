@@ -8,6 +8,7 @@ type SetFilter = (ev: any) => void;
 
 interface IColumnFilterProps {
     classes: string;
+    columnId: ColumnId;
     isValid: boolean;
     property: ColumnId;
     setFilter: SetFilter;
@@ -48,11 +49,15 @@ export default class ColumnFilter extends PureComponent<IColumnFilterProps, ICol
     render() {
         const {
             classes,
+            columnId,
             isValid,
             value
         } = this.props;
 
-        return (<th className={classes + (isValid ? '' : ' invalid')}>
+        return (<th
+            className={classes + (isValid ? '' : ' invalid')}
+            data-dash-column={columnId}
+        >
             <IsolatedInput
                 value={value}
                 stopPropagation={true}

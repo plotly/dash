@@ -59,12 +59,12 @@
 }
 
 .dash-spreadsheet {
-    &.freeze-left {
+    &.dash-freeze-left {
         .fit-content-polyfill();
         max-width: 500px;
     }
 
-    &.freeze-top {
+    &.dash-freeze-top {
         .fit-content-polyfill();
         max-height: 500px;
     }
@@ -116,8 +116,8 @@
         }
     }
 
-    &.freeze-left,
-    &.freeze-top {
+    &.dash-freeze-left,
+    &.dash-freeze-top {
         overflow: hidden !important;
 
         .row-0 {
@@ -161,13 +161,13 @@
         }
     }
 
-    &:not(.freeze-top):not(.freeze-left) {
+    &:not(.dash-freeze-top):not(.dash-freeze-left) {
         .cell-1-1 {
             .top-left-cells();
         }
     }
 
-    &:not(.freeze-top).freeze-left {
+    &:not(.dash-freeze-top).dash-freeze-left {
         .cell-1-0 {
             .top-left-cells();
         }
@@ -177,7 +177,7 @@
         }
     }
 
-    &.freeze-top:not(.freeze-left) {
+    &.dash-freeze-top:not(.dash-freeze-left) {
         .cell-0-1 {
             .top-left-cells();
         }
@@ -187,7 +187,7 @@
         }
     }
 
-    &.freeze-top.freeze-left {
+    &.dash-freeze-top.dash-freeze-left {
         .cell-0-0 {
             .top-left-cells();
         }
@@ -243,15 +243,59 @@
             z-index: 200;
         }
 
-        .cell-value {
+        .dash-cell-value-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .dash-input-cell-value-container {
+            position: relative;
+        }
+
+        .dash-cell-value {
             height: 100%;
             width: 100%;
         }
 
-        div.cell-value {
+        input.dash-cell-value {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        div.dash-cell-value {
             display: flex;
             flex-direction: column;
             justify-content: center;
+        }
+
+        .cell-value-shadow {
+            margin: auto 0;
+            opacity: 0;
+        }
+
+        .input-cell-value-shadow {
+            display: inline-block;
+            height: initial;
+            width: initial;
+        }
+
+        .dropdown-cell-value-shadow {
+            display: block;
+            height: 0px;
+            padding: 0 42px 0 10px;
+        }
+    }
+
+    th.dash-filter {
+        position: relative;
+
+        & input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
         }
     }
 
@@ -369,7 +413,6 @@ th:hover .sort {
     padding: 0px;
     margin: 0px;
     height: calc(100% - 1px);
-    width: calc(100% - 1px);
     line-height: 30px;
     border: none;
     font-family: inherit;
@@ -428,7 +471,8 @@ th:hover .sort {
     /* inset 0px 1px 0px 0px var(--border); */
 }
 
-.dash-spreadsheet-inner .delete-cell {
+.dash-spreadsheet-inner .dash-delete-cell,
+.dash-spreadsheet-inner .dash-delete-header {
     .not-selectable();
 
     font-size: 1.3rem;
@@ -436,7 +480,8 @@ th:hover .sort {
     cursor: pointer;
     color: var(--muted);
 }
-.dash-spreadsheet-inner .delete-cell:hover {
+.dash-spreadsheet-inner .dash-delete-cell:hover,
+.dash-spreadsheet-inner .dash-delete-header:hover {
     color: var(--accent);
 }
 

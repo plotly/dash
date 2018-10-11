@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { Table } from 'dash-table';
 import {mockData} from './data';
 import { memoizeOne } from 'core/memoizer';
+import Logger from 'core/Logger';
 
 const clone = o => JSON.parse(JSON.stringify(o));
 
@@ -23,9 +24,10 @@ class App extends Component {
                 columns: clone(mockData.columns).map(col => R.merge(col, {
                     editable_name: true,
                     deletable: true,
+                    minWidth: col.width,
+                    maxWidth: col.width
                 //     type: 'dropdown'
                 })),
-                content_style: 'grow',
                 editable: true,
                 sorting: true,
                 n_fixed_rows: 4,
@@ -43,14 +45,14 @@ class App extends Component {
                     }
                 ],
                 table_style: [
-                    { selector: '.dash-spreadsheet.freeze-left', rule: 'width: 1000px; max-width: 1000px;' }
+                    { selector: '.dash-spreadsheet.dash-freeze-left', rule: 'width: 1000px; max-width: 1000px;' }
                 ]
             }
         };
 
         const setProps = memoizeOne(() => {
             return newProps => {
-                console.info('--->', newProps);
+                Logger.debug('--->', newProps);
                 this.setState(prevState => ({
                     tableProps: R.merge(prevState.tableProps, newProps)
                 }));
