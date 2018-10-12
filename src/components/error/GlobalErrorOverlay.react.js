@@ -30,12 +30,12 @@ export default class GlobalErrorOverlay extends Component {
           )}
           <ul>
             {error.frontEnd.map((e) => (<li>
-              <h3>{e.error.name}</h3>
-              <p>{e.error.message}</p>
+              <h3>{e.error.name || 'Unnamed Error'}</h3>
+              <p>{e.error.message || 'An error was thrown that was not an Error object, so info could not be gathered.'}</p>
               <button onClick={() => resolve('frontEnd', e.myUID)}>
                 Resolve Error
               </button>
-              {e.error.stack.split('\n').map((line) => (<p>{line}</p>))}
+              {e.error.stack && e.error.stack.split('\n').map((line) => (<p>{line}</p>))}
             </li>))}
           </ul>
         </div>

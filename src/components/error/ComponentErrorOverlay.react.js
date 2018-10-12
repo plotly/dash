@@ -38,7 +38,7 @@ export default class ComponentErrorOverlay extends Component {
   }
 
   render() {
-    const { error, componentId, componentType, resolve } = this.props;
+    const { error, componentId, componentType, resolve, children } = this.props;
     const errorLocationString = "Error in " + componentType + '(id=' + componentId + ')';
     const errorString = error.name + " -- " + error.message;
     return (
@@ -47,7 +47,7 @@ export default class ComponentErrorOverlay extends Component {
           onClick={this.togglePopOver}
           style={styles.overlay}>
           <div style={styles.childWrapper}>
-            <p>Error!</p>
+            {children}
           </div>
           <div
             style={this.state.popoverOpen ? styles.popOverOpen : styles.popOverClosed}

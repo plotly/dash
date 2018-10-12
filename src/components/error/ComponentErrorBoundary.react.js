@@ -30,6 +30,19 @@ class UnconnectedComponentErrorBoundary extends Component {
     dispatch(revert());
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const { error } = this.props;
+    const { myUID } = this.state;
+    const hasError = R.contains(myUID, R.pluck('myUID')(error.frontEnd));
+    if (!hasError &&
+        prevState.oldChildren !== prevProps.children &&
+        prevProps.children !== this.props.children) {
+      this.setState({
+        oldChildren: prevProps.children
+      });
+    }
+  }
+
   getDisabledComponents(disabledIds, incomingMap) {
     const possibleKeys = R.keys(incomingMap);
     const enumeratedPossibleIds = R.zip(
@@ -88,11 +101,13 @@ class UnconnectedComponentErrorBoundary extends Component {
       )(error.frontEnd).error;
       return (
         <ComponentErrorOverlay
-           error={errorToDisplay}
-           componentId={componentId}
-           componentType={componentType}
-           resolve={() => this.resolveError(dispatch, myUID)}
-        />
+          error={errorToDisplay}
+          componentId={componentId}
+          componentType={componentType}
+          resolve={() => this.resolveError(dispatch, myUID)}
+        >
+          {this.state.oldChildren}
+        </ ComponentErrorOverlay>
       )
     } else if ( disabled ) {
       return (
