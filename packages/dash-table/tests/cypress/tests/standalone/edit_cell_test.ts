@@ -2,9 +2,29 @@ import DashTable from 'cypress/DashTable';
 import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
 
-describe('edit cell', () => {
+describe('edit', () => {
     beforeEach(() => {
         cy.visit('http://localhost:8080');
+    });
+
+    describe('readonly cell', () => {
+        describe('with input', () => {
+            it('does not modify value', () => {
+                DashTable.getCellById(0, 'aaa-readonly').click();
+                DashTable.getCellById(0, 'aaa-readonly').within(() => {
+                    cy.get('input').should('not.exist');
+                });
+            });
+        });
+
+        describe('with dropdown', () => {
+            it('does not modify value', () => {
+                DashTable.getCellById(0, 'bbb-readonly').click();
+                DashTable.getCellById(0, 'bbb-readonly').within(() => {
+                    cy.get('.Select-value-label').should('not.exist');
+                });
+            });
+        });
     });
 
     it('can delete dropdown', () => {
@@ -63,27 +83,27 @@ describe('edit cell', () => {
     });
 
     it('can edit on 2nd page', () => {
-        DashTable.getCell(0, 0).click();
-        DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', '1'));
+        DashTable.getCell(0, 1).click();
+        DashTable.getCell(0, 1).within(() => cy.get('input').should('have.value', '1'));
         cy.get('button.next-page').click();
-        DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', '251'));
+        DashTable.getCell(0, 1).within(() => cy.get('input').should('have.value', '251'));
 
         DOM.focused.type(`abc${Key.Enter}`);
-        DashTable.getCell(0, 0).click();
-        DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', 'abc'));
+        DashTable.getCell(0, 1).click();
+        DashTable.getCell(0, 1).within(() => cy.get('input').should('have.value', 'abc'));
     });
 
     it('can delete then edit on 2nd page', () => {
-        DashTable.getCell(0, 0).click();
-        DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', '1'));
+        DashTable.getCell(0, 1).click();
+        DashTable.getCell(0, 1).within(() => cy.get('input').should('have.value', '1'));
         cy.get('button.next-page').click();
-        DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', '251'));
+        DashTable.getCell(0, 1).within(() => cy.get('input').should('have.value', '251'));
         DashTable.getDelete(0).click();
-        DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', '252'));
+        DashTable.getCell(0, 1).within(() => cy.get('input').should('have.value', '252'));
 
         DOM.focused.type(`abc${Key.Enter}`);
-        DashTable.getCell(0, 0).click();
-        DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', 'abc'));
+        DashTable.getCell(0, 1).click();
+        DashTable.getCell(0, 1).within(() => cy.get('input').should('have.value', 'abc'));
     });
 
     // https://github.com/plotly/dash-table/issues/50

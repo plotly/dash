@@ -4,8 +4,8 @@ import SheetClip from 'sheetclip';
 import Clipboard from 'core/Clipboard';
 import Logger from 'core/Logger';
 
-import { colIsEditable } from 'dash-table/components/derivedState';
 import { ActiveCell, Columns, Dataframe, SelectedCells, ColumnType } from 'dash-table/components/Table/props';
+import isEditable from 'dash-table/derived/cell/isEditable';
 
 export default class TableClipboardHelper {
     public static toClipboard(e: any, selectedCells: SelectedCells, columns: Columns, dataframe: Dataframe) {
@@ -94,7 +94,7 @@ export default class TableClipboardHelper {
 
                 const jOffset = activeCell[1] + j;
                 const col = newColumns[jOffset];
-                if (col && colIsEditable(true, col)) {
+                if (col && isEditable(true, col)) {
                     newDataframe = R.set(
                         R.lensPath([iRealCell, col.id]),
                         cell,

@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "3.1.0rc4",
+  "version": "3.1.0rc5",
   "description": "Dash table",
   "main": "build/index.js",
   "scripts": {

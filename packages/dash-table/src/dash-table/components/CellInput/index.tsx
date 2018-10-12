@@ -40,14 +40,33 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
 
     private renderDropdown() {
         const {
+            active,
             clearable,
             dropdown,
+            editable,
+            focused,
             onChange,
+            onClick,
+            onDoubleClick,
             value
         } = this.propsWithDefaults;
 
-        return !dropdown ?
-            this.renderValue() :
+        const classes = [
+            ...(active ? ['input-active'] : []),
+            ...(focused ? ['focused'] : ['unfocused']),
+            ...['dash-cell-value']
+        ];
+
+        const attributes = {
+            className: classes.join(' '),
+            onClick: onClick,
+            onDoubleClick: onDoubleClick
+        };
+
+        const readonly = !editable;
+
+        return !dropdown || readonly ?
+            this.renderValue(attributes) :
             (<div className='dash-dropdown-cell-value-container dash-cell-value-container'>
                 {this.renderValue(
                     { className: 'dropdown-cell-value-shadow cell-value-shadow' },
@@ -70,6 +89,7 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
     private renderInput() {
         const {
             active,
+            editable,
             focused,
             onClick,
             onDoubleClick,
@@ -88,7 +108,7 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
             onDoubleClick: onDoubleClick
         };
 
-        const readonly = !active && this.state.value === this.props.value;
+        const readonly = (!active && this.state.value === this.props.value) || !editable;
 
         return readonly ?
             this.renderValue(attributes) :

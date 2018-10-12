@@ -27,6 +27,7 @@ export default [
                 {'column-1': 'boston'}
             ],
             n_fixed_rows: 1,
+            editable: true,
             table_style: [{
                 selector: '.dash-spreadsheet.dash-freeze-top',
                 rule: 'height: 100px;'
@@ -150,6 +151,7 @@ export default [
                 {'column-1': 'mtl'},
                 {'column-1': 'boston'}
             ],
+            editable: true,
             id: 'table'
         }
     },
@@ -211,6 +213,7 @@ export default [
                 {'column-1': 'mtl', 'column-2': 'mtl', 'column-3': 'mtl'},
                 {'column-1': 'mtl', 'column-2': 'mtl', 'column-3': 'mtl'}
             ],
+            editable: true,
             id: 'table'
         }
     },
@@ -274,6 +277,7 @@ export default [
                     region: 'costa-rica'
                 }
             ],
+            editable: true,
             id: 'table'
         }
     },

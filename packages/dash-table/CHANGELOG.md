@@ -308,3 +308,7 @@ Derived properties allow the component to expose complex state that can be usefu
 ### Interaction between width, min-width and max-width
 
     Column min-width and max-width do not default to width value is not defined.
+
+## RC5 - Tests and fixes for editable/readonly
+
+    Issue: https://github.com/plotly/dash-table/issues/132

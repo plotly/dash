@@ -65,9 +65,29 @@ export const mockData = unpackIntoColumnsAndDataFrames([
     },
 
     {
+        id: 'bbb-readonly',
+        name: ['', 'Weather', 'Climate-RO'],
+        type: 'dropdown',
+        editable: false,
+        width: 200,
+        data: gendata(
+            i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
+        )
+    },
+
+    {
         id: 'aaa',
         name: ['', 'Weather', 'Temperature'],
         type: 'numeric',
+        width: 150,
+        data: gendata(i => i + 1),
+    },
+
+    {
+        id: 'aaa-readonly',
+        name: ['', 'Weather', 'Temperature-RO'],
+        type: 'numeric',
+        editable: false,
         width: 150,
         data: gendata(i => i + 1),
     }

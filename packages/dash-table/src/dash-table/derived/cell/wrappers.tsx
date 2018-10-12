@@ -7,6 +7,7 @@ import Cell from 'dash-table/components/Cell';
 import isActiveCell from 'dash-table/derived/cell/isActive';
 import isSelectedCell from 'dash-table/derived/cell/isSelected';
 import memoizerCache from 'core/memoizerCache';
+import isEditable from './isEditable';
 
 type Key = [number, number];
 type ElementCacheFn = (
@@ -35,7 +36,7 @@ function getter(
                     'dash-cell' +
                     ` column-${columnIndex}` +
                     (active ? ' focused' : '') +
-                    (!editable ? ' cell--uneditable' : '') +
+                    (!isEditable(editable, column) ? ' cell--uneditable' : '') +
                     (selected ? ' cell--selected' : '') +
                     (column.type === ColumnType.Dropdown ? ' dropdown' : '');
 
@@ -44,7 +45,7 @@ function getter(
             columns
         ),
         dataframe
-    )
+    );
 }
 
 function decorator(_id: string): ((

@@ -14,6 +14,7 @@ import {
 import CellInput from 'dash-table/components/CellInput';
 import derivedCellEventHandlerProps from 'dash-table/derived/cell/eventHandlerProps';
 import isActiveCell from 'dash-table/derived/cell/isActive';
+import isEditable from './isEditable';
 
 const mapDataframe = R.addIndex<Datum, JSX.Element[]>(R.map);
 const mapRow = R.addIndex<IVisibleColumn, JSX.Element>(R.map);
@@ -43,7 +44,7 @@ const getter = (
                 clearable={column.clearable}
                 datum={datum}
                 dropdown={dropdown}
-                editable={editable}
+                editable={isEditable(editable, column)}
                 focused={isFocused}
                 property={column.id}
                 tableId={tableId}
