@@ -169,6 +169,7 @@ class TestGenerateClasses(unittest.TestCase):
         os.remove(METADATA_PATH)
         shutil.rmtree('default_namespace')
 
+    @unittest.skip('Broken - https://github.com/plotly/dash/issues/419')
     def test_loadcomponents(self):
         MyComponent_runtime = generate_class(
             'MyComponent',
