@@ -1,3 +1,7 @@
+## 0.28.3 - 2018-10-17
+## Fixed
+- Fix http-equiv typo [#418](https://github.com/plotly/dash/pull/418)
+
 ## 0.28.2 - 2018-10-05
 ## Added
 - Moved `add_url` function definition out of `Dash.__init__` [#377](https://github.com/plotly/dash/pull/377)
