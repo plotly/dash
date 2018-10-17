@@ -1,6 +1,11 @@
 # Change Log for dash-core-components
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
+
+## [0.33.1] -- 2018-10-17
+### Fixed
+- Fix Store component nested data [#333](https://github.com/plotly/dash-core-components/pull/333)
+
 ## [0.33.0] -- 2018-10-04
 ### Added
 

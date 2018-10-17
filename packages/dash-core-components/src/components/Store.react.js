@@ -13,14 +13,14 @@ function dataCheck(data, old) {
             return true;
         }
         for (let i = 0; i < data.length; i++) {
-            if (data[i] !== old[i]) {
+            if (dataCheck(data[i], old[i])) {
                 return true;
             }
         }
     } else if (R.contains(type, ['String', 'Number'])) {
         return old !== data;
     } else if (type === 'Object') {
-        return R.any(([k, v]) => old[k] !== v)(Object.entries(data));
+        return R.any(([k, v]) => dataCheck(v, old[k]))(Object.entries(data));
     }
     return false;
 }

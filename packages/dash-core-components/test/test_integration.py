@@ -1173,19 +1173,19 @@ class Tests(IntegrationTests):
 
         app.layout = html.Div([
             dcc.Store(id='storage',
-                        storage_type='local'),
+                      storage_type='local'),
             html.Button('click me', id='btn'),
             html.Button('clear', id='clear-btn'),
             html.Button('set-init-storage',
                         id='set-init-storage'),
             dcc.Store(id='dummy',
-                        storage_type='session',
-                        data=dummy_data),
+                      storage_type='session',
+                      data=dummy_data),
             dcc.Store(id='memory',
-                        storage_type='memory'),
+                      storage_type='memory'),
             html.Div(id='memory-output'),
             dcc.Store(id='initial-storage',
-                        storage_type='session'),
+                      storage_type='session'),
             html.Div(id='init-output')
         ])
 
@@ -1269,3 +1269,50 @@ class Tests(IntegrationTests):
         self.assertAlmostEqual(ts, init.get('ts'), delta=1000)
         self.assertEqual('initialized', init.get('data'))
 
+    def test_store_nested_data(self):
+        app = dash.Dash(__name__)
+
+        nested = {'nested': {'nest': 'much'}}
+        nested_list = dict(my_list=[1, 2, 3])
+
+        app.layout = html.Div([
+            dcc.Store(id='store', storage_type='local'),
+            html.Button('set object as key', id='obj-btn'),
+            html.Button('set list as key', id='list-btn'),
+            html.Output(id='output')
+        ])
+
+        @app.callback(Output('store', 'data'),
+                      [Input('obj-btn', 'n_clicks_timestamp'),
+                       Input('list-btn', 'n_clicks_timestamp')])
+        def on_obj_click(obj_ts, list_ts):
+            if obj_ts is None and list_ts is None:
+                raise PreventUpdate
+
+            # python 3 got the default props bug. plotly/dash#396
+            if (obj_ts and not list_ts) or obj_ts > list_ts:
+                return nested
+            else:
+                return nested_list
+
+        @app.callback(Output('output', 'children'),
+                      [Input('store', 'modified_timestamp')],
+                      [State('store', 'data')])
+        def on_ts(ts, data):
+            if ts is None:
+                raise PreventUpdate
+            return json.dumps(data)
+
+        self.startServer(app)
+
+        obj_btn = self.wait_for_element_by_css_selector('#obj-btn')
+        list_btn = self.wait_for_element_by_css_selector('#list-btn')
+
+        obj_btn.click()
+        time.sleep(3)
+        self.wait_for_text_to_equal('#output', json.dumps(nested))
+        # it would of crashed the app before adding the recursive check.
+
+        list_btn.click()
+        time.sleep(3)
+        self.wait_for_text_to_equal('#output', json.dumps(nested_list))
