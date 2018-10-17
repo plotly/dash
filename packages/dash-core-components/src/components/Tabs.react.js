@@ -3,6 +3,8 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import R from 'ramda';
 
+// EnhancedTab is defined here instead of in Tab.react.js because if exported there,
+// it will mess up the Python imports and metadata.json
 const EnhancedTab = ({
     id,
     label,
@@ -114,12 +116,16 @@ export default class Tabs extends Component {
         this.selectHandler = this.selectHandler.bind(this);
         this.parseChildrenToArray = this.parseChildrenToArray.bind(this);
 
-        this.parseChildrenToArray();
-
         if (!this.props.value) {
             // if no value specified on Tabs component, set it to the first child's (which should be a Tab component) value
-            const value =
-                this.props.children[0].props.children.props.value || 'tab-1';
+
+            const children = this.parseChildrenToArray();
+            let value;
+            if (children[0].props.children) {
+                value = children[0].props.children.props.value || 'tab-1';
+            } else {
+                value = 'tab-1';
+            }
             this.state = {
                 selected: value,
             };
@@ -139,20 +145,22 @@ export default class Tabs extends Component {
         if (this.props.children && !R.is(Array, this.props.children)) {
             // if dcc.Tabs.children contains just one single element, it gets passed as an object
             // instead of an array - so we put in in a array ourselves!
-            this.props.children = [this.props.children];
+            return [this.props.children];
         }
+        return this.props.children;
     }
     selectHandler(value) {
-        this.setState({
-            selected: value,
-        });
         if (this.props.setProps) {
             this.props.setProps({value: value});
+        } else {
+            this.setState({
+                selected: value,
+            });
         }
     }
     componentWillReceiveProps(newProps) {
         const value = newProps.value;
-        if (typeof value !== 'undefined') {
+        if (typeof value !== 'undefined' && this.props.value !== value) {
             this.setState({
                 selected: value,
             });
@@ -161,30 +169,42 @@ export default class Tabs extends Component {
     render() {
         let EnhancedTabs;
         let selectedTab;
-        let selectedTabContent;
 
         if (this.props.children) {
-            this.parseChildrenToArray();
+            const children = this.parseChildrenToArray();
 
-            const amountOfTabs = this.props.children.length;
+            const amountOfTabs = children.length;
 
-            EnhancedTabs = this.props.children.map((child, index) => {
+            EnhancedTabs = children.map((child, index) => {
                 // TODO: handle components that are not dcc.Tab components (throw error)
                 // enhance Tab components coming from Dash (as dcc.Tab) with methods needed for handling logic
                 let childProps;
 
-                if (child.props.children) {
-                    // if props appears on .children, props are coming from Dash
+                // TODO: fix issue in dash-renderer https://github.com/plotly/dash-renderer/issues/84
+                if (
+                    // disabled is a defaultProp (so it's always set)
+                    // meaning that if it's not set on child.props, the actual
+                    // props we want are lying a bit deeper - which means they
+                    // are coming from Dash
+                    R.isNil(child.props.disabled) &&
+                    child.props.children &&
+                    child.props.children.props
+                ) {
+                    // props are coming from Dash
                     childProps = child.props.children.props;
                 } else {
-                    // else props are coming from React (Demo.react.js)
+                    // else props are coming from React (Demo.react.js, or Tabs.test.js)
                     childProps = child.props;
                 }
 
                 if (!childProps.value) {
-                    childProps.value = `tab-${index + 1}`;
+                    childProps = {...childProps, value: `tab-${index + 1}`};
                 }
 
+                // check if this child/Tab is currently selected
+                if (childProps.value === this.state.selected) {
+                    selectedTab = child;
+                }
                 return (
                     <EnhancedTab
                         key={index}
@@ -206,14 +226,11 @@ export default class Tabs extends Component {
                     />
                 );
             });
-
-            selectedTab = this.props.children.filter(child => {
-                return child.props.children.props.value === this.state.selected;
-            });
-            if ('props' in selectedTab[0]) {
-                selectedTabContent = selectedTab[0].props.children;
-            }
         }
+
+        const selectedTabContent = !R.isNil(selectedTab)
+            ? selectedTab.props.children
+            : '';
 
         const tabContainerClass = this.props.vertical
             ? 'tab-container tab-container--vert'
@@ -232,11 +249,13 @@ export default class Tabs extends Component {
                 className={`${tabParentClass} ${this.props.parent_className ||
                     ''}`}
                 style={this.props.parent_style}
+                id={`${this.props.id}-parent`}
             >
                 <div
                     className={`${tabContainerClass} ${this.props.className ||
                         ''}`}
                     style={this.props.style}
+                    id={this.props.id}
                 >
                     {EnhancedTabs}
                 </div>
@@ -355,7 +374,10 @@ Tabs.propTypes = {
     /**
      * Array that holds Tab components
      */
-    children: PropTypes.node,
+    children: React.PropTypes.oneOfType([
+        React.PropTypes.arrayOf(React.PropTypes.node),
+        React.PropTypes.node,
+    ]),
 
     /**
      * Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:

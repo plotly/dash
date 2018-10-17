@@ -1,4 +1,14 @@
 {
     "presets": ["env", "react"],
-    "plugins": ["transform-object-rest-spread", "styled-jsx/babel"]
+    "env": {
+        "production": {
+            "plugins": ["transform-object-rest-spread", "styled-jsx/babel"]
+        },
+        "development": {
+            "plugins": ["transform-object-rest-spread", "styled-jsx/babel"]
+        },
+        "test": {
+            "plugins": ["transform-object-rest-spread", "styled-jsx/babel-test"]
+        }
+    }
 }

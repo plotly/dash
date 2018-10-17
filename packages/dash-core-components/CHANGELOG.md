@@ -1,6 +1,14 @@
 # Change Log for dash-core-components
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
+## [0.34.0] - 2018-10-17
+### Added
+- `npm run test-unit` will run new Jest+Enzyme unit tests
+- Unit tests for Tabs component
+### Fixed
+- Fixed bug in Tabs component where value was resetting if using callback-less mode [#331](https://github.com/plotly/dash-core-components/issues/331)
+- Fixed bug with default Tabs value not being set to children's Tab value (if it's set)
+- Fixed bug where Tabs.children.props wheren't being selected properly, related to [#84](https://github.com/plotly/dash-renderer/issues/84)
 
 ## [0.33.1] -- 2018-10-17
 ### Fixed

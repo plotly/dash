@@ -1,84 +1,84 @@
 version: 2
 
 jobs:
-  "python-2.7": &test-template
-    docker:
-      - image: circleci/python:2.7-stretch-node-browsers
-        environment:
-          PYTHON_VERSION: py27
+    'python-2.7': &test-template
+        docker:
+            - image: circleci/python:2.7-stretch-node-browsers
+              environment:
+                  PYTHON_VERSION: py27
 
-    steps:
-      - checkout
+        steps:
+            - checkout
 
-      - run:
-          name: Create virtual env
-          command: python -m venv || virtualenv venv
+            - run:
+                  name: Create virtual env
+                  command: python -m venv || virtualenv venv
 
-      - run:
-          name: Write job name
-          command: echo $CIRCLE_JOB > circlejob.txt
+            - run:
+                  name: Write job name
+                  command: echo $CIRCLE_JOB > circlejob.txt
 
-      - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
+            - restore_cache:
+                  key: deps1-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
 
-      - run:
-          name: Install dependencies
-          command: |
-              sudo pip install virtualenv --upgrade
-              . venv/bin/activate
-              pip install -r requirements-dev.txt
-              npm install --ignore-scripts
+            - run:
+                  name: Install dependencies
+                  command: |
+                      sudo pip install virtualenv --upgrade
+                      . venv/bin/activate
+                      pip install -r requirements-dev.txt
+                      npm install --ignore-scripts
 
-      - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
-          paths:
-              - "venv"
-              - "node_modules"
+            - save_cache:
+                  key: deps1-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
+                  paths:
+                      - 'venv'
+                      - 'node_modules'
 
-      - run:
-          name: prettier --list-different
-          command: npm run format:test
+            - run:
+                  name: prettier --list-different
+                  command: npm run format:test
 
-      - run:
-          name: npm run lint
-          command: npm run lint
+            - run:
+                  name: npm run lint
+                  command: npm run lint
 
-      - run:
-          name: Build
-          command: |
-              . venv/bin/activate
-              npm run build:js
-              npm run build:py
+            - run:
+                  name: Build
+                  command: |
+                      . venv/bin/activate
+                      npm run build:js
+                      npm run build:py
 
-      - run:
-          name: Run tests
-          command: |
-              . venv/bin/activate
-              python --version
-              python -m unittest test.test_integration
-              python -m unittest test.test_dash_import
+            - run:
+                  name: Run tests
+                  command: |
+                      . venv/bin/activate
+                      python --version
+                      npm run test-unit
+                      python -m unittest test.test_integration
+                      python -m unittest test.test_dash_import
 
-  "python-3.6":
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.6-stretch-node-browsers
-        environment:
-          PYTHON_VERSION: py36
-          PERCY_ENABLE: 0
+    'python-3.6':
+        <<: *test-template
+        docker:
+            - image: circleci/python:3.6-stretch-node-browsers
+              environment:
+                  PYTHON_VERSION: py36
+                  PERCY_ENABLE: 0
 
-  "python-3.7":
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.7-stretch-node-browsers
-        environment:
-          PYTHON_VERSION: py37
-          PERCY_ENABLE: 0
-
+    'python-3.7':
+        <<: *test-template
+        docker:
+            - image: circleci/python:3.7-stretch-node-browsers
+              environment:
+                  PYTHON_VERSION: py37
+                  PERCY_ENABLE: 0
 
 workflows:
-  version: 2
-  build:
-    jobs:
-      - "python-2.7"
-      - "python-3.6"
-      - "python-3.7"
+    version: 2
+    build:
+        jobs:
+            - 'python-2.7'
+            - 'python-3.6'
+            - 'python-3.7'
