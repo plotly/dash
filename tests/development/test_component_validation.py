@@ -313,6 +313,12 @@ class TestComponentValidation(unittest.TestCase):
         self.assertTrue(self.component_validator.validate({
             'optionalEnum': "1"
         }))
+        self.assertTrue(self.component_validator.validate({
+            'optionalEnum': True
+        }))
+        self.assertTrue(self.component_validator.validate({
+            'optionalEnum': False
+        }))
         self.assertFalse(self.component_validator.validate({
             'optionalEnum': "not_in_enum"
         }))

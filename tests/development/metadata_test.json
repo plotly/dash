@@ -101,6 +101,14 @@
           {
             "value": "2",
             "computed": false
+          },
+          {
+            "value": "false",
+            "computed": false
+          },
+          {
+            "value": "true",
+            "computed": false
           }
         ]
       },
