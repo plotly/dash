@@ -1231,6 +1231,9 @@ class Dash(object):
         :type dev_tools_hot_reload_interval: int
         :param dev_tools_hot_reload_watch_interval:
         :type dev_tools_hot_reload_watch_interval: float
+        :param dev_tools_hot_reload_max_retry: The number of times the reloader
+            requests can fail before displaying an alert.
+        :type dev_tools_hot_reload_max_retry: int
         :param dev_tools_silence_routes_logging: Silence the routes logs.
         :type dev_tools_silence_routes_logging: bool
         :param flask_run_options: Given to `Flask.run`
