@@ -1,6 +1,7 @@
 import collections
 import json
 import os
+import sys
 import shutil
 import unittest
 from dash.development.component_loader import load_components, generate_classes
@@ -164,12 +165,13 @@ class TestGenerateClasses(unittest.TestCase):
         init_file_path = 'default_namespace/__init__.py'
         with open(init_file_path, 'a'):
             os.utime(init_file_path, None)
+        # This is not the case on Python 3 CI boxes for some reason
+        sys.path.append(os.getcwd() + '/')
 
     def tearDown(self):
         os.remove(METADATA_PATH)
         shutil.rmtree('default_namespace')
 
-    @unittest.skip('Broken - https://github.com/plotly/dash/issues/419')
     def test_loadcomponents(self):
         MyComponent_runtime = generate_class(
             'MyComponent',
