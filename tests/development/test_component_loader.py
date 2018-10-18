@@ -1,7 +1,6 @@
 import collections
 import json
 import os
-import sys
 import shutil
 import unittest
 from dash.development.component_loader import load_components, generate_classes
