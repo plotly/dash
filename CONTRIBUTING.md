@@ -57,6 +57,7 @@ _For larger features, your contribution will have a higher likelihood of getting
     * Pin the topic so that it appears at the top of the forum for two weeks
 
 ## [Checklists](http://rs.io/unreasonable-effectiveness-of-checklists/)
+**Beginner tip:** _Copy and paste this section as a comment in your PR, then check off the boxes as you go!_
 ### Pre-Merge checklist
 - [ ] All tests on CircleCI have passed.
 - [ ] All visual regression differences have been approved.
@@ -66,6 +67,8 @@ _For larger features, your contribution will have a higher likelihood of getting
 
 ### Post-Merge checklist
 - [ ] You have tagged the release using `git tag v<version_number>`.
+- [ ] You have pushed this tag using `git push <tag_name>`
+- [ ] You have deleted the branch.
 
 ### Pre-Release checklist
 - [ ] Everything in the Pre-Merge checklist is completed. (Except the last two if this is a release candidate).
@@ -74,10 +77,14 @@ _For larger features, your contribution will have a higher likelihood of getting
 - [ ] `git status` shows that there are no unexpected changes.
 - [ ] `dash/version.py` is at the correct version.
 
+### Release Step
+- `python setup.py sdist` to build.
+- `twine upload dist/<the_version_you_just_built>` to upload to PyPi.
+
 ### Post-Release checklist
 - [ ] You have closed all issues that this pull request solves, and commented the new version number users should install.
-- [ ] You have created an issue about documenting the new feature or change and you have added it to the [Documentation] project.
-- [ ] You have created a pull request in `dash-docs` with the new release of your feature by editing that project's [`requirements.txt` file](https://github.com/plotly/dash-docs/blob/master/requirements.txt) and you have assigned `@chriddyp` to review.
+- [ ] If significant enough, you have created an issue about documenting the new feature or change and you have added it to the [Documentation] project.
+- [ ] You have created a pull request in [Dash Docs] with the new release of your feature by editing that project's [`requirements.txt` file](https://github.com/plotly/dash-docs/blob/master/requirements.txt) and you have assigned `@chriddyp` to review.
 
 ## Financial Contributions
 
@@ -97,3 +104,4 @@ Dash, and many of Plotly's open source products, have been funded through direct
 [Confirmation Modal announcement]: https://community.plot.ly/t/announcing-dash-confirmation-modal-feedback-welcome/11627
 [Get in touch]: https://plot.ly/products/consulting-and-oem
 [Documentation]: https://github.com/orgs/plotly/projects/8
+[Dash Docs]: https://github.com/plotly/dash-docs
