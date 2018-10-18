@@ -31,10 +31,7 @@ from ._utils import get_asset_path as _get_asset_path
 from . import _configs
 
 
-DashValidator.set_component_class(Component)
-
-_default_index = '''
-<!DOCTYPE html>
+_default_index = '''<!DOCTYPE html>
 <html>
     <head>
         {%metas%}
@@ -49,8 +46,7 @@ _default_index = '''
             {%scripts%}
         </footer>
     </body>
-</html>
-'''
+</html>'''
 
 _app_entry = '''
 <div id="react-entry-point">
@@ -183,58 +179,69 @@ class Dash(object):
         self.namespaces = {}
 
         # urls
-        def add_url(name, view_func, methods=('GET',)):
-            self.server.add_url_rule(
-                name,
-                view_func=view_func,
-                endpoint=name,
-                methods=list(methods)
-            )
+        self.routes = []
 
-        add_url(
+        self._add_url(
             '{}_dash-layout'.format(self.config['routes_pathname_prefix']),
             self.serve_layout)
 
-        add_url(
+        self._add_url(
             '{}_dash-dependencies'.format(
                 self.config['routes_pathname_prefix']),
             self.dependencies)
 
-        add_url(
+        self._add_url(
             '{}_dash-update-component'.format(
                 self.config['routes_pathname_prefix']),
             self.dispatch,
             ['POST'])
 
-        add_url((
+        self._add_url((
             '{}_dash-component-suites'
             '/<string:package_name>'
             '/<path:path_in_package_dist>').format(
                 self.config['routes_pathname_prefix']),
-                self.serve_component_suites)
+                      self.serve_component_suites)
 
-        add_url(
+        self._add_url(
             '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
             self.serve_routes)
 
-        add_url(
+        self._add_url(
             self.config['routes_pathname_prefix'],
             self.index)
 
         # catch-all for front-end routes, used by dcc.Location
-        add_url(
+        self._add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
             self.index)
+
+        self._add_url(
+            '{}_favicon.ico'.format(self.config['routes_pathname_prefix']),
+            self._serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
 
         self._layout = None
         self._cached_layout = None
-        self.routes = []
+        self._dev_tools = _AttributeDict({
+            'serve_dev_bundles': False
+        })
 
         # add a handler for components suites errors to return 404
         self.server.errorhandler(exceptions.InvalidResourceError)(
             self._invalid_resources_handler)
+
+    def _add_url(self, name, view_func, methods=('GET',)):
+        self.server.add_url_rule(
+            name,
+            view_func=view_func,
+            endpoint=name,
+            methods=list(methods))
+
+        # record the url in Dash.routes so that it can be accessed later
+        # e.g. for adding authentication with flask_login
+        self.routes.append(name)
 
     @property
     def layout(self):
@@ -382,11 +389,14 @@ class Dash(object):
         # pylint: disable=protected-access
         srcs = self._collect_and_register_resources(
             self.scripts._resources._filter_resources(
-                dash_renderer._js_dist_dependencies
+                dash_renderer._js_dist_dependencies,
+                dev_bundles=self._dev_tools.serve_dev_bundles
             )) + self._external_scripts + self._collect_and_register_resources(
-                self.scripts.get_all_scripts() +
+                self.scripts.get_all_scripts(
+                    dev_bundles=self._dev_tools.serve_dev_bundles) +
                 self.scripts._resources._filter_resources(
-                    dash_renderer._js_dist
+                    dash_renderer._js_dist,
+                    dev_bundles=self._dev_tools.serve_dev_bundles
                 ))
 
         return '\n'.join([
@@ -411,7 +421,9 @@ class Dash(object):
 
         tags = []
         if not has_ie_compat:
-            tags.append('<meta equiv="X-UA-Compatible" content="IE=edge">')
+            tags.append(
+                '<meta http-equiv="X-UA-Compatible" content="IE=edge">'
+            )
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
 
@@ -464,11 +476,22 @@ class Dash(object):
         config = self._generate_config_html()
         metas = self._generate_meta_html()
         title = getattr(self, 'title', 'Dash')
+
         if self._favicon:
-            favicon = '<link rel="icon" type="image/x-icon" href="{}">'.format(
-                self.get_asset_url(self._favicon))
+            favicon_mod_time = os.path.getmtime(
+                os.path.join(self._assets_folder, self._favicon))
+            favicon_url = self.get_asset_url(self._favicon) + '?m={}'.format(
+                favicon_mod_time
+            )
         else:
-            favicon = ''
+            favicon_url = '{}_favicon.ico'.format(
+                self.config.requests_pathname_prefix)
+
+        favicon = _format_tag('link', {
+            'rel': 'icon',
+            'type': 'image/x-icon',
+            'href': favicon_url
+        }, opened=True)
 
         index = self.interpolate_index(
             metas=metas, title=title, css=css, config=config,
@@ -550,7 +573,7 @@ class Dash(object):
                 'inputs': v['inputs'],
                 'state': v['state'],
                 'events': v['events']
-            } for k, v in list(self.callback_map.items())
+            } for k, v in self.callback_map.items()
         ])
 
     # pylint: disable=unused-argument, no-self-use
@@ -1063,6 +1086,15 @@ class Dash(object):
     def _invalid_resources_handler(self, err):
         return err.args[0], 404
 
+    def _serve_default_favicon(self):
+        headers = {
+            'Cache-Control': 'public, max-age={}'.format(
+                self.config.components_cache_max_age)
+        }
+        return flask.Response(pkgutil.get_data('dash', 'favicon.ico'),
+                              headers=headers,
+                              content_type='image/x-icon')
+
     def get_asset_url(self, path):
         asset = _get_asset_path(
             self.config.requests_pathname_prefix,
@@ -1073,8 +1105,49 @@ class Dash(object):
 
         return asset
 
+    def enable_dev_tools(self,
+                         debug=False,
+                         dev_tools_serve_dev_bundles=None):
+        """
+        Activate the dev tools, called by `run_server`. If your application is
+        served by wsgi and you want to activate the dev tools, you can call
+        this method out of `__main__`.
+
+        :param debug: If True, then activate all the tools unless specified.
+        :type debug: bool
+        :param dev_tools_serve_dev_bundles: Serve the dev bundles.
+        :type dev_tools_serve_dev_bundles: bool
+        :return:
+        """
+        env = _configs.env_configs()
+        debug = debug or _configs.get_config('debug', None, env, debug,
+                                             is_bool=True)
+
+        self._dev_tools['serve_dev_bundles'] = _configs.get_config(
+            'serve_dev_bundles', dev_tools_serve_dev_bundles, env,
+            default=debug,
+            is_bool=True
+        )
+        return debug
+
     def run_server(self,
                    port=8050,
                    debug=False,
+                   dev_tools_serve_dev_bundles=None,
                    **flask_run_options):
-        self.server.run(port=port, debug=debug, **flask_run_options)
+        """
+        Start the flask server in local mode, you should not run this on a
+        production server and use gunicorn/waitress instead.
+
+        :param port: Port the application
+        :type port: int
+        :param debug: Set the debug mode of flask and enable the dev tools.
+        :type debug: bool
+        :param dev_tools_serve_dev_bundles: Serve the dev bundles of components
+        :type dev_tools_serve_dev_bundles: bool
+        :param flask_run_options: Given to `Flask.run`
+        :return:
+        """
+        debug = self.enable_dev_tools(debug, dev_tools_serve_dev_bundles)
+        self.server.run(port=port, debug=debug,
+                        **flask_run_options)

@@ -25,7 +25,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-              python -m venv venv || virtualenv venv
+              sudo pip install virtualenv
+              virtualenv venv
               . venv/bin/activate
               pip install -r $REQUIREMENTS_FILE
 

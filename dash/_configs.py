@@ -19,18 +19,21 @@ def env_configs():
         'DASH_SUPPRESS_CALLBACK_EXCEPTIONS',
         'DASH_ASSETS_EXTERNAL_PATH',
         'DASH_INCLUDE_ASSETS_FILES',
-        'DASH_COMPONENTS_CACHE_MAX_AGE'
+        'DASH_COMPONENTS_CACHE_MAX_AGE',
+        'DASH_INCLUDE_ASSETS_FILES',
+        'DASH_SERVE_DEV_BUNDLES',
+        'DASH_DEBUG'
     )})
 
 
-def get_config(config_name, init, env, default=None):
+def get_config(config_name, init, env, default=None, is_bool=False):
     if init is not None:
         return init
 
     env_value = env.get('DASH_{}'.format(config_name.upper()))
     if env_value is None:
         return default
-    return env_value
+    return env_value if not is_bool else env_value.lower() == 'true'
 
 
 def pathname_configs(url_base_pathname=None,
