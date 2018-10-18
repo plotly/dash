@@ -208,8 +208,9 @@ class Dash(object):
             self.config['routes_pathname_prefix'],
             self.index)
 
-        add_url('{}_reload-hash'.format(self.config['routes_pathname_prefix']),
-                self.serve_reload_hash)
+        self._add_url(
+            '{}_reload-hash'.format(self.config['routes_pathname_prefix']),
+            self.serve_reload_hash)
 
         # catch-all for front-end routes, used by dcc.Location
         self._add_url(
@@ -247,19 +248,6 @@ class Dash(object):
 
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
-
-        if hot_reload:
-            self._watch_thread = threading.Thread(
-                target=lambda: _watch.watch(
-                    [self._assets_folder],
-                    self._on_assets_change,
-                    sleep_time=hot_reload_watch_interval)
-            )
-            self._watch_thread.daemon = True
-            self._watch_thread.start()
-
-            if not self.server.debug:
-                self.server.debug = True
 
     def _add_url(self, name, view_func, methods=('GET',)):
         self.server.add_url_rule(
