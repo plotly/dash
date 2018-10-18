@@ -361,7 +361,7 @@ def generate_class_string(typename, props, description, namespace):
         component_name=typename,
         props=filtered_props,
         events=parse_events(props),
-        description=description)
+        description=description).replace('\r\n', '\n')
 
     # pylint: disable=unused-variable
     events = '[' + ', '.join(parse_events(props)) + ']'
