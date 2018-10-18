@@ -98,6 +98,7 @@ function rootReducer(reducer) {
     return function(state, action) {
         if (action.type === 'RELOAD') {
             const {history} = state;
+            // eslint-disable-next-line no-param-reassign
             state = {history};
         }
         return reducer(state, action);

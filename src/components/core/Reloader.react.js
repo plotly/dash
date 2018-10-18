@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* eslint-disable no-undef,react/no-did-update-set-state,no-magic-numbers */
 import R from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
