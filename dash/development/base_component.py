@@ -353,6 +353,10 @@ def js_to_cerberus_type(type_object):
             if value == 'null':
                 schema.update({'nullable': True})
                 schema['allowed'].append(None)
+            elif value == 'true':
+                schema['allowed'].append(True)
+            elif value == 'false':
+                schema['allowed'].append(False)
             else:
                 string_value = v['value'].strip("'\"'")
                 schema['allowed'].append(string_value)
