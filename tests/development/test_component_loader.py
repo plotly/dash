@@ -165,8 +165,6 @@ class TestGenerateClasses(unittest.TestCase):
         init_file_path = 'default_namespace/__init__.py'
         with open(init_file_path, 'a'):
             os.utime(init_file_path, None)
-        # This is not the case on Python 3 CI boxes for some reason
-        sys.path.append(os.getcwd() + '/')
 
     def tearDown(self):
         os.remove(METADATA_PATH)
