@@ -156,6 +156,16 @@ class TestComponent(unittest.TestCase):
             c.children + [c3] + [c2] + c2.children
         )
 
+    def test_traverse_with_tuples(self):  # noqa: E501
+        c, c1, c2, c3, c4, c5 = nested_tree()
+        c2.children = tuple(c2.children)
+        c.children = tuple(c.children)
+        elements = [i for i in c.traverse()]
+        self.assertEqual(
+            elements,
+            list(c.children) + [c3] + [c2] + list(c2.children)
+        )
+
     def test_iter_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
         keys = list(c.keys())
