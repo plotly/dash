@@ -1,3 +1,7 @@
+## 0.28.4 - 2018-10-18
+## Fixed
+- The `Component.traverse()` and `Component.traverse_with_paths()` methods now work correctly for components with `children` of type `tuple` (before, this only worked for `list`s). [#430](https://github.com/plotly/dash/pull/430)
+
 ## 0.28.3 - 2018-10-17
 ## Fixed
 - Fix http-equiv typo [#418](https://github.com/plotly/dash/pull/418)
