@@ -76,437 +76,439 @@
     position: relative;
 }
 
-.dash-spreadsheet-inner {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-
-    *,
-    *:after,
-    *:before {
-        box-sizing: inherit;
-    }
-
-    .Select {
-        overflow: hidden;
-        position: static;
-    }
-
-    .Select,
-    .Select-control {
-        background-color: inherit;
-    }
-
-    .Select-value {
+.dash-spreadsheet-container {
+    .dash-spreadsheet-inner {
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        margin-top: -2px;
-    }
 
-    .marker-row {
+        *,
+        *:after,
+        *:before {
+            box-sizing: inherit;
+        }
+
+        .Select {
+            overflow: hidden;
+            position: static;
+        }
+
+        .Select,
+        .Select-control {
+            background-color: inherit;
+        }
+
+        .Select-value {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-top: -2px;
+        }
+
+        .marker-row {
+            tr {
+                visibility: hidden !important;
+            }
+
+            td, th {
+                height: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+        }
+
+        &.dash-freeze-left,
+        &.dash-freeze-top {
+            overflow: hidden !important;
+
+            .row-0 {
+                display: flex;
+                flex: 0 0 auto;
+                flex-direction: row;
+            }
+
+            .row-1 {
+                display: flex;
+                flex-direction: row;
+                overflow: scroll;
+            }
+
+            .cell-0-0,
+            .cell-1-0 {
+                flex: 0 0 auto;
+                left: 0;
+                position: sticky;
+                z-index: 400;
+            }
+
+            .cell-0-1 {
+                z-index: 300;
+                flex: 0 0 auto;
+            }
+
+            .cell-1-1 {
+                flex: 0 0 auto;
+            }
+        }
+
+        &.dash-grow {
+            .cell-0-1,
+            .cell-1-1 {
+                flex: 1 0 auto;
+            }
+
+            table {
+                width: 100%;
+            }
+        }
+
+        &:not(.dash-freeze-top):not(.dash-freeze-left) {
+            .cell-1-1 {
+                .top-left-cells();
+            }
+        }
+
+        &:not(.dash-freeze-top).dash-freeze-left {
+            .cell-1-0 {
+                .top-left-cells();
+            }
+
+            .cell-1-1 {
+                .top-cells();
+            }
+        }
+
+        &.dash-freeze-top:not(.dash-freeze-left) {
+            .cell-0-1 {
+                .top-left-cells();
+            }
+
+            .cell-1-1 {
+                .left-cells();
+            }
+        }
+
+        &.dash-freeze-top.dash-freeze-left {
+            .cell-0-0 {
+                .top-left-cells();
+            }
+
+            .cell-0-1 {
+                .top-cells();
+            }
+
+            .cell-1-0 {
+                .left-cells();
+            }
+        }
+
+        .cell {
+            td, th {
+                .inset-shadow(var(--border), 0px, 0px, -1px, -1px);
+
+                &:focus {
+                    outline: none;
+                }
+            }
+        }
+
+        .filter {
+            &.invalid {
+                .inset-shadow(red, 1px, 1px, -1px, -1px);
+                background-color: pink;
+            }
+        }
+
+        .selected-row {
+            td, th {
+                background-color: var(--selected-row);
+            }
+        }
+
         tr {
-            visibility: hidden !important;
+            background-color: white;
         }
 
+        td {
+            background-color: inherit;
+
+            &.cell--selected {
+                background-color: var(--selected-background);
+            }
+
+            &.focused {
+                // .shadow(red, 1px, 1px, 0, 0);
+                .outline-shadow(var(--accent), 1px, 1px, 0, 0);
+                border: 1px solid var(--accent);
+                margin: -1px;
+                z-index: 200;
+            }
+
+            .dash-cell-value-container {
+                width: 100%;
+                height: 100%;
+            }
+
+            .dash-input-cell-value-container {
+                position: relative;
+            }
+
+            .dash-cell-value {
+                height: 100%;
+                width: 100%;
+            }
+
+            input.dash-cell-value {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+
+            div.dash-cell-value {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .cell-value-shadow {
+                margin: auto 0;
+                opacity: 0;
+            }
+
+            .input-cell-value-shadow {
+                display: inline-block;
+                height: initial;
+                width: initial;
+            }
+
+            .dropdown-cell-value-shadow {
+                display: block;
+                height: 0px;
+                padding: 0 42px 0 10px;
+            }
+        }
+
+        th.dash-filter {
+            position: relative;
+
+            & input {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 100%;
+            }
+        }
+
+        // cell content styling
         td, th {
-            height: 0 !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-    }
+            padding: 2px;
+            white-space: nowrap;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
 
-    &.dash-freeze-left,
-    &.dash-freeze-top {
-        overflow: hidden !important;
+            height: 30px;
 
-        .row-0 {
-            display: flex;
-            flex: 0 0 auto;
-            flex-direction: row;
+            text-align: right;
         }
 
-        .row-1 {
-            display: flex;
-            flex-direction: row;
-            overflow: scroll;
-        }
-
-        .cell-0-0,
-        .cell-1-0 {
-            flex: 0 0 auto;
-            left: 0;
-            position: sticky;
-            z-index: 400;
-        }
-
-        .cell-0-1 {
-            z-index: 300;
-            flex: 0 0 auto;
-        }
-
-        .cell-1-1 {
-            flex: 0 0 auto;
-        }
-    }
-
-    &.dash-grow {
-        .cell-0-1,
-        .cell-1-1 {
-            flex: 1 0 auto;
-        }
-
-        table {
-            width: 100%;
-        }
-    }
-
-    &:not(.dash-freeze-top):not(.dash-freeze-left) {
-        .cell-1-1 {
-            .top-left-cells();
-        }
-    }
-
-    &:not(.dash-freeze-top).dash-freeze-left {
-        .cell-1-0 {
-            .top-left-cells();
-        }
-
-        .cell-1-1 {
-            .top-cells();
-        }
-    }
-
-    &.dash-freeze-top:not(.dash-freeze-left) {
-        .cell-0-1 {
-            .top-left-cells();
-        }
-
-        .cell-1-1 {
-            .left-cells();
-        }
-    }
-
-    &.dash-freeze-top.dash-freeze-left {
-        .cell-0-0 {
-            .top-left-cells();
-        }
-
-        .cell-0-1 {
-            .top-cells();
-        }
-
-        .cell-1-0 {
-            .left-cells();
-        }
-    }
-
-    .cell {
-        td, th {
-            .inset-shadow(var(--border), 0px, 0px, -1px, -1px);
-
-            &:focus {
-                outline: none;
+        th {
+            .column-header--edit,
+            .column-header--delete,
+            .sort {
+                .not-selectable();
+                cursor: pointer;
             }
         }
     }
 
-    .filter {
-        &.invalid {
-            .inset-shadow(red, 1px, 1px, -1px, -1px);
-            background-color: pink;
-        }
+    .dash-spreadsheet-inner textarea {
+        white-space: pre;
     }
 
-    .selected-row {
-        td, th {
-            background-color: var(--selected-row);
-        }
+    .dash-spreadsheet-inner table {
+        border-collapse: collapse;
+
+        font-family: monospace;
+        --accent: hotpink;
+        --border: lightgrey;
+        --text-color: rgb(60, 60, 60);
+        --hover: rgb(253, 253, 253);
+        --background-color-ellipses: rgb(253, 253, 253);
+        --faded-text: rgb(250, 250, 250);
+        --faded-text-header: rgb(180, 180, 180);
+        --selected-background: rgba(255, 65, 54, 0.2);
+        --faded-dropdown: rgb(240, 240, 240);
+        --selected-row: #fff0ff;
+        --muted: rgb(200, 200, 200);
     }
 
-    tr {
-        background-color: white;
+    /* focus happens after copying to clipboard */
+    .dash-spreadsheet-inner table:focus {
+        outline: none;
     }
 
-    td {
-        background-color: inherit;
-
-        &.cell--selected {
-            background-color: var(--selected-background);
-        }
-
-        &.focused {
-            // .shadow(red, 1px, 1px, 0, 0);
-            .outline-shadow(var(--accent), 1px, 1px, 0, 0);
-            border: 1px solid var(--accent);
-            margin: -1px;
-            z-index: 200;
-        }
-
-        .dash-cell-value-container {
-            width: 100%;
-            height: 100%;
-        }
-
-        .dash-input-cell-value-container {
-            position: relative;
-        }
-
-        .dash-cell-value {
-            height: 100%;
-            width: 100%;
-        }
-
-        input.dash-cell-value {
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
-
-        div.dash-cell-value {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .cell-value-shadow {
-            margin: auto 0;
-            opacity: 0;
-        }
-
-        .input-cell-value-shadow {
-            display: inline-block;
-            height: initial;
-            width: initial;
-        }
-
-        .dropdown-cell-value-shadow {
-            display: block;
-            height: 0px;
-            padding: 0 42px 0 10px;
-        }
+    .dash-spreadsheet-inner thead {
+        display: table-row-group;
     }
 
-    th.dash-filter {
-        position: relative;
-
-        & input {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100%;
-        }
+    .elip {
+        text-align: center;
+        width: 100%;
+        background-color: var(--background-color-ellipses);
     }
 
-    // cell content styling
-    td, th {
-        padding: 2px;
-        white-space: nowrap;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
+    .dash-spreadsheet-inner td.dropdown {
+        /*
+        * To view the dropdown's contents, we need
+        * overflow-y: visible.
+        * Unfortunately, overflow-x: hidden and overflow-y: visible
+        * can't both be set at the same time.
+        * So, we have to make both overflow-x: visible and overflow-y: visble
+        *
+        * See https://stackoverflow.com/questions/6421966/
+        *
+        * There might be another solution with parent divs, but I haven't
+        * tried it.
+        */
+        overflow-x: visible;
+    }
 
-        height: 30px;
+    .dash-spreadsheet-inner th {
+        box-shadow: inset 1px 0px 0px 0px var(--border),
+            inset 0px 1px 0px 0px var(--border);
+    }
 
+    .dash-spreadsheet-inner :not(.cell--selected) tr:hover,
+    tr:hover input :not(.cell--selected) {
+        background-color: var(--hover);
+    }
+
+    .dash-spreadsheet-inner th {
+        background-color: rgb(250, 250, 250);
+    }
+
+    .sort {
+        cursor: pointer;
+        float: left;
+        color: var(--faded-text-header);
+        font-size: 20px;
+    }
+    th:hover .sort {
+        color: var(--accent);
+    }
+    .sort:hover {
+        text-decoration: underline;
+    }
+
+    .expanded-row--empty-cell {
+        box-shadow: none;
+        background-color: transparent;
+    }
+
+    .expanded-row {
+        text-align: center;
+    }
+
+    .dash-spreadsheet-inner input:not([type=radio]):not([type=checkbox]) {
+        padding: 0px;
+        margin: 0px;
+        height: calc(100% - 1px);
+        line-height: 30px;
+        border: none;
+        font-family: inherit;
         text-align: right;
+        box-sizing: border-box;
+        color: var(--text-color);
+        background-color: transparent; /* so as to not overlay the box shadow */
+
+        /* browser's default text-shadow is `$color 0px 0px 0px;`
+        * for `input`, which makes it look a little bit heavier than dropdowns
+        * or bare `td`
+        */
+        text-shadow: none;
     }
 
-    th {
-        .column-header--edit,
-        .column-header--delete,
-        .sort {
-            .not-selectable();
-            cursor: pointer;
-        }
+    .dash-spreadsheet-inner input.unfocused {
+        color: transparent;
+        text-shadow: 0 0 0 var(--text-color);
+        cursor: default;
     }
-}
 
-.dash-spreadsheet-inner textarea {
-    white-space: pre;
-}
+    .dash-spreadsheet-inner input.unfocused:focus {
+        outline: none;
+    }
 
-.dash-spreadsheet-inner table {
-    border-collapse: collapse;
+    .numeric {
+        font-family: monospace;
+    }
 
-    font-family: monospace;
-    --accent: hotpink;
-    --border: lightgrey;
-    --text-color: rgb(60, 60, 60);
-    --hover: rgb(253, 253, 253);
-    --background-color-ellipses: rgb(253, 253, 253);
-    --faded-text: rgb(250, 250, 250);
-    --faded-text-header: rgb(180, 180, 180);
-    --selected-background: rgba(255, 65, 54, 0.2);
-    --faded-dropdown: rgb(240, 240, 240);
-    --selected-row: #fff0ff;
-    --muted: rgb(200, 200, 200);
-}
+    .toggle-row {
+        border: none;
+        box-shadow: none;
+        width: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
+        cursor: pointer;
+        color: var(--faded-text);
+    }
 
-/* focus happens after copying to clipboard */
-.dash-spreadsheet-inner table:focus {
-    outline: none;
-}
+    .toggle-row--expanded {
+        color: var(--accent);
+    }
 
-.dash-spreadsheet-inner thead {
-    display: table-row-group;
-}
+    .dash-spreadsheet-inner tr:hover .toggle-row {
+        color: var(--accent);
+    }
 
-.elip {
-    text-align: center;
-    width: 100%;
-    background-color: var(--background-color-ellipses);
-}
+    .cell--uneditable,
+    .cell--uneditable input {
+        cursor: not-allowed;
+    }
 
-.dash-spreadsheet-inner td.dropdown {
-    /*
-     * To view the dropdown's contents, we need
-     * overflow-y: visible.
-     * Unfortunately, overflow-x: hidden and overflow-y: visible
-     * can't both be set at the same time.
-     * So, we have to make both overflow-x: visible and overflow-y: visble
-     *
-     * See https://stackoverflow.com/questions/6421966/
-     *
-     * There might be another solution with parent divs, but I haven't
-     * tried it.
-     */
-    overflow-x: visible;
-}
+    .expanded-row {
+        box-shadow: inset 2px 0px 0px 0px var(--accent),
+            inset -1px 0px 0px 0px var(--border);
+        /* inset 0px 1px 0px 0px var(--border); */
+    }
 
-.dash-spreadsheet-inner th {
-    box-shadow: inset 1px 0px 0px 0px var(--border),
-        inset 0px 1px 0px 0px var(--border);
-}
+    .dash-spreadsheet-inner .dash-delete-cell,
+    .dash-spreadsheet-inner .dash-delete-header {
+        .not-selectable();
 
-.dash-spreadsheet-inner :not(.cell--selected) tr:hover,
-tr:hover input :not(.cell--selected) {
-    background-color: var(--hover);
-}
+        font-size: 1.3rem;
+        text-align: center;
+        cursor: pointer;
+        color: var(--muted);
+    }
+    .dash-spreadsheet-inner .dash-delete-cell:hover,
+    .dash-spreadsheet-inner .dash-delete-header:hover {
+        color: var(--accent);
+    }
 
-.dash-spreadsheet-inner th {
-    background-color: rgb(250, 250, 250);
-}
+    .dash-spreadsheet-inner .column-header--edit {
+        float: left;
+        opacity: 0.1;
+        padding-left: 2px;
+        padding-right: 2px;
+        cursor: pointer;
+    }
 
-.sort {
-    cursor: pointer;
-    float: left;
-    color: var(--faded-text-header);
-    font-size: 20px;
-}
-th:hover .sort {
-    color: var(--accent);
-}
-.sort:hover {
-    text-decoration: underline;
-}
+    .dash-spreadsheet-inner th:hover .column-header--edit {
+        color: var(--accent);
+        opacity: 1;
+    }
 
-.expanded-row--empty-cell {
-    box-shadow: none;
-    background-color: transparent;
-}
+    .dash-spreadsheet-inner .column-header--delete {
+        float: left;
+        opacity: 0.1;
+        padding-left: 2px;
+        padding-right: 2px;
+        cursor: pointer;
+    }
 
-.expanded-row {
-    text-align: center;
-}
-
-.dash-spreadsheet-inner input:not([type=radio]):not([type=checkbox]) {
-    padding: 0px;
-    margin: 0px;
-    height: calc(100% - 1px);
-    line-height: 30px;
-    border: none;
-    font-family: inherit;
-    text-align: right;
-    box-sizing: border-box;
-    color: var(--text-color);
-    background-color: transparent; /* so as to not overlay the box shadow */
-
-    /* browser's default text-shadow is `$color 0px 0px 0px;`
-     * for `input`, which makes it look a little bit heavier than dropdowns
-     * or bare `td`
-     */
-    text-shadow: none;
-}
-
-.dash-spreadsheet-inner input.unfocused {
-    color: transparent;
-    text-shadow: 0 0 0 var(--text-color);
-    cursor: default;
-}
-
-.dash-spreadsheet-inner input.unfocused:focus {
-    outline: none;
-}
-
-.numeric {
-    font-family: monospace;
-}
-
-.toggle-row {
-    border: none;
-    box-shadow: none;
-    width: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
-    cursor: pointer;
-    color: var(--faded-text);
-}
-
-.toggle-row--expanded {
-    color: var(--accent);
-}
-
-.dash-spreadsheet-inner tr:hover .toggle-row {
-    color: var(--accent);
-}
-
-.cell--uneditable,
-.cell--uneditable input {
-    cursor: not-allowed;
-}
-
-.expanded-row {
-    box-shadow: inset 2px 0px 0px 0px var(--accent),
-        inset -1px 0px 0px 0px var(--border);
-    /* inset 0px 1px 0px 0px var(--border); */
-}
-
-.dash-spreadsheet-inner .dash-delete-cell,
-.dash-spreadsheet-inner .dash-delete-header {
-    .not-selectable();
-
-    font-size: 1.3rem;
-    text-align: center;
-    cursor: pointer;
-    color: var(--muted);
-}
-.dash-spreadsheet-inner .dash-delete-cell:hover,
-.dash-spreadsheet-inner .dash-delete-header:hover {
-    color: var(--accent);
-}
-
-.dash-spreadsheet-inner .column-header--edit {
-    float: left;
-    opacity: 0.1;
-    padding-left: 2px;
-    padding-right: 2px;
-    cursor: pointer;
-}
-
-.dash-spreadsheet-inner th:hover .column-header--edit {
-    color: var(--accent);
-    opacity: 1;
-}
-
-.dash-spreadsheet-inner .column-header--delete {
-    float: left;
-    opacity: 0.1;
-    padding-left: 2px;
-    padding-right: 2px;
-    cursor: pointer;
-}
-
-.dash-spreadsheet-inner th:hover .column-header--delete {
-    color: var(--accent);
-    opacity: 1;
+    .dash-spreadsheet-inner th:hover .column-header--delete {
+        color: var(--accent);
+        opacity: 1;
+    }
 }

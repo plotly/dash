@@ -1,7 +1,9 @@
-@import '~dash-table/style/reset.less';
+@import (reference) '~dash-table/style/reset.less';
 
 // Override defaults set by the user agent (e.g FF defaults to 16px)
 .dash-spreadsheet-container {
+    .reset-css();
+
     input, table {
         font-size: 13px;
     }
