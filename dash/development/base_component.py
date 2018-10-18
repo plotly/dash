@@ -16,7 +16,8 @@ def is_number(s):
 def _check_if_has_indexable_children(item):
     if (not hasattr(item, 'children') or
             (not isinstance(item.children, Component) and
-             not isinstance(item.children, (tuple, collections.MutableSequence)))):
+             not isinstance(item.children, (tuple,
+                                            collections.MutableSequence)))):
 
         raise KeyError
 
