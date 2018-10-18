@@ -66,8 +66,8 @@ _For larger features, your contribution will have a higher likelihood of getting
 - [ ] Two people have :dancer:'d the pull request. You can be one of these people if you are a Dash core contributor.
 
 ### Post-Merge checklist
-- [ ] You have tagged the release using `git tag v<version_number>`.
-- [ ] You have pushed this tag using `git push <tag_name>`
+- [ ] You have tagged the release using `git tag v<version_number>` _(for the contributor merging the PR)_.
+- [ ] You have pushed this tag using `git push <tag_name>` _(for the contributor merging the PR)_.
 - [ ] You have deleted the branch.
 
 ### Pre-Release checklist
