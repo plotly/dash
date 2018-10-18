@@ -2,14 +2,14 @@
 import R from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
-import {connect} from 'react-redux'
-import {getReloadHash} from "../../actions/api";
+import {connect} from 'react-redux';
+import {getReloadHash} from '../../actions/api';
 
 class Reloader extends React.Component {
     constructor(props) {
         super(props);
         if (props.config.hot_reload) {
-            const { interval, max_retry } = props.config.hot_reload;
+            const {interval, max_retry} = props.config.hot_reload;
             this.state = {
                 hash: null,
                 interval,
@@ -17,11 +17,11 @@ class Reloader extends React.Component {
                 intervalId: null,
                 packages: null,
                 max_retry: max_retry,
-            }
+            };
         } else {
             this.state = {
-                disabled: true
-            }
+                disabled: true,
+            };
         }
         this._retry = 0;
         this._head = document.querySelector('head');
@@ -33,15 +33,21 @@ class Reloader extends React.Component {
             if (this.state.hash === null) {
                 this.setState({
                     hash: reloadRequest.content.reloadHash,
-                    packages: reloadRequest.content.packages
+                    packages: reloadRequest.content.packages,
                 });
                 return;
             }
             if (reloadRequest.content.reloadHash !== this.state.hash) {
-                if (reloadRequest.content.hard
-                    || reloadRequest.content.packages.length !== this.state.packages.length
-                    || !R.all(R.map(x => R.contains(x, this.state.packages),
-                        reloadRequest.content.packages))
+                if (
+                    reloadRequest.content.hard ||
+                    reloadRequest.content.packages.length !==
+                        this.state.packages.length ||
+                    !R.all(
+                        R.map(
+                            x => R.contains(x, this.state.packages),
+                            reloadRequest.content.packages
+                        )
+                    )
                 ) {
                     // Look if it was a css file.
                     let was_css = false;
@@ -61,8 +67,9 @@ class Reloader extends React.Component {
                                 nodesToDisable.push(node);
                                 node = it.iterateNext();
                             }
-                            nodesToDisable.forEach(
-                                n => n.setAttribute('disabled', 'disabled'));
+                            nodesToDisable.forEach(n =>
+                                n.setAttribute('disabled', 'disabled')
+                            );
 
                             const link = document.createElement('link');
                             link.href = `${a.url}?m=${a.modified}`;
@@ -83,13 +90,13 @@ class Reloader extends React.Component {
                         // Since it's only a css reload,
                         // we just change the hash.
                         this.setState({
-                            hash: reloadRequest.content.reloadHash
+                            hash: reloadRequest.content.reloadHash,
                         });
                     }
                 } else {
                     // Soft reload
                     window.clearInterval(this.state.intervalId);
-                    dispatch({'type': 'RELOAD'});
+                    dispatch({type: 'RELOAD'});
                 }
             }
         } else if (reloadRequest.status === 500) {
@@ -101,20 +108,20 @@ class Reloader extends React.Component {
                     Reloader failed after ${this._retry} times.
                     Please check your application for errors. 
                     `
-                )
+                );
             }
             this._retry++;
         }
     }
 
     componentDidMount() {
-        const { dispatch } = this.props;
-        const { disabled, interval } = this.state;
+        const {dispatch} = this.props;
+        const {disabled, interval} = this.state;
         if (!disabled && !this.state.intervalId) {
             const intervalId = setInterval(() => {
                 dispatch(getReloadHash());
             }, interval);
-            this.setState({intervalId})
+            this.setState({intervalId});
         }
     }
 
@@ -146,4 +153,3 @@ export default connect(
     }),
     dispatch => ({dispatch})
 )(Reloader);
- 

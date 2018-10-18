@@ -7,7 +7,6 @@ import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
 import Reloader from './components/core/Reloader.react';
 
-
 function UnconnectedAppContainer() {
     return (
         <Authentication>

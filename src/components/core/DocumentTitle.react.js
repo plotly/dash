@@ -1,15 +1,15 @@
 /* global document:true */
 
-import {connect} from 'react-redux'
-import {any} from 'ramda'
-import {Component} from 'react'
+import {connect} from 'react-redux';
+import {any} from 'ramda';
+import {Component} from 'react';
 import PropTypes from 'prop-types';
 
 class DocumentTitle extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            initialTitle: document.title
+            initialTitle: document.title,
         };
     }
 
@@ -31,11 +31,9 @@ class DocumentTitle extends Component {
 }
 
 DocumentTitle.propTypes = {
-    requestQueue: PropTypes.array.isRequired
+    requestQueue: PropTypes.array.isRequired,
 };
 
-export default connect(
-    state => ({
-        requestQueue: state.requestQueue
-    })
-)(DocumentTitle);
+export default connect(state => ({
+    requestQueue: state.requestQueue,
+}))(DocumentTitle);

@@ -101,7 +101,7 @@ function rootReducer(reducer) {
             state = {history};
         }
         return reducer(state, action);
-    }
+    };
 }
 
 export default rootReducer(recordHistory(reducer));
