@@ -16,7 +16,8 @@ def is_number(s):
 def _check_if_has_indexable_children(item):
     if (not hasattr(item, 'children') or
             (not isinstance(item.children, Component) and
-             not isinstance(item.children, collections.MutableSequence))):
+             not isinstance(item.children, (tuple,
+                                            collections.MutableSequence)))):
 
         raise KeyError
 
@@ -145,7 +146,7 @@ class Component(collections.MutableMapping):
                 pass
 
         # if children is like a list
-        if isinstance(self.children, collections.MutableSequence):
+        if isinstance(self.children, (tuple, collections.MutableSequence)):
             for i, item in enumerate(self.children):
                 # If the item itself is the one we're looking for
                 if getattr(item, 'id', None) == id:
@@ -221,7 +222,7 @@ class Component(collections.MutableMapping):
                 yield "\n".join(["[*] " + children_string, p]), t
 
         # children is a list of components
-        elif isinstance(children, collections.MutableSequence):
+        elif isinstance(children, (tuple, collections.MutableSequence)):
             for idx, i in enumerate(children):
                 list_path = "[{:d}] {:s} {}".format(
                     idx,
@@ -254,7 +255,7 @@ class Component(collections.MutableMapping):
         elif isinstance(self.children, Component):
             length = 1
             length += len(self.children)
-        elif isinstance(self.children, collections.MutableSequence):
+        elif isinstance(self.children, (tuple, collections.MutableSequence)):
             for c in self.children:
                 length += 1
                 if isinstance(c, Component):
