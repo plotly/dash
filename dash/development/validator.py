@@ -28,12 +28,14 @@ class DashValidator(cerberus.Validator):
             if not isinstance(option_dict, dict):
                 self._error(
                     field,
-                    "The option at index {} is not a dictionary!".format(i)
+                    "The option at index {} is not a dictionary!"\
+                    .format(i)
                 )
             if 'value' not in option_dict:
                 self._error(
                     field,
-                    "The option at index {} does not have a 'value' key!".format(i)
+                    "The option at index {} does not have a 'value' key!"\
+                    .format(i)
                 )
             curr = option_dict['value']
             if curr in values:
