@@ -55,6 +55,11 @@ class TestComponentValidation(unittest.TestCase):
                 'validator': 'plotly_figure'
             }
         })
+        self.options_validator = make_validator({
+            'options': {
+                'validator': 'options_with_unique_values'
+            }
+        })
 
     def test_component_in_initial_layout_is_validated(self):
         app = dash.Dash(__name__)
@@ -485,4 +490,18 @@ class TestComponentValidation(unittest.TestCase):
         }))
         self.assertFalse(self.figure_validator.validate({
             'figure': None
+        }))
+
+    def test_options_validation(self):
+        self.assertFalse(self.options_validator.validate({
+            'options': [
+                {'value': 'value1', 'label': 'label1'},
+                {'value': 'value1', 'label': 'label1'}
+            ]
+        }))
+        self.assertTrue(self.options_validator.validate({
+            'options': [
+                {'value': 'value1', 'label': 'label1'},
+                {'value': 'value2', 'label': 'label2'}
+            ]
         }))
