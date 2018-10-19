@@ -241,3 +241,11 @@ describe('Tabs can be used 2 ways', () => {
         expect(tabs.state().selected).toEqual('custom-tab-1');
     });
 });
+describe('Tabs can have null children', () => {
+    test('Try to create a Tabs with null children', () => {
+        mount(
+            <Tabs id="tabs">
+            </Tabs>
+        );
+    });
+});

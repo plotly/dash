@@ -121,7 +121,7 @@ export default class Tabs extends Component {
 
             const children = this.parseChildrenToArray();
             let value;
-            if (children[0].props.children) {
+            if (children && children[0].props.children) {
                 value = children[0].props.children.props.value || 'tab-1';
             } else {
                 value = 'tab-1';
