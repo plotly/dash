@@ -20,6 +20,30 @@ class DashValidator(cerberus.Validator):
                     field,
                     "Invalid Plotly Figure:\n\n{}".format(e))
 
+    def _validator_options_with_unique_values(self, field, value):
+        if not isinstance(value, list):
+            self._error(field, "Invalid options: Not a dict!")
+        values = set()
+        for i, option_dict in enumerate(value):
+            if not isinstance(option_dict, dict):
+                self._error(
+                    field,
+                    "The option at index {} is not a dictionary!".format(i)
+                )
+            if 'value' not in option_dict:
+                self._error(
+                    field,
+                    "The option at index {} does not have a 'value' key!".format(i)
+                )
+            curr = option_dict['value']
+            if curr in values:
+                self._error(
+                    field,
+                    ("The options list you provided was not valid. "
+                     "More than one of the options has the value {}.".format(curr))
+                )
+            values.add(curr)
+
     def _validate_type_list(self, value):
         if isinstance(value, list):
             return True
