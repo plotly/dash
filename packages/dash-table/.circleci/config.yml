@@ -4,7 +4,7 @@ jobs:
     "test":
         docker:
             - image: circleci/python:3.6-node-browsers
-            - image: cypress/base:8
+            - image: cypress/base:10
 
         steps:
             - checkout

@@ -28,7 +28,7 @@ export default [
             ],
             n_fixed_rows: 1,
             editable: true,
-            table_style: [{
+            css: [{
                 selector: '.dash-spreadsheet.dash-freeze-top',
                 rule: 'height: 100px;'
             }]
@@ -159,6 +159,10 @@ export default [
     {
         name: 'dropdown with column widths',
         props: {
+            style_cells: [
+                { if: { column_id: 'column-2' }, width: 400 },
+                { if: { column_id: 'column-3' }, width: 80 }
+            ],
             columns: [
                 {
                     name: 'Column 1',
@@ -178,7 +182,6 @@ export default [
                 {
                     name: 'Column 2',
                     id: 'column-2',
-                    width: 400,
                     type: 'dropdown',
                     options: [
                         {
@@ -194,7 +197,6 @@ export default [
                 {
                     name: 'Column 3',
                     id: 'column-3',
-                    width: 80,
                     type: 'dropdown',
                     options: [
                         {
@@ -286,6 +288,10 @@ export default [
         name: 'mixed percentage and pixel column widths',
         props: {
             id: 'table',
+            style_cells: [
+                { if: { column_id: 'column-2' }, width: 400 },
+                { if: { column_id: 'column-3' }, width: '30%' }
+            ],
             columns: [
                 {
                     name: 'Column 1',
@@ -293,13 +299,11 @@ export default [
                 },
                 {
                     name: 'Column 2',
-                    id: 'column-2',
-                    width: 400
+                    id: 'column-2'
                 },
                 {
                     name: 'Column 3',
-                    id: 'column-3',
-                    width: '30%'
+                    id: 'column-3'
                 }
             ],
             dataframe: [
@@ -477,12 +481,14 @@ export default [
         name: 'per-cell dropdowns',
         props: {
             id: 'table',
+            style_cells: [
+                { if: { column_id: 'column-1' }, width: 200 }
+            ],
             columns: [
                 {
                     id: 'column-1',
                     name: 'Column 1',
-                    type: 'dropdown',
-                    width: 200
+                    type: 'dropdown'
                 },
                 {
                     id: 'column-2',

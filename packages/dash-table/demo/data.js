@@ -7,7 +7,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
     {
         id: 'rows',
         type: 'numeric',
-        width: 40,
         editable: false,
         data: gendata(i => i)
     },
@@ -16,7 +15,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         id: 'ccc',
         name: ['City', 'Canada', 'Toronto'],
         type: 'numeric',
-        width: 150,
         data: gendata(i => i),
     },
 
@@ -24,7 +22,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         id: 'ddd',
         name: ['City', 'Canada', 'Montréal'],
         type: 'numeric',
-        width: 150,
         data: gendata(i => i * 100),
     },
 
@@ -32,7 +29,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         id: 'eee',
         name: ['City', 'America', 'New York City'],
         type: 'numeric',
-        width: 150,
         data: gendata(i => i),
     },
 
@@ -40,7 +36,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         id: 'fff',
         name: ['City', 'America', 'Boston'],
         type: 'numeric',
-        width: 150,
         data: gendata(i => i + 1)
     },
 
@@ -49,7 +44,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         name: ['City', 'France', 'Paris'],
         type: 'numeric',
         editable: true,
-        width: 150,
         data: gendata(i => i * 10),
     },
 
@@ -58,7 +52,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         name: ['', 'Weather', 'Climate'],
         type: 'dropdown',
         clearable: true,
-        width: 200,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
         )
@@ -69,7 +62,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         name: ['', 'Weather', 'Climate-RO'],
         type: 'dropdown',
         editable: false,
-        width: 200,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
         )
@@ -79,7 +71,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         id: 'aaa',
         name: ['', 'Weather', 'Temperature'],
         type: 'numeric',
-        width: 150,
         data: gendata(i => i + 1),
     },
 
@@ -88,7 +79,6 @@ export const mockData = unpackIntoColumnsAndDataFrames([
         name: ['', 'Weather', 'Temperature-RO'],
         type: 'numeric',
         editable: false,
-        width: 150,
         data: gendata(i => i + 1),
     }
 ]);
@@ -98,7 +88,6 @@ export const mockDataSimple = unpackIntoColumnsAndDataFrames([
         id: 'aaa',
         name: 'Temperature',
         type: 'numeric',
-        width: 150,
         data: gendata(i => i + 1),
     },
 
@@ -111,7 +100,6 @@ export const mockDataSimple = unpackIntoColumnsAndDataFrames([
             value: i,
         })),
         clearable: true,
-        width: 200,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
         ),

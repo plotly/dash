@@ -1,5 +1,6 @@
 import { SortSettings } from 'core/sorting';
 import { IPaginator } from 'dash-table/derived/paginator';
+import { Table, Cells, CellsAndHeaders, Headers } from 'dash-table/derived/style/props';
 
 export enum ColumnType {
     Dropdown = 'dropdown',
@@ -51,10 +52,7 @@ export interface IVisibleColumn {
     id: ColumnId;
     name: string;
     options?: { label: string | number, value: any }[]; // legacy
-    maxWidth?: string | number;
-    minWidth?: string | number;
     type?: ColumnType;
-    width?: string | number;
 }
 
 interface IDatumObject {
@@ -84,10 +82,9 @@ interface IProps {
     active_cell?: ActiveCell;
     columns?: Columns;
     column_conditional_dropdowns?: any[];
-    column_conditional_styles?: any[];
     column_static_dropdown?: any;
-    column_static_style?: any;
     content_style: ContentStyle;
+    css?: IStylesheetRule[];
     dataframe?: Dataframe;
     dropdown_properties: any; // legacy
     editable?: boolean;
@@ -99,29 +96,30 @@ interface IProps {
     navigation?: Navigation;
     n_fixed_columns?: number;
     n_fixed_rows?: number;
-    row_conditional_styles?: any[];
     row_deletable?: boolean;
     row_selectable?: RowSelection;
-    row_static_style?: any;
     selected_cell?: SelectedCells;
     selected_rows?: number[];
     setProps?: SetProps;
     sorting?: Sorting;
     sorting_settings?: SortSettings;
     sorting_type?: SortingType;
-    table_style?: IStylesheetRule[];
     sorting_treat_empty_string_as_none?: boolean;
     pagination_mode?: PaginationMode;
     pagination_settings?: IPaginationSettings;
+
+    style_table?: Table;
+    style_cells?: Cells;
+    style_cells_and_headers?: CellsAndHeaders;
+    style_headers?: Headers;
 }
 
 interface IDefaultProps {
     active_cell: ActiveCell;
     columns: Columns;
     column_conditional_dropdowns: any[];
-    column_conditional_styles: any[];
     column_static_dropdown: any;
-    column_static_style: any;
+    css: IStylesheetRule[];
     dataframe: Dataframe;
     editable: boolean;
     filtering: Filtering;
@@ -132,19 +130,22 @@ interface IDefaultProps {
     navigation: Navigation;
     n_fixed_columns: number;
     n_fixed_rows: number;
-    row_conditional_styles: any[];
     row_deletable: boolean;
     row_selectable: RowSelection;
-    row_static_style: any;
     selected_cell: SelectedCells;
     selected_rows: number[];
     sorting: Sorting;
     sorting_settings: SortSettings;
     sorting_type: SortingType;
-    table_style: IStylesheetRule[];
     sorting_treat_empty_string_as_none: boolean;
+
     pagination_mode: PaginationMode;
     pagination_settings: IPaginationSettings;
+
+    style_table: Table;
+    style_cells: Cells;
+    style_cells_and_headers: CellsAndHeaders;
+    style_headers: Headers;
 }
 
 interface IDerivedProps {
@@ -170,9 +171,7 @@ export interface ICellFactoryOptions {
     active_cell: ActiveCell;
     columns: VisibleColumns;
     column_conditional_dropdowns: any[];
-    column_conditional_styles: any[];
     column_static_dropdown: any;
-    column_static_style: any;
     dataframe: Dataframe;
     dropdown_properties: any; // legacy
     editable: boolean;
@@ -186,5 +185,9 @@ export interface ICellFactoryOptions {
     selected_cell: SelectedCells;
     selected_rows: number[];
     setProps: SetProps;
+    style_table: Table;
+    style_cells: Cells;
+    style_cells_and_headers: CellsAndHeaders;
+    style_headers: Headers;
     viewport: IDerivedDataframe;
 }

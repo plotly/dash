@@ -33,18 +33,23 @@ storiesOf('DashTable/With Data', module)
             { a: 21, b: 22, c: 23 }
         ]}
         columns={[
-            { id: 'a', name: 'A', width: '100px' },
-            { id: 'b', name: 'B', width: '50px' },
-            { id: 'c', name: 'C', width: '200px' }
+            { id: 'a', name: 'A' },
+            { id: 'b', name: 'B' },
+            { id: 'c', name: 'C' }
         ]}
         editable={false}
         sorting={false}
         row_deletable={false}
         row_selectable={false}
+        style_cells={[
+            { if: { column_id: 'a' }, width: '100px' },
+            { if: { column_id: 'b' }, width: '50px' },
+            { if: { column_id: 'c' }, width: '200px' }
+        ]}
     />));
 
 const columns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
-    .map(id => ({ id: id, name: id.toUpperCase(), width: '100px' }));
+    .map(id => ({ id: id, name: id.toUpperCase() }));
 
 const idMap: { [key: string]: string } = {
     a: 'A',
@@ -60,7 +65,7 @@ const idMap: { [key: string]: string } = {
 };
 
 const mergedColumns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
-    .map(id => ({ id: id, name: [idMap[id], id.toUpperCase()], width: '100px' }));
+    .map(id => ({ id: id, name: [idMap[id], id.toUpperCase()] }));
 
 const dataframe = (() => {
     const r = random(1);
@@ -73,6 +78,10 @@ const dataframe = (() => {
     ));
 })();
 
+const style_cells = [
+    { width: '100px' }
+];
+
 storiesOf('DashTable/Fixed Rows & Columns', module)
     .add('with 1 fixed row, 2 fixed columns', () => (<DashTable
         setProps={setProps}
@@ -83,6 +92,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         n_fixed_rows={1}
         row_deletable={true}
         row_selectable={true}
+        style_cells={style_cells}
     />))
     .add('with 1 fixed row', () => (<DashTable
         setProps={setProps}
@@ -92,6 +102,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         n_fixed_rows={1}
         row_deletable={true}
         row_selectable={true}
+        style_cells={style_cells}
     />))
     .add('with 2 fixed columns', () => (<DashTable
         setProps={setProps}
@@ -101,6 +112,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         n_fixed_columns={2}
         row_deletable={true}
         row_selectable={true}
+        style_cells={style_cells}
     />))
     .add('with 2 fixed rows, 4 fixed columns and merged cells', () => (<DashTable
         setProps={setProps}
@@ -110,6 +122,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         merge_duplicate_headers={true}
         n_fixed_columns={4}
         n_fixed_rows={2}
+        style_cells={style_cells}
     />))
     .add('with 2 fixed rows, 3 fixed columns, hidden columns and merged cells', () => {
         const testColumns = JSON.parse(JSON.stringify(columns));
@@ -123,6 +136,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             merge_duplicate_headers={true}
             n_fixed_columns={3}
             n_fixed_rows={2}
+            style_cells={style_cells}
         />);
     });
 
@@ -152,6 +166,7 @@ storiesOf('DashTable/Hidden Columns', module)
         id='table'
         dataframe={dataframe}
         columns={hiddenColumns}
+        style_cells={style_cells}
     />))
     .add('active cell', () => (<DashTable
         setProps={setProps}
@@ -159,6 +174,7 @@ storiesOf('DashTable/Hidden Columns', module)
         dataframe={dataframe}
         columns={hiddenColumns}
         active_cell={[1, 1]}
+        style_cells={style_cells}
     />))
     .add('selected cells', () => (<DashTable
         setProps={setProps}
@@ -166,6 +182,7 @@ storiesOf('DashTable/Hidden Columns', module)
         dataframe={dataframe}
         columns={hiddenColumns}
         selected_cell={[[1, 1], [1, 2], [2, 1], [2, 2]]}
+        style_cells={style_cells}
     />));
 
 storiesOf('DashTable/Sorting', module)
@@ -176,6 +193,7 @@ storiesOf('DashTable/Sorting', module)
         columns={mergedColumns}
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'asc' }]}
+        style_cells={style_cells}
     />))
     .add('"a" descending', () => (<DashTable
         setProps={setProps}
@@ -184,6 +202,7 @@ storiesOf('DashTable/Sorting', module)
         columns={mergedColumns}
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'desc' }]}
+        style_cells={style_cells}
     />))
     .add('"a" ascending -- empty string override', () => (<DashTable
         setProps={setProps}
@@ -193,6 +212,7 @@ storiesOf('DashTable/Sorting', module)
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'asc' }]}
         sorting_treat_empty_string_as_none={true}
+        style_cells={style_cells}
     />))
     .add('"a" descending -- empty string override', () => (<DashTable
         setProps={setProps}
@@ -202,4 +222,5 @@ storiesOf('DashTable/Sorting', module)
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'desc' }]}
         sorting_treat_empty_string_as_none={true}
+        style_cells={style_cells}
     />));

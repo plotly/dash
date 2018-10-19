@@ -98,10 +98,10 @@ describe('copy paste', () => {
         });
 
         it('BE rountrip with sorted, unfiltered data', () => {
-            cy.get('tr th.column-0 .sort').last().click();
+            cy.get('tr th.column-2 .sort').last().click();
 
             DashTable.getCell(0, 0).click();
-            DashTable.getCell(0, 0).within(() => cy.get('.dash-cell-value').should('have.value', '249'));
+            DashTable.getCell(0, 0).within(() => cy.get('.dash-cell-value').should('have.value', '103'));
 
             DOM.focused.type(`${Key.Meta}c`);
 
@@ -113,7 +113,7 @@ describe('copy paste', () => {
                 .within(() => cy.get('.dash-cell-value').should('have.html', 'MODIFIED'));
             DashTable
                 .getCell(1, 0)
-                .within(() => cy.get('.dash-cell-value').should('have.value', '249'));
+                .within(() => cy.get('.dash-cell-value').should('have.value', '103'));
 
             DashTable.getCell(1, 1).click();
             DOM.focused.type(`${Key.Meta}c`);
@@ -124,6 +124,9 @@ describe('copy paste', () => {
             DashTable
                 .getCell(2, 1)
                 .within(() => cy.get('.dash-cell-value').should('have.value', 'MODIFIED'));
+            DashTable
+                .getCell(1, 0)
+                .within(() => cy.get('.dash-cell-value').should('have.html', '103'));
         });
     });
 });

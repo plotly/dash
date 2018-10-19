@@ -15,12 +15,13 @@ import { memoizeOne } from 'core/memoizer';
 import lexer from 'core/syntax-tree/lexer';
 
 import TableClipboardHelper from 'dash-table/utils/TableClipboardHelper';
-import { ControlledTableProps, IColumn } from 'dash-table/components/Table/props';
+import { ControlledTableProps } from 'dash-table/components/Table/props';
 import dropdownHelper from 'dash-table/components/dropdownHelper';
 
 import derivedTable from 'dash-table/derived/table';
 import derivedTableFragments from 'dash-table/derived/table/fragments';
 import isEditable from 'dash-table/derived/cell/isEditable';
+import { derivedTableStyle } from 'dash-table/derived/style';
 
 const sortNumerical = R.sort<number>((a, b) => a - b);
 
@@ -31,6 +32,7 @@ interface IState {
 export default class ControlledTable extends PureComponent<ControlledTableProps, IState> {
     private readonly stylesheet: Stylesheet;
     private readonly tableFn: () => JSX.Element[][];
+    private readonly tableStyle = derivedTableStyle();
 
     constructor(props: ControlledTableProps) {
         super(props);
@@ -53,11 +55,11 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
     }
 
     private updateStylesheet() {
-        const { table_style } = this.props;
+        const { css } = this.props;
 
         R.forEach(({ selector, rule }) => {
             this.stylesheet.setRule(selector, rule);
-        }, table_style);
+        }, css);
     }
 
     componentDidMount() {
@@ -519,7 +521,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
     applyStyle = () => {
         const {
-            columns,
             n_fixed_columns,
             n_fixed_rows,
             row_deletable,
@@ -549,29 +550,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
                 `width: 30px; max-width: 30px; min-width: 30px;`
             );
         }
-
-        R.addIndex<IColumn>(R.forEach)((column, index) => {
-            const rules = [];
-
-            if (column.width) {
-                rules.push(`width: ${Stylesheet.unit(column.width, 'px')};`);
-            }
-
-            if (column.minWidth) {
-                rules.push(`min-width: ${Stylesheet.unit(column.minWidth, 'px')};`);
-            }
-
-            if (column.maxWidth) {
-                rules.push(`max-width: ${Stylesheet.unit(column.maxWidth, 'px')};`);
-            }
-
-            if (rules.length) {
-                const rule = rules.join(' ');
-
-                this.stylesheet.setRule(`.dash-spreadsheet-inner td.column-${index}`, rule);
-                this.stylesheet.setRule(`.dash-spreadsheet-inner th.column-${index}`, rule);
-            }
-        }, columns);
 
         // Adjust the width of the fixed row header
         if (n_fixed_rows) {
@@ -620,7 +598,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
             id,
             content_style,
             n_fixed_columns,
-            n_fixed_rows
+            n_fixed_rows,
+            style_table
         } = this.props;
 
         const classes = [
@@ -653,14 +632,16 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         const rawTable = this.tableFn();
         const grid = derivedTableFragments(n_fixed_columns, n_fixed_rows, rawTable);
 
+        const tableStyle = this.tableStyle(style_table);
+
         return (<div
             id={id}
             onCopy={this.onCopy}
             onKeyDown={this.handleKeyDown}
             onPaste={this.onPaste}
         >
-            <div className={containerClasses.join(' ')}>
-                <div className={classes.join(' ')}>
+            <div className={containerClasses.join(' ')} style={tableStyle}>
+                <div className={classes.join(' ')} style={tableStyle}>
                     {grid.map((row, rowIndex) => (<div
                         key={`r${rowIndex}`}
                         ref={`r${rowIndex}`}

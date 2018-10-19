@@ -27,7 +27,7 @@ const baseProps = {
 const props = Object.assign({}, baseProps, {
     content_style: 'grow',
     columns: columns.map((id => ({ id: id, name: id.toUpperCase(), width: '33%' }))),
-    table_style: [{
+    css: [{
         selector: '.dash-spreadsheet',
         rule: 'width: 1000px; max-width: 1000px; height: 1000px;'
     }, {

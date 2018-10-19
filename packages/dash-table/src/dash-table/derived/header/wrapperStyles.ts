@@ -2,30 +2,31 @@ import * as R from 'ramda';
 import { CSSProperties } from 'react';
 
 import { memoizeOneFactory } from 'core/memoizer';
-import { Dataframe, VisibleColumns } from 'dash-table/components/Table/props';
+
+import { VisibleColumns } from 'dash-table/components/Table/props';
+
 import { IConvertedStyle } from '../style';
 
 type Style = CSSProperties | undefined;
 
 function getter(
     columns: VisibleColumns,
-    columnStyles: IConvertedStyle[],
-    dataframe: Dataframe
+    headerRows: number,
+    headerStyles: IConvertedStyle[]
 ): Style[][] {
-    return R.addIndex<any, Style[]>(R.map)((datum, index) => R.map(column => {
+    return R.map(idx => R.map(column => {
         const relevantStyles = R.map(
             s => s.style,
             R.filter(
                 style =>
                     style.matchesColumn(column) &&
-                    style.matchesRow(index) &&
-                    style.matchesFilter(datum),
-                columnStyles
+                    style.matchesRow(idx),
+                headerStyles
             )
         );
 
         return relevantStyles.length ? R.mergeAll(relevantStyles) : undefined;
-    }, columns), dataframe);
+    }, columns), R.range(0, headerRows));
 }
 
 export default memoizeOneFactory(getter);

@@ -7,7 +7,7 @@ import DashTable from 'dash-table/Table';
 const setProps = () => { };
 
 const columns = ['a', 'b', 'c']
-    .map(id => ({ id: id, name: id.toUpperCase(), width: '100px' }));
+    .map(id => ({ id: id, name: id.toUpperCase() }));
 
 const dataframe = (() => {
     const r = random(1);
@@ -21,7 +21,7 @@ const dataframe = (() => {
 })();
 
 const columns2 = ['a', 'b', 'c', 'd', 'e', 'f']
-    .map(id => ({ id: id, name: id.toUpperCase(), width: '100px' }));
+    .map(id => ({ id: id, name: id.toUpperCase() }));
 
 const dataframe2 = (() => {
     const r = random(1);
@@ -34,14 +34,22 @@ const dataframe2 = (() => {
     ));
 })();
 
+const style_table = {
+    height: 500,
+    width: 500
+};
+
+const style_cells = [
+    { width: 100 }
+];
+
 let props = {
     setProps,
     id: 'table',
     dataframe,
     columns,
-    table_style: [{
-        selector: '.dash-spreadsheet', rule: 'width: 500px; height: 500px;'
-    }]
+    style_cells,
+    style_table
 };
 
 let props2 = {
@@ -49,9 +57,8 @@ let props2 = {
     id: 'table',
     dataframe: dataframe2,
     columns: columns2,
-    table_style: [{
-        selector: '.dash-spreadsheet', rule: 'width: 500px; height: 500px;'
-    }]
+    style_cells,
+    style_table
 };
 
 storiesOf('DashTable/Border (available space not filled)', module)

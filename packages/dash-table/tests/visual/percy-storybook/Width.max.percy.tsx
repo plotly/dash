@@ -22,11 +22,12 @@ const dataframe = (() => {
 const baseProps = {
     setProps,
     id: 'table',
-    dataframe
+    dataframe,
+    style_cells: [{ max_width: 10 }]
 };
 
 const props = Object.assign({}, baseProps, {
-    columns: columns.map((id => ({ id: id, name: id.toUpperCase(), maxWidth: 10 })))
+    columns: columns.map((id => ({ id: id, name: id.toUpperCase() })))
 });
 
 storiesOf('DashTable/Width maxWidth only', module)

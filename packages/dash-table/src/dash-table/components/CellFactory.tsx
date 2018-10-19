@@ -6,6 +6,7 @@ import derivedCellInputs from 'dash-table/derived/cell/inputs';
 import derivedCellOperations from 'dash-table/derived/cell/operations';
 import derivedCellStyles from 'dash-table/derived/cell/wrapperStyles';
 import derivedDropdowns from 'dash-table/derived/cell/dropdowns';
+import { derivedRelevantCellStyles } from 'dash-table/derived/style';
 
 import { matrixMap3 } from 'core/math/matrixZipMap';
 import { arrayMap } from 'core/math/arrayZipMap';
@@ -21,8 +22,9 @@ export default class CellFactory {
 
     constructor(
         private readonly propsFn: () => ICellFactoryOptions,
-        private readonly cellStyles = derivedCellStyles(propsFn().id),
-        private readonly cellWrappers = derivedCellWrappers(propsFn().id)
+        private readonly cellStyles = derivedCellStyles(),
+        private readonly cellWrappers = derivedCellWrappers(propsFn().id),
+        private readonly relevantStyles = derivedRelevantCellStyles()
     ) { }
 
     public createCells() {
@@ -30,9 +32,7 @@ export default class CellFactory {
             active_cell,
             columns,
             column_conditional_dropdowns,
-            column_conditional_styles,
             column_static_dropdown,
-            column_static_style,
             dataframe,
             dropdown_properties, // legacy
             editable,
@@ -43,6 +43,8 @@ export default class CellFactory {
             selected_cell,
             selected_rows,
             setProps,
+            style_cells,
+            style_cells_and_headers,
             viewport
         } = this.props;
 
@@ -65,10 +67,11 @@ export default class CellFactory {
             selected_cell
         );
 
+        const relevantStyles = this.relevantStyles(style_cells_and_headers, style_cells);
+
         const wrapperStyles = this.cellStyles(
             columns,
-            column_conditional_styles,
-            column_static_style,
+            relevantStyles,
             viewport.dataframe
         );
 
