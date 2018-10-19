@@ -51,7 +51,6 @@ function recordHistory(reducer) {
     return function(state, action) {
         // Record initial state
         if (action.type === 'ON_PROP_CHANGE') {
-
             const {itempath, props} = action.payload;
             const historyEntry = getInputHistoryState(itempath, props, state);
             if (historyEntry && !R.isEmpty(historyEntry.props)) {
