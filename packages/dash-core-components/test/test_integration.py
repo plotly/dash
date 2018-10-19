@@ -39,35 +39,23 @@ from multiprocessing import Value
 # export PERCY_PROJECT=plotly/dash-integration-tests
 # export PERCY_TOKEN=...
 
+TIMEOUT = 20
+
 
 class Tests(IntegrationTests):
     def setUp(self):
         pass
 
     def wait_for_element_by_css_selector(self, selector):
-        start_time = time.time()
-        error = None
-        while time.time() < start_time + 20:
-            try:
-                return self.driver.find_element_by_css_selector(selector)
-            except Exception as e:
-                error = e
-                pass
-            time.sleep(0.25)
-        raise error
+        return WebDriverWait(self.driver, TIMEOUT).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+        )
 
     def wait_for_text_to_equal(self, selector, assertion_text):
-        start_time = time.time()
-        error = None
-        while time.time() < start_time + 20:
-            el = self.wait_for_element_by_css_selector(selector)
-            try:
-                return self.assertEqual(el.text, assertion_text)
-            except Exception as e:
-                error = e
-                pass
-            time.sleep(0.25)
-        raise error
+        return WebDriverWait(self.driver, TIMEOUT).until(
+            EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector),
+                                             assertion_text)
+        )
 
     def snapshot(self, name):
         if 'PERCY_PROJECT' in os.environ and 'PERCY_TOKEN' in os.environ:
@@ -449,15 +437,13 @@ class Tests(IntegrationTests):
 
         self.startServer(app=app)
 
-        initial_tab = self.wait_for_element_by_css_selector('#tab-2')
-        tabs_content = self.wait_for_element_by_css_selector('#tabs-content')
-        self.assertEqual(tabs_content.text, 'Test content 2')
+        self.wait_for_text_to_equal('#tabs-content', 'Test content 2')
         self.snapshot('initial tab - tab 2')
 
         selected_tab = self.wait_for_element_by_css_selector('#tab-1')
         selected_tab.click()
         time.sleep(2)
-        self.assertEqual(tabs_content.text, 'Test content 1')
+        self.wait_for_text_to_equal('#tabs-content', 'Test content 1')
 
     def test_tabs_with_children_undefined(self):
         app = dash.Dash(__name__)
@@ -579,9 +565,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app=app)
 
-        default_tab_content = self.wait_for_element_by_css_selector('#tabs-content')
-
-        self.assertEqual(default_tab_content.text, 'Default selected Tab content 1')
+        self.wait_for_text_to_equal('#tabs-content', 'Default selected Tab content 1')
 
         self.snapshot('Tab 1 should be selected by default')
 
@@ -827,7 +811,9 @@ class Tests(IntegrationTests):
         # test link still fires update on Location
         page_content = self.wait_for_element_by_css_selector('#page-content')
         self.assertNotEqual(page_content.text, 'You are on page /')
-        self.assertEqual(page_content.text, 'You are on page /test-link')
+
+        self.wait_for_text_to_equal(
+            '#page-content', 'You are on page /test-link')
 
         #test if rendered Link's <a> tag has a href attribute
         link_href = test_link.get_attribute("href")
@@ -937,21 +923,20 @@ class Tests(IntegrationTests):
         start_date = self.wait_for_element_by_css_selector('#startDate')
         start_date.click()
 
-        end_date= self.wait_for_element_by_css_selector('#endDate')
+        end_date = self.wait_for_element_by_css_selector('#endDate')
         end_date.click()
 
-        date_content = self.wait_for_element_by_css_selector('#date-picker-range-output')
-        self.assertEquals(date_content.text, 'None - None')
+        self.wait_for_text_to_equal('#date-picker-range-output', 'None - None')
 
         # updated only one date, callback shouldn't fire and output should be unchanged
         start_date.send_keys("1997-05-03")
-        self.assertEquals(date_content.text, 'None - None')
+        self.wait_for_text_to_equal('#date-picker-range-output', 'None - None')
 
         # updated both dates, callback should now fire and update output
         end_date.send_keys("1997-05-04")
         end_date.click()
-
-        self.assertEquals(date_content.text, '1997-05-03 - 1997-05-04')
+        self.wait_for_text_to_equal(
+            '#date-picker-range-output', '1997-05-03 - 1997-05-04')
 
     def test_interval(self):
         app = dash.Dash(__name__)
@@ -967,10 +952,10 @@ class Tests(IntegrationTests):
 
         self.startServer(app=app)
 
-        time.sleep(5) # wait for interval to finish
+        # wait for interval to finish
+        time.sleep(5)
 
-        output = self.wait_for_element_by_css_selector('#output')
-        self.assertEqual(output.text, '2')
+        self.wait_for_text_to_equal('#output', '2')
 
     def test_if_interval_can_be_restarted(self):
         app = dash.Dash(__name__)
@@ -989,7 +974,6 @@ class Tests(IntegrationTests):
 
         ])
 
-
         @app.callback(
             Output('interval', 'max_intervals'),
             [Input('start', 'n_clicks_timestamp'),
@@ -1000,7 +984,6 @@ class Tests(IntegrationTests):
             else:
                 return -1
 
-
         @app.callback(Output('output', 'children'), [Input('interval', 'n_intervals')])
         def display_data(n_intervals):
             return 'Updated {}'.format(n_intervals)
@@ -1010,7 +993,8 @@ class Tests(IntegrationTests):
         start_button = self.wait_for_element_by_css_selector('#start')
         stop_button = self.wait_for_element_by_css_selector('#stop')
 
-        time.sleep(1) # interval will start itself, we wait a second before pressing 'stop'
+        # interval will start itself, we wait a second before pressing 'stop'
+        time.sleep(1)
 
         # get the output after running it for a bit
         output = self.wait_for_element_by_css_selector('#output')
@@ -1021,6 +1005,10 @@ class Tests(IntegrationTests):
         # get the output after it's stopped, it shouldn't be higher than before
         output_stopped = self.wait_for_element_by_css_selector('#output')
 
+        self.wait_for_text_to_equal("#output", output_stopped.text)
+
+        # This test logic is bad
+        # same element check for same text will always be true.
         self.assertEqual(output.text, output_stopped.text)
 
     def _test_confirm(self, app, test_name, add_callback=True):
@@ -1247,7 +1235,7 @@ class Tests(IntegrationTests):
 
             click_data = self.driver.execute_script(clicked_getter)
             self.assertEqual(i, click_data.get('clicked'))
-            self.assertEquals(i, int(json.loads(mem.text).get('clicked')))
+            self.assertEqual(i, int(json.loads(mem.text).get('clicked')))
 
         clear_btn.click()
         time.sleep(1)
