@@ -16,7 +16,7 @@ export const base = {
     html: {
         fontFamily: "'Open Sans', Helvetica, sans-serif",
         fontWeight: 400,
-        color: '#2A3F5F'
+        color: '#2A3F5F',
     },
 
     h2: {
@@ -52,7 +52,7 @@ export const base = {
     a: {
         color: '#119DFF',
         textDecoration: 'none',
-        cursor: 'pointer'
+        cursor: 'pointer',
     },
 
     caption: {
@@ -66,7 +66,7 @@ export const base = {
         marginRight: 'auto',
         width: '90%',
         maxWidth: '300px',
-    }
-}
+    },
+};
 
 export default base;

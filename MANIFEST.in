@@ -1,3 +1,4 @@
-include dash_renderer/bundle.js
+include dash_renderer/dash_renderer.min.js
+include dash_renderer/dash_renderer.dev.js
 include dash_renderer/react-dom@*.min.js
 include dash_renderer/react@*.min.js

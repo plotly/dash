@@ -2,9 +2,29 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.13.3] - 2018-08-13
+## [0.14.4] - 2018-10-19
 ### Fixed
 - Fix a bug in the ON_PROP_CHANGE callback where history was not correctly set when acting on more than one component. In particular, the 'undo' button should now work as expected. Fixes [#66](https://github.com/plotly/dash-renderer/issues/66).
+
+## [0.14.3] - 2018-10-11
+### Fixed
+- Included missing polyfills to restore Internet Explorer support [#87](https://github.com/plotly/dash-renderer/issues/87)
+
+## [0.14.2] - 2018-10-11
+### Fixed
+- Upgraded dependencies to remove warnings
+- Restored whatgw-fetch [#87](https://github.com/plotly/dash-renderer/issues/87)
+### Added
+- Prettier support
+- Better ESLint configs
+
+## [0.14.1] - 2018-09-20
+### Fixed
+- Renamed `__init__.py` external_path to dash_renderer.min.js
+
+## [0.14.0] - 2018-09-20
+### Added
+- Unminified dev bundle support. [#77](https://github.com/plotly/dash-renderer/pull/77)
 
 ## [0.13.2] - 2018-07-24
 ### Fixed

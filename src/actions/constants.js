@@ -1,4 +1,4 @@
-export const ACTIONS = (action) => {
+export const getAction = action => {
     const actionList = {
         ON_PROP_CHANGE: 'ON_PROP_CHANGE',
         SET_REQUEST_QUEUE: 'SET_REQUEST_QUEUE',
@@ -6,8 +6,10 @@ export const ACTIONS = (action) => {
         COMPUTE_PATHS: 'COMPUTE_PATHS',
         SET_LAYOUT: 'SET_LAYOUT',
         SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
-        READ_CONFIG: 'READ_CONFIG'
+        READ_CONFIG: 'READ_CONFIG',
     };
-    if (actionList[action]) return actionList[action];
-    else throw new Error(`${action} is not defined.`)
+    if (actionList[action]) {
+        return actionList[action];
+    }
+    throw new Error(`${action} is not defined.`);
 };

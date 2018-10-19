@@ -8,6 +8,6 @@ const requestQueue = (state = [], action) => {
         default:
             return state;
     }
-}
+};
 
 export default requestQueue;

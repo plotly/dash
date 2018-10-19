@@ -8,101 +8,91 @@ function GET(path) {
         method: 'GET',
         credentials: 'same-origin',
         headers: {
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'Content-Type': 'application/json',
-            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
-        }
+            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
+        },
     });
 }
 
-function POST(path, body = {}, headers={}) {
+function POST(path, body = {}, headers = {}) {
     return fetch(path, {
         method: 'POST',
         credentials: 'same-origin',
-        headers: merge({
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
-        }, headers),
-        body: body ? JSON.stringify(body) : null
+        headers: merge(
+            {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
+            },
+            headers
+        ),
+        body: body ? JSON.stringify(body) : null,
     });
 }
 
 const request = {GET, POST};
 
-
-function apiThunk(endpoint, method, store, id, body, headers={}) {
+function apiThunk(endpoint, method, store, id, body, headers = {}) {
     return (dispatch, getState) => {
         const config = getState().config;
 
         dispatch({
             type: store,
-            payload: {id, status: 'loading'}
+            payload: {id, status: 'loading'},
         });
         return request[method](`${urlBase(config)}${endpoint}`, body, headers)
-        .then(res => {
-            const contentType = res.headers.get("content-type");
-            if(contentType && contentType.indexOf("application/json") !== -1) {
-                return res.json().then(
-                    json => {
+            .then(res => {
+                const contentType = res.headers.get('content-type');
+                if (
+                    contentType &&
+                    contentType.indexOf('application/json') !== -1
+                ) {
+                    return res.json().then(json => {
                         dispatch({
                             type: store,
                             payload: {
                                 status: res.status,
                                 content: json,
-                                id
-                            }
+                                id,
+                            },
                         });
                         return json;
-                    }
-                )
-            } else {
+                    });
+                }
+                return dispatch({
+                    type: store,
+                    payload: {
+                        id,
+                        status: res.status,
+                    },
+                });
+            })
+            .catch(err => {
+                /* eslint-disable no-console */
+                console.error(err);
+                /* eslint-enable no-console */
                 dispatch({
                     type: store,
                     payload: {
                         id,
-                        status: res.status
-                    }
+                        status: 500,
+                    },
                 });
-            }
-        }).catch(err => {
-            /* eslint-disable no-console */
-            console.error(err);
-            /* eslint-enable no-console */
-            dispatch({
-                type: store,
-                payload: {
-                    id,
-                    status: 500
-                }
             });
-        });
     };
 }
 
 export function getLayout() {
-    return apiThunk(
-        '_dash-layout',
-        'GET',
-        'layoutRequest'
-    );
+    return apiThunk('_dash-layout', 'GET', 'layoutRequest');
 }
 
 export function getDependencies() {
-    return apiThunk(
-        '_dash-dependencies',
-        'GET',
-        'dependenciesRequest'
-    );
+    return apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest');
 }
 
 export function login(oauth_token) {
-    return apiThunk(
-        '_dash-login',
-        'POST',
-        'loginRequest',
-        undefined,
-        undefined,
-        {'Authorization': `Bearer ${oauth_token}`}
-    );
+    return apiThunk('_dash-login', 'POST', 'loginRequest', '', '', {
+        Authorization: `Bearer ${oauth_token}`,
+    });
 }

@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 import R, {concat, lensPath, view} from 'ramda';
 import {combineReducers} from 'redux';
 import layout from './layout';
@@ -20,9 +20,8 @@ const reducer = combineReducers({
     dependenciesRequest: API.dependenciesRequest,
     layoutRequest: API.layoutRequest,
     loginRequest: API.loginRequest,
-    history
+    history,
 });
-
 
 function getInputHistoryState(itempath, props, state) {
     const {graphs, layout, paths} = state;
@@ -34,8 +33,10 @@ function getInputHistoryState(itempath, props, state) {
         historyEntry = {id, props: {}};
         R.keys(props).forEach(propKey => {
             const inputKey = `${id}.${propKey}`;
-            if (InputGraph.hasNode(inputKey) &&
-                InputGraph.dependenciesOf(inputKey).length > 0) {
+            if (
+                InputGraph.hasNode(inputKey) &&
+                InputGraph.dependenciesOf(inputKey).length > 0
+            ) {
                 historyEntry.props[propKey] = view(
                     lensPath(concat(paths[id], ['props', propKey])),
                     layout
@@ -47,9 +48,10 @@ function getInputHistoryState(itempath, props, state) {
 }
 
 function recordHistory(reducer) {
-    return function (state, action) {
+    return function(state, action) {
         // Record initial state
         if (action.type === 'ON_PROP_CHANGE') {
+
             const {itempath, props} = action.payload;
             const historyEntry = getInputHistoryState(itempath, props, state);
             if (historyEntry && !R.isEmpty(historyEntry.props)) {
@@ -59,7 +61,8 @@ function recordHistory(reducer) {
 
         const nextState = reducer(state, action);
 
-        if (action.type === 'ON_PROP_CHANGE' &&
+        if (
+            action.type === 'ON_PROP_CHANGE' &&
             action.payload.source !== 'response'
         ) {
             const {itempath, props} = action.payload;
@@ -67,24 +70,26 @@ function recordHistory(reducer) {
              * if the prop change is an input, then
              * record it so that it can be played back
              */
-            const historyEntry = getInputHistoryState(itempath, props, nextState);
+            const historyEntry = getInputHistoryState(
+                itempath,
+                props,
+                nextState
+            );
             if (historyEntry && !R.isEmpty(historyEntry.props)) {
-
                 nextState.history = {
                     past: [
                         ...nextState.history.past,
                         state.history.present
+
                     ],
                     present: historyEntry,
-                    future: []
-                }
-
+                    future: [],
+                };
             }
         }
 
         return nextState;
-
-    }
+    };
 }
 
 export default recordHistory(reducer);

@@ -1,16 +1,16 @@
 /* global window:true, document:true */
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {connect} from 'react-redux'
+import {connect} from 'react-redux';
 import queryString from 'query-string';
 import {login} from './actions/api';
 import {readConfig} from './actions/index';
-import {contains, isEmpty, merge, type} from 'ramda'
+import {contains, isEmpty, merge, type} from 'ramda';
 import * as styles from './styles/styles.js';
-import {REDIRECT_URI_PATHNAME} from './constants/constants';
+import {REDIRECT_URI_PATHNAME, STATUS} from './constants/constants';
 
 // http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
-const PopupCenter = (url, title, w, h) => {
+const popupCenter = (url, title, w, h) => {
     // Fixes dual-screen position
     const screenLeft = window.screenLeft;
     const screenTop = window.screenTop;
@@ -18,13 +18,19 @@ const PopupCenter = (url, title, w, h) => {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    const left = ((width / 2) - (w / 2)) + screenLeft;
-    const top = ((height / 2) - (h / 2)) + screenTop;
+    const left = width / 2 - w / 2 + screenLeft;
+    const top = height / 2 - h / 2 + screenTop;
     const popupWindow = window.open(
-        url, title,
-        ('scrollbars=yes,width=' + w +
-         ', height=' + h + ', top=' + top +
-         ', left=' + left)
+        url,
+        title,
+        'scrollbars=yes,width=' +
+            w +
+            ', height=' +
+            h +
+            ', top=' +
+            top +
+            ', left=' +
+            left
     );
     return popupWindow;
 };
@@ -46,9 +52,7 @@ class UnconnectedLogin extends Component {
     }
 
     buildOauthUrl() {
-        const {oauth_client_id, plotly_domain} = (
-            this.props.config
-        );
+        const {oauth_client_id, plotly_domain} = this.props.config;
         return (
             `${plotly_domain}/o/authorize/?response_type=token&` +
             `client_id=${oauth_client_id}&` +
@@ -57,15 +61,18 @@ class UnconnectedLogin extends Component {
     }
 
     oauthPopUp() {
-        const popupWindow = PopupCenter(
-            this.buildOauthUrl(), 'Authorization', '500', '500'
+        const popupWindow = popupCenter(
+            this.buildOauthUrl(),
+            'Authorization',
+            '500',
+            '500'
         );
         if (window.focus) {
             popupWindow.focus();
         }
         window.popupWindow = popupWindow;
         const interval = setInterval(() => {
-            if(popupWindow.closed) {
+            if (popupWindow.closed) {
                 this.props.onClosed();
                 clearInterval(interval);
             }
@@ -91,12 +98,14 @@ class UnconnectedLogin extends Component {
                         {`This dash app requires a plotly login to view.
                           Don't have an account yet?`}
                     </span>
-                    <a style={styles.base.a}
-                       href={`${plotly_domain}/accounts/login/?action=signup`}>
+                    <a
+                        style={styles.base.a}
+                        href={`${plotly_domain}/accounts/login/?action=signup`}
+                    >
                         {' Create an account '}
                     </a>
                     <span>
-                    {` (it's free)
+                        {` (it's free)
                       and then request access from the owner of this app.`}
                     </span>
                 </div>
@@ -106,11 +115,9 @@ class UnconnectedLogin extends Component {
 }
 UnconnectedLogin.propTypes = {
     onClosed: PropTypes.func,
-    config: PropTypes.object
-}
-const Login = connect(
-    state => ({config: state.config})
-)(UnconnectedLogin);
+    config: PropTypes.object,
+};
+const Login = connect(state => ({config: state.config}))(UnconnectedLogin);
 
 /**
  * OAuth redirect component
@@ -138,39 +145,27 @@ class UnconnectedOauthRedirect extends Component {
         const {loginRequest} = this.props;
         let content;
         if (isEmpty(loginRequest) || loginRequest.status === 'loading') {
-
             content = <div className="_dash-loading">Loading...</div>;
-
-        } else if (loginRequest.status === 200) {
-
+        } else if (loginRequest.status === STATUS.OK) {
             window.close();
-
         } else {
-
             content = (
                 <div>
                     <h3>{'Yikes! An error occurred trying to log in.'}</h3>
-                    {
-                        loginRequest.content ?
-                        <pre>{JSON.stringify(loginRequest.content)}</pre> :
-                        null
-                    }
+                    {loginRequest.content ? (
+                        <pre>{JSON.stringify(loginRequest.content)}</pre>
+                    ) : null}
                 </div>
             );
-
         }
-        return (
-            <div>
-                {content}
-            </div>
-        );
+        return <div>{content}</div>;
     }
 }
 UnconnectedOauthRedirect.propTypes = {
     loginRequest: PropTypes.object,
     login: PropTypes.func,
-    dispatch: PropTypes.func
-}
+    dispatch: PropTypes.func,
+};
 const OauthRedirect = connect(
     state => ({loginRequest: state.loginRequest}),
     dispatch => ({dispatch})
@@ -194,8 +189,8 @@ class Authentication extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            oauth_flow_counter: 0
-        }
+            oauth_flow_counter: 0,
+        };
     }
 
     componentDidMount() {
@@ -208,63 +203,47 @@ class Authentication extends Component {
 
     initialization(props) {
         const {config, dispatch} = props;
-        if (type(config) === "Null") {
+        if (type(config) === 'Null') {
             dispatch(readConfig());
         }
     }
 
     render() {
-
         const {children, config} = this.props;
 
         // OAuth redirect
         if (window.location.pathname === REDIRECT_URI_PATHNAME) {
+            return <OauthRedirect />;
+        }
+
+        if (type(config) === 'Null') {
+            return <div className="_dash-loading">Loading...</div>;
+        } else if (config.fid) {
+            if (contains('plotly_oauth_token=', document.cookie)) {
+                return children;
+            }
+
+            // Set oauth token cookie through an oauth flow
             return (
-                <OauthRedirect/>
+                <Login
+                    onClosed={() =>
+                        this.setState({
+                            oauth_flow_counter:
+                                this.state.oauth_flow_counter + 1,
+                        })
+                    }
+                />
             );
         }
 
-        if (type(config) === "Null") {
-
-            return <div className="_dash-loading">Loading...</div>;
-
-        }
-
-        else if (config.fid) {
-
-            if (contains('plotly_oauth_token=', document.cookie)) {
-
-                return children;
-
-            }
-
-            else {
-
-                // Set oauth token cookie through an oauth flow
-                return (
-                    <Login onClosed={
-                        () => this.setState({
-                            oauth_flow_counter:
-                            this.state.oauth_flow_counter + 1
-                        })
-                    }/>
-                );
-
-            }
-        }
-
-        else {
-
-            return children;
-
-        }
+        return children;
     }
 }
 
 Authentication.propTypes = {
     children: PropTypes.object,
-    config: PropTypes.object
-}
+    config: PropTypes.object,
+};
 
 export default connect(
     state => ({
