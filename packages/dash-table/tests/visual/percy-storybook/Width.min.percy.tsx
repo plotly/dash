@@ -27,7 +27,7 @@ const baseProps = {
 
 const props = Object.assign({}, baseProps, {
     columns: columns.map((id => ({ id: id, name: id.toUpperCase() }))),
-    style_cells: [{ min_width: 100 }]
+    style_data_conditional: [{ min_width: 100 }]
 });
 
 storiesOf('DashTable/Width minWidth only', module)

@@ -1,6 +1,13 @@
 import { SortSettings } from 'core/sorting';
 import { IPaginator } from 'dash-table/derived/paginator';
-import { Table, Cells, CellsAndHeaders, Headers } from 'dash-table/derived/style/props';
+import {
+    Table,
+    BasicFilters,
+    Cells,
+    DataCells,
+    Headers,
+    Style
+} from 'dash-table/derived/style/props';
 
 export enum ColumnType {
     Dropdown = 'dropdown',
@@ -108,10 +115,17 @@ interface IProps {
     pagination_mode?: PaginationMode;
     pagination_settings?: IPaginationSettings;
 
+    style_data?: Style;
+    style_cell?: Style;
+    style_filter?: Style;
+    style_header?: Style;
+
+    style_data_conditional?: DataCells;
+    style_cell_conditional?: Cells;
+    style_filter_conditional?: BasicFilters;
+    style_header_conditional?: Headers;
+
     style_table?: Table;
-    style_cells?: Cells;
-    style_cells_and_headers?: CellsAndHeaders;
-    style_headers?: Headers;
 }
 
 interface IDefaultProps {
@@ -142,10 +156,17 @@ interface IDefaultProps {
     pagination_mode: PaginationMode;
     pagination_settings: IPaginationSettings;
 
+    style_data: Style;
+    style_cell: Style;
+    style_filter: Style;
+    style_header: Style;
+
+    style_data_conditional: DataCells;
+    style_cell_conditional: Cells;
+    style_filter_conditional: BasicFilters;
+    style_header_conditional: Headers;
+
     style_table: Table;
-    style_cells: Cells;
-    style_cells_and_headers: CellsAndHeaders;
-    style_headers: Headers;
 }
 
 interface IDerivedProps {
@@ -185,9 +206,14 @@ export interface ICellFactoryOptions {
     selected_cell: SelectedCells;
     selected_rows: number[];
     setProps: SetProps;
+    style_cell: Style;
+    style_data: Style;
+    style_filter: Style;
+    style_header: Style;
+    style_cell_conditional: Cells;
+    style_data_conditional: DataCells;
+    style_filter_conditional: BasicFilters;
+    style_header_conditional: Headers;
     style_table: Table;
-    style_cells: Cells;
-    style_cells_and_headers: CellsAndHeaders;
-    style_headers: Headers;
     viewport: IDerivedDataframe;
 }

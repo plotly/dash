@@ -14,7 +14,11 @@ function filterPropsFn(propsFn: () => ControlledTableProps) {
         id,
         row_deletable,
         row_selectable,
-        setProps
+        setProps,
+        style_cell,
+        style_cell_conditional,
+        style_filter,
+        style_filter_conditional
     } = propsFn();
 
     const fillerColumns =
@@ -22,13 +26,17 @@ function filterPropsFn(propsFn: () => ControlledTableProps) {
         (row_selectable ? 1 : 0);
 
     return {
-        columns: columns,
+        columns,
         fillerColumns,
-        filtering: filtering,
-        filtering_settings: filtering_settings,
-        filtering_type: filtering_type,
-        id: id,
-        setFilter: handleSetFilter.bind(undefined, setProps)
+        filtering,
+        filtering_settings,
+        filtering_type,
+        id,
+        setFilter: handleSetFilter.bind(undefined, setProps),
+        style_cell,
+        style_cell_conditional,
+        style_filter,
+        style_filter_conditional
     };
 }
 
@@ -37,13 +45,17 @@ function getter(
     filterFactory: FilterFactory,
     headerFactory: HeaderFactory
 ): JSX.Element[][] {
-    const rows: JSX.Element[][] = [];
+    const cells: JSX.Element[][] = [];
 
-    rows.push(...headerFactory.createHeaders());
-    rows.push(...filterFactory.createFilters());
-    rows.push(...cellFactory.createCells());
+    const dataCells = cellFactory.createCells();
+    const filters = filterFactory.createFilters();
+    const headers = headerFactory.createHeaders();
 
-    return rows;
+    cells.push(...headers);
+    cells.push(...filters);
+    cells.push(...dataCells);
+
+    return cells;
 }
 
 export default (propsFn: () => ControlledTableProps): (() => JSX.Element[][]) => {

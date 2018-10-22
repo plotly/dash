@@ -39,7 +39,7 @@ const style_table = {
     width: 500
 };
 
-const style_cells = [
+const style_data_conditional = [
     { width: 100 }
 ];
 
@@ -48,7 +48,7 @@ let props = {
     id: 'table',
     dataframe,
     columns,
-    style_cells,
+    style_data_conditional,
     style_table
 };
 
@@ -57,7 +57,7 @@ let props2 = {
     id: 'table',
     dataframe: dataframe2,
     columns: columns2,
-    style_cells,
+    style_data_conditional,
     style_table
 };
 

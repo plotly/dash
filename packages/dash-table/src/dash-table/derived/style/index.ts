@@ -6,7 +6,18 @@ import { memoizeOneFactory } from 'core/memoizer';
 
 import { Datum, IVisibleColumn } from 'dash-table/components/Table/props';
 
-import { Style, IConditionalElement, INamedElement, CellsAndHeaders, Cells, Headers, Table, IIndexedHeaderElement, IIndexedRowElement } from './props';
+import {
+    Cells,
+    DataCells,
+    BasicFilters,
+    Headers,
+    IConditionalElement,
+    IIndexedHeaderElement,
+    IIndexedRowElement,
+    INamedElement,
+    Style,
+    Table
+} from './props';
 import converter, { StyleProperty } from './py2jsCssProperties';
 
 export interface IConvertedStyle {
@@ -51,19 +62,53 @@ function convertStyle(style: Style): CSSProperties {
     }, {}, R.toPairs(style));
 }
 
-export const derivedRelevantCellStyles = memoizeOneFactory(
-    (cellsAndHeaders: CellsAndHeaders, cells: Cells) => R.concat(
-        R.map(convertElement, cellsAndHeaders || []),
+export const derivedRelevantCellStyles = memoizeOneFactory((
+    cell: Style,
+    dataCell: Style,
+    cells: Cells,
+    dataCells: DataCells
+) => R.concat(
+    R.concat(
+        cell ? [convertElement(cell)] : [],
         R.map(convertElement, cells || [])
+    ),
+    R.concat(
+        dataCell ? [convertElement(dataCell)] : [],
+        R.map(convertElement, dataCells || [])
     )
-);
+));
 
-export const derivedRelevantHeaderStyles = memoizeOneFactory(
-    (cellsAndHeaders: CellsAndHeaders, headers: Headers) => R.concat(
-        R.map(convertElement, cellsAndHeaders || []),
+export const derivedRelevantFilterStyles = memoizeOneFactory((
+    cell: Style,
+    filter: Style,
+    cells: Cells,
+    filters: BasicFilters
+) => R.concat(
+    R.concat(
+        cell ? [convertElement(cell)] : [],
+        R.map(convertElement, cells || [])
+    ),
+    R.concat(
+        filter ? [convertElement(filter)] : [],
+        R.map(convertElement, filters || [])
+    )
+));
+
+export const derivedRelevantHeaderStyles = memoizeOneFactory((
+    cell: Style,
+    header: Style,
+    cells: Cells,
+    headers: Headers
+) => R.concat(
+    R.concat(
+        cell ? [convertElement(cell)] : [],
+        R.map(convertElement, cells || [])
+    ),
+    R.concat(
+        header ? [convertElement(header)] : [],
         R.map(convertElement, headers || [])
     )
-);
+));
 
 export const derivedTableStyle = memoizeOneFactory(
     (table: Table) => convertStyle(table || {})

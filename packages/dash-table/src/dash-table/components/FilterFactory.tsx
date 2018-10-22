@@ -4,11 +4,14 @@ import React from 'react';
 import Logger from 'core/Logger';
 
 import ColumnFilter from 'dash-table/components/Filter/Column';
-import AdvancedFilter from 'dash-table/components/Filter/Advanced';
 import { ColumnId, Filtering, FilteringType, IVisibleColumn, VisibleColumns } from 'dash-table/components/Table/props';
 import lexer, { ILexerResult, ILexemeResult } from 'core/syntax-tree/lexer';
 import { LexemeType } from 'core/syntax-tree/lexicon';
 import syntaxer, { ISyntaxerResult, ISyntaxTree } from 'core/syntax-tree/syntaxer';
+import derivedFilterStyles from 'dash-table/derived/filter/wrapperStyles';
+import { derivedRelevantFilterStyles } from 'dash-table/derived/style';
+import { arrayMap } from 'core/math/arrayZipMap';
+import { Style, Cells, BasicFilters } from 'dash-table/derived/style/props';
 
 type SetFilter = (filter: string) => void;
 
@@ -20,11 +23,17 @@ export interface IFilterOptions {
     filtering_type: FilteringType;
     id: string;
     setFilter: SetFilter;
+    style_cell: Style;
+    style_cell_conditional: Cells;
+    style_filter: Style;
+    style_filter_conditional: BasicFilters;
 }
 
 export default class FilterFactory {
     private readonly handlers = new Map();
     private readonly ops = new Map<string, string>();
+    private readonly filterStyles = derivedFilterStyles();
+    private readonly relevantStyles = derivedRelevantFilterStyles();
 
     private get props() {
         return this.propsFn();
@@ -163,7 +172,11 @@ export default class FilterFactory {
             filtering,
             filtering_settings,
             filtering_type,
-            setFilter
+            setFilter,
+            style_cell,
+            style_cell_conditional,
+            style_filter,
+            style_filter_conditional
         } = this.props;
 
         if (!filtering) {
@@ -172,10 +185,20 @@ export default class FilterFactory {
 
         this.updateOps(filtering_settings);
 
-        const offsetCells = R.range(0, fillerColumns).map(i => (<th key={`offset-${i}`} />));
+        if (filtering_type === FilteringType.Basic) {
+            const filterStyles = this.relevantStyles(
+                style_cell,
+                style_filter,
+                style_cell_conditional,
+                style_filter_conditional
+            );
 
-        const filterCells = filtering_type === FilteringType.Basic ?
-            R.addIndex<IVisibleColumn, JSX.Element>(R.map)((column, index) => {
+            const wrapperStyles = this.filterStyles(
+                columns,
+                filterStyles
+            );
+
+            const filters = R.addIndex<IVisibleColumn, JSX.Element>(R.map)((column, index) => {
                 return (<ColumnFilter
                     key={`column-${index}`}
                     classes={`dash-filter column-${index}`}
@@ -185,15 +208,18 @@ export default class FilterFactory {
                     setFilter={this.getEventHandler(this.onChange, column.id, this.ops, setFilter)}
                     value={this.ops.get(column.id.toString())}
                 />);
-            }, columns) :
-            [(<AdvancedFilter
-                key={`column-${0}`}
-                classes={[]}
-                colSpan={columns.length}
-                value=''
-                setFilter={() => undefined}
-            />)];
+            }, columns);
 
-        return [R.concat(offsetCells, filterCells)];
+            const styledFilters = arrayMap(
+                filters,
+                wrapperStyles,
+                    (f, s) => React.cloneElement(f, { style: s }));
+
+            const offsets = R.range(0, fillerColumns).map(i => (<th key={`offset-${i}`} />));
+
+            return [offsets.concat(styledFilters)];
+        } else {
+            return [[]];
+        }
     }
 }

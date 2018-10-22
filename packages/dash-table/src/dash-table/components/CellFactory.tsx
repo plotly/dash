@@ -43,8 +43,10 @@ export default class CellFactory {
             selected_cell,
             selected_rows,
             setProps,
-            style_cells,
-            style_cells_and_headers,
+            style_cell,
+            style_cell_conditional,
+            style_data,
+            style_data_conditional,
             viewport
         } = this.props;
 
@@ -67,7 +69,12 @@ export default class CellFactory {
             selected_cell
         );
 
-        const relevantStyles = this.relevantStyles(style_cells_and_headers, style_cells);
+        const relevantStyles = this.relevantStyles(
+            style_cell,
+            style_data,
+            style_cell_conditional,
+            style_data_conditional
+        );
 
         const wrapperStyles = this.cellStyles(
             columns,

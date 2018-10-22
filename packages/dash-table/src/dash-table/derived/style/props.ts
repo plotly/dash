@@ -17,8 +17,9 @@ export interface INamedElement {
     column_id?: ColumnId;
 }
 
-type ConditionalCell = IConditionalElement & IIndexedRowElement & INamedElement;
-type ConditionalCellAndHeader = INamedElement;
+type ConditionalBasicFilter = INamedElement;
+type ConditionalDataCell = IConditionalElement & IIndexedRowElement & INamedElement;
+type ConditionalCell = INamedElement;
 type ConditionalHeader = IIndexedHeaderElement & INamedElement;
 
 interface IStyle {
@@ -215,11 +216,13 @@ interface IStyle {
 
 export type Style = Partial<IStyle>;
 
+export type BasicFilter = Style & { if: ConditionalBasicFilter };
+export type DataCell = Style & { if: ConditionalDataCell };
 export type Cell = Style & { if: ConditionalCell };
-export type CellAndHeader = Style & { if: ConditionalCellAndHeader };
 export type Header = Style & { if: ConditionalHeader };
 
+export type BasicFilters = BasicFilter[];
+export type DataCells = DataCell[];
 export type Cells = Cell[];
-export type CellsAndHeaders = CellAndHeader[];
 export type Headers = Header[];
 export type Table = Style;

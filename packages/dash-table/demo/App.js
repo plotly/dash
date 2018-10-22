@@ -46,7 +46,7 @@ class App extends Component {
                     max_width: '1000px',
                     width: '1000px'
                 },
-                style_cells: [
+                style_data_conditional: [
                     { max_width: 150, min_width: 150, width: 150 },
                     { if: { column_id: 'rows' }, max_width: 40, min_width: 40, width: 40 },
                     { if: { column_id: 'bbb' }, max_width: 200, min_width: 200, width: 200 },

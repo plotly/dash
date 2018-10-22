@@ -317,21 +317,69 @@ Derived properties allow the component to expose complex state that can be usefu
 
     * Remove column width / maxWidth / minWidth
     * Rename property table_style to css
+
+    Cell: All table cells
+    Data: All data driven cells (no operations, headers, filters)
+    Filter: All basic filter cells
+    Header: All header cells
+
+    Priority
+    Data: style_data_conditional > style_data > style_cell_conditional > style_cell
+    Filter: style_filter_conditional > style_filter > style_cell_conditional > style_cell
+    Header: style_header_conditional > style_header > style_cell_conditional > style_cell
+
+    Merge Logic
+    Only properties defined at a higher priority level will override properties
+    defined at lower priority levels. For example if A is applied then B, A+B will be..
+
+    A = {
+        background_color: 'floralwhite',
+        color: 'red',
+        font_type: 'monospace',
+        width: 100
+    }
+
+    B = {
+        color: 'black',
+        font_size: 22
+    }
+
+    A+B = {
+        background_color: 'floralwhite', // from A, not overriden
+        color: 'black', // from B, A overriden
+        font_size: 22, // from B
+        font_type: 'monospace', // from A
+        width: 100 // from A
+    }
+
     * Add new property style_table of form
         { ...CSSProperties }
-    * Add new property style_cells of form
+    * Add new property style_cell of form
+        { ...CSSProperties }
+    * Add new property style_data of form
+        { ...CSSProperties }
+    * Add new property style_filter of form
+        { ...CSSProperties }
+    * Add new property style_header of form
+        { ...CSSProperties }
+    * Add new property style_cell_conditional of form
+        [{
+            if: { column_id: string | number },
+            ...CSSProperties
+        }]
+    * Add new property style_data_conditional of form
         [{
             if: { column_id: string | number, filter: string, row_index: number | 'odd' | 'even' },
             ...CSSProperties
         }]
-    * Add new property style_headers of form
-        [{
-            if: { column_id: string | number, header_index: number | 'odd' | 'even' },
-            ...CSSProperties
-        }]
-    * Add new property style_cells_and_headers of form
+    * Add new property style_filter_conditional of form
         [{
             if: { column_id: string | number },
+            ...CSSProperties
+        }]
+    * Add new property style_header_conditional of form
+        [{
+            if: { column_id: string | number, header_index: number | 'odd' | 'even' },
             ...CSSProperties
         }]
     * All CSSProperties are supported in kebab-cass, camelCase and snake_case

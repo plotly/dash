@@ -41,7 +41,7 @@ storiesOf('DashTable/With Data', module)
         sorting={false}
         row_deletable={false}
         row_selectable={false}
-        style_cells={[
+        style_data_conditional={[
             { if: { column_id: 'a' }, width: '100px' },
             { if: { column_id: 'b' }, width: '50px' },
             { if: { column_id: 'c' }, width: '200px' }
@@ -78,7 +78,7 @@ const dataframe = (() => {
     ));
 })();
 
-const style_cells = [
+const style_data_conditional = [
     { width: '100px' }
 ];
 
@@ -92,7 +92,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         n_fixed_rows={1}
         row_deletable={true}
         row_selectable={true}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />))
     .add('with 1 fixed row', () => (<DashTable
         setProps={setProps}
@@ -102,7 +102,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         n_fixed_rows={1}
         row_deletable={true}
         row_selectable={true}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />))
     .add('with 2 fixed columns', () => (<DashTable
         setProps={setProps}
@@ -112,7 +112,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         n_fixed_columns={2}
         row_deletable={true}
         row_selectable={true}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />))
     .add('with 2 fixed rows, 4 fixed columns and merged cells', () => (<DashTable
         setProps={setProps}
@@ -122,7 +122,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         merge_duplicate_headers={true}
         n_fixed_columns={4}
         n_fixed_rows={2}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />))
     .add('with 2 fixed rows, 3 fixed columns, hidden columns and merged cells', () => {
         const testColumns = JSON.parse(JSON.stringify(columns));
@@ -136,7 +136,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             merge_duplicate_headers={true}
             n_fixed_columns={3}
             n_fixed_rows={2}
-            style_cells={style_cells}
+            style_data_conditional={style_data_conditional}
         />);
     });
 
@@ -166,7 +166,7 @@ storiesOf('DashTable/Hidden Columns', module)
         id='table'
         dataframe={dataframe}
         columns={hiddenColumns}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />))
     .add('active cell', () => (<DashTable
         setProps={setProps}
@@ -174,7 +174,7 @@ storiesOf('DashTable/Hidden Columns', module)
         dataframe={dataframe}
         columns={hiddenColumns}
         active_cell={[1, 1]}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />))
     .add('selected cells', () => (<DashTable
         setProps={setProps}
@@ -182,7 +182,7 @@ storiesOf('DashTable/Hidden Columns', module)
         dataframe={dataframe}
         columns={hiddenColumns}
         selected_cell={[[1, 1], [1, 2], [2, 1], [2, 2]]}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />));
 
 storiesOf('DashTable/Sorting', module)
@@ -193,7 +193,7 @@ storiesOf('DashTable/Sorting', module)
         columns={mergedColumns}
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'asc' }]}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />))
     .add('"a" descending', () => (<DashTable
         setProps={setProps}
@@ -202,7 +202,7 @@ storiesOf('DashTable/Sorting', module)
         columns={mergedColumns}
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'desc' }]}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />))
     .add('"a" ascending -- empty string override', () => (<DashTable
         setProps={setProps}
@@ -212,7 +212,7 @@ storiesOf('DashTable/Sorting', module)
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'asc' }]}
         sorting_treat_empty_string_as_none={true}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />))
     .add('"a" descending -- empty string override', () => (<DashTable
         setProps={setProps}
@@ -222,5 +222,5 @@ storiesOf('DashTable/Sorting', module)
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'desc' }]}
         sorting_treat_empty_string_as_none={true}
-        style_cells={style_cells}
+        style_data_conditional={style_data_conditional}
     />));

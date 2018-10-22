@@ -304,7 +304,7 @@ def layout():
                             "rule": "white-space: normal",
                         },
                     ],
-                    style_cells=[{"width": "16.67%"}]
+                    style_data_conditional=[{"width": "16.67%"}]
                 ),
                 section_title("Dash Table - Single Column Width by Percent"),
                 html.Div(
@@ -332,7 +332,7 @@ def layout():
                             "rule": "white-space: normal",
                         },
                     ],
-                    style_cells=[{ "if": { "column_id": "Region" }, "width": "50%" }]
+                    style_data_conditional=[{ "if": { "column_id": "Region" }, "width": "50%" }]
                 ),
                 section_title("Dash Table - Underspecified Widths"),
                 html.Div(
@@ -352,7 +352,7 @@ def layout():
                         }
                         for i in df.columns
                     ],
-                    style_cells=[
+                    style_data_conditional=[
                         { "if": { "column_id": "Dem" }, "width": "100px", "min_width": "100px", "max_width": "100px" },
                         { "if": { "column_id": "Rep" }, "width": "100px", "min_width": "100px", "max_width": "100px" },
                         { "if": { "column_id": "Ind" }, "width": "100px", "min_width": "100px", "max_width": "100px" }
@@ -378,7 +378,7 @@ def layout():
                             "rule": "white-space: normal",
                         }
                     ],
-                    style_cells=[{ "width": "100px" }]
+                    style_data_conditional=[{ "width": "100px" }]
                 ),
                 section_title(
                     "Dash Table - Widths that are smaller than the content (forced)"
@@ -406,7 +406,7 @@ def layout():
                             "rule": "white-space: normal",
                         }
                     ],
-                    style_cells=[
+                    style_data_conditional=[
                         { "width": "100px", "min_width": "100px", "max_width": "100px" }
                     ]
                 ),

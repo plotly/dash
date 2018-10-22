@@ -159,7 +159,7 @@ export default [
     {
         name: 'dropdown with column widths',
         props: {
-            style_cells: [
+            style_data_conditional: [
                 { if: { column_id: 'column-2' }, width: 400 },
                 { if: { column_id: 'column-3' }, width: 80 }
             ],
@@ -288,7 +288,7 @@ export default [
         name: 'mixed percentage and pixel column widths',
         props: {
             id: 'table',
-            style_cells: [
+            style_data_conditional: [
                 { if: { column_id: 'column-2' }, width: 400 },
                 { if: { column_id: 'column-3' }, width: '30%' }
             ],
@@ -481,7 +481,7 @@ export default [
         name: 'per-cell dropdowns',
         props: {
             id: 'table',
-            style_cells: [
+            style_data_conditional: [
                 { if: { column_id: 'column-1' }, width: 200 }
             ],
             columns: [

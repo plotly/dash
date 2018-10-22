@@ -358,7 +358,7 @@ def layout():
                 columns=[
                     {"name": i, "id": i} for i in df.columns
                 ],
-                style_cells=[{ "padding_bottom": 5, "padding_top": 5}]
+                style_data_conditional=[{ "padding_bottom": 5, "padding_top": 5}]
             ),
 
             section_title('Dash Table - List Style with Minimal Headers'),
@@ -381,7 +381,7 @@ def layout():
                 style_table={
                     "width": "100%"
                 },
-                style_cells=[{
+                style_data_conditional=[{
                     "background_color": "rgb(50, 50, 50)",
                     "color": "white",
                     "font_family": "arial"
@@ -420,7 +420,7 @@ def layout():
                 style_table={
                     "width": "100%"
                 },
-                style_cells=[{
+                style_data_conditional=[{
                     "color": "rgb(60, 60, 60)",
                     "padding_left": 20,
                     "text-align": "left",
@@ -442,7 +442,7 @@ def layout():
                 style_table={
                     "width": "100%"
                 },
-                style_cells=[{
+                style_data_conditional=[{
                     "if": { "column_id": "Region", "filter": "Region eq str(Montreal)" },
                     "background_color": "yellow"
                 }, {

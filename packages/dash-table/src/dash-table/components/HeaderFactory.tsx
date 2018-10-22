@@ -17,17 +17,17 @@ import derivedHeaderStyles from 'dash-table/derived/header/wrapperStyles';
 export default class HeaderFactory {
     private readonly headerContent = derivedHeaderContent();
     private readonly headerOperations = derivedHeaderOperations();
+    private readonly headerStyles = derivedHeaderStyles();
     private readonly headerWrappers = derivedHeaderWrappers();
+    private readonly relevantStyles = derivedRelevantHeaderStyles();
 
     private get props() {
         return this.propsFn();
     }
 
-    constructor(
-        private readonly propsFn: () => ControlledTableProps,
-        private readonly headerStyles = derivedHeaderStyles(),
-        private readonly relevantStyles = derivedRelevantHeaderStyles()
-    ) { }
+    constructor(private readonly propsFn: () => ControlledTableProps) {
+
+    }
 
     public createHeaders() {
         const props = this.props;
@@ -42,8 +42,10 @@ export default class HeaderFactory {
             sorting,
             sorting_settings,
             sorting_type,
-            style_cells_and_headers,
-            style_headers
+            style_cell,
+            style_cell_conditional,
+            style_header,
+            style_header_conditional
         } = props;
 
         const headerRows = getHeaderRows(columns);
@@ -59,7 +61,12 @@ export default class HeaderFactory {
             row_deletable
         );
 
-        const relevantStyles = this.relevantStyles(style_cells_and_headers, style_headers);
+        const relevantStyles = this.relevantStyles(
+            style_cell,
+            style_header,
+            style_cell_conditional,
+            style_header_conditional
+        );
 
         const wrapperStyles = this.headerStyles(
             columns,
