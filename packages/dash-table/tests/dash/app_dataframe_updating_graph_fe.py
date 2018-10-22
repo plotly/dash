@@ -7,7 +7,7 @@ from textwrap import dedent
 import dash_table
 from index import app
 
-ID_PREFIX = "app_dataframe_updating_graph"
+ID_PREFIX = "app_data_updating_graph"
 IDS = {"table": ID_PREFIX, "container": "{}-container".format(ID_PREFIX)}
 df = pd.read_csv("./datasets/gapminder.csv")
 df = df[df["year"] == 2007]
@@ -22,7 +22,7 @@ def layout():
                     columns=[
                         {"name": i, "id": i, "deletable": True} for i in df.columns
                     ],
-                    dataframe=df.to_dict("rows"),
+                    data=df.to_dict("rows"),
                     editable=True,
                     filtering=True,
                     sorting=True,
@@ -58,13 +58,13 @@ def layout():
 
             By default, these transformations are done clientside.
             Your Dash callbacks can respond to these modifications
-            by listening to the `dataframe` property as an `Input`.
+            by listening to the `data` property as an `Input`.
 
-            Note that if `dataframe` is an `Input` then the entire
-            `dataframe` will be passed over the network: if your dataframe is
-            large, then this will become slow. For large dataframes, you have
+            Note that if `data` is an `Input` then the entire
+            `data` will be passed over the network: if your data is
+            large, then this will become slow. For large data, you have
             two options:
-            - Use `dataframe_indicies` instead
+            - Use `data_indices` instead
             - Perform the sorting or filtering in Python instead
 
             Issues with this example:
@@ -81,19 +81,19 @@ def layout():
 @app.callback(
     Output(IDS["container"], "children"),
     [
-        Input(IDS["table"], "derived_virtual_dataframe"),
+        Input(IDS["table"], "derived_virtual_data"),
         Input(IDS["table"], "selected_rows"),
     ],
 )
 def update_graph(rows, selected_rows):
-    # When the table is first rendered, `derived_virtual_dataframe`
+    # When the table is first rendered, `derived_virtual_data`
     # will be `None`. This is due to an idiosyncracy in Dash
     # (unsupplied properties are always None and Dash calls the dependent
     # callbacks when the component is first rendered).
     # So, if `selected_rows` is `None`, then the component was just rendered
-    # and its value will be the same as the component's dataframe.
+    # and its value will be the same as the component's data.
     # Instead of setting `None` in here, you could also set
-    # `derived_virtual_dataframe=df.to_rows('dict')` when you initialize
+    # `derived_virtual_data=df.to_rows('dict')` when you initialize
     # the component.
     if rows is None:
         dff = df

@@ -23,7 +23,7 @@ function getGroupedColumnIndices(column, columns, headerRowIndex) {
 }
 
 export function deleteColumn(column, columns, headerRowIndex, props) {
-    const { dataframe} = props;
+    const { data} = props;
     const {groupIndexFirst, groupIndexLast} = getGroupedColumnIndices(
         column, columns, headerRowIndex
     );
@@ -38,7 +38,7 @@ export function deleteColumn(column, columns, headerRowIndex, props) {
             1 + groupIndexLast - groupIndexFirst,
             columns
         ),
-        dataframe: R.map(R.omit(rejectedColumnIds), dataframe),
+        data: R.map(R.omit(rejectedColumnIds), data),
         // NOTE - We're just clearing these so that there aren't any
         // inconsistencies. In an ideal world, we would probably only
         // update them if they contained one of the columns that we're

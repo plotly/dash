@@ -33,7 +33,7 @@ export default class CellFactory {
             columns,
             column_conditional_dropdowns,
             column_static_dropdown,
-            dataframe,
+            data,
             dropdown_properties, // legacy
             editable,
             id,
@@ -52,8 +52,8 @@ export default class CellFactory {
 
         const operations = this.cellOperations(
             active_cell,
-            dataframe,
-            viewport.dataframe,
+            data,
+            viewport.data,
             viewport.indices,
             row_selectable,
             row_deletable,
@@ -64,7 +64,7 @@ export default class CellFactory {
         const wrappers = this.cellWrappers(
             active_cell,
             columns,
-            viewport.dataframe,
+            viewport.data,
             editable,
             selected_cell
         );
@@ -79,12 +79,12 @@ export default class CellFactory {
         const wrapperStyles = this.cellStyles(
             columns,
             relevantStyles,
-            viewport.dataframe
+            viewport.data
         );
 
         const dropdowns = this.cellDropdowns(id)(
             columns,
-            viewport.dataframe,
+            viewport.data,
             viewport.indices,
             column_conditional_dropdowns,
             column_static_dropdown,
@@ -94,7 +94,7 @@ export default class CellFactory {
         const inputs = this.cellInputs(
             active_cell,
             columns,
-            viewport.dataframe,
+            viewport.data,
             editable,
             !!is_focused,
             id,

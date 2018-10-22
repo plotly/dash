@@ -84,7 +84,7 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryOptions, idx: numbe
 export const handleChange = (propsFn: () => ICellFactoryOptions, idx: number, i: number, value: any) => {
     const {
         columns,
-        dataframe,
+        data,
         editable,
         setProps,
         viewport
@@ -97,13 +97,13 @@ export const handleChange = (propsFn: () => ICellFactoryOptions, idx: number, i:
         return;
     }
 
-    const newDataframe = R.set(
+    const newData = R.set(
         R.lensPath([realIdx, c.id]),
         value,
-        dataframe
+        data
     );
     setProps({
-        dataframe: newDataframe
+        data: newData
     });
 };
 

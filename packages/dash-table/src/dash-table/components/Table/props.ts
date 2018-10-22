@@ -20,8 +20,8 @@ export enum FilteringType {
     Basic = 'basic'
 }
 
-export interface IDerivedDataframe {
-    dataframe: Dataframe;
+export interface IDerivedData {
+    data: Data;
     indices: Indices;
 }
 
@@ -34,7 +34,7 @@ export type ActiveCell = CellCoordinates | [];
 export type CellCoordinates = [number, number];
 export type ColumnId = string | number;
 export type Columns = IColumn[];
-export type Dataframe = Datum[];
+export type Data = Datum[];
 export type Datum =  IDatumObject | any;
 export type Filtering = 'fe' | 'be' | boolean;
 export type Indices = number[];
@@ -78,8 +78,8 @@ export interface IPaginationSettings {
 }
 
 interface IProps {
-    dataframe_previous?: any[];
-    dataframe_timestamp?: number;
+    data_previous?: any[];
+    data_timestamp?: number;
     end_cell?: [number, number];
     is_focused?: boolean;
     start_cell?: [number, number];
@@ -92,7 +92,7 @@ interface IProps {
     column_static_dropdown?: any;
     content_style: ContentStyle;
     css?: IStylesheetRule[];
-    dataframe?: Dataframe;
+    data?: Data;
     dropdown_properties: any; // legacy
     editable?: boolean;
     filtering?: Filtering;
@@ -134,7 +134,7 @@ interface IDefaultProps {
     column_conditional_dropdowns: any[];
     column_static_dropdown: any;
     css: IStylesheetRule[];
-    dataframe: Dataframe;
+    data: Data;
     editable: boolean;
     filtering: Filtering;
     filtering_settings: string;
@@ -170,9 +170,9 @@ interface IDefaultProps {
 }
 
 interface IDerivedProps {
-    derived_viewport_dataframe: Dataframe;
+    derived_viewport_data: Data;
     derived_viewport_indices: Indices;
-    derived_virtual_dataframe: Dataframe;
+    derived_virtual_data: Data;
     derived_virtual_indices: Indices;
 }
 
@@ -184,8 +184,8 @@ export type ControlledTableProps = PropsWithDefaults & {
 
     columns: VisibleColumns;
     paginator: IPaginator;
-    viewport: IDerivedDataframe;
-    virtual: IDerivedDataframe;
+    viewport: IDerivedData;
+    virtual: IDerivedData;
 };
 
 export interface ICellFactoryOptions {
@@ -193,7 +193,7 @@ export interface ICellFactoryOptions {
     columns: VisibleColumns;
     column_conditional_dropdowns: any[];
     column_static_dropdown: any;
-    dataframe: Dataframe;
+    data: Data;
     dropdown_properties: any; // legacy
     editable: boolean;
     id: string;
@@ -215,5 +215,5 @@ export interface ICellFactoryOptions {
     style_filter_conditional: BasicFilters;
     style_header_conditional: Headers;
     style_table: Table;
-    viewport: IDerivedDataframe;
+    viewport: IDerivedData;
 }

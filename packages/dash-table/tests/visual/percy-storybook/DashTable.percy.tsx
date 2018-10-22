@@ -15,7 +15,7 @@ storiesOf('DashTable/Without Data', module)
     .add('with 1 column', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={[]}
+        data={[]}
         columns={[{ id: 'a', name: 'A' }]}
         sorting={false}
         editable={false}
@@ -27,7 +27,7 @@ storiesOf('DashTable/With Data', module)
     .add('with 3 columns and 3 rows, not actionable', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={[
+        data={[
             { a: 1, b: 2, c: 3 },
             { a: 11, b: 12, c: 13 },
             { a: 21, b: 22, c: 23 }
@@ -67,7 +67,7 @@ const idMap: { [key: string]: string } = {
 const mergedColumns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
     .map(id => ({ id: id, name: [idMap[id], id.toUpperCase()] }));
 
-const dataframe = (() => {
+const data = (() => {
     const r = random(1);
 
     return R.range(0, 100).map(() => (
@@ -86,7 +86,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
     .add('with 1 fixed row, 2 fixed columns', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={dataframe}
+        data={data}
         columns={columns}
         n_fixed_columns={2}
         n_fixed_rows={1}
@@ -97,7 +97,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
     .add('with 1 fixed row', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={dataframe}
+        data={data}
         columns={columns}
         n_fixed_rows={1}
         row_deletable={true}
@@ -107,7 +107,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
     .add('with 2 fixed columns', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={dataframe}
+        data={data}
         columns={columns}
         n_fixed_columns={2}
         row_deletable={true}
@@ -117,7 +117,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
     .add('with 2 fixed rows, 4 fixed columns and merged cells', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={dataframe}
+        data={data}
         columns={mergedColumns}
         merge_duplicate_headers={true}
         n_fixed_columns={4}
@@ -131,7 +131,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         return (<DashTable
             setProps={setProps}
             id='table'
-            dataframe={dataframe}
+            data={data}
             columns={mergedColumns}
             merge_duplicate_headers={true}
             n_fixed_columns={3}
@@ -140,7 +140,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         />);
     });
 
-const sparseDataframe = (() => {
+const sparseData = (() => {
     const r = random(1);
 
     return R.range(0, 10).map(index => (
@@ -164,14 +164,14 @@ storiesOf('DashTable/Hidden Columns', module)
     .add('hides', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={dataframe}
+        data={data}
         columns={hiddenColumns}
         style_data_conditional={style_data_conditional}
     />))
     .add('active cell', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={dataframe}
+        data={data}
         columns={hiddenColumns}
         active_cell={[1, 1]}
         style_data_conditional={style_data_conditional}
@@ -179,7 +179,7 @@ storiesOf('DashTable/Hidden Columns', module)
     .add('selected cells', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={dataframe}
+        data={data}
         columns={hiddenColumns}
         selected_cell={[[1, 1], [1, 2], [2, 1], [2, 2]]}
         style_data_conditional={style_data_conditional}
@@ -189,7 +189,7 @@ storiesOf('DashTable/Sorting', module)
     .add('"a" ascending', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={sparseDataframe}
+        data={sparseData}
         columns={mergedColumns}
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'asc' }]}
@@ -198,7 +198,7 @@ storiesOf('DashTable/Sorting', module)
     .add('"a" descending', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={sparseDataframe}
+        data={sparseData}
         columns={mergedColumns}
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'desc' }]}
@@ -207,7 +207,7 @@ storiesOf('DashTable/Sorting', module)
     .add('"a" ascending -- empty string override', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={sparseDataframe}
+        data={sparseData}
         columns={mergedColumns}
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'asc' }]}
@@ -217,7 +217,7 @@ storiesOf('DashTable/Sorting', module)
     .add('"a" descending -- empty string override', () => (<DashTable
         setProps={setProps}
         id='table'
-        dataframe={sparseDataframe}
+        data={sparseData}
         columns={mergedColumns}
         sorting={true}
         sorting_settings={[{ columnId: 'a', direction: 'desc' }]}

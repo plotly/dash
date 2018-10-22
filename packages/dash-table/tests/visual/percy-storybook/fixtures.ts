@@ -20,7 +20,7 @@ export default [
                     ]
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 'mtl'},
                 {'column-1': 'sf'},
                 {'column-1': 'mtl'},
@@ -44,7 +44,7 @@ export default [
     {
         name: 'minimal-data',
         props: {
-            dataframe: [{
+            data: [{
                 x: 1
             }],
             id: 'table'
@@ -75,7 +75,7 @@ export default [
                     id: 'column-2'
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 1, 'column-2': 4},
                 {'column-1': 2, 'column-2': 4}
             ],
@@ -100,7 +100,7 @@ export default [
                     id: 'column-3'
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 1, 'column-2': 2},
                 {'column-1': 10, 'column-2': 20}
             ],
@@ -117,7 +117,7 @@ export default [
                     id: 'column-1'
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 3, 'column-2': 10},
                 {'column-1': 30, 'column-2': 20}
             ],
@@ -145,7 +145,7 @@ export default [
                     ]
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 'mtl'},
                 {'column-1': 'sf'},
                 {'column-1': 'mtl'},
@@ -210,7 +210,7 @@ export default [
                     ]
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 'mtl', 'column-2': 'mtl', 'column-3': 'mtl'},
                 {'column-1': 'mtl', 'column-2': 'mtl', 'column-3': 'mtl'},
                 {'column-1': 'mtl', 'column-2': 'mtl', 'column-3': 'mtl'}
@@ -261,7 +261,7 @@ export default [
                 }
             ],
             merge_duplicate_headers: true,
-            dataframe: [
+            data: [
                 {
                     rainfall: 1,
                     temp: 2,
@@ -306,7 +306,7 @@ export default [
                     id: 'column-3'
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 1, 'column-2': 2, 'column-3': 3},
                 {'column-1': 10, 'column-2': 20, 'column-3': 30}
             ]
@@ -329,7 +329,7 @@ export default [
                     id: 'column-2'
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 1, 'column-2': 'alpha'},
                 {'column-1': 2, 'column-2': 'bravo'}
             ],
@@ -352,7 +352,7 @@ export default [
                     id: 'column-2'
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 1, 'column-2': 'alpha'},
                 {'column-1': 2, 'column-2': 'bravo'}
             ],
@@ -385,7 +385,7 @@ export default [
                     id: 'column-4'
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 1, 'column-2': 'alpha', 'column-3': 2, 'column-4': 1},
                 {'column-1': 2, 'column-2': 'bravo', 'column-3': 2, 'column-4': 1},
                 {'column-1': 3, 'column-2': 'charlie', 'column-3': 2, 'column-4': 1},
@@ -419,7 +419,7 @@ export default [
                     id: 'column-4'
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 1, 'column-2': 'alpha', 'column-3': 2, 'column-4': 1},
                 {'column-1': 2, 'column-2': {data: 'whatever im hidden who cares'}, 'column-3': 2, 'column-4': 1},
                 {'column-1': 3, 'column-2': true, 'column-3': 2, 'column-4': 1},
@@ -468,7 +468,7 @@ export default [
                     id: 'column-7'
                 }
             ],
-            dataframe: [
+            data: [
                 {'column-1': 1, 'column-2': 'alpha', 'column-3': 2, 'column-4': 1, 'column-5': 1, 'column-6': 2, 'column-7': 1},
                 {'column-1': 2, 'column-2': {data: 'whatever im hidden who cares'}, 'column-3': 2, 'column-4': 1, 'column-5': 1, 'column-6': 2, 'column-7': 1},
                 {'column-1': 3, 'column-2': true, 'column-3': 2, 'column-4': 1, 'column-5': 1, 'column-6': 2, 'column-7': 1},
@@ -495,7 +495,7 @@ export default [
                     name: 'Column 2'
                 }
             ],
-            dataframe: [
+            data: [
                 {
                     'column-1': 'alpha',
                     'column-2': 1
@@ -558,7 +558,7 @@ export default [
                     id: 'climate-sunny'
                 }
             ],
-            dataframe: [
+            data: [
                 {
                     'city-nyc': 3,
                     'city-sf': 10,

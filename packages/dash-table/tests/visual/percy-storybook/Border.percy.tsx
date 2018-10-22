@@ -9,7 +9,7 @@ const setProps = () => { };
 const columns = ['a', 'b', 'c']
     .map(id => ({ id: id, name: id.toUpperCase() }));
 
-const dataframe = (() => {
+const data = (() => {
     const r = random(1);
 
     return R.range(0, 5).map(() => (
@@ -23,7 +23,7 @@ const dataframe = (() => {
 const columns2 = ['a', 'b', 'c', 'd', 'e', 'f']
     .map(id => ({ id: id, name: id.toUpperCase() }));
 
-const dataframe2 = (() => {
+const data2 = (() => {
     const r = random(1);
 
     return R.range(0, 50).map(() => (
@@ -46,7 +46,7 @@ const style_data_conditional = [
 let props = {
     setProps,
     id: 'table',
-    dataframe,
+    data: data,
     columns,
     style_data_conditional,
     style_table
@@ -55,7 +55,7 @@ let props = {
 let props2 = {
     setProps,
     id: 'table',
-    dataframe: dataframe2,
+    data: data2,
     columns: columns2,
     style_data_conditional,
     style_table

@@ -28,7 +28,7 @@ app.layout = html.Div(
         html.Div(id="container", children="Hello World"),
         dash_table.Table(
             id="table",
-            dataframe=df[0:250],
+            data=df[0:250],
             navigation="page",
             columns=[
                 {"id": 0, "name": "Complaint ID"},
@@ -54,12 +54,12 @@ app.layout = html.Div(
 
 
 @app.callback(
-    Output("table", "dataframe"),
-    [Input("table", "dataframe_timestamp")],
-    [State("table", "dataframe"), State("table", "dataframe_previous")],
+    Output("table", "data"),
+    [Input("table", "data_timestamp")],
+    [State("table", "data"), State("table", "data_previous")],
 )
 # pylint: disable=unused-argument
-def updateDataframe(timestamp, current, previous):
+def updateData(timestamp, current, previous):
     # pylint: enable=unused-argument
     if current is None or previous is None:
         return current

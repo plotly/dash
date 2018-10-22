@@ -27,7 +27,7 @@ app.layout = html.Div(
         html.Div(id="container", children="Hello World"),
         dash_table.Table(
             id="table",
-            dataframe=[],
+            data=[],
             pagination_mode="be",
             pagination_settings={
                 "displayed_pages": 1,
@@ -63,11 +63,11 @@ app.layout = html.Div(
 )
 
 
-@app.callback(Output("table", "dataframe"), [
+@app.callback(Output("table", "data"), [
     Input("table", "pagination_settings"),
     Input("table", "sorting_settings")
 ])
-def updateDataframe(pagination_settings, sorting_settings):
+def updateData(pagination_settings, sorting_settings):
     print(pagination_settings)
 
     current_page = pagination_settings["current_page"]
@@ -92,15 +92,15 @@ def updateDataframe(pagination_settings, sorting_settings):
 
 @app.callback(
     Output("container", "children"),
-    [Input("table", "dataframe"), Input("table", "dataframe_previous")],
+    [Input("table", "data"), Input("table", "data_previous")],
 )
-def findModifiedValue(dataframe, previous):
+def findModifiedValue(data, previous):
     modification = "None"
 
-    if dataframe is None or previous is None:
+    if data is None or previous is None:
         return modification
 
-    for (y, row) in enumerate(dataframe):
+    for (y, row) in enumerate(data):
         row_prev = previous[y]
 
         for (x, col) in enumerate(row):

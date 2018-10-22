@@ -53,7 +53,7 @@ def layout():
 
         dash_table.Table(
             id=IDS['dropdown'],
-            dataframe=df.to_dict('rows'),
+            data=df.to_dict('rows'),
             columns=[
                 {'id': 'climate', 'name': 'climate'},
                 {'id': 'temperature', 'name': 'temperature'},
@@ -83,7 +83,7 @@ def layout():
 
         dash_table.Table(
             id=IDS['dropdown-by-cell'],
-            dataframe=df_per_row_dropdown.to_dict('rows'),
+            data=df_per_row_dropdown.to_dict('rows'),
             columns=[
                 {'id': c, 'name': c}
                 for c in df_per_row_dropdown.columns
@@ -142,7 +142,7 @@ def layout():
 
         dash_table.Table(
             id=IDS['dropdown-by-cell'],
-            dataframe=df_per_row_dropdown.to_dict('rows'),
+            data=df_per_row_dropdown.to_dict('rows'),
             columns=[
                 {'id': c, 'name': c}
                 for c in df_per_row_dropdown.columns

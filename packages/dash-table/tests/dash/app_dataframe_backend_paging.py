@@ -9,7 +9,7 @@ from index import app
 from .utils import section_title
 
 
-ID_PREFIX = "app_dataframe_updating_graph_be"
+ID_PREFIX = "app_data_updating_graph_be"
 IDS = {
     "table": ID_PREFIX,
     "container": "{}-container".format(ID_PREFIX),
@@ -174,7 +174,7 @@ def layout():
 
             dcc.Markdown(dedent('''
             This final example ties it all together: the graph component
-            displays the current page of the `dataframe`.
+            displays the current page of the `data`.
             ''')),
 
             html.Div(
@@ -215,7 +215,7 @@ def layout():
 
 
 @app.callback(
-    Output(IDS["table"], "dataframe"),
+    Output(IDS["table"], "data"),
     [Input(IDS["table"], "pagination_settings")])
 def update_graph(pagination_settings):
     return df.iloc[
@@ -225,7 +225,7 @@ def update_graph(pagination_settings):
 
 
 @app.callback(
-    Output(IDS["table-sorting"], "dataframe"),
+    Output(IDS["table-sorting"], "data"),
     [Input(IDS["table-sorting"], "pagination_settings"),
      Input(IDS["table-sorting"], "sorting_settings")])
 def update_graph(pagination_settings, sorting_settings):
@@ -248,7 +248,7 @@ def update_graph(pagination_settings, sorting_settings):
 
 
 @app.callback(
-    Output(IDS["table-multi-sorting"], "dataframe"),
+    Output(IDS["table-multi-sorting"], "data"),
     [Input(IDS["table-multi-sorting"], "pagination_settings"),
      Input(IDS["table-multi-sorting"], "sorting_settings")])
 def update_graph(pagination_settings, sorting_settings):
@@ -273,7 +273,7 @@ def update_graph(pagination_settings, sorting_settings):
 
 
 @app.callback(
-    Output(IDS["table-filtering"], "dataframe"),
+    Output(IDS["table-filtering"], "data"),
     [Input(IDS["table-filtering"], "pagination_settings"),
      Input(IDS["table-filtering"], "filtering_settings")])
 def update_graph(pagination_settings, filtering_settings):
@@ -301,7 +301,7 @@ def update_graph(pagination_settings, filtering_settings):
 
 
 @app.callback(
-    Output(IDS["table-sorting-filtering"], "dataframe"),
+    Output(IDS["table-sorting-filtering"], "data"),
     [Input(IDS["table-sorting-filtering"], "pagination_settings"),
      Input(IDS["table-sorting-filtering"], "sorting_settings"),
      Input(IDS["table-sorting-filtering"], "filtering_settings")])
@@ -339,7 +339,7 @@ def update_graph(pagination_settings, sorting_settings, filtering_settings):
 
 
 @app.callback(
-    Output(IDS["table-paging-with-graph"], "dataframe"),
+    Output(IDS["table-paging-with-graph"], "data"),
     [Input(IDS["table-paging-with-graph"], "pagination_settings"),
      Input(IDS["table-paging-with-graph"], "sorting_settings"),
      Input(IDS["table-paging-with-graph"], "filtering_settings")])
@@ -378,7 +378,7 @@ def update_table(pagination_settings, sorting_settings, filtering_settings):
 
 @app.callback(
     Output(IDS["table-paging-with-graph-container"], "children"),
-    [Input(IDS["table-paging-with-graph"], "dataframe")])
+    [Input(IDS["table-paging-with-graph"], "data")])
 def update_graph(rows):
     dff = pd.DataFrame(rows)
     return html.Div(

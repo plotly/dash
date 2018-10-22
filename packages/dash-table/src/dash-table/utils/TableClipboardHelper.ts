@@ -4,18 +4,18 @@ import SheetClip from 'sheetclip';
 import Clipboard from 'core/Clipboard';
 import Logger from 'core/Logger';
 
-import { ActiveCell, Columns, Dataframe, SelectedCells, ColumnType } from 'dash-table/components/Table/props';
+import { ActiveCell, Columns, Data, SelectedCells, ColumnType } from 'dash-table/components/Table/props';
 import isEditable from 'dash-table/derived/cell/isEditable';
 
 export default class TableClipboardHelper {
-    public static toClipboard(e: any, selectedCells: SelectedCells, columns: Columns, dataframe: Dataframe) {
+    public static toClipboard(e: any, selectedCells: SelectedCells, columns: Columns, data: Data) {
         const selectedRows = R.uniq(R.pluck(0, selectedCells).sort((a, b) => a - b));
         const selectedCols: any = R.uniq(R.pluck(1, selectedCells).sort((a, b) => a - b));
 
         const df = R.slice(
             R.head(selectedRows) as any,
             R.last(selectedRows) as any + 1,
-            dataframe
+            data
         ).map(row =>
             R.props(selectedCols, R.props(R.pluck('id', columns) as any, row) as any)
         );
@@ -32,10 +32,10 @@ export default class TableClipboardHelper {
         activeCell: ActiveCell,
         derived_viewport_indices: number[],
         columns: Columns,
-        dataframe: Dataframe,
+        data: Data,
         overflowColumns: boolean = true,
         overflowRows: boolean = true
-    ): { dataframe: Dataframe, columns: Columns } | void {
+    ): { data: Data, columns: Columns } | void {
         const text = Clipboard.get(ev);
         Logger.trace('TableClipboard -- get clipboard data: ', text);
 
@@ -53,7 +53,7 @@ export default class TableClipboardHelper {
 
         const values = SheetClip.prototype.parse(text);
 
-        let newDataframe = dataframe;
+        let newData = data;
         const newColumns = columns;
 
         if (overflowColumns && values[0].length + activeCell[1] >= columns.length) {
@@ -67,19 +67,19 @@ export default class TableClipboardHelper {
                     name: `Column ${i + 1}`,
                     type: ColumnType.Text
                 });
-                newDataframe.forEach(row => (row[`Column ${i}`] = ''));
+                newData.forEach(row => (row[`Column ${i}`] = ''));
             }
         }
 
         const realActiveRow = derived_viewport_indices[activeCell[0]];
-        if (overflowRows && values.length + realActiveRow >= dataframe.length) {
+        if (overflowRows && values.length + realActiveRow >= data.length) {
             const emptyRow: any = {};
             columns.forEach(c => (emptyRow[c.id] = ''));
-            newDataframe = R.concat(
-                newDataframe,
+            newData = R.concat(
+                newData,
                 R.repeat(
                     emptyRow,
-                    values.length + realActiveRow - dataframe.length
+                    values.length + realActiveRow - data.length
                 )
             );
         }
@@ -95,15 +95,15 @@ export default class TableClipboardHelper {
                 const jOffset = activeCell[1] + j;
                 const col = newColumns[jOffset];
                 if (col && isEditable(true, col)) {
-                    newDataframe = R.set(
+                    newData = R.set(
                         R.lensPath([iRealCell, col.id]),
                         cell,
-                        newDataframe
+                        newData
                     );
                 }
             })
         );
 
-        return { dataframe: newDataframe, columns: newColumns };
+        return { data: newData, columns: newColumns };
     }
 }

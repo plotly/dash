@@ -324,7 +324,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         // the active cell.
         if (selectingDown && active_cell[0] > minRow) {
             removeCells = selectedCols.map(col => [minRow, col]);
-        } else if (selectingDown && maxRow !== viewport.dataframe.length - 1) {
+        } else if (selectingDown && maxRow !== viewport.data.length - 1) {
             // Otherwise if we are selecting down select the next row if possible.
             targetCells = selectedCols.map(col => [maxRow + 1, col]);
         } else if (selectingUp && active_cell[0] < maxRow) {
@@ -363,7 +363,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
     deleteCell = (event: any) => {
         const {
             columns,
-            dataframe,
+            data,
             editable,
             selected_cell,
             setProps,
@@ -372,7 +372,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
         event.preventDefault();
 
-        let newDataframe = dataframe;
+        let newData = data;
 
         const realCells: [number, number][] = R.map(
             cell => [viewport.indices[cell[0]], cell[1]] as [number, number],
@@ -381,16 +381,16 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
         realCells.forEach(cell => {
             if (isEditable(editable, columns[cell[1]])) {
-                newDataframe = R.set(
+                newData = R.set(
                     R.lensPath([cell[0], columns[cell[1]].id]),
                     '',
-                    newDataframe
+                    newData
                 );
             }
         });
 
         setProps({
-            dataframe: newDataframe
+            data: newData
         });
     }
 
@@ -439,7 +439,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
                         selected_cell
                     )
                     : [
-                        R.min(viewport.dataframe.length - 1, currentCell[0] + 1),
+                        R.min(viewport.data.length - 1, currentCell[0] + 1),
                         currentCell[1]
                     ];
 
@@ -457,7 +457,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
             viewport
         } = this.props;
 
-        TableClipboardHelper.toClipboard(e, selected_cell, columns, viewport.dataframe);
+        TableClipboardHelper.toClipboard(e, selected_cell, columns, viewport.data);
         this.$el.focus();
     }
 
@@ -465,7 +465,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         const {
             active_cell,
             columns,
-            dataframe,
+            data,
             editable,
             filtering_settings,
             setProps,
@@ -482,7 +482,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
             active_cell,
             viewport.indices,
             columns,
-            dataframe,
+            data,
             true,
             !sorting_settings.length || !filtering_settings.length
         );
@@ -494,7 +494,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
     get displayPagination() {
         const {
-            dataframe,
+            data,
             navigation,
             pagination_mode,
             pagination_settings
@@ -502,7 +502,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
         return navigation === 'page' &&
             (
-                (pagination_mode === 'fe' && pagination_settings.page_size < dataframe.length) ||
+                (pagination_mode === 'fe' && pagination_settings.page_size < data.length) ||
                 pagination_mode === 'be'
             );
     }

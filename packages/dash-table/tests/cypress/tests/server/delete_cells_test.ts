@@ -7,7 +7,7 @@ describe('delete cells', () => {
         cy.visit('http://localhost:8082');
     });
 
-    describe('unsorted dataframe', () => {
+    describe('unsorted data', () => {
         it('can delete single cell', () => {
             DashTable.getCell(0, 1).click();
             DashTable.getCell(0, 1).within(() => cy.get('.dash-cell-value').should('not.have.value', ''));
@@ -29,7 +29,7 @@ describe('delete cells', () => {
         });
     });
 
-    describe('sorted dataframe', () => {
+    describe('sorted data', () => {
         beforeEach(() => {
             cy.get('tr th.column-0 .sort').last().click();
         });

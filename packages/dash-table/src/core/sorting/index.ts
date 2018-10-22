@@ -16,9 +16,9 @@ export enum SortDirection {
 export type SortSettings = ISortSetting[];
 type IsNullyFn = (value: any) => boolean;
 export const defaultIsNully: IsNullyFn = (value: any) => value === undefined || value === null;
-export default (dataframe: any[], settings: SortSettings, isNully: IsNullyFn = defaultIsNully): any[] => {
+export default (data: any[], settings: SortSettings, isNully: IsNullyFn = defaultIsNully): any[] => {
     if (!settings.length) {
-        return dataframe;
+        return data;
     }
 
     return R.sortWith(
@@ -53,6 +53,6 @@ export default (dataframe: any[], settings: SortSettings, isNully: IsNullyFn = d
                     return prop1 < prop2;
                 });
         }, settings),
-        dataframe
+        data
     );
 };

@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import { memoizeOneFactory } from 'core/memoizer';
 
 import {
-    Dataframe,
+    Data,
     Datum,
     VisibleColumns,
     ColumnId,
@@ -24,7 +24,7 @@ interface IConditionalDropdown {
     dropdown: IDropdownOptions;
 }
 
-const mapDataframe = R.addIndex<Datum, JSX.Element[]>(R.map);
+const mapData = R.addIndex<Datum, JSX.Element[]>(R.map);
 
 const getDropdown = (
     astCache: (key: [ColumnId, number], query: string) => SyntaxTree,
@@ -52,12 +52,12 @@ const getDropdown = (
 const getter = (
     astCache: (key: [ColumnId, number], query: string) => SyntaxTree,
     columns: VisibleColumns,
-    dataframe: Dataframe,
+    data: Data,
     indices: Indices,
     columnConditionalDropdown: any,
     columnStaticDropdown: any,
     dropdown_properties: any
-): any[][] => mapDataframe((datum, rowIndex) => R.map(column => {
+): any[][] => mapData((datum, rowIndex) => R.map(column => {
     const realIndex = indices[rowIndex];
 
     let legacyDropdown: any = (
@@ -79,13 +79,13 @@ const getter = (
     staticDropdown = legacyDropdown || (staticDropdown && staticDropdown.dropdown);
 
     return getDropdown(astCache, conditionalDropdowns, datum, column.id, staticDropdown);
-}, columns), dataframe);
+}, columns), data);
 
 const getterFactory = memoizeOneFactory(getter);
 
 const decoratedGetter = (_id: string): ((
     columns: VisibleColumns,
-    dataframe: Dataframe,
+    data: Data,
     indices: Indices,
     columnConditionalDropdown: any,
     columnStaticDropdown: any,

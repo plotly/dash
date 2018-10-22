@@ -53,15 +53,15 @@ export const defaultProps = {
     sorting_type: 'single',
     sorting_settings: [],
 
-    derived_viewport_dataframe: [],
+    derived_viewport_data: [],
     derived_viewport_indices: [],
-    derived_virtual_dataframe: [],
+    derived_virtual_data: [],
     derived_virtual_indices: [],
 
     column_conditional_dropdowns: [],
     column_static_dropdown: [],
 
-    dataframe: [],
+    data: [],
     columns: [],
     editable: false,
     active_cell: [],
@@ -84,9 +84,9 @@ export const propTypes = {
         rule: PropTypes.string
     })),
 
-    dataframe: PropTypes.arrayOf(PropTypes.object),
-    dataframe_previous: PropTypes.arrayOf(PropTypes.object),
-    dataframe_timestamp: PropTypes.any,
+    data: PropTypes.arrayOf(PropTypes.object),
+    data_previous: PropTypes.arrayOf(PropTypes.object),
+    data_timestamp: PropTypes.any,
 
     editable: PropTypes.bool,
     end_cell: PropTypes.arrayOf(PropTypes.number),
@@ -1857,9 +1857,9 @@ export const propTypes = {
         zIndex: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     })),
 
-    derived_viewport_dataframe: PropTypes.arrayOf(PropTypes.object),
+    derived_viewport_data: PropTypes.arrayOf(PropTypes.object),
     derived_viewport_indices: PropTypes.arrayOf(PropTypes.number),
-    derived_virtual_dataframe: PropTypes.arrayOf(PropTypes.object),
+    derived_virtual_data: PropTypes.arrayOf(PropTypes.object),
     derived_virtual_indices: PropTypes.arrayOf(PropTypes.number),
 
     dropdown_properties: PropTypes.any,

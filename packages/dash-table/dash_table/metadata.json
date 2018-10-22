@@ -74,7 +74,7 @@
           "computed": false
         }
       },
-      "dataframe": {
+      "data": {
         "type": {
           "name": "arrayOf",
           "value": {
@@ -88,7 +88,7 @@
           "computed": false
         }
       },
-      "dataframe_previous": {
+      "data_previous": {
         "type": {
           "name": "arrayOf",
           "value": {
@@ -98,7 +98,7 @@
         "required": false,
         "description": ""
       },
-      "dataframe_timestamp": {
+      "data_timestamp": {
         "type": {
           "name": "any"
         },
@@ -20781,7 +20781,7 @@
           "computed": false
         }
       },
-      "derived_viewport_dataframe": {
+      "derived_viewport_data": {
         "type": {
           "name": "arrayOf",
           "value": {
@@ -20809,7 +20809,7 @@
           "computed": false
         }
       },
-      "derived_virtual_dataframe": {
+      "derived_virtual_data": {
         "type": {
           "name": "arrayOf",
           "value": {

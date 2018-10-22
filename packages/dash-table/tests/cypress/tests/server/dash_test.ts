@@ -28,7 +28,7 @@ describe('dash basic', () => {
     });
 
     // https://github.com/plotly/dash-table/issues/50
-    it('can edit last and update dataframe on "enter"', () => {
+    it('can edit last and update data on "enter"', () => {
         DashTable.getCell(249, 0).click();
         DOM.focused.then($input => {
             const initialValue = $input.val();
@@ -42,7 +42,7 @@ describe('dash basic', () => {
     });
 
     // https://github.com/plotly/dash-table/issues/107
-    it('can edit last and update dataframe on "tab"', () => {
+    it('can edit last and update data on "tab"', () => {
         DashTable.getCell(249, 0).click();
         DOM.focused.then($input => {
             const initialValue = $input.val();
@@ -57,7 +57,7 @@ describe('dash basic', () => {
         });
     });
 
-    it('can edit last and update dataframe when clicking outside of cell', () => {
+    it('can edit last and update data when clicking outside of cell', () => {
         DashTable.getCell(249, 0).click();
         DOM.focused.then($input => {
             const initialValue = $input.val();

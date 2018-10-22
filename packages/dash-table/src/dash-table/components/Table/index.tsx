@@ -6,8 +6,8 @@ import { memoizeOne, memoizeOneWithFlag } from 'core/memoizer';
 import ControlledTable from 'dash-table/components/ControlledTable';
 
 import derivedPaginator from 'dash-table/derived/paginator';
-import derivedViewportDataframe from 'dash-table/derived/dataframe/viewport';
-import derivedVirtualDataframe from 'dash-table/derived/dataframe/virtual';
+import derivedViewportData from 'dash-table/derived/data/viewport';
+import derivedVirtualData from 'dash-table/derived/data/virtual';
 import derivedVisibleColumns from 'dash-table/derived/column/visible';
 
 import {
@@ -55,7 +55,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
 
         const {
             columns,
-            dataframe,
+            data,
             filtering,
             filtering_settings,
             pagination_mode,
@@ -66,7 +66,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
         } = props;
 
         const virtual = this.virtual(
-            dataframe,
+            data,
             filtering,
             filtering_settings,
             sorting,
@@ -77,7 +77,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
         const viewport = this.viewport(
             pagination_mode,
             pagination_settings,
-            virtual.dataframe,
+            virtual.data,
             virtual.indices
         );
 
@@ -85,7 +85,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
             pagination_mode,
             pagination_settings,
             setProps,
-            virtual.dataframe
+            virtual.data
         );
 
         const visibleColumns = this.visibleColumns(columns);
@@ -125,12 +125,12 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
         let newProps: Partial<PropsWithDefaultsAndDerived> = {};
 
         if (!virtualCached) {
-            newProps.derived_virtual_dataframe = virtual.dataframe;
+            newProps.derived_virtual_data = virtual.data;
             newProps.derived_virtual_indices = virtual.indices;
         }
 
         if (!viewportCached) {
-            newProps.derived_viewport_dataframe = viewport.dataframe;
+            newProps.derived_viewport_data = viewport.data;
             newProps.derived_viewport_indices = viewport.indices;
         }
 
@@ -149,11 +149,11 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
 
     private readonly __setProps = memoizeOne((setProps?: SetProps) => {
         return setProps ? (newProps: any) => {
-            if (R.has('dataframe', newProps)) {
-                const { dataframe } = this.props;
+            if (R.has('data', newProps)) {
+                const { data } = this.props;
 
-                newProps.dataframe_timestamp = Date.now();
-                newProps.dataframe_previous = dataframe;
+                newProps.data_timestamp = Date.now();
+                newProps.data_previous = data;
             }
 
             setProps(newProps);
@@ -161,8 +161,8 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
     });
 
     private readonly paginator = derivedPaginator();
-    private readonly viewport = derivedViewportDataframe();
-    private readonly virtual = derivedVirtualDataframe();
+    private readonly viewport = derivedViewportData();
+    private readonly virtual = derivedVirtualData();
     private readonly visibleColumns = derivedVisibleColumns();
 
     private readonly filterCache = memoizeOneWithFlag(filter => filter);

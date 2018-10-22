@@ -1,53 +1,53 @@
 import { memoizeOneFactory } from 'core/memoizer';
 
 import {
-    Dataframe,
+    Data,
     Indices,
     IPaginationSettings,
     PaginationMode,
-    IDerivedDataframe
+    IDerivedData
 } from 'dash-table/components/Table/props';
 
-function getNoPagination(dataframe: Dataframe, indices: Indices): IDerivedDataframe {
-    return { dataframe, indices };
+function getNoPagination(data: Data, indices: Indices): IDerivedData {
+    return { data, indices };
 }
 
-function getFrontEndPagination(settings: IPaginationSettings, dataframe: Dataframe, indices: Indices): IDerivedDataframe {
+function getFrontEndPagination(settings: IPaginationSettings, data: Data, indices: Indices): IDerivedData {
     let currentPage = Math.min(
         settings.current_page,
-        Math.floor(dataframe.length / settings.page_size)
+        Math.floor(data.length / settings.page_size)
     );
 
     const firstIndex = settings.page_size * currentPage;
     const lastIndex = Math.min(
         firstIndex + settings.displayed_pages * settings.page_size,
-        dataframe.length
+        data.length
     );
 
     return {
-        dataframe: dataframe.slice(firstIndex, lastIndex),
+        data: data.slice(firstIndex, lastIndex),
         indices: indices.slice(firstIndex, lastIndex)
     };
 }
 
-function getBackEndPagination(dataframe: Dataframe, indices: Indices): IDerivedDataframe {
-    return { dataframe, indices };
+function getBackEndPagination(data: Data, indices: Indices): IDerivedData {
+    return { data, indices };
 }
 
 const getter = (
     pagination_mode: PaginationMode,
     pagination_settings: IPaginationSettings,
-    dataframe: Dataframe,
+    data: Data,
     indices: Indices
-): IDerivedDataframe => {
+): IDerivedData => {
     switch (pagination_mode) {
         case false:
-            return getNoPagination(dataframe, indices);
+            return getNoPagination(data, indices);
         case true:
         case 'fe':
-            return getFrontEndPagination(pagination_settings, dataframe, indices);
+            return getFrontEndPagination(pagination_settings, data, indices);
         case 'be':
-            return getBackEndPagination(dataframe, indices);
+            return getBackEndPagination(data, indices);
         default:
             throw new Error(`Unknown pagination mode: '${pagination_mode}'`);
     }

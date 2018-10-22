@@ -274,7 +274,7 @@ def layout():
                 section_title("Dash Table - Default Styles"),
                 dash_table.Table(
                     id="sizing-1",
-                    dataframe=df.to_dict("rows"),
+                    data=df.to_dict("rows"),
                     columns=[{"name": i, "id": i} for i in df.columns],
                 ),
                 section_title("Dash Table - Padding"),
@@ -292,7 +292,7 @@ def layout():
                 ),
                 dash_table.Table(
                     id="sizing-2",
-                    dataframe=df.to_dict("rows"),
+                    data=df.to_dict("rows"),
                     content_style="grow",
                     columns=[
                         {"name": i, "id": i} for i in df.columns
@@ -319,7 +319,7 @@ def layout():
                 ),
                 dash_table.Table(
                     id="sizing-3",
-                    dataframe=df.to_dict("rows"),
+                    data=df.to_dict("rows"),
                     content_style="grow",
                     columns=[
                         {"name": i, "id": i }
@@ -344,7 +344,7 @@ def layout():
                 ),
                 dash_table.Table(
                     id="sizing-4",
-                    dataframe=df.to_dict("rows"),
+                    data=df.to_dict("rows"),
                     columns=[
                         {
                             "name": i,
@@ -368,7 +368,7 @@ def layout():
                 ),
                 dash_table.Table(
                     id="sizing-5",
-                    dataframe=df.to_dict("rows"),
+                    data=df.to_dict("rows"),
                     columns=[
                         {"name": i, "id": i } for i in df.columns
                     ],
@@ -392,7 +392,7 @@ def layout():
                 ),
                 dash_table.Table(
                     id="sizing-6",
-                    dataframe=df.to_dict("rows"),
+                    data=df.to_dict("rows"),
                     columns=[
                         {
                             "name": i,

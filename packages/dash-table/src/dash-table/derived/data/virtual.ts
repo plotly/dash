@@ -4,32 +4,32 @@ import { memoizeOneFactory } from 'core/memoizer';
 import sort, { defaultIsNully, SortSettings } from 'core/sorting';
 import SyntaxTree from 'core/syntax-tree';
 import {
-    Dataframe,
+    Data,
     Datum,
     Filtering,
-    IDerivedDataframe,
+    IDerivedData,
     Sorting
 } from 'dash-table/components/Table/props';
 
 const getter = (
-    dataframe: Dataframe,
+    data: Data,
     filtering: Filtering,
     filtering_settings: string,
     sorting: Sorting,
     sorting_settings: SortSettings = [],
     sorting_treat_empty_string_as_none: boolean
-): IDerivedDataframe => {
+): IDerivedData => {
     const map = new Map<Datum, number>();
     R.addIndex(R.forEach)((datum, index) => {
         map.set(datum, index);
-    }, dataframe);
+    }, data);
 
     if (filtering === 'fe' || filtering === true) {
         const tree = new SyntaxTree(filtering_settings);
 
-        dataframe = tree.isValid ?
-            tree.filter(dataframe) :
-            dataframe;
+        data = tree.isValid ?
+            tree.filter(data) :
+            data;
     }
 
     const isNully = sorting_treat_empty_string_as_none ?
@@ -37,13 +37,13 @@ const getter = (
         undefined;
 
     if (sorting === 'fe' || sorting === true) {
-        dataframe = sort(dataframe, sorting_settings, isNully);
+        data = sort(data, sorting_settings, isNully);
     }
 
     // virtual_indices
-    const indices = R.map(datum => map.get(datum) as number, dataframe);
+    const indices = R.map(datum => map.get(datum) as number, data);
 
-    return { dataframe, indices };
+    return { data, indices };
 };
 
 export default memoizeOneFactory(getter);

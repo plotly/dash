@@ -14,13 +14,13 @@ class App extends Component {
     constructor() {
         super();
 
-        const dataframe: any[] = clone(mockData.dataframe);
+        const data: any[] = clone(mockData.data);
 
         this.state = {
             filter: '',
             tableProps: {
                 id: 'table',
-                dataframe: dataframe,
+                data,
                 columns: clone(mockData.columns).map(col => R.merge(col, {
                     editable_name: true,
                     deletable: true

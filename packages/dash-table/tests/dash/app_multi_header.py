@@ -15,7 +15,7 @@ def layout():
             {"name": ["Climate", "Temperature"], "id": "temp"},
             {"name": ["Climate", "Humidity"], "id": "humidity"},
         ],
-        dataframe=[
+        data=[
             {
                 "year": i,
                 "montreal": i * 10,

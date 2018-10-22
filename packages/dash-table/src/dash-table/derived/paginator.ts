@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import { memoizeOneFactory } from 'core/memoizer';
 
 import {
-    Dataframe,
+    Data,
     PaginationMode,
     SetProps,
     IPaginationSettings
@@ -37,11 +37,11 @@ function getBackEndPagination(
 function getFrontEndPagination(
     pagination_settings: IPaginationSettings,
     setProps: SetProps,
-    dataframe: Dataframe
+    data: Data
 ) {
     return {
         loadNext: () => {
-            let maxPageIndex = Math.floor(dataframe.length / pagination_settings.page_size);
+            let maxPageIndex = Math.floor(data.length / pagination_settings.page_size);
 
             if (pagination_settings.current_page >= maxPageIndex) {
                 return;
@@ -78,14 +78,14 @@ const getter = (
     pagination_mode: PaginationMode,
     pagination_settings: IPaginationSettings,
     setProps: SetProps,
-    dataframe: Dataframe
+    data: Data
 ): IPaginator => {
     switch (pagination_mode) {
         case false:
             return getNoPagination();
         case true:
         case 'fe':
-            return getFrontEndPagination(pagination_settings, setProps, dataframe);
+            return getFrontEndPagination(pagination_settings, setProps, data);
         case 'be':
             return getBackEndPagination(pagination_settings, setProps);
         default:

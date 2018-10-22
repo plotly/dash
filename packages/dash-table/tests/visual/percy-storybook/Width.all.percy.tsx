@@ -8,7 +8,7 @@ const setProps = () => { };
 
 const columns = ['a', 'b', 'c'];
 
-const dataframe = (() => {
+const data = (() => {
     const r = random(1);
 
     return R.range(0, 5).map(() => (
@@ -22,7 +22,7 @@ const dataframe = (() => {
 const baseProps = {
     setProps,
     id: 'table',
-    dataframe,
+    data,
     style_data_conditional: [
         { width: '20px', min_width: '20px', max_width: '20px' }
     ]

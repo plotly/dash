@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import React from 'react';
 
 import { memoizeAll, memoizeOne } from 'core/memoizer';
-import { Dataframe, IVisibleColumn, VisibleColumns, ColumnType, ActiveCell, SelectedCells, Datum, ColumnId } from 'dash-table/components/Table/props';
+import { Data, IVisibleColumn, VisibleColumns, ColumnType, ActiveCell, SelectedCells, Datum, ColumnId } from 'dash-table/components/Table/props';
 import Cell from 'dash-table/components/Cell';
 import isActiveCell from 'dash-table/derived/cell/isActive';
 import isSelectedCell from 'dash-table/derived/cell/isSelected';
@@ -22,7 +22,7 @@ function getter(
     elementCache: ElementCacheFn,
     activeCell: ActiveCell,
     columns: VisibleColumns,
-    dataframe: Dataframe,
+    data: Data,
     editable: boolean,
     selectedCells: SelectedCells
 ): JSX.Element[][] {
@@ -44,7 +44,7 @@ function getter(
             },
             columns
         ),
-        dataframe
+        data
     );
 }
 
@@ -53,7 +53,7 @@ function decorator(_id: string): ((
     columns: VisibleColumns,
     columnConditionalStyle: any,
     columnStaticStyle: any,
-    dataframe: Dataframe
+    data: Data
 ) => JSX.Element[][]) {
     const elementCache = memoizerCache<Key, [boolean, string, number, ColumnId], JSX.Element>(
         (active: boolean, classes: string, columnIndex: number, columnId: ColumnId) => (<Cell

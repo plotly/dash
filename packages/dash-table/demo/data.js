@@ -3,7 +3,7 @@ import * as R from 'ramda';
 
 const N_DATA = 5000;
 
-export const mockData = unpackIntoColumnsAndDataFrames([
+export const mockData = unpackIntoColumnsAndData([
     {
         id: 'rows',
         type: 'numeric',
@@ -83,7 +83,7 @@ export const mockData = unpackIntoColumnsAndDataFrames([
     }
 ]);
 
-export const mockDataSimple = unpackIntoColumnsAndDataFrames([
+export const mockDataSimple = unpackIntoColumnsAndData([
     {
         id: 'aaa',
         name: 'Temperature',
@@ -106,7 +106,7 @@ export const mockDataSimple = unpackIntoColumnsAndDataFrames([
     },
 ]);
 
-export const miniData = unpackIntoColumnsAndDataFrames([
+export const miniData = unpackIntoColumnsAndData([
     {
         id: 'aaa', name: 'cheese', data: [1, 2, 3]
     },
@@ -115,14 +115,14 @@ export const miniData = unpackIntoColumnsAndDataFrames([
     },
 ]);
 
-function unpackIntoColumnsAndDataFrames(columns) {
-    const mockData = {columns: [], dataframe: []};
+function unpackIntoColumnsAndData(columns) {
+    const mockData = { columns: [], data: []};
     columns.forEach(col => {
         col.data.forEach((v, i) => {
-            if (!mockData.dataframe[i]) {
-                mockData.dataframe[i] = {};
+            if (!mockData.data[i]) {
+                mockData.data[i] = {};
             }
-            mockData.dataframe[i][col.id] = v;
+            mockData.data[i][col.id] = v;
         });
         mockData.columns.push(R.dissoc('data', col));
     });

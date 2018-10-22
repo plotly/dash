@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import { CSSProperties } from 'react';
 
 import { memoizeOneFactory } from 'core/memoizer';
-import { Dataframe, VisibleColumns } from 'dash-table/components/Table/props';
+import { Data, VisibleColumns } from 'dash-table/components/Table/props';
 import { IConvertedStyle } from '../style';
 
 type Style = CSSProperties | undefined;
@@ -10,7 +10,7 @@ type Style = CSSProperties | undefined;
 function getter(
     columns: VisibleColumns,
     columnStyles: IConvertedStyle[],
-    dataframe: Dataframe
+    data: Data
 ): Style[][] {
     return R.addIndex<any, Style[]>(R.map)((datum, index) => R.map(column => {
         const relevantStyles = R.map(
@@ -25,7 +25,7 @@ function getter(
         );
 
         return relevantStyles.length ? R.mergeAll(relevantStyles) : undefined;
-    }, columns), dataframe);
+    }, columns), data);
 }
 
 export default memoizeOneFactory(getter);

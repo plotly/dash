@@ -5,7 +5,7 @@ import { memoizeOneFactory } from 'core/memoizer';
 
 import {
     ActiveCell,
-    Dataframe,
+    Data,
     Datum,
     IVisibleColumn,
     VisibleColumns,
@@ -16,7 +16,7 @@ import derivedCellEventHandlerProps from 'dash-table/derived/cell/eventHandlerPr
 import isActiveCell from 'dash-table/derived/cell/isActive';
 import isEditable from './isEditable';
 
-const mapDataframe = R.addIndex<Datum, JSX.Element[]>(R.map);
+const mapData = R.addIndex<Datum, JSX.Element[]>(R.map);
 const mapRow = R.addIndex<IVisibleColumn, JSX.Element>(R.map);
 
 const cellEventHandlerProps = derivedCellEventHandlerProps();
@@ -24,13 +24,13 @@ const cellEventHandlerProps = derivedCellEventHandlerProps();
 const getter = (
     activeCell: ActiveCell,
     columns: VisibleColumns,
-    dataframe: Dataframe,
+    data: Data,
     editable: boolean,
     isFocused: boolean,
     tableId: string,
     dropdowns: any[][],
     propsFn: () => ICellFactoryOptions
-): JSX.Element[][] => mapDataframe(
+): JSX.Element[][] => mapData(
     (datum, rowIndex) => mapRow(
         (column, columnIndex) => {
             const active = isActiveCell(activeCell, rowIndex, columnIndex);
@@ -55,7 +55,7 @@ const getter = (
         },
         columns
     ),
-    dataframe
+    data
 );
 
 export default memoizeOneFactory(getter);
