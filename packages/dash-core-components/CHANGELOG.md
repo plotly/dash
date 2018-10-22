@@ -1,6 +1,11 @@
 # Change Log for dash-core-components
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
+
+## [0.35.0] - 2018-10-22
+### Added
+- n_blur/n_submit and timestamps props added to the Input component. [#326](https://github.com/plotly/dash-core-components/pull/326)
+
 ## [0.34.0] - 2018-10-17
 ### Added
 - `npm run test-unit` will run new Jest+Enzyme unit tests

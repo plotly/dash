@@ -41,6 +41,20 @@ export default class Input extends Component {
                     if (fireEvent) {
                         fireEvent({event: 'blur'});
                     }
+                    if (setProps) {
+                        setProps({
+                            n_blur: this.props.n_blur + 1,
+                            n_blur_timestamp: new Date(),
+                        });
+                    }
+                }}
+                onKeyUp={e => {
+                    if (setProps && e.key === 'Enter') {
+                        setProps({
+                            n_submit: this.props.n_submit + 1,
+                            n_submit_timestamp: new Date(),
+                        });
+                    }
                 }}
                 value={value}
                 {...omit(['fireEvent', 'setProps', 'value'], this.props)}
@@ -48,6 +62,13 @@ export default class Input extends Component {
         );
     }
 }
+
+Input.defaultProps = {
+    n_blur: 0,
+    n_blur_timestamp: -1,
+    n_submit: 0,
+    n_submit_timestamp: -1,
+};
 
 Input.propTypes = {
     /**
@@ -76,7 +97,7 @@ Input.propTypes = {
      * The type of control to render.
      */
     type: PropTypes.oneOf([
-        // Only allowing the input types with wide browser compatability
+        // Only allowing the input types with wide browser compatibility
         'text',
         'number',
         'password',
@@ -249,6 +270,24 @@ Input.propTypes = {
      * Works with the min and max attributes to limit the increments at which a numeric or date-time value can be set. It can be the string any or a positive floating point number. If this attribute is not set to any, the control accepts only values at multiples of the step value greater than the minimum.
      */
     step: PropTypes.string,
+
+    /**
+     * Number of times the `Enter` key was pressed while the input had focus.
+     */
+    n_submit: PropTypes.number,
+    /**
+     * Last time that `Enter` was pressed.
+     */
+    n_submit_timestamp: PropTypes.number,
+
+    /**
+     * Number of times the input lost focus.
+     */
+    n_blur: PropTypes.number,
+    /**
+     * Last time the input lost focus.
+     */
+    n_blur_timestamp: PropTypes.number,
 
     /**
      * Dash-assigned callback that gets fired when the input changes.
