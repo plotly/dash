@@ -19,7 +19,104 @@
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "object"
+            "name": "shape",
+            "value": {
+              "clearable": {
+                "name": "bool",
+                "required": false
+              },
+              "deletable": {
+                "name": "union",
+                "value": [
+                  {
+                    "name": "bool"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
+                "required": false
+              },
+              "editable": {
+                "name": "bool",
+                "required": false
+              },
+              "editable_name": {
+                "name": "union",
+                "value": [
+                  {
+                    "name": "bool"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
+                "required": false
+              },
+              "hidden": {
+                "name": "bool",
+                "required": false
+              },
+              "id": {
+                "name": "string",
+                "required": true
+              },
+              "name": {
+                "name": "string",
+                "required": true
+              },
+              "options": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "shape",
+                  "value": {
+                    "label": {
+                      "name": "union",
+                      "value": [
+                        {
+                          "name": "number"
+                        },
+                        {
+                          "name": "string"
+                        }
+                      ],
+                      "required": true
+                    },
+                    "value": {
+                      "name": "union",
+                      "value": [
+                        {
+                          "name": "number"
+                        },
+                        {
+                          "name": "string"
+                        }
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "required": false
+              },
+              "type": {
+                "name": "enum",
+                "value": [
+                  {
+                    "value": "'dropdown'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'numeric'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'text'",
+                    "computed": false
+                  }
+                ],
+                "required": false
+              }
+            }
           }
         },
         "required": false,
@@ -58,11 +155,11 @@
             "value": {
               "selector": {
                 "name": "string",
-                "required": false
+                "required": true
               },
               "rule": {
                 "name": "string",
-                "required": false
+                "required": true
               }
             }
           }
@@ -100,7 +197,7 @@
       },
       "data_timestamp": {
         "type": {
-          "name": "any"
+          "name": "number"
         },
         "required": false,
         "description": ""
@@ -226,7 +323,7 @@
       },
       "setProps": {
         "type": {
-          "name": "any"
+          "name": "func"
         },
         "required": false,
         "description": ""
@@ -283,15 +380,15 @@
           "value": {
             "displayed_pages": {
               "name": "number",
-              "required": false
+              "required": true
             },
             "current_page": {
               "name": "number",
-              "required": false
+              "required": true
             },
             "page_size": {
               "name": "number",
-              "required": false
+              "required": true
             }
           }
         },
@@ -321,7 +418,7 @@
             "value": {
               "id": {
                 "name": "string",
-                "required": false
+                "required": true
               },
               "dropdowns": {
                 "name": "arrayOf",
@@ -330,7 +427,7 @@
                   "value": {
                     "condition": {
                       "name": "string",
-                      "required": false
+                      "required": true
                     },
                     "dropdown": {
                       "name": "arrayOf",
@@ -339,19 +436,27 @@
                         "value": {
                           "label": {
                             "name": "string",
-                            "required": false
+                            "required": true
                           },
                           "value": {
-                            "name": "any",
-                            "required": false
+                            "name": "union",
+                            "value": [
+                              {
+                                "name": "number"
+                              },
+                              {
+                                "name": "string"
+                              }
+                            ],
+                            "required": true
                           }
                         }
                       },
-                      "required": false
+                      "required": true
                     }
                   }
                 },
-                "required": false
+                "required": true
               }
             }
           }
@@ -371,7 +476,7 @@
             "value": {
               "id": {
                 "name": "string",
-                "required": false
+                "required": true
               },
               "dropdown": {
                 "name": "arrayOf",
@@ -380,15 +485,23 @@
                   "value": {
                     "label": {
                       "name": "string",
-                      "required": false
+                      "required": true
                     },
                     "value": {
-                      "name": "any",
-                      "required": false
+                      "name": "union",
+                      "value": [
+                        {
+                          "name": "number"
+                        },
+                        {
+                          "name": "string"
+                        }
+                      ],
+                      "required": true
                     }
                   }
                 },
-                "required": false
+                "required": true
               }
             }
           }
@@ -543,7 +656,7 @@
                     "name": "number"
                   }
                 ],
-                "required": false
+                "required": true
               },
               "direction": {
                 "name": "enum",
@@ -557,7 +670,7 @@
                     "computed": false
                   }
                 ],
-                "required": false
+                "required": true
               }
             }
           }

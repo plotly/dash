@@ -78,8 +78,4 @@ class App extends Component {
     }
 }
 
-App.propTypes = {
-    value: PropTypes.any,
-};
-
 export default App;

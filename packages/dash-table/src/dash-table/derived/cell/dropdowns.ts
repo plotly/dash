@@ -7,7 +7,10 @@ import {
     Datum,
     VisibleColumns,
     ColumnId,
-    Indices
+    Indices,
+    IColumnDropdown,
+    IConditionalColumnDropdown,
+    IDropdownProperties
 } from 'dash-table/components/Table/props';
 import SyntaxTree from 'core/syntax-tree';
 import memoizerCache from 'core/memoizerCache';
@@ -54,9 +57,9 @@ const getter = (
     columns: VisibleColumns,
     data: Data,
     indices: Indices,
-    columnConditionalDropdown: any,
-    columnStaticDropdown: any,
-    dropdown_properties: any
+    columnConditionalDropdown: IConditionalColumnDropdown[],
+    columnStaticDropdown: IColumnDropdown[],
+    dropdown_properties: IDropdownProperties
 ): any[][] => mapData((datum, rowIndex) => R.map(column => {
     const realIndex = indices[rowIndex];
 
@@ -72,11 +75,11 @@ const getter = (
         ) || column || {}
     ).options;
 
-    let conditionalDropdowns = columnConditionalDropdown.find((cs: any) => cs.id === column.id);
-    let staticDropdown = columnStaticDropdown.find((ss: any) => ss.id === column.id);
+    const conditional = columnConditionalDropdown.find((cs: any) => cs.id === column.id);
+    const base = columnStaticDropdown.find((ss: any) => ss.id === column.id);
 
-    conditionalDropdowns = (conditionalDropdowns && conditionalDropdowns.dropdowns) || [];
-    staticDropdown = legacyDropdown || (staticDropdown && staticDropdown.dropdown);
+    const conditionalDropdowns = (conditional && conditional.dropdowns) || [];
+    const staticDropdown = legacyDropdown || (base && base.dropdown);
 
     return getDropdown(astCache, conditionalDropdowns, datum, column.id, staticDropdown);
 }, columns), data);
