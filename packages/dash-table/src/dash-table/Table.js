@@ -6,7 +6,16 @@ import RealTable from 'dash-table/components/Table';
 import 'dash-table/style/component.less';
 import Logger from 'core/Logger';
 
+import genRandomId from './utils/generate';
+
 export default class Table extends Component {
+    constructor(props) {
+        super(props);
+
+        let id;
+        this.getId = () => (id = id || genRandomId('table-'));
+    }
+
     render() {
         const {
             filtering,
@@ -30,7 +39,7 @@ export default class Table extends Component {
             return (<div>Invalid props combination</div>);
         }
 
-        return (<RealTable {...this.props} />);
+        return this.props.id ? (<RealTable {...this.props} />) : (<RealTable {...this.props} id={this.getId()} />);
     }
 }
 
@@ -90,7 +99,7 @@ export const propTypes = {
 
     editable: PropTypes.bool,
     end_cell: PropTypes.arrayOf(PropTypes.number),
-    id: PropTypes.string.isRequired,
+    id: PropTypes.string,
     is_focused: PropTypes.bool,
     merge_duplicate_headers: PropTypes.bool,
     n_fixed_columns: PropTypes.number,

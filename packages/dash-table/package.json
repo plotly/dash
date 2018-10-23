@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "3.1.0rc6",
+  "version": "3.1.0rc7",
   "description": "Dash table",
   "main": "build/index.js",
   "scripts": {
@@ -26,6 +26,7 @@
     "lint": "run-s private::lint.js private::lint.ts",
     "test": "run-p --race private::host* private::runtests",
     "test.visual": "build-storybook && percy-storybook",
+    "test.visual-local": "build-storybook",
     "test.watch": "run-p --race \"build:js-test-watch\" --race private::host* private::opentests"
   },
   "author": "Chris P <chris@plot.ly",

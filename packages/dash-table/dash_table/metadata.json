@@ -130,7 +130,7 @@
         "type": {
           "name": "string"
         },
-        "required": true,
+        "required": false,
         "description": ""
       },
       "is_focused": {

@@ -224,3 +224,69 @@ storiesOf('DashTable/Sorting', module)
         sorting_treat_empty_string_as_none={true}
         style_data_conditional={style_data_conditional}
     />));
+storiesOf('DashTable/Without id', module)
+    .add('with 1 fixed row, 2 fixed columns', () => (<DashTable
+        setProps={setProps}
+        data={data}
+        columns={columns}
+        n_fixed_columns={2}
+        n_fixed_rows={1}
+        row_deletable={true}
+        row_selectable={true}
+        style_data_conditional={style_data_conditional}
+    />))
+    .add('with 1 fixed row, 2 fixed columns, set height and width', () => (<DashTable
+        setProps={setProps}
+        data={data}
+        columns={columns}
+        n_fixed_columns={2}
+        n_fixed_rows={1}
+        row_deletable={true}
+        row_selectable={true}
+        style_table={{height: 500, width: 200}}
+        style_data_conditional={style_data_conditional}
+    />))
+    .add('with set height and width and colors', () => (<DashTable
+        setProps={setProps}
+        data={data}
+        columns={columns}
+        n_fixed_columns={2}
+        n_fixed_rows={1}
+        row_deletable={true}
+        row_selectable={true}
+        style_table={{height: 500, width: 200}}
+        style_data_conditional={[{
+            "if": { "column_id": "a"},
+            "background_color": "yellow"
+        }]}
+    />))
+    .add('Two tables with CSS props set', () => (<div>
+        <DashTable
+            setProps={setProps}
+            data={data}
+            columns={columns}
+            n_fixed_columns={2}
+            n_fixed_rows={1}
+            row_deletable={true}
+            row_selectable={true}
+            style_table={{height: 500, width: 400}}
+            css={[{
+                'selector': '.dash-spreadsheet',
+                'rule': 'border: 4px solid hotpink'
+            }]}
+        />
+        <DashTable
+            setProps={setProps}
+            data={data}
+            columns={columns}
+            n_fixed_columns={2}
+            n_fixed_rows={1}
+            row_deletable={true}
+            row_selectable={true}
+            style_table={{height: 500, width: 400}}
+            css={[{
+                'selector': '.dash-spreadsheet',
+                'rule': 'border: 4px solid cyan'
+            }]}
+        />
+    </div>))
