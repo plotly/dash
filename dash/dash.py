@@ -8,7 +8,6 @@ import json
 import pkgutil
 import warnings
 import re
-import six
 
 from functools import wraps
 
@@ -17,6 +16,7 @@ import dash_renderer
 import flask
 from flask import Flask, Response
 from flask_compress import Compress
+import six
 
 from .dependencies import Event, Input, Output, State
 from .resources import Scripts, Css
@@ -371,7 +371,7 @@ class Dash(object):
         # text for a head <style> block. The dictionary should look like eg
         # {'._dash-undo-redo': {'display': 'none'}}
         lines = ['{tag} {{ {attr}: {val} }};'.format(
-                 tag=tag, attr=attr, val=val)
+            tag=tag, attr=attr, val=val)
                  for tag in six.iterkeys(self._internal_styles)
                  for attr, val in six.iteritems(self._internal_styles[tag])]
 
