@@ -8,6 +8,7 @@ import json
 import pkgutil
 import warnings
 import re
+import six
 
 from functools import wraps
 
@@ -83,6 +84,7 @@ class Dash(object):
             index_string=_default_index,
             external_scripts=None,
             external_stylesheets=None,
+            internal_styles=None,
             suppress_callback_exceptions=None,
             components_cache_max_age=None,
             **kwargs):
@@ -164,6 +166,7 @@ class Dash(object):
 
         self._external_scripts = external_scripts or []
         self._external_stylesheets = external_stylesheets or []
+        self._internal_styles = internal_styles or {}
 
         self.assets_ignore = assets_ignore
 
@@ -364,12 +367,26 @@ class Dash(object):
         links = self._external_stylesheets + \
                 self._collect_and_register_resources(self.css.get_all_css())
 
-        return '\n'.join([
+        # convert a nested dictionary describing CSS styling statements into
+        # text for a head <style> block. The dictionary should look like eg
+        # {'._dash-undo-redo': {'display': 'none'}}
+        lines = ['{tag} {{ {attr}: {val} }};'.format(
+                 tag=tag, attr=attr, val=val)
+                 for tag in six.iterkeys(self._internal_styles)
+                 for attr, val in six.iteritems(self._internal_styles[tag])]
+
+        style_inner = '\n'.join(lines)
+        formatted_block = ('<style>\n{}\n</style>\n'.format(style_inner)
+                           if self._internal_styles else '')
+
+        formatted_links = '\n'.join([
             _format_tag('link', link, opened=True)
             if isinstance(link, dict)
             else '<link rel="stylesheet" href="{}">'.format(link)
             for link in links
         ])
+
+        return formatted_block + formatted_links
 
     def _generate_scripts_html(self):
         # Dash renderer has dependencies like React which need to be rendered
