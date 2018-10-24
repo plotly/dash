@@ -8,6 +8,14 @@ import Logger from 'core/Logger';
 
 import genRandomId from './utils/generate';
 
+function isFrontEnd(value) {
+    return ['fe', true, false].indexOf(value) !== -1;
+}
+
+function isBackEnd(value) {
+    return ['be', false].indexOf(value) !== -1;
+}
+
 export default class Table extends Component {
     constructor(props) {
         super(props);
@@ -22,14 +30,6 @@ export default class Table extends Component {
             sorting,
             pagination_mode
         } = this.props;
-
-        function isFrontEnd(value: any) {
-            return ['fe', true, false].indexOf(value) !== -1;
-        }
-
-        function isBackEnd(value: any) {
-            return ['be', false].indexOf(value) !== -1;
-        }
 
         const isValid = isFrontEnd(pagination_mode) ||
             (isBackEnd(filtering) && isBackEnd(sorting));

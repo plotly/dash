@@ -29,14 +29,16 @@ function doSort(columnId: ColumnId, sortSettings: SortSettings, sortType: Sortin
         let direction: SortDirection;
         switch (getSorting(columnId, sortSettings)) {
             case SortDirection.Descending:
-                direction = SortDirection.Ascending;
-                break;
-            case SortDirection.Ascending:
                 direction = SortDirection.None;
                 break;
-            case SortDirection.None:
-            default:
+            case SortDirection.Ascending:
                 direction = SortDirection.Descending;
+                break;
+            case SortDirection.None:
+                direction = SortDirection.Ascending;
+                break;
+            default:
+                direction = SortDirection.Ascending;
                 break;
         }
 
@@ -68,9 +70,9 @@ function getSorting(columnId: ColumnId, settings: SortSettings): SortDirection {
 function getSortingIcon(columnId: ColumnId, sortSettings: SortSettings) {
     switch (getSorting(columnId, sortSettings)) {
         case SortDirection.Descending:
-            return '↑';
-        case SortDirection.Ascending:
             return '↓';
+        case SortDirection.Ascending:
+            return '↑';
         case SortDirection.None:
         default:
             return '↕';
