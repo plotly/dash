@@ -559,6 +559,7 @@ class Tests(IntegrationTests):
 
             return n_clicks, n_clicks_timestamp
 
+        self.startServer(app)
 
         t = time.time()
 
@@ -566,7 +567,10 @@ class Tests(IntegrationTests):
         btn.click()
         time.sleep(1)
 
-        self.wait_for_text_to_equals()
+        self.wait_for_text_to_equal('#output1', '1')
+        output2 = self.wait_for_element_by_css_selector('#output2')
+
+        self.assertGreater(int(output2.text), t)
 
 
     def test_late_component_register(self):
