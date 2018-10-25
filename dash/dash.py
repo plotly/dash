@@ -920,8 +920,7 @@ class Dash(object):
                                 len(output), len(output_value)))
 
                     props = collections.defaultdict(dict)
-                    for i in range(len(output)):
-                        out = output[i]
+                    for i, out in enumerate(output):
                         props[out.component_id][out.component_property] =\
                             output_value[i]
 
