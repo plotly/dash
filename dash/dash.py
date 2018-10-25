@@ -618,10 +618,7 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify([
             {
-                'output': {
-                    'id': k.split('.')[0],
-                    'property': k.split('.')[1]
-                },
+                'output': k,
                 'inputs': v['inputs'],
                 'state': v['state'],
             } for k, v in self.callback_map.items()
@@ -657,7 +654,7 @@ class Dash(object):
                 `app.config['suppress_callback_exceptions']=True`
             '''.replace('    ', ''))
 
-        for args, obj, name in [([output], Output, 'Output'),
+        for args, obj, name in [([output], (Output, list), 'Output'),
                                 (inputs, Input, 'Input'),
                                 (state, State, 'State')]:
 
@@ -883,11 +880,20 @@ class Dash(object):
     # relationships
     # pylint: disable=dangerous-default-value
     def callback(self, output, inputs=[], state=[]):
-        self._validate_callback(output, inputs, state)
+        # self._validate_callback(output, inputs, state)
 
-        callback_id = '{}.{}'.format(
-            output.component_id, output.component_property
-        )
+        if isinstance(output, (list, tuple)):
+            callback_id = '[{}]'.format(':'.join(
+                '{}.{}'.format(x.component_id, x.component_property)
+                for x in output
+            ))
+            multi = True
+        else:
+            callback_id = '{}.{}'.format(
+                output.component_id, output.component_property
+            )
+            multi = False
+
         self.callback_map[callback_id] = {
             'inputs': [
                 {'id': c.component_id, 'property': c.component_property}
@@ -902,15 +908,34 @@ class Dash(object):
         def wrap_func(func):
             @wraps(func)
             def add_context(*args, **kwargs):
-
                 output_value = func(*args, **kwargs)
-                response = {
-                    'response': {
-                        'props': {
-                            output.component_property: output_value
+                if multi:
+                    if not isinstance(output_value, (list, tuple)):
+                        raise Exception('Invalid output value')
+
+                    if not len(output_value) == len(output):
+                        raise Exception(
+                            'Invalid number of output values.'
+                            ' Expected {} got {}'.format(
+                                len(output), len(output_value)))
+
+                    props = collections.defaultdict(dict)
+                    for i in range(len(output)):
+                        out = output[i]
+                        props[out.component_id][out.component_property] =\
+                            output_value[i]
+
+                    response = {
+                        'response': props
+                    }
+                else:
+                    response = {
+                        'response': {
+                            output.component_id: {
+                                output.component_property: output_value
+                            }
                         }
                     }
-                }
 
                 try:
                     jsonResponse = json.dumps(
@@ -947,23 +972,22 @@ class Dash(object):
         state = body.get('state', [])
         output = body['output']
 
-        target_id = '{}.{}'.format(output['id'], output['property'])
         args = []
-        for component_registration in self.callback_map[target_id]['inputs']:
+        for component_registration in self.callback_map[output]['inputs']:
             args.append([
                 c.get('value', None) for c in inputs if
                 c['property'] == component_registration['property'] and
                 c['id'] == component_registration['id']
             ][0])
 
-        for component_registration in self.callback_map[target_id]['state']:
+        for component_registration in self.callback_map[output]['state']:
             args.append([
                 c.get('value', None) for c in state if
                 c['property'] == component_registration['property'] and
                 c['id'] == component_registration['id']
             ][0])
 
-        return self.callback_map[target_id]['callback'](*args)
+        return self.callback_map[output]['callback'](*args)
 
     def _validate_layout(self):
         if self.layout is None:
