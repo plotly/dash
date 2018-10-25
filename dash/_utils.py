@@ -92,7 +92,7 @@ def create_callback_id(output):
             '{}.{}'.format(x.component_id, x.component_property)
             for x in output
         ))
-    else:
-        return '{}.{}'.format(
-            output.component_id, output.component_property
-        )
+
+    return '{}.{}'.format(
+        output.component_id, output.component_property
+    )
