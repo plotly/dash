@@ -531,6 +531,45 @@ class Tests(IntegrationTests):
         self.startServer(app)
         time.sleep(0.5)
 
+    def test_multi_output(self):
+        app = dash.Dash(__name__)
+        app.scripts.config.serve_locally = True
+
+        app.layout = html.Div([
+            html.Button('OUTPUT', id='output-btn'),
+
+            html.Table([
+                html.Thead([
+                    html.Tr([
+                        html.Th('Output 1'),
+                        html.Th('Output 2')
+                    ])
+                ]),
+                html.Tbody([
+                    html.Tr([html.Td(id='output1'), html.Td(id='output2')]),
+                ])
+            ]),
+        ])
+
+        @app.callback([Output('output1', 'children'), Output('output2', 'children')],
+                      [Input('output-btn', 'n_clicks')],
+                      [State('output-btn', 'n_clicks_timestamp')])
+        def on_click(n_clicks, n_clicks_timestamp):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            return n_clicks, n_clicks_timestamp
+
+
+        t = time.time()
+
+        btn = self.wait_for_element_by_id('output-btn')
+        btn.click()
+        time.sleep(1)
+
+        self.wait_for_text_to_equals()
+
+
     def test_late_component_register(self):
         app = dash.Dash()
 
