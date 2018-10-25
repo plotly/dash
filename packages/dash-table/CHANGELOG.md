@@ -396,11 +396,16 @@ Derived properties allow the component to expose complex state that can be usefu
 
     - The id prop of the table is now optional. It will generate a random id if it's not set.
     Issue: https://github.com/plotly/dash-table/issues/143
-    
+
 ## RC8 - Improve props typing
 
     Issue: https://github.com/plotly/dash-table/issues/143    
 
-## RC9 - Sort ascending on first click 
+## RC9 - Sort ascending on first click
     - Sorts ascending when first clicked, [#118](https://github.com/plotly/dash-table/issues/118)
     - Flips icons displayed so that they are pointing up on ascending and down on descending.
+    Issue: https://github.com/plotly/dash-table/issues/143
+
+## RC10 - Improved props docstrings
+
+    Issue: https://github.com/plotly/dash-table/issues/163
