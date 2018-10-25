@@ -96,3 +96,47 @@ storiesOf('DashTable/Border (available space filled)', module)
         n_fixed_columns={1}
         n_fixed_rows={1}
     />));
+
+let props3 = Object.assign({}, props, {
+    style_as_list_view: true
+});
+
+let props4 = Object.assign({}, props2, {
+    style_as_list_view: true
+});
+
+storiesOf('DashTable/ListView style, Border (available space not filled)', module)
+    .add('with no frozen rows and no frozen columns', () => (<DashTable
+        {...props3}
+    />))
+    .add('with frozen rows and no frozen columns', () => (<DashTable
+        {...props3}
+        n_fixed_rows={1}
+    />))
+    .add('with no frozen rows and frozen columns', () => (<DashTable
+        {...props3}
+        n_fixed_columns={1}
+    />))
+    .add('with frozen rows and frozen columns', () => (<DashTable
+        {...props3}
+        n_fixed_columns={1}
+        n_fixed_rows={1}
+    />));
+
+storiesOf('DashTable/ListView style, Border (available space filled)', module)
+    .add('with no frozen rows and no frozen columns', () => (<DashTable
+        {...props4}
+    />))
+    .add('with frozen rows and no frozen columns', () => (<DashTable
+        {...props4}
+        n_fixed_rows={1}
+    />))
+    .add('with no frozen rows and frozen columns', () => (<DashTable
+        {...props4}
+        n_fixed_columns={1}
+    />))
+    .add('with frozen rows and frozen columns', () => (<DashTable
+        {...props4}
+        n_fixed_columns={1}
+        n_fixed_rows={1}
+    />));

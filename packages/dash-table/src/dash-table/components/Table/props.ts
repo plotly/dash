@@ -57,7 +57,7 @@ export interface IVisibleColumn {
     editable?: boolean;
     editable_name?: boolean | number;
     id: ColumnId;
-    name: string;
+    name: string | string[];
     options?: { label: string | number, value: string | number }[]; // legacy
     type?: ColumnType;
 }
@@ -136,6 +136,7 @@ interface IProps {
     sorting_settings?: SortSettings;
     sorting_type?: SortingType;
     sorting_treat_empty_string_as_none?: boolean;
+    style_as_list_view?: boolean;
     pagination_mode?: PaginationMode;
     pagination_settings?: IPaginationSettings;
 
@@ -176,6 +177,7 @@ interface IDefaultProps {
     sorting_settings: SortSettings;
     sorting_type: SortingType;
     sorting_treat_empty_string_as_none: boolean;
+    style_as_list_view: boolean;
 
     pagination_mode: PaginationMode;
     pagination_settings: IPaginationSettings;

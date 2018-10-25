@@ -12,33 +12,129 @@
         0px @bottom 0px 0px @color;
 }
 
-.top-left-cells() {
-    .left-cells();
-    .top-cells();
+.top-left-cells(@isListView) {
+    .left-cells(@isListView);
+    .top-cells(@isListView);
 
     tr:first-of-type {
         td:first-of-type,
         th:first-of-type {
-            .inset-shadow(var(--border), 1px, 1px, -1px, -1px);
+            & when (@isListView = True) {
+                .inset-shadow(var(--border), 0px, 1px, 0px, -1px);
+            }
+
+            & when (@isListView = False) {
+                .inset-shadow(var(--border), 1px, 1px, -1px, -1px);
+            }
         }
     }
 }
 
-.top-cells() {
+.top-cells(@isListView) {
     tr:first-of-type {
         td, th {
-            .inset-shadow(var(--border), 0px, 1px, -1px, -1px);
+            & when (@isListView = True) {
+                .inset-shadow(var(--border), 0px, 1px, 0px, -1px);
+            }
+
+            & when (@isListView = False) {
+                .inset-shadow(var(--border), 0px, 1px, -1px, -1px);
+            }
         }
     }
 }
 
-.left-cells() {
+.left-cells(@isListView) {
     tr {
         td:first-of-type,
         th:first-of-type {
-            .inset-shadow(var(--border), 1px, 0px, -1px, -1px);
+            & when (@isListView = True) {
+                .inset-shadow(var(--border), 0px, 0px, 0px, -1px);
+            }
+
+            & when (@isListView = False) {
+                .inset-shadow(var(--border), 1px, 0px, -1px, -1px);
+            }
+
         }
     }
+}
+
+.dash-borders(@isListView) {
+        &:not(.dash-freeze-top):not(.dash-freeze-left) {
+            .cell-1-1 {
+                .top-left-cells(@isListView);
+            }
+        }
+
+        &:not(.dash-freeze-top).dash-freeze-left {
+            .cell-1-0 {
+                .top-left-cells(@isListView);
+            }
+
+            .cell-1-1 {
+                .top-cells(@isListView);
+            }
+        }
+
+        &.dash-freeze-top:not(.dash-freeze-left) {
+            .cell-0-1 {
+                .top-left-cells(@isListView);
+            }
+
+            .cell-1-1 {
+                .left-cells(@isListView);
+            }
+        }
+
+        &.dash-freeze-top.dash-freeze-left {
+            .cell-0-0 {
+                .top-left-cells(@isListView);
+            }
+
+            .cell-0-1 {
+                .top-cells(@isListView);
+            }
+
+            .cell-1-0 {
+                .left-cells(@isListView);
+            }
+        }
+
+        td, th {
+            & when (@isListView = True) {
+                .inset-shadow(var(--border), 0px, 0px, 0px, -1px);
+            }
+
+            & when (@isListView = False) {
+                .inset-shadow(var(--border), 0px, 0px, -1px, -1px);
+            }
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        td.focused {
+            & when (@isListView = True) {
+                .inset-shadow(var(--accent), 0px, 0px, 0px, -1px);
+            }
+
+            & when (@isListView = False) {
+                .outline-shadow(var(--accent), 1px, 1px, 0, 0);
+                border: 1px solid var(--accent);
+            }
+        }
+
+        .dash-filter.invalid {
+            & when (@isListView = True) {
+                .inset-shadow(red, 0px, 0px, 0px, -1px);
+            }
+
+            & when (@isListView = False) {
+                .inset-shadow(red, 1px, 1px, -1px, -1px);
+            }
+        }
 }
 
 .fit-content-polyfill() {
@@ -162,61 +258,16 @@
             }
         }
 
-        &:not(.dash-freeze-top):not(.dash-freeze-left) {
-            .cell-1-1 {
-                .top-left-cells();
-            }
+        &:not(.dash-list-view) {
+            .dash-borders(False);
         }
 
-        &:not(.dash-freeze-top).dash-freeze-left {
-            .cell-1-0 {
-                .top-left-cells();
-            }
-
-            .cell-1-1 {
-                .top-cells();
-            }
+        &.dash-list-view {
+            .dash-borders(True);
         }
 
-        &.dash-freeze-top:not(.dash-freeze-left) {
-            .cell-0-1 {
-                .top-left-cells();
-            }
-
-            .cell-1-1 {
-                .left-cells();
-            }
-        }
-
-        &.dash-freeze-top.dash-freeze-left {
-            .cell-0-0 {
-                .top-left-cells();
-            }
-
-            .cell-0-1 {
-                .top-cells();
-            }
-
-            .cell-1-0 {
-                .left-cells();
-            }
-        }
-
-        .cell {
-            td, th {
-                .inset-shadow(var(--border), 0px, 0px, -1px, -1px);
-
-                &:focus {
-                    outline: none;
-                }
-            }
-        }
-
-        .filter {
-            &.invalid {
-                .inset-shadow(red, 1px, 1px, -1px, -1px);
-                background-color: pink;
-            }
+        .dash-filter.invalid {
+            background-color: pink;
         }
 
         .selected-row {
@@ -237,9 +288,6 @@
             }
 
             &.focused {
-                // .shadow(red, 1px, 1px, 0, 0);
-                .outline-shadow(var(--accent), 1px, 1px, 0, 0);
-                border: 1px solid var(--accent);
                 margin: -1px;
                 z-index: 200;
             }

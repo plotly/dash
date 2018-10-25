@@ -363,7 +363,11 @@
           "name": "bool"
         },
         "required": false,
-        "description": "DEPRECATED"
+        "description": "If True, then the table will be styled like a list view\nand not have borders between the columns.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "pagination_mode": {
         "type": {

@@ -402,6 +402,7 @@ Derived properties allow the component to expose complex state that can be usefu
     Issue: https://github.com/plotly/dash-table/issues/143    
 
 ## RC9 - Sort ascending on first click
+
     - Sorts ascending when first clicked, [#118](https://github.com/plotly/dash-table/issues/118)
     - Flips icons displayed so that they are pointing up on ascending and down on descending.
     Issue: https://github.com/plotly/dash-table/issues/143
@@ -409,3 +410,7 @@ Derived properties allow the component to expose complex state that can be usefu
 ## RC10 - Improved props docstrings
 
     Issue: https://github.com/plotly/dash-table/issues/163
+    
+## RC11 - Style as list view
+
+    - Fix regressions linked to the style_as_list_view feature / prop

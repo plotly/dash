@@ -61,6 +61,7 @@ export const defaultProps = {
     sorting: false,
     sorting_type: 'single',
     sorting_settings: [],
+    style_as_list_view: false,
 
     derived_viewport_data: [],
     derived_viewport_indices: [],
@@ -395,7 +396,8 @@ export const propTypes = {
     start_cell: PropTypes.arrayOf(PropTypes.number),
 
     /**
-     * DEPRECATED
+     * If True, then the table will be styled like a list view
+     * and not have borders between the columns.
      */
     style_as_list_view: PropTypes.bool,
 

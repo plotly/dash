@@ -599,6 +599,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
             content_style,
             n_fixed_columns,
             n_fixed_rows,
+            style_as_list_view,
             style_table
         } = this.props;
 
@@ -607,6 +608,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
             'dash-spreadsheet',
             ...(n_fixed_rows ? ['dash-freeze-top'] : []),
             ...(n_fixed_columns ? ['dash-freeze-left'] : []),
+            ...(style_as_list_view ? ['dash-list-view'] : []),
             [`dash-${content_style}`]
         ];
 
@@ -615,6 +617,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
             'dash-spreadsheet-container',
             ...(n_fixed_rows ? ['dash-freeze-top'] : []),
             ...(n_fixed_columns ? ['dash-freeze-left'] : []),
+            ...(style_as_list_view ? ['dash-list-view'] : []),
             [`dash-${content_style}`]
         ];
 

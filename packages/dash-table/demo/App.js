@@ -1,7 +1,6 @@
 /* eslint no-magic-numbers: 0 */
 import * as R from 'ramda';
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 import { Table } from 'dash-table';
 import {mockData} from './data';
 import { memoizeOne } from 'core/memoizer';
@@ -22,6 +21,7 @@ class App extends Component {
                 id: 'table',
                 data,
                 columns: clone(mockData.columns).map(col => R.merge(col, {
+                    name: col.name || col.id,
                     editable_name: true,
                     deletable: true
                 //     type: 'dropdown'
