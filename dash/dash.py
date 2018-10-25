@@ -33,6 +33,8 @@ from ._utils import generate_hash as _generate_hash
 from ._utils import get_asset_path as _get_asset_path
 from ._utils import patch_collections_abc as _patch_collections_abc
 from . import _watch
+from ._utils import get_asset_path as _get_asset_path
+from ._utils import create_callback_id as _create_callback_id
 from . import _configs
 
 
@@ -654,7 +656,10 @@ class Dash(object):
                 `app.config['suppress_callback_exceptions']=True`
             '''.replace('    ', ''))
 
-        for args, obj, name in [([output], (Output, list), 'Output'),
+        for args, obj, name in [(output if isinstance(output, (list, tuple))
+                                 else [output],
+                                 (Output, list, tuple),
+                                 'Output'),
                                 (inputs, Input, 'Input'),
                                 (state, State, 'State')]:
 
@@ -672,6 +677,13 @@ class Dash(object):
                         'not of type `dash.{}`.'.format(
                             name.lower(), str(arg), name
                         ))
+
+                if '.' in arg.component_id:
+                    raise exceptions.IDsCantContainPeriods('''The element
+                    `{}` contains a period in its ID.
+                    Periods are not allowed in IDs right now.'''.format(
+                        arg.component_id
+                    ))
 
                 if (not self.config.first('suppress_callback_exceptions',
                                           'supress_callback_exceptions') and
@@ -743,15 +755,7 @@ class Dash(object):
                 'elements' if len(state) > 1 else 'element'
             ).replace('    ', ''))
 
-        if '.' in output.component_id:
-            raise exceptions.IDsCantContainPeriods('''The Output element
-            `{}` contains a period in its ID.
-            Periods are not allowed in IDs right now.'''.format(
-                output.component_id
-            ))
-
-        callback_id = '{}.{}'.format(
-            output.component_id, output.component_property)
+        callback_id = _create_callback_id(output)
         if callback_id in self.callback_map:
             raise exceptions.CantHaveMultipleOutputs('''
                 You have already assigned a callback to the output
@@ -880,19 +884,10 @@ class Dash(object):
     # relationships
     # pylint: disable=dangerous-default-value
     def callback(self, output, inputs=[], state=[]):
-        # self._validate_callback(output, inputs, state)
+        self._validate_callback(output, inputs, state)
 
-        if isinstance(output, (list, tuple)):
-            callback_id = '[{}]'.format(':'.join(
-                '{}.{}'.format(x.component_id, x.component_property)
-                for x in output
-            ))
-            multi = True
-        else:
-            callback_id = '{}.{}'.format(
-                output.component_id, output.component_property
-            )
-            multi = False
+        callback_id = _create_callback_id(output)
+        multi = isinstance(output, (list, tuple))
 
         self.callback_map[callback_id] = {
             'inputs': [
