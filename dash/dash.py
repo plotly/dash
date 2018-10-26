@@ -906,13 +906,23 @@ class Dash(object):
                 output_value = func(*args, **kwargs)
                 if multi:
                     if not isinstance(output_value, (list, tuple)):
-                        raise Exception('Invalid output value')
+                        raise exceptions.InvalidCallbackReturnValue(
+                            'The callback {} is a multi-output.\n'
+                            'Expected the output type to be a list'
+                            ' or tuple but got {}.'.format(
+                                callback_id, repr(output_value)
+                            )
+                        )
 
                     if not len(output_value) == len(output):
-                        raise Exception(
-                            'Invalid number of output values.'
+                        raise exceptions.InvalidCallbackReturnValue(
+                            'Invalid number of output values for {}.\n'
                             ' Expected {} got {}'.format(
-                                len(output), len(output_value)))
+                                callback_id,
+                                len(output),
+                                len(output_value)
+                            )
+                        )
 
                     props = collections.defaultdict(dict)
                     for i, out in enumerate(output):
