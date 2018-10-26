@@ -18,7 +18,7 @@ $ npm i
 2. Build the code:
 
 ```
-$ npm run build-all
+$ npm run build:all
 ```
 
 3. Install the library
