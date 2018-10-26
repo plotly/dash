@@ -542,9 +542,9 @@ function updateOutput(
 
             const {paths} = getState();
 
-            Object.keys(data.response).map(k => [k, data.response[k]]).forEach(([k, props]) => {
+            Object.entries(data.response).forEach(([outputIdAndProp, props]) => {
                 const observerUpdatePayload = {
-                    itempath: paths[k],
+                    itempath: paths[outputIdAndProp],
                     props,
                     source: 'response'
                 };
@@ -552,7 +552,7 @@ function updateOutput(
 
                 dispatch(
                     notifyObservers({
-                        id: k,
+                        id: outputIdAndProp,
                         props: props,
                     })
                 );
@@ -567,7 +567,7 @@ function updateOutput(
                         computePaths({
                             subTree: observerUpdatePayload.props.children,
                             startingPath: concat(
-                                paths[k],
+                                paths[outputIdAndProp],
                                 ['props', 'children']
                             ),
                         })
