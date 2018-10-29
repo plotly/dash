@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.35.1] - 2018-10-29
+### Fixed
+- Fix Dropdown options prop docstring typo [#328](https://github.com/plotly/dash-core-components/pull/328/files)
+- Fix Input readonly prop -> readOnly [#348](https://github.com/plotly/dash-core-components/pull/348)
+
 ## [0.35.0] - 2018-10-22
 ### Added
 - n_blur/n_submit and timestamps props added to the Input component. [#326](https://github.com/plotly/dash-core-components/pull/326)

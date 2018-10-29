@@ -987,17 +987,17 @@
             "value": {
               "label": {
                 "name": "string",
-                "description": "The checkbox's label",
+                "description": "The dropdown's label",
                 "required": false
               },
               "value": {
                 "name": "string",
-                "description": "The value of the checkbox. This value\r\ncorresponds to the items specified in the\r\n`values` property.",
+                "description": "The value of the dropdown. This value\r\ncorresponds to the items specified in the\r\n`values` property.",
                 "required": false
               },
               "disabled": {
                 "name": "bool",
-                "description": "If true, this checkbox is disabled and can't be clicked on.",
+                "description": "If true, this dropdown is disabled and items can't be selected.",
                 "required": false
               }
             }
@@ -1722,7 +1722,7 @@
         "required": false,
         "description": "A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it."
       },
-      "readonly": {
+      "readOnly": {
         "type": {
           "name": "string"
         },
