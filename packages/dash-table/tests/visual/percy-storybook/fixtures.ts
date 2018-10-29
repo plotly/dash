@@ -318,7 +318,7 @@ export default [
         props: {
             id: 'table',
             editable: true,
-            selected_cell: [[1, 1], [1, 0], [0, 1], [0, 0]],
+            selected_cells: [[1, 1], [1, 0], [0, 1], [0, 0]],
             columns: [
                 {
                     name: 'Column 1',
@@ -341,7 +341,7 @@ export default [
         props: {
             id: 'table',
             editable: true,
-            selected_cell: [[1, 1], [1, 0], [0, 1], [0, 0]],
+            selected_cells: [[1, 1], [1, 0], [0, 1], [0, 0]],
             columns: [
                 {
                     name: 'Column 1',
@@ -366,7 +366,7 @@ export default [
             id: 'table',
             editable: true,
             active_cell: [2, 1],
-            selected_cell: [[2, 1], [2, 2], [1, 1], [1, 2]],
+            selected_cells: [[2, 1], [2, 2], [1, 1], [1, 2]],
             columns: [
                 {
                     name: 'Column 1',
@@ -399,7 +399,7 @@ export default [
         props: {
             id: 'table',
             editable: true,
-            selected_cell: [[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]],
+            selected_cells: [[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]],
             columns: [
                 {
                     name: 'Column 1',
@@ -433,7 +433,7 @@ export default [
         props: {
             id: 'table',
             editable: true,
-            selected_cell: [[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]],
+            selected_cells: [[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]],
             merge_duplicate_headers: true,
             columns: [
                 {

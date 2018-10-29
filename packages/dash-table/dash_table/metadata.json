@@ -310,7 +310,7 @@
           "computed": false
         }
       },
-      "selected_cell": {
+      "selected_cells": {
         "type": {
           "name": "arrayOf",
           "value": {
@@ -321,7 +321,7 @@
           }
         },
         "required": false,
-        "description": "`selected_cell` represents the set of cells that are selected.\nThis is similar to `active_cell` except that it contains multiple\ncells. Multiple cells can be selected by holding down shift and\nclicking on a different cell or holding down shift and navigating\nwith the arrow keys.\n\nNOTE - This property may change in the future, subscribe to\n[https://github.com/plotly/dash-table/issues/177](https://github.com/plotly/dash-table/issues/177)\nfor more details.",
+        "description": "`selected_cells` represents the set of cells that are selected.\nThis is similar to `active_cell` except that it contains multiple\ncells. Multiple cells can be selected by holding down shift and\nclicking on a different cell or holding down shift and navigating\nwith the arrow keys.\n\nNOTE - This property may change in the future, subscribe to\n[https://github.com/plotly/dash-table/issues/177](https://github.com/plotly/dash-table/issues/177)\nfor more details.",
         "defaultValue": {
           "value": "[[]]",
           "computed": false

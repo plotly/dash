@@ -129,7 +129,7 @@ interface IProps {
     n_fixed_rows?: number;
     row_deletable?: boolean;
     row_selectable?: RowSelection;
-    selected_cell?: SelectedCells;
+    selected_cells?: SelectedCells;
     selected_rows?: number[];
     setProps?: SetProps;
     sorting?: Sorting;
@@ -171,7 +171,7 @@ interface IDefaultProps {
     n_fixed_rows: number;
     row_deletable: boolean;
     row_selectable: RowSelection;
-    selected_cell: SelectedCells;
+    selected_cells: SelectedCells;
     selected_rows: number[];
     sorting: Sorting;
     sorting_settings: SortSettings;
@@ -229,7 +229,7 @@ export interface ICellFactoryOptions {
     paginator: IPaginator;
     row_deletable: boolean;
     row_selectable: RowSelection;
-    selected_cell: SelectedCells;
+    selected_cells: SelectedCells;
     selected_rows: number[];
     setProps: SetProps;
     style_cell: Style;

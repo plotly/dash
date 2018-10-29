@@ -136,7 +136,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
 
         if (invalidateSelection) {
             newProps.active_cell = undefined;
-            newProps.selected_cell = undefined;
+            newProps.selected_cells = undefined;
             newProps.selected_rows = undefined;
         }
 

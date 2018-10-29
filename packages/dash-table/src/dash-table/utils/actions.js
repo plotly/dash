@@ -45,7 +45,7 @@ export function deleteColumn(column, columns, headerRowIndex, props) {
         // trying to delete
         active_cell: [],
         end_cell: [],
-        selected_cell: [],
+        selected_cells: [],
         start_cell: [0]
     }
 }

@@ -9,11 +9,11 @@ export const handleClick = (propsFn: () => ICellFactoryOptions, idx: number, i: 
     const {
         editable,
         is_focused,
-        selected_cell,
+        selected_cells,
         setProps
     } = propsFn();
 
-    const selected = isCellSelected(selected_cell, idx, i);
+    const selected = isCellSelected(selected_cells, idx, i);
 
     if (!editable) {
         return;
@@ -34,13 +34,13 @@ export const handleClick = (propsFn: () => ICellFactoryOptions, idx: number, i: 
         active_cell: cellLocation
     };
 
-    const selectedRows = R.uniq(R.pluck(0, selected_cell)).sort((a, b) => a - b);
-    const selectedCols = R.uniq(R.pluck(1, selected_cell)).sort((a, b) => a - b);
+    const selectedRows = R.uniq(R.pluck(0, selected_cells)).sort((a, b) => a - b);
+    const selectedCols = R.uniq(R.pluck(1, selected_cells)).sort((a, b) => a - b);
     const minRow = selectedRows[0];
     const minCol = selectedCols[0];
 
     if (e.shiftKey) {
-        newProps.selected_cell = R.xprod(
+        newProps.selected_cells = R.xprod(
             R.range(
                 R.min(minRow, cellLocation[0]),
                 R.max(minRow, cellLocation[0]) + 1
@@ -51,7 +51,7 @@ export const handleClick = (propsFn: () => ICellFactoryOptions, idx: number, i: 
             )
         ) as any;
     } else {
-        newProps.selected_cell = [cellLocation];
+        newProps.selected_cells = [cellLocation];
     }
 
     setProps(newProps);
@@ -73,7 +73,7 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryOptions, idx: numbe
     if (!is_focused) {
         e.preventDefault();
         const newProps = {
-            selected_cell: [cellLocation],
+            selected_cells: [cellLocation],
             active_cell: cellLocation,
             is_focused: true
         };

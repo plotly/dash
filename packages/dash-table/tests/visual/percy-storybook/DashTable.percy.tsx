@@ -181,7 +181,7 @@ storiesOf('DashTable/Hidden Columns', module)
         id='table'
         data={data}
         columns={hiddenColumns}
-        selected_cell={[[1, 1], [1, 2], [2, 1], [2, 2]]}
+        selected_cells={[[1, 1], [1, 2], [2, 1], [2, 2]]}
         style_data_conditional={style_data_conditional}
     />));
 

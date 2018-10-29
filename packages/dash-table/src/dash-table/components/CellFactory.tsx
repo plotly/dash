@@ -40,7 +40,7 @@ export default class CellFactory {
             is_focused,
             row_deletable,
             row_selectable,
-            selected_cell,
+            selected_cells,
             selected_rows,
             setProps,
             style_cell,
@@ -66,7 +66,7 @@ export default class CellFactory {
             columns,
             viewport.data,
             editable,
-            selected_cell
+            selected_cells
         );
 
         const relevantStyles = this.relevantStyles(
