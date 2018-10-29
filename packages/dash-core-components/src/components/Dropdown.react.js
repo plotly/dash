@@ -111,19 +111,19 @@ Dropdown.propTypes = {
     options: PropTypes.arrayOf(
         PropTypes.shape({
             /**
-             * The checkbox's label
+             * The dropdown's label
              */
             label: PropTypes.string,
 
             /**
-             * The value of the checkbox. This value
+             * The value of the dropdown. This value
              * corresponds to the items specified in the
              * `values` property.
              */
             value: PropTypes.string,
 
             /**
-             * If true, this checkbox is disabled and can't be clicked on.
+             * If true, this dropdown is disabled and items can't be selected.
              */
             disabled: PropTypes.bool,
         })
