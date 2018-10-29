@@ -5,6 +5,12 @@ import unittest
 from selenium import webdriver
 import percy
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+TIMEOUT = 20
+
 
 class IntegrationTests(unittest.TestCase):
 
@@ -13,6 +19,17 @@ class IntegrationTests(unittest.TestCase):
         print(snapshot_name)
         cls.percy_runner.snapshot(
             name=snapshot_name
+        )
+
+    def wait_for_element_by_css_selector(self, selector):
+        return WebDriverWait(self.driver, TIMEOUT).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+        )
+
+    def wait_for_text_to_equal(self, selector, assertion_text):
+        return WebDriverWait(self.driver, TIMEOUT).until(
+            EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector),
+                                             assertion_text)
         )
 
     @classmethod
