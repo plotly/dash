@@ -16,7 +16,13 @@ export default class Input extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({value: nextProps.value});
+        if (this.props.setProps) {
+            // Only setState from props if the component is driven by props.
+            // If the component prop is not used in a callback,
+            // it will receive the same initial props every time
+            // the layout is updated.
+            this.setState({value: nextProps.value});
+        }
     }
 
     render() {
