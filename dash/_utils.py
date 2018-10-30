@@ -1,3 +1,9 @@
+import functools
+import hashlib
+import base64
+import pkgutil
+
+
 def interpolate_str(template, **data):
     s = template
     for k, v in data.items():
@@ -35,6 +41,37 @@ def get_asset_path(
         asset_url_path,
         asset_path
     ])
+
+
+def pluck(obj, *props, **additions):
+    return dict({k: v for k, v in obj.items() if k in props}, **additions)
+
+
+def first_key(data, *keys):
+    for key in keys:
+        value = data.get(key)
+        if value:
+            return key, value
+    return None, None
+
+
+@functools.lru_cache()
+def integrity_hash_from_file(filename):
+    with open(filename, 'rb') as f:
+        h = hashlib.sha384(f.read())
+
+    return 'sha384-{}'.format(
+        base64.b64encode(h.digest()).decode()
+    )
+
+
+@functools.lru_cache()
+def integrity_hash_from_package(namespace, path):
+    h = hashlib.sha384(pkgutil.get_data(namespace, path))
+
+    return 'sha384-{}'.format(
+        base64.b64encode(h.digest()).decode()
+    )
 
 
 class AttributeDict(dict):
