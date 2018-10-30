@@ -2,7 +2,7 @@
 import { memoizeOneFactory } from 'core/memoizer';
 import memoizerCache from 'core/memoizerCache';
 import { ICellFactoryOptions } from 'dash-table/components/Table/props';
-import { handleChange, handleClick, handleDoubleClick, handlePaste } from 'dash-table/handlers/cellEvents';
+import { handleChange, handleClick, handleDoubleClick, handleOnMouseUp, handlePaste } from 'dash-table/handlers/cellEvents';
 
 type CacheArgs = [Handler, number, number];
 type GetterArgs = [HandlerFn, number, number];
@@ -11,6 +11,7 @@ export enum Handler {
     Change = 'change',
     Click = 'click',
     DoubleClick = 'doubleclick',
+    MouseUp = 'mouseup',
     Paste = 'paste'
 }
 
@@ -32,6 +33,7 @@ const getter = (propsFn: () => ICellFactoryOptions): CacheFn => {
         [Handler.Change, handleChange.bind(undefined, propsFn)],
         [Handler.Click, handleClick.bind(undefined, propsFn)],
         [Handler.DoubleClick, handleDoubleClick.bind(undefined, propsFn)],
+        [Handler.MouseUp, handleOnMouseUp.bind(undefined, propsFn)],
         [Handler.Paste, handlePaste.bind(undefined, propsFn)]
     ]);
 

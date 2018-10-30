@@ -22,6 +22,7 @@ const getter = (propsFn: () => ICellFactoryOptions): CacheFn => {
             onChange: derivedHandlers(Handler.Change, rowIndex, columnIndex),
             onClick: derivedHandlers(Handler.Click, rowIndex, columnIndex),
             onDoubleClick: derivedHandlers(Handler.DoubleClick, rowIndex, columnIndex),
+            onMouseUp: derivedHandlers(Handler.MouseUp, rowIndex, columnIndex),
             onPaste: derivedHandlers(Handler.Paste, rowIndex, columnIndex)
         } as ICellHandlerProps;
     };

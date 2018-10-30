@@ -310,6 +310,12 @@
                 position: absolute;
                 left: 0;
                 top: 0;
+                &.unfocused::selection {
+                    background-color: transparent;
+                }
+                &.unfocused {
+                    caret-color: transparent;
+                }
             }
 
             div.dash-cell-value {

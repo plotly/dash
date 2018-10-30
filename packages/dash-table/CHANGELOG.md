@@ -399,7 +399,7 @@ Derived properties allow the component to expose complex state that can be usefu
 
 ## RC8 - Improve props typing
 
-    Issue: https://github.com/plotly/dash-table/issues/143
+    Issue: https://github.com/plotly/dash-table/issues/143    
 
 ## RC9 - Sort ascending on first click
 
@@ -418,3 +418,8 @@ Derived properties allow the component to expose complex state that can be usefu
 ## RC12 - Rename selected_cell -> selected_cells
 
     Issue: https://github.com/plotly/dash-table/issues/177
+
+## RC13 - Allow keyboard navigation on focused input
+
+    Issue: https://github.com/plotly/dash-table/issues/141
+    Issue: https://github.com/plotly/dash-table/issues/143

@@ -14,7 +14,7 @@ import {
 } from 'dash-table/components/CellInput/props';
 
 import {
-    KEY_CODES
+    KEY_CODES, isNavKey
 } from 'dash-table/utils/unicode';
 import { ColumnType } from 'dash-table/components/Table/props';
 import dropdownHelper from 'dash-table/components/dropdownHelper';
@@ -93,6 +93,7 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
             focused,
             onClick,
             onDoubleClick,
+            onMouseUp,
             onPaste
         } = this.propsWithDefaults;
 
@@ -105,7 +106,8 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
         const attributes = {
             className: classes.join(' '),
             onClick: onClick,
-            onDoubleClick: onDoubleClick
+            onDoubleClick: onDoubleClick,
+            onMouseUp: onMouseUp
         };
 
         const readonly = (!active && this.state.value === this.props.value) || !editable;
@@ -166,7 +168,15 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
     }
 
     handleKeyDown = (e: KeyboardEvent) => {
-        if (e.keyCode !== KEY_CODES.ENTER && e.keyCode !== KEY_CODES.TAB) {
+        const is_focused = this.props.focused;
+
+        if (is_focused && 
+            (e.keyCode !== KEY_CODES.TAB && e.keyCode !== KEY_CODES.ENTER)
+        ) {
+            return;
+        }
+
+        if(!is_focused && !isNavKey(e.keyCode)) {
             return;
         }
 

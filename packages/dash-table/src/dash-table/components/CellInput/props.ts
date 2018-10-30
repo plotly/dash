@@ -14,6 +14,7 @@ export interface ICellHandlerProps {
     onChange: (e: ChangeEvent) => void;
     onClick: (e: React.MouseEvent) => void;
     onDoubleClick: (e: React.MouseEvent) => void;
+    onMouseUp: (e: React.MouseEvent) => void;
     onPaste: (e: React.ClipboardEvent<Element>) => void;
 }
 
