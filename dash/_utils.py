@@ -4,6 +4,21 @@ import base64
 import pkgutil
 
 
+def memoize(func):
+    results = {}
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        key = hash((args, frozenset(kwargs)))
+        cached = results.get(key)
+        if cached:
+            return cached
+        results[key] = r = func(*args, **kwargs)
+        return r
+
+    return wrapper
+
+
 def interpolate_str(template, **data):
     s = template
     for k, v in data.items():
@@ -55,7 +70,7 @@ def first_key(data, *keys):
     return None, None
 
 
-@functools.lru_cache()
+@memoize
 def integrity_hash_from_file(filename):
     with open(filename, 'rb') as f:
         h = hashlib.sha384(f.read())
@@ -65,7 +80,7 @@ def integrity_hash_from_file(filename):
     )
 
 
-@functools.lru_cache()
+@memoize
 def integrity_hash_from_package(namespace, path):
     h = hashlib.sha384(pkgutil.get_data(namespace, path))
 
