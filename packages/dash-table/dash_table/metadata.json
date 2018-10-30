@@ -41,7 +41,7 @@
               },
               "editable": {
                 "name": "bool",
-                "description": "There are two `editable` flags in the table.\nThis is the  column-level editable flag and there is\nalso the table-level `editable` flag.\n\nThese flags determine whether the contents of the table\nare editable or not.\n\nIn order for this property to apply, the table-level `editable`\nflag must be `True`. That is, if you want to only make a single\ncolumn editable, then you must set the table-level `editable`\nflag to `True`, the particular column `editable` flag to True,\nand all of the column-level editable flags to `False`.\n\nNOTE - This behavior may change in the future.\nSubscribe to [https://github.com/plotly/dash-table/issues/175](https://github.com/plotly/dash-table/issues/175)\nfor more information.",
+                "description": "There are two `editable` flags in the table.\nThis is the  column-level editable flag and there is\nalso the table-level `editable` flag.\n\nThese flags determine whether the contents of the table\nare editable or not.\n\nIf the column-level `editable` flag is set it overrides\nthe table-level `editable` flag for that column.",
                 "required": false
               },
               "editable_name": {
@@ -227,7 +227,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, then the data in all of the cells is editable.\nWhen `editable` is True, particular columns can be made\nuneditable by setting `editable` to `False` inside the `columns`\nproperty.\n\nNOTE - This behavior may change in the future, subscribe to\n[https://github.com/plotly/dash-table/issues/175](https://github.com/plotly/dash-table/issues/175)\nfor more details.",
+        "description": "If True, then the data in all of the cells is editable.\nWhen `editable` is True, particular columns can be made\nuneditable by setting `editable` to `False` inside the `columns`\nproperty.\n\nIf False, then the data in all of the cells is uneditable.\nWhen `editable` is False, particular columns can be made\neditable by setting `editable` to `True` inside the `columns`\nproperty.",
         "defaultValue": {
           "value": "false",
           "computed": false

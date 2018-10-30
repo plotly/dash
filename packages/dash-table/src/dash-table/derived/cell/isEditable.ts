@@ -1,6 +1,6 @@
-import { IVisibleColumn } from 'dash-table/components/Table/props';
-
 export default (
-    editable: boolean,
-    column: IVisibleColumn
-): boolean => editable && (column.editable === undefined || column.editable);
+    isEditableTable: boolean,
+    isEditableColumn: boolean | undefined
+): boolean => isEditableColumn === undefined ?
+        isEditableTable :
+        isEditableColumn;

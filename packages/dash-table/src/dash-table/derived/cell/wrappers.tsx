@@ -36,7 +36,7 @@ function getter(
                     'dash-cell' +
                     ` column-${columnIndex}` +
                     (active ? ' focused' : '') +
-                    (!isEditable(editable, column) ? ' cell--uneditable' : '') +
+                    (!isEditable(editable, column.editable) ? ' cell--uneditable' : '') +
                     (selected ? ' cell--selected' : '') +
                     (column.type === ColumnType.Dropdown ? ' dropdown' : '');
 

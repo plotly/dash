@@ -427,3 +427,7 @@ Derived properties allow the component to expose complex state that can be usefu
 ## RC14 - Rename sorting_settings columnId -> column_id
 
     Issue: https://github.com/plotly/dash-table/issues/171
+
+## RC15 - Column 'editable' takes precedence over table 'editable'
+
+    Issue: https://github.com/plotly/dash-table/issues/175

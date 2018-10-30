@@ -133,15 +133,8 @@ export const propTypes = {
          * These flags determine whether the contents of the table
          * are editable or not.
          *
-         * In order for this property to apply, the table-level `editable`
-         * flag must be `True`. That is, if you want to only make a single
-         * column editable, then you must set the table-level `editable`
-         * flag to `True`, the particular column `editable` flag to True,
-         * and all of the column-level editable flags to `False`.
-         *
-         * NOTE - This behavior may change in the future.
-         * Subscribe to [https://github.com/plotly/dash-table/issues/175](https://github.com/plotly/dash-table/issues/175)
-         * for more information.
+         * If the column-level `editable` flag is set it overrides
+         * the table-level `editable` flag for that column.
          */
         editable: PropTypes.bool,
 
@@ -282,9 +275,10 @@ export const propTypes = {
      * uneditable by setting `editable` to `False` inside the `columns`
      * property.
      *
-     * NOTE - This behavior may change in the future, subscribe to
-     * [https://github.com/plotly/dash-table/issues/175](https://github.com/plotly/dash-table/issues/175)
-     * for more details.
+     * If False, then the data in all of the cells is uneditable.
+     * When `editable` is False, particular columns can be made
+     * editable by setting `editable` to `True` inside the `columns`
+     * property.
      */
     editable: PropTypes.bool,
 

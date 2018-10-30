@@ -94,7 +94,7 @@ export default class TableClipboardHelper {
 
                 const jOffset = activeCell[1] + j;
                 const col = newColumns[jOffset];
-                if (col && isEditable(true, col)) {
+                if (col && isEditable(true, col.editable)) {
                     newData = R.set(
                         R.lensPath([iRealCell, col.id]),
                         cell,
