@@ -83,7 +83,7 @@ def updateData(pagination_settings, sorting_settings):
         sorted_df = df.values
     else:
         sorted_df = df.sort_index(
-            axis=sorting_settings[0]['columnId'],
+            axis=sorting_settings[0]['column_id'],
             ascending=(sorting_settings[0]['direction'] == 'asc')
         ).values
 

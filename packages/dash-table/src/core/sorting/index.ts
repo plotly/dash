@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import { ColumnId } from 'dash-table/components/Table/props';
 
 export interface ISortSetting {
-    columnId: ColumnId;
+    column_id: ColumnId;
     direction: SortDirection;
 }
 
@@ -25,7 +25,7 @@ export default (data: any[], settings: SortSettings, isNully: IsNullyFn = defaul
         R.map(setting => {
             return setting.direction === SortDirection.Descending ?
                 R.comparator((d1: any, d2: any) => {
-                    const id = setting.columnId;
+                    const id = setting.column_id;
 
                     const prop1 = d1[id];
                     const prop2 = d2[id];
@@ -39,7 +39,7 @@ export default (data: any[], settings: SortSettings, isNully: IsNullyFn = defaul
                     return prop1 > prop2;
                 }) :
                 R.comparator((d1: any, d2: any) => {
-                    const id = setting.columnId;
+                    const id = setting.column_id;
 
                     const prop1 = d1[id];
                     const prop2 = d2[id];

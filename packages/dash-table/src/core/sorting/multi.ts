@@ -12,13 +12,13 @@ export default (
     settings = R.clone(settings);
 
     if (setting.direction === SortDirection.None) {
-        const currentIndex = R.findIndex(s => s.columnId === setting.columnId, settings);
+        const currentIndex = R.findIndex(s => s.column_id === setting.column_id, settings);
 
         if (currentIndex !== -1) {
             settings.splice(currentIndex, 1);
         }
     } else {
-        const currentSetting = R.find(s => s.columnId === setting.columnId, settings);
+        const currentSetting = R.find(s => s.column_id === setting.column_id, settings);
 
         if (currentSetting) {
             currentSetting.direction = setting.direction;

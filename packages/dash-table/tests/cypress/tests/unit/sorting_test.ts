@@ -7,7 +7,7 @@ describe('sort', () => {
         const data = [[1], [3], [4], [2]];
         const sorted = sort(
             data,
-            [{ columnId: 0, direction: SortDirection.Descending }]
+            [{ column_id: 0, direction: SortDirection.Descending }]
         );
 
         expect(sorted.length).to.equal(data.length);
@@ -22,7 +22,7 @@ describe('sort', () => {
 
         const sorted = sort(
             data,
-            [{ columnId: 0, direction: SortDirection.Descending }]
+            [{ column_id: 0, direction: SortDirection.Descending }]
         );
 
         expect(sorted.length).to.equal(data.length);
@@ -40,7 +40,7 @@ describe('sort', () => {
 
         const sorted = sort(
             data,
-            [{ columnId: 0, direction: SortDirection.Ascending }]
+            [{ column_id: 0, direction: SortDirection.Ascending }]
         );
 
         expect(sorted.length).to.equal(data.length);
@@ -58,7 +58,7 @@ describe('sort', () => {
 
         const sorted = sort(
             data,
-            [{ columnId: 0, direction: SortDirection.Descending }]
+            [{ column_id: 0, direction: SortDirection.Descending }]
         );
 
         expect(sorted.length).to.equal(data.length);
@@ -76,7 +76,7 @@ describe('sort', () => {
 
         const sorted = sort(
             data,
-            [{ columnId: 0, direction: SortDirection.Ascending }]
+            [{ column_id: 0, direction: SortDirection.Ascending }]
         );
 
         expect(sorted.length).to.equal(data.length);
@@ -105,8 +105,8 @@ describe('sort', () => {
         const sorted = sort(
             data,
             [
-                { columnId: 0, direction: SortDirection.Descending },
-                { columnId: 1, direction: SortDirection.Descending }
+                { column_id: 0, direction: SortDirection.Descending },
+                { column_id: 1, direction: SortDirection.Descending }
             ]
         );
 
@@ -135,8 +135,8 @@ describe('sort', () => {
         const sorted = sort(
             data,
             [
-                { columnId: 1, direction: SortDirection.Descending },
-                { columnId: 0, direction: SortDirection.Ascending }
+                { column_id: 1, direction: SortDirection.Descending },
+                { column_id: 0, direction: SortDirection.Ascending }
             ]
         );
 
@@ -153,28 +153,28 @@ describe('sort', () => {
 describe('sorting settings', () => {
     describe('single column sorting', () => {
         it('new descending', () => {
-            const settings = singleUpdateSettings([], { columnId: 0, direction: SortDirection.Descending });
+            const settings = singleUpdateSettings([], { column_id: 0, direction: SortDirection.Descending });
 
             expect(settings.length).to.equal(1);
-            expect(settings[0].columnId).to.equal(0);
+            expect(settings[0].column_id).to.equal(0);
             expect(settings[0].direction).to.equal(SortDirection.Descending);
         });
 
         it('update to descending', () => {
             const settings = singleUpdateSettings(
-                [{ columnId: 0, direction: SortDirection.Ascending }],
-                { columnId: 0, direction: SortDirection.Descending }
+                [{ column_id: 0, direction: SortDirection.Ascending }],
+                { column_id: 0, direction: SortDirection.Descending }
             );
 
             expect(settings.length).to.equal(1);
-            expect(settings[0].columnId).to.equal(0);
+            expect(settings[0].column_id).to.equal(0);
             expect(settings[0].direction).to.equal(SortDirection.Descending);
         });
 
         it('remove by setting to None', () => {
             const settings = singleUpdateSettings(
-                [{ columnId: 0, direction: SortDirection.Ascending }],
-                { columnId: 0, direction: SortDirection.None }
+                [{ column_id: 0, direction: SortDirection.Ascending }],
+                { column_id: 0, direction: SortDirection.None }
             );
 
             expect(settings.length).to.equal(0);
@@ -182,19 +182,19 @@ describe('sorting settings', () => {
 
         it('replace with other', () => {
             const settings = singleUpdateSettings(
-                [{ columnId: 0, direction: SortDirection.Ascending }],
-                { columnId: 1, direction: SortDirection.Ascending }
+                [{ column_id: 0, direction: SortDirection.Ascending }],
+                { column_id: 1, direction: SortDirection.Ascending }
             );
 
             expect(settings.length).to.equal(1);
-            expect(settings[0].columnId).to.equal(1);
+            expect(settings[0].column_id).to.equal(1);
             expect(settings[0].direction).to.equal(SortDirection.Ascending);
         });
 
         it('replace with None', () => {
             const settings = singleUpdateSettings(
-                [{ columnId: 0, direction: SortDirection.Ascending }],
-                { columnId: 1, direction: SortDirection.None }
+                [{ column_id: 0, direction: SortDirection.Ascending }],
+                { column_id: 1, direction: SortDirection.None }
             );
 
             expect(settings.length).to.equal(0);
@@ -203,28 +203,28 @@ describe('sorting settings', () => {
 
     describe('multi columns sorting', () => {
         it('new descending', () => {
-            const settings = multiUpdateSettings([], { columnId: 0, direction: SortDirection.Descending });
+            const settings = multiUpdateSettings([], { column_id: 0, direction: SortDirection.Descending });
 
             expect(settings.length).to.equal(1);
-            expect(settings[0].columnId).to.equal(0);
+            expect(settings[0].column_id).to.equal(0);
             expect(settings[0].direction).to.equal(SortDirection.Descending);
         });
 
         it('update to descending', () => {
             const settings = multiUpdateSettings(
-                [{ columnId: 0, direction: SortDirection.Ascending }],
-                { columnId: 0, direction: SortDirection.Descending }
+                [{ column_id: 0, direction: SortDirection.Ascending }],
+                { column_id: 0, direction: SortDirection.Descending }
             );
 
             expect(settings.length).to.equal(1);
-            expect(settings[0].columnId).to.equal(0);
+            expect(settings[0].column_id).to.equal(0);
             expect(settings[0].direction).to.equal(SortDirection.Descending);
         });
 
         it('remove by setting to None', () => {
             const settings = multiUpdateSettings(
-                [{ columnId: 0, direction: SortDirection.Ascending }],
-                { columnId: 0, direction: SortDirection.None }
+                [{ column_id: 0, direction: SortDirection.Ascending }],
+                { column_id: 0, direction: SortDirection.None }
             );
 
             expect(settings.length).to.equal(0);
@@ -232,36 +232,36 @@ describe('sorting settings', () => {
 
         it('respects order', () => {
             const settings = multiUpdateSettings(
-                [{ columnId: 0, direction: SortDirection.Ascending }],
-                { columnId: 1, direction: SortDirection.Ascending }
+                [{ column_id: 0, direction: SortDirection.Ascending }],
+                { column_id: 1, direction: SortDirection.Ascending }
             );
 
             expect(settings.length).to.equal(2);
-            expect(settings[0].columnId).to.equal(0);
-            expect(settings[1].columnId).to.equal(1);
+            expect(settings[0].column_id).to.equal(0);
+            expect(settings[1].column_id).to.equal(1);
         });
 
         it('respects order when removed and added back', () => {
-            let settings: SortSettings = [{ columnId: 0, direction: SortDirection.Ascending }];
+            let settings: SortSettings = [{ column_id: 0, direction: SortDirection.Ascending }];
 
             settings = multiUpdateSettings(
                 settings,
-                { columnId: 1, direction: SortDirection.Ascending }
+                { column_id: 1, direction: SortDirection.Ascending }
             );
 
             settings = multiUpdateSettings(
                 settings,
-                { columnId: 0, direction: SortDirection.None }
+                { column_id: 0, direction: SortDirection.None }
             );
 
             settings = multiUpdateSettings(
                 settings,
-                { columnId: 0, direction: SortDirection.Ascending }
+                { column_id: 0, direction: SortDirection.Ascending }
             );
 
             expect(settings.length).to.equal(2);
-            expect(settings[0].columnId).to.equal(1);
-            expect(settings[1].columnId).to.equal(0);
+            expect(settings[0].column_id).to.equal(1);
+            expect(settings[1].column_id).to.equal(0);
         });
     });
 });

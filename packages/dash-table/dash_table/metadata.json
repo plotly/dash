@@ -670,7 +670,7 @@
           "value": {
             "name": "shape",
             "value": {
-              "columnId": {
+              "column_id": {
                 "name": "union",
                 "value": [
                   {
@@ -700,7 +700,7 @@
           }
         },
         "required": false,
-        "description": "`sorting_settings` describes the current state\nof the sorting UI.\nThat is, if the user clicked on the sort arrow\nof a column, then this property will be updated\nwith the column ID and the direction\n(`asc` or `desc`) of the sort.\nFor multi-column sorting, this will be a list of\nsorting parameters, in the order in which they were\nclicked.\n\nNOTE - We may rename `columnId` to `column_id` in\nthe future.\nSubscribe to [https://github.com/plotly/dash-table/issues/171](https://github.com/plotly/dash-table/issues/171)\nfor details.",
+        "description": "`sorting_settings` describes the current state\nof the sorting UI.\nThat is, if the user clicked on the sort arrow\nof a column, then this property will be updated\nwith the column ID and the direction\n(`asc` or `desc`) of the sort.\nFor multi-column sorting, this will be a list of\nsorting parameters, in the order in which they were\nclicked.",
         "defaultValue": {
           "value": "[]",
           "computed": false

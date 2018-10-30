@@ -49,7 +49,7 @@ function doSort(columnId: ColumnId, sortSettings: SortSettings, sortType: Sortin
         setProps({
             sorting_settings: sortingStrategy(
                 sortSettings,
-                { columnId, direction }
+                { column_id: columnId, direction }
             )
         });
     };
@@ -62,7 +62,7 @@ function editColumnName(column: IVisibleColumn, columns: VisibleColumns, columnR
 }
 
 function getSorting(columnId: ColumnId, settings: SortSettings): SortDirection {
-    const setting = R.find(s => s.columnId === columnId, settings);
+    const setting = R.find(s => s.column_id === columnId, settings);
 
     return setting ? setting.direction : SortDirection.None;
 }
