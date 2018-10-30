@@ -4,7 +4,8 @@ import warnings
 import os
 
 from .development.base_component import Component
-from ._utils import first_key, integrity_hash_from_file, integrity_hash_from_package
+from ._utils import \
+    first_key, integrity_hash_from_file, integrity_hash_from_package
 
 
 # pylint: disable=old-style-class
@@ -75,17 +76,19 @@ class Resources:
                         filtered_resources.append({
                             key: f,
                             'integrity': integrity_hash_from_package(
-                                filtered_resource['namespace'], f.split('/')[-1]),
+                                filtered_resource['namespace'],
+                                f.split('/')[-1]),
                             'crossorigin': 'anonymous',
                             'namespace': filtered_resource['namespace']
                         })
                         added = True
                 else:
                     filename = filename.split('/')[-1]
-                    filtered_resource['integrity'] = integrity_hash_from_package(
-                        filtered_resource['namespace'],
-                        filename
-                    )
+                    filtered_resource['integrity'] = \
+                        integrity_hash_from_package(
+                            filtered_resource['namespace'],
+                            filename
+                        )
                     filtered_resource['crossorigin'] = 'anonymous'
 
             if not added:
