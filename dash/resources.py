@@ -4,6 +4,7 @@ import warnings
 import os
 
 from .development.base_component import Component
+from ._utils import first_key, integrity_hash_from_file, integrity_hash_from_package
 
 
 # pylint: disable=old-style-class
@@ -20,6 +21,7 @@ class Resources:
         filtered_resources = []
         for s in all_resources:
             filtered_resource = {}
+            added = False
             if 'namespace' in s:
                 filtered_resource['namespace'] = s['namespace']
             if 'external_url' in s and not self.config.serve_locally:
@@ -36,6 +38,9 @@ class Resources:
                 filtered_resource['absolute_path'] = s['absolute_path']
             elif 'asset_path' in s:
                 info = os.stat(s['filepath'])
+                filtered_resource['integrity'] = integrity_hash_from_file(
+                    s['filepath'])
+                filtered_resource['crossorigin'] = 'anonymous'
                 filtered_resource['asset_path'] = s['asset_path']
                 filtered_resource['ts'] = info.st_mtime
             elif self.config.serve_locally:
@@ -54,7 +59,36 @@ class Resources:
                     )
                 )
 
-            filtered_resources.append(filtered_resource)
+            if 'integrity' not in filtered_resource \
+                    and 'namespace' in filtered_resource:
+                # Get the resource key and value.
+                key, filename = first_key(
+                    filtered_resource,
+                    'external_url',
+                    'dev_package_path',
+                    'relative_package_path'
+                )
+                if isinstance(filename, list):
+                    # flatten these dependencies
+                    for f in filename:
+                        filtered_resources.append({
+                            key: f,
+                            'integrity': integrity_hash_from_package(
+                                filtered_resource['namespace'], f.split('/')[-1]),
+                            'crossorigin': 'anonymous',
+                            'namespace': filtered_resource['namespace']
+                        })
+                        added = True
+                else:
+                    filename = filename.split('/')[-1]
+                    filtered_resource['integrity'] = integrity_hash_from_package(
+                        filtered_resource['namespace'],
+                        filename
+                    )
+                    filtered_resource['crossorigin'] = 'anonymous'
+
+            if not added:
+                filtered_resources.append(filtered_resource)
 
         return filtered_resources
 

@@ -25,6 +25,7 @@ from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
 from ._utils import get_asset_path as _get_asset_path
+from ._utils import pluck as _pluck
 from . import _configs
 
 
@@ -313,6 +314,7 @@ class Dash(object):
         def _relative_url_path(relative_package_path='', namespace=''):
 
             # track the registered packages
+            # FIXME it append a new path each time the index is served ?
             if namespace in self.registered_paths:
                 self.registered_paths[namespace].append(relative_package_path)
             else:
@@ -332,23 +334,34 @@ class Dash(object):
                 modified
             )
 
+        def pack(src, **kwargs):
+            return dict(kwargs, src=src)
+
         srcs = []
         for resource in resources:
             if 'relative_package_path' in resource:
                 if isinstance(resource['relative_package_path'], str):
-                    srcs.append(_relative_url_path(**resource))
+                    srcs.append(
+                        pack(
+                            _relative_url_path(
+                                resource['relative_package_path'],
+                                resource['namespace']),
+                            **resource)
+                    )
                 else:
                     for rel_path in resource['relative_package_path']:
-                        srcs.append(_relative_url_path(
+                        srcs.append(pack(_relative_url_path(
                             relative_package_path=rel_path,
-                            namespace=resource['namespace']
-                        ))
+                            namespace=resource['namespace'],
+                        ), **resource))
             elif 'external_url' in resource:
                 if isinstance(resource['external_url'], str):
-                    srcs.append(resource['external_url'])
+                    srcs.append(
+                        pack(resource['external_url'], **resource)
+                    )
                 else:
                     for url in resource['external_url']:
-                        srcs.append(url)
+                        srcs.append(pack(url))
             elif 'absolute_path' in resource:
                 raise Exception(
                     'Serving files from absolute_path isn\'t supported yet'
@@ -357,7 +370,7 @@ class Dash(object):
                 static_url = self.get_asset_url(resource['asset_path'])
                 # Add a bust query param
                 static_url += '?m={}'.format(resource['ts'])
-                srcs.append(static_url)
+                srcs.append(pack(static_url, **resource))
         return srcs
 
     def _generate_css_dist_html(self):
@@ -365,7 +378,22 @@ class Dash(object):
                 self._collect_and_register_resources(self.css.get_all_css())
 
         return '\n'.join([
-            _format_tag('link', link, opened=True)
+            _format_tag(
+                'link',
+                _pluck(
+                    link,
+                    'integrity',
+                    'crossorigin',
+                    'media',
+                    'charset',
+                    'rev',
+                    'target',
+                    'type',
+                    href=link.get('src'),
+                    rel='stylesheet'
+                ),
+                opened=True
+            )
             if isinstance(link, dict)
             else '<link rel="stylesheet" href="{}">'.format(link)
             for link in links
@@ -392,7 +420,15 @@ class Dash(object):
                 ))
 
         return '\n'.join([
-            _format_tag('script', src)
+            _format_tag('script', _pluck(
+                src,
+                'src',
+                'integrity',
+                'crossorigin',
+                'charset',
+                'async',
+                'defer',
+                'type'))
             if isinstance(src, dict)
             else '<script src="{}"></script>'.format(src)
             for src in srcs
@@ -492,7 +528,7 @@ class Dash(object):
         checks = (
             (_re_index_entry_id.search(index), '#react-entry-point'),
             (_re_index_config_id.search(index), '#_dash-configs'),
-            (_re_index_scripts_id.search(index), 'dash-renderer'),
+            # (_re_index_scripts_id.search(index), 'dash-renderer'),
         )
         missing = [missing for check, missing in checks if not check]
 
