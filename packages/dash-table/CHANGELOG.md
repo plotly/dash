@@ -431,3 +431,7 @@ Derived properties allow the component to expose complex state that can be usefu
 ## RC15 - Column 'editable' takes precedence over table 'editable'
 
     Issue: https://github.com/plotly/dash-table/issues/175
+
+## RC16 - Fix copy/paste behavior when copied rows larger than data
+
+    Issue: https://github.com/plotly/dash-table/issues/142
