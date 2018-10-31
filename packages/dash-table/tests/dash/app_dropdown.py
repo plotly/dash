@@ -51,7 +51,7 @@ def layout():
 
         section_title('Dash Table with Per-Column Dropdowns'),
 
-        dash_table.Table(
+        dash_table.DataTable(
             id=IDS['dropdown'],
             data=df.to_dict('rows'),
             columns=[
@@ -81,7 +81,7 @@ def layout():
 
         section_title('Dash Table with Per-Cell Dropdowns via Filtering UI'),
 
-        dash_table.Table(
+        dash_table.DataTable(
             id=IDS['dropdown-by-cell'],
             data=df_per_row_dropdown.to_dict('rows'),
             columns=[
@@ -140,7 +140,7 @@ def layout():
 
         html.Div('This example uses a deprecated API, `dropdown_properties`.'),
 
-        dash_table.Table(
+        dash_table.DataTable(
             id=IDS['dropdown-by-cell'],
             data=df_per_row_dropdown.to_dict('rows'),
             columns=[

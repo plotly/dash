@@ -1,7 +1,7 @@
 /* eslint no-magic-numbers: 0 */
 import * as R from 'ramda';
 import React, {Component} from 'react';
-import { Table } from 'dash-table';
+import { DataTable } from 'dash-table';
 import {mockData} from './data';
 import { memoizeOne } from 'core/memoizer';
 import Logger from 'core/Logger';
@@ -70,7 +70,7 @@ class App extends Component {
     }
 
     render() {
-        return (<Table
+        return (<DataTable
             setProps={this.setProps}
             {...this.state.tableProps}
             {...{ filtering: 'fe' }}

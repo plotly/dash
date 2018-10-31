@@ -1,7 +1,7 @@
 {
-  "src/dash-table/Table.js": {
+  "src/dash-table/DataTable.js": {
     "description": "",
-    "displayName": "Table",
+    "displayName": "DataTable",
     "methods": [],
     "props": {
       "active_cell": {

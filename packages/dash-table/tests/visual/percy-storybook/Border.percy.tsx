@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import random from 'core/math/random';
-import DashTable from 'dash-table/Table';
+import DataTable from 'dash-table/DataTable';
 
 const setProps = () => { };
 
@@ -62,36 +62,36 @@ let props2 = {
 };
 
 storiesOf('DashTable/Border (available space not filled)', module)
-    .add('with no frozen rows and no frozen columns', () => (<DashTable
+    .add('with no frozen rows and no frozen columns', () => (<DataTable
         {...props}
     />))
-    .add('with frozen rows and no frozen columns', () => (<DashTable
+    .add('with frozen rows and no frozen columns', () => (<DataTable
         {...props}
         n_fixed_rows={1}
     />))
-    .add('with no frozen rows and frozen columns', () => (<DashTable
+    .add('with no frozen rows and frozen columns', () => (<DataTable
         {...props}
         n_fixed_columns={1}
     />))
-    .add('with frozen rows and frozen columns', () => (<DashTable
+    .add('with frozen rows and frozen columns', () => (<DataTable
         {...props}
         n_fixed_columns={1}
         n_fixed_rows={1}
     />));
 
 storiesOf('DashTable/Border (available space filled)', module)
-    .add('with no frozen rows and no frozen columns', () => (<DashTable
+    .add('with no frozen rows and no frozen columns', () => (<DataTable
         {...props2}
     />))
-    .add('with frozen rows and no frozen columns', () => (<DashTable
+    .add('with frozen rows and no frozen columns', () => (<DataTable
         {...props2}
         n_fixed_rows={1}
     />))
-    .add('with no frozen rows and frozen columns', () => (<DashTable
-        {...props2}
+    .add('with no frozen rows and frozen columns', () => (<DataTable
+        {...props2}DataTable
         n_fixed_columns={1}
     />))
-    .add('with frozen rows and frozen columns', () => (<DashTable
+    .add('with frozen rows and frozen columns', () => (<DataTable
         {...props2}
         n_fixed_columns={1}
         n_fixed_rows={1}
@@ -106,36 +106,36 @@ let props4 = Object.assign({}, props2, {
 });
 
 storiesOf('DashTable/ListView style, Border (available space not filled)', module)
-    .add('with no frozen rows and no frozen columns', () => (<DashTable
+    .add('with no frozen rows and no frozen columns', () => (<DataTable
         {...props3}
     />))
-    .add('with frozen rows and no frozen columns', () => (<DashTable
+    .add('with frozen rows and no frozen columns', () => (<DataTable
         {...props3}
         n_fixed_rows={1}
     />))
-    .add('with no frozen rows and frozen columns', () => (<DashTable
+    .add('with no frozen rows and frozen columns', () => (<DataTable
         {...props3}
         n_fixed_columns={1}
     />))
-    .add('with frozen rows and frozen columns', () => (<DashTable
+    .add('with frozen rows and frozen columns', () => (<DataTable
         {...props3}
         n_fixed_columns={1}
         n_fixed_rows={1}
     />));
 
 storiesOf('DashTable/ListView style, Border (available space filled)', module)
-    .add('with no frozen rows and no frozen columns', () => (<DashTable
+    .add('with no frozen rows and no frozen columns', () => (<DataTable
         {...props4}
     />))
-    .add('with frozen rows and no frozen columns', () => (<DashTable
+    .add('with frozen rows and no frozen columns', () => (<DataTable
         {...props4}
         n_fixed_rows={1}
     />))
-    .add('with no frozen rows and frozen columns', () => (<DashTable
+    .add('with no frozen rows and frozen columns', () => (<DataTable
         {...props4}
         n_fixed_columns={1}
     />))
-    .add('with frozen rows and frozen columns', () => (<DashTable
+    .add('with frozen rows and frozen columns', () => (<DataTable
         {...props4}
         n_fixed_columns={1}
         n_fixed_rows={1}

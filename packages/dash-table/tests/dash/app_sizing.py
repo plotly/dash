@@ -272,7 +272,7 @@ def layout():
                 html.H3("Dash Interactive Table"),
                 html.Div("These same styles can be applied to the dash table"),
                 section_title("Dash Table - Default Styles"),
-                dash_table.Table(
+                dash_table.DataTable(
                     id="sizing-1",
                     data=df.to_dict("rows"),
                     columns=[{"name": i, "id": i} for i in df.columns],
@@ -290,7 +290,7 @@ def layout():
                 allocates space.
             """
                 ),
-                dash_table.Table(
+                dash_table.DataTable(
                     id="sizing-2",
                     data=df.to_dict("rows"),
                     content_style="grow",
@@ -317,7 +317,7 @@ def layout():
                 allocates space.
             """
                 ),
-                dash_table.Table(
+                dash_table.DataTable(
                     id="sizing-3",
                     data=df.to_dict("rows"),
                     content_style="grow",
@@ -342,7 +342,7 @@ def layout():
             The columns have a width/minWidth/maxWidth of 100px.
             """
                 ),
-                dash_table.Table(
+                dash_table.DataTable(
                     id="sizing-4",
                     data=df.to_dict("rows"),
                     columns=[
@@ -366,7 +366,7 @@ def layout():
             in that case
             """
                 ),
-                dash_table.Table(
+                dash_table.DataTable(
                     id="sizing-5",
                     data=df.to_dict("rows"),
                     columns=[
@@ -390,7 +390,7 @@ def layout():
             in that case
             """
                 ),
-                dash_table.Table(
+                dash_table.DataTable(
                     id="sizing-6",
                     data=df.to_dict("rows"),
                     columns=[

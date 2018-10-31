@@ -111,7 +111,7 @@ def update_table(*args):
         rows = df.to_dict("rows")
     else:
         rows = df_small.to_dict("rows")
-    return dash_table.Table(
+    return dash_table.DataTable(
         id=__name__,
         columns=[{"name": i, "id": i} for i in df.columns],
         data=rows,
@@ -126,7 +126,7 @@ def update_table(*args):
     )
 
 
-AVAILABLE_PROPERTIES = dash_table.Table(id="req").available_properties
+AVAILABLE_PROPERTIES = dash_table.DataTable(id="req").available_properties
 
 
 @app.callback(

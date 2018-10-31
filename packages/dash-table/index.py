@@ -32,7 +32,7 @@ app.layout = html.Div(
     children=[
         dcc.Location(id="location"),
         html.Div(id="container"),
-        html.Div(style={"display": "none"}, children=dash_table.Table(id="hidden")),
+        html.Div(style={"display": "none"}, children=dash_table.DataTable(id="hidden")),
     ]
 )
 

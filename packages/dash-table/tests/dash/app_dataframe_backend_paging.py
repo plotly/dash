@@ -35,7 +35,7 @@ def layout():
 
             section_title('Backend Paging'),
 
-            dash_table.Table(
+            dash_table.DataTable(
                 id=IDS["table"],
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
@@ -65,7 +65,7 @@ def layout():
 
             section_title('Backend Paging with Sorting'),
 
-            dash_table.Table(
+            dash_table.DataTable(
                 id=IDS["table-sorting"],
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
@@ -93,7 +93,7 @@ def layout():
             In this example, try sorting by continent and then any other column.
             ''')),
 
-            dash_table.Table(
+            dash_table.DataTable(
                 id=IDS["table-multi-sorting"],
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
@@ -132,7 +132,7 @@ def layout():
 
             ''')),
 
-            dash_table.Table(
+            dash_table.DataTable(
                 id=IDS["table-filtering"],
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
@@ -150,7 +150,7 @@ def layout():
 
             section_title('Backend Paging with Filtering and Multi-Column Sorting'),
 
-            dash_table.Table(
+            dash_table.DataTable(
                 id=IDS["table-sorting-filtering"],
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
@@ -181,7 +181,7 @@ def layout():
                 className="row",
                 children=[
                     html.Div(
-                        dash_table.Table(
+                        dash_table.DataTable(
                             id=IDS["table-paging-with-graph"],
                             columns=[
                                 {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)

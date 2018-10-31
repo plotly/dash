@@ -16,7 +16,7 @@ function isBackEnd(value) {
     return ['be', false].indexOf(value) !== -1;
 }
 
-export default class Table extends Component {
+export default class DataTable extends Component {
     constructor(props) {
         super(props);
 
@@ -726,5 +726,5 @@ export const propTypes = {
      dropdown_properties: PropTypes.any,
 };
 
-Table.defaultProps = defaultProps;
-Table.propTypes = propTypes;
+DataTable.defaultProps = defaultProps;
+DataTable.propTypes = propTypes;

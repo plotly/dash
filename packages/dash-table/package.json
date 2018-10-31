@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "3.1.0-rc17",
+  "version": "3.1.0-rc18",
   "description": "Dash table",
   "main": "build/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "build:js-dev": "run-s \"private::build -- --mode development\"",
     "build:js-test": "run-s \"private::build -- --config webpack.test.config.js\"",
     "build:js-test-watch": "run-s \"private::build -- --config webpack.test.config.js --watch\"",
-    "build:py": "./extract-meta src/dash-table/Table.js > dash_table/metadata.json && cp package.json dash_table",
+    "build:py": "./extract-meta src/dash-table/DataTable.js > dash_table/metadata.json && cp package.json dash_table",
     "lint": "run-s private::lint.js private::lint.ts",
     "test": "run-p --race private::host* private::runtests",
     "test.visual": "build-storybook && percy-storybook",

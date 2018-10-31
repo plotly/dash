@@ -2,17 +2,17 @@ import * as R from 'ramda';
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import random from 'core/math/random';
-import DashTable from 'dash-table/Table';
+import DataTable from 'dash-table/DataTable';
 import fixtures from './fixtures';
 
 const setProps = () => { };
 
 // Legacy: Tests previously run in Python
 const fixtureStories = storiesOf('DashTable/Fixtures', module);
-fixtures.forEach(fixture => fixtureStories.add(fixture.name, () => (<DashTable {...Object.assign(fixture.props)} />)));
+fixtures.forEach(fixture => fixtureStories.add(fixture.name, () => (<DataTable {...Object.assign(fixture.props)} />)));
 
 storiesOf('DashTable/Without Data', module)
-    .add('with 1 column', () => (<DashTable
+    .add('with 1 column', () => (<DataTable
         setProps={setProps}
         id='table'
         data={[]}
@@ -24,7 +24,7 @@ storiesOf('DashTable/Without Data', module)
     />));
 
 storiesOf('DashTable/With Data', module)
-    .add('with 3 columns and 3 rows, not actionable', () => (<DashTable
+    .add('with 3 columns and 3 rows, not actionable', () => (<DataTable
         setProps={setProps}
         id='table'
         data={[
@@ -83,7 +83,7 @@ const style_data_conditional = [
 ];
 
 storiesOf('DashTable/Fixed Rows & Columns', module)
-    .add('with 1 fixed row, 2 fixed columns', () => (<DashTable
+    .add('with 1 fixed row, 2 fixed columns', () => (<DataTable
         setProps={setProps}
         id='table'
         data={data}
@@ -94,7 +94,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         row_selectable={true}
         style_data_conditional={style_data_conditional}
     />))
-    .add('with 1 fixed row', () => (<DashTable
+    .add('with 1 fixed row', () => (<DataTable
         setProps={setProps}
         id='table'
         data={data}
@@ -104,7 +104,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         row_selectable={true}
         style_data_conditional={style_data_conditional}
     />))
-    .add('with 2 fixed columns', () => (<DashTable
+    .add('with 2 fixed columns', () => (<DataTable
         setProps={setProps}
         id='table'
         data={data}
@@ -114,7 +114,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         row_selectable={true}
         style_data_conditional={style_data_conditional}
     />))
-    .add('with 2 fixed rows, 4 fixed columns and merged cells', () => (<DashTable
+    .add('with 2 fixed rows, 4 fixed columns and merged cells', () => (<DataTable
         setProps={setProps}
         id='table'
         data={data}
@@ -128,7 +128,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         const testColumns = JSON.parse(JSON.stringify(columns));
         testColumns[2].hidden = true;
 
-        return (<DashTable
+        return (<DataTable
             setProps={setProps}
             id='table'
             data={data}
@@ -161,14 +161,14 @@ const hiddenColumns = R.addIndex(R.map)((column, index) =>
 );
 
 storiesOf('DashTable/Hidden Columns', module)
-    .add('hides', () => (<DashTable
+    .add('hides', () => (<DataTable
         setProps={setProps}
         id='table'
         data={data}
         columns={hiddenColumns}
         style_data_conditional={style_data_conditional}
     />))
-    .add('active cell', () => (<DashTable
+    .add('active cell', () => (<DataTable
         setProps={setProps}
         id='table'
         data={data}
@@ -176,7 +176,7 @@ storiesOf('DashTable/Hidden Columns', module)
         active_cell={[1, 1]}
         style_data_conditional={style_data_conditional}
     />))
-    .add('selected cells', () => (<DashTable
+    .add('selected cells', () => (<DataTable
         setProps={setProps}
         id='table'
         data={data}
@@ -186,7 +186,7 @@ storiesOf('DashTable/Hidden Columns', module)
     />));
 
 storiesOf('DashTable/Sorting', module)
-    .add('"a" ascending', () => (<DashTable
+    .add('"a" ascending', () => (<DataTable
         setProps={setProps}
         id='table'
         data={sparseData}
@@ -195,7 +195,7 @@ storiesOf('DashTable/Sorting', module)
         sorting_settings={[{ column_id: 'a', direction: 'asc' }]}
         style_data_conditional={style_data_conditional}
     />))
-    .add('"a" descending', () => (<DashTable
+    .add('"a" descending', () => (<DataTable
         setProps={setProps}
         id='table'
         data={sparseData}
@@ -204,7 +204,7 @@ storiesOf('DashTable/Sorting', module)
         sorting_settings={[{ column_id: 'a', direction: 'desc' }]}
         style_data_conditional={style_data_conditional}
     />))
-    .add('"a" ascending -- empty string override', () => (<DashTable
+    .add('"a" ascending -- empty string override', () => (<DataTable
         setProps={setProps}
         id='table'
         data={sparseData}
@@ -214,7 +214,7 @@ storiesOf('DashTable/Sorting', module)
         sorting_treat_empty_string_as_none={true}
         style_data_conditional={style_data_conditional}
     />))
-    .add('"a" descending -- empty string override', () => (<DashTable
+    .add('"a" descending -- empty string override', () => (<DataTable
         setProps={setProps}
         id='table'
         data={sparseData}
@@ -225,7 +225,7 @@ storiesOf('DashTable/Sorting', module)
         style_data_conditional={style_data_conditional}
     />));
 storiesOf('DashTable/Without id', module)
-    .add('with 1 fixed row, 2 fixed columns', () => (<DashTable
+    .add('with 1 fixed row, 2 fixed columns', () => (<DataTable
         setProps={setProps}
         data={data}
         columns={columns}
@@ -235,7 +235,7 @@ storiesOf('DashTable/Without id', module)
         row_selectable={true}
         style_data_conditional={style_data_conditional}
     />))
-    .add('with 1 fixed row, 2 fixed columns, set height and width', () => (<DashTable
+    .add('with 1 fixed row, 2 fixed columns, set height and width', () => (<DataTable
         setProps={setProps}
         data={data}
         columns={columns}
@@ -246,7 +246,7 @@ storiesOf('DashTable/Without id', module)
         style_table={{height: 500, width: 200}}
         style_data_conditional={style_data_conditional}
     />))
-    .add('with set height and width and colors', () => (<DashTable
+    .add('with set height and width and colors', () => (<DataTable
         setProps={setProps}
         data={data}
         columns={columns}
@@ -261,7 +261,7 @@ storiesOf('DashTable/Without id', module)
         }]}
     />))
     .add('Two tables with CSS props set', () => (<div>
-        <DashTable
+        <DataTable
             setProps={setProps}
             data={data}
             columns={columns}
@@ -275,7 +275,7 @@ storiesOf('DashTable/Without id', module)
                 'rule': 'border: 4px solid hotpink'
             }]}
         />
-        <DashTable
+        <DataTable
             setProps={setProps}
             data={data}
             columns={columns}

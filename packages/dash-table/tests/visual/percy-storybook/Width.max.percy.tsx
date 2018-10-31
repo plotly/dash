@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import random from 'core/math/random';
-import DashTable from 'dash-table/Table';
+import DataTable from 'dash-table/DataTable';
 
 const setProps = () => { };
 
@@ -31,18 +31,18 @@ const props = Object.assign({}, baseProps, {
 });
 
 storiesOf('DashTable/Width maxWidth only', module)
-    .add('without frozen columns or rows', () => (<DashTable
+    .add('without frozen columns or rows', () => (<DataTable
         {...props}
     />))
-    .add('with frozen rows', () => (<DashTable
+    .add('with frozen rows', () => (<DataTable
         {...props}
         n_fixed_rows={1}
     />))
-    .add('with frozen columns', () => (<DashTable
+    .add('with frozen columns', () => (<DataTable
         {...props}
         n_fixed_columns={1}
     />))
-    .add('with frozen rows and frozen columns', () => (<DashTable
+    .add('with frozen rows and frozen columns', () => (<DataTable
         {...props}
         n_fixed_columns={1}
         n_fixed_rows={1}

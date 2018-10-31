@@ -17,7 +17,7 @@ def layout():
     return html.Div(
         [
             html.Div(
-                dash_table.Table(
+                dash_table.DataTable(
                     id=IDS["table"],
                     columns=[
                         {"name": i, "id": i, "deletable": True} for i in df.columns

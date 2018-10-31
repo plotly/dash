@@ -352,7 +352,7 @@ def layout():
             # ...
 
             section_title('Dash Table - Row Padding'),
-            dash_table.Table(
+            dash_table.DataTable(
                 id="styling-2",
                 data=df.to_dict("rows"),
                 columns=[
@@ -371,7 +371,7 @@ def layout():
             # ...
 
             section_title('Dash Table - Dark Theme with Cells'),
-            dash_table.Table(
+            dash_table.DataTable(
                 id="styling-6",
                 data=df.to_dict("rows"),
                 columns=[
@@ -410,7 +410,7 @@ def layout():
             # ...
 
             section_title('Dash Table - Highlighting Certain Columns'),
-            dash_table.Table(
+            dash_table.DataTable(
                 id="styling-9",
                 data=df.to_dict("rows"),
                 columns=[
@@ -432,7 +432,7 @@ def layout():
             ),
 
             section_title('Dash Table - Highlighting Certain Cells'),
-            dash_table.Table(
+            dash_table.DataTable(
                 id="styling-10",
                 data=df.to_dict("rows"),
                 columns=[

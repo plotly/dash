@@ -25,7 +25,7 @@ app.scripts.config.serve_locally = True
 app.layout = html.Div(
     [
         html.Div(id="container", children="Hello World"),
-        dash_table.Table(
+        dash_table.DataTable(
             id="table",
             data=[],
             pagination_mode="be",
