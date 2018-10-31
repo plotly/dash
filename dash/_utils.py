@@ -70,8 +70,8 @@ def first_key(data, *keys):
     return None, None
 
 
-def _integrity_hash(bytes):
-    h = hashlib.sha384(bytes)
+def _integrity_hash(b):
+    h = hashlib.sha384(b)
 
     return 'sha384-{}'.format(
         base64.b64encode(h.digest()).decode()

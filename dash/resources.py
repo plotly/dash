@@ -8,6 +8,7 @@ from ._utils import \
     first_key, integrity_hash_from_file, integrity_hash_from_package
 
 
+# pylint: disable=inconsistent-return-statements
 def find_unpkg(value, relative_package_paths):
     # find the local file for a unpkg url.
     # The structure of the _js_dist/_css_dist does not allow
@@ -19,8 +20,7 @@ def find_unpkg(value, relative_package_paths):
     ext = filename.split('.')[-1]
 
     for i in relative_package_paths:
-        if (i == filename
-            and i not in [
+        if (i == filename and i not in [
                 'index.js', 'index.css', 'style.css', 'style.min.css',
                 'styles.css', 'styles.min.css']) \
                 or (lib in i and version in i and i.endswith(ext)):
