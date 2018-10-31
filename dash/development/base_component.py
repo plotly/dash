@@ -3,6 +3,25 @@ import copy
 import os
 import inspect
 from ._all_keywords import kwlist
+import keyword
+import six
+
+
+class ComponentRegistry(type):
+    """Just importing a component lib will make it be loaded on the index"""
+
+    component_registry = set()
+
+    def __new__(mcs, name, bases, attributes):
+        component = type.__new__(mcs, name, bases, attributes)
+        if name == 'Component':
+            # Don't do the base component
+            return component
+
+        module = attributes['__module__'].split('.')[0]
+        mcs.component_registry.add(module)
+
+        return component
 
 
 def is_number(s):
@@ -53,7 +72,8 @@ def _explicitize_args(func):
     return wrapper
 
 
-class Component(collections.MutableMapping):
+@six.add_metaclass(ComponentRegistry)
+class Component:
     class _UNDEFINED(object):
         def __repr__(self):
             return 'undefined'
