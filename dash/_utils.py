@@ -70,23 +70,23 @@ def first_key(data, *keys):
     return None, None
 
 
-@memoize
-def integrity_hash_from_file(filename):
-    with open(filename, 'rb') as f:
-        h = hashlib.sha384(f.read())
+def _integrity_hash(bytes):
+    h = hashlib.sha384(bytes)
 
     return 'sha384-{}'.format(
         base64.b64encode(h.digest()).decode()
     )
+
+
+@memoize
+def integrity_hash_from_file(filename):
+    with open(filename, 'rb') as f:
+        return _integrity_hash(f.read())
 
 
 @memoize
 def integrity_hash_from_package(namespace, path):
-    h = hashlib.sha384(pkgutil.get_data(namespace, path))
-
-    return 'sha384-{}'.format(
-        base64.b64encode(h.digest()).decode()
-    )
+    return _integrity_hash(pkgutil.get_data(namespace, path))
 
 
 class AttributeDict(dict):
