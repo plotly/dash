@@ -8,6 +8,25 @@ from ._utils import \
     first_key, integrity_hash_from_file, integrity_hash_from_package
 
 
+def find_unpkg(value, relative_package_paths):
+    # find the local file for a unpkg url.
+    # The structure of the _js_dist/_css_dist does not allow
+    # for easy translation between local and external dependencies.
+    v = value.replace('https://unpkg.com/', '')
+    s = v.split('/')
+    lib, version = s[0].split('@')
+    filename = s[-1]
+    ext = filename.split('.')[-1]
+
+    for i in relative_package_paths:
+        if (i == filename
+            and i not in [
+                'index.js', 'index.css', 'style.css', 'style.min.css',
+                'styles.css', 'styles.min.css']) \
+                or (lib in i and version in i and i.endswith(ext)):
+            return i
+
+
 # pylint: disable=old-style-class
 class Resources:
     def __init__(self, resource_name, layout):
@@ -28,6 +47,7 @@ class Resources:
                 filtered_resource['namespace'] = s['namespace']
             if 'external_url' in s and not self.config.serve_locally:
                 filtered_resource['external_url'] = s['external_url']
+                filtered_resource['local_file'] = s['relative_package_path']
             elif 'dev_package_path' in s and dev_bundles:
                 filtered_resource['relative_package_path'] = (
                     s['dev_package_path']
@@ -63,7 +83,6 @@ class Resources:
 
             if 'integrity' not in filtered_resource \
                     and 'namespace' in filtered_resource:
-                # Get the resource key and value.
                 key, filename = first_key(
                     filtered_resource,
                     'external_url',
@@ -71,19 +90,23 @@ class Resources:
                     'relative_package_path'
                 )
                 if isinstance(filename, list):
-                    # flatten these dependencies
+                    # flatten these dependencies and add a hash for each.
                     for f in filename:
+                        local_file = filtered_resource.get('local_file')
+                        filename = find_unpkg(f, local_file) \
+                            if local_file else f.split('/')[-1]
                         filtered_resources.append({
                             key: f,
                             'integrity': integrity_hash_from_package(
                                 filtered_resource['namespace'],
-                                f.split('/')[-1]),
+                                filename),
                             'crossorigin': 'anonymous',
                             'namespace': filtered_resource['namespace']
                         })
                         added = True
                 else:
-                    filename = filename.split('/')[-1]
+                    filename = filtered_resource.get(
+                        'local_file', filename.split('/')[-1])
                     filtered_resource['integrity'] = \
                         integrity_hash_from_package(
                             filtered_resource['namespace'],
