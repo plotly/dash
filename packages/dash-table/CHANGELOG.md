@@ -435,3 +435,7 @@ Derived properties allow the component to expose complex state that can be usefu
 ## RC16 - Fix copy/paste behavior when copied rows larger than data
 
     Issue: https://github.com/plotly/dash-table/issues/142
+
+## RC17- Linux install
+
+    Issue: https://github.com/plotly/dash-table/issues/137
