@@ -389,7 +389,7 @@ class Dash(object):
                     'rev',
                     'target',
                     'type',
-                    href=link.get('src'),
+                    href=link.get('src', link.get('href')),
                     rel='stylesheet'
                 ),
                 opened=True
