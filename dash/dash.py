@@ -167,7 +167,7 @@ class Dash(object):
 
         self.assets_ignore = assets_ignore
 
-        self.registered_paths = {}
+        self.registered_paths = collections.defaultdict(set)
 
         # urls
         self.routes = []
@@ -313,10 +313,7 @@ class Dash(object):
         def _relative_url_path(relative_package_path='', namespace=''):
 
             # track the registered packages
-            if namespace in self.registered_paths:
-                self.registered_paths[namespace].append(relative_package_path)
-            else:
-                self.registered_paths[namespace] = [relative_package_path]
+            self.registered_paths[namespace].add(relative_package_path)
 
             module_path = os.path.join(
                 os.path.dirname(sys.modules[namespace].__file__),
