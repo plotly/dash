@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 type Submit = (value: string | undefined) => void;
 
 interface IProps {
+    placeholder?: string;
     updateOnBlur?: boolean;
     updateOnSubmit?: boolean;
     stopPropagation?: boolean;
@@ -51,6 +52,7 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
 
     render() {
         const {
+            placeholder,
             stopPropagation,
             updateOnBlur,
             updateOnSubmit
@@ -67,6 +69,7 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
             type='text'
             value={this.state.value || ''}
             onChange={this.handleChange}
+            placeholder={placeholder}
             {...props}
         />);
     }

@@ -7,7 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Change default styles [#193](https://github.com/plotly/dash-table/pull/193) [#150](https://github.com/plotly/dash-table/issues/150)
     - prop `content_style` defaults to 'grow' instead of 'fit'
     - prop `style_table` width nested property defaults to '100%' if not provided
-    - update default font-family from 'monospace' to `'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace`
+- Change cell styling and filter display [#196](https://github.com/plotly/dash-table/pull/196) [#150](https://github.com/plotly/dash-table/issues/150)
+    - uneditable cells can be clicked & navigated, the mouse cursor is the default one
+    - filter inputs have a placeholder that is visible on hover and focus
+    - first filter input placeholder is always visible
 
 ## [3.1.0-rc18] - 2018-10-31
 ### Changed

@@ -128,13 +128,29 @@
             }
         }
 
-        .dash-filter.invalid {
-            & when (@isListView = True) {
-                .inset-shadow(red, 0px, 0px, 0px, -1px);
+        .dash-filter {
+            input::placeholder {
+                color: inherit;
+                font-size: 0.8em;
+                padding-right: 5px;
             }
 
-            & when (@isListView = False) {
-                .inset-shadow(red, 1px, 1px, -1px, -1px);
+            & + .dash-filter {
+                &:not(:hover):not(:focus-within) {
+                    input::placeholder {
+                        color: transparent;
+                    }
+                }
+            }
+
+            &.invalid {
+                & when (@isListView = True) {
+                    .inset-shadow(red, 0px, 0px, 0px, -1px);
+                }
+
+                & when (@isListView = False) {
+                    .inset-shadow(red, 1px, 1px, -1px, -1px);
+                }
             }
         }
 }
@@ -384,7 +400,7 @@
     .dash-spreadsheet-inner table {
         border-collapse: collapse;
 
-        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+        font-family: monospace;
         --accent: hotpink;
         --border: lightgrey;
         --text-color: rgb(60, 60, 60);
@@ -510,11 +526,6 @@
 
     .dash-spreadsheet-inner tr:hover .toggle-row {
         color: var(--accent);
-    }
-
-    .cell--uneditable,
-    .cell--uneditable input {
-        cursor: not-allowed;
     }
 
     .expanded-row {

@@ -10,7 +10,6 @@ interface IColumnFilterProps {
     classes: string;
     columnId: ColumnId;
     isValid: boolean;
-    property: ColumnId;
     setFilter: SetFilter;
     value?: string;
 }
@@ -60,6 +59,7 @@ export default class ColumnFilter extends PureComponent<IColumnFilterProps, ICol
         >
             <IsolatedInput
                 value={value}
+                placeholder={`filter data...`}
                 stopPropagation={true}
                 submit={this.submit}
             />

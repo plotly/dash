@@ -7,7 +7,6 @@ import Cell from 'dash-table/components/Cell';
 import isActiveCell from 'dash-table/derived/cell/isActive';
 import isSelectedCell from 'dash-table/derived/cell/isSelected';
 import memoizerCache from 'core/memoizerCache';
-import isEditable from './isEditable';
 
 type Key = [number, number];
 type ElementCacheFn = (
@@ -23,7 +22,6 @@ function getter(
     activeCell: ActiveCell,
     columns: VisibleColumns,
     data: Data,
-    editable: boolean,
     selectedCells: SelectedCells
 ): JSX.Element[][] {
     return R.addIndex<Datum, JSX.Element[]>(R.map)(
@@ -36,7 +34,6 @@ function getter(
                     'dash-cell' +
                     ` column-${columnIndex}` +
                     (active ? ' focused' : '') +
-                    (!isEditable(editable, column.editable) ? ' cell--uneditable' : '') +
                     (selected ? ' cell--selected' : '') +
                     (column.type === ColumnType.Dropdown ? ' dropdown' : '');
 
@@ -51,9 +48,8 @@ function getter(
 function decorator(_id: string): ((
     activeCell: ActiveCell,
     columns: VisibleColumns,
-    columnConditionalStyle: any,
-    columnStaticStyle: any,
-    data: Data
+    data: Data,
+    selectedCells: SelectedCells
 ) => JSX.Element[][]) {
     const elementCache = memoizerCache<Key, [boolean, string, number, ColumnId], JSX.Element>(
         (active: boolean, classes: string, columnIndex: number, columnId: ColumnId) => (<Cell

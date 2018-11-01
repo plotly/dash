@@ -204,7 +204,6 @@ export default class FilterFactory {
                     classes={`dash-filter column-${index}`}
                     columnId={column.id}
                     isValid={this.isFragmentValidOrNull(column.id)}
-                    property={column.id}
                     setFilter={this.getEventHandler(this.onChange, column.id, this.ops, setFilter)}
                     value={this.ops.get(column.id.toString())}
                 />);

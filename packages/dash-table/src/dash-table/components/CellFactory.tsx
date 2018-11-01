@@ -65,7 +65,6 @@ export default class CellFactory {
             active_cell,
             columns,
             viewport.data,
-            editable,
             selected_cells
         );
 
