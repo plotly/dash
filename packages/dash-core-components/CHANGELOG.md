@@ -2,6 +2,98 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.36.0] - 2018-10-31
+### Updated
+- Updated plotly.js to 1.42.1 [#354](https://github.com/plotly/dash-core-components/pull/354)
+  - https://github.com/plotly/plotly.js/releases/tag/v1.42.0
+  - https://github.com/plotly/plotly.js/releases/tag/v1.42.1
+  - https://github.com/plotly/plotly.js/releases/tag/v1.42.2
+
+### Fixed
+- Fix runaway loops for `scattergl` lines and fill traces
+  (bug introduced in 1.42.0) [#3199]
+- Fix size and alignment in vertical modebars [#3193]
+- Fix legend item rendering for traces with typed array marker
+  settings [#3192]
+
+
+### As part of [plotly.js 1.42.1](https://github.com/plotly/plotly.js/releases/tag/v1.42.1)
+
+#### Fixed
+- Fix IE regression introduced in 1.42.0 [#3187]
+- Fix parcats text-shadowing on dark plot_bgcolor [#3191]
+- Fix scatter3d text alignment [#3180]
+- Fix hoverinfo flags in attribute descriptions [#3158]
+- No longer list and coerce unused hoverlabel attribute in parcoods [#3158]
+- No longer list and coerce transforms attributes in traces that don't support them [#3158]
+
+### As part of [plotly.js 1.42.0](https://github.com/plotly/plotly.js/releases/tag/v1.42.0)
+
+### Added
+- Add `parcats` (aka parallel categories) trace type [#2963, #3072]
+- Add new gl3d tick and title auto-rotation algorithm that limits text
+  overlaps [#3084, #3104, #3131]
+- Add support for reversed-range axes on gl3d subplots [#3141]
+- Add modebar layout style attributes: `orientation`, `bgcolor`, `color`
+  and `activecolor` [#3068, #3091]
+- Add `title`, `titleposition` and `titlefont` attributes to `pie` traces [#2987]
+- Add `hoverlabel.split` attribute to `ohlc` and `candlestick` traces to split
+  hover labels into multiple pieces [#2959]
+- Add support for `line.shape` values 'hv', 'vh', 'hvh' and 'vhv'
+  in `scattergl` traces [#3087]
+- Add handler for `PlotlyConfig.MathJaxConfig: 'local'` to override our default
+  MathJax behavior which modifies the global MathJax config on load [#2994]
+- Add support for graph div as first argument for `Plotly.makeTemplate`
+  and `Plotly.validateTemplate` [#3111, #3118]
+- Implement trace, node and link hoverinfo for `sankey` traces [#3096, #3150]
+- Implement per-sector textfont settings in `pie` traces [#3130]
+
+### Changed
+- Use new Plotly logo in "Produced with Plotly" modebar button [#3068]
+- Improve `histogram` autobin algorithm: allow partial bin specification,
+  deprecate `autobin(x|y)` attributes, force stacked/grouped histograms to match size
+  and have compatible `start` value [#3044]
+- Count distinct values for category and date axis auto-type, which
+  improves the detection of "NaN" string values in numerical data [#3070]
+- Improve bar and pie textfont color inheritance [#3130]
+- Improve `splom` first-render, axis range relayout and marker restyle
+  performance [#3057, #3161]
+- Make `splom` `xaxes` and `yaxes` list always have same length as the trace
+  `dimensions` regardless of their partial visiblities [#3057]
+- Improve axis `overlaying` documentation [#3082]
+
+### Fixed
+- Fix `gl3d` subplots on tablets [#3088]
+- Fix responsive behavior under flexbox and grid CSS [#3056, #3090, #3122]
+- Fix relayout calls turning back `autosize` on [#3120]
+- Fix MathJax rendering (for recent versions of MathJax) [#2994]
+- Fix `scattergl` update on graphs with fractional computed dimensions [#3132]
+- Fix `scattergl` symbols in MS Edge [#2750]
+- Fix `scattergl` selections on overlaying axes [#3067]
+- Fix `scattergl` `tozero` fills with bad values [#3087, #3168]
+- Fix `scattergl` fill layer ordering [#3087]
+- Fix `scattergl` lines on reversed-range axes [#3078]
+- Fix axis auto-type routine for boolean data [#3070]
+- Fix `splom` axis placement when the diagonal is missing [#3057]
+- Fix line `restyle` calls on `parcoords` traces [#3178]
+- Fix `parcoods` rendering after `hovermode` relayout calls [#3123]
+- Fix WebGL warnings for `scatter3d` traces with blank text items [#3171, #3177]
+- Fix WebGL warnings for `scatter3d` trace with empty lines [#3174]
+- Fix rendering of `scatter3d` lines for certain scene angles [#3163]
+- Fix handling of large pad values in `sankey` traces [#3143]
+- Fix `scatterpolargl`  to `scatterpolar` toggling [#3098]
+- Fix `scatterpolargl` axis-autorange padding [#3098]
+- Fix `bar` text position for traces with set `base` [#3156]
+- Fix `bar` support for typed arrays for `width` and `offset` attributes [#3169]
+- Fix aggregate transforms with bad group values [#3093]
+- Fix transforms operating on auto-invisible traces [#3139]
+- Fix templating for polar and carpet axes [#3092, #3095]
+- Ignore invalid trace indices in restyle and update [#3114]
+- Fix grid style `relayout` calls on graph with large `splom` traces [#3067]
+- Fix logging on some old browsers [#3137]
+- Remove erroneous warning `WARN: unrecognized full object value` when
+  relayouting array containers [#3053]
+
 ## [0.35.2] - 2018-10-30
 ### Fixed
 - Fix Input not used in callbacks resetting the value on updates. [#350](https://github.com/plotly/dash-core-components/pull/350)
