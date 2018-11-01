@@ -21,6 +21,7 @@ import derivedTable from 'dash-table/derived/table';
 import derivedTableFragments from 'dash-table/derived/table/fragments';
 import isEditable from 'dash-table/derived/cell/isEditable';
 import { derivedTableStyle } from 'dash-table/derived/style';
+import { IStyle } from 'dash-table/derived/style/props';
 
 const sortNumerical = R.sort<number>((a, b) => a - b);
 
@@ -36,6 +37,10 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
     private readonly stylesheet: Stylesheet;
     private readonly tableFn: () => JSX.Element[][];
     private readonly tableStyle = derivedTableStyle();
+
+    private calculateTableStyle = memoizeOne((style: Partial<IStyle>) => R.mergeAll(
+        this.tableStyle(DEFAULT_STYLE, style)
+    ));
 
     constructor(props: ControlledTableProps) {
         super(props);
@@ -624,9 +629,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         const rawTable = this.tableFn();
         const grid = derivedTableFragments(n_fixed_columns, n_fixed_rows, rawTable);
 
-        const tableStyle = R.mergeAll(
-            this.tableStyle(DEFAULT_STYLE, style_table)
-        );
+        const tableStyle = this.calculateTableStyle(style_table);
 
         return (<div
             id={id}

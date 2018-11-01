@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.0-rc20] - 2018-11-01
+### Fixed
+- Fix performance degradation on load [#200](https://github.com/plotly/dash-table/pull/200) [#198](https://github.com/plotly/dash-table/issues/198)
+
+
 ## [3.1.0-rc19] - 2018-11-01
 ### Changed
 - Change default styles [#193](https://github.com/plotly/dash-table/pull/193) [#150](https://github.com/plotly/dash-table/issues/150)
