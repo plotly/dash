@@ -69,7 +69,8 @@ class Resources:
         all_resources = ComponentRegistry.get_resources(self.resource_name)
         all_resources.extend(self._resources)
 
-        self._cache['resources'] = res = self._filter_resources(all_resources, dev_bundles)
+        self._cache['resources'] = res = \
+            self._filter_resources(all_resources, dev_bundles)
         self._cache['len'] = cur_len
         return res
 
