@@ -163,7 +163,7 @@
         "required": false,
         "description": "`content_style` toggles between a set of CSS styles for\ntwo common behaviors:\n- `fit`: The table container's width be equal to the width of its content.\n- `grow`: The table container's width will grow to be the size of the container.\n\nNOTE - This property will likely change in the future,\nsubscribe to [https://github.com/plotly/dash-table/issues/176](https://github.com/plotly/dash-table/issues/176)\nfor more details.",
         "defaultValue": {
-          "value": "'fit'",
+          "value": "'grow'",
           "computed": false
         }
       },

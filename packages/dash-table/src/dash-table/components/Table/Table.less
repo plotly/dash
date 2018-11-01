@@ -1,3 +1,5 @@
+@import (reference) '~dash-table/style/reset.less';
+
 .inset-shadow(@color, @left, @top, @right, @bottom) {
     box-shadow: inset @left 0px 0px 0px @color,
         inset 0px @top 0px 0px @color,
@@ -167,12 +169,11 @@
 }
 
 .dash-spreadsheet-container {
+    .reset-css();
     display: flex;
     flex-direction: row;
     position: relative;
-}
 
-.dash-spreadsheet-container {
     .dash-spreadsheet-inner {
         box-sizing: border-box;
         display: flex;
@@ -383,7 +384,7 @@
     .dash-spreadsheet-inner table {
         border-collapse: collapse;
 
-        font-family: monospace;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
         --accent: hotpink;
         --border: lightgrey;
         --text-color: rgb(60, 60, 60);
@@ -491,10 +492,6 @@
 
     .dash-spreadsheet-inner input.unfocused:focus {
         outline: none;
-    }
-
-    .numeric {
-        font-family: monospace;
     }
 
     .toggle-row {

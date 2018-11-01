@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.0-rc19] - 2018-11-01
+### Changed
+- Change default styles [#193](https://github.com/plotly/dash-table/pull/193) [#150](https://github.com/plotly/dash-table/issues/150)
+    - prop `content_style` defaults to 'grow' instead of 'fit'
+    - prop `style_table` width nested property defaults to '100%' if not provided
+    - update default font-family from 'monospace' to `'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace`
+
 ## [3.1.0-rc18] - 2018-10-31
 ### Changed
 - Rename table component to DataTable [#187](https://github.com/plotly/dash-table/pull/187) [#154](https://github.com/plotly/dash-table/issues/154)
@@ -130,7 +137,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     dataframe_previous -> data_previous
     dataframe_timestamp -> data_timestamp
     derived_virtual_dataframe -> derived_virtual_data
-    derived_viewport_datafram -> derived_viewport_data
+    derived_viewport_dataframe -> derived_viewport_data
 
 ## [3.1.0-rc5]
 ### Fixed

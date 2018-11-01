@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import RealTable from 'dash-table/components/Table';
 
-import 'dash-table/style/component.less';
 import Logger from 'core/Logger';
 
 import genRandomId from './utils/generate';
@@ -52,7 +51,7 @@ export const defaultProps = {
     },
     navigation: 'page',
 
-    content_style: 'fit',
+    content_style: 'grow',
     css: [],
     filtering: false,
     filtering_settings: '',

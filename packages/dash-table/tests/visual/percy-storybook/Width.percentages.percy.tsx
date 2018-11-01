@@ -21,16 +21,22 @@ const data = (() => {
 const baseProps = {
     setProps,
     id: 'table',
+    content_style: 'grow',
     data
 };
 
 const props = Object.assign({}, baseProps, {
     content_style: 'grow',
-    columns: columns.map((id => ({ id: id, name: id.toUpperCase(), width: '33%' }))),
+    columns: columns.map((id => ({ id: id, name: id.toUpperCase() }))),
+    style_cell: {
+        width: '33%'
+    },
+    style_table: {
+        width: '100%',
+        min_width: '100%',
+        max_width: '100%'
+    },
     css: [{
-        selector: '.dash-spreadsheet',
-        rule: 'width: 1000px; max-width: 1000px; height: 1000px;'
-    }, {
         selector: '.dash-fixed-column',
         rule: 'width: 33%;'
     }]

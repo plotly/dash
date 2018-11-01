@@ -23,6 +23,7 @@ const baseProps = {
     setProps,
     id: 'table',
     data,
+    content_style: 'fit',
     style_data_conditional: [
         { width: '20px', min_width: '20px', max_width: '20px' }
     ]

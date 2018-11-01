@@ -406,6 +406,7 @@ def layout():
                             "rule": "white-space: normal",
                         }
                     ],
+                    content_style="fit",
                     style_data_conditional=[
                         { "width": "100px", "min_width": "100px", "max_width": "100px" }
                     ]

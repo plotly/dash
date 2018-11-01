@@ -111,5 +111,8 @@ export const derivedRelevantHeaderStyles = memoizeOneFactory((
 ));
 
 export const derivedTableStyle = memoizeOneFactory(
-    (table: Table) => convertStyle(table || {})
+    (defaultTable: Table, table: Table) => [
+        convertStyle(defaultTable),
+        convertStyle(table)
+    ]
 );

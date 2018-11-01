@@ -33,6 +33,7 @@ class App extends Component {
                 merge_duplicate_headers: false,
                 row_deletable: true,
                 row_selectable: 'single',
+                content_style: 'fit',
                 column_static_dropdown: [
                     {
                         id: 'bbb',

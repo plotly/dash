@@ -28,6 +28,10 @@ interface IState {
     forcedResizeOnly: boolean;
 }
 
+const DEFAULT_STYLE = {
+    width: '100%'
+};
+
 export default class ControlledTable extends PureComponent<ControlledTableProps, IState> {
     private readonly stylesheet: Stylesheet;
     private readonly tableFn: () => JSX.Element[][];
@@ -620,7 +624,9 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         const rawTable = this.tableFn();
         const grid = derivedTableFragments(n_fixed_columns, n_fixed_rows, rawTable);
 
-        const tableStyle = this.tableStyle(style_table);
+        const tableStyle = R.mergeAll(
+            this.tableStyle(DEFAULT_STYLE, style_table)
+        );
 
         return (<div
             id={id}
