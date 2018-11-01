@@ -75,8 +75,7 @@ class Resources:
         return res
 
 
-class Css:
-    # pylint: disable=old-style-class
+class Css:  # pylint: disable=old-style-class
     def __init__(self, layout=None):
         self._resources = Resources('_css_dist', layout)
         self._resources.config = self.config
