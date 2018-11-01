@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.36.0] - 2018-11-01
+### Fixed
+- The `npm start` command now runs the Demo app again [#346](https://github.com/plotly/dash-core-components/issues/346) 
+
 ## [0.36.0] - 2018-10-31
 ### Updated
 - Updated plotly.js to 1.42.1 [#354](https://github.com/plotly/dash-core-components/pull/354)
