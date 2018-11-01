@@ -531,3 +531,27 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
         time.sleep(0.5)
+
+    def test_late_component_register(self):
+        app = dash.Dash()
+
+        app.layout = html.Div([
+            html.Button('Click me to put a dcc ', id='btn-insert'),
+            html.Div(id='output')
+        ])
+
+        @app.callback(Output('output', 'children'),
+                      [Input('btn-insert', 'n_clicks')])
+        def update_output(value):
+            if value is None:
+                raise PreventUpdate
+
+            return dcc.Input(id='inserted-input')
+
+        self.startServer(app)
+
+        btn = self.wait_for_element_by_css_selector('#btn-insert')
+        btn.click()
+        time.sleep(1)
+
+        self.wait_for_element_by_css_selector('#inserted-input')
