@@ -11,6 +11,10 @@ class Resources:
         self._resources = []
         self.resource_name = resource_name
         self.layout = layout
+        self._cache = {
+            'resources': [],
+            'len': 0
+        }
 
     def append_resource(self, resource):
         self._resources.append(resource)
@@ -58,9 +62,16 @@ class Resources:
         return filtered_resources
 
     def get_all_resources(self, dev_bundles=False):
+        cur_len = len(self._resources)
+        if self._cache['resources'] and cur_len == self._cache['len']:
+            return self._cache['resources']
+
         all_resources = ComponentRegistry.get_resources(self.resource_name)
         all_resources.extend(self._resources)
-        return self._filter_resources(all_resources, dev_bundles)
+
+        self._cache['resources'] = res = self._filter_resources(all_resources, dev_bundles)
+        self._cache['len'] = cur_len
+        return res
 
 
 class Css:
