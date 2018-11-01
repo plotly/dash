@@ -16,11 +16,13 @@ class ComponentRegistry(abc.ABCMeta):
     # pylint: disable=arguments-differ
     def __new__(mcs, name, bases, attributes):
         component = abc.ABCMeta.__new__(mcs, name, bases, attributes)
-        if name == 'Component':
+        module = attributes['__module__'].split('.')[0]
+        if name == 'Component' or module == 'builtins':
             # Don't do the base component
+            # and the components loaded dynamically by load_component
+            # as it doesn't have the namespace.
             return component
 
-        module = attributes['__module__'].split('.')[0]
         mcs.component_registry.add(module)
 
         return component
