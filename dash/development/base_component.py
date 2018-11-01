@@ -5,6 +5,7 @@ import inspect
 from ._all_keywords import kwlist
 import keyword
 import abc
+import sys
 import six
 
 
@@ -12,6 +13,7 @@ class ComponentRegistry(abc.ABCMeta):
     """Just importing a component lib will make it be loaded on the index"""
 
     component_registry = set()
+    __dist_cache = collections.defaultdict(dict)
 
     # pylint: disable=arguments-differ
     def __new__(mcs, name, bases, attributes):
@@ -26,6 +28,23 @@ class ComponentRegistry(abc.ABCMeta):
         mcs.component_registry.add(module)
 
         return component
+
+    @classmethod
+    def get_resources(mcs, resource_name):
+        cached = mcs.__dist_cache.get(resource_name)
+        current_len = len(mcs.component_registry)
+
+        if cached and current_len == cached.get('len'):
+            return cached.get('resources')
+
+        mcs.__dist_cache[resource_name]['resources'] = resources = []
+        mcs.__dist_cache[resource_name]['len'] = current_len
+
+        for module_name in mcs.component_registry:
+            module = sys.modules[module_name]
+            resources.extend(getattr(module, resource_name, []))
+
+        return resources
 
 
 def is_number(s):

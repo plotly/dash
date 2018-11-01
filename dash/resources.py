@@ -1,7 +1,6 @@
 import json
 import warnings
 import os
-import sys
 
 from .development.base_component import ComponentRegistry
 
@@ -59,15 +58,8 @@ class Resources:
         return filtered_resources
 
     def get_all_resources(self, dev_bundles=False):
-        all_resources = []
-
-        for mod in ComponentRegistry.component_registry:
-            # take the component lib module and take the _resource_dist.
-            m = sys.modules[mod]
-            all_resources.extend(getattr(m, self.resource_name, []))
-
+        all_resources = ComponentRegistry.get_resources(self.resource_name)
         all_resources.extend(self._resources)
-
         return self._filter_resources(all_resources, dev_bundles)
 
 
