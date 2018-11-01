@@ -32,7 +32,7 @@ def load_components(metadata_path,
     """
 
     # Register the component lib for index include.
-    ComponentRegistry.component_registry.add(namespace)
+    ComponentRegistry.registry.add(namespace)
     components = []
 
     data = _get_metadata(metadata_path)

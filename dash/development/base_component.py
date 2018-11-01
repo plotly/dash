@@ -12,7 +12,7 @@ import six
 class ComponentRegistry(abc.ABCMeta):
     """Just importing a component lib will make it be loaded on the index"""
 
-    component_registry = set()
+    registry = set()
     __dist_cache = collections.defaultdict(dict)
 
     # pylint: disable=arguments-differ
@@ -25,14 +25,14 @@ class ComponentRegistry(abc.ABCMeta):
             # as it doesn't have the namespace.
             return component
 
-        mcs.component_registry.add(module)
+        mcs.registry.add(module)
 
         return component
 
     @classmethod
     def get_resources(mcs, resource_name):
         cached = mcs.__dist_cache.get(resource_name)
-        current_len = len(mcs.component_registry)
+        current_len = len(mcs.registry)
 
         if cached and current_len == cached.get('len'):
             return cached.get('resources')
@@ -40,7 +40,7 @@ class ComponentRegistry(abc.ABCMeta):
         mcs.__dist_cache[resource_name]['resources'] = resources = []
         mcs.__dist_cache[resource_name]['len'] = current_len
 
-        for module_name in mcs.component_registry:
+        for module_name in mcs.registry:
             module = sys.modules[module_name]
             resources.extend(getattr(module, resource_name, []))
 
