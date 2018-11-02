@@ -190,6 +190,13 @@
     flex-direction: row;
     position: relative;
 
+    // This overrides Chrome's default `font-size: medium;` which is causing performance issues
+    // with AutoInputResize sub-component in react-select
+    // https://github.com/JedWatson/react-input-autosize/blob/05b0f86a7f8b16de99c2b31296ff0d3307f15957/src/AutosizeInput.js#L58
+    table {
+        font-size: inherit;
+    }
+
     .dash-spreadsheet-inner {
         box-sizing: border-box;
         display: flex;

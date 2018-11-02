@@ -6,8 +6,9 @@ import {mockData} from './data';
 import { memoizeOne } from 'core/memoizer';
 import Logger from 'core/Logger';
 
-const clone = o => JSON.parse(JSON.stringify(o));
+import './style.less';
 
+const clone = o => JSON.parse(JSON.stringify(o));
 
 class App extends Component {
     constructor() {
