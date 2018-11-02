@@ -1147,5 +1147,9 @@ class Dash(object):
         :return:
         """
         debug = self.enable_dev_tools(debug, dev_tools_serve_dev_bundles)
+        if not debug:
+            # Do not throw debugging exceptions in production.
+            self.config.suppress_validation_exceptions = True
+            self.config.suppress_callback_exceptions = True
         self.server.run(port=port, debug=debug,
                         **flask_run_options)
