@@ -16,10 +16,15 @@ yarn-debug.log*
 yarn-error.log*
 
 # Development folders and files
+__pycache__
+dash_table.egg-info
+dist
 public
 src
 scripts
 config
+vv
+venv
 .travis.yml
 CHANGELOG.md
 README.md
