@@ -4,6 +4,8 @@ An interactive `DataTable` for [Dash](https://dash.plot.ly/).
 
 [View the docs to get started](https://dash.plot.ly/datatable)
 
+## Quickstart
+
 ```python
 import dash
 import dash_table
@@ -25,39 +27,20 @@ if __name__ == '__main__':
 
 ![Interactive Dash DataTable](https://user-images.githubusercontent.com/1280389/47935912-67187080-deb2-11e8-8936-34b0c99b518f.png)
 
-***
+## Background
 
-The DataTable is an interactive table component designed for
-viewing, editing, and exploring large datasets.
+Dash DataTable is an interactive table component designed for viewing, editing, and exploring large datasets.
 
-It's rendered with standard, semantic <table/> markup,
-making it accessible, responsive, and easy to style.
+DataTable is rendered with standard, semantic HTML `<table/>` markup, which makes it accessible, responsive, and easy to style.
 
-This component was written from scratch in React.js
-specifically for the Dash community.
-Its API was designed to be ergonomic and its behavior is completely
-customizable through its properties.
+This component was written from scratch in React.js specifically for the Dash community. Its API was designed to be ergonomic and its behavior is completely customizable through its properties.
 
-7 months in the making, this is the most complex component
-that we've written in React! It's already feature-rich and
- we're excited to continue to invest in its future.
+7 months in the making, this is the most complex Dash component that Plotly has written, all from the ground-up using React and TypeScript. DataTable was designed with a featureset that allows that Dash users to create complex, spreadsheet driven applications with no compromises. We're excited to continue to work with users and companies that [invest in DataTable's future](https://plot.ly/products/consulting-and-oem/).
 
-DataTable is in alpha. This is more of a statement on its API
-rather than on its features. The table works really well right now,
-we just expect to make a few more breaking changes to its API and
-behavior within the next couple of months. Once the community
-feels good about its API, we'll lock it down and we'll commit to
-reducing the frequency of breaking changes.
-Subscribe to [dash-table#207](https://github.com/plotly/dash-table/207)
-to stay up-to-date with breaking changes.
+DataTable is in Alpha. This is more of a statement on the DataTable API rather than on its features. The table currently works beautifully and is already used in production at F500 companies. However, we  expect to make a few more breaking changes to its API and behavior within the next couple of months. Once the community feels 💪 about its API, we'll lock it down and we'll commit to reducing the frequency of breaking changes. Please subscribe to [dash-table#207](https://github.com/plotly/dash-table/207) and the [CHANGELOG.md](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md) to stay up-to-date with any breaking changes.
 
-So, use the table and let us know what you think.
-Keep an eye on the [CHANGELOG.md](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md)
-to be aware of breaking changes,
-upgrade guides, and new features.
+So, check out DataTable and let us know what you think. Or even better, share your DataTable Dash apps on the [community forum](https://community.plot.ly/t/show-and-tell-community-thread/7554)!
 
-***
-
-**Contributing**
+## Contributing
 
 See [CONTRIBUTING.md](https://github.com/plotly/dash-table/blob/master/CONTRIBUTING.md)
