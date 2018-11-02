@@ -108,7 +108,7 @@ ReactComponent.propTypes = {
           PropTypes.string,
           PropTypes.number,
           PropTypes.bool,
-        PropTypes.element,
+          PropTypes.element,
           PropTypes.oneOf([null])
         ])
       )
