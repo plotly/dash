@@ -950,11 +950,8 @@ class Dash(object):
     def _validate_callback_output(self, namespace, component_type,
                                   component_id, component_property,
                                   callback_func_name, args, value):
-        if namespace not in self.namespaces:
-            self.namespaces[namespace] =\
-                importlib.import_module(namespace)
-        namespace = self.namespaces[namespace]
-        component = getattr(namespace, component_type)
+        module = sys.modules[namespace]
+        component = getattr(module, component_type)
         # pylint: disable=protected-access
         validator = DashValidator({
             component_property: component._schema.get(component_property, {})
