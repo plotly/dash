@@ -7,10 +7,14 @@ import pandas as pd
 import plotly.graph_objs as go
 import dash
 import dash_html_components as html
+from importlib import import_module
 from dash.development.component_loader import _get_metadata
 from dash.development.base_component import generate_class, Component
 from dash.development.validator import DashValidator
 
+# Monkey patched html
+html.Div._schema = {'children': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}, {'type': 'list', 'schema': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}], 'nullable': True}}], 'nullable': True}}
+html.Button._schema = html.Div._schema
 
 class TestComponentValidation(unittest.TestCase):
     def setUp(self):
