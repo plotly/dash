@@ -1,4 +1,4 @@
-# Dash Table 3.1
+# Dash Table
 
 An interactive `DataTable` for [Dash](https://dash.plot.ly/).
 
