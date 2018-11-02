@@ -297,7 +297,9 @@ class Component(collections.MutableMapping):
             """)
 
             # pylint: disable=protected-access
-            raise dash.exceptions.ComponentInitializationValidationError(error_message)
+            raise dash.exceptions.ComponentInitializationValidationError(
+                error_message
+            )
 
     def __iter__(self):
         """Yield IDs in the tree of children."""
