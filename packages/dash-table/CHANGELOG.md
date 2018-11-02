@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.1] - 2018-11-02
+### Fixed
+The remote URL path for the bundle was incorrect.
+
+
 ## [3.1.0] - 2018-11-02
 - 3.1.0 (Alpha) Release of the Dash Table
 
