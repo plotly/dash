@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.0] - 2018-11-02
+- 3.1.0 (Alpha) Release of the Dash Table
+
 ## [3.1.0-rc21] - 2018-11-02
 ### Fixed
 - Fire submit when pressing enter key in `IsolatedInput`. Fixes issue [#194](https://github.com/plotly/dash-table/issues/194)
