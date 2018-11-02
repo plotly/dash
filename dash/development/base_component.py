@@ -5,8 +5,9 @@ import inspect
 import keyword
 import pprint
 
-import dash.exceptions
 from textwrap import dedent
+
+import dash.exceptions
 from .validator import DashValidator, generate_validation_error_message
 
 
@@ -287,9 +288,9 @@ class Component(collections.MutableMapping):
             )
 
             error_message = generate_validation_error_message(
-                    validator.errors,
-                    0,
-                    error_message
+                validator.errors,
+                0,
+                error_message
             ) + dedent("""
                 You can turn off these validation exceptions by setting
                 `app.config.suppress_validation_exceptions=True`

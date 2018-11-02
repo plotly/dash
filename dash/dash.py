@@ -11,11 +11,11 @@ import warnings
 import re
 
 from functools import wraps
+from textwrap import dedent
 
 import plotly
 import dash_renderer
 import flask
-from textwrap import dedent
 from flask import Flask, Response
 from flask_compress import Compress
 
@@ -992,9 +992,9 @@ class Dash(object):
             )
 
             error_message = generate_validation_error_message(
-                    validator.errors,
-                    0,
-                    error_message
+                validator.errors,
+                0,
+                error_message
             ) + dedent("""
                 You can turn off these validation exceptions by setting
                 `app.config.suppress_validation_exceptions=True`
