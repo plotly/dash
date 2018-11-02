@@ -6,6 +6,7 @@ import keyword
 import pprint
 
 import dash.exceptions
+from textwrap import dedent
 from .validator import DashValidator, generate_validation_error_message
 
 
@@ -259,8 +260,7 @@ class Component(collections.MutableMapping):
         valid = validator.validate(args)
         if not valid:
             # pylint: disable=protected-access
-            error_message = """
-
+            error_message = dedent("""\
 
                 A Dash Component was initialized with invalid properties!
 
@@ -280,18 +280,23 @@ class Component(collections.MutableMapping):
                 The errors in validation are as follows:
 
 
-            """.replace('    ', '').format(
+            """).format(
                 component_name=self.__class__.__name__,
                 component_args=pprint.pformat(args),
                 component_schema=pprint.pformat(self.__class__._schema)
             )
 
+            error_message = generate_validation_error_message(
+                    validator.errors,
+                    0,
+                    error_message
+            ) + dedent("""
+                You can turn off these validation exceptions by setting
+                `app.config.suppress_validation_exceptions=True`
+            """)
+
             # pylint: disable=protected-access
-            raise dash.exceptions.ComponentInitializationValidationError(
-                generate_validation_error_message(
-                    validator.errors, 0, error_message
-                )
-            )
+            raise dash.exceptions.ComponentInitializationValidationError(error_message)
 
     def __iter__(self):
         """Yield IDs in the tree of children."""

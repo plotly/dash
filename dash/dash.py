@@ -15,6 +15,7 @@ from functools import wraps
 import plotly
 import dash_renderer
 import flask
+from textwrap import dedent
 from flask import Flask, Response
 from flask_compress import Compress
 
@@ -958,8 +959,7 @@ class Dash(object):
         })
         valid = validator.validate({component_property: value})
         if not valid:
-            error_message = """
-
+            error_message = dedent("""\
 
                 A Dash Callback produced an invalid value!
 
@@ -977,7 +977,9 @@ class Dash(object):
                 {component_schema}
                 ***************************************************************
 
-            """.replace('    ', '').format(
+                The errors in validation are as follows:
+
+            """).format(
                 component_property=component_property,
                 component_name=component.__name__,
                 component_id=component_id,
@@ -988,12 +990,17 @@ class Dash(object):
                     component._schema[component_property]
                 )
             )
-            error_message +=\
-                "The errors in validation are as follows:\n\n"
 
-            raise exceptions.CallbackOutputValidationError(
-                generate_validation_error_message(
-                    validator.errors, 0, error_message))
+            error_message = generate_validation_error_message(
+                    validator.errors,
+                    0,
+                    error_message
+            ) + dedent("""
+                You can turn off these validation exceptions by setting
+                `app.config.suppress_validation_exceptions=True`
+            """)
+
+            raise exceptions.CallbackOutputValidationError(error_message)
         # Must also validate initialization of newly created components
         if component_property == 'children':
             if isinstance(value, Component):
