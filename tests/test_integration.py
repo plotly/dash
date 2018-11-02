@@ -137,7 +137,7 @@ class Tests(IntegrationTests):
             html.Div(initial_output, id='output1'),
             html.Div(initial_output, id='output2'),
         ])
-        app.config.disable_component_validation = True
+        app.config.suppress_validation_exceptions = True
 
         callback1_count = Value('i', 0)
         callback2_count = Value('i', 0)

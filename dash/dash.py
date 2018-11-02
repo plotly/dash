@@ -87,7 +87,7 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             suppress_callback_exceptions=None,
-            disable_component_validation=None,
+            suppress_validation_exceptions=None,
             components_cache_max_age=None,
             **kwargs):
 
@@ -130,9 +130,9 @@ class Dash(object):
                 'suppress_callback_exceptions',
                 suppress_callback_exceptions, env_configs, False
             ),
-            'disable_component_validation': _configs.get_config(
-                'disable_component_validation',
-                disable_component_validation, env_configs, False
+            'suppress_validation_exceptions': _configs.get_config(
+                'suppress_validation_exceptions',
+                suppress_validation_exceptions, env_configs, False
             ),
             'routes_pathname_prefix': routes_pathname_prefix,
             'requests_pathname_prefix': requests_pathname_prefix,
@@ -930,7 +930,7 @@ class Dash(object):
         # Only validate if we get required information from renderer
         # and validation is not turned off by user
         if (
-                (not self.config.disable_component_validation) and
+                (not self.config.suppress_validation_exceptions) and
                 'namespace' in output and
                 'type' in output
         ):
@@ -1021,7 +1021,7 @@ class Dash(object):
         component_ids = {layout_id} if layout_id else set()
         for component in to_validate.traverse():
             if (
-                    not self.config.disable_component_validation and
+                    not self.config.suppress_validation_exceptions and
                     isinstance(component, Component)
             ):
                 component.validate()
