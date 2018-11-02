@@ -783,9 +783,10 @@ class Dash(object):
                         )
 
                     # Children that are not of type Component or
-                    # collections.MutableSequence not returned by traverse
+                    # list/tuple not returned by traverse
                     child = getattr(j, 'children', None)
-                    if not isinstance(child, collections.MutableSequence):
+                    if not isinstance(child, (tuple,
+                                              collections.MutableSequence)):
                         if child and not _value_is_valid(child):
                             _raise_invalid(
                                 bad_val=child,
@@ -797,7 +798,7 @@ class Dash(object):
 
                 # Also check the child of val, as it will not be returned
                 child = getattr(val, 'children', None)
-                if not isinstance(child, collections.MutableSequence):
+                if not isinstance(child, (tuple, collections.MutableSequence)):
                     if child and not _value_is_valid(child):
                         _raise_invalid(
                             bad_val=child,
