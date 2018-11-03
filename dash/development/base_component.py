@@ -9,11 +9,32 @@ import sys
 import six
 
 
-class ComponentRegistry(abc.ABCMeta):
-    """Just importing a component lib will make it be loaded on the index"""
+# pylint: disable=no-init,too-few-public-methods
+class ComponentRegistry:
+    """Holds a registry of the namespaces used by components."""
 
     registry = set()
     __dist_cache = collections.defaultdict(dict)
+
+    @classmethod
+    def get_resources(cls, resource_name):
+        cached = cls.__dist_cache.get(resource_name)
+        current_len = len(cls.registry)
+
+        if cached and current_len == cached.get('len'):
+            return cached.get('resources')
+
+        cls.__dist_cache[resource_name]['resources'] = resources = []
+        cls.__dist_cache[resource_name]['len'] = current_len
+
+        for module_name in cls.registry:
+            module = sys.modules[module_name]
+            resources.extend(getattr(module, resource_name, []))
+
+        return resources
+
+
+class ComponentMeta(abc.ABCMeta):
 
     # pylint: disable=arguments-differ
     def __new__(mcs, name, bases, attributes):
@@ -25,26 +46,9 @@ class ComponentRegistry(abc.ABCMeta):
             # as it doesn't have the namespace.
             return component
 
-        mcs.registry.add(module)
+        ComponentRegistry.registry.add(module)
 
         return component
-
-    @classmethod
-    def get_resources(mcs, resource_name):
-        cached = mcs.__dist_cache.get(resource_name)
-        current_len = len(mcs.registry)
-
-        if cached and current_len == cached.get('len'):
-            return cached.get('resources')
-
-        mcs.__dist_cache[resource_name]['resources'] = resources = []
-        mcs.__dist_cache[resource_name]['len'] = current_len
-
-        for module_name in mcs.registry:
-            module = sys.modules[module_name]
-            resources.extend(getattr(module, resource_name, []))
-
-        return resources
 
 
 def is_number(s):
@@ -95,7 +99,7 @@ def _explicitize_args(func):
     return wrapper
 
 
-@six.add_metaclass(ComponentRegistry)
+@six.add_metaclass(ComponentMeta)
 class Component(collections.MutableMapping):
     class _UNDEFINED(object):
         def __repr__(self):
