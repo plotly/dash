@@ -2,9 +2,13 @@
 
 An interactive `DataTable` for [Dash](https://dash.plot.ly/).
 
-[View the docs to get started](https://dash.plot.ly/datatable)
+:point_right: [Documentation](https://dash.plot.ly/datatable)
 
 ## Quickstart
+
+```
+pip install dash-table
+```
 
 ```python
 import dash
