@@ -14,18 +14,16 @@ class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
     registry = set()
-    __dist_cache = collections.defaultdict(dict)
+    __dist_cache = {}
 
     @classmethod
     def get_resources(cls, resource_name):
         cached = cls.__dist_cache.get(resource_name)
-        current_len = len(cls.registry)
 
-        if cached and current_len == cached.get('len'):
-            return cached.get('resources')
+        if cached:
+            return cached
 
-        cls.__dist_cache[resource_name]['resources'] = resources = []
-        cls.__dist_cache[resource_name]['len'] = current_len
+        cls.__dist_cache[resource_name] = resources = []
 
         for module_name in cls.registry:
             module = sys.modules[module_name]
