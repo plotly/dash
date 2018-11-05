@@ -422,8 +422,7 @@ def generate_class_string_r(typename, props, description, namespace):
     # it to be `null` or whether that was just the default value.
     # The solution might be to deal with default values better although
     # not all component authors will supply those.
-    c = '''
-    """{docstring}"""
+    c = '''{docstring}
 
     html{typename} <- function(..., {default_argtext}) {{
 
