@@ -425,23 +425,23 @@ def generate_class_string_r(typename, props, description, namespace):
     c = '''
     """{docstring}"""
 
-    html{typename} <- function(..., {default_argtext}) {
+    html{typename} <- function(..., {default_argtext}) {{
 
     component <- list(
       props = list(
          {default_paramtext}
       ),
       type = '{typename}',
-      namespace = '{dash_html_components}',
-      propNames = c({list_of_valid_keys.strip("[]")}),
-      package = '{namespace}'
+      namespace = '{namespace}',
+      propNames = c({list_of_valid_keys}),
+      package = '{package_name}'
     )
 
     component$props <- filter_null(component$props)
     component <- append_wildcard_props(component, wildcards = c({default_wildcards}), ...)
 
     structure(component, class = c('dash_component', 'list'))
-    }
+    }}
 '''
 
     filtered_props = reorder_props(filter_props(props))
@@ -449,8 +449,10 @@ def generate_class_string_r(typename, props, description, namespace):
     list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
     # pylint: disable=unused-variable
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
+    list_of_valid_keys = list_of_valid_keys[1:-1]
+    package_name = make_package_name(namespace)
     # pylint: disable=unused-variable
-    docstring = create_docstring(
+    docstring = create_docstring_r(
         component_name=typename,
         props=filtered_props,
         events=parse_events(props),
@@ -475,7 +477,6 @@ def generate_class_string_r(typename, props, description, namespace):
         default_argtext = ""
         argtext = '**args'
     # in R, we set parameters with no defaults to NULL, here we'll do that if no default value exists
-    # the string which is used to define parameters and their default values is called default_argtext
     default_wildcards += ", ".join(
         [('\'{:s}\''.format(p))
          for p in prop_keys
@@ -536,7 +537,6 @@ def generate_class_file(typename, props, description, namespace):
         f.write(class_string)
 
 # pylint: disable=unused-argument
-# pylint: disable=unused-argument
 def generate_class_file_r(typename, props, description, namespace):
     """
     Generate a R class file (.R) given a class string
@@ -590,6 +590,27 @@ def generate_class(typename, props, description, namespace):
     result = scope[typename]
     return result
 
+def generate_class_r(typename, props, description, namespace):
+    """
+    Generate a python class object given a class string
+
+    Parameters
+    ----------
+    typename
+    props
+    description
+    namespace
+
+    Returns
+    -------
+
+    """
+    string = generate_class_string_r(typename, props, description, namespace)
+    scope = {'Component': Component, '_explicitize_args': _explicitize_args}
+    # pylint: disable=exec-used
+    exec(string, scope)
+    result = scope[typename]
+    return result
 
 def required_props(props):
     """
@@ -684,15 +705,12 @@ def create_docstring_r(component_name, props, events, description):
          p not in ['setProps']]
     )
 
-    return (
-        """
-#' {name} component
+    return('''#' {name} component
 #' @description See <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{name}>
 #' @export
 #' @param ... The children of this component and/or 'wildcards' of the form: `data-*` or `aria-*`
 {desctext}
-
-        """
+'''
     ).format(
         name=component_name,
         description=description,
@@ -1047,3 +1065,8 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
         # All other types
         return js_to_py_types[js_type_name]()
     return ''
+
+def make_package_name(namestring):
+   # first, *rest = namestring.split('_') Python 3
+   first, rest = namestring.split('_')[0], namestring.split('_')[1:]
+   return first + ''.join(word.capitalize() for word in rest)

@@ -1,9 +1,12 @@
 import collections
 import json
 import os
-from dash.development.base_component import generate_class
-#from .base_component import generate_class
-from dash.development.base_component import generate_class_file
+#from dash.development.base_component import generate_class
+from .base_component import generate_class
+from .base_component import generate_class_file
+from .base_component import generate_class_r
+from .base_component import generate_class_file_r
+#from dash.development.base_component import generate_class_file
 
 def _get_metadata(metadata_path):
     # Start processing
@@ -94,8 +97,15 @@ def generate_classes(namespace, metadata_path='lib/metadata.json'):
             componentData['description'],
             namespace
         )
+        generate_class_file_r(
+            name,
+            componentData['props'],
+            componentData['description'],
+            namespace
+        )
 
         # Add an import statement for this component
+        # RK: need to add import statements in R namespace file also
         with open(imports_path, 'a') as f:
             f.write('from .{0:s} import {0:s}\n'.format(name))
 
