@@ -1521,7 +1521,15 @@
       },
       "value": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "The value of the input"
@@ -1539,6 +1547,17 @@
         },
         "required": false,
         "description": "The class of the input element"
+      },
+      "debounce": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, changes to input will be sent back to the Dash server only on enter or when losing focus.\nIf it's false, it will sent the value back on every change.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
       },
       "type": {
         "type": {
@@ -1668,7 +1687,15 @@
       },
       "max": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "The maximum (numeric or date-time) value for this item, which must not be less than its minimum (min attribute) value."
@@ -1682,7 +1709,15 @@
       },
       "min": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value."
@@ -1696,7 +1731,7 @@
       },
       "multiple": {
         "type": {
-          "name": "string"
+          "name": "bool"
         },
         "required": false,
         "description": "This Boolean attribute indicates whether the user can enter more than one value. This attribute applies when the type attribute is set to email or file, otherwise it is ignored."
@@ -1764,7 +1799,7 @@
         "required": false,
         "description": "The initial size of the control. This value is in pixels unless the value of the type attribute is text or password, in which case it is an integer number of characters. Starting in, this attribute applies only when the type attribute is set to text, search, tel, url, email, or password, otherwise it is ignored. In addition, the size must be greater than zero. If you do not specify a size, a default value of 20 is used.' simply states \"the user agent should ensure that at least that many characters are visible\", but different characters can have different widths in certain fonts. In some browsers, a certain string with x characters will not be entirely visible even if size is defined to at least x."
       },
-      "spellcheck": {
+      "spellCheck": {
         "type": {
           "name": "string"
         },
@@ -1773,7 +1808,15 @@
       },
       "step": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Works with the min and max attributes to limit the increments at which a numeric or date-time value can be set. It can be the string any or a positive floating point number. If this attribute is not set to any, the control accepts only values at multiples of the step value greater than the minimum."

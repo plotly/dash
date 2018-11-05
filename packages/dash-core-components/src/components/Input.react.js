@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {omit} from 'ramda';
+import {omit, isEmpty} from 'ramda';
 
 /**
  * A basic HTML input control for entering text, numbers, or passwords.
@@ -12,35 +12,50 @@ import {omit} from 'ramda';
 export default class Input extends Component {
     constructor(props) {
         super(props);
-        this.state = {value: props.value};
+        if (!props.setProps || props.debounce) {
+            this.state = {value: props.value};
+        }
     }
 
     componentWillReceiveProps(nextProps) {
         if (this.props.setProps) {
-            // Only setState from props if the component is driven by props.
-            // If the component prop is not used in a callback,
-            // it will receive the same initial props every time
-            // the layout is updated.
-            this.setState({value: nextProps.value});
+            this.props = nextProps;
+            if (this.props.debounce) {
+                this.setState({
+                    value: nextProps.value,
+                });
+            }
         }
     }
 
     render() {
-        const {fireEvent, setProps, type} = this.props;
-        const {value} = this.state;
+        const {fireEvent, setProps, type, min, max, debounce} = this.props;
+        const {value} = setProps
+            ? debounce
+                ? this.state
+                : this.props
+            : this.state;
         return (
             <input
                 onChange={e => {
-                    this.setState({value: e.target.value});
-                    if (setProps) {
-                        if (type === 'number') {
-                            setProps({value: Number(e.target.value)});
-                        } else {
-                            setProps({value: e.target.value});
-                        }
+                    const newValue = e.target.value;
+                    if (
+                        (!isEmpty(min) && Number(newValue) < min) ||
+                        (!isEmpty(max) && Number(newValue) > max)
+                    ) {
+                        return;
                     }
                     if (fireEvent) {
                         fireEvent({event: 'change'});
+                    }
+                    if (!debounce && setProps) {
+                        const castValue =
+                            type === 'number' ? Number(newValue) : newValue;
+                        setProps({
+                            value: castValue,
+                        });
+                    } else {
+                        this.setState({value: newValue});
                     }
                 }}
                 onBlur={() => {
@@ -48,22 +63,43 @@ export default class Input extends Component {
                         fireEvent({event: 'blur'});
                     }
                     if (setProps) {
+                        const castValue =
+                            type === 'number' ? Number(value) : value;
                         setProps({
                             n_blur: this.props.n_blur + 1,
                             n_blur_timestamp: new Date(),
+                            value: castValue,
                         });
                     }
                 }}
-                onKeyUp={e => {
+                onKeyPress={e => {
                     if (setProps && e.key === 'Enter') {
+                        const castValue =
+                            type === 'number' ? Number(value) : value;
                         setProps({
                             n_submit: this.props.n_submit + 1,
                             n_submit_timestamp: new Date(),
+                            value: castValue,
                         });
                     }
                 }}
                 value={value}
-                {...omit(['fireEvent', 'setProps', 'value'], this.props)}
+                {...omit(
+                    [
+                        'debounce',
+                        'fireEvent',
+                        'value',
+                        'n_blur',
+                        'n_blur_timestamp',
+                        'n_submit',
+                        'n_submit_timestamp',
+                        'selectionDirection',
+                        'selectionEnd',
+                        'selectionStart',
+                        'setProps',
+                    ],
+                    this.props
+                )}
             />
         );
     }
@@ -74,6 +110,7 @@ Input.defaultProps = {
     n_blur_timestamp: -1,
     n_submit: 0,
     n_submit_timestamp: -1,
+    debounce: false,
 };
 
 Input.propTypes = {
@@ -87,7 +124,7 @@ Input.propTypes = {
     /**
      * The value of the input
      */
-    value: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * The input's inline styles
@@ -98,6 +135,12 @@ Input.propTypes = {
      * The class of the input element
      */
     className: PropTypes.string,
+
+    /**
+     * If true, changes to input will be sent back to the Dash server only on enter or when losing focus.
+     * If it's false, it will sent the value back on every change.
+     */
+    debounce: PropTypes.bool,
 
     /**
      * The type of control to render.
@@ -200,7 +243,7 @@ Input.propTypes = {
     /**
      * The maximum (numeric or date-time) value for this item, which must not be less than its minimum (min attribute) value.
      */
-    max: PropTypes.string,
+    max: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed.
@@ -210,7 +253,7 @@ Input.propTypes = {
     /**
      * The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value.
      */
-    min: PropTypes.string,
+    min: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored.
@@ -220,7 +263,7 @@ Input.propTypes = {
     /**
      * This Boolean attribute indicates whether the user can enter more than one value. This attribute applies when the type attribute is set to email or file, otherwise it is ignored.
      */
-    multiple: PropTypes.string,
+    multiple: PropTypes.bool,
 
     /**
      * The name of the control, which is submitted with the form data.
@@ -270,12 +313,12 @@ Input.propTypes = {
     /**
      * Setting the value of this attribute to true indicates that the element needs to have its spelling and grammar checked. The value default indicates that the element is to act according to a default behavior, possibly based on the parent element's own spellcheck value. The value false indicates that the element should not be checked.
      */
-    spellcheck: PropTypes.string,
+    spellCheck: PropTypes.string,
 
     /**
      * Works with the min and max attributes to limit the increments at which a numeric or date-time value can be set. It can be the string any or a positive floating point number. If this attribute is not set to any, the control accepts only values at multiples of the step value greater than the minimum.
      */
-    step: PropTypes.string,
+    step: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * Number of times the `Enter` key was pressed while the input had focus.

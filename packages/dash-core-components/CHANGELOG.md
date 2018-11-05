@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.37.0] - 2018-11-04
+### Fixed
+- Some Input props weren't being picked up by React. Changed:
+    - `autocomplete` to `autoComplete`
+    - `autofocus` to `autoFocus`
+    - `inputmode` to `inputMode`
+    - `maxlength` to `maxLength`
+    - `minlength` to `minLength`
+### Added
+- Unit tests for `Input` component.
+- New `debounce` prop for `Input` component that determines if the input should update to a Dash server immediately, or on 'Enter' key. Fixes [#169](https://github.com/plotly/dash-core-components/issues/169)
+### Changed
+- `min` and `max` prop now won't update the input when values are lower than or greater than `min` and `max` respectively. Fixes[#173](https://github.com/plotly/dash-core-components/issues/173)
+- `step` prop can now be a `number` and is therefor set correctly on the corresponding `<input/>` tag. Fixes [#292](https://github.com/plotly/dash-core-components/issues/292)
+
 ## [0.36.0] - 2018-11-01
 ### Fixed
 - The `npm start` command now runs the Demo app again [#346](https://github.com/plotly/dash-core-components/issues/346) 
