@@ -9,7 +9,7 @@ def memoize(func):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        key = hash((args, frozenset(kwargs)))
+        key = hash((args, frozenset(kwargs.items())))
         cached = results.get(key)
         if cached:
             return cached
