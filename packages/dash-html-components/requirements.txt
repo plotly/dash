@@ -43,7 +43,7 @@ Pygments==2.2.0
 pyOpenSSL==17.2.0
 python-dateutil==2.6.1
 pytz==2017.2
-requests==2.18.4
+requests>=2.20.0
 requests-toolbelt==0.8.0
 scandir==1.5
 selenium==3.5.0
