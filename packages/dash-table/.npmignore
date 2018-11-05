@@ -22,6 +22,7 @@ dist
 public
 src
 scripts
+storybook-static
 config
 vv
 venv
