@@ -387,6 +387,120 @@ def generate_class_string(typename, props, description, namespace):
     required_args = required_props(props)
     return c.format(**locals())
 
+def generate_class_string_r(typename, props, description, namespace):
+    """
+    Dynamically generate class strings to have nicely formatted docstrings,
+    keyword arguments, and repr
+
+    Inspired by http://jameso.be/2013/08/06/namedtuple.html
+
+    Parameters
+    ----------
+    typename
+    props
+    description
+    namespace
+
+    Returns
+    -------
+    string
+
+    """
+    # TODO _prop_names, _type, _namespace, available_events,
+    # and available_properties
+    # can be modified by a Dash JS developer via setattr
+    # TODO - Tab out the repr for the repr of these components to make it
+    # look more like a hierarchical tree
+    # TODO - Include "description" "defaultValue" in the repr and docstring
+    #
+    # TODO - Handle "required"
+    #
+    # TODO - How to handle user-given `null` values? I want to include
+    # an expanded docstring like Dropdown(value=None, id=None)
+    # but by templating in those None values, I have no way of knowing
+    # whether a property is None because the user explicitly wanted
+    # it to be `null` or whether that was just the default value.
+    # The solution might be to deal with default values better although
+    # not all component authors will supply those.
+    c = '''
+    """{docstring}"""
+
+    html{typename} <- function(..., {default_argtext}) {
+
+    component <- list(
+      props = list(
+         {default_paramtext}
+      ),
+      type = '{typename}',
+      namespace = '{dash_html_components}',
+      propNames = c({list_of_valid_keys.strip("[]")}),
+      package = '{namespace}'
+    )
+
+    component$props <- filter_null(component$props)
+    component <- append_wildcard_props(component, wildcards = c({default_wildcards}), ...)
+
+    structure(component, class = c('dash_component', 'list'))
+    }
+'''
+
+    filtered_props = reorder_props(filter_props(props))
+    # pylint: disable=unused-variable
+    list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
+    # pylint: disable=unused-variable
+    list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
+    # pylint: disable=unused-variable
+    docstring = create_docstring(
+        component_name=typename,
+        props=filtered_props,
+        events=parse_events(props),
+        description=description).replace('\r\n', '\n')
+
+    # pylint: disable=unused-variable
+    # want to remove data-*, aria-*
+    events = '[' + ', '.join(parse_events(props)) + ']'
+    prop_keys = list(props.keys())
+    default_paramtext = ''
+    default_wildcards = ''
+    wildcard_list = ''
+    for key in props:
+        if '*' in key:
+            wildcard_list.join(key)
+    if 'children' in props:
+        prop_keys.remove('children')
+        default_argtext = "children=NULL, "
+        # pylint: disable=unused-variable
+        argtext = 'children=children, **args'
+    else:
+        default_argtext = ""
+        argtext = '**args'
+    # in R, we set parameters with no defaults to NULL, here we'll do that if no default value exists
+    # the string which is used to define parameters and their default values is called default_argtext
+    default_wildcards += ", ".join(
+        [('\'{:s}\''.format(p))
+         for p in prop_keys
+         if '*' in p]
+    )
+    default_argtext += ", ".join(
+        [('{:s}={}'.format(p, props[p]['defaultValue']['value'])
+          if 'defaultValue' in props[p] else
+          '{:s}=NULL'.format(p))
+         for p in prop_keys
+         if not p.endswith("-*") and
+         p not in keyword.kwlist and
+         p not in ['setProps']]
+    )
+    default_paramtext += ", ".join(
+            [('{:s}={:s}'.format(p, p)
+               if p != "children" else
+               '{:s}=c(children, assert_valid_children(..., wildcards = c({:s})))'.format(p, default_wildcards))
+             for p in props.keys()
+             if not p.endswith("-*") and
+             p not in keyword.kwlist and
+             p not in ['setProps']]
+    )
+    required_args = required_props(props)
+    return c.format(**locals())
 
 # pylint: disable=unused-argument
 def generate_class_file(typename, props, description, namespace):
@@ -421,6 +535,37 @@ def generate_class_file(typename, props, description, namespace):
         f.write(import_string)
         f.write(class_string)
 
+# pylint: disable=unused-argument
+# pylint: disable=unused-argument
+def generate_class_file_r(typename, props, description, namespace):
+    """
+    Generate a R class file (.R) given a class string
+
+    Parameters
+    ----------
+    typename
+    props
+    description
+    namespace
+
+    Returns
+    -------
+
+    """
+    import_string =\
+        "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
+    class_string = generate_class_string_r(
+        typename,
+        props,
+        description,
+        namespace
+    )
+    file_name = "{:s}.R".format(typename)
+
+    file_path = os.path.join(namespace, file_name)
+    with open(file_path, 'w') as f:
+        f.write(import_string)
+        f.write(class_string)
 
 # pylint: disable=unused-argument
 def generate_class(typename, props, description, namespace):
@@ -507,6 +652,52 @@ Available events: {events}"""
             for p, prop in list(filter_props(props).items())),
         events=', '.join(events))
 
+def create_docstring_r(component_name, props, events, description):
+    """
+    Create the Dash component docstring
+
+    Parameters
+    ----------
+    component_name: str
+        Component name
+    props: dict
+        Dictionary with {propName: propMetadata} structure
+    events: list
+        List of Dash events
+    description: str
+        Component description
+
+    Returns
+    -------
+    str
+        Dash component docstring
+    """
+    # Ensure props are ordered with children first
+    props = reorder_props(props=props)
+
+    desctext = ''
+    desctext += "\n".join(
+        [('#\' @param {:s} {:s}'.format(p, props[p]['description'].replace('\n', ' ')))
+         for p in props.keys()
+         if not p.endswith("-*") and
+         p not in keyword.kwlist and
+         p not in ['setProps']]
+    )
+
+    return (
+        """
+#' {name} component
+#' @description See <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{name}>
+#' @export
+#' @param ... The children of this component and/or 'wildcards' of the form: `data-*` or `aria-*`
+{desctext}
+
+        """
+    ).format(
+        name=component_name,
+        description=description,
+        desctext=desctext,
+        events=', '.join(events))
 
 def parse_events(props):
     """
@@ -550,6 +741,25 @@ def parse_wildcards(props):
             list_of_valid_wildcard_attr_prefixes.append(wildcard_attr[:-1])
     return list_of_valid_wildcard_attr_prefixes
 
+def parse_wildcards_r(props):
+    """
+    Pull out the wildcard attributes from the Component props
+
+    Parameters
+    ----------
+    props: dict
+        Dictionary with {propName: propMetadata} structure
+
+    Returns
+    -------
+    list
+        List of Dash valid wildcard prefixes
+    """
+    list_of_valid_wildcard_attr_prefixes = []
+    for wildcard_attr in ["data-*", "aria-*"]:
+        if wildcard_attr in props.keys():
+            list_of_valid_wildcard_attr_prefixes.append(wildcard_attr[:-1])
+    return list_of_valid_wildcard_attr_prefixes
 
 def reorder_props(props):
     """

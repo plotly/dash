@@ -1,9 +1,9 @@
 import collections
 import json
 import os
-from .base_component import generate_class
-from .base_component import generate_class_file
-
+from dash.development.base_component import generate_class
+#from .base_component import generate_class
+from dash.development.base_component import generate_class_file
 
 def _get_metadata(metadata_path):
     # Start processing
