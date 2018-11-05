@@ -1,3 +1,7 @@
+## 0.28.6 - 2018-11-05
+## Fixed
+- `Dash.registered_paths` changed to a `collections.defaultdict(set)`, was appending the same package paths on every index. [#443](https://github.com/plotly/dash/pull/443)
+
 ## 0.28.5 - 2018-10-18
 ## Fixed
 - Replace windows endline when generating the components classes docstring [#431](https://github.com/plotly/dash/pull/431)
