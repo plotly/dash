@@ -1,3 +1,7 @@
+## 0.28.7 - 2018-11-05
+## Fixed
+- Component generation now uses the same prop name black list in all supported Python versions. Closes [#361](https://github.com/plotly/dash/issues/361). [#450](https://github.com/plotly/dash/pull/450)
+
 ## 0.28.6 - 2018-11-05
 ## Fixed
 - `Dash.registered_paths` changed to a `collections.defaultdict(set)`, was appending the same package paths on every index. [#443](https://github.com/plotly/dash/pull/443)
