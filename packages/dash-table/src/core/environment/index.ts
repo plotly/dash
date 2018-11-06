@@ -10,7 +10,12 @@ interface ISearchParams {
 
 export default class Environment {
     private static get searchParams(): ISearchParams {
-        return new URL(window.location.href).searchParams || { get: () => null };
+        return (
+            typeof URL !== 'undefined' &&
+            URL.prototype &&
+            URL.prototype.constructor &&
+            new URL(window.location.href).searchParams
+        ) || { get: () => null };
     }
 
     public static get debugLevel(): DebugLevel {

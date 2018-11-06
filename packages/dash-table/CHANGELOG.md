@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.3] - 2018-11-05
+- Fix load in IE 11 [#217](https://github.com/plotly/dash-table/issues/217)
+
 ## [3.1.2] - 2018-11-02
 ### Fixed
 The version in the package didn't get updated.

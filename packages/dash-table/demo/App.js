@@ -14,7 +14,7 @@ class App extends Component {
     constructor() {
         super();
 
-        const data: any[] = clone(mockData.data);
+        const data = clone(mockData.data);
 
         this.state = {
             filter: '',

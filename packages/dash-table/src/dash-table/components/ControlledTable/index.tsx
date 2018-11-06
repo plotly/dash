@@ -148,7 +148,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
         // Adjust [fixed columns/fixed rows combo] to fixed rows height
         let trs = r0c1.querySelectorAll('tr');
-        r0c0.querySelectorAll('tr').forEach((tr, index) => {
+        Array.from(r0c0.querySelectorAll('tr')).forEach((tr, index) => {
             const tr2 = trs[index];
 
             tr.style.height = `${tr2.clientHeight}px`;
@@ -156,7 +156,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
         // Adjust fixed columns headers to header's height
         let trths = r1c1.querySelectorAll('tr > th:first-of-type');
-        r1c0.querySelectorAll('tr > th:first-of-type').forEach((th, index) => {
+        Array.from(r1c0.querySelectorAll('tr > th:first-of-type')).forEach((th, index) => {
             const tr2 = trths[index].parentElement as HTMLElement;
             const tr = th.parentElement as HTMLElement;
 
@@ -547,7 +547,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
         // Adjust the width of the fixed row header
         if (n_fixed_rows) {
-            r1c1.querySelectorAll('tr:first-of-type td, tr:first-of-type th').forEach((td, index) => {
+            Array.from(r1c1.querySelectorAll('tr:first-of-type td, tr:first-of-type th')).forEach((td, index) => {
                 const style = getComputedStyle(td);
                 const width = style.width;
 
@@ -560,7 +560,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
         // Adjust the width of the fixed row / fixed columns header
         if (n_fixed_columns && n_fixed_rows) {
-            r1c0.querySelectorAll('tr:first-of-type td, tr:first-of-type th').forEach((td, index) => {
+            Array.from(r1c0.querySelectorAll('tr:first-of-type td, tr:first-of-type th')).forEach((td, index) => {
                 const style = getComputedStyle(td);
                 const width = style.width;
 
