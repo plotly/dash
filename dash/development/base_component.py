@@ -2,7 +2,51 @@ import collections
 import copy
 import os
 import inspect
+import abc
+import sys
+import six
+
 from ._all_keywords import kwlist
+
+
+# pylint: disable=no-init,too-few-public-methods
+class ComponentRegistry:
+    """Holds a registry of the namespaces used by components."""
+
+    registry = set()
+    __dist_cache = {}
+
+    @classmethod
+    def get_resources(cls, resource_name):
+        cached = cls.__dist_cache.get(resource_name)
+
+        if cached:
+            return cached
+
+        cls.__dist_cache[resource_name] = resources = []
+
+        for module_name in cls.registry:
+            module = sys.modules[module_name]
+            resources.extend(getattr(module, resource_name, []))
+
+        return resources
+
+
+class ComponentMeta(abc.ABCMeta):
+
+    # pylint: disable=arguments-differ
+    def __new__(mcs, name, bases, attributes):
+        component = abc.ABCMeta.__new__(mcs, name, bases, attributes)
+        module = attributes['__module__'].split('.')[0]
+        if name == 'Component' or module == 'builtins':
+            # Don't do the base component
+            # and the components loaded dynamically by load_component
+            # as it doesn't have the namespace.
+            return component
+
+        ComponentRegistry.registry.add(module)
+
+        return component
 
 
 def is_number(s):
@@ -53,6 +97,7 @@ def _explicitize_args(func):
     return wrapper
 
 
+@six.add_metaclass(ComponentMeta)
 class Component(collections.MutableMapping):
     class _UNDEFINED(object):
         def __repr__(self):

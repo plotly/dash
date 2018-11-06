@@ -3,6 +3,7 @@ import json
 import os
 from .base_component import generate_class
 from .base_component import generate_class_file
+from .base_component import ComponentRegistry
 
 
 def _get_metadata(metadata_path):
@@ -30,6 +31,8 @@ def load_components(metadata_path,
     `type`, `valid_kwargs`, and `setup`.
     """
 
+    # Register the component lib for index include.
+    ComponentRegistry.registry.add(namespace)
     components = []
 
     data = _get_metadata(metadata_path)
