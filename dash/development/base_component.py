@@ -2,11 +2,11 @@ import collections
 import copy
 import os
 import inspect
-from ._all_keywords import kwlist
-import keyword
 import abc
 import sys
 import six
+
+from ._all_keywords import kwlist
 
 
 # pylint: disable=no-init,too-few-public-methods
