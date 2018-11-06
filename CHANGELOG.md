@@ -1,3 +1,7 @@
+## 0.29.0 - 2018-11-06
+## Added
+- Added component namespaces registry, collect the resources needed by component library when they are imported instead of crawling the layout. [#444](https://github.com/plotly/dash/pull/444)
+
 ## 0.28.7 - 2018-11-05
 ## Fixed
 - Component generation now uses the same prop name black list in all supported Python versions. Closes [#361](https://github.com/plotly/dash/issues/361). [#450](https://github.com/plotly/dash/pull/450)
