@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.37.2] - 2018-11-07
+### Changed
+- Updated `react-select` to version `2.1.0`
+
 ## [0.37.1] - 2018-11-07
 ### Added
 - Added `clickannotation` event to `dcc.Graph`.
