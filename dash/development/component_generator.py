@@ -5,10 +5,12 @@ import sys
 import subprocess
 import shlex
 import os
+import textwrap
 
 from .base_component import generate_class_file
 
 
+# pylint: disable=too-many-locals
 def generate_components(component_src, output_dir):
     is_windows = sys.platform == 'win32'
 
@@ -43,8 +45,11 @@ def generate_components(component_src, output_dir):
 
     metadata = json.loads(out.decode())
 
+    components = []
+
     for component_path, component_data in metadata.items():
         name = component_path.split('/')[-1].split('.')[0]
+        components.append(name)
         generate_class_file(
             name,
             component_data['props'],
@@ -55,6 +60,20 @@ def generate_components(component_src, output_dir):
 
     with open(os.path.join(output_dir, 'metadata.json'), 'w') as f:
         json.dump(metadata, f)
+
+    with open(os.path.join(output_dir, '_imports_.py'), 'w') as f:
+        f.write(textwrap.dedent(
+            '''
+            {}
+
+            __all__ = [
+            {}
+            ]
+            '''.format(
+                '\n'.join('from {0} import {0}'.format(x) for x in components),
+                ',\n'.join('    "{}"'.format(x) for x in components)
+            )
+        ))
 
 
 def cli():
