@@ -53,6 +53,14 @@ def generate_components(component_src, output_dir):
 
 
 def cli():
+    if len(sys.argv) != 3:
+        print(
+            'Invalid number of arguments'
+            ' expected 2 but got {}\n\n'
+            'Arguments: src output_directory'.format(len(sys.argv) - 1),
+            file=sys.stderr
+        )
+        sys.exit(-1)
     # pylint: disable=unbalanced-tuple-unpacking
     src, out = sys.argv[1:]
     generate_components(src, out)
