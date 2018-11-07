@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.37.1] - 2018-11-07
+### Added
+- Added `clickannotation` event to `dcc.Graph`.
+See https://github.com/plotly/dash-core-components/pull/182.
+
 ## [0.37.0] - 2018-11-04
 ### Fixed
 - Some Input props weren't being picked up by React. Changed:
@@ -390,7 +395,6 @@ As part of the plotly.js upgrade:
 - Broken sourcemaps for debugging.
 ### Added
 - Testing configuration for CHROMEPATH and SERVER_PROCESSES
-
 ## [0.22.1] - 2018-04-09
 ### Fixed
 - Various bugs with the `ohlc` and `candlestick` chart type in the `dcc.Graph`

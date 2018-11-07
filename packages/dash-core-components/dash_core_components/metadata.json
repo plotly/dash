@@ -1165,6 +1165,17 @@
           "computed": false
         }
       },
+      "clickAnnotationData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest click annotation event",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
       "hoverData": {
         "type": {
           "name": "object"
@@ -1468,6 +1479,10 @@
           "value": [
             {
               "value": "'click'",
+              "computed": false
+            },
+            {
+              "value": "'clickannotation'",
               "computed": false
             },
             {

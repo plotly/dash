@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {contains, filter, clone, has, isNil, type} from 'ramda';
+import {contains, filter, clone, has, isNil, type, omit} from 'ramda';
 /* global Plotly:true */
 
 const filterEventData = (gd, eventData, event) => {
@@ -107,6 +107,18 @@ export default class PlotlyGraph extends Component {
                 if (fireEvent) {
                     fireEvent({event: 'click'});
                 }
+            }
+        });
+        gd.on('plotly_clickannotation', eventData => {
+            const clickAnnotationData = omit(
+                ['event', 'fullAnnotation'],
+                eventData
+            );
+            if (setProps) {
+                setProps({clickAnnotationData});
+            }
+            if (fireEvent) {
+                fireEvent({event: 'clickannotation'});
             }
         });
         gd.on('plotly_hover', eventData => {
@@ -224,6 +236,11 @@ PlotlyGraph.propTypes = {
      * Data from latest click event
      */
     clickData: PropTypes.object,
+
+    /**
+     * Data from latest click annotation event
+     */
+    clickAnnotationData: PropTypes.object,
 
     /**
      * Data from latest hover event
@@ -458,6 +475,7 @@ PlotlyGraph.propTypes = {
      */
     dashEvents: PropTypes.oneOf([
         'click',
+        'clickannotation',
         'hover',
         'selected',
         'relayout',
@@ -484,6 +502,7 @@ PlotlyGraph.defaultProps = {
             .substring(2, 7),
     /* eslint-enable no-magic-numbers */
     clickData: null,
+    clickAnnotationData: null,
     hoverData: null,
     selectedData: null,
     relayoutData: null,
