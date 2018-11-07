@@ -11,7 +11,7 @@ from .base_component import generate_class_file
 
 
 # pylint: disable=too-many-locals
-def generate_components(component_src, output_dir):
+def generate_components(component_src, project_shortname):
     is_windows = sys.platform == 'win32'
 
     extract_path = os.path.abspath(os.path.join(
@@ -23,8 +23,6 @@ def generate_components(component_src, output_dir):
     os.environ['NODE_PATH'] = 'node_modules'
     cmd = shlex.split('node {} {}'.format(extract_path, component_src),
                       posix=not is_windows)
-
-    namespace = os.path.basename(output_dir)
 
     proc = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
@@ -38,8 +36,8 @@ def generate_components(component_src, output_dir):
 
     if not out:
         print(
-            'Error generating {} metadata in {} (status={})'.format(
-                namespace, output_dir, status),
+            'Error generating metadata in {} (status={})'.format(
+                project_shortname, status),
             file=sys.stderr)
         sys.exit(1)
 
@@ -54,14 +52,14 @@ def generate_components(component_src, output_dir):
             name,
             component_data['props'],
             component_data['description'],
-            namespace
+            project_shortname
         )
-        print('Generated {}/{}.py'.format(namespace, name))
+        print('Generated {}/{}.py'.format(project_shortname, name))
 
-    with open(os.path.join(output_dir, 'metadata.json'), 'w') as f:
+    with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
         json.dump(metadata, f)
 
-    with open(os.path.join(output_dir, '_imports_.py'), 'w') as f:
+    with open(os.path.join(project_shortname, '_imports_.py'), 'w') as f:
         f.write(textwrap.dedent(
             '''
             {}
@@ -81,13 +79,13 @@ def cli():
         print(
             'Invalid number of arguments'
             ' expected 2 but got {}\n\n'
-            'Arguments: src output_directory'.format(len(sys.argv) - 1),
+            'Arguments: src project_shortname'.format(len(sys.argv) - 1),
             file=sys.stderr
         )
         sys.exit(1)
     # pylint: disable=unbalanced-tuple-unpacking
-    src, out = sys.argv[1:]
-    generate_components(src, out)
+    src, project_shortname = sys.argv[1:]
+    generate_components(src, project_shortname)
 
 
 if __name__ == '__main__':
