@@ -442,7 +442,7 @@ class Tests(IntegrationTests):
 
         selected_tab = self.wait_for_element_by_css_selector('#tab-1')
         selected_tab.click()
-        time.sleep(2)
+        time.sleep(1)
         self.wait_for_text_to_equal('#tabs-content', 'Test content 1')
 
     def test_tabs_with_children_undefined(self):
@@ -531,6 +531,7 @@ class Tests(IntegrationTests):
             EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph-one .main-svg"))
         )
 
+        time.sleep(1)
         self.snapshot("Tabs 1 rendered ")
 
         button_two.click()
@@ -540,6 +541,7 @@ class Tests(IntegrationTests):
             EC.visibility_of_element_located((By.CSS_SELECTOR, "#graph-two .main-svg"))
         )
 
+        time.sleep(1)
         self.snapshot("Tabs 2 rendered ")
 
     def test_tabs_without_value(self):
@@ -853,11 +855,11 @@ class Tests(IntegrationTests):
         button = self.wait_for_element_by_css_selector('#button')
         self.snapshot('candlestick - initial')
         button.click()
-        time.sleep(2)
+        time.sleep(1)
         self.snapshot('candlestick - 1 click')
 
         button.click()
-        time.sleep(2)
+        time.sleep(1)
         self.snapshot('candlestick - 2 click')
 
     def test_graphs_with_different_figures(self):
@@ -1251,7 +1253,7 @@ class Tests(IntegrationTests):
         ts = int(time.time() * 1000)
         time.sleep(1)
         self.driver.refresh()
-        time.sleep(3)
+        time.sleep(2)
         init = self.wait_for_element_by_css_selector('#init-output')
         init = json.loads(init.text)
         self.assertAlmostEqual(ts, init.get('ts'), delta=1000)
@@ -1297,10 +1299,10 @@ class Tests(IntegrationTests):
         list_btn = self.wait_for_element_by_css_selector('#list-btn')
 
         obj_btn.click()
-        time.sleep(3)
+        time.sleep(1)
         self.wait_for_text_to_equal('#output', json.dumps(nested))
         # it would of crashed the app before adding the recursive check.
 
         list_btn.click()
-        time.sleep(3)
+        time.sleep(1)
         self.wait_for_text_to_equal('#output', json.dumps(nested_list))
