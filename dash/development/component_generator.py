@@ -40,9 +40,11 @@ def generate_components(component_src, output_dir):
                 namespace, output_dir, status),
             file=sys.stderr)
         sys.exit(1)
+
     metadata = json.loads(out.decode())
+
     for component_path, component_data in metadata.items():
-        name = component_path.split('/').pop().split('.')[0]
+        name = component_path.split('/')[-1].split('.')[0]
         generate_class_file(
             name,
             component_data['props'],
@@ -50,6 +52,9 @@ def generate_components(component_src, output_dir):
             namespace
         )
         print('Generated {}/{}.py'.format(namespace, name))
+
+    with open(os.path.join(output_dir, 'metadata.json'), 'w') as f:
+        json.dump(metadata, f)
 
 
 def cli():
