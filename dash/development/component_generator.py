@@ -73,7 +73,7 @@ def generate_components(component_src, output_dir):
                 '\n'.join('from {0} import {0}'.format(x) for x in components),
                 ',\n'.join('    "{}"'.format(x) for x in components)
             )
-        ))
+        ).lstrip())
 
 
 def cli():
