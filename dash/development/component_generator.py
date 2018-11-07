@@ -32,14 +32,14 @@ def generate_components(component_src, output_dir):
     status = proc.poll()
 
     if err:
-        print(err.decode())
+        print(err.decode(), file=sys.stderr)
 
     if not out:
         print(
             'Error generating {} metadata in {} (status={})'.format(
                 namespace, output_dir, status),
             file=sys.stderr)
-        sys.exit(-1)
+        sys.exit(1)
     metadata = json.loads(out.decode())
     for component_path, component_data in metadata.items():
         name = component_path.split('/').pop().split('.')[0]
@@ -60,7 +60,7 @@ def cli():
             'Arguments: src output_directory'.format(len(sys.argv) - 1),
             file=sys.stderr
         )
-        sys.exit(-1)
+        sys.exit(1)
     # pylint: disable=unbalanced-tuple-unpacking
     src, out = sys.argv[1:]
     generate_components(src, out)
