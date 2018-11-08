@@ -20,6 +20,8 @@ from flask_compress import Compress
 from .dependencies import Event, Input, Output, State
 from .resources import Scripts, Css
 from .development.base_component import Component
+from .development.validator import (DashValidator,
+                                    generate_validation_error_message)
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
@@ -855,13 +857,11 @@ class Dash(object):
 
         def wrap_func(func):
             @wraps(func)
-            def add_context(*args, **kwargs):
-
-                output_value = func(*args, **kwargs)
+            def add_context(validated_output):
                 response = {
                     'response': {
                         'props': {
-                            output.component_property: output_value
+                            output.component_property: validated_output
                         }
                     }
                 }
@@ -892,6 +892,7 @@ class Dash(object):
                     mimetype='application/json'
                 )
 
+            self.callback_map[callback_id]['func'] = func
             self.callback_map[callback_id]['callback'] = add_context
 
             return add_context
@@ -920,7 +921,88 @@ class Dash(object):
                 c['id'] == component_registration['id']
             ][0])
 
-        return self.callback_map[target_id]['callback'](*args)
+        output_value = self.callback_map[target_id]['func'](*args)
+
+        # Only validate if we get required information from renderer
+        # and validation is not turned off by user
+        if (
+                (not self.config.suppress_validation_exceptions) and
+                'namespace' in output and
+                'type' in output
+        ):
+            # Python2.7 might make these keys and values unicode
+            namespace = str(output['namespace'])
+            component_type = str(output['type'])
+            component_id = str(output['id'])
+            component_property = str(output['property'])
+            callback_func_name = self.callback_map[target_id]['func'].__name__
+            self._validate_callback_output(namespace, component_type,
+                                           component_id, component_property,
+                                           callback_func_name,
+                                           args, output_value)
+
+        return self.callback_map[target_id]['callback'](output_value)
+
+    def _validate_callback_output(self, namespace, component_type,
+                                  component_id, component_property,
+                                  callback_func_name, args, value):
+        module = sys.modules[namespace]
+        component = getattr(module, component_type)
+        # pylint: disable=protected-access
+        validator = DashValidator({
+            component_property: component._schema.get(component_property, {})
+        })
+        valid = validator.validate({component_property: value})
+        if not valid:
+            error_message = dedent("""\
+
+                A Dash Callback produced an invalid value!
+
+                Dash tried to update the `{component_property}` prop of the
+                `{component_name}` with id `{component_id}` by calling the
+                `{callback_func_name}` function with `{args}` as arguments.
+
+                This function call returned `{value}`, which did not pass
+                validation tests for the `{component_name}` component.
+
+                The expected schema for the `{component_property}` prop of the
+                `{component_name}` component is:
+
+                ***************************************************************
+                {component_schema}
+                ***************************************************************
+
+                The errors in validation are as follows:
+
+            """).format(
+                component_property=component_property,
+                component_name=component.__name__,
+                component_id=component_id,
+                callback_func_name=callback_func_name,
+                args='({})'.format(", ".join(map(repr, args))),
+                value=value,
+                component_schema=pprint.pformat(
+                    component._schema[component_property]
+                )
+            )
+
+            error_message = generate_validation_error_message(
+                validator.errors,
+                0,
+                error_message
+            ) + dedent("""
+                You can turn off these validation exceptions by setting
+                `app.config.suppress_validation_exceptions=True`
+            """)
+
+            raise exceptions.CallbackOutputValidationError(error_message)
+        # Must also validate initialization of newly created components
+        if component_property == 'children':
+            if isinstance(value, Component):
+                value.validate()
+                for component in value.traverse():
+                    if isinstance(component, Component):
+                        component.validate()
 
     def _validate_layout(self):
         if self.layout is None:
