@@ -21,6 +21,7 @@ setup(
         'flask-compress',
         'plotly',
         'dash_renderer',
+        'Cerberus'
     ],
     url='https://plot.ly/dash',
     classifiers=[
