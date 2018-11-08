@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "3.1.4-rc6",
+  "version": "3.1.4",
   "description": "Dash table",
   "main": "lib/bundle.js",
   "scripts": {
@@ -10,9 +10,11 @@
     "postprivate::build": "cp -R lib/* dash_table",
     "private::host_dash8081": "python tests/cypress/dash/v_be_page.py",
     "private::host_dash8082": "python tests/cypress/dash/v_copy_paste.py",
+    "private::host_dash8083": "python tests/cypress/dash/v_fe_page.py",
     "private::host_js": "http-server ./dash_table -c-1 --silent",
     "private::wait_dash8081": "wait-on http://localhost:8081",
     "private::wait_dash8082": "wait-on http://localhost:8082",
+    "private::wait_dash8083": "wait-on http://localhost:8083",
     "private::wait_js": "wait-on http://localhost:8080",
     "private::lint.js": "eslint src",
     "private::lint.ts": "tslint --project . src/**/*.ts",

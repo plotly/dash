@@ -64,8 +64,10 @@ export const defaultProps = {
 
     derived_viewport_data: [],
     derived_viewport_indices: [],
+    derived_viewport_selected_rows: [],
     derived_virtual_data: [],
     derived_virtual_indices: [],
+    derived_virtual_selected_rows: [],
 
     column_conditional_dropdowns: [],
     column_static_dropdown: [],
@@ -703,6 +705,12 @@ export const propTypes = {
     derived_viewport_indices: PropTypes.arrayOf(PropTypes.number),
 
     /**
+     * `derived_viewport_selected_rows` represents the indices of the
+     *  `selected_rows` from the perspective of the `derived_viewport_indices`.
+     */
+    derived_viewport_selected_rows: PropTypes.arrayOf(PropTypes.number),
+
+    /**
      * This property represents the visible state of `data`
      * across all pages after the front-end sorting and filtering
      * as been applied.
@@ -717,7 +725,13 @@ export const propTypes = {
      */
     derived_virtual_indices: PropTypes.arrayOf(PropTypes.number),
 
-     /**
+    /**
+     * `derived_virtual_selected_rows` represents the indices of the
+     *  `selected_rows` from the perspective of the `derived_virtual_indices`.
+     */
+    derived_virtual_selected_rows: PropTypes.arrayOf(PropTypes.number),
+
+    /**
       * DEPRECATED
       * Subscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
       * for updates on the dropdown API.

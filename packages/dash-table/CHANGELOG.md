@@ -2,8 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [3.1.4-rc6] - 2018-11-06
+## [3.1.4] - 2018-11-06
 ### Added
+- New derived props for `selected_rows` [#147](https://github.com/plotly/dash-table/issues/147)
 - Package library the UMD way [#212](https://github.com/plotly/dash-table/issues/212)
 
 ## [3.1.3] - 2018-11-05

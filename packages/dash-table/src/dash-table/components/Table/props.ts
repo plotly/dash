@@ -130,7 +130,7 @@ interface IProps {
     row_deletable?: boolean;
     row_selectable?: RowSelection;
     selected_cells?: SelectedCells;
-    selected_rows?: number[];
+    selected_rows?: Indices;
     setProps?: SetProps;
     sorting?: Sorting;
     sorting_settings?: SortSettings;
@@ -198,8 +198,10 @@ interface IDefaultProps {
 interface IDerivedProps {
     derived_viewport_data: Data;
     derived_viewport_indices: Indices;
+    derived_viewport_selected_rows: Indices;
     derived_virtual_data: Data;
     derived_virtual_indices: Indices;
+    derived_virtual_selected_rows: Indices;
 }
 
 export type PropsWithDefaults = IProps & IDefaultProps;
@@ -211,7 +213,9 @@ export type ControlledTableProps = PropsWithDefaults & {
     columns: VisibleColumns;
     paginator: IPaginator;
     viewport: IDerivedData;
+    viewport_selected_rows: Indices;
     virtual: IDerivedData;
+    virtual_selected_rows: Indices;
 };
 
 export interface ICellFactoryOptions {

@@ -6,6 +6,7 @@ import { memoizeOne, memoizeOneWithFlag } from 'core/memoizer';
 import ControlledTable from 'dash-table/components/ControlledTable';
 
 import derivedPaginator from 'dash-table/derived/paginator';
+import derivedSelectedRows from 'dash-table/derived/selectedRows';
 import derivedViewportData from 'dash-table/derived/data/viewport';
 import derivedVirtualData from 'dash-table/derived/data/virtual';
 import derivedVisibleColumns from 'dash-table/derived/column/visible';
@@ -60,6 +61,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
             filtering_settings,
             pagination_mode,
             pagination_settings,
+            selected_rows,
             sorting,
             sorting_settings,
             sorting_treat_empty_string_as_none
@@ -81,6 +83,16 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
             virtual.indices
         );
 
+        const virtual_selected_rows = this.virtualSelectedRows(
+            virtual.indices,
+            selected_rows
+        );
+
+        const viewport_selected_rows = this.viewportSelectedRows(
+            viewport.indices,
+            selected_rows
+        );
+
         const paginator = this.paginator(
             pagination_mode,
             pagination_settings,
@@ -97,16 +109,32 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
                 paginator,
                 setProps,
                 viewport,
-                virtual
+                viewport_selected_rows,
+                virtual,
+                virtual_selected_rows
             }
         ]);
     }
 
     private updateDerivedProps() {
-        const { filtering, filtering_settings, pagination_mode, pagination_settings, sorting, sorting_settings, viewport, virtual } = this.controlled;
+        const {
+            filtering,
+            filtering_settings,
+            pagination_mode,
+            pagination_settings,
+            sorting,
+            sorting_settings,
+            viewport,
+            viewport_selected_rows,
+            virtual,
+            virtual_selected_rows
+        } = this.controlled;
 
         const viewportCached = this.viewportCache(viewport).cached;
         const virtualCached = this.virtualCache(virtual).cached;
+
+        const viewportSelectedRowsCached = this.viewportSelectedRowsCache(viewport_selected_rows).cached;
+        const virtualSelectedRowsCached = this.virtualSelectedRowsCache(virtual_selected_rows).cached;
 
         const invalidatedFilter = this.filterCache(filtering_settings);
         const invalidatedPagination = this.paginationCache(pagination_settings);
@@ -116,10 +144,6 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
             (!invalidatedFilter.cached && !invalidatedFilter.first && filtering === 'be') ||
             (!invalidatedPagination.cached && !invalidatedPagination.first && pagination_mode === 'be') ||
             (!invalidatedSort.cached && !invalidatedSort.first && sorting === 'be');
-
-        if (virtualCached && viewportCached && !invalidateSelection) {
-            return;
-        }
 
         const { setProps } = this;
         let newProps: Partial<PropsWithDefaultsAndDerived> = {};
@@ -134,10 +158,22 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
             newProps.derived_viewport_indices = viewport.indices;
         }
 
+        if (!virtualSelectedRowsCached) {
+            newProps.derived_virtual_selected_rows = virtual_selected_rows;
+        }
+
+        if (!viewportSelectedRowsCached) {
+            newProps.derived_viewport_selected_rows = viewport_selected_rows;
+        }
+
         if (invalidateSelection) {
             newProps.active_cell = undefined;
             newProps.selected_cells = undefined;
             newProps.selected_rows = undefined;
+        }
+
+        if (!R.keys(newProps).length) {
+            return;
         }
 
         setTimeout(() => setProps(newProps), 0);
@@ -162,12 +198,16 @@ export default class Table extends Component<PropsWithDefaultsAndDerived> {
 
     private readonly paginator = derivedPaginator();
     private readonly viewport = derivedViewportData();
+    private readonly viewportSelectedRows = derivedSelectedRows();
     private readonly virtual = derivedVirtualData();
+    private readonly virtualSelectedRows = derivedSelectedRows();
     private readonly visibleColumns = derivedVisibleColumns();
 
     private readonly filterCache = memoizeOneWithFlag(filter => filter);
     private readonly paginationCache = memoizeOneWithFlag(pagination => pagination);
     private readonly sortCache = memoizeOneWithFlag(sort => sort);
     private readonly viewportCache = memoizeOneWithFlag(viewport => viewport);
+    private readonly viewportSelectedRowsCache = memoizeOneWithFlag(viewport => viewport);
     private readonly virtualCache = memoizeOneWithFlag(virtual => virtual);
+    private readonly virtualSelectedRowsCache = memoizeOneWithFlag(virtual => virtual);
 }

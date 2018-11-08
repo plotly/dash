@@ -956,6 +956,20 @@
           "computed": false
         }
       },
+      "derived_viewport_selected_rows": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": "`derived_viewport_selected_rows` represents the indices of the\n `selected_rows` from the perspective of the `derived_viewport_indices`.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
       "derived_virtual_data": {
         "type": {
           "name": "arrayOf",
@@ -979,6 +993,20 @@
         },
         "required": false,
         "description": "`derived_viewport_indices` indicates the order in which the original\nrows appear after being filtered, sorted, and/or paged.\n`derived_viewport_indices` contains indices for the current page,\nwhile `derived_virtual_indices` contains indices for across all pages.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "derived_virtual_selected_rows": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": "`derived_virtual_selected_rows` represents the indices of the\n `selected_rows` from the perspective of the `derived_virtual_indices`.",
         "defaultValue": {
           "value": "[]",
           "computed": false
