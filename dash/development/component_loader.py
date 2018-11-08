@@ -5,6 +5,7 @@ from .base_component import generate_class
 from .base_component import generate_class_file
 from .base_component import ComponentRegistry
 
+
 def _decode_hook(pairs):
     new_pairs = []
     for key, value in pairs:
