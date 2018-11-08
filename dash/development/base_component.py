@@ -333,6 +333,141 @@ class Component(collections.MutableMapping):
         return length
 
 
+def schema_is_nullable(type_object):
+    if type_object:
+        if type_object.get('name', None) == 'enum':
+            values = type_object['value']
+            for v in values:
+                value = v['value']
+                if value == 'null':
+                    return True
+        if type_object.get('name', None) == 'union':
+            values = type_object['value']
+            if any([schema_is_nullable(v) for v in values]):
+                return True
+    return False
+
+
+def js_to_cerberus_type(type_object):
+    def _merge(x, y):
+        z = x.copy()
+        z.update(y)
+        return z
+
+    def _enum(x):
+        schema = {'allowed': [],
+                  'type': ('string', 'number')}
+        values = x['value']
+        for v in values:
+            value = v['value']
+            if value == 'null':
+                schema.update({'nullable': True})
+                schema['allowed'].append(None)
+            elif value == 'true':
+                schema['allowed'].append(True)
+            elif value == 'false':
+                schema['allowed'].append(False)
+            else:
+                string_value = v['value'].strip("'\"'")
+                schema['allowed'].append(string_value)
+                try:
+                    int_value = int(string_value)
+                    schema['allowed'].append(int_value)
+                except ValueError:
+                    pass
+                try:
+                    float_value = float(string_value)
+                    schema['allowed'].append(float_value)
+                except ValueError:
+                    pass
+        return schema
+
+    converters = {
+        'None': lambda x: {},
+        'func': lambda x: {},
+        'symbol': lambda x: {},
+        'custom': lambda x: {},
+        'node': lambda x: {
+            'anyof': [
+                {'type': 'component'},
+                {'type': 'boolean'},
+                {'type': 'number'},
+                {'type': 'string'},
+                {
+                    'type': 'list',
+                    'schema': {
+                        'type': (
+                            'component',
+                            'boolean',
+                            'number',
+                            'string')
+                    }
+                }
+            ]
+        },
+        'element': lambda x: {'type': 'component'},
+        'enum': _enum,
+        'union': lambda x: {
+            'anyof': [js_to_cerberus_type(v) for v in x['value']],
+        },
+        'any': lambda x: {
+            'type': ('boolean',
+                     'number',
+                     'string',
+                     'dict',
+                     'list')
+        },
+        'string': lambda x: {'type': 'string'},
+        'bool': lambda x: {'type': 'boolean'},
+        'number': lambda x: {'type': 'number'},
+        'integer': lambda x: {'type': 'number'},
+        'object': lambda x: {'type': 'dict'},
+        'objectOf': lambda x: {
+            'type': 'dict',
+            'nullable': schema_is_nullable(x),
+            'valueschema': js_to_cerberus_type(x['value'])
+        },
+        'array': lambda x: {'type': 'list'},
+        'arrayOf': lambda x: {
+            'type': 'list',
+            'schema': _merge(
+                js_to_cerberus_type(x['value']),
+                {'nullable': schema_is_nullable(x['value'])}
+            )
+        },
+        'shape': lambda x: {
+            'type': 'dict',
+            'allow_unknown': False,
+            'nullable': schema_is_nullable(x),
+            'schema': {
+                k: js_to_cerberus_type(v) for k, v in x['value'].items()
+            }
+        },
+        'instanceOf': lambda x: dict(
+            Date={'type': 'datetime'},
+        ).get(x['value'], {})
+    }
+    if type_object:
+        converter = converters[type_object.get('name', 'None')]
+        schema = converter(type_object)
+        return schema
+    return {}
+
+
+def generate_property_schema(jsonSchema):
+    schema = {}
+    type_object = jsonSchema.get('type', None)
+    required = jsonSchema.get('required', None)
+    propType = js_to_cerberus_type(type_object)
+    if propType:
+        schema.update(propType)
+    if schema_is_nullable(type_object):
+        schema.update({'nullable': True})
+    if required:
+        schema.update({'required': True})
+    return schema
+
+
 # pylint: disable=unused-argument
 def generate_class_string(typename, props, description, namespace):
     """
