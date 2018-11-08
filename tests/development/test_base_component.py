@@ -610,14 +610,14 @@ class TestGenerateClass(unittest.TestCase):
             }
         })
 
-        c = self.ComponentClass(id='my-id', optionalArray=None)
+        c = self.ComponentClass(id='my-id', optionalArray=[])
         self.assertEqual(c.to_plotly_json(), {
             'namespace': 'TableComponents',
             'type': 'Table',
             'props': {
                 'children': None,
                 'id': 'my-id',
-                'optionalArray': None
+                'optionalArray': []
             }
         })
 
@@ -754,7 +754,7 @@ class TestMetaDataConversions(unittest.TestCase):
 
         self.expected_arg_strings = OrderedDict([
             ['children',
-             'a list of or a singular dash component, string or number'],
+             'string | number | boolean | dash component | a value equal to: null | list'],
 
             ['optionalArray', 'list'],
 
@@ -777,7 +777,7 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['optionalMessage', ''],
 
-            ['optionalEnum', 'a value equal to: \'News\', \'Photos\''],
+            ['optionalEnum', 'a value equal to: \'News\', \'Photos\', 1, 2, false, true'],
 
             ['optionalUnion', 'string | number'],
 
@@ -844,7 +844,7 @@ def assert_docstring(assertEqual, docstring):
             "It's multiple lines long.",
             '',
             "Keyword arguments:",
-            "- children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
+            "- children (string | number | boolean | dash component | a value equal to: null | list; optional)",  # noqa: E501
             "- optionalArray (list; optional): Description of optionalArray",
             "- optionalBool (boolean; optional)",
             "- optionalNumber (number; optional)",
@@ -855,7 +855,7 @@ def assert_docstring(assertEqual, docstring):
             "string or number; optional)",
 
             "- optionalElement (dash component; optional)",
-            "- optionalEnum (a value equal to: 'News', 'Photos'; optional)",
+            "- optionalEnum (a value equal to: 'News', 'Photos', 1, 2, false, true; optional)",
             "- optionalUnion (string | number; optional)",
             "- optionalArrayOf (list; optional)",
 
@@ -884,10 +884,10 @@ def assert_docstring(assertEqual, docstring):
             "- optionalAny (boolean | number | string | dict | "
             "list; optional)",
 
-            "- customProp (optional)",
-            "- customArrayProp (list; optional)",
             '- data-* (string; optional)',
             '- aria-* (string; optional)',
+            "- customProp (optional)",
+            "- customArrayProp (list; optional)",
             '- in (string; optional)',
             '- id (string; optional)',
             '',
