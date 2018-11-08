@@ -57,11 +57,14 @@ You have to maintain the list of components in `demo/Demo.react.js`.
 ### Code quality and tests
 
 ### To run integration tests (test_integration.py)
-You can run the unit tests with the 
+You can run the Selenium integration tests with the 
 ```sh
 npm test
 ```
-command.
+command, and the Jest unit tests with the
+```sh
+npm run test-unit
+```
 
 ### Testing your components in Dash
 1. Run the build watcher by running
