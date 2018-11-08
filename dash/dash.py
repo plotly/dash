@@ -1019,6 +1019,11 @@ class Dash(object):
 
         component_ids = {layout_id} if layout_id else set()
         for component in to_validate.traverse():
+            if (
+                    not self.config.suppress_validation_exceptions and
+                    isinstance(component, Component)
+            ):
+                component.validate()
             component_id = getattr(component, 'id', None)
             if component_id and component_id in component_ids:
                 raise exceptions.DuplicateIdError(
