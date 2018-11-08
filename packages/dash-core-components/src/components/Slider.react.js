@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import ReactSlider from 'rc-slider';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
+import './css/rc-slider@6.1.2.css';
 
 /**
  * A slider component with a single handle.

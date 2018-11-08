@@ -3,6 +3,8 @@ import R, {omit} from 'ramda';
 import React, {Component} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
+import './css/react-virtualized-select@3.1.0.css';
+import './css/react-virtualized@9.9.0.css';
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
 // Split on spaces
