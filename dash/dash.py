@@ -84,6 +84,7 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             suppress_callback_exceptions=None,
+            suppress_validation_exceptions=None,
             components_cache_max_age=None,
             **kwargs):
 
@@ -125,6 +126,10 @@ class Dash(object):
             'suppress_callback_exceptions': _configs.get_config(
                 'suppress_callback_exceptions',
                 suppress_callback_exceptions, env_configs, False
+            ),
+            'suppress_validation_exceptions': _configs.get_config(
+                'suppress_validation_exceptions',
+                suppress_validation_exceptions, env_configs, False
             ),
             'routes_pathname_prefix': routes_pathname_prefix,
             'requests_pathname_prefix': requests_pathname_prefix,
@@ -1054,5 +1059,9 @@ class Dash(object):
         :return:
         """
         debug = self.enable_dev_tools(debug, dev_tools_serve_dev_bundles)
+        if not debug:
+            # Do not throw debugging exceptions in production.
+            self.config.suppress_validation_exceptions = True
+            self.config.suppress_callback_exceptions = True
         self.server.run(port=port, debug=debug,
                         **flask_run_options)
