@@ -3,13 +3,16 @@
 from dash.development.base_component import Component, _explicitize_args
 
 
+
+schema = {'customArrayProp': {'type': 'list', 'schema': {'nullable': False}}, 'optionalObjectWithShapeAndNestedDescription': {'nullable': False, 'type': 'dict', 'allow_unknown': False, 'schema': {'color': {'type': 'string'}, 'fontSize': {'type': 'number'}, 'figure': {'schema': {'layout': {'type': 'dict'}, 'data': {'type': 'list', 'schema': {'type': 'dict', 'nullable': False}}}, 'type': 'dict', 'allow_unknown': False, 'nullable': False}}}, 'optionalBool': {'type': 'boolean'}, 'optionalFunc': {}, 'optionalSymbol': {}, 'in': {'type': 'string'}, 'customProp': {}, 'children': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'nullable': True, 'type': ('string', 'number'), 'allowed': [None]}, {'type': 'list', 'schema': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'nullable': True, 'type': ('string', 'number'), 'allowed': [None]}], 'nullable': True}}], 'nullable': True}, 'optionalMessage': {}, 'optionalNumber': {'type': 'number'}, 'optionalObject': {'type': 'dict'}, 'dashEvents': {'type': ('string', 'number'), 'allowed': ['restyle', 'relayout', 'click']}, 'id': {'type': 'string'}, 'optionalString': {'type': 'string'}, 'optionalElement': {'type': 'component'}, 'optionalArray': {'type': 'list'}, 'optionalNode': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'type': 'list', 'schema': {'type': ('component', 'boolean', 'number', 'string')}}]}, 'optionalObjectOf': {'type': 'dict', 'valueschema': {'type': 'number'}, 'nullable': False}, 'optionalEnum': {'type': ('string', 'number'), 'allowed': ['News', 'Photos', '1', 1, 1.0, '2', 2, 2.0, False, True]}, 'optionalArrayOf': {'type': 'list', 'schema': {'type': 'number', 'nullable': False}}, 'optionalUnion': {'anyof': [{'type': 'string'}, {'type': 'number'}, {}]}, 'optionalAny': {'type': ('boolean', 'number', 'string', 'dict', 'list')}}
+
 class Table(Component):
     """A Table component.
 This is a description of the component.
 It's multiple lines long.
 
 Keyword arguments:
-- children (a list of or a singular dash component, string or number; optional)
+- children (string | number | boolean | dash component | a value equal to: null | list; optional)
 - optionalArray (list; optional): Description of optionalArray
 - optionalBool (boolean; optional)
 - optionalNumber (number; optional)
@@ -17,7 +20,7 @@ Keyword arguments:
 - optionalString (string; optional)
 - optionalNode (a list of or a singular dash component, string or number; optional)
 - optionalElement (dash component; optional)
-- optionalEnum (a value equal to: 'News', 'Photos'; optional)
+- optionalEnum (a value equal to: 'News', 'Photos', 1, 2, false, true; optional)
 - optionalUnion (string | number; optional)
 - optionalArrayOf (list; optional)
 - optionalObjectOf (dict with strings as keys and values of type number; optional)
@@ -30,33 +33,35 @@ Those keys have the following types:
   - data (list; optional): data is a collection of traces
   - layout (dict; optional): layout describes the rest of the figure
 - optionalAny (boolean | number | string | dict | list; optional)
-- customProp (optional)
-- customArrayProp (list; optional)
 - data-* (string; optional)
 - aria-* (string; optional)
+- customProp (optional)
+- customArrayProp (list; optional)
 - in (string; optional)
 - id (string; optional)
 
 Available events: 'restyle', 'relayout', 'click'"""
+    _schema = schema
     @_explicitize_args
     def __init__(self, children=None, optionalArray=Component.UNDEFINED, optionalBool=Component.UNDEFINED, optionalFunc=Component.UNDEFINED, optionalNumber=Component.UNDEFINED, optionalObject=Component.UNDEFINED, optionalString=Component.UNDEFINED, optionalSymbol=Component.UNDEFINED, optionalNode=Component.UNDEFINED, optionalElement=Component.UNDEFINED, optionalMessage=Component.UNDEFINED, optionalEnum=Component.UNDEFINED, optionalUnion=Component.UNDEFINED, optionalArrayOf=Component.UNDEFINED, optionalObjectOf=Component.UNDEFINED, optionalObjectWithShapeAndNestedDescription=Component.UNDEFINED, optionalAny=Component.UNDEFINED, customProp=Component.UNDEFINED, customArrayProp=Component.UNDEFINED, id=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
+        self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'data-*', 'aria-*', 'customProp', 'customArrayProp', 'in', 'id']
         self._type = 'Table'
         self._namespace = 'TableComponents'
         self._valid_wildcard_attributes =            ['data-', 'aria-']
         self.available_events = ['restyle', 'relayout', 'click']
-        self.available_properties = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
+        self.available_properties = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'data-*', 'aria-*', 'customProp', 'customArrayProp', 'in', 'id']
         self.available_wildcard_properties =            ['data-', 'aria-']
 
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args}
 
         for k in []:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
+        args.pop('children', None)
         super(Table, self).__init__(children=children, **args)
 
     def __repr__(self):
