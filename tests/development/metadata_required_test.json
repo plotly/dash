@@ -1,10 +1,63 @@
 {
   "description": "This is a description of the component.\nIt's multiple lines long.",
+  "displayName": "ReactComponent",
   "methods": [],
   "props": {
     "children": {
       "type": {
-        "name": "node"
+        "name": "union",
+        "value": [
+          {
+            "name": "string"
+          },
+          {
+            "name": "number"
+          },
+          {
+            "name": "bool"
+          },
+          {
+            "name": "element"
+          },
+          {
+            "name": "enum",
+            "value": [
+              {
+                "value": "null",
+                "computed": false
+              }
+            ]
+          },
+          {
+            "name": "arrayOf",
+            "value": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                },
+                {
+                  "name": "bool"
+                },
+                {
+                  "name": "element"
+                },
+                {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "null",
+                      "computed": false
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
       },
       "required": false,
       "description": ""
