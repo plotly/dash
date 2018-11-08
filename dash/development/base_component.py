@@ -5,11 +5,49 @@ import inspect
 import abc
 import sys
 import six
+import pprint
 
 from textwrap import dedent
 
 import dash.exceptions
 from .validator import DashValidator, generate_validation_error_message
+from ._all_keywords import kwlist
+
+
+# pylint: disable=no-init,too-few-public-methods
+class ComponentRegistry:
+    """Holds a registry of the namespaces used by components."""
+
+    registry = set()
+    __dist_cache = {}
+
+    @classmethod
+    def get_resources(cls, resource_name):
+        cached = cls.__dist_cache.get(resource_name)
+
+        if cached:
+            return cached
+
+        cls.__dist_cache[resource_name] = resources = []
+
+        for module_name in cls.registry:
+            module = sys.modules[module_name]
+            resources.extend(getattr(module, resource_name, []))
+
+        return resources
+
+
+class ComponentMeta(abc.ABCMeta):
+
+    # pylint: disable=arguments-differ
+    def __new__(mcs, name, bases, attributes):
+        component = abc.ABCMeta.__new__(mcs, name, bases, attributes)
+        module = attributes['__module__'].split('.')[0]
+        if name == 'Component' or module == 'builtins':
+            # Don't do the base component
+            # and the components loaded dynamically by load_component
+            # as it doesn't have the namespace.
+            return component
 
         ComponentRegistry.registry.add(module)
 
@@ -534,7 +572,7 @@ class {typename}(Component):
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
-        args.pop('children')
+        args.pop('children', None)
         super({typename}, self).__init__({argtext})
 
     def __repr__(self):
@@ -585,7 +623,7 @@ class {typename}(Component):
     for p in list(props.keys()):
         if (
                 not p.endswith("-*") and  # Not a wildcard attribute
-                p not in keyword.kwlist and  # Not a protected keyword
+                p not in kwlist and  # Not a protected keyword
                 p not in ['dashEvents', 'fireEvent', 'setProps'] and
                 p != 'children'  # Already accounted for
         ):
