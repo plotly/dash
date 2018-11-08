@@ -6,43 +6,10 @@ import abc
 import sys
 import six
 
-from ._all_keywords import kwlist
+from textwrap import dedent
 
-
-# pylint: disable=no-init,too-few-public-methods
-class ComponentRegistry:
-    """Holds a registry of the namespaces used by components."""
-
-    registry = set()
-    __dist_cache = {}
-
-    @classmethod
-    def get_resources(cls, resource_name):
-        cached = cls.__dist_cache.get(resource_name)
-
-        if cached:
-            return cached
-
-        cls.__dist_cache[resource_name] = resources = []
-
-        for module_name in cls.registry:
-            module = sys.modules[module_name]
-            resources.extend(getattr(module, resource_name, []))
-
-        return resources
-
-
-class ComponentMeta(abc.ABCMeta):
-
-    # pylint: disable=arguments-differ
-    def __new__(mcs, name, bases, attributes):
-        component = abc.ABCMeta.__new__(mcs, name, bases, attributes)
-        module = attributes['__module__'].split('.')[0]
-        if name == 'Component' or module == 'builtins':
-            # Don't do the base component
-            # and the components loaded dynamically by load_component
-            # as it doesn't have the namespace.
-            return component
+import dash.exceptions
+from .validator import DashValidator, generate_validation_error_message
 
         ComponentRegistry.registry.add(module)
 
@@ -279,6 +246,61 @@ class Component(collections.MutableMapping):
                 if isinstance(i, Component):
                     for p, t in i.traverse_with_paths():
                         yield "\n".join([list_path, p]), t
+
+    def validate(self):
+        # Make sure arguments have valid values
+        DashValidator.set_component_class(Component)
+        validator = DashValidator(
+            self._schema,
+            allow_unknown=True,
+        )
+        args = {
+            k: self.__dict__[k]
+            for k in self.__dict__['_prop_names']
+            if k in self.__dict__.keys()
+        }
+        valid = validator.validate(args)
+        if not valid:
+            # pylint: disable=protected-access
+            error_message = dedent("""\
+
+                A Dash Component was initialized with invalid properties!
+
+                Dash tried to create a `{component_name}` component with the
+                following arguments, which caused a validation failure:
+
+                ***************************************************************
+                {component_args}
+                ***************************************************************
+
+                The expected schema for the `{component_name}` component is:
+
+                ***************************************************************
+                {component_schema}
+                ***************************************************************
+
+                The errors in validation are as follows:
+
+
+            """).format(
+                component_name=self.__class__.__name__,
+                component_args=pprint.pformat(args),
+                component_schema=pprint.pformat(self.__class__._schema)
+            )
+
+            error_message = generate_validation_error_message(
+                validator.errors,
+                0,
+                error_message
+            ) + dedent("""
+                You can turn off these validation exceptions by setting
+                `app.config.suppress_validation_exceptions=True`
+            """)
+
+            # pylint: disable=protected-access
+            raise dash.exceptions.ComponentInitializationValidationError(
+                error_message
+            )
 
     def __iter__(self):
         """Yield IDs in the tree of children."""
