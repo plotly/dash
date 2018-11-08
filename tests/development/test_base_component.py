@@ -7,6 +7,7 @@ import shutil
 import unittest
 import plotly
 
+from dash.development.component_loader import _get_metadata
 from dash.development.base_component import (
     generate_class,
     generate_class_string,
@@ -505,12 +506,7 @@ class TestComponent(unittest.TestCase):
 class TestGenerateClassFile(unittest.TestCase):
     def setUp(self):
         json_path = os.path.join('tests', 'development', 'metadata_test.json')
-        with open(json_path) as data_file:
-            json_string = data_file.read()
-            data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
-                .decode(json_string)
-            self.data = data
+        data = _get_metadata(json_path)
 
         # Create a folder for the new component file
         os.makedirs('TableComponents')
@@ -568,12 +564,7 @@ class TestGenerateClassFile(unittest.TestCase):
 class TestGenerateClass(unittest.TestCase):
     def setUp(self):
         path = os.path.join('tests', 'development', 'metadata_test.json')
-        with open(path) as data_file:
-            json_string = data_file.read()
-            data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
-                .decode(json_string)
-            self.data = data
+        data = _get_metadata(path)
 
         self.ComponentClass = generate_class(
             typename='Table',

@@ -3,7 +3,11 @@ import json
 import os
 import shutil
 import unittest
-from dash.development.component_loader import load_components, generate_classes
+from dash.development.component_loader import (
+    load_components,
+    generate_classes,
+    _decode_hook
+)
 from dash.development.base_component import (
     generate_class,
     Component
@@ -98,7 +102,7 @@ METADATA_STRING = '''{
     }
 }'''
 METADATA = json\
-    .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+    .JSONDecoder(object_pairs_hook=_decode_hook)\
     .decode(METADATA_STRING)
 
 
