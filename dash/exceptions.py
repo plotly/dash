@@ -62,5 +62,13 @@ class InvalidConfig(DashException):
     pass
 
 
+class ComponentInitializationValidationError(DashException):
+    pass
+
+
+class CallbackOutputValidationError(CallbackException):
+    pass
+
+
 class InvalidResourceError(DashException):
     pass
