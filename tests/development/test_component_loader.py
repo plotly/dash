@@ -1,8 +1,7 @@
-import collections
-import json
 import os
 import shutil
 import unittest
+import json
 from dash.development.component_loader import (
     load_components,
     generate_classes,
@@ -31,7 +30,7 @@ METADATA_STRING = '''{
             },
             "children": {
                 "type": {
-                    "name": "object"
+                    "name": "node"
                 },
                 "description": "Children",
                 "required": false
@@ -93,7 +92,7 @@ METADATA_STRING = '''{
             },
             "children": {
                 "type": {
-                    "name": "object"
+                    "name": "node"
                 },
                 "description": "Children",
                 "required": false
@@ -132,7 +131,7 @@ class TestLoadComponents(unittest.TestCase):
         c = load_components(METADATA_PATH)
 
         MyComponentKwargs = {
-            'foo': 'Hello World',
+            'foo': 42,
             'bar': 'Lah Lah',
             'baz': 'Lemons',
             'data-foo': 'Blah',
@@ -199,6 +198,7 @@ class TestGenerateClasses(unittest.TestCase):
             'baz': 'Lemons',
             'data-foo': 'Blah',
             'aria-bar': 'Seven',
+            'baz': 'Lemons',
             'children': 'Child'
         }
         AKwargs = {
