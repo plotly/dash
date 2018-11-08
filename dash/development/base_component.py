@@ -328,18 +328,12 @@ class Component(collections.MutableMapping):
                 component_schema=pprint.pformat(self.__class__._schema)
             )
 
-            error_message = generate_validation_error_message(
-                validator.errors,
-                0,
-                error_message
-            ) + dedent("""
-                You can turn off these validation exceptions by setting
-                `app.config.suppress_validation_exceptions=True`
-            """)
-
-            # pylint: disable=protected-access
             raise dash.exceptions.ComponentInitializationValidationError(
-                error_message
+                generate_validation_error_message(
+                    validator.errors,
+                    0,
+                    error_message
+                )
             )
 
     def __iter__(self):
@@ -374,16 +368,16 @@ class Component(collections.MutableMapping):
 
 
 def schema_is_nullable(type_object):
-    if type_object:
-        if type_object.get('name', None) == 'enum':
+    if type_object and 'name' in type_object:
+        if type_object['name'] == 'enum':
             values = type_object['value']
             for v in values:
                 value = v['value']
                 if value == 'null':
                     return True
-        if type_object.get('name', None) == 'union':
+        elif type_object['name'] == 'union':
             values = type_object['value']
-            if any([schema_is_nullable(v) for v in values]):
+            if any(schema_is_nullable(v) for v in values):
                 return True
     return False
 
@@ -401,7 +395,7 @@ def js_to_cerberus_type(type_object):
         for v in values:
             value = v['value']
             if value == 'null':
-                schema.update({'nullable': True})
+                schema['nullable'] = True
                 schema['allowed'].append(None)
             elif value == 'true':
                 schema['allowed'].append(True)
@@ -501,10 +495,8 @@ def generate_property_schema(jsonSchema):
     propType = js_to_cerberus_type(type_object)
     if propType:
         schema.update(propType)
-    if schema_is_nullable(type_object):
-        schema.update({'nullable': True})
-    if required:
-        schema.update({'required': True})
+    schema['nullable'] = schema_is_nullable(type_object)
+    schema['required'] = required
     return schema
 
 

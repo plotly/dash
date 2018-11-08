@@ -1,6 +1,6 @@
 import plotly
 import cerberus
-
+from textwrap import dedent
 
 class DashValidator(cerberus.Validator):
     types_mapping = cerberus.Validator.types_mapping.copy()
@@ -104,4 +104,8 @@ def generate_validation_error_message(errors, level=0, error_message=''):
                     error_tuple[0],
                     level + 1,
                     error_message + "\n")
+    error_message += dedent("""
+        You can turn off these validation exceptions by setting
+        `app.config.suppress_validation_exceptions=True`
+    """)
     return error_message

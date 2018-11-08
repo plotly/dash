@@ -928,7 +928,7 @@ class Dash(object):
         # Only validate if we get required information from renderer
         # and validation is not turned off by user
         if (
-                (not self.config.suppress_validation_exceptions) and
+                not self.config.suppress_validation_exceptions and
                 'namespace' in output and
                 'type' in output
         ):
@@ -988,16 +988,13 @@ class Dash(object):
                 )
             )
 
-            error_message = generate_validation_error_message(
-                validator.errors,
-                0,
-                error_message
-            ) + dedent("""
-                You can turn off these validation exceptions by setting
-                `app.config.suppress_validation_exceptions=True`
-            """)
-
-            raise exceptions.CallbackOutputValidationError(error_message)
+            raise exceptions.CallbackOutputValidationError(
+                generate_validation_error_message(
+                    validator.errors,
+                    0,
+                    error_message
+                )
+            )
         # Must also validate initialization of newly created components
         if component_property == 'children':
             if isinstance(value, Component):
