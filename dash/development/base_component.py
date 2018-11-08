@@ -4,10 +4,10 @@ import os
 import inspect
 import abc
 import sys
-import six
 import pprint
-
 from textwrap import dedent
+
+import six
 
 import dash.exceptions
 from .validator import DashValidator, generate_validation_error_message
@@ -628,7 +628,7 @@ class {typename}(Component):
                 p != 'children'  # Already accounted for
         ):
             default_argtext += ('{:s}=Component.REQUIRED, '.format(p)
-          if props[p]['required'] else
+                                if props[p]['required'] else
                                 '{:s}=Component.UNDEFINED, '.format(p))
     default_argtext += '**kwargs'
     schema = {
