@@ -1,6 +1,7 @@
+from textwrap import dedent
 import plotly
 import cerberus
-from textwrap import dedent
+
 
 class DashValidator(cerberus.Validator):
     types_mapping = cerberus.Validator.types_mapping.copy()
