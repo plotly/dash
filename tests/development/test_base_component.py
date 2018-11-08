@@ -545,6 +545,14 @@ class TestGenerateClassFile(unittest.TestCase):
         with open(expected_string_path, 'r') as f:
             self.expected_class_string = f.read()
 
+        def remove_schema(string):
+            tmp = string.split("\n")
+            return "\n".join(tmp[:6] + tmp[7:])
+        self.expected_class_string = remove_schema(self.expected_class_string)
+        self.component_class_string =\
+            remove_schema(self.component_class_string)
+        self.written_class_string = remove_schema(self.written_class_string)
+
     def tearDown(self):
         shutil.rmtree('TableComponents')
 
@@ -731,6 +739,12 @@ class TestGenerateClass(unittest.TestCase):
                 [str(x) for x in inspect.getargspec(__init__func).defaults],
                 ['None'] + ['undefined'] * 19
             )
+
+    def test_schema_generation(self):
+        self.assertEqual(
+            self.ComponentClass._schema,
+            {'customArrayProp': {'type': 'list', 'schema': {'nullable': False}}, 'optionalObjectWithShapeAndNestedDescription': {'nullable': False, 'type': 'dict', 'allow_unknown': False, 'schema': {'color': {'type': 'string'}, 'fontSize': {'type': 'number'}, 'figure': {'schema': {'layout': {'type': 'dict'}, 'data': {'type': 'list', 'schema': {'type': 'dict', 'nullable': False}}}, 'type': 'dict', 'allow_unknown': False, 'nullable': False}}}, 'optionalBool': {'type': 'boolean'}, 'optionalFunc': {}, 'optionalSymbol': {}, 'in': {'type': 'string'}, 'customProp': {}, 'children': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'nullable': True, 'type': ('string', 'number'), 'allowed': [None]}, {'type': 'list', 'schema': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'nullable': True, 'type': ('string', 'number'), 'allowed': [None]}], 'nullable': True}}], 'nullable': True}, 'optionalMessage': {}, 'optionalNumber': {'type': 'number'}, 'optionalObject': {'type': 'dict'}, 'dashEvents': {'type': ('string', 'number'), 'allowed': ['restyle', 'relayout', 'click']}, 'id': {'type': 'string'}, 'optionalString': {'type': 'string'}, 'optionalElement': {'type': 'component'}, 'optionalArray': {'type': 'list'}, 'optionalNode': {'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'type': 'list', 'schema': {'type': ('component', 'boolean', 'number', 'string')}}]}, 'optionalObjectOf': {'type': 'dict', 'valueschema': {'type': 'number'}, 'nullable': False}, 'optionalEnum': {'type': ('string', 'number'), 'allowed': ['News', 'Photos', '1', 1, 1.0, '2', 2, 2.0, False, True]}, 'optionalArrayOf': {'type': 'list', 'schema': {'type': 'number', 'nullable': False}}, 'optionalUnion': {'anyof': [{'type': 'string'}, {'type': 'number'}, {}]}, 'optionalAny': {'type': ('boolean', 'number', 'string', 'dict', 'list')}}
+    )
 
     def test_required_props(self):
         with self.assertRaises(Exception):
