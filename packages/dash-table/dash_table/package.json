@@ -1,12 +1,13 @@
 {
   "name": "dash-table",
-  "version": "3.1.3",
+  "version": "3.1.4-rc6",
   "description": "Dash table",
-  "main": "build/index.js",
+  "main": "lib/bundle.js",
   "scripts": {
     "preprivate::opentests": "run-s private::wait*",
     "preprivate::runtests": "run-s private::wait*",
     "private::build": "node --max_old_space_size=4096 node_modules/webpack/bin/webpack --display-reasons --bail",
+    "postprivate::build": "cp -R lib/* dash_table",
     "private::host_dash8081": "python tests/cypress/dash/v_be_page.py",
     "private::host_dash8082": "python tests/cypress/dash/v_copy_paste.py",
     "private::host_js": "http-server ./dash_table -c-1 --silent",
@@ -32,7 +33,6 @@
   "author": "Chris P <chris@plot.ly",
   "license": "MIT",
   "dependencies": {
-    "@babel/polyfill": "^7.0.0",
     "@types/react": "^16.4.8",
     "ramda": "^0.25.0",
     "react": "15.4.2",
@@ -43,6 +43,7 @@
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
+    "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
     "@cypress/webpack-preprocessor": "^2.0.1",
@@ -77,6 +78,9 @@
     "webpack-dev-server": "^3.1.5",
     "webpack-preprocessor": "^0.1.12"
   },
+  "files": [
+    "/lib/bundle.js"
+  ],
   "peerDependencies": {
     "react": ">=0.14",
     "react-dom": ">=0.14"

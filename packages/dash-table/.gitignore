@@ -34,6 +34,7 @@ venv
 
 # builds
 dash_table.egg-info
+lib
 dist
 *__pycache__*
 __pycache__/
