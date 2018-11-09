@@ -1,13 +1,17 @@
 {
   "name": "dash-table",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "Dash table",
-  "main": "lib/bundle.js",
+  "main": "dash_table/bundle.js",
   "scripts": {
     "preprivate::opentests": "run-s private::wait*",
     "preprivate::runtests": "run-s private::wait*",
     "private::build": "node --max_old_space_size=4096 node_modules/webpack/bin/webpack --display-reasons --bail",
-    "postprivate::build": "cp -R lib/* dash_table",
+    "private::build:js": "run-s \"private::build -- --mode production\"",
+    "private::build:js-dev": "run-s \"private::build -- --mode development\"",
+    "private::build:js-test": "run-s \"private::build -- --config webpack.test.config.js\"",
+    "private::build:js-test-watch": "run-s \"private::build -- --config webpack.test.config.js --watch\"",
+    "private::build:py": "./extract-meta src/dash-table/DataTable.js > dash_table/metadata.json && cp package.json dash_table/package-info.json",
     "private::host_dash8081": "python tests/cypress/dash/v_be_page.py",
     "private::host_dash8082": "python tests/cypress/dash/v_copy_paste.py",
     "private::host_dash8083": "python tests/cypress/dash/v_fe_page.py",
@@ -21,16 +25,12 @@
     "private::opentests": "cypress open",
     "private::runtests": "cypress run --browser chrome",
     "build.watch": "webpack-dev-server --content-base dash_table --mode development",
-    "build:js": "run-s \"private::build -- --mode production\"",
-    "build:js-dev": "run-s \"private::build -- --mode development\"",
-    "build:js-test": "run-s \"private::build -- --config webpack.test.config.js\"",
-    "build:js-test-watch": "run-s \"private::build -- --config webpack.test.config.js --watch\"",
-    "build:py": "./extract-meta src/dash-table/DataTable.js > dash_table/metadata.json && cp package.json dash_table",
+    "build": "run-s private::build:js private::build:py",
     "lint": "run-s private::lint.js private::lint.ts",
     "test": "run-p --race private::host* private::runtests",
     "test.visual": "build-storybook && percy-storybook",
     "test.visual-local": "build-storybook",
-    "test.watch": "run-p --race \"build:js-test-watch\" --race private::host* private::opentests"
+    "test.watch": "run-p --race \"private::build:js-test-watch\" --race private::host* private::opentests"
   },
   "author": "Chris P <chris@plot.ly",
   "license": "MIT",
@@ -81,7 +81,7 @@
     "webpack-preprocessor": "^0.1.12"
   },
   "files": [
-    "/lib/bundle.js"
+    "/dash_table/bundle*.js"
   ],
   "peerDependencies": {
     "react": ">=0.14",

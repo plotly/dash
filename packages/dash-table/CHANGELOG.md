@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.5] - 2018-11-09
+### Fixed
+- Fix python package regression [#235](https://github.com/plotly/dash-table/issues/235)
+
 ## [3.1.4] - 2018-11-06
 ### Added
 - New derived props for `selected_rows` [#147](https://github.com/plotly/dash-table/issues/147)

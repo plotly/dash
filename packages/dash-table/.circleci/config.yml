@@ -42,11 +42,11 @@ jobs:
 
             - run:
                 name: Run build:js
-                command: npm run build:js-test
+                command: npm run private::build:js-test
 
             - run:
                 name: Run build:py
-                command: npm run build:py
+                command: npm run private::build:py
 
             - run:
                 name: Run tests
@@ -76,7 +76,7 @@ jobs:
 
             - run:
                 name: Run build:js
-                command: npm run build:js
+                command: npm run private::build:js
 
             - run:
                 name: Run visual tests
