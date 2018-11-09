@@ -1,12 +1,11 @@
 import collections
 import json
 import os
-#from dash.development.base_component import generate_class
 from .base_component import generate_class
 from .base_component import generate_class_file
 from .base_component import generate_class_r
 from .base_component import generate_class_file_r
-#from dash.development.base_component import generate_class_file
+from .base_component import generate_rpkg
 
 def _get_metadata(metadata_path):
     # Start processing
@@ -59,7 +58,7 @@ def load_components(metadata_path,
     return components
 
 
-def generate_classes(namespace, metadata_path='lib/metadata.json'):
+def generate_classes(namespace, metadata_path='lib/metadata.json', pkgjson_path='package.json'):
     """Load React component metadata into a format Dash can parse,
     then create python class files.
 
@@ -75,11 +74,16 @@ def generate_classes(namespace, metadata_path='lib/metadata.json'):
     """
 
     data = _get_metadata(metadata_path)
+    pkg_data = _get_metadata(pkgjson_path)
     imports_path = os.path.join(namespace, '_imports_.py')
 
     # Make sure the file doesn't exist, as we use append write
     if os.path.exists(imports_path):
         os.remove(imports_path)
+
+    # Remove the R NAMESPACE file if it exists
+    if os.path.isfile('NAMESPACE'):
+        os.remove('NAMESPACE')
 
     # Iterate over each property name (which is a path to the component)
     for componentPath in data:
@@ -103,9 +107,13 @@ def generate_classes(namespace, metadata_path='lib/metadata.json'):
             componentData['description'],
             namespace
         )
+        generate_rpkg(
+            name,
+            pkg_data,
+            namespace
+        )
 
         # Add an import statement for this component
-        # RK: need to add import statements in R namespace file also
         with open(imports_path, 'a') as f:
             f.write('from .{0:s} import {0:s}\n'.format(name))
 

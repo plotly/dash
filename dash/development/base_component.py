@@ -2,8 +2,8 @@ import collections
 import copy
 import os
 import inspect
-import keyword
 
+from ._all_keywords import kwlist, r_keywords
 
 def is_number(s):
     try:
@@ -352,18 +352,14 @@ def generate_class_string(typename, props, description, namespace):
 '''
 
     filtered_props = reorder_props(filter_props(props))
-    # pylint: disable=unused-variable
     list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
-    # pylint: disable=unused-variable
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
-    # pylint: disable=unused-variable
     docstring = create_docstring(
         component_name=typename,
         props=filtered_props,
         events=parse_events(props),
         description=description).replace('\r\n', '\n')
 
-    # pylint: disable=unused-variable
     events = '[' + ', '.join(parse_events(props)) + ']'
     prop_keys = list(props.keys())
     if 'children' in props:
@@ -380,17 +376,25 @@ def generate_class_string(typename, props, description, namespace):
           '{:s}=Component.UNDEFINED'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
-         p not in keyword.kwlist and
+         p not in kwlist and
          p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
     )
 
     required_args = required_props(props)
-    return c.format(**locals())
+    return c.format(typename=typename,
+                    docstring=docstring,
+                    default_argtext=default_argtext,
+                    list_of_valid_keys=list_of_valid_keys,
+                    namespace=namespace,
+                    list_of_valid_wildcard_attr_prefixes=list_of_valid_wildcard_attr_prefixes,
+                    events=events,
+                    required_args=required_args,
+                    argtext=argtext)
 
 def generate_class_string_r(typename, props, description, namespace):
     """
-    Dynamically generate class strings to have nicely formatted docstrings,
-    keyword arguments, and repr
+    Dynamically generate class strings to have nicely formatted documentation,
+    and function arguments
 
     Inspired by http://jameso.be/2013/08/06/namedtuple.html
 
@@ -406,23 +410,7 @@ def generate_class_string_r(typename, props, description, namespace):
     string
 
     """
-    # TODO _prop_names, _type, _namespace, available_events,
-    # and available_properties
-    # can be modified by a Dash JS developer via setattr
-    # TODO - Tab out the repr for the repr of these components to make it
-    # look more like a hierarchical tree
-    # TODO - Include "description" "defaultValue" in the repr and docstring
-    #
-    # TODO - Handle "required"
-    #
-    # TODO - How to handle user-given `null` values? I want to include
-    # an expanded docstring like Dropdown(value=None, id=None)
-    # but by templating in those None values, I have no way of knowing
-    # whether a property is None because the user explicitly wanted
-    # it to be `null` or whether that was just the default value.
-    # The solution might be to deal with default values better although
-    # not all component authors will supply those.
-    c = '''{docstring}
+    c = '''{helptext}
 
     html{typename} <- function(..., {default_argtext}) {{
 
@@ -444,22 +432,24 @@ def generate_class_string_r(typename, props, description, namespace):
 '''
 
     filtered_props = reorder_props(filter_props(props))
-    # pylint: disable=unused-variable
+
     list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
-    # pylint: disable=unused-variable
+
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
+
+    # This strips the brackets from the keylist without importing the re module
     list_of_valid_keys = list_of_valid_keys[1:-1]
-    package_name = make_package_name(namespace)
-    # pylint: disable=unused-variable
-    docstring = create_docstring_r(
+
+    # Here we convert from snake case to camel case
+    package_name = make_package_name_r(namespace)
+
+    # There's no need to retain linefeeds in the R help text, will wrap automatically
+    helptext = create_helptext_r(
         component_name=typename,
         props=filtered_props,
         events=parse_events(props),
-        description=description).replace('\r\n', '\n')
+        description=description).replace('\r\n', ' ')
 
-    # pylint: disable=unused-variable
-    # want to remove data-*, aria-*
-    events = '[' + ', '.join(parse_events(props)) + ']'
     prop_keys = list(props.keys())
     default_paramtext = ''
     default_wildcards = ''
@@ -470,12 +460,10 @@ def generate_class_string_r(typename, props, description, namespace):
     if 'children' in props:
         prop_keys.remove('children')
         default_argtext = "children=NULL, "
-        # pylint: disable=unused-variable
-        argtext = 'children=children, **args'
     else:
         default_argtext = ""
-        argtext = '**args'
-    # in R, we set parameters with no defaults to NULL, here we'll do that if no default value exists
+    # in R, we set parameters with no defaults to NULL
+    # Here we'll do that if no default value exists
     default_wildcards += ", ".join(
         [('\'{:s}\''.format(p))
          for p in prop_keys
@@ -487,22 +475,28 @@ def generate_class_string_r(typename, props, description, namespace):
           '{:s}=NULL'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
-         p not in keyword.kwlist and
+         p not in r_keywords and
          p not in ['setProps']]
     )
+    # pylint: disable=C0301
     default_paramtext += ", ".join(
-            [('{:s}={:s}'.format(p, p)
-               if p != "children" else
-               '{:s}=c(children, assert_valid_children(..., wildcards = c({:s})))'.format(p, default_wildcards))
-             for p in props.keys()
-             if not p.endswith("-*") and
-             p not in keyword.kwlist and
-             p not in ['setProps']]
+        [('{:s}={:s}'.format(p, p)
+          if p != "children" else
+          '{:s}=c(children, assert_valid_children(..., wildcards = c({:s})))'.format(p, default_wildcards))
+         for p in props.keys()
+         if not p.endswith("-*") and
+         p not in r_keywords and
+         p not in ['setProps']]
     )
-    required_args = required_props(props)
-    return c.format(**locals())
+    return c.format(helptext=helptext,
+                    typename=typename,
+                    default_argtext=default_argtext,
+                    default_paramtext=default_paramtext,
+                    namespace=namespace,
+                    list_of_valid_keys=list_of_valid_keys,
+                    package_name=package_name,
+                    default_wildcards=default_wildcards)
 
-# pylint: disable=unused-argument
 def generate_class_file(typename, props, description, namespace):
     """
     Generate a python class file (.py) given a class string
@@ -561,10 +555,138 @@ def generate_class_file_r(typename, props, description, namespace):
     )
     file_name = "{:s}.R".format(typename)
 
-    file_path = os.path.join(namespace, file_name)
+    if not os.path.exists('R'):
+        os.makedirs('R')
+
+    file_path = os.path.join('R', file_name)
     with open(file_path, 'w') as f:
         f.write(import_string)
         f.write(class_string)
+
+def generate_rpkg(name, pkg_data, namespace):
+    '''
+    Generate documents for R package creation
+
+    Parameters
+    ----------
+    name
+    pkg_data
+    namespace
+
+    Returns
+    -------
+
+    '''
+    # Leverage package.json to import specifics which are also applicable
+    # to R package that we're generating here
+    package_name = make_package_name_r(namespace)
+    package_description = pkg_data['description']
+    package_version = pkg_data['version']
+    package_issues = pkg_data['bugs']['url']
+    package_url = pkg_data['homepage']
+
+    package_author = pkg_data['author']
+
+    # The following approach avoids use of regex, but there are probably better ways!
+    package_author_no_email = package_author.split(" <")[0] + ' [aut]'
+
+    if not (os.path.isfile('LICENSE') or os.path.isfile('LICENSE.txt')):
+        package_license = pkg_data['license']
+    else:
+        package_license = pkg_data['license'] + ' + file LICENSE'
+
+    import_string =\
+        '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
+
+    # To remove once we've sorted out how to handle internals
+    temp_string =\
+        '''export(filter_null)
+export(assert_valid_children)
+export(append_wildcard_props)
+export(names2)
+export(`%||%`)
+export(assert_no_names)
+'''
+
+    description_string = \
+    '''Package: {package_name}
+Title: {package_description}
+Version: {package_version}
+Authors @R: as.person(c({package_author}))
+Description: {package_description}
+Suggests: testthat, roxygen2
+License: {package_license}
+URL: {package_url}
+BugReports: {package_issues}
+Encoding: UTF-8
+LazyData: true
+Author: {package_author_no_email}
+Maintainer: {package_author}
+'''
+
+    description_string = description_string.format(package_name=package_name,
+                                                   package_description=package_description,
+                                                   package_version=package_version,
+                                                   package_author=package_author,
+                                                   package_license=package_license,
+                                                   package_url=package_url,
+                                                   package_issues=package_issues,
+                                                   package_author_no_email=package_author_no_email)
+
+    rbuild_ignore_string = '''# ignore JS config files/folders
+node_modules/
+coverage/
+src/
+lib/
+.babelrc
+.builderrc
+.eslintrc
+.npmignore
+
+# demo folder has special meaning in R
+# this should hopefully make it still
+# allow for the possibility to make R demos
+demo/*.js
+demo/*.html
+demo/*.css
+
+# ignore python files/folders
+setup.py
+usage.py
+setup.py
+requirements.txt
+MANIFEST.in
+CHANGELOG.md
+test/
+# CRAN has weird LICENSE requirements
+LICENSE.txt
+^.*\.Rproj$
+^\.Rproj\.user$
+
+# ignore venv
+venv/
+'''
+
+    # pylint: disable=unused-variable
+    if not name.endswith('-*') and \
+            str(name) not in r_keywords and \
+            str(name) not in ['setProps', 'children']:
+        export_string = 'export(html{:s})\n'.format(name)
+
+    if not os.path.isfile('NAMESPACE'):
+        with open('NAMESPACE', 'w') as f:
+            f.write(import_string)
+            f.write(export_string)
+            f.write(temp_string)
+    else:
+        with open('NAMESPACE', 'a') as f:
+            f.write(export_string)
+
+    with open('DESCRIPTION', 'w') as f2:
+        f2.write(description_string)
+
+    with open('.Rbuildignore', 'w') as f3:
+        f3.write(rbuild_ignore_string)
 
 # pylint: disable=unused-argument
 def generate_class(typename, props, description, namespace):
@@ -672,9 +794,9 @@ Available events: {events}"""
             for p, prop in list(filter_props(props).items())),
         events=', '.join(events))
 
-def create_docstring_r(component_name, props, events, description):
+def create_helptext_r(component_name, props, events, description):
     """
-    Create the Dash component docstring
+    Create the Dash component help text for R version of Dash components
 
     Parameters
     ----------
@@ -690,17 +812,17 @@ def create_docstring_r(component_name, props, events, description):
     Returns
     -------
     str
-        Dash component docstring
+        Dash component help text
     """
     # Ensure props are ordered with children first
     props = reorder_props(props=props)
 
     desctext = ''
-    desctext += "\n".join(
-        [('#\' @param {:s} {:s}'.format(p, props[p]['description'].replace('\n', ' ')))
+    desctext = "\n".join(
+        [('#\' @param {:s} {:s}'.format(p, props[p]['description']))
          for p in props.keys()
          if not p.endswith("-*") and
-         p not in keyword.kwlist and
+         p not in r_keywords and
          p not in ['setProps']]
     )
 
@@ -709,12 +831,9 @@ def create_docstring_r(component_name, props, events, description):
 #' @export
 #' @param ... The children of this component and/or 'wildcards' of the form: `data-*` or `aria-*`
 {desctext}
-'''
-    ).format(
+''').format(
         name=component_name,
-        description=description,
-        desctext=desctext,
-        events=', '.join(events))
+        desctext=desctext)
 
 def parse_events(props):
     """
@@ -739,26 +858,6 @@ def parse_events(props):
 
 
 def parse_wildcards(props):
-    """
-    Pull out the wildcard attributes from the Component props
-
-    Parameters
-    ----------
-    props: dict
-        Dictionary with {propName: propMetadata} structure
-
-    Returns
-    -------
-    list
-        List of Dash valid wildcard prefixes
-    """
-    list_of_valid_wildcard_attr_prefixes = []
-    for wildcard_attr in ["data-*", "aria-*"]:
-        if wildcard_attr in props.keys():
-            list_of_valid_wildcard_attr_prefixes.append(wildcard_attr[:-1])
-    return list_of_valid_wildcard_attr_prefixes
-
-def parse_wildcards_r(props):
     """
     Pull out the wildcard attributes from the Component props
 
@@ -1065,7 +1164,9 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
         return js_to_py_types[js_type_name]()
     return ''
 
-def make_package_name(namestring):
-   # first, *rest = namestring.split('_') Python 3
-   first, rest = namestring.split('_')[0], namestring.split('_')[1:]
-   return first + ''.join(word.capitalize() for word in rest)
+# This converts a string from snake case to camel case
+# Not required for R package name to be in camel case,
+# but probably more conventional this way
+def make_package_name_r(namestring):
+    first, rest = namestring.split('_')[0], namestring.split('_')[1:]
+    return first + ''.join(word.capitalize() for word in rest)
