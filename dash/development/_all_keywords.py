@@ -3,7 +3,7 @@
 # >>> import keyword
 # >>> keyword.kwlist
 
-kwlist = set([
+python_keywords = set([
     'and',
     'elif',
     'is',
