@@ -16,7 +16,7 @@ class IntegrationTests(unittest.TestCase):
 
     def percy_snapshot(cls, name=''):
         snapshot_name = '{} - {}'.format(name, sys.version_info)
-        print(snapshot_name)
+        print(snapshot_name)  # pylint: disable=superfluous-parens
         cls.percy_runner.snapshot(
             name=snapshot_name
         )

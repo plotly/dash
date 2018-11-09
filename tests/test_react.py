@@ -2,8 +2,8 @@ import unittest
 import json
 import pkgutil
 import plotly
-from dash_html_components import Div
 import dash_renderer
+from dash_html_components import Div  # pylint: disable=no-name-in-module
 import dash_core_components as dcc
 import dash
 

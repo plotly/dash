@@ -40,7 +40,7 @@ jobs:
           command: |
               . venv/bin/activate
               pylint dash setup.py --rcfile=$PYLINTRC
-              pylint tests -d all -e C0410,C0411,C0412,C0413,W0109
+              pylint tests -d all -e C0102,C0112,C0121,C0202,C0203,C0204,C0304,C0321,C0325,C0410,C0411,C0412,C0413,E0001,E0011,E0012,E0100,E0101,E0102,E0103,E0104,E0105,E0106,E0107,E0108,E0202,E0203,E0211,E0221,E0222,E0235,E0601,E0602,E0603,E0604,E0611,E0701,E0702,E0710,E0711,E0712,W0109
               flake8 dash setup.py
               flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
 
