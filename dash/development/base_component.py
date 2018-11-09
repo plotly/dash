@@ -710,28 +710,6 @@ def generate_class(typename, props, description, namespace):
     result = scope[typename]
     return result
 
-def generate_class_r(typename, props, description, namespace):
-    """
-    Generate a python class object given a class string
-
-    Parameters
-    ----------
-    typename
-    props
-    description
-    namespace
-
-    Returns
-    -------
-
-    """
-    string = generate_class_string_r(typename, props, description, namespace)
-    scope = {'Component': Component, '_explicitize_args': _explicitize_args}
-    # pylint: disable=exec-used
-    exec(string, scope)
-    result = scope[typename]
-    return result
-
 def required_props(props):
     """
     Pull names of required props from the props object

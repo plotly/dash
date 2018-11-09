@@ -3,7 +3,6 @@ import json
 import os
 from .base_component import generate_class
 from .base_component import generate_class_file
-from .base_component import generate_class_r
 from .base_component import generate_class_file_r
 from .base_component import generate_rpkg
 
