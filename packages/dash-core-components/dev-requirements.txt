@@ -1,0 +1,7 @@
+dash_html_components
+dash
+percy
+selenium
+pandas
+dash_table_experiments
+xlrd
