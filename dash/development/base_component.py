@@ -391,6 +391,7 @@ def generate_class_string(typename, props, description, namespace):
                     required_args=required_args,
                     argtext=argtext)
 
+# pylint: disable=R0914
 def generate_class_string_r(typename, props, description, namespace):
     """
     Dynamically generate class strings to have nicely formatted documentation,
@@ -432,8 +433,6 @@ def generate_class_string_r(typename, props, description, namespace):
 '''
 
     filtered_props = reorder_props(filter_props(props))
-
-    list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
 
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
 
@@ -529,7 +528,6 @@ def generate_class_file(typename, props, description, namespace):
         f.write(import_string)
         f.write(class_string)
 
-# pylint: disable=unused-argument
 def generate_class_file_r(typename, props, description, namespace):
     """
     Generate a R class file (.R) given a class string
@@ -563,6 +561,7 @@ def generate_class_file_r(typename, props, description, namespace):
         f.write(import_string)
         f.write(class_string)
 
+# pylint: disable=R0914
 def generate_rpkg(name, pkg_data, namespace):
     '''
     Generate documents for R package creation
@@ -633,7 +632,7 @@ Maintainer: {package_author}
                                                    package_issues=package_issues,
                                                    package_author_no_email=package_author_no_email)
 
-    rbuild_ignore_string = '''# ignore JS config files/folders
+    rbuild_ignore_string = r'''# ignore JS config files/folders
 node_modules/
 coverage/
 src/
@@ -831,9 +830,8 @@ def create_helptext_r(component_name, props, events, description):
 #' @export
 #' @param ... The children of this component and/or 'wildcards' of the form: `data-*` or `aria-*`
 {desctext}
-''').format(
-        name=component_name,
-        desctext=desctext)
+''').format(name=component_name,
+            desctext=desctext)
 
 def parse_events(props):
     """
