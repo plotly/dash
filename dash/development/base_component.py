@@ -3,7 +3,7 @@ import copy
 import os
 import inspect
 
-from ._all_keywords import kwlist, r_keywords
+from ._all_keywords import python_keywords, r_keywords
 
 def is_number(s):
     try:
@@ -376,7 +376,7 @@ def generate_class_string(typename, props, description, namespace):
           '{:s}=Component.UNDEFINED'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
-         p not in kwlist and
+         p not in python_keywords and
          p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
     )
 
