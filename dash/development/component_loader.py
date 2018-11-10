@@ -3,7 +3,9 @@ import json
 import os
 from .base_component import generate_class
 from .base_component import generate_class_file
+from .base_component import ComponentRegistry
 from .base_component import generate_class_file_r
+from .base_component import generate_export_string_r
 from .base_component import generate_rpkg
 
 def _get_metadata(metadata_path):
@@ -31,6 +33,8 @@ def load_components(metadata_path,
     `type`, `valid_kwargs`, and `setup`.
     """
 
+    # Register the component lib for index include.
+    ComponentRegistry.registry.add(namespace)
     components = []
 
     data = _get_metadata(metadata_path)
@@ -57,7 +61,7 @@ def load_components(metadata_path,
     return components
 
 
-def generate_classes(namespace, metadata_path='lib/metadata.json', pkgjson_path='package.json'):
+def generate_classes(namespace, metadata_path='lib/metadata.json'):
     """Load React component metadata into a format Dash can parse,
     then create python class files.
 
@@ -73,16 +77,11 @@ def generate_classes(namespace, metadata_path='lib/metadata.json', pkgjson_path=
     """
 
     data = _get_metadata(metadata_path)
-    pkg_data = _get_metadata(pkgjson_path)
     imports_path = os.path.join(namespace, '_imports_.py')
 
     # Make sure the file doesn't exist, as we use append write
     if os.path.exists(imports_path):
         os.remove(imports_path)
-
-    # Remove the R NAMESPACE file if it exists
-    if os.path.isfile('NAMESPACE'):
-        os.remove('NAMESPACE')
 
     # Iterate over each property name (which is a path to the component)
     for componentPath in data:
@@ -100,17 +99,6 @@ def generate_classes(namespace, metadata_path='lib/metadata.json', pkgjson_path=
             componentData['description'],
             namespace
         )
-        generate_class_file_r(
-            name,
-            componentData['props'],
-            componentData['description'],
-            namespace
-        )
-        generate_rpkg(
-            name,
-            pkg_data,
-            namespace
-        )
 
         # Add an import statement for this component
         with open(imports_path, 'a') as f:
@@ -124,3 +112,57 @@ def generate_classes(namespace, metadata_path='lib/metadata.json', pkgjson_path=
             array_string += '    "{:s}",\n'.format(a)
         array_string += ']\n'
         f.write('\n\n__all__ = {:s}'.format(array_string))
+
+def generate_classes_r(namespace, metadata_path='lib/metadata.json', pkgjson_path='package.json'):
+    """Load React component metadata into a format Dash can parse,
+    then create python class files.
+
+    Usage: generate_classes()
+
+    Keyword arguments:
+    namespace -- name of the generated python package (also output dir)
+
+    metadata_path -- a path to a JSON file created by
+    [`react-docgen`](https://github.com/reactjs/react-docgen).
+
+    Returns:
+    """
+
+    data = _get_metadata(metadata_path)
+    pkg_data = _get_metadata(pkgjson_path)
+    imports_path = os.path.join(namespace, '_imports_.py')
+    export_string = ''
+
+    # Make sure the file doesn't exist, as we use append write
+    if os.path.exists(imports_path):
+        os.remove(imports_path)
+
+    # Remove the R NAMESPACE file if it exists, this will be repopulated
+    if os.path.isfile('NAMESPACE'):
+        os.remove('NAMESPACE')
+
+    # Iterate over each property name (which is a path to the component)
+    for componentPath in data:
+        componentData = data[componentPath]
+
+        # Extract component name from path
+        # e.g. src/components/MyControl.react.js
+        # TODO Make more robust - some folks will write .jsx and others
+        # will be on windows. Unfortunately react-docgen doesn't include
+        # the name of the component atm.
+        name = componentPath.split('/').pop().split('.')[0]
+
+        export_string += generate_export_string_r(name)
+        
+        generate_class_file_r(
+            name,
+            componentData['props'],
+            componentData['description'],
+            namespace
+        )
+
+    generate_rpkg(
+        pkg_data,
+        namespace,
+        export_string
+    )
