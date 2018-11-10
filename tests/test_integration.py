@@ -9,6 +9,8 @@ import dash_dangerously_set_inner_html
 import dash_core_components as dcc
 import dash_flow_example
 
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 import dash
 
 from dash.dependencies import Input, Output, State
@@ -576,15 +578,20 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
         output1 = self.wait_for_text_to_equal('#output', 'initial value')
-
         input1 = self.wait_for_element_by_id('input')
-        input1.clear()
+
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
         input1.send_keys('Hello World')
 
         output1 = self.wait_for_text_to_equal('#output', 'Hello World')
-
-        cookie = [cookie for cookie in self.driver.get_cookies()
-                  if cookie['name'] == 'dash cookie'][0]
+        cookie = self.driver.get_cookie('dash cookie')
         self.assertEqual(cookie['value'], '"Hello World"')  # gets json encoded
 
         assert_clean_console(self)
