@@ -117,13 +117,16 @@ def generate_classes_r(namespace, metadata_path='lib/metadata.json', pkgjson_pat
     """Load React component metadata into a format Dash can parse,
     then create python class files.
 
-    Usage: generate_classes()
+    Usage: generate_classes_r()
 
     Keyword arguments:
     namespace -- name of the generated python package (also output dir)
 
     metadata_path -- a path to a JSON file created by
     [`react-docgen`](https://github.com/reactjs/react-docgen).
+
+    pkgjson_path -- a path to a JSON file created by
+    [`cookiecutter`](https://github.com/audreyr/cookiecutter).
 
     Returns:
     """
