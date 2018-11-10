@@ -2,8 +2,52 @@ import collections
 import copy
 import os
 import inspect
+import abc
+import sys
+import six
 
 from ._all_keywords import python_keywords, r_keywords
+
+
+# pylint: disable=no-init,too-few-public-methods
+class ComponentRegistry:
+    """Holds a registry of the namespaces used by components."""
+
+    registry = set()
+    __dist_cache = {}
+
+    @classmethod
+    def get_resources(cls, resource_name):
+        cached = cls.__dist_cache.get(resource_name)
+
+        if cached:
+            return cached
+
+        cls.__dist_cache[resource_name] = resources = []
+
+        for module_name in cls.registry:
+            module = sys.modules[module_name]
+            resources.extend(getattr(module, resource_name, []))
+
+        return resources
+
+
+class ComponentMeta(abc.ABCMeta):
+
+    # pylint: disable=arguments-differ
+    def __new__(mcs, name, bases, attributes):
+        component = abc.ABCMeta.__new__(mcs, name, bases, attributes)
+        module = attributes['__module__'].split('.')[0]
+        if name == 'Component' or module == 'builtins':
+            # Don't do the base component
+            # and the components loaded dynamically by load_component
+            # as it doesn't have the namespace.
+            return component
+
+        ComponentRegistry.registry.add(module)
+
+        return component
+
 
 def is_number(s):
     try:
@@ -53,6 +97,7 @@ def _explicitize_args(func):
     return wrapper
 
 
+@six.add_metaclass(ComponentMeta)
 class Component(collections.MutableMapping):
     class _UNDEFINED(object):
         def __repr__(self):
@@ -352,14 +397,18 @@ def generate_class_string(typename, props, description, namespace):
 '''
 
     filtered_props = reorder_props(filter_props(props))
+    # pylint: disable=unused-variable
     list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
+    # pylint: disable=unused-variable
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
+    # pylint: disable=unused-variable
     docstring = create_docstring(
         component_name=typename,
         props=filtered_props,
         events=parse_events(props),
         description=description).replace('\r\n', '\n')
 
+    # pylint: disable=unused-variable
     events = '[' + ', '.join(parse_events(props)) + ']'
     prop_keys = list(props.keys())
     if 'children' in props:
@@ -376,7 +425,7 @@ def generate_class_string(typename, props, description, namespace):
           '{:s}=Component.UNDEFINED'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
-         p not in python_keywords and
+         p not in kwlist and
          p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
     )
 
@@ -464,28 +513,28 @@ def generate_class_string_r(typename, props, description, namespace):
     # in R, we set parameters with no defaults to NULL
     # Here we'll do that if no default value exists
     default_wildcards += ", ".join(
-        [('\'{:s}\''.format(p))
+        ('\'{:s}\''.format(p))
          for p in prop_keys
-         if '*' in p]
+         if '*' in p
     )
     default_argtext += ", ".join(
-        [('{:s}={}'.format(p, props[p]['defaultValue']['value'])
+        ('{:s}={}'.format(p, props[p]['defaultValue']['value'])
           if 'defaultValue' in props[p] else
           '{:s}=NULL'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
          p not in r_keywords and
-         p not in ['setProps']]
+         p not in ['setProps']
     )
     # pylint: disable=C0301
     default_paramtext += ", ".join(
-        [('{:s}={:s}'.format(p, p)
+        ('{:s}={:s}'.format(p, p)
           if p != "children" else
           '{:s}=c(children, assert_valid_children(..., wildcards = c({:s})))'.format(p, default_wildcards))
          for p in props.keys()
          if not p.endswith("-*") and
          p not in r_keywords and
-         p not in ['setProps']]
+         p not in ['setProps']
     )
     return c.format(helptext=helptext,
                     typename=typename,
@@ -496,6 +545,7 @@ def generate_class_string_r(typename, props, description, namespace):
                     package_name=package_name,
                     default_wildcards=default_wildcards)
 
+# pylint: disable=unused-argument
 def generate_class_file(typename, props, description, namespace):
     """
     Generate a python class file (.py) given a class string
@@ -561,8 +611,15 @@ def generate_class_file_r(typename, props, description, namespace):
         f.write(import_string)
         f.write(class_string)
 
+# pylint: disable=unused-variable
+def generate_export_string_r(name):
+    if not name.endswith('-*') and \
+            str(name) not in r_keywords and \
+            str(name) not in ['setProps', 'children']:
+        return 'export(html{:s})\n'.format(name)
+
 # pylint: disable=R0914
-def generate_rpkg(name, pkg_data, namespace):
+def generate_rpkg(pkg_data, namespace, export_string):
     '''
     Generate documents for R package creation
 
@@ -597,7 +654,6 @@ def generate_rpkg(name, pkg_data, namespace):
     import_string =\
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
 
-    # To remove once we've sorted out how to handle internals
     temp_string =\
         '''export(filter_null)
 export(assert_valid_children)
@@ -666,20 +722,10 @@ LICENSE.txt
 venv/
 '''
 
-    # pylint: disable=unused-variable
-    if not name.endswith('-*') and \
-            str(name) not in r_keywords and \
-            str(name) not in ['setProps', 'children']:
-        export_string = 'export(html{:s})\n'.format(name)
-
-    if not os.path.isfile('NAMESPACE'):
-        with open('NAMESPACE', 'w') as f:
-            f.write(import_string)
-            f.write(export_string)
-            f.write(temp_string)
-    else:
-        with open('NAMESPACE', 'a') as f:
-            f.write(export_string)
+    with open('NAMESPACE', 'w') as f:
+        f.write(import_string)
+        f.write(export_string)
+        f.write(temp_string)
 
     with open('DESCRIPTION', 'w') as f2:
         f2.write(description_string)
@@ -709,6 +755,7 @@ def generate_class(typename, props, description, namespace):
     exec(string, scope)
     result = scope[typename]
     return result
+
 
 def required_props(props):
     """
@@ -806,7 +853,7 @@ def create_helptext_r(component_name, props, events, description):
     return('''#' {name} component
 #' @description See <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{name}>
 #' @export
-#' @param ... The children of this component and/or 'wildcards' of the form: `data-*` or `aria-*`
+#' @param ... The children of this component and/or 'wildcards' of the form: 'data-*' or 'aria-*'
 {desctext}
 ''').format(name=component_name,
             desctext=desctext)
@@ -852,6 +899,7 @@ def parse_wildcards(props):
         if wildcard_attr in props.keys():
             list_of_valid_wildcard_attr_prefixes.append(wildcard_attr[:-1])
     return list_of_valid_wildcard_attr_prefixes
+
 
 def reorder_props(props):
     """
