@@ -3,13 +3,13 @@ from multiprocessing import Value
 import datetime
 import itertools
 import re
+import time
 import dash_html_components as html
+import dash_dangerously_set_inner_html
 import dash_core_components as dcc
 import dash_flow_example
-import dash_dangerously_set_inner_html
 
 import dash
-import time
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -199,7 +199,7 @@ class Tests(IntegrationTests):
 
         # React wraps text and numbers with e.g. <!-- react-text: 20 -->
         # Remove those
-        comment_regex = '<!--[^\[](.*?)-->'
+        comment_regex = '<!--[^\[](.*?)-->'  # noqa: W605
 
         # Somehow the html attributes are unordered.
         # Try different combinations (they're all valid html)
@@ -531,3 +531,27 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
         time.sleep(0.5)
+
+    def test_late_component_register(self):
+        app = dash.Dash()
+
+        app.layout = html.Div([
+            html.Button('Click me to put a dcc ', id='btn-insert'),
+            html.Div(id='output')
+        ])
+
+        @app.callback(Output('output', 'children'),
+                      [Input('btn-insert', 'n_clicks')])
+        def update_output(value):
+            if value is None:
+                raise PreventUpdate
+
+            return dcc.Input(id='inserted-input')
+
+        self.startServer(app)
+
+        btn = self.wait_for_element_by_css_selector('#btn-insert')
+        btn.click()
+        time.sleep(1)
+
+        self.wait_for_element_by_css_selector('#inserted-input')

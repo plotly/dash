@@ -8,7 +8,6 @@ import six
 
 from ._all_keywords import python_keywords, r_keywords
 
-
 # pylint: disable=no-init,too-few-public-methods
 class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
@@ -717,9 +716,6 @@ test/
 LICENSE.txt
 ^.*\.Rproj$
 ^\.Rproj\.user$
-
-# ignore venv
-venv/
 '''
 
     with open('NAMESPACE', 'w') as f:

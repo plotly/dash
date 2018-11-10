@@ -167,7 +167,7 @@ class Dash(object):
 
         self.assets_ignore = assets_ignore
 
-        self.registered_paths = {}
+        self.registered_paths = collections.defaultdict(set)
 
         # urls
         self.routes = []
@@ -313,10 +313,7 @@ class Dash(object):
         def _relative_url_path(relative_package_path='', namespace=''):
 
             # track the registered packages
-            if namespace in self.registered_paths:
-                self.registered_paths[namespace].append(relative_package_path)
-            else:
-                self.registered_paths[namespace] = [relative_package_path]
+            self.registered_paths[namespace].add(relative_package_path)
 
             module_path = os.path.join(
                 os.path.dirname(sys.modules[namespace].__file__),
@@ -362,7 +359,7 @@ class Dash(object):
 
     def _generate_css_dist_html(self):
         links = self._external_stylesheets + \
-                self._collect_and_register_resources(self.css.get_all_css())
+            self._collect_and_register_resources(self.css.get_all_css())
 
         return '\n'.join([
             _format_tag('link', link, opened=True)
@@ -719,7 +716,7 @@ class Dash(object):
         def _raise_invalid(bad_val, outer_val, bad_type, path, index=None,
                            toplevel=False):
             outer_id = "(id={:s})".format(outer_val.id) \
-                        if getattr(outer_val, 'id', False) else ''
+                if getattr(outer_val, 'id', False) else ''
             outer_type = type(outer_val).__name__
             raise exceptions.InvalidCallbackReturnValue('''
             The callback for property `{property:s}` of component `{id:s}`

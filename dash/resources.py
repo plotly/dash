@@ -1,9 +1,8 @@
-from copy import copy
 import json
 import warnings
 import os
 
-from .development.base_component import Component
+from .development.base_component import ComponentRegistry
 
 
 # pylint: disable=old-style-class
@@ -12,6 +11,7 @@ class Resources:
         self._resources = []
         self.resource_name = resource_name
         self.layout = layout
+        self._resources_cache = []
 
     def append_resource(self, resource):
         self._resources.append(resource)
@@ -59,45 +59,18 @@ class Resources:
         return filtered_resources
 
     def get_all_resources(self, dev_bundles=False):
-        all_resources = []
-        if self.config.infer_from_layout:
-            all_resources = (
-                self.get_inferred_resources() + self._resources
-            )
-        else:
-            all_resources = self._resources
+        if self._resources_cache:
+            return self._resources_cache
 
-        return self._filter_resources(all_resources, dev_bundles)
+        all_resources = ComponentRegistry.get_resources(self.resource_name)
+        all_resources.extend(self._resources)
 
-    def get_inferred_resources(self):
-        namespaces = []
-        resources = []
-        layout = self.layout
-
-        def extract_resource_from_component(component):
-            # pylint: disable=protected-access
-            if (isinstance(component, Component) and
-                    component._namespace not in namespaces):
-
-                namespaces.append(component._namespace)
-
-                if hasattr(component, self.resource_name):
-
-                    component_resources = copy(
-                        getattr(component, self.resource_name)
-                    )
-                    for r in component_resources:
-                        r['namespace'] = component._namespace
-                    resources.extend(component_resources)
-
-        extract_resource_from_component(layout)
-        for t in layout.traverse():
-            extract_resource_from_component(t)
-        return resources
+        self._resources_cache = res = \
+            self._filter_resources(all_resources, dev_bundles)
+        return res
 
 
-class Css:
-    # pylint: disable=old-style-class
+class Css:  # pylint: disable=old-style-class
     def __init__(self, layout=None):
         self._resources = Resources('_css_dist', layout)
         self._resources.config = self.config
@@ -110,9 +83,6 @@ class Css:
 
     def get_all_css(self):
         return self._resources.get_all_resources()
-
-    def get_inferred_css_dist(self):
-        return self._resources.get_inferred_resources()
 
     # pylint: disable=old-style-class, no-init, too-few-public-methods
     class config:
@@ -133,9 +103,6 @@ class Scripts:  # pylint: disable=old-style-class
 
     def get_all_scripts(self, dev_bundles=False):
         return self._resources.get_all_resources(dev_bundles)
-
-    def get_inferred_scripts(self):
-        return self._resources.get_inferred_resources()
 
     # pylint: disable=old-style-class, no-init, too-few-public-methods
     class config:
