@@ -459,9 +459,13 @@ def generate_class_string_r(typename, props, description, namespace):
     string
 
     """
-    c = '''{helptext}
 
-    html{typename} <- function(..., {default_argtext}) {{
+    if namespace == 'dash_html_components':
+        prefix = 'html'
+    else:
+        prefix = ''
+
+    c = '''{prefix}{typename} <- function(..., {default_argtext}) {{
 
     component <- list(
       props = list(
@@ -489,13 +493,6 @@ def generate_class_string_r(typename, props, description, namespace):
 
     # Here we convert from snake case to camel case
     package_name = make_package_name_r(namespace)
-
-    # There's no need to retain linefeeds in the R help text, will wrap automatically
-    helptext = create_helptext_r(
-        component_name=typename,
-        props=filtered_props,
-        events=parse_events(props),
-        description=description).replace('\r\n', ' ')
 
     prop_keys = list(props.keys())
     default_paramtext = ''
@@ -535,7 +532,7 @@ def generate_class_string_r(typename, props, description, namespace):
          p not in r_keywords and
          p not in ['setProps']
     )
-    return c.format(helptext=helptext,
+    return c.format(prefix=prefix,
                     typename=typename,
                     default_argtext=default_argtext,
                     default_paramtext=default_paramtext,
@@ -577,6 +574,80 @@ def generate_class_file(typename, props, description, namespace):
         f.write(import_string)
         f.write(class_string)
 
+def generate_help_file_r(typename, props, namespace):
+    """
+    Generate a R documentation file (.Rd) given component name and properties
+
+    Parameters
+    ----------
+    typename
+    props
+
+    Returns
+    -------
+
+
+    """
+    if not os.path.exists('man'):
+        os.makedirs('man')
+
+    if namespace == 'dash_html_components':
+        file_name = "html{:s}.Rd".format(typename)
+        prefix = 'html'
+    else:
+        file_name = "{:s}.Rd".format(typename)
+        prefix = ''
+
+    prop_keys = list(props.keys())
+
+    default_argtext = ''
+    item_text = ''
+
+    # Ensure props are ordered with children first
+    props = reorder_props(props=props)
+
+    default_argtext += ", ".join(
+        ('{:s}={}'.format(p, props[p]['defaultValue']['value'])
+         if 'defaultValue' in props[p] else
+         '{:s}=NULL'.format(p))
+        for p in prop_keys
+        if not p.endswith("-*") and
+        p not in r_keywords and
+        p not in ['setProps']
+    )
+
+    item_text += "\n\n".join(
+        ('\\item{{{:s}}}{{{:s}}}'.format(p, props[p]['description']))
+        for p in prop_keys
+        if not p.endswith("-*") and
+        p not in r_keywords and
+        p not in ['setProps']
+    )
+
+    help_string = '''% Auto-generated: do not edit by hand
+\\name{{{prefix}{typename}}}
+\\alias{{{prefix}{typename}}}
+\\title{{{typename} component}}
+\\usage{{
+(..., {default_argtext})
+}}
+\\arguments{{
+{item_text}
+}}
+\\description{{
+See <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{typename}>
+}}
+    '''
+
+    file_path = os.path.join('man', file_name)
+    with open(file_path, 'w') as f:
+        f.write(help_string.format(
+            prefix=prefix,
+            typename=typename,
+            default_argtext=default_argtext,
+            item_text=item_text
+        ))
+
 def generate_class_file_r(typename, props, description, namespace):
     """
     Generate a R class file (.R) given a class string
@@ -592,6 +663,11 @@ def generate_class_file_r(typename, props, description, namespace):
     -------
 
     """
+    if namespace == 'dash_html_components':
+        prefix = 'html'
+    else:
+        prefix = ''
+
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string_r(
@@ -600,7 +676,7 @@ def generate_class_file_r(typename, props, description, namespace):
         description,
         namespace
     )
-    file_name = "{:s}.R".format(typename)
+    file_name = "{:s}{:s}.R".format(prefix, typename)
 
     if not os.path.exists('R'):
         os.makedirs('R')
@@ -618,7 +694,8 @@ def generate_export_string_r(name):
         return 'export(html{:s})\n'.format(name)
 
 # pylint: disable=R0914
-def generate_rpkg(pkg_data, namespace, export_string):
+def generate_rpkg(pkg_data,
+                  namespace, export_string):
     '''
     Generate documents for R package creation
 
@@ -813,46 +890,6 @@ Available events: {events}"""
                 is_flow_type='flowType' in prop and 'type' not in prop)
             for p, prop in list(filter_props(props).items())),
         events=', '.join(events))
-
-def create_helptext_r(component_name, props, events, description):
-    """
-    Create the Dash component help text for R version of Dash components
-
-    Parameters
-    ----------
-    component_name: str
-        Component name
-    props: dict
-        Dictionary with {propName: propMetadata} structure
-    events: list
-        List of Dash events
-    description: str
-        Component description
-
-    Returns
-    -------
-    str
-        Dash component help text
-    """
-    # Ensure props are ordered with children first
-    props = reorder_props(props=props)
-
-    desctext = ''
-    desctext = "\n".join(
-        [('#\' @param {:s} {:s}'.format(p, props[p]['description']))
-         for p in props.keys()
-         if not p.endswith("-*") and
-         p not in r_keywords and
-         p not in ['setProps']]
-    )
-
-    return('''#' {name} component
-#' @description See <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{name}>
-#' @export
-#' @param ... The children of this component and/or 'wildcards' of the form: 'data-*' or 'aria-*'
-{desctext}
-''').format(name=component_name,
-            desctext=desctext)
 
 def parse_events(props):
     """
