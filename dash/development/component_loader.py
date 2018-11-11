@@ -5,6 +5,7 @@ from .base_component import generate_class
 from .base_component import generate_class_file
 from .base_component import ComponentRegistry
 from .base_component import generate_class_file_r
+from .base_component import generate_help_file_r
 from .base_component import generate_export_string_r
 from .base_component import generate_rpkg
 
@@ -161,6 +162,12 @@ def generate_classes_r(namespace, metadata_path='lib/metadata.json', pkgjson_pat
             name,
             componentData['props'],
             componentData['description'],
+            namespace
+        )
+        
+        generate_help_file_r(
+            name,
+            componentData['props'],
             namespace
         )
 
