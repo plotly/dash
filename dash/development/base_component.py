@@ -473,7 +473,7 @@ def generate_class_string_r(typename, props, description, namespace):
       ),
       type = '{typename}',
       namespace = '{namespace}',
-      propNames = c({list_of_valid_keys}),
+      propNames = c({prop_names}),
       package = '{package_name}'
     )
 
@@ -484,13 +484,6 @@ def generate_class_string_r(typename, props, description, namespace):
     }}
 '''
 
-    filtered_props = filter_props(props)
-
-    list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
-
-    # This strips the brackets from the keylist without importing the re module
-    list_of_valid_keys = list_of_valid_keys[1:-1]
-
     # Here we convert from snake case to camel case
     package_name = make_package_name_r(namespace)
 
@@ -499,11 +492,13 @@ def generate_class_string_r(typename, props, description, namespace):
     default_paramtext = ''
     default_argtext = ''
     default_wildcards = ''
-    wildcard_list = ''
 
-    for key in props:
-        if '*' in key:
-            wildcard_list.join(key)
+    # Produce a string with all property names other than WCs
+    prop_names = ", ".join(
+        ('\'{:s}\''.format(p))
+        for p in prop_keys
+        if '*' not in p
+    )
 
     # in R, we set parameters with no defaults to NULL
     # Here we'll do that if no default value exists
@@ -512,6 +507,7 @@ def generate_class_string_r(typename, props, description, namespace):
          for p in prop_keys
          if '*' in p
     )
+
     default_argtext += ", ".join(
         ('{:s}={}'.format(p, props[p]['defaultValue']['value'])
           if 'defaultValue' in props[p] else
@@ -540,7 +536,7 @@ def generate_class_string_r(typename, props, description, namespace):
                     default_argtext=default_argtext,
                     default_paramtext=default_paramtext,
                     namespace=namespace,
-                    list_of_valid_keys=list_of_valid_keys,
+                    prop_names=prop_names,
                     package_name=package_name,
                     default_wildcards=default_wildcards)
 
