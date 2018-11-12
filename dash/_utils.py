@@ -72,3 +72,9 @@ class AttributeDict(dict):
             value = self.get(name)
             if value:
                 return value
+
+
+def _merge(x, y):
+    z = x.copy()
+    z.update(y)
+    return z

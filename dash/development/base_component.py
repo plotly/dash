@@ -5,14 +5,34 @@ import inspect
 import abc
 import sys
 import pprint
-from textwrap import dedent
 
 import six
 
-import dash.exceptions
+from ..exceptions import ComponentInitializationValidationError
+from .._utils import _merge
 from .validator import DashValidator, generate_validation_error_message
 from ._all_keywords import kwlist
 
+_initialization_validation_error_callback = """
+A Dash Component was initialized with invalid properties!
+
+Dash tried to create a `{component_name}` component with the
+following arguments, which caused a validation failure:
+
+***************************************************************
+{component_args}
+***************************************************************
+
+The expected schema for the `{component_name}` component is:
+
+***************************************************************
+{component_schema}
+***************************************************************
+
+The errors in validation are as follows:
+
+
+"""
 
 # pylint: disable=no-init,too-few-public-methods
 class ComponentRegistry:
@@ -295,40 +315,20 @@ class Component(collections.MutableMapping):
             allow_unknown=True,
         )
         args = {
-            k: self.__dict__[k]
-            for k in self.__dict__['_prop_names']
-            if k in self.__dict__.keys()
+            k: v
+            for k, v in ((x, getattr(self, x, None)) for x in self._prop_names)
+            if v
         }
         valid = validator.validate(args)
         if not valid:
             # pylint: disable=protected-access
-            error_message = dedent("""\
-
-                A Dash Component was initialized with invalid properties!
-
-                Dash tried to create a `{component_name}` component with the
-                following arguments, which caused a validation failure:
-
-                ***************************************************************
-                {component_args}
-                ***************************************************************
-
-                The expected schema for the `{component_name}` component is:
-
-                ***************************************************************
-                {component_schema}
-                ***************************************************************
-
-                The errors in validation are as follows:
-
-
-            """).format(
+            error_message = _initialization_validation_error_callback.format(
                 component_name=self.__class__.__name__,
                 component_args=pprint.pformat(args),
                 component_schema=pprint.pformat(self.__class__._schema)
             )
 
-            raise dash.exceptions.ComponentInitializationValidationError(
+            raise ComponentInitializationValidationError(
                 generate_validation_error_message(
                     validator.errors,
                     0,
@@ -383,11 +383,6 @@ def schema_is_nullable(type_object):
 
 
 def js_to_cerberus_type(type_object):
-    def _merge(x, y):
-        z = x.copy()
-        z.update(y)
-        return z
-
     def _enum(x):
         schema = {'allowed': [],
                   'type': ('string', 'number')}
@@ -444,13 +439,7 @@ def js_to_cerberus_type(type_object):
         'union': lambda x: {
             'anyof': [js_to_cerberus_type(v) for v in x['value']],
         },
-        'any': lambda x: {
-            'type': ('boolean',
-                     'number',
-                     'string',
-                     'dict',
-                     'list')
-        },
+        'any': lambda x: {},  # Empty means no validation is run
         'string': lambda x: {'type': 'string'},
         'bool': lambda x: {'type': 'boolean'},
         'number': lambda x: {'type': 'number'},
@@ -612,7 +601,7 @@ class {typename}(Component):
     else:
         default_argtext = ''
         argtext = '**args'
-    for p in list(props.keys()):
+    for p in props.keys():
         if (
                 not p.endswith("-*") and  # Not a wildcard attribute
                 p not in kwlist and  # Not a protected keyword

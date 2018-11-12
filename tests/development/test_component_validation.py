@@ -462,7 +462,7 @@ class TestComponentValidation(unittest.TestCase):
         self.assertTrue(self.component_validator.validate({
             'optionalAny': {}
         }))
-        self.assertFalse(self.component_validator.validate({
+        self.assertTrue(self.component_validator.validate({
             'optionalAny': self.ComponentClass()
         }))
         self.assertFalse(self.component_validator.validate({

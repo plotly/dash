@@ -11,7 +11,6 @@ import re
 import pprint
 
 from functools import wraps
-from textwrap import dedent
 
 import plotly
 import dash_renderer
@@ -65,6 +64,26 @@ _re_index_entry_id = re.compile(r'id="react-entry-point"')
 _re_index_config_id = re.compile(r'id="_dash-config"')
 _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 
+_callback_validation_error_template = """
+A Dash Callback produced an invalid value!
+
+Dash tried to update the `{component_property}` prop of the
+`{component_name}` with id `{component_id}` by calling the
+`{callback_func_name}` function with `{args}` as arguments.
+
+This function call returned `{value}`, which did not pass
+validation tests for the `{component_name}` component.
+
+The expected schema for the `{component_property}` prop of the
+`{component_name}` component is:
+
+***************************************************************
+{component_schema}
+***************************************************************
+
+The errors in validation are as follows:
+
+"""
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
@@ -927,11 +946,8 @@ class Dash(object):
 
         # Only validate if we get required information from renderer
         # and validation is not turned off by user
-        if (
-                not self.config.suppress_validation_exceptions and
-                'namespace' in output and
-                'type' in output
-        ):
+        if not self.config.suppress_validation_exceptions and \
+                'namespace' in output and 'type' in output:
             # Python2.7 might make these keys and values unicode
             namespace = str(output['namespace'])
             component_type = str(output['type'])
@@ -956,27 +972,7 @@ class Dash(object):
         })
         valid = validator.validate({component_property: value})
         if not valid:
-            error_message = dedent("""\
-
-                A Dash Callback produced an invalid value!
-
-                Dash tried to update the `{component_property}` prop of the
-                `{component_name}` with id `{component_id}` by calling the
-                `{callback_func_name}` function with `{args}` as arguments.
-
-                This function call returned `{value}`, which did not pass
-                validation tests for the `{component_name}` component.
-
-                The expected schema for the `{component_property}` prop of the
-                `{component_name}` component is:
-
-                ***************************************************************
-                {component_schema}
-                ***************************************************************
-
-                The errors in validation are as follows:
-
-            """).format(
+            error_message = _callback_validation_error_template.format(
                 component_property=component_property,
                 component_name=component.__name__,
                 component_id=component_id,

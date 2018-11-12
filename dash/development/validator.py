@@ -12,7 +12,7 @@ class DashValidator(cerberus.Validator):
         if not isinstance(value, (dict, plotly.graph_objs.Figure)):
             self._error(
                 field,
-                "Invalid Plotly Figure: Not a dict")
+                "Invalid Plotly Figure.")
         if isinstance(value, dict):
             try:
                 plotly.graph_objs.Figure(value)
@@ -23,7 +23,7 @@ class DashValidator(cerberus.Validator):
 
     def _validator_options_with_unique_values(self, field, value):
         if not isinstance(value, list):
-            self._error(field, "Invalid options: Not a dict!")
+            self._error(field, "Invalid options: Not a list!")
         values = set()
         for i, option_dict in enumerate(value):
             if not isinstance(option_dict, dict):
