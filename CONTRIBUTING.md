@@ -95,13 +95,13 @@ This repository adheres to [semver](https://semver.org/). The following policy i
 
 ### Major Release Candidate Window
 1. The major release candidate window will be announced internally at Plotly and through our popular community channels.
-2. Within one day `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0-rc1` and published.
+2. `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0-rc1` on the same day and published for testing.
 3. Pull requests especially those containing breaking changes will be merged.
 4. Per repo tests will be updated to target the latest `rc` versions.
 5. [dash-docs](https://github.com/plotly/dash-docs), some apps in the [dash gallery](https://dash.plot.ly/gallery) and Plotly internal projects will be updated to target the latest `rc` versions.
 6. steps 3-5 will continue until all breaking changes have been merged.
 7. A major release candidate freeze will go into effect. During this time steps 3-5 will continue but only bug fixes will be merged.
-8. Within one day `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0` and published ending the major release cnadidate window.
+8. Once testing and Q/A is complete `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0` and published ending the major release candidate window.
 
 ### Backporting fixes
 During and after the major release candidate window bug fixes that can apply to pre-major release candidate releases should be backported. This is accomplished by:
