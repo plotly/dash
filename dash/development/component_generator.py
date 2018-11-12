@@ -27,7 +27,7 @@ def generate_components(component_src, project_shortname):
     proc = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
-                            shell=not is_windows)
+                            shell=is_windows)
     out, err = proc.communicate()
     status = proc.poll()
 
