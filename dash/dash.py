@@ -1147,6 +1147,5 @@ class Dash(object):
         if not debug:
             # Do not throw debugging exceptions in production.
             self.config.suppress_validation_exceptions = True
-            self.config.suppress_callback_exceptions = True
         self.server.run(port=port, debug=debug,
                         **flask_run_options)
