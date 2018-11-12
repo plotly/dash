@@ -34,6 +34,7 @@ The errors in validation are as follows:
 
 """
 
+
 # pylint: disable=no-init,too-few-public-methods
 class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
@@ -314,6 +315,7 @@ class Component(collections.MutableMapping):
             self._schema,
             allow_unknown=True,
         )
+        # pylint: disable=no-member
         args = {
             k: v
             for k, v in ((x, getattr(self, x, None)) for x in self._prop_names)
