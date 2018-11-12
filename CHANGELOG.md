@@ -1,3 +1,7 @@
+## [1.0.0-rc1] - 2018-11-12
+### Changed
+- Updated `react` and `react-dom` in other Dash repo's to version `16.6.1`. Upgrading to React 16 includes some small breaking changes, discussed [here](https://reactjs.org/blog/2017/09/26/react-v16.0.html#breaking-changes)
+
 ## 0.29.0 - 2018-11-06
 ## Added
 - Added component namespaces registry, collect the resources needed by component library when they are imported instead of crawling the layout. [#444](https://github.com/plotly/dash/pull/444)
