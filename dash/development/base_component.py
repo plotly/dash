@@ -484,7 +484,7 @@ def generate_class_string_r(typename, props, description, namespace):
     }}
 '''
 
-    filtered_props = reorder_props(filter_props(props))
+    filtered_props = filter_props(props)
 
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
 
@@ -495,17 +495,16 @@ def generate_class_string_r(typename, props, description, namespace):
     package_name = make_package_name_r(namespace)
 
     prop_keys = list(props.keys())
+
     default_paramtext = ''
+    default_argtext = ''
     default_wildcards = ''
     wildcard_list = ''
+
     for key in props:
         if '*' in key:
             wildcard_list.join(key)
-    if 'children' in props:
-        prop_keys.remove('children')
-        default_argtext = "children=NULL, "
-    else:
-        default_argtext = ""
+
     # in R, we set parameters with no defaults to NULL
     # Here we'll do that if no default value exists
     default_wildcards += ", ".join(
@@ -522,6 +521,10 @@ def generate_class_string_r(typename, props, description, namespace):
          p not in r_keywords and
          p not in ['setProps']
     )
+
+    if 'children' in props:
+        prop_keys.remove('children')
+
     # pylint: disable=C0301
     default_paramtext += ", ".join(
         ('{:s}={:s}'.format(p, p)
@@ -629,13 +632,13 @@ def generate_help_file_r(typename, props, namespace):
 \\alias{{{prefix}{typename}}}
 \\title{{{typename} component}}
 \\usage{{
-(..., {default_argtext})
+{prefix}{typename}(..., {default_argtext})
 }}
 \\arguments{{
 {item_text}
 }}
 \\description{{
-See <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{typename}>
+{typename} component
 }}
     '''
 
@@ -726,6 +729,9 @@ def generate_rpkg(pkg_data,
         package_license = pkg_data['license']
     else:
         package_license = pkg_data['license'] + ' + file LICENSE'
+        # R requires that the LICENSE.txt file be named LICENSE
+        if not os.path.isfile('LICENSE'):
+            os.symlink("LICENSE.txt", "LICENSE")
 
     import_string =\
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'

@@ -137,7 +137,7 @@ def generate_classes_r(namespace, metadata_path='lib/metadata.json', pkgjson_pat
     imports_path = os.path.join(namespace, '_imports_.py')
     export_string = ''
 
-    # Make sure the file doesn't exist, as we use append write
+    # Make sure the file doesn't exist, as we use append to write lines
     if os.path.exists(imports_path):
         os.remove(imports_path)
 
