@@ -86,7 +86,7 @@ _For larger features, your contribution will have a higher likelihood of getting
 - [ ] If significant enough, you have created an issue about documenting the new feature or change and you have added it to the [Documentation] project.
 - [ ] You have created a pull request in [Dash Docs] with the new release of your feature by editing that project's [`requirements.txt` file](https://github.com/plotly/dash-docs/blob/master/requirements.txt) and you have assigned `@chriddyp` to review.
 
-### Versioning Policy
+## Versioning Policy
 This repository adheres to [semver](https://semver.org/). The following policy is in effect for `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer`:
 1. Matching major version numbers are guarenteed to work together.
 2. Any change to the public API (breaking change) will increase a major version.
