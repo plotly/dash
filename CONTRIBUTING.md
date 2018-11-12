@@ -105,7 +105,7 @@ This repository adheres to [semver](https://semver.org/). The following policy i
 
 ### Backporting fixes
 During and after the major release candidate window bug fixes that can apply to pre-major release candidate releases should be backported. This is accomplished by:
-1. If a pre-major release branch does not exist then check out a branch at the tag defining the last published release before the previous major release candidate window began. For example if we are in the `1.x` series and the last pre-`1.x` series release is `v0.18.1` checkout a branch at `0.18.1` called `0.18-release`. If the branch does exist check it out.
+1. If a pre-major release branch does not exist then check out a branch at the tag defining the last published release before the previous major release candidate window began. For example if we are in the `1.x` series and the last pre-`1.x` series release is `v0.18.1` checkout a branch at `v0.18.1` called `0.18-release`. If the branch does exist check it out.
 2. Cherry-pick or otherwise reapply the fix to the pre-major release branch and update the patch version. In the example above the new version and tag will be `v0.18.2` on the `0.18-release` branch.
 3. Publish.
 
