@@ -46,15 +46,15 @@ def generate_components(component_src, project_shortname):
     components = []
 
     for component_path, component_data in metadata.items():
-        name = component_path.split('/')[-1].split('.')[0]
-        components.append(name)
+        component_name = component_path.split('/')[-1].split('.')[0]
+        components.append(component_name)
         generate_class_file(
-            name,
+            component_name,
             component_data['props'],
             component_data['description'],
             project_shortname
         )
-        print('Generated {}/{}.py'.format(project_shortname, name))
+        print('Generated {}/{}.py'.format(project_shortname, component_name))
 
     with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
         json.dump(metadata, f)
