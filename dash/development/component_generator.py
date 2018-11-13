@@ -54,7 +54,6 @@ def generate_components(component_src, project_shortname):
             component_data['description'],
             project_shortname
         )
-        print('Generated {}/{}.py'.format(project_shortname, component_name))
 
     with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
         json.dump(metadata, f)

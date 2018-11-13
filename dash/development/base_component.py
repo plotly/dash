@@ -465,6 +465,8 @@ def generate_class_file(typename, props, description, namespace):
     with open(file_path, 'w') as f:
         f.write(import_string)
         f.write(class_string)
+        
+    print('Generated {}'.format(file_name))
 
 
 # pylint: disable=unused-argument
