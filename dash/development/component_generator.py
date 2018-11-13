@@ -5,8 +5,8 @@ import sys
 import subprocess
 import shlex
 import os
-import textwrap
 
+from dash.development.component_loader import generate_imports
 from .base_component import generate_class_file
 
 
@@ -58,20 +58,7 @@ def generate_components(component_src, project_shortname):
     with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
         json.dump(metadata, f)
 
-    with open(os.path.join(project_shortname, '_imports_.py'), 'w') as f:
-        f.write(textwrap.dedent(
-            '''
-            {}
-
-            __all__ = [
-            {}
-            ]
-            '''.format(
-                '\n'.join(
-                    'from .{0} import {0}'.format(x) for x in components),
-                ',\n'.join('    "{}"'.format(x) for x in components)
-            )
-        ).lstrip())
+    generate_imports(project_shortname, components)
 
 
 def cli():

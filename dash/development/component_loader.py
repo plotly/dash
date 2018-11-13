@@ -1,6 +1,8 @@
 import collections
 import json
 import os
+import textwrap
+
 from .base_component import generate_class
 from .base_component import generate_class_file
 from .base_component import ComponentRegistry
@@ -14,6 +16,23 @@ def _get_metadata(metadata_path):
             .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
             .decode(json_string)
     return data
+
+
+def generate_imports(project_shortname, components):
+    with open(os.path.join(project_shortname, '_imports_.py'), 'w') as f:
+        f.write(textwrap.dedent(
+            '''
+            {}
+
+            __all__ = [
+            {}
+            ]
+            '''.format(
+                '\n'.join(
+                    'from .{0} import {0}'.format(x) for x in components),
+                ',\n'.join('    "{}"'.format(x) for x in components)
+            )
+        ).lstrip())
 
 
 def load_components(metadata_path,
@@ -81,6 +100,8 @@ def generate_classes(namespace, metadata_path='lib/metadata.json'):
     if os.path.exists(imports_path):
         os.remove(imports_path)
 
+    components = []
+
     # Iterate over each property name (which is a path to the component)
     for componentPath in data:
         componentData = data[componentPath]
@@ -97,16 +118,7 @@ def generate_classes(namespace, metadata_path='lib/metadata.json'):
             componentData['description'],
             namespace
         )
-
-        # Add an import statement for this component
-        with open(imports_path, 'a') as f:
-            f.write('from .{0:s} import {0:s}\n'.format(name))
+        components.append(name)
 
     # Add the __all__ value so we can import * from _imports_
-    all_imports = [p.split('/').pop().split('.')[0] for p in data]
-    with open(imports_path, 'a') as f:
-        array_string = '[\n'
-        for a in all_imports:
-            array_string += '    "{:s}",\n'.format(a)
-        array_string += ']\n'
-        f.write('\n\n__all__ = {:s}'.format(array_string))
+    generate_imports(namespace, components)
