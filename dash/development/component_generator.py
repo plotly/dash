@@ -6,7 +6,7 @@ import subprocess
 import shlex
 import os
 
-from dash.development.component_loader import generate_imports
+from .component_loader import generate_imports
 from .base_component import generate_class_file
 
 
