@@ -1167,7 +1167,8 @@ class Dash(object):
         self._hard_reload = True
         self._reload_hash = _generate_hash()
 
-        asset_path = filename.replace(self._assets_folder, '')\
+        asset_path = os.path.relpath(
+            filename, os.path.commonprefix([self._assets_folder, filename]))\
             .replace('\\', '/').lstrip('/')
 
         self._changed_assets.append({
