@@ -11,7 +11,6 @@ class Resources:
         self._resources = []
         self.resource_name = resource_name
         self.layout = layout
-        self._resources_cache = []
 
     def append_resource(self, resource):
         self._resources.append(resource)
@@ -59,15 +58,10 @@ class Resources:
         return filtered_resources
 
     def get_all_resources(self, dev_bundles=False):
-        if self._resources_cache:
-            return self._resources_cache
+        lib_resources = ComponentRegistry.get_resources(self.resource_name)
+        all_resources = lib_resources + self._resources
 
-        all_resources = ComponentRegistry.get_resources(self.resource_name)
-        all_resources.extend(self._resources)
-
-        self._resources_cache = res = \
-            self._filter_resources(all_resources, dev_bundles)
-        return res
+        return self._filter_resources(all_resources, dev_bundles)
 
 
 class Css:  # pylint: disable=old-style-class
