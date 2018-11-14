@@ -5,6 +5,7 @@ import APIController from './APIController.react';
 import DocumentTitle from './components/core/DocumentTitle.react';
 import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
+import Reloader from './components/core/Reloader.react';
 
 function UnconnectedAppContainer() {
     return (
@@ -14,6 +15,7 @@ function UnconnectedAppContainer() {
                 <APIController />
                 <DocumentTitle />
                 <Loading />
+                <Reloader />
             </div>
         </Authentication>
     );

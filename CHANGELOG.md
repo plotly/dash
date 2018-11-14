@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.0] - 2018-11-14
+### Added
+- Hot reload [#73](https://github.com/plotly/dash-renderer/pull/73)
+
 ## [0.14.3] - 2018-10-11
 ### Fixed
 - Included missing polyfills to restore Internet Explorer support [#87](https://github.com/plotly/dash-renderer/issues/87)
@@ -9,7 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.14.2] - 2018-10-11
 ### Fixed
 - Upgraded dependencies to remove warnings
-- Restored whatgw-fetch [#87](https://github.com/plotly/dash-renderer/issues/87)
+- Restored whatwg-fetch [#87](https://github.com/plotly/dash-renderer/issues/87)
 ### Added
 - Prettier support
 - Better ESLint configs
