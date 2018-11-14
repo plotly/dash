@@ -1076,6 +1076,14 @@ class Dash(object):
 
         Available dev_tools environment variables:
 
+            - DASH_DEBUG
+            - DASH_SERVE_DEV_BUNDLES
+            - DASH_HOT_RELOAD
+            - DASH_HOT_RELOAD_INTERVAL
+            - DASH_HOT_RELOAD_WATCH_INTERVAL
+            - DASH_HOT_RELOAD_MAX_RETRY
+            - DASH_SILENCE_ROUTES_LOGGING
+
         :param debug: If True, then activate all the tools unless specifically
             disabled by the arguments or by environ variables. Available as
             `DASH_DEBUG` environment variable.
@@ -1095,9 +1103,12 @@ class Dash(object):
             `DASH_HOT_RELOAD_WATCH_INTERVAL` environment variable.
         :type dev_tools_hot_reload_watch_interval: float
         :param dev_tools_hot_reload_max_retry: Maximum amount of retries before
-            failing and display a pop up. Default 30.
+            failing and display a pop up. Default 30. Available as
+            `DASH_HOT_RELOAD_MAX_RETRY` environment variable.
+        :type dev_tools_hot_reload_max_retry: int
         :param dev_tools_silence_routes_logging: Silence the `werkzeug` logger,
-            will remove all routes logging.
+            will remove all routes logging. Available as
+            `DASH_SILENCE_ROUTES_LOGGING` environment variable.
         :type dev_tools_silence_routes_logging: bool
         :return: debug
         """
