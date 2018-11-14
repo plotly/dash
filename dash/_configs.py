@@ -22,7 +22,12 @@ def env_configs():
         'DASH_COMPONENTS_CACHE_MAX_AGE',
         'DASH_INCLUDE_ASSETS_FILES',
         'DASH_SERVE_DEV_BUNDLES',
-        'DASH_DEBUG'
+        'DASH_DEBUG',
+        'DASH_HOT_RELOAD',
+        'DASH_HOT_RELOAD_INTERVAL',
+        'DASH_HOT_RELOAD_WATCH_INTERVAL',
+        'DASH_HOT_RELOAD_MAX_RETRY',
+        'DASH_SILENCE_ROUTES_LOGGING'
     )})
 
 
