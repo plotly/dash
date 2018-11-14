@@ -67,8 +67,10 @@ class Reloader extends React.Component {
                                 nodesToDisable.push(node);
                                 node = it.iterateNext();
                             }
-                            nodesToDisable.forEach(n =>
-                                n.setAttribute('disabled', 'disabled')
+
+                            R.forEach(
+                                n => n.setAttribute('disabled', 'disabled'),
+                                nodesToDisable
                             );
 
                             if (a.modified > 0) {
