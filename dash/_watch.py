@@ -27,7 +27,7 @@ def watch(folders, on_change, pattern=None, sleep_time=0.1):
                     walked.append(path)
 
         # Look for deleted files
-        for w in (x for x in watched.keys() if x not in walked):
+        for w in [x for x in watched.keys() if x not in walked]:
             del watched[w]
             on_change(w, -1, True)
 
