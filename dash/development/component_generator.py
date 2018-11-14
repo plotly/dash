@@ -6,7 +6,7 @@ import subprocess
 import shlex
 import os
 
-from .component_loader import generate_imports
+from .component_loader import generate_imports, generate_classes_files
 from .base_component import generate_class_file
 
 
@@ -43,17 +43,11 @@ def generate_components(component_src, project_shortname):
 
     metadata = json.loads(out.decode())
 
-    components = []
-
-    for component_path, component_data in metadata.items():
-        component_name = component_path.split('/')[-1].split('.')[0]
-        components.append(component_name)
-        generate_class_file(
-            component_name,
-            component_data['props'],
-            component_data['description'],
-            project_shortname
-        )
+    components = generate_classes_files(
+        project_shortname,
+        metadata,
+        generate_class_file
+    )
 
     with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
         json.dump(metadata, f)

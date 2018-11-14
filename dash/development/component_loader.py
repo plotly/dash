@@ -78,6 +78,23 @@ def load_components(metadata_path,
     return components
 
 
+def generate_classes_files(project_shortname, metadata, *component_generators):
+    components = []
+    for component_path, component_data in metadata.items():
+        component_name = component_path.split('/')[-1].split('.')[0]
+        components.append(component_name)
+
+        for generator in component_generators:
+            generator(
+                component_name,
+                component_data['props'],
+                component_data['description'],
+                project_shortname
+            )
+
+    return components
+
+
 def generate_classes(namespace, metadata_path='lib/metadata.json'):
     """Load React component metadata into a format Dash can parse,
     then create python class files.
@@ -100,25 +117,7 @@ def generate_classes(namespace, metadata_path='lib/metadata.json'):
     if os.path.exists(imports_path):
         os.remove(imports_path)
 
-    components = []
-
-    # Iterate over each property name (which is a path to the component)
-    for componentPath in data:
-        componentData = data[componentPath]
-
-        # Extract component name from path
-        # e.g. src/components/MyControl.react.js
-        # TODO Make more robust - some folks will write .jsx and others
-        # will be on windows. Unfortunately react-docgen doesn't include
-        # the name of the component atm.
-        name = componentPath.split('/').pop().split('.')[0]
-        generate_class_file(
-            name,
-            componentData['props'],
-            componentData['description'],
-            namespace
-        )
-        components.append(name)
+    components = generate_classes_files(namespace, data, generate_class_file)
 
     # Add the __all__ value so we can import * from _imports_
     generate_imports(namespace, components)
