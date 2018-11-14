@@ -4,6 +4,8 @@ import os
 import inspect
 import abc
 import sys
+import textwrap
+
 import six
 
 from ._all_keywords import kwlist
@@ -884,3 +886,37 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
         # All other types
         return js_to_py_types[js_type_name]()
     return ''
+
+
+def generate_imports(project_shortname, components):
+    with open(os.path.join(project_shortname, '_imports_.py'), 'w') as f:
+        f.write(textwrap.dedent(
+            '''
+            {}
+
+            __all__ = [
+            {}
+            ]
+            '''.format(
+                '\n'.join(
+                    'from .{0} import {0}'.format(x) for x in components),
+                ',\n'.join('    "{}"'.format(x) for x in components)
+            )
+        ).lstrip())
+
+
+def generate_classes_files(project_shortname, metadata, *component_generators):
+    components = []
+    for component_path, component_data in metadata.items():
+        component_name = component_path.split('/')[-1].split('.')[0]
+        components.append(component_name)
+
+        for generator in component_generators:
+            generator(
+                component_name,
+                component_data['props'],
+                component_data['description'],
+                project_shortname
+            )
+
+    return components

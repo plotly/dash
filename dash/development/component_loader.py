@@ -1,8 +1,9 @@
 import collections
 import json
 import os
-import textwrap
 
+from .base_component import generate_imports
+from .base_component import generate_classes_files
 from .base_component import generate_class
 from .base_component import generate_class_file
 from .base_component import ComponentRegistry
@@ -16,23 +17,6 @@ def _get_metadata(metadata_path):
             .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
             .decode(json_string)
     return data
-
-
-def generate_imports(project_shortname, components):
-    with open(os.path.join(project_shortname, '_imports_.py'), 'w') as f:
-        f.write(textwrap.dedent(
-            '''
-            {}
-
-            __all__ = [
-            {}
-            ]
-            '''.format(
-                '\n'.join(
-                    'from .{0} import {0}'.format(x) for x in components),
-                ',\n'.join('    "{}"'.format(x) for x in components)
-            )
-        ).lstrip())
 
 
 def load_components(metadata_path,
@@ -74,23 +58,6 @@ def load_components(metadata_path,
         )
 
         components.append(component)
-
-    return components
-
-
-def generate_classes_files(project_shortname, metadata, *component_generators):
-    components = []
-    for component_path, component_data in metadata.items():
-        component_name = component_path.split('/')[-1].split('.')[0]
-        components.append(component_name)
-
-        for generator in component_generators:
-            generator(
-                component_name,
-                component_data['props'],
-                component_data['description'],
-                project_shortname
-            )
 
     return components
 

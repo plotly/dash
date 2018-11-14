@@ -6,8 +6,9 @@ import subprocess
 import shlex
 import os
 
-from .component_loader import generate_imports, generate_classes_files
 from .base_component import generate_class_file
+from .base_component import generate_imports
+from .base_component import generate_classes_files
 
 
 # pylint: disable=too-many-locals
