@@ -94,7 +94,7 @@ function recordHistory(reducer) {
     };
 }
 
-function rootReducer(reducer) {
+function reloaderReducer(reducer) {
     return function(state, action) {
         if (action.type === 'RELOAD') {
             const {history} = state;
@@ -105,4 +105,4 @@ function rootReducer(reducer) {
     };
 }
 
-export default rootReducer(recordHistory(reducer));
+export default reloaderReducer(recordHistory(reducer));
