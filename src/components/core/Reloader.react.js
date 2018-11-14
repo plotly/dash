@@ -71,11 +71,14 @@ class Reloader extends React.Component {
                                 n.setAttribute('disabled', 'disabled')
                             );
 
-                            const link = document.createElement('link');
-                            link.href = `${a.url}?m=${a.modified}`;
-                            link.type = 'text/css';
-                            link.rel = 'stylesheet';
-                            this._head.appendChild(link);
+                            if (a.modified > 0) {
+                                const link = document.createElement('link');
+                                link.href = `${a.url}?m=${a.modified}`;
+                                link.type = 'text/css';
+                                link.rel = 'stylesheet';
+                                this._head.appendChild(link);
+                                // Else the file was deleted.
+                            }
                         } else {
                             // If there's another kind of file here do a hard reload.
                             was_css = false;
