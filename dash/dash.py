@@ -1071,27 +1071,28 @@ class Dash(object):
         served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
 
-        If an argument is not provided, it can be set with environ variables.
+        If an argument is not provided, it can be set with environment
+        variables.
 
-        Available dev_tools environ variables:
+        Available dev_tools environment variables:
 
         :param debug: If True, then activate all the tools unless specifically
             disabled by the arguments or by environ variables. Available as
-            `DASH_DEBUG` environ var.
+            `DASH_DEBUG` environment variable.
         :type debug: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles. Available
-            as `DASH_SERVE_DEV_BUNDLES` environ var.
+            as `DASH_SERVE_DEV_BUNDLES` environment variable.
         :type dev_tools_serve_dev_bundles: bool
         :param dev_tools_hot_reload: Activate the hot reloading. Available as
-            `DASH_HOT_RELOAD` environ var.
+            `DASH_HOT_RELOAD` environment variable.
         :type dev_tools_hot_reload: bool
         :param dev_tools_hot_reload_interval: Interval at which the client will
             request the reload hash. Available as `DASH_HOT_RELOAD_INTERVAL`
-            environ var.
+            environment variable.
         :type dev_tools_hot_reload_interval: int
         :param dev_tools_hot_reload_watch_interval: Interval at which the
             assets folder are walked for changes. Available as
-            `DASH_HOT_RELOAD_WATCH_INTERVAL` environ var.
+            `DASH_HOT_RELOAD_WATCH_INTERVAL` environment variable.
         :type dev_tools_hot_reload_watch_interval: float
         :param dev_tools_hot_reload_max_retry: Maximum amount of retries before
             failing and display a pop up. Default 30.
