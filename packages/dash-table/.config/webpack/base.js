@@ -39,7 +39,7 @@ module.exports = (preprocessor = {}, mode = 'development') => {
         module: {
             rules: [
                 {
-                    test: /demo[/]index.html?$/,
+                    test: /demo[/\\]index.html?$/,
                     loader: 'file-loader?name=index.[ext]'
                 },
                 {

@@ -46,7 +46,9 @@ jobs:
 
             - run:
                 name: Run build:py
-                command: npm run private::build:py
+                command: |
+                    . venv/bin/activate
+                    npm run private::build:py
 
             - run:
                 name: Run tests
