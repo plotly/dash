@@ -41,6 +41,8 @@ jobs:
               . venv/bin/activate
               pylint dash setup.py --rcfile=$PYLINTRC
               flake8 dash setup.py
+              flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
+
 
       - run:
           name: Run tests
