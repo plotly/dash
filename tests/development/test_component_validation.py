@@ -16,6 +16,7 @@ from dash.development.validator import DashValidator
 html.Div._schema = {'children': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}, {'type': 'list', 'schema': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}], 'nullable': True}}], 'nullable': True}}
 html.Button._schema = html.Div._schema
 
+
 class TestComponentValidation(unittest.TestCase):
     def setUp(self):
         self.validator = DashValidator
