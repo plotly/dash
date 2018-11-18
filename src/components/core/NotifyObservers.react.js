@@ -9,14 +9,14 @@ import PropTypes from 'prop-types';
  * its child as a prop
  */
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
     return {
         dependencies: state.dependenciesRequest.content,
-        paths: state.paths
+        paths: state.paths,
     };
 }
 
-function mapDispatchToProps (dispatch) {
+function mapDispatchToProps(dispatch) {
     return {dispatch};
 }
 
@@ -37,7 +37,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
             const payload = {
                 props: newProps,
                 id: ownProps.id,
-                itempath: stateProps.paths[ownProps.id]
+                itempath: stateProps.paths[ownProps.id],
             };
 
             // Update this component's props
@@ -45,12 +45,11 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
 
             // Update output components that depend on this input
             dispatch(notifyObservers({id: ownProps.id, props: newProps}));
-        }
-    }
-
+        },
+    };
 }
 
-function NotifyObserversComponent ({
+function NotifyObserversComponent({
     children,
     id,
     paths,
@@ -58,19 +57,20 @@ function NotifyObserversComponent ({
     dependencies,
 
     fireEvent,
-    setProps
+    setProps,
 }) {
-    const thisComponentTriggersEvents = (
-        dependencies && dependencies.find(dependency => (
+    const thisComponentTriggersEvents =
+        dependencies &&
+        dependencies.find(dependency =>
             dependency.events.find(event => event.id === id)
-        ))
-    );
-    const thisComponentSharesState = (
-        dependencies && dependencies.find(dependency => (
-            dependency.inputs.find(input => input.id === id) ||
-            dependency.state.find(state => state.id === id)
-        ))
-    );
+        );
+    const thisComponentSharesState =
+        dependencies &&
+        dependencies.find(
+            dependency =>
+                dependency.inputs.find(input => input.id === id) ||
+                dependency.state.find(state => state.id === id)
+        );
     /*
      * Only pass in `setProps` and `fireEvent` if they are actually
      * necessary.
@@ -87,8 +87,8 @@ function NotifyObserversComponent ({
      * or `subscribed_properties` instead of `fireEvent` and `setProps`.
      */
     const extraProps = {};
-    if (thisComponentSharesState &&
-
+    if (
+        thisComponentSharesState &&
         // there is a bug with graphs right now where
         // the restyle listener gets assigned with a
         // setProps function that was created before
@@ -104,15 +104,14 @@ function NotifyObserversComponent ({
 
     if (!isEmpty(extraProps)) {
         return React.cloneElement(children, extraProps);
-    } 
-        return children;
-    
+    }
+    return children;
 }
 
 NotifyObserversComponent.propTypes = {
     id: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
-    path: PropTypes.array.isRequired
+    path: PropTypes.array.isRequired,
 };
 
 export default connect(

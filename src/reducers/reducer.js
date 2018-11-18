@@ -20,6 +20,7 @@ const reducer = combineReducers({
     dependenciesRequest: API.dependenciesRequest,
     layoutRequest: API.layoutRequest,
     loginRequest: API.loginRequest,
+    reloadRequest: API.reloadRequest,
     history,
 });
 
@@ -91,4 +92,15 @@ function recordHistory(reducer) {
     };
 }
 
-export default recordHistory(reducer);
+function reloaderReducer(reducer) {
+    return function(state, action) {
+        if (action.type === 'RELOAD') {
+            const {history} = state;
+            // eslint-disable-next-line no-param-reassign
+            state = {history};
+        }
+        return reducer(state, action);
+    };
+}
+
+export default reloaderReducer(recordHistory(reducer));
