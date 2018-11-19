@@ -38,7 +38,9 @@ class IntegrationTests(unittest.TestCase):
         cls.driver = webdriver.Chrome()
 
         loader = percy.ResourceLoader(
-            webdriver=cls.driver
+            webdriver=cls.driver,
+            base_url='/assets',
+            root_dir='tests/assets'
         )
         cls.percy_runner = percy.Runner(loader=loader)
 
