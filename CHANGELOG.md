@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.15.1] - 2018-11-17
+### Fixed
+- Fix a bug in the ON_PROP_CHANGE callback where history was not correctly set when acting on more than one component. In particular, the 'undo' button should now work as expected. Fixes [#66](https://github.com/plotly/dash-renderer/issues/66).
+
 ## [0.15.0] - 2018-11-14
 ### Added
 - Hot reload [#73](https://github.com/plotly/dash-renderer/pull/73)
@@ -17,7 +21,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Prettier support
 - Better ESLint configs
-
 
 ## [0.14.1] - 2018-09-20
 ### Fixed
