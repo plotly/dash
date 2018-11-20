@@ -5,10 +5,16 @@ import sys
 import subprocess
 import shlex
 import os
+import argparse
 
 from .base_component import generate_class_file
 from .base_component import generate_imports
 from .base_component import generate_classes_files
+
+
+class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
+                         argparse.RawDescriptionHelpFormatter):
+    pass
 
 
 # pylint: disable=too-many-locals
@@ -57,17 +63,20 @@ def generate_components(component_src, project_shortname):
 
 
 def cli():
-    if len(sys.argv) != 3:
-        print(
-            'Invalid number of arguments'
-            ' expected 2 but got {}\n\n'
-            'Arguments: src project_shortname'.format(len(sys.argv) - 1),
-            file=sys.stderr
-        )
-        sys.exit(1)
-    # pylint: disable=unbalanced-tuple-unpacking
-    src, project_shortname = sys.argv[1:]
-    generate_components(src, project_shortname)
+    parser = argparse.ArgumentParser(
+        prog='dash-generate-components',
+        formatter_class=_CombinedFormatter,
+        description='Generate dash components by extracting the metadata '
+        'using react-docgen. Then map the metadata to python classes.'
+    )
+    parser.add_argument('src', help='React components source directory.')
+    parser.add_argument(
+        'project_shortname',
+        help='Name of the project to export the classes files.'
+    )
+
+    args = parser.parse_args()
+    generate_components(args.src, args.project_shortname)
 
 
 if __name__ == '__main__':
