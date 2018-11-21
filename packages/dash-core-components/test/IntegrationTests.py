@@ -25,7 +25,11 @@ class IntegrationTests(unittest.TestCase):
             options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
 
         cls.driver = webdriver.Chrome(chrome_options=options)
-        loader = percy.ResourceLoader(webdriver=cls.driver)
+        loader = percy.ResourceLoader(
+            webdriver=cls.driver,
+            base_url='/assets',
+            root_dir='test/assets'
+        )
         cls.percy_runner = percy.Runner(loader=loader)
         cls.percy_runner.initialize_build()
 
