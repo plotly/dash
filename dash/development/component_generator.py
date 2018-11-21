@@ -6,6 +6,7 @@ import subprocess
 import shlex
 import os
 import argparse
+import shutil
 
 from .base_component import generate_class_file
 from .base_component import generate_imports
@@ -18,7 +19,8 @@ class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
 
 
 # pylint: disable=too-many-locals
-def generate_components(component_src, project_shortname):
+def generate_components(component_src, project_shortname,
+                        package_info_filename='package.json'):
     is_windows = sys.platform == 'win32'
 
     extract_path = os.path.abspath(os.path.join(
@@ -30,6 +32,9 @@ def generate_components(component_src, project_shortname):
     os.environ['NODE_PATH'] = 'node_modules'
     cmd = shlex.split('node {} {}'.format(extract_path, component_src),
                       posix=not is_windows)
+
+    shutil.copyfile('package.json',
+                    os.path.join(project_shortname,package_info_filename))
 
     proc = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
@@ -74,9 +79,15 @@ def cli():
         'project_shortname',
         help='Name of the project to export the classes files.'
     )
+    parser.add_argument(
+        '-p', '--package-info-filename',
+        default='package.json',
+        help='The filename of the copied `package.json` to `project_shortname`'
+    )
 
     args = parser.parse_args()
-    generate_components(args.src, args.project_shortname)
+    generate_components(args.src, args.project_shortname,
+                        package_info_filename=args.package_info_filename)
 
 
 if __name__ == '__main__':
