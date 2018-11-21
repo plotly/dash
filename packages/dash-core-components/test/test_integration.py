@@ -341,18 +341,51 @@ class Tests(IntegrationTests):
                 }
             ),
 
-            html.Label('DatePickerSingle'),
-            dcc.DatePickerSingle(
-                id='date-picker-single',
-                date=datetime(1997, 5, 10)
-            ),
+            html.Div([
+                html.Label('DatePickerSingle'),
+                dcc.DatePickerSingle(
+                    id='date-picker-single',
+                    date=datetime(1997, 5, 10)
+                ),
+                html.Div([
+                    html.Label('DatePickerSingle - empty input'),
+                    dcc.DatePickerSingle(),
+                ], id='dt-single-no-date-value'
+                ),
+                html.Div([
+                    html.Label('DatePickerSingle - initial visible month (May 97)'),
+                    dcc.DatePickerSingle(
+                        initial_visible_month=datetime(1997, 5, 10)
+                    ),
+                ], id='dt-single-no-date-value-init-month'
+                ),
+            ]),
 
-            html.Label('DatePickerRange'),
-            dcc.DatePickerRange(
-                id='date-picker-range',
-                start_date=datetime(1997, 5, 3),
-                end_date_placeholder_text='Select a date!'
-            ),
+            html.Div([
+                html.Label('DatePickerRange'),
+                dcc.DatePickerRange(
+                    id='date-picker-range',
+                    start_date=datetime(1997, 5, 3),
+                    end_date_placeholder_text='Select a date!'
+                ),
+                html.Div([
+                    html.Label('DatePickerRange - empty input'),
+                    dcc.DatePickerRange(
+                        start_date_placeholder_text='Start date',
+                        end_date_placeholder_text='End date'
+                    ),
+                ], id='dt-range-no-date-values'
+                ),
+                html.Div([
+                    html.Label('DatePickerRange - initial visible month (May 97)'),
+                    dcc.DatePickerRange(
+                        start_date_placeholder_text='Start date',
+                        end_date_placeholder_text='End date',
+                        initial_visible_month=datetime(1997, 5, 10)
+                    ),
+                ], id='dt-range-no-date-values-init-month'
+                ),
+            ]),
 
             html.Label('TextArea'),
             dcc.Textarea(
@@ -410,6 +443,42 @@ class Tests(IntegrationTests):
             pass
 
         self.snapshot('gallery - text input')
+
+        # DatePickerSingle and DatePickerRange test
+        # for issue with datepicker when date value is `None`
+        dt_input_1 = self.driver.find_element_by_css_selector(
+            '#dt-single-no-date-value #date'
+        )
+        dt_input_1.click()
+        self.snapshot('gallery - DatePickerSingle\'s datepicker '
+                      'when no date value and no initial month specified')
+        dt_input_1.send_keys("1997-05-03")
+
+        dt_input_2 = self.driver.find_element_by_css_selector(
+            '#dt-single-no-date-value-init-month #date'
+        )
+        dt_input_2.click()
+        self.snapshot('gallery - DatePickerSingle\'s datepicker '
+                      'when no date value, but initial month is specified')
+        dt_input_2.send_keys("1997-05-03")
+
+        dt_input_3 = self.driver.find_element_by_css_selector(
+            '#dt-range-no-date-values #endDate'
+        )
+        dt_input_3.click()
+        self.snapshot('gallery - DatePickerRange\'s datepicker '
+                      'when neither start date nor end date '
+                      'nor initial month is specified')
+        dt_input_3.send_keys("1997-05-03")
+
+        dt_input_4 = self.driver.find_element_by_css_selector(
+            '#dt-range-no-date-values-init-month #endDate'
+        )
+        dt_input_4.click()
+        self.snapshot('gallery - DatePickerRange\'s datepicker '
+                      'when neither start date nor end date is specified, '
+                      'but initial month is')
+        dt_input_4.send_keys("1997-05-03")
 
     def test_tabs_without_children(self):
         app = dash.Dash(__name__)

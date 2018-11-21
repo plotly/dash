@@ -2,8 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.38.1] - 2018-11-21
+## [0.38.1] - 2018-11-14
 ### Fixed
+- The issue [#115](https://github.com/plotly/dash-core-components/issues/115)
+with datepicker, which didn't appear when the date value is `None` was fixed.
+By default, current month would appear in such cases for
+`DatePickerRange` and `DatePickerSingle` components.
+See pull request https://github.com/plotly/dash-core-components/pull/201.
 - Refactored the way the Graph component would generate an unique id if none provided.
 - Default CSS imported via `style-loader` is now placed at top, so that user supplied CSS can overwrite it, fixes [#380](https://github.com/plotly/dash-core-components/issues/380)
 
