@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, CSSProperties } from 'react';
 import * as R from 'ramda';
 import Stylesheet from 'core/Stylesheet';
 import {
@@ -9,6 +9,7 @@ import {
 } from 'dash-table/utils/unicode';
 import { selectionCycle } from 'dash-table/utils/navigation';
 
+import getScrollbarWidth from 'core/browser/scrollbarWidth';
 import Logger from 'core/Logger';
 import { memoizeOne } from 'core/memoizer';
 import lexer from 'core/syntax-tree/lexer';
@@ -27,6 +28,7 @@ const sortNumerical = R.sort<number>((a, b) => a - b);
 
 interface IState {
     forcedResizeOnly: boolean;
+    scrollbarWidth: number;
 }
 
 const DEFAULT_STYLE = {
@@ -46,7 +48,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         super(props);
 
         this.state = {
-            forcedResizeOnly: false
+            forcedResizeOnly: false,
+            scrollbarWidth: 0
         };
 
         this.stylesheet = new Stylesheet(`#${props.id}`);
@@ -143,6 +146,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         }
 
         this.updateStylesheet();
+
+        getScrollbarWidth().then((scrollbarWidth: number) => this.setState({ scrollbarWidth }));
 
         const { r0c0, r0c1, r1c0, r1c1 } = this.refs as { [key: string]: HTMLElement };
 
@@ -626,6 +631,17 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
             ]
         ];
 
+        const fragmentStyles: (CSSProperties | undefined)[][] = [
+            [
+                undefined,
+                { marginRight: this.state.scrollbarWidth }
+            ],
+            [
+                undefined,
+                undefined
+            ]
+        ];
+
         const rawTable = this.tableFn();
         const grid = derivedTableFragments(n_fixed_columns, n_fixed_rows, rawTable);
 
@@ -647,6 +663,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
                     >{row.map((cell, columnIndex) => (<div
                         key={columnIndex}
                         ref={`r${rowIndex}c${columnIndex}`}
+                        style={fragmentStyles[rowIndex][columnIndex]}
                         className={`cell cell-${rowIndex}-${columnIndex} ${fragmentClasses[rowIndex][columnIndex]}`}
                     >{cell}</div>))
                         }</div>))}
