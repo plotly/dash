@@ -1120,39 +1120,15 @@
   },
   "src/components/Graph.react.js": {
     "description": "",
-    "displayName": "PlotlyGraph",
-    "methods": [
-      {
-        "name": "plot",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "props",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "bindEvents",
-        "docblock": null,
-        "modifiers": [],
-        "params": [],
-        "returns": null
-      }
-    ],
+    "displayName": "GraphWithDefaults",
+    "methods": [],
     "props": {
       "id": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app.",
-        "defaultValue": {
-          "value": "'graph-' +\nMath.random()\n    .toString(36)\n    .substring(2, 7)",
-          "computed": false
-        }
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
       },
       "clickData": {
         "type": {

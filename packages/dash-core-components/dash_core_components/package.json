@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.38.0",
+  "version": "0.38.1",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -55,7 +55,7 @@
     "react-select-fast-filter-options": "^0.2.2",
     "react-syntax-highlighter": "^5.0.0",
     "react-virtualized-select": "^3.1.0",
-    "style-loader": "^0.21.0",
+    "style-loader": "^0.23.1",
     "styled-jsx": "^3.1.0",
     "webpack": "^4.8.3",
     "webpack-cli": "^2.1.3",
