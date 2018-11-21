@@ -19,7 +19,7 @@ class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
 
 
 # pylint: disable=too-many-locals
-def generate_components(component_src, project_shortname,
+def generate_components(components_source, project_shortname,
                         package_info_filename='package.json'):
     is_windows = sys.platform == 'win32'
 
@@ -30,11 +30,11 @@ def generate_components(component_src, project_shortname,
     ))
 
     os.environ['NODE_PATH'] = 'node_modules'
-    cmd = shlex.split('node {} {}'.format(extract_path, component_src),
+    cmd = shlex.split('node {} {}'.format(extract_path, components_source),
                       posix=not is_windows)
 
     shutil.copyfile('package.json',
-                    os.path.join(project_shortname,package_info_filename))
+                    os.path.join(project_shortname, package_info_filename))
 
     proc = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
@@ -74,7 +74,8 @@ def cli():
         description='Generate dash components by extracting the metadata '
         'using react-docgen. Then map the metadata to python classes.'
     )
-    parser.add_argument('src', help='React components source directory.')
+    parser.add_argument('components_source',
+                        help='React components source directory.')
     parser.add_argument(
         'project_shortname',
         help='Name of the project to export the classes files.'
@@ -86,7 +87,7 @@ def cli():
     )
 
     args = parser.parse_args()
-    generate_components(args.src, args.project_shortname,
+    generate_components(args.components_source, args.project_shortname,
                         package_info_filename=args.package_info_filename)
 
 
