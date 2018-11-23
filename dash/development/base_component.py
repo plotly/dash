@@ -528,7 +528,6 @@ def generate_class_string_r(typename, props, namespace, prefix):
     else:
         default_wildcards = 'c({:s})'.format(default_wildcards)
 
-    # ('{:s}={}'.format(p, props[p]['defaultValue']['value'])
     default_argtext += ", ".join(
         ('{:s}={}'.format(p, json_to_r_type(props[p]))
           if 'defaultValue' in props[p] else
@@ -730,7 +729,6 @@ def generate_rpkg(pkg_data,
 
     package_author = pkg_data['author']
 
-    # The following approach avoids use of regex, but there are probably better ways!
     package_author_no_email = package_author.split(" <")[0] + ' [aut]'
 
     if not (os.path.isfile('LICENSE') or os.path.isfile('LICENSE.txt')):
@@ -743,15 +741,6 @@ def generate_rpkg(pkg_data,
 
     import_string =\
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
-
-    temp_string =\
-        '''export(filter_null)
-export(assert_valid_children)
-export(append_wildcard_props)
-export(names2)
-export(`%||%`)
-export(assert_no_names)
-'''
 
     description_string = \
     '''Package: {package_name}
@@ -810,10 +799,8 @@ LICENSE.txt
 '''
 
     with open('NAMESPACE', 'w') as f:
-        #f.write(import_string)
-        #f.write(export_string)
-        #f.write(temp_string)
-        f.write('exportPattern("^[^\\\\.]")')
+        f.write(import_string)
+        f.write(export_string)
 
     with open('DESCRIPTION', 'w') as f2:
         f2.write(description_string)
