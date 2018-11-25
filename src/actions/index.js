@@ -33,13 +33,16 @@ import cookie from 'cookie';
 import {uid, urlBase} from '../utils';
 import {STATUS} from '../constants/constants';
 
-export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
-export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
-export const computeGraphs = createAction(getAction('COMPUTE_GRAPHS'));
-export const computePaths = createAction(getAction('COMPUTE_PATHS'));
-export const setLayout = createAction(getAction('SET_LAYOUT'));
-export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
-export const readConfig = createAction(getAction('READ_CONFIG'));
+export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
+export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
+export const computeGraphs = createAction(ACTIONS('COMPUTE_GRAPHS'));
+export const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
+export const setLayout = createAction(ACTIONS('SET_LAYOUT'));
+export const setAppLifecycle = createAction(ACTIONS('SET_APP_LIFECYCLE'));
+export const readConfig = createAction(ACTIONS('READ_CONFIG'));
+export const onError = createAction(ACTIONS('ON_ERROR'));
+export const resolveError = createAction(ACTIONS('RESOLVE_ERROR'));
+
 
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
@@ -135,6 +138,28 @@ export function undo() {
         );
     };
 }
+
+
+export function revert() {
+    return function (dispatch, getState) {
+        const history = getState().history;
+        dispatch(createAction('REVERT')());
+        const previous = history.past[history.past.length - 1];
+
+        // Update props
+        dispatch(createAction('UNDO_PROP_CHANGE')({
+            itempath: getState().paths[previous.id],
+            props: previous.props
+        }));
+
+        // Notify observers
+        dispatch(notifyObservers({
+            id: previous.id,
+            props: previous.props
+        }));
+    }
+}
+
 
 function reduceInputIds(nodeIds, InputGraph) {
     /*
@@ -390,9 +415,19 @@ function updateOutput(
      * }
      *
      */
-    const payload = {
-        output: {id: outputComponentId, property: outputProp},
-    };
+
+     const { type: outputType, namespace: outputNamespace } = view(
+      lensPath(paths[outputComponentId]),
+      layout
+    )
+     const payload = {
+         output: {
+           id: outputComponentId,
+           property: outputProp,
+           type: outputType,
+           namespace: outputNamespace,
+         }
+     };
 
     if (event) {
         payload.event = event;
@@ -468,6 +503,11 @@ function updateOutput(
         credentials: 'same-origin',
         body: JSON.stringify(payload),
     }).then(function handleResponse(res) {
+
+        if (!res.ok) {
+            throw res;
+        }
+
         const getThisRequestIndex = () => {
             const postRequestQueue = getState().requestQueue;
             const thisRequestIndex = findIndex(
@@ -735,6 +775,13 @@ function updateOutput(
                 }
             }
         });
+    }).catch(err => {
+      err.text().then(text => {
+        dispatch(onError({
+          type: 'backEnd',
+          errorPage: text
+        }))
+      });
     });
 }
 

@@ -5,6 +5,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Registry from './registry';
 import NotifyObservers from './components/core/NotifyObservers.react';
+import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
 
 export default class TreeContainer extends Component {
     shouldComponentUpdate(nextProps) {
@@ -78,7 +79,15 @@ function render(component) {
         ...children
     );
 
-    return <NotifyObservers id={componentProps.id}>{parent}</NotifyObservers>;
+    return (
+        <ComponentErrorBoundary
+          componentType={component.type}
+          componentId={componentProps.id}>
+          <NotifyObservers id={componentProps.id}>
+              {parent}
+          </NotifyObservers>
+        </ComponentErrorBoundary>
+    );
 }
 
 render.propTypes = {

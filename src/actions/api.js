@@ -2,6 +2,9 @@
 import cookie from 'cookie';
 import {merge} from 'ramda';
 import {urlBase} from '../utils';
+import {createAction} from 'redux-actions';
+import {ACTIONS} from './constants';
+export const onError = createAction(ACTIONS('ON_ERROR'));
 
 function GET(path) {
     return fetch(path, {
@@ -79,6 +82,16 @@ function apiThunk(endpoint, method, store, id, body, headers = {}) {
                         status: 500,
                     },
                 });
+            }
+        }).catch(err => {
+            /* eslint-disable no-console */
+            console.error(err);
+            /* eslint-enable no-console */
+            err.text().then(text => {
+              dispatch(onError({
+                type: 'backEnd',
+                errorPage: text
+              }))
             });
     };
 }
