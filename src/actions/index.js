@@ -33,15 +33,15 @@ import cookie from 'cookie';
 import {uid, urlBase} from '../utils';
 import {STATUS} from '../constants/constants';
 
-export const updateProps = createAction(ACTIONS('ON_PROP_CHANGE'));
-export const setRequestQueue = createAction(ACTIONS('SET_REQUEST_QUEUE'));
-export const computeGraphs = createAction(ACTIONS('COMPUTE_GRAPHS'));
-export const computePaths = createAction(ACTIONS('COMPUTE_PATHS'));
-export const setLayout = createAction(ACTIONS('SET_LAYOUT'));
-export const setAppLifecycle = createAction(ACTIONS('SET_APP_LIFECYCLE'));
-export const readConfig = createAction(ACTIONS('READ_CONFIG'));
-export const onError = createAction(ACTIONS('ON_ERROR'));
-export const resolveError = createAction(ACTIONS('RESOLVE_ERROR'));
+export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
+export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
+export const computeGraphs = createAction(getAction('COMPUTE_GRAPHS'));
+export const computePaths = createAction(getAction('COMPUTE_PATHS'));
+export const setLayout = createAction(getAction('SET_LAYOUT'));
+export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
+export const readConfig = createAction(getAction('READ_CONFIG'));
+export const onError = createAction(getAction('ON_ERROR'));
+export const resolveError = createAction(getAction('RESOLVE_ERROR'));
 
 
 export function hydrateInitialOutputs() {

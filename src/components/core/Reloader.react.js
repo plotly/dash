@@ -51,7 +51,7 @@ class Reloader extends React.Component {
                 ) {
                     // Look if it was a css file.
                     let was_css = false;
-                    for (let a of reloadRequest.content.files) {
+                    for (const a of reloadRequest.content.files) {
                         if (a.is_css) {
                             was_css = true;
                             const nodesToDisable = [];

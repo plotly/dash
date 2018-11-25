@@ -9,22 +9,23 @@ function error (state = initialError, action) {
     switch (action.type) {
 
         case 'ON_ERROR': {
-          if (action.payload.type == 'frontEnd') {
+          if (action.payload.type === 'frontEnd') {
             return {
                 frontEnd: [...state.frontEnd, action.payload],
                 backEnd: state.backEnd
             };
-          } else if (action.payload.type == 'backEnd') {
+          } else if (action.payload.type === 'backEnd') {
             return {
                 frontEnd: state.frontEnd,
                 backEnd: action.payload
             };
-          }
-          break;
+          } 
+          return state;
+          
         }
 
         case 'RESOLVE_ERROR': {
-          if (action.payload.type == 'frontEnd') {
+          if (action.payload.type === 'frontEnd') {
             const removeIdx = findIndex(
               propEq('myUID', action.payload.myUID)
             )(state.frontEnd)
@@ -32,13 +33,14 @@ function error (state = initialError, action) {
                 frontEnd: remove(removeIdx, 1, state.frontEnd),
                 backEnd: state.backEnd
             };
-          } else if (action.payload.type == 'backEnd') {
+          } else if (action.payload.type === 'backEnd') {
             return {
                 frontEnd: state.frontEnd,
                 backEnd: {}
             };
-          }
-          break;
+          } 
+          return state;
+          
         }
 
         default: {

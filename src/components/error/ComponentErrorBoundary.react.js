@@ -30,6 +30,7 @@ class UnconnectedComponentErrorBoundary extends Component {
     dispatch(revert());
   }
 
+  /* eslint-disable react/no-did-update-set-state */
   componentDidUpdate(prevProps, prevState) {
     const { error } = this.props;
     const { myUID } = this.state;
@@ -42,6 +43,7 @@ class UnconnectedComponentErrorBoundary extends Component {
       });
     }
   }
+  /* eslint-enable react/no-did-update-set-state */
 
   getDisabledComponents(disabledIds, incomingMap) {
     const possibleKeys = R.keys(incomingMap);
@@ -71,9 +73,9 @@ class UnconnectedComponentErrorBoundary extends Component {
     );
     if (R.equals(disabledIds, newDisabledIds)) {
       return disabledIds;
-    } else {
+    } 
       return this.getDisabledComponents(newDisabledIds, incomingMap);
-    }
+    
   }
 
   resolveError(dispatch, myUID) {

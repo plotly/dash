@@ -2,9 +2,7 @@
 import cookie from 'cookie';
 import {merge} from 'ramda';
 import {urlBase} from '../utils';
-import {createAction} from 'redux-actions';
-import {ACTIONS} from './constants';
-export const onError = createAction(ACTIONS('ON_ERROR'));
+import {onError} from '../actions';
 
 function GET(path) {
     return fetch(path, {
@@ -75,26 +73,15 @@ function apiThunk(endpoint, method, store, id, body, headers = {}) {
                 /* eslint-disable no-console */
                 console.error(err);
                 /* eslint-enable no-console */
-                dispatch({
-                    type: store,
-                    payload: {
-                        id,
-                        status: 500,
-                    },
+                err.text().then(text => {
+                    dispatch(onError({
+                        type: 'backEnd',
+                        errorPage: text
+                    }));
                 });
-            }
-        }).catch(err => {
-            /* eslint-disable no-console */
-            console.error(err);
-            /* eslint-enable no-console */
-            err.text().then(text => {
-              dispatch(onError({
-                type: 'backEnd',
-                errorPage: text
-              }))
             });
     };
-}
+};
 
 export function getLayout() {
     return apiThunk('_dash-layout', 'GET', 'layoutRequest');

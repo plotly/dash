@@ -56,13 +56,8 @@ module.exports = (env, argv) => {
                         },
                     ],
                 },
-            },
-            {
-                test: /\.css$/,
-                exclude: /node_modules/,
-                use: ['css-loader']
-            }
-        ],
-    },
-    devtool: argv.mode === 'development' ? "eval-source-map" : 'none'
-});
+            ],
+        },
+        devtool: mode === 'development' ? 'eval-source-map' : 'none',
+    };
+};
