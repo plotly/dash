@@ -359,6 +359,9 @@ class TestComponentValidation(unittest.TestCase):
         }))
 
     def test_arrayof_validation(self):
+        self.assertFalse(self.component_validator.validate({
+            'optionalArrayOf': {1, 2, 3}
+        }))
         self.assertTrue(self.component_validator.validate({
             'optionalArrayOf': [1, 2, 3]
         }))
