@@ -227,6 +227,14 @@ class TestComponentValidation(unittest.TestCase):
         }))
 
     def test_children_validation(self):
+
+        class MyOtherType:
+            def __init__(self):
+                pass
+
+        self.assertFalse(self.component_validator.validate({
+            'children': MyOtherType()
+        }))
         self.assertTrue(self.component_validator.validate({}))
         self.assertTrue(self.component_validator.validate({
             'children': None

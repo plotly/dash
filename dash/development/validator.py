@@ -72,12 +72,12 @@ class DashValidator(cerberus.Validator):
         try:
             int(value)
             return True
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, AttributeError):
             pass
         try:
             float(value)
             return True
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, AttributeError):
             pass
         return False
 
