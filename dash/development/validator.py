@@ -49,17 +49,19 @@ class DashValidator(cerberus.Validator):
             values.add(curr)
 
     def _validate_type_list(self, value):
-        if isinstance(value, list):
+        if isinstance(value, (list, tuple)):
             return True
-        elif isinstance(value, (self.component_class, str)):
+        # These types can be cast to list
+        elif isinstance(value, (self.component_class, str, set)):
             return False
+        # Handle numpy array / pandas series
         try:
             value_list = list(value)
-            if not isinstance(value_list, list):
-                return False
+            if isinstance(value_list, list):
+                return True
         except (ValueError, TypeError):
-            return False
-        return True
+            pass
+        return False
 
     # pylint: disable=no-self-use
     def _validate_type_number(self, value):
