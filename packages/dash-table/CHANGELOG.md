@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.8-rc1] - 2011-11-22
+- Update dependencies
+
 ## [3.1.7] - 2018-11-19
 ### Fixed
 - Visual offset with vertical scroll [#216](https://github.com/plotly/dash-table/issues/216)

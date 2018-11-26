@@ -9,7 +9,7 @@ jobs:
         steps:
             - checkout
             - restore_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
             - run:
                 name: Install npm packages
                 command: npm install
@@ -19,7 +19,7 @@ jobs:
                     $(npm bin)/cypress install
 
             - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
                 paths:
                     - node_modules
                     - /home/circleci/.cache/Cypress
@@ -65,14 +65,14 @@ jobs:
             - checkout
 
             - restore_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
 
             - run:
                 name: Install package.json
                 command: npm i
 
             - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
                 paths:
                     - node_modules
 
@@ -93,14 +93,14 @@ jobs:
             - checkout
 
             - restore_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
 
             - run:
                 name: Install package.json
                 command: npm i
 
             - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "npm-shrinkwrap.json" }}-{{ checksum "package.json" }}
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
                 paths:
                     - node_modules
 
