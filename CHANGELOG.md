@@ -1,3 +1,7 @@
+## 0.31.0 - 2018-11-26
+## Added
+- Combined `extract-meta` and python component files generation in a cli [#451](https://github.com/plotly/dash/pull/451)
+
 ## 0.30.0 - 2018-11-14
 ## Added
 - Hot reload from the browser [#362](https://github.com/plotly/dash/pull/362)
