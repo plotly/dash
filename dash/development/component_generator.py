@@ -7,6 +7,8 @@ import shlex
 import os
 import argparse
 import shutil
+import pkg_resources
+
 
 from .base_component import generate_class_file
 from .base_component import generate_imports
@@ -23,11 +25,7 @@ def generate_components(components_source, project_shortname,
                         package_info_filename='package.json'):
     is_windows = sys.platform == 'win32'
 
-    extract_path = os.path.abspath(os.path.join(
-        os.path.dirname(__file__),
-        '..',
-        'extract-meta.js'
-    ))
+    extract_path = pkg_resources.resource_filename('dash', 'extract-meta.js')
 
     os.environ['NODE_PATH'] = 'node_modules'
     cmd = shlex.split('node {} {}'.format(extract_path, components_source),
