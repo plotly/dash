@@ -2,10 +2,12 @@ import collections
 import json
 import os
 
-from .base_component import generate_imports
-from .base_component import generate_classes_files
-from .base_component import generate_class
-from .base_component import generate_class_file
+from ._py_components_generation import (
+    generate_class_file,
+    generate_imports,
+    generate_classes_files,
+    generate_class
+)
 from .base_component import ComponentRegistry
 
 

@@ -5,9 +5,9 @@ import shutil
 import unittest
 from dash.development.component_loader import load_components, generate_classes
 from dash.development.base_component import (
-    generate_class,
     Component
 )
+from dash.development._py_components_generation import generate_class
 
 METADATA_PATH = 'metadata.json'
 

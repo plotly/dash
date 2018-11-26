@@ -7,12 +7,12 @@ import shlex
 import os
 import argparse
 import shutil
+
 import pkg_resources
 
-
-from .base_component import generate_class_file
-from .base_component import generate_imports
-from .base_component import generate_classes_files
+from ._py_components_generation import generate_class_file
+from ._py_components_generation import generate_imports
+from ._py_components_generation import generate_classes_files
 
 
 class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,

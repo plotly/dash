@@ -8,15 +8,10 @@ import unittest
 import plotly
 
 from dash.development.base_component import (
-    generate_class,
-    generate_class_string,
-    generate_class_file,
     Component,
-    _explicitize_args,
-    js_to_py_type,
-    create_docstring,
-    parse_events
-)
+    _explicitize_args)
+from dash.development._py_components_generation import generate_class_string, generate_class_file, generate_class, \
+    create_docstring, parse_events, js_to_py_type
 
 Component._prop_names = ('id', 'a', 'children', 'style', )
 Component._type = 'TestComponent'
