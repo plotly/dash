@@ -930,14 +930,13 @@ class Dash(object):
                             output_value[i]
 
                     response = {
-                        'response': props
+                        'response': props,
+                        'multi': True
                     }
                 else:
                     response = {
                         'response': {
-                            output.component_id: {
-                                output.component_property: output_value
-                            }
+                            output.component_property: output_value
                         }
                     }
 
