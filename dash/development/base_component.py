@@ -563,7 +563,7 @@ def generate_class_string_r(typename, props, namespace, prefix):
 def generate_js_metadata_r(namespace):
     """
     Dynamically generate R function to supply JavaScript
-    dependency information required by htmlDependency package,
+    dependency information required by htmltools package,
     which is loaded by dashR.
 
     Inspired by http://jameso.be/2013/08/06/namedtuple.html
@@ -585,56 +585,73 @@ def generate_js_metadata_r(namespace):
     importlib.import_module(project_shortname)
 
     # import component library module into sys
-    mod = sys.module[project_shortname]
+    mod = sys.modules[project_shortname]
 
     jsdist = getattr(mod, '_js_dist', [])
     project_ver = getattr(mod, '__version__', [])
 
     rpkgname = make_package_name_r(project_shortname)
 
-    jsbundle_url = jsdist.external_url()
-
     # because a library may have more than one dependency, need
     # a way to iterate over all dependencies for a given library
     # here we define an opening, element, and closing string --
     # if the total number of dependencies > 1, we can string each
     # together and write a list object in R with multiple elements
-    function_frame_open = '''.{rpkgname}_js_metadata <- function() {
-    deps_metadata <- list(
-    '''
 
-    function_frame_element = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
-    version = "{project_ver}", src = list(href = "{jsbundle_url}",
-        file = "lib/{project_shortname}@{project_ver}"), meta = NULL,
-    script = "{project_shortname}/{project_shortname}.min.js",
-    stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
-    all_files = FALSE), class = "html_dependency")
-    '''
+    function_frame_open = '''.{rpkgname}_js_metadata <- function() {{
+    deps_metadata <- list(
+    '''.format(rpkgname=rpkgname)
+
+    function_frame = []
+
+    # the following string represents all the elements in an object
+    # of the html_dependency class, which will be propagated by
+    # iterating over __init__.py
+    function_frame_element = '''`{dep_name}` = structure(list(name = "{dep_name}",
+                version = "{project_ver}", src = list(href = "{jsbundle_url}",
+                    file = "lib/{dep_name}@{project_ver}"), meta = NULL,
+                script = "{project_shortname}/{dep_rpp}",
+                stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
+                all_files = FALSE), class = "html_dependency")'''
+
+    if len(jsdist) > 1:
+        for dep in range(len(jsdist)):
+            if jsdist[dep]['relative_package_path'].__contains__('dash-'):
+                dep_name = jsdist[dep]['relative_package_path'].split('.')[0]
+            else:
+                dep_name = '{:s}_{:s}'.format(project_shortname, str(dep))
+                project_ver = str(dep)
+            function_frame += [function_frame_element.format(dep_name=dep_name,
+                                                             project_ver=project_ver,
+                                                             rpkgname=rpkgname,
+                                                             project_shortname=project_shortname,
+                                                             dep_rpp=jsdist[dep]['relative_package_path'],
+                                                             jsbundle_url=jsdist[dep]['external_url'])
+                               ]
+            function_frame_body = ',\n'.join(function_frame)
+    elif len(jsdist) == 1:
+        dep_name = project_shortname
+        dep_rpp = jsdist[0]['relative_package_path']
+        jsbundle_url = jsdist[0]['external_url']
+
+        function_frame_body = ['''`{project_shortname}` = structure(list(name = "{project_shortname}",
+            version = "{project_ver}", src = list(href = "{jsbundle_url}",
+                file = "lib/{project_shortname}@{project_ver}"), meta = NULL,
+            script = "{project_shortname}/{project_shortname}.min.js",
+            stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
+            all_files = FALSE), class = "html_dependency")''']
 
     function_frame_close = ''')
     return(deps_metadata)
     }}
     '''
 
-    function_frame_body = ''
+    function_string = ''.join([function_frame_open,
+                              function_frame_body,
+                              function_frame_close]
+                              )
 
-    function_frame_body = ",\n".join(
-        (function_frame_element.format(rpkgname=rpkgname,
-                                       project_shortname=project_shortname,
-                                       project_ver=project_ver,
-                                       jsbundle_url=jsbundle_url)
-         if 'defaultValue' in props[p] else
-         '{:s}=NULL'.format(p))
-        for p in prop_keys
-        if not p.endswith("-*") and
-        p not in r_keywords and
-        p not in ['setProps', 'dashEvents', 'fireEvent']
-    )
-
-    return function_string.format(rpkgname=rpkgname,
-                                  project_shortname=project_shortname,
-                                  project_ver=project_ver,
-                                  jsbundle_url=jsbundle_url)
+    return function_string
 
 # pylint: disable=unused-argument
 def generate_class_file(typename, props, description, namespace):
