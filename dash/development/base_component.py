@@ -560,6 +560,83 @@ def generate_class_string_r(typename, props, namespace, prefix):
                     package_name=package_name,
                     default_wildcards=default_wildcards)
 
+# pylint: disable=R0914
+def generate_js_metadata_r(namespace):
+    """
+    Dynamically generate R function to supply JavaScript
+    dependency information required by htmlDependency package,
+    which is loaded by dashR.
+
+    Inspired by http://jameso.be/2013/08/06/namedtuple.html
+
+    Parameters
+    ----------
+    namespace
+
+    Returns
+    -------
+    function_string
+    """
+
+    project_shortname = namespace.replace('-', '_')
+
+    import importlib
+
+    # import component library module
+    importlib.import_module(project_shortname)
+
+    # import component library module into sys
+    mod = sys.module[project_shortname]
+
+    jsdist = getattr(mod, '_js_dist', [])
+    project_ver = getattr(mod, '__version__', [])
+
+    rpkgname = make_package_name_r(project_shortname)
+
+    jsbundle_url = jsdist.external_url()
+
+    # because a library may have more than one dependency, need
+    # a way to iterate over all dependencies for a given library
+    # here we define an opening, element, and closing string --
+    # if the total number of dependencies > 1, we can string each
+    # together and write a list object in R with multiple elements
+    function_frame_open = '''.{rpkgname}_js_metadata <- function() {
+    deps_metadata <- list(
+    '''
+
+    function_frame_element = '''`{project_shortname}` = structure(list(name = "{project_shortname}", 
+    version = "{project_ver}", src = list(href = "{jsbundle_url}",
+        file = "lib/{project_shortname}@{project_ver}"), meta = NULL, 
+    script = "{project_shortname}/{project_shortname}.min.js", 
+    stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}", 
+    all_files = FALSE), class = "html_dependency")
+    '''
+
+    function_frame_close = ''') 
+    return(deps_metadata)
+    }}
+    '''
+
+    function_frame_body = ''
+
+    function_frame_body = ",\n".join(
+        (function_frame_element.format(rpkgname=rpkgname,
+                                       project_shortname=project_shortname,
+                                       project_ver=project_ver,
+                                       jsbundle_url=jsbundle_url)
+         if 'defaultValue' in props[p] else
+         '{:s}=NULL'.format(p))
+        for p in prop_keys
+        if not p.endswith("-*") and
+        p not in r_keywords and
+        p not in ['setProps', 'dashEvents', 'fireEvent']
+    )
+
+    return function_string.format(rpkgname=rpkgname,
+                                  project_shortname=project_shortname,
+                                  project_ver=project_ver,
+                                  jsbundle_url=jsbundle_url)
+
 # pylint: disable=unused-argument
 def generate_class_file(typename, props, description, namespace):
     """
@@ -593,9 +670,9 @@ def generate_class_file(typename, props, description, namespace):
         f.write(import_string)
         f.write(class_string)
 
-def generate_help_file_r(typename, props, prefix):
+def write_help_file_r(typename, props, prefix):
     """
-    Generate a R documentation file (.Rd) given component name and properties
+    Write R documentation file (.Rd) given component name and properties
 
     Parameters
     ----------
@@ -661,7 +738,7 @@ def generate_help_file_r(typename, props, prefix):
             item_text=item_text
         ))
 
-def generate_class_file_r(typename, props, description, namespace, prefix):
+def write_class_file_r(typename, props, description, namespace, prefix):
     """
     Generate a R class file (.R) given a class string
 
@@ -701,6 +778,32 @@ def generate_export_string_r(name, prefix):
             str(name) not in r_keywords and \
             str(name) not in ['setProps', 'children', 'dashEvents']:
         return 'export({:s}{:s})\n'.format(prefix, name)
+
+def write_js_metadata_r(namespace):
+    """
+    Write an internal (not exported) function to return all JS
+    dependencies as required by htmlDependency package given a
+    function string
+
+    Parameters
+    ----------
+    namespace
+
+    Returns
+    -------
+
+    """
+    function_string = generate_js_metadata_r(
+        namespace
+    )
+    file_name = "internal.R"
+
+    if not os.path.exists('R'):
+        os.makedirs('R')
+
+    file_path = os.path.join('R', file_name)
+    with open(file_path, 'w') as f:
+        f.write(function_string)
 
 # pylint: disable=R0914
 def generate_rpkg(pkg_data,

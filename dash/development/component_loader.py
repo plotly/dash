@@ -1,13 +1,17 @@
 import collections
 import json
 import os
+
+from .base_component import ComponentRegistry
+
 from .base_component import generate_class
 from .base_component import generate_class_file
-from .base_component import ComponentRegistry
-from .base_component import generate_class_file_r
-from .base_component import generate_help_file_r
 from .base_component import generate_export_string_r
 from .base_component import generate_rpkg
+
+from .base_component import write_class_file_r
+from .base_component import write_help_file_r
+from .base_component import write_js_metadata_r
 
 def _get_metadata(metadata_path):
     # Start processing
@@ -124,7 +128,7 @@ def generate_classes_r(namespace, metadata_path='lib/metadata.json', pkgjson_pat
     namespace -- name of the generated python package (also output dir)
 
     metadata_path -- a path to a JSON file created by
-    [`react-docgen`](https://github.com/reactjs/react-docgen).
+    [`reac-docgen`](https://github.com/reactjs/react-docgen).
 
     pkgjson_path -- a path to a JSON file created by
     [`cookiecutter`](https://github.com/audreyr/cookiecutter).
@@ -144,10 +148,6 @@ def generate_classes_r(namespace, metadata_path='lib/metadata.json', pkgjson_pat
     else:
         prefix = ''
 
-    # Make sure the file doesn't exist, as we use append to write lines
-    if os.path.exists(imports_path):
-        os.remove(imports_path)
-
     # Remove the R NAMESPACE file if it exists, this will be repopulated
     if os.path.isfile('NAMESPACE'):
         os.remove('NAMESPACE')
@@ -164,21 +164,41 @@ def generate_classes_r(namespace, metadata_path='lib/metadata.json', pkgjson_pat
         name = componentPath.split('/').pop().split('.')[0]
 
         export_string += generate_export_string_r(name, prefix)
-        
-        generate_class_file_r(
+
+        # generate and write out R functions which will serve an analogous
+        # purpose to the classes in Python which interface with the
+        # Dash components
+        write_class_file_r(
             name,
             componentData['props'],
             componentData['description'],
             namespace,
             prefix
         )
-        
-        generate_help_file_r(
+
+        # generate the internal (not exported to the user) functions which
+        # supply the JavaScript dependencies to the htmlDependency package,
+        # which is required by DashR (this avoids having to generate an
+        # RData file from within Python, given the current package generation
+        # workflow)
+        write_js_metadata_r(
+            namespace
+        )
+
+        # generate the R help pages for each of the Dash components that we
+        # are transpiling -- this is done to avoid using Roxygen2 syntax,
+        # we may eventually be able to generate similar documentation using
+        # doxygen and an R plugin, but for now we'll just do it on our own
+        # from within Python
+        write_help_file_r(
             name,
             componentData['props'],
             prefix
         )
 
+    # now, bundle up the package information and create all the requisite
+    # elements of an R package, so that the end result is installable either
+    # locally or directly from GitHub
     generate_rpkg(
         pkg_data,
         namespace,
