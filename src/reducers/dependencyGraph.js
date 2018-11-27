@@ -1,3 +1,4 @@
+import {type} from 'ramda';
 import {DepGraph} from 'dependency-graph';
 
 const initialGraph = {};
@@ -10,11 +11,16 @@ const graphs = (state = initialGraph, action) => {
 
             dependencies.forEach(function registerDependency(dependency) {
                 const {output, inputs} = dependency;
+
+                // Multi output supported will be a string already
+                // Backward compatibility by detecting object.
+                const outputId = type(output) === 'Object' ?
+                    `${output.id}.${output.property}` : output;
                 inputs.forEach(inputObject => {
                     const inputId = `${inputObject.id}.${inputObject.property}`;
-                    inputGraph.addNode(output);
+                    inputGraph.addNode(outputId);
                     inputGraph.addNode(inputId);
-                    inputGraph.addDependency(inputId, output);
+                    inputGraph.addDependency(inputId, outputId);
                 });
             });
 
