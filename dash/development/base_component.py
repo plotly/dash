@@ -424,7 +424,7 @@ def generate_class_string(typename, props, description, namespace):
           '{:s}=Component.UNDEFINED'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
-         p not in kwlist and
+         p not in python_keywords and
          p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
     )
 
@@ -439,8 +439,26 @@ def generate_class_string(typename, props, description, namespace):
                     required_args=required_args,
                     argtext=argtext)
 
+# This is an initial attempt at resolving type inconsistencies
+# between R and JSON.
+def json_to_r_type(current_prop):
+    object_type = current_prop['type'].values()
+    if 'defaultValue' in current_prop and object_type == ['string']:
+        if current_prop['defaultValue']['value'].__contains__('\''):
+            argument = current_prop['defaultValue']['value']
+        else:
+            argument = "\'{:s}\'".format(current_prop['defaultValue']['value'])
+    elif 'defaultValue' in current_prop and object_type == ['object']:
+        argument = 'list()'
+    elif 'defaultValue' in current_prop and \
+            current_prop['defaultValue']['value'] == '[]':
+        argument = 'list()'
+    else:
+        argument = 'NULL'
+    return argument
+
 # pylint: disable=R0914
-def generate_class_string_r(typename, props, description, namespace):
+def generate_class_string_r(typename, props, namespace, prefix):
     """
     Dynamically generate class strings to have nicely formatted documentation,
     and function arguments
@@ -451,19 +469,14 @@ def generate_class_string_r(typename, props, description, namespace):
     ----------
     typename
     props
-    description
     namespace
+    prefix
 
     Returns
     -------
     string
 
     """
-
-    if namespace == 'dash_html_components':
-        prefix = 'html'
-    else:
-        prefix = ''
 
     c = '''{prefix}{typename} <- function(..., {default_argtext}) {{
 
@@ -478,7 +491,7 @@ def generate_class_string_r(typename, props, description, namespace):
     )
 
     component$props <- filter_null(component$props)
-    component <- append_wildcard_props(component, wildcards = c({default_wildcards}), ...)
+    component <- append_wildcard_props(component, wildcards = {default_wildcards}, ...)
 
     structure(component, class = c('dash_component', 'list'))
     }}
@@ -497,7 +510,8 @@ def generate_class_string_r(typename, props, description, namespace):
     prop_names = ", ".join(
         ('\'{:s}\''.format(p))
         for p in prop_keys
-        if '*' not in p
+        if '*' not in p and
+        p not in ['setProps', 'dashEvents', 'fireEvent']
     )
 
     # in R, we set parameters with no defaults to NULL
@@ -508,14 +522,19 @@ def generate_class_string_r(typename, props, description, namespace):
          if '*' in p
     )
 
+    if default_wildcards == '':
+        default_wildcards = 'NULL'
+    else:
+        default_wildcards = 'c({:s})'.format(default_wildcards)
+
     default_argtext += ", ".join(
-        ('{:s}={}'.format(p, props[p]['defaultValue']['value'])
+        ('{:s}={}'.format(p, json_to_r_type(props[p]))
           if 'defaultValue' in props[p] else
           '{:s}=NULL'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
          p not in r_keywords and
-         p not in ['setProps']
+         p not in ['setProps', 'dashEvents', 'fireEvent']
     )
 
     if 'children' in props:
@@ -525,11 +544,11 @@ def generate_class_string_r(typename, props, description, namespace):
     default_paramtext += ", ".join(
         ('{:s}={:s}'.format(p, p)
           if p != "children" else
-          '{:s}=c(children, assert_valid_children(..., wildcards = c({:s})))'.format(p, default_wildcards))
+          '{:s}=c(children, assert_valid_children(..., wildcards = {:s}))'.format(p, default_wildcards))
          for p in props.keys()
          if not p.endswith("-*") and
          p not in r_keywords and
-         p not in ['setProps']
+         p not in ['setProps', 'dashEvents', 'fireEvent']
     )
     return c.format(prefix=prefix,
                     typename=typename,
@@ -539,6 +558,83 @@ def generate_class_string_r(typename, props, description, namespace):
                     prop_names=prop_names,
                     package_name=package_name,
                     default_wildcards=default_wildcards)
+
+# pylint: disable=R0914
+def generate_js_metadata_r(namespace):
+    """
+    Dynamically generate R function to supply JavaScript
+    dependency information required by htmlDependency package,
+    which is loaded by dashR.
+
+    Inspired by http://jameso.be/2013/08/06/namedtuple.html
+
+    Parameters
+    ----------
+    namespace
+
+    Returns
+    -------
+    function_string
+    """
+
+    project_shortname = namespace.replace('-', '_')
+
+    import importlib
+
+    # import component library module
+    importlib.import_module(project_shortname)
+
+    # import component library module into sys
+    mod = sys.module[project_shortname]
+
+    jsdist = getattr(mod, '_js_dist', [])
+    project_ver = getattr(mod, '__version__', [])
+
+    rpkgname = make_package_name_r(project_shortname)
+
+    jsbundle_url = jsdist.external_url()
+
+    # because a library may have more than one dependency, need
+    # a way to iterate over all dependencies for a given library
+    # here we define an opening, element, and closing string --
+    # if the total number of dependencies > 1, we can string each
+    # together and write a list object in R with multiple elements
+    function_frame_open = '''.{rpkgname}_js_metadata <- function() {
+    deps_metadata <- list(
+    '''
+
+    function_frame_element = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
+    version = "{project_ver}", src = list(href = "{jsbundle_url}",
+        file = "lib/{project_shortname}@{project_ver}"), meta = NULL,
+    script = "{project_shortname}/{project_shortname}.min.js",
+    stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
+    all_files = FALSE), class = "html_dependency")
+    '''
+
+    function_frame_close = ''')
+    return(deps_metadata)
+    }}
+    '''
+
+    function_frame_body = ''
+
+    function_frame_body = ",\n".join(
+        (function_frame_element.format(rpkgname=rpkgname,
+                                       project_shortname=project_shortname,
+                                       project_ver=project_ver,
+                                       jsbundle_url=jsbundle_url)
+         if 'defaultValue' in props[p] else
+         '{:s}=NULL'.format(p))
+        for p in prop_keys
+        if not p.endswith("-*") and
+        p not in r_keywords and
+        p not in ['setProps', 'dashEvents', 'fireEvent']
+    )
+
+    return function_string.format(rpkgname=rpkgname,
+                                  project_shortname=project_shortname,
+                                  project_ver=project_ver,
+                                  jsbundle_url=jsbundle_url)
 
 # pylint: disable=unused-argument
 def generate_class_file(typename, props, description, namespace):
@@ -573,30 +669,22 @@ def generate_class_file(typename, props, description, namespace):
         f.write(import_string)
         f.write(class_string)
 
-def generate_help_file_r(typename, props, namespace):
+def write_help_file_r(typename, props, prefix):
     """
-    Generate a R documentation file (.Rd) given component name and properties
+    Write R documentation file (.Rd) given component name and properties
 
     Parameters
     ----------
     typename
     props
+    prefix
 
     Returns
     -------
 
 
     """
-    if not os.path.exists('man'):
-        os.makedirs('man')
-
-    if namespace == 'dash_html_components':
-        file_name = "html{:s}.Rd".format(typename)
-        prefix = 'html'
-    else:
-        file_name = "{:s}.Rd".format(typename)
-        prefix = ''
-
+    file_name = '{:s}{:s}.Rd'.format(prefix, typename)
     prop_keys = list(props.keys())
 
     default_argtext = ''
@@ -606,13 +694,13 @@ def generate_help_file_r(typename, props, namespace):
     props = reorder_props(props=props)
 
     default_argtext += ", ".join(
-        ('{:s}={}'.format(p, props[p]['defaultValue']['value'])
-         if 'defaultValue' in props[p] else
-         '{:s}=NULL'.format(p))
-        for p in prop_keys
-        if not p.endswith("-*") and
-        p not in r_keywords and
-        p not in ['setProps']
+        ('{:s}={}'.format(p, json_to_r_type(props[p]))
+          if 'defaultValue' in props[p] else
+          '{:s}=NULL'.format(p))
+         for p in prop_keys
+         if not p.endswith("-*") and
+         p not in r_keywords and
+         p not in ['setProps', 'dashEvents', 'fireEvent']
     )
 
     item_text += "\n\n".join(
@@ -620,7 +708,7 @@ def generate_help_file_r(typename, props, namespace):
         for p in prop_keys
         if not p.endswith("-*") and
         p not in r_keywords and
-        p not in ['setProps']
+        p not in ['setProps', 'dashEvents', 'fireEvent']
     )
 
     help_string = '''% Auto-generated: do not edit by hand
@@ -637,6 +725,8 @@ def generate_help_file_r(typename, props, namespace):
 {typename} component
 }}
     '''
+    if not os.path.exists('man'):
+        os.makedirs('man')
 
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
@@ -647,7 +737,7 @@ def generate_help_file_r(typename, props, namespace):
             item_text=item_text
         ))
 
-def generate_class_file_r(typename, props, description, namespace):
+def write_class_file_r(typename, props, description, namespace, prefix):
     """
     Generate a R class file (.R) given a class string
 
@@ -657,23 +747,19 @@ def generate_class_file_r(typename, props, description, namespace):
     props
     description
     namespace
+    prefix
 
     Returns
     -------
 
     """
-    if namespace == 'dash_html_components':
-        prefix = 'html'
-    else:
-        prefix = ''
-
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string_r(
         typename,
         props,
-        description,
-        namespace
+        namespace,
+        prefix
     )
     file_name = "{:s}{:s}.R".format(prefix, typename)
 
@@ -686,15 +772,42 @@ def generate_class_file_r(typename, props, description, namespace):
         f.write(class_string)
 
 # pylint: disable=unused-variable
-def generate_export_string_r(name):
+def generate_export_string_r(name, prefix):
     if not name.endswith('-*') and \
             str(name) not in r_keywords and \
-            str(name) not in ['setProps', 'children']:
-        return 'export(html{:s})\n'.format(name)
+            str(name) not in ['setProps', 'children', 'dashEvents']:
+        return 'export({:s}{:s})\n'.format(prefix, name)
+
+def write_js_metadata_r(namespace):
+    """
+    Write an internal (not exported) function to return all JS
+    dependencies as required by htmlDependency package given a
+    function string
+
+    Parameters
+    ----------
+    namespace
+
+    Returns
+    -------
+
+    """
+    function_string = generate_js_metadata_r(
+        namespace
+    )
+    file_name = "internal.R"
+
+    if not os.path.exists('R'):
+        os.makedirs('R')
+
+    file_path = os.path.join('R', file_name)
+    with open(file_path, 'w') as f:
+        f.write(function_string)
 
 # pylint: disable=R0914
 def generate_rpkg(pkg_data,
-                  namespace, export_string):
+                  namespace,
+                  export_string):
     '''
     Generate documents for R package creation
 
@@ -718,7 +831,6 @@ def generate_rpkg(pkg_data,
 
     package_author = pkg_data['author']
 
-    # The following approach avoids use of regex, but there are probably better ways!
     package_author_no_email = package_author.split(" <")[0] + ' [aut]'
 
     if not (os.path.isfile('LICENSE') or os.path.isfile('LICENSE.txt')):
@@ -731,15 +843,6 @@ def generate_rpkg(pkg_data,
 
     import_string =\
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
-
-    temp_string =\
-        '''export(filter_null)
-export(assert_valid_children)
-export(append_wildcard_props)
-export(names2)
-export(`%||%`)
-export(assert_no_names)
-'''
 
     description_string = \
     '''Package: {package_name}
@@ -800,7 +903,6 @@ LICENSE.txt
     with open('NAMESPACE', 'w') as f:
         f.write(import_string)
         f.write(export_string)
-        f.write(temp_string)
 
     with open('DESCRIPTION', 'w') as f2:
         f2.write(description_string)
