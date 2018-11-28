@@ -606,7 +606,7 @@ def generate_js_metadata_r(namespace):
 
     # the following string represents all the elements in an object
     # of the html_dependency class, which will be propagated by
-    # iterating over __init__.py
+    # iterating over _js_dist in __init__.py
     function_frame_element = '''`{dep_name}` = structure(list(name = "{dep_name}",
                 version = "{project_ver}", src = list(href = NULL,
                     file = "lib/"), meta = NULL,
