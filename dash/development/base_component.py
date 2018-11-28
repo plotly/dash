@@ -819,6 +819,13 @@ def write_js_metadata_r(namespace):
     with open(file_path, 'w') as f:
         f.write(function_string)
 
+    # now copy over all the JS dependencies from the (Python)
+    # components directory
+    import shutil, glob
+
+    for file in glob.glob('{}/*.js'.format(namespace.replace('-', '_'))):
+        shutil.copy(file, 'inst/lib/')
+
 # pylint: disable=R0914
 def generate_rpkg(pkg_data,
                   namespace,
