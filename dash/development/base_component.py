@@ -592,8 +592,8 @@ def generate_js_metadata_r(namespace):
 
     rpkgname = make_package_name_r(project_shortname)
 
-    # because a library may have more than one dependency, need
-    # a way to iterate over all dependencies for a given library
+    # since _js_dist may suggest more than one dependency, need
+    # a way to iterate over all dependencies for a given set.
     # here we define an opening, element, and closing string --
     # if the total number of dependencies > 1, we can string each
     # together and write a list object in R with multiple elements
@@ -608,9 +608,9 @@ def generate_js_metadata_r(namespace):
     # of the html_dependency class, which will be propagated by
     # iterating over __init__.py
     function_frame_element = '''`{dep_name}` = structure(list(name = "{dep_name}",
-                version = "{project_ver}", src = list(href = "{jsbundle_url}",
-                    file = "lib/{dep_name}@{project_ver}"), meta = NULL,
-                script = "{project_shortname}/{dep_rpp}",
+                version = "{project_ver}", src = list(href = NULL,
+                    file = "lib/"), meta = NULL,
+                script = "{dep_rpp}",
                 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
                 all_files = FALSE), class = "html_dependency")'''
 
@@ -625,8 +625,7 @@ def generate_js_metadata_r(namespace):
                                                              project_ver=project_ver,
                                                              rpkgname=rpkgname,
                                                              project_shortname=project_shortname,
-                                                             dep_rpp=jsdist[dep]['relative_package_path'],
-                                                             jsbundle_url=jsdist[dep]['external_url'])
+                                                             dep_rpp=jsdist[dep]['relative_package_path'])
                                ]
             function_frame_body = ',\n'.join(function_frame)
     elif len(jsdist) == 1:
@@ -635,16 +634,15 @@ def generate_js_metadata_r(namespace):
         jsbundle_url = jsdist[0]['external_url']
 
         function_frame_body = ['''`{project_shortname}` = structure(list(name = "{project_shortname}",
-            version = "{project_ver}", src = list(href = "{jsbundle_url}",
-                file = "lib/{project_shortname}@{project_ver}"), meta = NULL,
-            script = "{project_shortname}/{project_shortname}.min.js",
+            version = "{project_ver}", src = list(href = NULL,
+                file = "lib/"), meta = NULL,
+            script = "{project_shortname}.min.js",
             stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
             all_files = FALSE), class = "html_dependency")''']
 
     function_frame_close = ''')
     return(deps_metadata)
-    }}
-    '''
+    }'''
 
     function_string = ''.join([function_frame_open,
                               function_frame_body,
