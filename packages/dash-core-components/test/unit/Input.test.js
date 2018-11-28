@@ -51,61 +51,61 @@ describe('Props can be set properly', () => {
 
     test('props.id is set as the <input> id', () => {
         // test if id is in the actual HTML string
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('id')).toEqual(defaultProps.id);
     });
     test('props.value is set as the <input> value', () => {
         // test if value is in the actual HTML string
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('value')).toEqual(defaultProps.value);
     });
     test('props.className is set as the <input> CSS class', () => {
         // test if className is actually set on HTML output
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('class')).toEqual(defaultProps.className);
     });
     test('props.multiple is set as an attribute on the input', () => {
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('multiple')).toBeDefined();
         expect(inputTag.attr('multiple')).toEqual('multiple');
     });
     test('props.name is set as an attribute on the input', () => {
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('name')).toBeDefined();
         expect(inputTag.attr('name')).toEqual(defaultProps.name);
     });
     test('props.pattern is set as an attribute on the input', () => {
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('pattern')).toBeDefined();
         expect(inputTag.attr('pattern')).toEqual(defaultProps.pattern);
     });
     test('props.placeholder is set as an attribute on the input', () => {
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('placeholder')).toBeDefined();
         expect(inputTag.attr('placeholder')).toEqual(defaultProps.placeholder);
     });
     test('props.readOnly is set as an attribute on the input', () => {
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('readonly')).toBeDefined();
         expect(inputTag.attr('readonly')).toEqual(defaultProps.readOnly);
     });
     test('props.required is set as an attribute on the input', () => {
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('required')).toBeDefined();
         expect(inputTag.attr('required')).toEqual(defaultProps.required);
     });
     test('props.size is set as an attribute on the input', () => {
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('size')).toBeDefined();
         expect(inputTag.attr('size')).toEqual(defaultProps.size);
     });
     test('props.spellCheck is set as an attribute on the input', () => {
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('spellcheck')).toBeDefined();
         expect(inputTag.attr('spellcheck')).toEqual(defaultProps.spellCheck);
     });
     test('props.step is set as an attribute on the input', () => {
-        const inputTag = input.render().children();
+        const inputTag = input.render();
         expect(inputTag.attr('step')).toBeDefined();
         expect(inputTag.attr('step')).toEqual(defaultProps.step);
     });
@@ -118,7 +118,7 @@ describe('Input with (default) type=text', () => {
             input = mount(<Input value="initial value" />);
         });
         test('Input updates value', () => {
-            expect(input.find('input').getNode().value).toEqual(
+            expect(input.find('input').instance().value).toEqual(
                 'initial value'
             );
 
@@ -126,7 +126,7 @@ describe('Input with (default) type=text', () => {
                 .find('input')
                 .simulate('change', {target: {value: 'new value'}});
 
-            expect(input.find('input').getNode().value).toEqual('new value');
+            expect(input.find('input').instance().value).toEqual('new value');
         });
         test('Input does not change state if it rerenders', () => {
             // dash-renderer could rerender a component with it's original
@@ -136,7 +136,7 @@ describe('Input with (default) type=text', () => {
 
             // expect value prop to not be updated on state, and on the node itself
             expect(input.state().value).toEqual('initial value');
-            expect(input.find('input').getNode().value).toEqual(
+            expect(input.find('input').instance().value).toEqual(
                 'initial value'
             );
         });
@@ -168,7 +168,7 @@ describe('Input with (default) type=text', () => {
             input.setProps({value: 'new value'});
 
             // expect value prop to not be updated on state, and on the node itself
-            expect(input.find('input').getNode().value).toEqual('new value');
+            expect(input.find('input').instance().value).toEqual('new value');
         });
     });
 });
@@ -189,7 +189,7 @@ describe('Input with type=number', () => {
                 input
                     .find('input')
                     .simulate('change', {target: {value: `${props.min - 1}`}});
-                expect(Number(input.find('input').getNode().value)).toEqual(
+                expect(Number(input.find('input').instance().value)).toEqual(
                     props.value
                 );
             });
@@ -197,7 +197,7 @@ describe('Input with type=number', () => {
                 input
                     .find('input')
                     .simulate('change', {target: {value: `${props.max + 1}`}});
-                expect(Number(input.find('input').getNode().value)).toEqual(
+                expect(Number(input.find('input').instance().value)).toEqual(
                     props.value
                 );
             });
@@ -209,9 +209,9 @@ describe('Input with type=number', () => {
             });
             test('Input can be updated', () => {
                 input.find('input').simulate('change', {target: {value: '-1'}});
-                expect(Number(input.find('input').getNode().value)).toEqual(-1);
+                expect(Number(input.find('input').instance().value)).toEqual(-1);
                 input.find('input').simulate('change', {target: {value: '100'}});
-                expect(Number(input.find('input').getNode().value)).toEqual(
+                expect(Number(input.find('input').instance().value)).toEqual(
                     100
                 );
             });
@@ -239,7 +239,7 @@ describe('Input with type=number', () => {
                 // if the target value is lower than min, don't even call setProps
                 expect(mockSetProps.mock.calls.length).toEqual(0);
                 // <input/>'s value should remain the same
-                expect(Number(input.find('input').getNode().value)).toEqual(0);
+                expect(Number(input.find('input').instance().value)).toEqual(0);
             });
             test('Input can not be updated higher than props.max', () => {
                 input
@@ -248,7 +248,7 @@ describe('Input with type=number', () => {
                 // if the target value is higher than max, don't even call setProps
                 expect(mockSetProps.mock.calls.length).toEqual(0);
                 // <input/>'s value should remain the same
-                expect(Number(input.find('input').getNode().value)).toEqual(0);
+                expect(Number(input.find('input').instance().value)).toEqual(0);
             });
             test('Input can be updated normally', () => {
                 input

@@ -1,7 +1,7 @@
 import Tabs from '../../src/components/Tabs.react.js';
 import Tab from '../../src/components/Tab.react.js';
 import React from 'react';
-import {mount, render} from 'enzyme';
+import {mount, shallow, render} from 'enzyme';
 
 test('Tabs render', () => {
     const tabs = render(
@@ -67,7 +67,7 @@ describe('Tabs parses inline styles if they are set', () => {
     });
     test('props.parent_style =>', () => {
         expect(
-            tabs.find('#tabs-parent').prop('style')['background-color']
+            tabs.prop('style')['background-color']
         ).toEqual(testColor);
     });
 });
@@ -75,18 +75,21 @@ describe('Tabs correctly appends classes', () => {
     const testClass = 'tabs-test';
     const testContentClass = 'tabs-test-content';
     const testParentClass = 'tabs-test-parent';
-    const tabs = render(
-        <Tabs
-            id="tabs"
-            className={testClass}
-            content_className={testContentClass}
-            parent_className={testParentClass}
-            value="tab-1"
-        >
-            <Tab value="tab-1" label="test-tab" />
-        </Tabs>
-    );
+    let tabs;
+    beforeEach(() => {
+        tabs = render(
+            <Tabs
+                id="tabs"
+                className={testClass}
+                content_className={testContentClass}
+                parent_className={testParentClass}
+                value="tab-1"
+            >
+                <Tab value="tab-1" label="test-tab" />
+            </Tabs>
+        );
 
+    })
     // jsx-24123 className's that get appended by styled-jsx are
     // removed here by using the styled-jsx/babel-test plugin in .babelrc
     test('props.className =>', () => {
@@ -100,7 +103,7 @@ describe('Tabs correctly appends classes', () => {
         );
     });
     test('props.parent_className=>', () => {
-        expect(tabs.find('.tab-parent').prop('class')).toEqual(
+        expect(tabs.prop('class')).toEqual(
             'tab-parent ' + testParentClass
         );
     });
@@ -164,8 +167,9 @@ describe('Tabs render content correctly', () => {
     });
 });
 describe('Tabs handle Tab selection logic', () => {
-    test('Tab can be clicked and will display its content', () => {
-        const tabs = mount(
+    let tabs;
+    beforeEach(() => {
+        tabs = mount(
             <Tabs id="tabs" value="tab-1">
                 <Tab id="tab-1" value="tab-1" label="Tab 1">
                     <div>Tab 1 child</div>
@@ -175,22 +179,14 @@ describe('Tabs handle Tab selection logic', () => {
                 </Tab>
             </Tabs>
         );
-        tabs.find('#tab-2').simulate('click');
+    })
+    test('Tab can be clicked and will display its content', () => {
+        tabs.find('[value="tab-2"]').simulate('click');
         const renderedContent = tabs.find('.tab-content > div').html();
         expect(renderedContent).toEqual('<div>Tab 2 child</div>');
     });
     test('Tab without value will still be clickable', () => {
-        const tabs = mount(
-            <Tabs id="tabs">
-                <Tab id="tab-1" label="Tab 1">
-                    <div>Tab 1 child</div>
-                </Tab>
-                <Tab id="tab-2" label="Tab 2">
-                    <div>Tab 2 child</div>
-                </Tab>
-            </Tabs>
-        );
-        tabs.find('#tab-2').simulate('click');
+        tabs.find('[value="tab-2"]').simulate('click');
         const renderedContent = tabs.find('.tab-content > div').html();
         expect(renderedContent).toEqual('<div>Tab 2 child</div>');
     });
@@ -210,13 +206,13 @@ describe('Tabs can be used 2 ways', () => {
         );
 
         expect(mockSetProps).toBeCalledTimes(1);
-        tabs.find('#tab-2').simulate('click');
+        tabs.find('[value="custom-tab-2"]').simulate('click');
         expect(mockSetProps).toBeCalledTimes(2);
         expect(mockSetProps.mock.results[1].value.value).toEqual('custom-tab-2');
         // expect state to not be updated (default is tab-1)
         expect(tabs.state().selected).toEqual('tab-1');
 
-        tabs.find('#tab-1').simulate('click');
+        tabs.find('[value="custom-tab-1"]').simulate('click');
         expect(mockSetProps).toBeCalledTimes(3);
         expect(mockSetProps.mock.results[2].value.value).toEqual('custom-tab-1');
         // expect state to not be updated (default is tab-1)
@@ -234,10 +230,10 @@ describe('Tabs can be used 2 ways', () => {
             </Tabs>
         );
 
-        tabs.find('#tab-2').simulate('click');
+        tabs.find('[value="custom-tab-2"]').simulate('click');
         expect(tabs.state().selected).toEqual('custom-tab-2');
 
-        tabs.find('#tab-1').simulate('click');
+        tabs.find('[value="custom-tab-1"]').simulate('click');
         expect(tabs.state().selected).toEqual('custom-tab-1');
     });
 });

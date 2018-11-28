@@ -20,10 +20,10 @@ export default class Upload extends Component {
             reader.onload = () => {
                 if (setProps) {
                     /*
-                    * I'm not sure if reader.onload will be executed in order.
-                    * For example, if the 1st file is larger than the 2nd one,
-                    * the 2nd file might load first.
-                    */
+                     * I'm not sure if reader.onload will be executed in order.
+                     * For example, if the 1st file is larger than the 2nd one,
+                     * the 2nd file might load first.
+                     */
                     newProps.contents.push(reader.result);
                     newProps.filename.push(file.name);
                     // eslint-disable-next-line no-magic-numbers

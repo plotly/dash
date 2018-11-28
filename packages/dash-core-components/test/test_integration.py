@@ -188,10 +188,10 @@ class Tests(IntegrationTests):
                 'Drag and Drop or ',
                 html.A('Select a File')
             ], style={
-                'widatetimeh': '100%',
+                'width': '100%',
                 'height': '60px',
                 'lineHeight': '60px',
-                'borderWidatetimeh': '1px',
+                'borderWidth': '1px',
                 'borderStyle': 'dashed',
                 'borderRadius': '5px',
                 'textAlign': 'center'

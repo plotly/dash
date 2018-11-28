@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.39.0] - 2018-11-12
+### Changed
+- Updated `react` and `react-dom` to version `^16.6.1`
+- Updated `react-docgen` to `^2.21.0`
+- Updated `react-select-fast-filter-options` to `^0.2.3`
+- Updated `react-virtualized-select` to `^3.1.3`
+- Upgraded `babel` and dependencies to `7.1.5`
+- Upgraded `enzyme` and dependencies to `3.7.0`
+- Removed `react-select` because it's unused - we're using `react-virtualized-select` instead.
+
 ## [0.38.1] - 2018-11-14
 ### Fixed
 - The issue [#115](https://github.com/plotly/dash-core-components/issues/115)
