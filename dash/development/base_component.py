@@ -616,7 +616,7 @@ def generate_js_metadata_r(namespace):
 
     if len(jsdist) > 1:
         for dep in range(len(jsdist)):
-            if jsdist[dep]['relative_package_path'].__contains__('dash-'):
+            if jsdist[dep]['relative_package_path'].__contains__('dash_'):
                 dep_name = jsdist[dep]['relative_package_path'].split('.')[0]
             else:
                 dep_name = '{:s}_{:s}'.format(project_shortname, str(dep))
@@ -629,16 +629,15 @@ def generate_js_metadata_r(namespace):
                                ]
             function_frame_body = ',\n'.join(function_frame)
     elif len(jsdist) == 1:
-        dep_name = project_shortname
-        dep_rpp = jsdist[0]['relative_package_path']
-        jsbundle_url = jsdist[0]['external_url']
-
-        function_frame_body = ['''`{project_shortname}` = structure(list(name = "{project_shortname}",
+        function_frame_body = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
             version = "{project_ver}", src = list(href = NULL,
                 file = "lib/"), meta = NULL,
-            script = "{project_shortname}.min.js",
+            script = "{dep_rpp}",
             stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
-            all_files = FALSE), class = "html_dependency")''']
+            all_files = FALSE), class = "html_dependency")'''.format(project_shortname=project_shortname,
+                                                                     project_ver=project_ver,
+                                                                     rpkgname=rpkgname,
+                                                                     dep_rpp=jsdist[0]['relative_package_path'])
 
     function_frame_close = ''')
     return(deps_metadata)
