@@ -6,6 +6,8 @@ import os
 import sys
 import time
 import json
+
+import flask
 import pandas as pd
 
 import dash
@@ -1399,3 +1401,48 @@ class Tests(IntegrationTests):
 
         self.wait_for_element_by_css_selector('.test-input-css')
         self.snapshot('styled input - width: 100%, border-color: hotpink')
+
+    def test_logout_btn(self):
+        app = dash.Dash(__name__)
+
+        @app.server.route('/_logout', methods=['POST'])
+        def on_logout():
+            rep = flask.redirect('/logged-out')
+            rep.set_cookie('logout-cookie', '', 0)
+            return rep
+
+        app.layout = html.Div([
+            html.H2('Logout test'),
+            dcc.Location(id='location'),
+            html.Div(id='content'),
+        ])
+
+        @app.callback(Output('content', 'children'),
+                      [Input('location', 'pathname')])
+        def on_location(location_path):
+            if location_path is None:
+                raise PreventUpdate
+
+            if 'logged-out' in location_path:
+                return 'Logged out'
+            else:
+
+                @flask.after_this_request
+                def _insert_cookie(rep):
+                    rep.set_cookie('logout-cookie', 'logged-in')
+                    return rep
+
+                return dcc.LogoutButton(id='logout-btn', logout_url='/_logout')
+
+        self.startServer(app)
+        time.sleep(1)
+        self.snapshot('Logout button')
+
+        self.assertEqual(
+            'logged-in',
+            self.driver.get_cookie('logout-cookie')['value'])
+        logout_button = self.wait_for_element_by_css_selector('#logout-btn')
+        logout_button.click()
+        self.wait_for_text_to_equal('#content', 'Logged out')
+
+        self.assertFalse(self.driver.get_cookie('logout-cookie'))

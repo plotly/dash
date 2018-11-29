@@ -9,6 +9,7 @@ from .Input import Input
 from .Interval import Interval
 from .Link import Link
 from .Location import Location
+from .LogoutButton import LogoutButton
 from .Markdown import Markdown
 from .RadioItems import RadioItems
 from .RangeSlider import RangeSlider
@@ -19,7 +20,6 @@ from .Tab import Tab
 from .Tabs import Tabs
 from .Textarea import Textarea
 from .Upload import Upload
-
 
 __all__ = [
     "Checklist",
@@ -33,6 +33,7 @@ __all__ = [
     "Interval",
     "Link",
     "Location",
+    "LogoutButton",
     "Markdown",
     "RadioItems",
     "RangeSlider",
@@ -42,5 +43,5 @@ __all__ = [
     "Tab",
     "Tabs",
     "Textarea",
-    "Upload",
+    "Upload"
 ]

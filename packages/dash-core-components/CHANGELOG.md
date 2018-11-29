@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.40.0] - 2018-11-28
+### Added
+- Add Logout button (dash-deployment-server authentication integration) [#388](https://github.com/plotly/dash-core-components/pull/388)
+
 ## [0.39.0] - 2018-11-12
 ### Changed
 - Updated `react` and `react-dom` to version `^16.6.1`
