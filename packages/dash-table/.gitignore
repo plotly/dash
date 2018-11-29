@@ -26,9 +26,6 @@ yarn-error.log*
 vv
 venv
 
-# vscode user settings
-/.vscode
-
 # python
 *.pyc
 

@@ -74,7 +74,7 @@ describe('navigate', () => {
                 }));
             });
             // TODO: same test but for up and down arrows as above ^. This currently isn't working
-            // because Cypress doesn't move the input cursor upon up and down keys, 
+            // because Cypress doesn't move the input cursor upon up and down keys,
             // so the test will fail. For now, we test if up and down arrows at least
             // don't move focus to other cell
             it('does not focus on next cell input on "arrow up"', () => {
@@ -177,7 +177,7 @@ describe('navigate', () => {
                 const input = $inputs[0] as HTMLInputElement;
                 expect(input.innerHTML).to.equal('def');
             }));
-        })
+        });
     });
 
     describe('with mouse', () => {

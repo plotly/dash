@@ -49,25 +49,27 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
     handleKeyDown = (e: React.KeyboardEvent) => {
         const {
             stopPropagation,
-           updateOnEnter 
+           updateOnEnter
         } = this.propsWithDefaults;
 
-        if(stopPropagation) e.stopPropagation();
-        if(updateOnEnter&& e.keyCode === KEY_CODES.ENTER) {
+        if (stopPropagation) {
+            e.stopPropagation();
+        }
+
+        if (updateOnEnter && e.keyCode === KEY_CODES.ENTER) {
             this.submit();
-        } 
+        }
     }
 
     handleChange = (ev: any) => {
         this.setState({
             value: ev.target.value
-        })
+        });
     }
 
     submit = () =>
         this.state.value !== this.props.value &&
         this.props.submit(this.state.value)
-
 
     render() {
         const {

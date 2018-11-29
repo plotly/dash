@@ -2,7 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+##[3.1.8-rc2] - 2011-11-28
+### Fixed
+- Linting correctly applied to all code [#254](https://github.com/plotly/dash-table/issues/254)
+
 ## [3.1.8-rc1] - 2011-11-22
+### Changed
 - Update dependencies
 
 ## [3.1.7] - 2018-11-19

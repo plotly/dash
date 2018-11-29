@@ -641,7 +641,7 @@ export const propTypes = {
     style_cell_conditional: PropTypes.arrayOf(PropTypes.shape({
         // .exact
         if: PropTypes.shape({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
         })
     })),
 
@@ -732,11 +732,11 @@ export const propTypes = {
     derived_virtual_selected_rows: PropTypes.arrayOf(PropTypes.number),
 
     /**
-      * DEPRECATED
-      * Subscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
-      * for updates on the dropdown API.
-      */
-     dropdown_properties: PropTypes.any,
+     * DEPRECATED
+     * Subscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
+     * for updates on the dropdown API.
+     */
+     dropdown_properties: PropTypes.any
 };
 
 DataTable.defaultProps = defaultProps;

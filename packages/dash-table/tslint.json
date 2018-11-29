@@ -5,8 +5,48 @@
     ],
     "linterOptions": {
         "exclude": [
-            "cypress/**"
+            "node_modules/**",
+            "cypress/**",
+            "@Types/**"
         ]
+    },
+    "jsRules": {
+        "array-type": false,
+        "arrow-parens": [true, "ban-single-arg-parens"],
+        "ban-types": false, // to allow use of 'function' type
+        "eofline": false,
+        "max-classes-per-file": false,
+        "max-line-length": false,
+        "member-access": false,
+        "member-ordering": false,
+        "no-conditional-assignment": false,
+        "no-empty": false,
+        "no-unused-expression": [true, "allow-new"],
+        "object-literal-key-quotes": [true, "as-needed"],
+        "object-literal-sort-keys": false,
+        "object-literal-shorthand": false,
+        "one-line": [true,
+            "check-catch",
+            "check-finally",
+            "check-else",
+            // "check-open-brace",
+            "check-whitespace"
+        ],
+        "only-arrow-functions": [
+            true,
+            "allow-declarations",
+            "allow-named-functions"
+        ],
+        "ordered-imports": false,
+        "prefer-const": false,
+        "quotemark": [true, "single"],
+        "space-before-function-paren": [false, "always"],
+        "trailing-comma": [true, {
+            "singleline": "never",
+            "multiline": "never"
+        }],
+        "unified-signatures": false,
+        "variable-name": false
     },
     "rules": {
         "array-type": false,

@@ -47,7 +47,7 @@ export function deleteColumn(column, columns, headerRowIndex, props) {
         end_cell: [],
         selected_cells: [],
         start_cell: [0]
-    }
+    };
 }
 
 export function editColumnName(column, columns, headerRowIndex, props) {
@@ -57,7 +57,7 @@ export function editColumnName(column, columns, headerRowIndex, props) {
     /* eslint no-alert: 0 */
     const newColumnName = window.prompt('Enter a new column name');
     let newColumns = R.clone(columns);
-    R.range(groupIndexFirst, groupIndexLast+1).map(i => {
+    R.range(groupIndexFirst, groupIndexLast + 1).map(i => {
         let namePath;
         if (R.type(columns[i].name) === 'Array') {
             namePath = [i, 'name', headerRowIndex];
@@ -68,5 +68,5 @@ export function editColumnName(column, columns, headerRowIndex, props) {
     });
     return {
         columns: newColumns
-    }
+    };
 }

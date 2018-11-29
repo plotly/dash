@@ -53,7 +53,7 @@ export function selectionCycle(nextCell, selected_cells) {
         adjustedCell[1] = maxCol;
 
         // try and decrement row
-        if (nextRow -1 < minCol) {
+        if (nextRow - 1 < minCol) {
             adjustedCell[0] = maxRow;
         } else {
             adjustedCell[0] = nextRow - 1;

@@ -256,8 +256,8 @@ storiesOf('DashTable/Without id', module)
         row_selectable={true}
         style_table={{height: 500, width: 200}}
         style_data_conditional={[{
-            "if": { "column_id": "a"},
-            "background_color": "yellow"
+            if: { column_id: 'a'},
+            background_color: 'yellow'
         }]}
     />))
     .add('Two tables with CSS props set', () => (<div>
@@ -271,8 +271,8 @@ storiesOf('DashTable/Without id', module)
             row_selectable={true}
             style_table={{height: 500, width: 400}}
             css={[{
-                'selector': '.dash-spreadsheet',
-                'rule': 'border: 4px solid hotpink'
+                selector: '.dash-spreadsheet',
+                rule: 'border: 4px solid hotpink'
             }]}
         />
         <DataTable
@@ -285,8 +285,8 @@ storiesOf('DashTable/Without id', module)
             row_selectable={true}
             style_table={{height: 500, width: 400}}
             css={[{
-                'selector': '.dash-spreadsheet',
-                'rule': 'border: 4px solid cyan'
+                selector: '.dash-spreadsheet',
+                rule: 'border: 4px solid cyan'
             }]}
         />
-    </div>))
+    </div>));

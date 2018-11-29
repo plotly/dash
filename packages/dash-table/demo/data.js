@@ -15,21 +15,21 @@ export const mockData = unpackIntoColumnsAndData([
         id: 'ccc',
         name: ['City', 'Canada', 'Toronto'],
         type: 'numeric',
-        data: gendata(i => i),
+        data: gendata(i => i)
     },
 
     {
         id: 'ddd',
         name: ['City', 'Canada', 'Montréal'],
         type: 'numeric',
-        data: gendata(i => i * 100),
+        data: gendata(i => i * 100)
     },
 
     {
         id: 'eee',
         name: ['City', 'America', 'New York City'],
         type: 'numeric',
-        data: gendata(i => i),
+        data: gendata(i => i)
     },
 
     {
@@ -44,7 +44,7 @@ export const mockData = unpackIntoColumnsAndData([
         name: ['City', 'France', 'Paris'],
         type: 'numeric',
         editable: true,
-        data: gendata(i => i * 10),
+        data: gendata(i => i * 10)
     },
 
     {
@@ -71,7 +71,7 @@ export const mockData = unpackIntoColumnsAndData([
         id: 'aaa',
         name: ['', 'Weather', 'Temperature'],
         type: 'numeric',
-        data: gendata(i => i + 1),
+        data: gendata(i => i + 1)
     },
 
     {
@@ -79,7 +79,7 @@ export const mockData = unpackIntoColumnsAndData([
         name: ['', 'Weather', 'Temperature-RO'],
         type: 'numeric',
         editable: false,
-        data: gendata(i => i + 1),
+        data: gendata(i => i + 1)
     }
 ]);
 
@@ -88,7 +88,7 @@ export const mockDataSimple = unpackIntoColumnsAndData([
         id: 'aaa',
         name: 'Temperature',
         type: 'numeric',
-        data: gendata(i => i + 1),
+        data: gendata(i => i + 1)
     },
 
     {
@@ -97,13 +97,13 @@ export const mockDataSimple = unpackIntoColumnsAndData([
         type: 'numeric',
         options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
             label: i,
-            value: i,
+            value: i
         })),
         clearable: true,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4]
-        ),
-    },
+        )
+    }
 ]);
 
 export const miniData = unpackIntoColumnsAndData([
@@ -112,21 +112,21 @@ export const miniData = unpackIntoColumnsAndData([
     },
     {
         id: 'bbb', name: 'tomato', data: [3, 2, 1]
-    },
+    }
 ]);
 
 function unpackIntoColumnsAndData(columns) {
-    const mockData = { columns: [], data: []};
+    const data = { columns: [], data: []};
     columns.forEach(col => {
         col.data.forEach((v, i) => {
-            if (!mockData.data[i]) {
-                mockData.data[i] = {};
+            if (!data.data[i]) {
+                data.data[i] = {};
             }
-            mockData.data[i][col.id] = v;
+            data.data[i][col.id] = v;
         });
-        mockData.columns.push(R.dissoc('data', col));
+        data.columns.push(R.dissoc('data', col));
     });
-    return mockData;
+    return data;
 }
 
 function gendata(func, ndata = N_DATA) {

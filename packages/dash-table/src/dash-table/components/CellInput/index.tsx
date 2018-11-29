@@ -170,13 +170,13 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
     handleKeyDown = (e: KeyboardEvent) => {
         const is_focused = this.props.focused;
 
-        if (is_focused && 
+        if (is_focused &&
             (e.keyCode !== KEY_CODES.TAB && e.keyCode !== KEY_CODES.ENTER)
         ) {
             return;
         }
 
-        if(!is_focused && !isNavKey(e.keyCode)) {
+        if (!is_focused && !isNavKey(e.keyCode)) {
             return;
         }
 
