@@ -1,4 +1,8 @@
-## 0.31.0 - 2018-11-26
+## 0.31.1 - 2018-11-29
+## Fixed
+- Fix `_imports_.py` indentation generation. [#473](https://github.com/plotly/dash/pull/473/files)
+
+## 0.31.0 - 2018-11-29
 ## Added
 - Combined `extract-meta` and python component files generation in a cli [#451](https://github.com/plotly/dash/pull/451)
 
