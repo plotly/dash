@@ -2,10 +2,11 @@ import collections
 import json
 import os
 
+from .component_generator import generate_component_files
+
 from ._py_components_generation import (
     generate_class_file,
     generate_imports,
-    generate_classes_files,
     generate_class
 )
 from .base_component import ComponentRegistry
@@ -86,7 +87,7 @@ def generate_classes(namespace, metadata_path='lib/metadata.json'):
     if os.path.exists(imports_path):
         os.remove(imports_path)
 
-    components = generate_classes_files(namespace, data, generate_class_file)
+    components = generate_component_files(namespace, data, generate_class_file)
 
     # Add the __all__ value so we can import * from _imports_
     generate_imports(namespace, components)

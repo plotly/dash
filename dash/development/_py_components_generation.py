@@ -1,6 +1,7 @@
 import collections
 import copy
 import os
+import json
 
 from dash.development.base_component import _explicitize_args
 from ._all_keywords import kwlist
@@ -164,7 +165,7 @@ def generate_class_file(typename, props, description, namespace):
     print('Generated {}'.format(file_name))
 
 
-def generate_imports(project_shortname, components):
+def generate_imports(project_shortname, components, metadata=None):
     with open(os.path.join(project_shortname, '_imports_.py'), 'w') as f:
         imports_string = '{}\n\n{}'.format(
             '\n'.join(
@@ -175,22 +176,9 @@ def generate_imports(project_shortname, components):
 
         f.write(imports_string)
 
-
-def generate_classes_files(project_shortname, metadata, *component_generators):
-    components = []
-    for component_path, component_data in metadata.items():
-        component_name = component_path.split('/')[-1].split('.')[0]
-        components.append(component_name)
-
-        for generator in component_generators:
-            generator(
-                component_name,
-                component_data['props'],
-                component_data['description'],
-                project_shortname
-            )
-
-    return components
+    if metadata:
+        with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
+            json.dump(metadata, f)
 
 
 def generate_class(typename, props, description, namespace):
@@ -510,8 +498,8 @@ def map_js_to_py_types_prop_types(type_object):
         # React's PropTypes.objectOf
         objectOf=lambda: (
             'dict with strings as keys and values of type {}'
-            ).format(
-                js_to_py_type(type_object['value'])),
+        ).format(
+            js_to_py_type(type_object['value'])),
 
         # React's PropTypes.shape
         shape=lambda: 'dict containing keys {}.\n{}'.format(

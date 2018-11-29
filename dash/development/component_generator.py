@@ -10,9 +10,7 @@ import shutil
 
 import pkg_resources
 
-from ._py_components_generation import generate_class_file
-from ._py_components_generation import generate_imports
-from ._py_components_generation import generate_classes_files
+from ._py_components_generation import generate_class_file, generate_imports
 
 
 class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
@@ -20,7 +18,32 @@ class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
     pass
 
 
+def generate_component_files(project_shortname, metadata,
+                             *component_generators):
+    components = []
+    for component_path, component_data in metadata.items():
+        component_name = component_path.split('/')[-1].split('.')[0]
+        components.append(component_name)
+
+        for generator in component_generators:
+            generator(
+                component_name,
+                component_data['props'],
+                component_data['description'],
+                project_shortname
+            )
+
+    return components
+
+
+def generate_suite_files(project_shortname, components, metadata,
+                         *suite_generators):
+    for generator in suite_generators:
+        generator(project_shortname, components, metadata)
+
 # pylint: disable=too-many-locals
+
+
 def generate_components(components_source, project_shortname,
                         package_info_filename='package.json'):
     is_windows = sys.platform == 'win32'
@@ -53,16 +76,18 @@ def generate_components(components_source, project_shortname,
 
     metadata = json.loads(out.decode())
 
-    components = generate_classes_files(
+    components = generate_component_files(
         project_shortname,
         metadata,
         generate_class_file
     )
 
-    with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
-        json.dump(metadata, f)
-
-    generate_imports(project_shortname, components)
+    generate_suite_files(
+        project_shortname,
+        components,
+        metadata,
+        generate_imports
+    )
 
 
 def cli():
