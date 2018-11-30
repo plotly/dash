@@ -1,0 +1,6 @@
+{
+    "extends": [
+        ":onlyNpm",
+        "group:all"
+    ]
+}
