@@ -3,7 +3,6 @@
 from dash.development.base_component import Component, _explicitize_args
 
 
-
 schema = {'customArrayProp': {'required': False, 'nullable': False, 'type': 'list', 'schema': {'nullable': False}}, 'optionalObjectWithShapeAndNestedDescription': {'required': False, 'nullable': False, 'type': 'dict', 'allow_unknown': False, 'schema': {'color': {'type': 'string'}, 'fontSize': {'type': 'number'}, 'figure': {'schema': {'layout': {'type': 'dict'}, 'data': {'type': 'list', 'schema': {'type': 'dict', 'nullable': False}}}, 'type': 'dict', 'allow_unknown': False, 'nullable': False}}}, 'optionalBool': {'required': False, 'type': 'boolean', 'nullable': False}, 'optionalFunc': {'required': False, 'nullable': False}, 'optionalSymbol': {'required': False, 'nullable': False}, 'in': {'required': False, 'type': 'string', 'nullable': False}, 'customProp': {'required': False, 'nullable': False}, 'children': {'required': False, 'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'nullable': True, 'type': ('string', 'number'), 'allowed': [None]}, {'type': 'list', 'schema': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'nullable': True, 'type': ('string', 'number'), 'allowed': [None]}], 'nullable': True}}], 'nullable': True}, 'optionalMessage': {'required': False, 'nullable': False}, 'optionalNumber': {'required': False, 'type': 'number', 'nullable': False}, 'optionalObject': {'required': False, 'type': 'dict', 'nullable': False}, 'dashEvents': {'required': False, 'nullable': False, 'type': ('string', 'number'), 'allowed': ['restyle', 'relayout', 'click']}, 'id': {'required': False, 'type': 'string', 'nullable': False}, 'optionalString': {'required': False, 'type': 'string', 'nullable': False}, 'optionalElement': {'required': False, 'type': 'component', 'nullable': False}, 'optionalArray': {'required': False, 'type': 'list', 'nullable': False}, 'optionalNode': {'required': False, 'anyof': [{'type': 'component'}, {'type': 'boolean'}, {'type': 'number'}, {'type': 'string'}, {'type': 'list', 'schema': {'type': ('component', 'boolean', 'number', 'string')}}], 'nullable': False}, 'optionalObjectOf': {'required': False, 'type': 'dict', 'valueschema': {'type': 'number'}, 'nullable': False}, 'optionalEnum': {'required': False, 'nullable': False, 'type': ('string', 'number'), 'allowed': ['News', 'Photos', '1', 1, 1.0, '2', 2, 2.0, False, True]}, 'optionalArrayOf': {'required': False, 'nullable': False, 'type': 'list', 'schema': {'type': 'number', 'nullable': False}}, 'optionalUnion': {'required': False, 'anyof': [{'type': 'string'}, {'type': 'number'}, {}], 'nullable': False}, 'optionalAny': {'required': False, 'nullable': False}}
 
 class Table(Component):
@@ -51,19 +50,16 @@ Available events: 'restyle', 'relayout', 'click'"""
         self.available_events = ['restyle', 'relayout', 'click']
         self.available_properties = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'data-*', 'aria-*', 'customProp', 'customArrayProp', 'in', 'id']
         self.available_wildcard_properties =            ['data-', 'aria-']
-
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
         args = {k: _locals[k] for k in _explicit_args}
-
         for k in []:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
         args.pop('children', None)
         super(Table, self).__init__(children=children, **args)
-
     def __repr__(self):
         if(any(getattr(self, c, None) is not None
                for c in self._prop_names

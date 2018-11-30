@@ -118,4 +118,3 @@ def generate_validation_error_message(errors, level=0, error_message=''):
         `app.config.suppress_validation_exceptions=True`
     """)
     return error_message
-    

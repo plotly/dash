@@ -5,12 +5,12 @@ import collections
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
-import dash
 import dash_html_components as html
-from importlib import import_module
+import dash
 from dash.development.component_loader import _get_metadata
-from dash.development.base_component import generate_class, Component
+from dash.development.base_component import Component
 from dash.development.validator import DashValidator
+from dash.development._py_components_generation import generate_class
 
 # Monkey patched html
 html.Div._schema = {'children': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}, {'type': 'list', 'schema': {'anyof': [{'type': 'string'}, {'type': 'number'}, {'type': 'boolean'}, {'type': 'component'}, {'allowed': [None], 'type': ('string', 'number'), 'nullable': True}], 'nullable': True}}], 'nullable': True}}

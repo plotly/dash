@@ -2,12 +2,15 @@ import collections
 import copy
 import os
 
-from dash.development.base_component import _explicitize_args
+from dash.development.base_component import (
+    _explicitize_args,
+    generate_property_schema
+)
 from ._all_keywords import kwlist
 from .base_component import Component
 
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument,too-many-locals
 def generate_class_string(typename, props, description, namespace):
     """
     Dynamically generate class strings to have nicely formatted docstrings,
@@ -43,8 +46,12 @@ def generate_class_string(typename, props, description, namespace):
     # it to be `null` or whether that was just the default value.
     # The solution might be to deal with default values better although
     # not all component authors will supply those.
-    c = '''class {typename}(Component):
+    c = '''\
+schema = {schema}
+
+class {typename}(Component):
     """{docstring}"""
+    _schema = schema
     @_explicitize_args
     def __init__(self, {default_argtext}):
         self._prop_names = {list_of_valid_keys}
@@ -56,18 +63,16 @@ def generate_class_string(typename, props, description, namespace):
         self.available_properties = {list_of_valid_keys}
         self.available_wildcard_properties =\
             {list_of_valid_wildcard_attr_prefixes}
-
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
-
+        args = {{k: _locals[k] for k in _explicit_args}}
         for k in {required_args}:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
+        args.pop('children', None)
         super({typename}, self).__init__({argtext})
-
     def __repr__(self):
         if(any(getattr(self, c, None) is not None
                for c in self._prop_names
@@ -108,23 +113,26 @@ def generate_class_string(typename, props, description, namespace):
     events = '[' + ', '.join(parse_events(props)) + ']'
     prop_keys = list(props.keys())
     if 'children' in props:
-        prop_keys.remove('children')
-        default_argtext = "children=None, "
-        # pylint: disable=unused-variable
-        argtext = 'children=children, **args'
+        default_argtext = 'children=None, '
+        argtext = 'children=children, **args'  # Children will be popped before
     else:
-        default_argtext = ""
+        default_argtext = ''
         argtext = '**args'
-    default_argtext += ", ".join(
-        [('{:s}=Component.REQUIRED'.format(p)
-          if props[p]['required'] else
-          '{:s}=Component.UNDEFINED'.format(p))
-         for p in prop_keys
-         if not p.endswith("-*") and
-         p not in kwlist and
-         p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
-    )
-
+    for p in props.keys():
+        if (
+                not p.endswith("-*") and  # Not a wildcard attribute
+                p not in kwlist and  # Not a protected keyword
+                p not in ['dashEvents', 'fireEvent', 'setProps'] and
+                p != 'children'  # Already accounted for
+        ):
+            default_argtext += ('{:s}=Component.REQUIRED, '.format(p)
+                                if props[p]['required'] else
+                                '{:s}=Component.UNDEFINED, '.format(p))
+    default_argtext += '**kwargs'
+    schema = {
+        k: generate_property_schema(v)
+        for k, v in props.items() if not k.endswith("-*")
+    }
     required_args = required_props(props)
     return c.format(**locals())
 
