@@ -316,7 +316,7 @@ class Component(collections.MutableMapping):
         args = {
             k: v
             for k, v in ((x, getattr(self, x, None)) for x in self._prop_names)
-            if v
+            if v is not None
         }
         valid = validator.validate(args)
         if not valid:
