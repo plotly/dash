@@ -1,14 +1,18 @@
 from __future__ import print_function
 
+import itertools
 import os
+import random
 import sys
 import collections
 import importlib
 import json
 import pkgutil
+import threading
 import warnings
 import re
 import pprint
+import logging
 
 from functools import wraps
 
@@ -27,6 +31,8 @@ from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
+from ._utils import generate_hash as _generate_hash
+from . import _watch
 from ._utils import get_asset_path as _get_asset_path
 from . import _configs
 
@@ -231,6 +237,10 @@ class Dash(object):
             self.config['routes_pathname_prefix'],
             self.index)
 
+        self._add_url(
+            '{}_reload-hash'.format(self.config['routes_pathname_prefix']),
+            self.serve_reload_hash)
+
         # catch-all for front-end routes, used by dcc.Location
         self._add_url(
             '{}<path:path>'.format(self.config['routes_pathname_prefix']),
@@ -245,12 +255,28 @@ class Dash(object):
         self._layout = None
         self._cached_layout = None
         self._dev_tools = _AttributeDict({
-            'serve_dev_bundles': False
+            'serve_dev_bundles': False,
+            'hot_reload': False,
+            'hot_reload_interval': 3000,
+            'hot_reload_watch_interval': 0.5,
+            'hot_reload_max_retry': 8
         })
 
         # add a handler for components suites errors to return 404
         self.server.errorhandler(exceptions.InvalidResourceError)(
             self._invalid_resources_handler)
+
+        self._assets_files = []
+
+        # hot reload
+        self._reload_hash = None
+        self._hard_reload = False
+        self._lock = threading.RLock()
+        self._watch_thread = None
+        self._changed_assets = []
+
+        self.logger = logging.getLogger(name)
+        self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
     def _add_url(self, name, view_func, methods=('GET',)):
         self.server.add_url_rule(
@@ -322,10 +348,31 @@ class Dash(object):
         )
 
     def _config(self):
-        return {
+        config = {
             'url_base_pathname': self.url_base_pathname,
             'requests_pathname_prefix': self.config['requests_pathname_prefix']
         }
+        if self._dev_tools.hot_reload:
+            config['hot_reload'] = {
+                'interval': self._dev_tools.hot_reload_interval,
+                'max_retry': self._dev_tools.hot_reload_max_retry
+            }
+        return config
+
+    def serve_reload_hash(self):
+        hard = self._hard_reload
+        changed = self._changed_assets
+        self._lock.acquire()
+        self._hard_reload = False
+        self._changed_assets = []
+        self._lock.release()
+
+        return flask.jsonify({
+            'reloadHash': self._reload_hash,
+            'hard': hard,
+            'packages': list(self.registered_paths.keys()),
+            'files': list(changed)
+        })
 
     def serve_routes(self):
         return flask.Response(
@@ -1036,18 +1083,19 @@ class Dash(object):
         self._generate_scripts_html()
         self._generate_css_dist_html()
 
+    def _add_assets_resource(self, url_path, file_path):
+        res = {'asset_path': url_path, 'filepath': file_path}
+        if self.config.assets_external_path:
+            res['external_url'] = '{}{}'.format(
+                self.config.assets_external_path, url_path)
+        self._assets_files.append(file_path)
+        return res
+
     def _walk_assets_directory(self):
         walk_dir = self._assets_folder
         slash_splitter = re.compile(r'[\\/]+')
         ignore_filter = re.compile(self.assets_ignore) \
             if self.assets_ignore else None
-
-        def add_resource(p, filepath):
-            res = {'asset_path': p, 'filepath': filepath}
-            if self.config.assets_external_path:
-                res['external_url'] = '{}{}'.format(
-                    self.config.assets_external_path, path)
-            return res
 
         for current, _, files in os.walk(walk_dir):
             if current == walk_dir:
@@ -1073,9 +1121,9 @@ class Dash(object):
 
                 if f.endswith('js'):
                     self.scripts.append_script(
-                        add_resource(path, full))
+                        self._add_assets_resource(path, full))
                 elif f.endswith('css'):
-                    self.css.append_css(add_resource(path, full))
+                    self.css.append_css(self._add_assets_resource(path, full))
                 elif f == 'favicon.ico':
                     self._favicon = path
 
@@ -1103,17 +1151,57 @@ class Dash(object):
 
     def enable_dev_tools(self,
                          debug=False,
-                         dev_tools_serve_dev_bundles=None):
+                         dev_tools_serve_dev_bundles=None,
+                         dev_tools_hot_reload=None,
+                         dev_tools_hot_reload_interval=None,
+                         dev_tools_hot_reload_watch_interval=None,
+                         dev_tools_hot_reload_max_retry=None,
+                         dev_tools_silence_routes_logging=None):
         """
         Activate the dev tools, called by `run_server`. If your application is
         served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
 
-        :param debug: If True, then activate all the tools unless specified.
+        If an argument is not provided, it can be set with environment
+        variables.
+
+        Available dev_tools environment variables:
+
+            - DASH_DEBUG
+            - DASH_SERVE_DEV_BUNDLES
+            - DASH_HOT_RELOAD
+            - DASH_HOT_RELOAD_INTERVAL
+            - DASH_HOT_RELOAD_WATCH_INTERVAL
+            - DASH_HOT_RELOAD_MAX_RETRY
+            - DASH_SILENCE_ROUTES_LOGGING
+
+        :param debug: If True, then activate all the tools unless specifically
+            disabled by the arguments or by environ variables. Available as
+            `DASH_DEBUG` environment variable.
         :type debug: bool
-        :param dev_tools_serve_dev_bundles: Serve the dev bundles.
+        :param dev_tools_serve_dev_bundles: Serve the dev bundles. Available
+            as `DASH_SERVE_DEV_BUNDLES` environment variable.
         :type dev_tools_serve_dev_bundles: bool
-        :return:
+        :param dev_tools_hot_reload: Activate the hot reloading. Available as
+            `DASH_HOT_RELOAD` environment variable.
+        :type dev_tools_hot_reload: bool
+        :param dev_tools_hot_reload_interval: Interval at which the client will
+            request the reload hash. Available as `DASH_HOT_RELOAD_INTERVAL`
+            environment variable.
+        :type dev_tools_hot_reload_interval: int
+        :param dev_tools_hot_reload_watch_interval: Interval at which the
+            assets folder are walked for changes. Available as
+            `DASH_HOT_RELOAD_WATCH_INTERVAL` environment variable.
+        :type dev_tools_hot_reload_watch_interval: float
+        :param dev_tools_hot_reload_max_retry: Maximum amount of retries before
+            failing and display a pop up. Default 30. Available as
+            `DASH_HOT_RELOAD_MAX_RETRY` environment variable.
+        :type dev_tools_hot_reload_max_retry: int
+        :param dev_tools_silence_routes_logging: Silence the `werkzeug` logger,
+            will remove all routes logging. Available as
+            `DASH_SILENCE_ROUTES_LOGGING` environment variable.
+        :type dev_tools_silence_routes_logging: bool
+        :return: debug
         """
         env = _configs.env_configs()
         debug = debug or _configs.get_config('debug', None, env, debug,
@@ -1124,12 +1212,112 @@ class Dash(object):
             default=debug,
             is_bool=True
         )
+        self._dev_tools['hot_reload'] = _configs.get_config(
+            'hot_reload', dev_tools_hot_reload, env,
+            default=debug,
+            is_bool=True
+        )
+        self._dev_tools['hot_reload_interval'] = int(_configs.get_config(
+            'hot_reload_interval', dev_tools_hot_reload_interval, env,
+            default=3000
+        ))
+        self._dev_tools['hot_reload_watch_interval'] = float(
+            _configs.get_config(
+                'hot_reload_watch_interval',
+                dev_tools_hot_reload_watch_interval,
+                env,
+                default=0.5
+            )
+        )
+        self._dev_tools['hot_reload_max_retry'] = int(
+            _configs.get_config(
+                'hot_reload_max_retry',
+                dev_tools_hot_reload_max_retry,
+                env,
+                default=8
+            )
+        )
+        self._dev_tools['silence_routes_logging'] = _configs.get_config(
+            'silence_routes_logging', dev_tools_silence_routes_logging, env,
+            default=debug,
+            is_bool=True,
+        )
+
+        if self._dev_tools.silence_routes_logging:
+            logging.getLogger('werkzeug').setLevel(logging.ERROR)
+            self.logger.setLevel(logging.INFO)
+
+        if self._dev_tools.hot_reload:
+            self._reload_hash = _generate_hash()
+            self._watch_thread = threading.Thread(
+                target=lambda: _watch.watch(
+                    [self._assets_folder],
+                    self._on_assets_change,
+                    sleep_time=self._dev_tools.hot_reload_watch_interval)
+            )
+            self._watch_thread.daemon = True
+            self._watch_thread.start()
+
+        if debug and self._dev_tools.serve_dev_bundles:
+            # Dev bundles only works locally.
+            self.scripts.config.serve_locally = True
+
         return debug
+
+    # noinspection PyProtectedMember
+    def _on_assets_change(self, filename, modified, deleted):
+        self._lock.acquire()
+        self._hard_reload = True
+        self._reload_hash = _generate_hash()
+
+        asset_path = os.path.relpath(
+            filename, os.path.commonprefix([self._assets_folder, filename]))\
+            .replace('\\', '/').lstrip('/')
+
+        self._changed_assets.append({
+            'url': self.get_asset_url(asset_path),
+            'modified': int(modified),
+            'is_css': filename.endswith('css')
+        })
+
+        if filename not in self._assets_files and not deleted:
+            res = self._add_assets_resource(asset_path, filename)
+            if filename.endswith('js'):
+                self.scripts.append_script(res)
+            elif filename.endswith('css'):
+                self.css.append_css(res)
+
+        if deleted:
+            if filename in self._assets_files:
+                self._assets_files.remove(filename)
+
+            def delete_resource(resources):
+                to_delete = None
+                for r in resources:
+                    if r.get('asset_path') == asset_path:
+                        to_delete = r
+                        break
+                if to_delete:
+                    resources.remove(to_delete)
+
+            if filename.endswith('js'):
+                # pylint: disable=protected-access
+                delete_resource(self.scripts._resources._resources)
+            elif filename.endswith('css'):
+                # pylint: disable=protected-access
+                delete_resource(self.css._resources._resources)
+
+        self._lock.release()
 
     def run_server(self,
                    port=8050,
                    debug=False,
                    dev_tools_serve_dev_bundles=None,
+                   dev_tools_hot_reload=None,
+                   dev_tools_hot_reload_interval=None,
+                   dev_tools_hot_reload_watch_interval=None,
+                   dev_tools_hot_reload_max_retry=None,
+                   dev_tools_silence_routes_logging=None,
                    **flask_run_options):
         """
         Start the flask server in local mode, you should not run this on a
@@ -1141,12 +1329,55 @@ class Dash(object):
         :type debug: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles of components
         :type dev_tools_serve_dev_bundles: bool
+        :param dev_tools_hot_reload: Enable the hot reload.
+        :type dev_tools_hot_reload: bool
+        :param dev_tools_hot_reload_interval: Reload request interval.
+        :type dev_tools_hot_reload_interval: int
+        :param dev_tools_hot_reload_watch_interval:
+        :type dev_tools_hot_reload_watch_interval: float
+        :param dev_tools_hot_reload_max_retry: The number of times the reloader
+            requests can fail before displaying an alert.
+        :type dev_tools_hot_reload_max_retry: int
+        :param dev_tools_silence_routes_logging: Silence the routes logs.
+        :type dev_tools_silence_routes_logging: bool
         :param flask_run_options: Given to `Flask.run`
         :return:
         """
-        debug = self.enable_dev_tools(debug, dev_tools_serve_dev_bundles)
+        debug = self.enable_dev_tools(
+            debug,
+            dev_tools_serve_dev_bundles,
+            dev_tools_hot_reload,
+            dev_tools_hot_reload_interval,
+            dev_tools_hot_reload_watch_interval,
+            dev_tools_hot_reload_max_retry,
+            dev_tools_silence_routes_logging,
+        )
+
         if not debug:
-            # Do not throw debugging exceptions in production.
+            # Do not throw validation exceptions in production.
             self.config.suppress_validation_exceptions = True
+
+        if self._dev_tools.silence_routes_logging:
+            # Since it's silenced, the address don't show anymore.
+            host = flask_run_options.get('host', '127.0.0.1')
+            ssl_context = flask_run_options.get('ssl_context')
+            self.logger.info(
+                'Running on %s://%s:%s%s',
+                'https' if ssl_context else 'http',
+                host, port, self.config.requests_pathname_prefix
+            )
+
+            # Generate a debugger pin and log it to the screen.
+            debugger_pin = os.environ['WERKZEUG_DEBUG_PIN'] = '-'.join(
+                itertools.chain(
+                    ''.join([str(random.randint(0, 9)) for _ in range(3)])
+                    for _ in range(3))
+            )
+
+            self.logger.info(
+                'Debugger PIN: %s',
+                debugger_pin
+            )
+
         self.server.run(port=port, debug=debug,
                         **flask_run_options)

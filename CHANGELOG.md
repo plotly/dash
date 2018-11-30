@@ -1,3 +1,16 @@
+## 0.31.1 - 2018-11-29
+## Fixed
+- Fix `_imports_.py` indentation generation. [#473](https://github.com/plotly/dash/pull/473/files)
+
+## 0.31.0 - 2018-11-29
+## Added
+- Combined `extract-meta` and python component files generation in a cli [#451](https://github.com/plotly/dash/pull/451)
+
+## 0.30.0 - 2018-11-14
+## Added
+- Hot reload from the browser [#362](https://github.com/plotly/dash/pull/362)
+- Silence routes logging with `dev_tools_silence_routes_logging`.
+
 ## 0.29.0 - 2018-11-06
 ## Added
 - Added component namespaces registry, collect the resources needed by component library when they are imported instead of crawling the layout. [#444](https://github.com/plotly/dash/pull/444)

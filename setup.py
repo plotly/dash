@@ -23,6 +23,12 @@ setup(
         'dash_renderer',
         'Cerberus'
     ],
+    entry_points={
+        'console_scripts': [
+            'dash-generate-components ='
+            ' dash.development.component_generator:cli'
+        ]
+    },
     url='https://plot.ly/dash',
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -8,9 +8,9 @@ from dash.development.component_loader import (
     _decode_hook
 )
 from dash.development.base_component import (
-    generate_class,
     Component
 )
+from dash.development._py_components_generation import generate_class
 
 METADATA_PATH = 'metadata.json'
 

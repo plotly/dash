@@ -1,8 +1,6 @@
 import collections
-import copy
-import os
-import inspect
 import abc
+import inspect
 import sys
 import pprint
 
@@ -33,6 +31,37 @@ The errors in validation are as follows:
 
 
 """
+
+
+def _explicitize_args(func):
+    # Python 2
+    if hasattr(func, 'func_code'):
+        varnames = func.func_code.co_varnames
+    # Python 3
+    else:
+        varnames = func.__code__.co_varnames
+
+    def wrapper(*args, **kwargs):
+        if '_explicit_args' in kwargs.keys():
+            raise Exception('Variable _explicit_args should not be set.')
+        kwargs['_explicit_args'] = \
+            list(
+                set(
+                    list(varnames[:len(args)]) + [k for k, _ in kwargs.items()]
+                )
+            )
+        if 'self' in kwargs['_explicit_args']:
+            kwargs['_explicit_args'].remove('self')
+        return func(*args, **kwargs)
+
+    # If Python 3, we can set the function signature to be correct
+    if hasattr(inspect, 'signature'):
+        # pylint: disable=no-member
+        new_sig = inspect.signature(wrapper).replace(
+            parameters=inspect.signature(func).parameters.values()
+        )
+        wrapper.__signature__ = new_sig
+    return wrapper
 
 
 # pylint: disable=no-init,too-few-public-methods
@@ -90,37 +119,6 @@ def _check_if_has_indexable_children(item):
                                             collections.MutableSequence)))):
 
         raise KeyError
-
-
-def _explicitize_args(func):
-    # Python 2
-    if hasattr(func, 'func_code'):
-        varnames = func.func_code.co_varnames
-    # Python 3
-    else:
-        varnames = func.__code__.co_varnames
-
-    def wrapper(*args, **kwargs):
-        if '_explicit_args' in kwargs.keys():
-            raise Exception('Variable _explicit_args should not be set.')
-        kwargs['_explicit_args'] = \
-            list(
-                set(
-                    list(varnames[:len(args)]) + [k for k, _ in kwargs.items()]
-                )
-            )
-        if 'self' in kwargs['_explicit_args']:
-            kwargs['_explicit_args'].remove('self')
-        return func(*args, **kwargs)
-
-    # If Python 3, we can set the function signature to be correct
-    if hasattr(inspect, 'signature'):
-        # pylint: disable=no-member
-        new_sig = inspect.signature(wrapper).replace(
-            parameters=inspect.signature(func).parameters.values()
-        )
-        wrapper.__signature__ = new_sig
-    return wrapper
 
 
 @six.add_metaclass(ComponentMeta)
@@ -759,315 +757,26 @@ def parse_events(props):
     if 'dashEvents' in props and props['dashEvents']['type']['name'] == 'enum':
         events = [v['value'] for v in props['dashEvents']['type']['value']]
     else:
-        events = []
+        varnames = func.__code__.co_varnames
 
-    return events
+    def wrapper(*args, **kwargs):
+        if '_explicit_args' in kwargs.keys():
+            raise Exception('Variable _explicit_args should not be set.')
+        kwargs['_explicit_args'] = \
+            list(
+                set(
+                    list(varnames[:len(args)]) + [k for k, _ in kwargs.items()]
+                )
+            )
+        if 'self' in kwargs['_explicit_args']:
+            kwargs['_explicit_args'].remove('self')
+        return func(*args, **kwargs)
 
-
-def parse_wildcards(props):
-    """
-    Pull out the wildcard attributes from the Component props
-
-    Parameters
-    ----------
-    props: dict
-        Dictionary with {propName: propMetadata} structure
-
-    Returns
-    -------
-    list
-        List of Dash valid wildcard prefixes
-    """
-    list_of_valid_wildcard_attr_prefixes = []
-    for wildcard_attr in ["data-*", "aria-*"]:
-        if wildcard_attr in props.keys():
-            list_of_valid_wildcard_attr_prefixes.append(wildcard_attr[:-1])
-    return list_of_valid_wildcard_attr_prefixes
-
-
-def reorder_props(props):
-    """
-    If "children" is in props, then move it to the
-    front to respect dash convention
-
-    Parameters
-    ----------
-    props: dict
-        Dictionary with {propName: propMetadata} structure
-
-    Returns
-    -------
-    dict
-        Dictionary with {propName: propMetadata} structure
-    """
-    if 'children' in props:
-        props = collections.OrderedDict(
-            [('children', props.pop('children'),)] +
-            list(zip(list(props.keys()), list(props.values()))))
-
-    return props
-
-
-def filter_props(props):
-    """
-    Filter props from the Component arguments to exclude:
-        - Those without a "type" or a "flowType" field
-        - Those with arg.type.name in {'func', 'symbol', 'instanceOf'}
-        - dashEvents as a name
-
-    Parameters
-    ----------
-    props: dict
-        Dictionary with {propName: propMetadata} structure
-
-    Returns
-    -------
-    dict
-        Filtered dictionary with {propName: propMetadata} structure
-
-    Examples
-    --------
-    ```python
-    prop_args = {
-        'prop1': {
-            'type': {'name': 'bool'},
-            'required': False,
-            'description': 'A description',
-            'flowType': {},
-            'defaultValue': {'value': 'false', 'computed': False},
-        },
-        'prop2': {'description': 'A prop without a type'},
-        'prop3': {
-            'type': {'name': 'func'},
-            'description': 'A function prop',
-        },
-    }
-    # filtered_prop_args is now
-    # {
-    #    'prop1': {
-    #        'type': {'name': 'bool'},
-    #        'required': False,
-    #        'description': 'A description',
-    #        'flowType': {},
-    #        'defaultValue': {'value': 'false', 'computed': False},
-    #    },
-    # }
-    filtered_prop_args = filter_props(prop_args)
-    ```
-    """
-    filtered_props = copy.deepcopy(props)
-
-    for arg_name, arg in list(filtered_props.items()):
-        if 'type' not in arg and 'flowType' not in arg:
-            filtered_props.pop(arg_name)
-            continue
-
-        # Filter out functions and instances --
-        # these cannot be passed from Python
-        if 'type' in arg:  # These come from PropTypes
-            arg_type = arg['type']['name']
-            if arg_type in {'func', 'symbol', 'instanceOf'}:
-                filtered_props.pop(arg_name)
-        elif 'flowType' in arg:  # These come from Flow & handled differently
-            arg_type_name = arg['flowType']['name']
-            if arg_type_name == 'signature':
-                # This does the same as the PropTypes filter above, but "func"
-                # is under "type" if "name" is "signature" vs just in "name"
-                if 'type' not in arg['flowType'] \
-                        or arg['flowType']['type'] != 'object':
-                    filtered_props.pop(arg_name)
-        else:
-            raise ValueError
-
-        # dashEvents are a special oneOf property that is used for subscribing
-        # to events but it's never set as a property
-        if arg_name in ['dashEvents']:
-            filtered_props.pop(arg_name)
-    return filtered_props
-
-
-# pylint: disable=too-many-arguments
-def create_prop_docstring(prop_name, type_object, required, description,
-                          indent_num, is_flow_type=False):
-    """
-    Create the Dash component prop docstring
-
-    Parameters
-    ----------
-    prop_name: str
-        Name of the Dash component prop
-    type_object: dict
-        react-docgen-generated prop type dictionary
-    required: bool
-        Component is required?
-    description: str
-        Dash component description
-    indent_num: int
-        Number of indents to use for the context block
-        (creates 2 spaces for every indent)
-    is_flow_type: bool
-        Does the prop use Flow types? Otherwise, uses PropTypes
-
-    Returns
-    -------
-    str
-        Dash component prop docstring
-    """
-    py_type_name = js_to_py_type(
-        type_object=type_object,
-        is_flow_type=is_flow_type,
-        indent_num=indent_num + 1)
-
-    indent_spacing = '  ' * indent_num
-    if '\n' in py_type_name:
-        return '{indent_spacing}- {name} ({is_required}): {description}. ' \
-               '{name} has the following type: {type}'.format(
-                   indent_spacing=indent_spacing,
-                   name=prop_name,
-                   type=py_type_name,
-                   description=description,
-                   is_required='required' if required else 'optional')
-    return '{indent_spacing}- {name} ({type}' \
-           '{is_required}){description}'.format(
-               indent_spacing=indent_spacing,
-               name=prop_name,
-               type='{}; '.format(py_type_name) if py_type_name else '',
-               description=(
-                   ': {}'.format(description) if description != '' else ''
-               ),
-               is_required='required' if required else 'optional')
-
-
-def map_js_to_py_types_prop_types(type_object):
-    """Mapping from the PropTypes js type object to the Python type"""
-    return dict(
-        array=lambda: 'list',
-        bool=lambda: 'boolean',
-        number=lambda: 'number',
-        string=lambda: 'string',
-        object=lambda: 'dict',
-        any=lambda: 'boolean | number | string | dict | list',
-        element=lambda: 'dash component',
-        node=lambda: 'a list of or a singular dash '
-                     'component, string or number',
-
-        # React's PropTypes.oneOf
-        enum=lambda: 'a value equal to: {}'.format(
-            ', '.join(
-                '{}'.format(str(t['value']))
-                for t in type_object['value'])),
-
-        # React's PropTypes.oneOfType
-        union=lambda: '{}'.format(
-            ' | '.join(
-                '{}'.format(js_to_py_type(subType))
-                for subType in type_object['value']
-                if js_to_py_type(subType) != '')),
-
-        # React's PropTypes.arrayOf
-        arrayOf=lambda: 'list'.format(  # pylint: disable=too-many-format-args
-            ' of {}s'.format(
-                js_to_py_type(type_object['value']))
-            if js_to_py_type(type_object['value']) != ''
-            else ''),
-
-        # React's PropTypes.objectOf
-        objectOf=lambda: (
-            'dict with strings as keys and values of type {}'
-            ).format(
-                js_to_py_type(type_object['value'])),
-
-        # React's PropTypes.shape
-        shape=lambda: 'dict containing keys {}.\n{}'.format(
-            ', '.join(
-                "'{}'".format(t)
-                for t in list(type_object['value'].keys())),
-            'Those keys have the following types: \n{}'.format(
-                '\n'.join(create_prop_docstring(
-                    prop_name=prop_name,
-                    type_object=prop,
-                    required=prop['required'],
-                    description=prop.get('description', ''),
-                    indent_num=1)
-                          for prop_name, prop in
-                          list(type_object['value'].items())))),
-    )
-
-
-def map_js_to_py_types_flow_types(type_object):
-    """Mapping from the Flow js types to the Python type"""
-    return dict(
-        array=lambda: 'list',
-        boolean=lambda: 'boolean',
-        number=lambda: 'number',
-        string=lambda: 'string',
-        Object=lambda: 'dict',
-        any=lambda: 'bool | number | str | dict | list',
-        Element=lambda: 'dash component',
-        Node=lambda: 'a list of or a singular dash '
-                     'component, string or number',
-
-        # React's PropTypes.oneOfType
-        union=lambda: '{}'.format(
-            ' | '.join(
-                '{}'.format(js_to_py_type(subType))
-                for subType in type_object['elements']
-                if js_to_py_type(subType) != '')),
-
-        # Flow's Array type
-        Array=lambda: 'list{}'.format(
-            ' of {}s'.format(
-                js_to_py_type(type_object['elements'][0]))
-            if js_to_py_type(type_object['elements'][0]) != ''
-            else ''),
-
-        # React's PropTypes.shape
-        signature=lambda indent_num: 'dict containing keys {}.\n{}'.format(
-            ', '.join("'{}'".format(d['key'])
-                      for d in type_object['signature']['properties']),
-            '{}Those keys have the following types: \n{}'.format(
-                '  ' * indent_num,
-                '\n'.join(
-                    create_prop_docstring(
-                        prop_name=prop['key'],
-                        type_object=prop['value'],
-                        required=prop['value']['required'],
-                        description=prop['value'].get('description', ''),
-                        indent_num=indent_num,
-                        is_flow_type=True)
-                    for prop in type_object['signature']['properties']))),
-    )
-
-
-def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
-    """
-    Convert JS types to Python types for the component definition
-
-    Parameters
-    ----------
-    type_object: dict
-        react-docgen-generated prop type dictionary
-    is_flow_type: bool
-        Does the prop use Flow types? Otherwise, uses PropTypes
-    indent_num: int
-        Number of indents to use for the docstring for the prop
-
-    Returns
-    -------
-    str
-        Python type string
-    """
-    js_type_name = type_object['name']
-    js_to_py_types = map_js_to_py_types_flow_types(type_object=type_object) \
-        if is_flow_type \
-        else map_js_to_py_types_prop_types(type_object=type_object)
-
-    if 'computed' in type_object and type_object['computed'] \
-            or type_object.get('type', '') == 'function':
-        return ''
-    elif js_type_name in js_to_py_types:
-        if js_type_name == 'signature':  # This is a Flow object w/ signature
-            return js_to_py_types[js_type_name](indent_num)
-        # All other types
-        return js_to_py_types[js_type_name]()
-    return ''
+    # If Python 3, we can set the function signature to be correct
+    if hasattr(inspect, 'signature'):
+        # pylint: disable=no-member
+        new_sig = inspect.signature(wrapper).replace(
+            parameters=inspect.signature(func).parameters.values()
+        )
+        wrapper.__signature__ = new_sig
+    return wrapper
