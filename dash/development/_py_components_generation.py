@@ -67,10 +67,6 @@ class {typename}(Component):
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
         args = {{k: _locals[k] for k in _explicit_args}}
-        for k in {required_args}:
-            if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
         args.pop('children', None)
         super({typename}, self).__init__({argtext})
     def __repr__(self):
@@ -133,7 +129,6 @@ class {typename}(Component):
         k: generate_property_schema(v)
         for k, v in props.items() if not k.endswith("-*")
     }
-    required_args = required_props(props)
     return c.format(**locals())
 
 
@@ -222,23 +217,6 @@ def generate_class(typename, props, description, namespace):
     exec(string, scope)
     result = scope[typename]
     return result
-
-
-def required_props(props):
-    """
-    Pull names of required props from the props object
-
-    Parameters
-    ----------
-    props: dict
-
-    Returns
-    -------
-    list
-        List of prop names (str) that are required for the Component
-    """
-    return [prop_name for prop_name, prop in list(props.items())
-            if prop['required']]
 
 
 def create_docstring(component_name, props, events, description):

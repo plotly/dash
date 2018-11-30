@@ -744,12 +744,12 @@ class TestGenerateClass(unittest.TestCase):
 
     def test_required_props(self):
         with self.assertRaises(Exception):
-            self.ComponentClassRequired()
+            self.ComponentClassRequired().validate()
         self.ComponentClassRequired(id='test')
         with self.assertRaises(Exception):
-            self.ComponentClassRequired(id='test', lahlah='test')
+            self.ComponentClassRequired(id='test', lahlah='test').validate()
         with self.assertRaises(Exception):
-            self.ComponentClassRequired(children='test')
+            self.ComponentClassRequired(children='test').validate()
 
 
 class TestMetaDataConversions(unittest.TestCase):
