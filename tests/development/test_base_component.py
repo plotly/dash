@@ -542,7 +542,8 @@ class TestGenerateClassFile(unittest.TestCase):
 
         def remove_schema(string):
             tmp = string.split("\n")
-            return "\n".join(tmp[:6] + tmp[7:])
+            return "\n".join(tmp[:5] + tmp[6:])
+
         self.expected_class_string = remove_schema(self.expected_class_string)
         self.component_class_string =\
             remove_schema(self.component_class_string)
