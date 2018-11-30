@@ -69,6 +69,7 @@ class DashValidator(cerberus.Validator):
             return True
         if isinstance(value, str):  # Since int('3') works
             return False
+        # The following handles numpy numeric types
         try:
             int(value)
             return True
@@ -90,12 +91,12 @@ class DashValidator(cerberus.Validator):
         cls.types_mapping['dict'] = d_type
 
 
-def generate_validation_error_message(errors, level=0, error_message=''):
+def parse_cerberus_error_tree(errors, level=0, error_message=''):
     for prop, error_tuple in errors.items():
         error_message += (' ' * level) + '* {}'.format(prop)
         if len(error_tuple) == 2:
             error_message += '\t<- {}\n'.format(error_tuple[0])
-            error_message = generate_validation_error_message(
+            error_message = parse_cerberus_error_tree(
                 error_tuple[1],
                 level + 1,
                 error_message)
@@ -103,12 +104,18 @@ def generate_validation_error_message(errors, level=0, error_message=''):
             if isinstance(error_tuple[0], str):
                 error_message += '\t<- {}\n'.format(error_tuple[0])
             elif isinstance(error_tuple[0], dict):
-                error_message = generate_validation_error_message(
+                error_message = parse_cerberus_error_tree(
                     error_tuple[0],
                     level + 1,
                     error_message + "\n")
+    return error_message
+
+
+def generate_validation_error_message(errors, level=0, error_message=''):
+    error_message = parse_cerberus_error_tree(errors, level, error_message)
     error_message += dedent("""
         You can turn off these validation exceptions by setting
         `app.config.suppress_validation_exceptions=True`
     """)
     return error_message
+    
