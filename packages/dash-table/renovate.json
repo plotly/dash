@@ -1,12 +1,27 @@
 {
     "extends": [
         ":onlyNpm",
-        "group:all"
     ],
     "enabledManagers": ["npm"],
+    "groupName": "all dependencies",
+    "groupSlug": "all",
+    "lockFileMaintenance": {
+        "enabled": false
+    },
     "packageRules": [{
-        "packageNames": ["react-select", "@types/react-select"],
+        "packageNames": [
+            "react-select", 
+            "@types/react-select"
+        ],
         "allowedVersions": "<2.0.0"
+    }, {
+        "packagePatterns": [
+            "dependencies", 
+            "devDependencies"
+        ],
+        "groupName": "all dependencies",
+        "groupSlug": "all"
     }],
-    "rangeStrategy": "bump"
+    "rangeStrategy": "bump",
+    "separateMajorMinor": false
 }
