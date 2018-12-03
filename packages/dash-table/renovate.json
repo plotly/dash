@@ -7,5 +7,6 @@
     "packageRules": [{
         "packageNames": ["react-select", "@types/react-select"],
         "allowedVersions": "<2.0.0"
-    }]    
+    }],
+    "rangeStrategy": "bump"
 }
