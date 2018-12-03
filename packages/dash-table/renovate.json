@@ -26,7 +26,8 @@
         "groupSlug": "all"
     }, {
         "depTypeList": [
-            "peerDependencies"
+            "peerDependencies",
+            "engines"
         ],
         "enabled": false
     }],
