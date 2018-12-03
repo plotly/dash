@@ -16,7 +16,10 @@
         "allowedVersions": "<2.0.0"
     }, {
         "packagePatterns": [
-            "dependencies", 
+            "*"
+        ],
+        "depTypeList": [
+            "dependencies",
             "devDependencies"
         ],
         "groupName": "all dependencies",
