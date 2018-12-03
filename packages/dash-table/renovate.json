@@ -1,6 +1,6 @@
 {
     "extends": [
-        ":onlyNpm",
+        ":onlyNpm"
     ],
     "enabledManagers": ["npm"],
     "groupName": "all dependencies",
