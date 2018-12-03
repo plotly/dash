@@ -24,6 +24,11 @@
         ],
         "groupName": "all dependencies",
         "groupSlug": "all"
+    }, {
+        "depTypeList": [
+            "peerDependencies"
+        ],
+        "enabled": false
     }],
     "rangeStrategy": "bump",
     "separateMajorMinor": false
