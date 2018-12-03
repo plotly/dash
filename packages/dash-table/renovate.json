@@ -4,5 +4,8 @@
         "group:all"
     ],
     "enabledManagers": ["npm"],
-    "schedule": "on monday"
+    "packageRules": [{
+        "packageNames": ["react-select", "@types/react-select"],
+        "allowedVersions": "<2.0.0"
+    }]    
 }
