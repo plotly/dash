@@ -7,7 +7,7 @@ export default (
     labels: any[][],
     mergeHeaders: boolean
 ): number[][] => {
-    return R.map(rowLabels => {
+    return R.map<any[], number[]>(rowLabels => {
         if (!mergeHeaders) {
             return R.range(0, columns.length);
         } else {

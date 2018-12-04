@@ -72,7 +72,7 @@ const getter = (
                     dropdown_properties[column.id][realIndex] :
                     null
             )
-        ) || column || {}
+        ) || column || { options: undefined }
     ).options;
 
     const conditional = columnConditionalDropdown.find((cs: any) => cs.id === column.id);
