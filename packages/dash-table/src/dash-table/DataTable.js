@@ -83,7 +83,8 @@ export const defaultProps = {
     style_table: {},
     style_data_conditional: [],
     style_cell_conditional: [],
-    style_header_conditional: []
+    style_header_conditional: [],
+    virtualization: false
 };
 
 export const propTypes = {
@@ -688,6 +689,16 @@ export const propTypes = {
             ])
         })
     })),
+
+    /**
+     * This property tells the table to use virtualization when rendering.
+     *
+     * Assumptions are that:
+     * - the width of the columns is fixed
+     * - the height of the rows is always the same
+     * - runtime styling changes will not affect width and height vs. first rendering
+     */
+    virtualization: PropTypes.bool,
 
     /**
      * This property represents the current state of `data`

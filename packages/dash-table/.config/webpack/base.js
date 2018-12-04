@@ -74,6 +74,7 @@ module.exports = (preprocessor = {}, mode = 'development') => {
             alias: {
                 'cypress': path.resolve('./tests/cypress/src'),
                 'dash-table': path.resolve('./src/dash-table'),
+                'demo': path.resolve('./demo'),
                 'core': path.resolve('./src/core'),
                 'tests': path.resolve('./tests')
             },

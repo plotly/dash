@@ -1,4 +1,4 @@
-import React, { PureComponent, CSSProperties } from 'react';
+import React, { PureComponent } from 'react';
 import * as R from 'ramda';
 import Stylesheet from 'core/Stylesheet';
 import {
@@ -11,6 +11,7 @@ import { selectionCycle } from 'dash-table/utils/navigation';
 
 import getScrollbarWidth from 'core/browser/scrollbarWidth';
 import Logger from 'core/Logger';
+import { arrayMap3 } from 'core/math/arrayZipMap';
 import { memoizeOne } from 'core/memoizer';
 import lexer from 'core/syntax-tree/lexer';
 
@@ -20,22 +21,18 @@ import dropdownHelper from 'dash-table/components/dropdownHelper';
 
 import derivedTable from 'dash-table/derived/table';
 import derivedTableFragments from 'dash-table/derived/table/fragments';
+import derivedTableFragmentStyles from 'dash-table/derived/table/fragmentStyles';
 import isEditable from 'dash-table/derived/cell/isEditable';
 import { derivedTableStyle } from 'dash-table/derived/style';
 import { IStyle } from 'dash-table/derived/style/props';
 
 const sortNumerical = R.sort<number>((a, b) => a - b);
 
-interface IState {
-    forcedResizeOnly: boolean;
-    scrollbarWidth: number;
-}
-
 const DEFAULT_STYLE = {
     width: '100%'
 };
 
-export default class ControlledTable extends PureComponent<ControlledTableProps, IState> {
+export default class ControlledTable extends PureComponent<ControlledTableProps> {
     private readonly stylesheet: Stylesheet;
     private readonly tableFn: () => JSX.Element[][];
     private readonly tableStyle = derivedTableStyle();
@@ -46,11 +43,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
     constructor(props: ControlledTableProps) {
         super(props);
-
-        this.state = {
-            forcedResizeOnly: false,
-            scrollbarWidth: 0
-        };
 
         this.stylesheet = new Stylesheet(`#${props.id}`);
         this.tableFn = derivedTable(() => this.props);
@@ -73,12 +65,50 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         }, css);
     }
 
+    private updateUiViewport() {
+        const {
+            setState,
+            uiViewport,
+            virtualization
+        } = this.props;
+
+        if (!virtualization) {
+            return;
+        }
+
+        const { r1c1 } = this.refs as { [key: string]: HTMLElement };
+        let parent: any = r1c1.parentElement;
+
+        if (uiViewport &&
+            uiViewport.scrollLeft === parent.scrollLeft &&
+            uiViewport.scrollTop === parent.scrollTop &&
+            uiViewport.height === parent.clientHeight &&
+            uiViewport.width === parent.clientWidth) {
+            return;
+        }
+
+        setState({
+            uiViewport: {
+                scrollLeft: parent.scrollLeft,
+                scrollTop: parent.scrollTop,
+                height: parent.clientHeight,
+                width: parent.clientWidth
+            }
+        });
+    }
+
     componentDidMount() {
-        if (
-            this.props.selected_cells.length &&
-            !R.contains(this.props.active_cell, this.props.selected_cells)
+        const {
+            active_cell,
+            selected_cells,
+            setProps
+        } = this.props;
+
+        if (selected_cells.length &&
+            active_cell.length &&
+            !R.contains(active_cell, selected_cells)
         ) {
-            this.props.setProps({ active_cell: this.props.selected_cells[0] });
+            setProps({ active_cell: selected_cells[0] });
         }
 
         this.applyStyle();
@@ -107,6 +137,36 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         this.applyStyle();
         this.handleResize();
         this.handleDropdown();
+
+        const {
+            setState,
+            uiCell,
+            virtualization
+        } = this.props;
+
+        if (!virtualization) {
+            return;
+        }
+
+        if (uiCell) {
+            return;
+        }
+
+        const { r1c1 } = this.refs as { [key: string]: HTMLElement };
+        const contentTd = r1c1.querySelector('tr > td:first-of-type');
+
+        if (!contentTd) {
+            return;
+        }
+
+        const contentThs = r1c1.querySelectorAll('tr th:first-of-type');
+
+        setState({
+            uiCell: {
+                height: contentTd.clientHeight
+            },
+            uiHeaders: R.map((th: Element) => ({ height: th.clientHeight }), Array.from(contentThs))
+        });
     }
 
     handleClickOutside = (event: any) => {
@@ -137,17 +197,22 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
     forceHandleResize = () => this.handleResize(true);
 
     handleResize = (force: boolean = false) => {
-        if (this.state.forcedResizeOnly && !force) {
+        const {
+            forcedResizeOnly,
+            setState
+        } = this.props;
+
+        if (forcedResizeOnly && !force) {
             return;
         }
 
         if (!force) {
-            this.setState({ forcedResizeOnly: true });
+            setState({ forcedResizeOnly: true });
         }
 
         this.updateStylesheet();
 
-        getScrollbarWidth().then((scrollbarWidth: number) => this.setState({ scrollbarWidth }));
+        getScrollbarWidth().then((scrollbarWidth: number) => setState({ scrollbarWidth }));
 
         const { r0c0, r0c1, r1c0, r1c1 } = this.refs as { [key: string]: HTMLElement };
 
@@ -528,6 +593,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
 
         const { r1c0, r1c1 } = this.refs as { [key: string]: HTMLElement };
 
+        this.updateUiViewport();
+
         if (row_deletable) {
             this.stylesheet.setRule(
                 `.dash-spreadsheet-inner td.dash-delete-cell`,
@@ -589,6 +656,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
         Logger.trace(`ControlledTable fragment scrolled to (left,top)=(${ev.target.scrollLeft},${ev.target.scrollTop})`);
         r0c1.style.marginLeft = `${-ev.target.scrollLeft}px`;
 
+        this.updateUiViewport();
         this.handleDropdown();
     }
 
@@ -598,22 +666,31 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
             content_style,
             n_fixed_columns,
             n_fixed_rows,
+            scrollbarWidth,
             style_as_list_view,
-            style_table
+            style_table,
+            uiCell,
+            uiHeaders,
+            uiViewport,
+            viewport,
+            virtualized,
+            virtualization
         } = this.props;
 
-        const classes = [
-            'dash-spreadsheet-inner',
+        const containerClasses = [
             'dash-spreadsheet',
+            'dash-spreadsheet-container',
+            ...(virtualization ? ['dash-virtualized'] : []),
             ...(n_fixed_rows ? ['dash-freeze-top'] : []),
             ...(n_fixed_columns ? ['dash-freeze-left'] : []),
             ...(style_as_list_view ? ['dash-list-view'] : []),
             [`dash-${content_style}`]
         ];
 
-        const containerClasses = [
+        const classes = [
             'dash-spreadsheet',
-            'dash-spreadsheet-container',
+            'dash-spreadsheet-inner',
+            ...(virtualization ? ['dash-virtualized'] : []),
             ...(n_fixed_rows ? ['dash-freeze-top'] : []),
             ...(n_fixed_columns ? ['dash-freeze-left'] : []),
             ...(style_as_list_view ? ['dash-list-view'] : []),
@@ -631,21 +708,24 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
             ]
         ];
 
-        const fragmentStyles: (CSSProperties | undefined)[][] = [
-            [
-                undefined,
-                { marginRight: this.state.scrollbarWidth }
-            ],
-            [
-                undefined,
-                undefined
-            ]
-        ];
-
         const rawTable = this.tableFn();
-        const grid = derivedTableFragments(n_fixed_columns, n_fixed_rows, rawTable);
+        const grid = derivedTableFragments(
+            n_fixed_columns,
+            n_fixed_rows,
+            rawTable,
+            virtualized.offset.rows
+        );
 
         const tableStyle = this.calculateTableStyle(style_table);
+        const gridStyle = derivedTableFragmentStyles(
+            virtualization,
+            uiCell,
+            uiHeaders,
+            uiViewport,
+            viewport,
+            virtualized.padding.rows,
+            scrollbarWidth
+        );
 
         return (<div
             id={id}
@@ -660,13 +740,16 @@ export default class ControlledTable extends PureComponent<ControlledTableProps,
                         ref={`r${rowIndex}`}
                         className={`row row-${rowIndex}`}
                         onScroll={this.onScroll}
-                    >{row.map((cell, columnIndex) => (<div
-                        key={columnIndex}
-                        ref={`r${rowIndex}c${columnIndex}`}
-                        style={fragmentStyles[rowIndex][columnIndex]}
-                        className={`cell cell-${rowIndex}-${columnIndex} ${fragmentClasses[rowIndex][columnIndex]}`}
-                    >{cell}</div>))
-                        }</div>))}
+                    >
+                        {arrayMap3(row, gridStyle[rowIndex], fragmentClasses[rowIndex], (g, s, c, columnIndex) => (<div
+                            style={s.fragment}
+                            key={columnIndex}
+                            ref={`r${rowIndex}c${columnIndex}`}
+                            className={`cell cell-${rowIndex}-${columnIndex} ${c}`}
+                        >
+                            {g ? React.cloneElement(g, { style: s.cell }) : g}
+                        </div>))}
+                    </div>))}
                 </div>
             </div>
             {!this.displayPagination ? null : (

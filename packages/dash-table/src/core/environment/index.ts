@@ -9,7 +9,7 @@ interface ISearchParams {
 }
 
 export default class Environment {
-    private static get searchParams(): ISearchParams {
+    public static get searchParams(): ISearchParams {
         return (
             typeof URL !== 'undefined' &&
             URL.prototype &&

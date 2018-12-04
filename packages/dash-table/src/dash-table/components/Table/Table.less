@@ -23,10 +23,18 @@
         th:first-of-type {
             & when (@isListView = True) {
                 .inset-shadow(var(--border), 0px, 1px, 0px, -1px);
+
+                &.focused {
+                    .inset-shadow(var(--accent), 0px, 0px, 0px, -1px);
+                }
             }
 
             & when (@isListView = False) {
                 .inset-shadow(var(--border), 1px, 1px, -1px, -1px);
+
+                &.focused {
+                    box-shadow: inset 0 0 0 1px var(--accent)
+                }
             }
         }
     }
@@ -37,10 +45,18 @@
         td, th {
             & when (@isListView = True) {
                 .inset-shadow(var(--border), 0px, 1px, 0px, -1px);
+
+                &.focused {
+                    .inset-shadow(var(--accent), 0px, 0px, 0px, -1px);
+                }
             }
 
             & when (@isListView = False) {
                 .inset-shadow(var(--border), 0px, 1px, -1px, -1px);
+
+                &.focused {
+                    box-shadow: inset 0 0 0 1px var(--accent)
+                }
             }
         }
     }
@@ -52,10 +68,18 @@
         th:first-of-type {
             & when (@isListView = True) {
                 .inset-shadow(var(--border), 0px, 0px, 0px, -1px);
+
+                &.focused {
+                    .inset-shadow(var(--accent), 0px, 0px, 0px, -1px);
+                }
             }
 
             & when (@isListView = False) {
                 .inset-shadow(var(--border), 1px, 0px, -1px, -1px);
+
+                &.focused {
+                    box-shadow: inset 0 0 0 1px var(--accent)
+                }
             }
 
         }
@@ -123,8 +147,7 @@
             }
 
             & when (@isListView = False) {
-                .outline-shadow(var(--accent), 1px, 1px, 0, 0);
-                border: 1px solid var(--accent);
+                box-shadow: inset 0 0 0 1px var(--accent)
             }
         }
 
@@ -173,13 +196,17 @@
 }
 
 .dash-spreadsheet {
-    &.dash-freeze-left {
+    &.dash-freeze-left,
+    &.dash-freeze-top {
         .fit-content-polyfill();
+    }
+
+    &.dash-freeze-left {
         max-width: 500px;
     }
 
-    &.dash-freeze-top {
-        .fit-content-polyfill();
+    &.dash-freeze-top,
+    &.dash-virtualized {
         max-height: 500px;
     }
 }
@@ -238,7 +265,8 @@
         }
 
         &.dash-freeze-left,
-        &.dash-freeze-top {
+        &.dash-freeze-top,
+        &.dash-virtualized {
             overflow: hidden !important;
 
             .row-0 {

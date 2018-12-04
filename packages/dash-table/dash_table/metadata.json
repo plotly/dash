@@ -928,6 +928,17 @@
           "computed": false
         }
       },
+      "virtualization": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "This property tells the table to use virtualization when rendering.\n\nAssumptions are that:\n- the width of the columns is fixed\n- the height of the rows is always the same\n- runtime styling changes will not affect width and height vs. first rendering",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
       "derived_viewport_data": {
         "type": {
           "name": "arrayOf",

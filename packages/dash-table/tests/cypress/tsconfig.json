@@ -5,7 +5,8 @@
         "paths": {
             "cypress/*": ["./src/*"],
             "core/*": ["./../../src/core/*"],
-            "dash-table/*": ["./../../src/dash-table/*"]
+            "dash-table/*": ["./../../src/dash-table/*"],
+            "demo/*": ["./../../demo/*"]
         },
         "types": [
             "cypress"

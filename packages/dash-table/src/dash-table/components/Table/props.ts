@@ -25,6 +25,23 @@ export interface IDerivedData {
     indices: Indices;
 }
 
+export interface IViewportOffset {
+    rows: number;
+    columns: number;
+}
+
+export interface IViewportPadding {
+    before: number;
+    after: number;
+}
+
+export interface IVirtualizedDerivedData extends IDerivedData {
+    offset: IViewportOffset;
+    padding: {
+        rows: IViewportPadding;
+    };
+}
+
 export enum ContentStyle {
     Fit = 'fit',
     Grow = 'grow'
@@ -43,6 +60,7 @@ export type PaginationMode = 'fe' | 'be' | boolean;
 export type RowSelection = 'single' | 'multi' | false;
 export type SelectedCells = CellCoordinates[];
 export type SetProps = (...args: any[]) => void;
+export type SetState = (state: Partial<IState>) => void;
 export type Sorting = 'fe' | 'be' | boolean;
 export type SortingType = 'multi' | 'single';
 export type VisibleColumns = IVisibleColumn[];
@@ -101,6 +119,27 @@ export interface IPaginationSettings {
     page_size: number;
 }
 
+export interface IUserInterfaceCell {
+    height: number;
+}
+
+export interface IUserInterfaceViewport {
+    scrollLeft: number;
+    scrollTop: number;
+    height: number;
+    width: number;
+}
+
+export interface IState {
+    forcedResizeOnly: boolean;
+    scrollbarWidth: number;
+    uiViewport?: IUserInterfaceViewport;
+    uiCell?: IUserInterfaceCell;
+    uiHeaders?: IUserInterfaceCell[];
+}
+
+export type StandaloneState = IState & Partial<PropsWithDefaultsAndDerived>;
+
 interface IProps {
     data_previous?: any[];
     data_timestamp?: number;
@@ -149,8 +188,8 @@ interface IProps {
     style_cell_conditional?: Cells;
     style_filter_conditional?: BasicFilters;
     style_header_conditional?: Headers;
-
     style_table?: Table;
+    virtualization?: boolean;
 }
 
 interface IDefaultProps {
@@ -193,6 +232,7 @@ interface IDefaultProps {
     style_header_conditional: Headers;
 
     style_table: Table;
+    virtualization: boolean;
 }
 
 interface IDerivedProps {
@@ -207,8 +247,9 @@ interface IDerivedProps {
 export type PropsWithDefaults = IProps & IDefaultProps;
 export type PropsWithDefaultsAndDerived = PropsWithDefaults & IDerivedProps;
 
-export type ControlledTableProps = PropsWithDefaults & {
+export type ControlledTableProps = PropsWithDefaults & IState & {
     setProps: SetProps;
+    setState: SetState;
 
     columns: VisibleColumns;
     paginator: IPaginator;
@@ -216,9 +257,10 @@ export type ControlledTableProps = PropsWithDefaults & {
     viewport_selected_rows: Indices;
     virtual: IDerivedData;
     virtual_selected_rows: Indices;
+    virtualized: IVirtualizedDerivedData;
 };
 
-export interface ICellFactoryOptions {
+export interface ICellFactoryProps {
     active_cell: ActiveCell;
     columns: VisibleColumns;
     column_conditional_dropdowns: IConditionalColumnDropdown[];
@@ -245,5 +287,9 @@ export interface ICellFactoryOptions {
     style_filter_conditional: BasicFilters;
     style_header_conditional: Headers;
     style_table: Table;
+    uiCell?: IUserInterfaceCell;
+    uiViewport?: IUserInterfaceViewport;
     viewport: IDerivedData;
+    virtualization: boolean;
+    virtualized: IVirtualizedDerivedData;
 }

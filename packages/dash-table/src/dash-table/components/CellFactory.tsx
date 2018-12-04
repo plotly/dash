@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ICellFactoryOptions } from 'dash-table/components/Table/props';
+import { ICellFactoryProps } from 'dash-table/components/Table/props';
 import derivedCellWrappers from 'dash-table/derived/cell/wrappers';
 import derivedCellInputs from 'dash-table/derived/cell/inputs';
 import derivedCellOperations from 'dash-table/derived/cell/operations';
@@ -21,7 +21,7 @@ export default class CellFactory {
     }
 
     constructor(
-        private readonly propsFn: () => ICellFactoryOptions,
+        private readonly propsFn: () => ICellFactoryProps,
         private readonly cellStyles = derivedCellStyles(),
         private readonly cellWrappers = derivedCellWrappers(propsFn().id),
         private readonly relevantStyles = derivedRelevantCellStyles()
@@ -47,14 +47,14 @@ export default class CellFactory {
             style_cell_conditional,
             style_data,
             style_data_conditional,
-            viewport
+            virtualized
         } = this.props;
 
         const operations = this.cellOperations(
             active_cell,
             data,
-            viewport.data,
-            viewport.indices,
+            virtualized.data,
+            virtualized.indices,
             row_selectable,
             row_deletable,
             selected_rows,
@@ -64,7 +64,8 @@ export default class CellFactory {
         const wrappers = this.cellWrappers(
             active_cell,
             columns,
-            viewport.data,
+            virtualized.data,
+            virtualized.offset,
             selected_cells
         );
 
@@ -78,13 +79,14 @@ export default class CellFactory {
         const wrapperStyles = this.cellStyles(
             columns,
             relevantStyles,
-            viewport.data
+            virtualized.data,
+            virtualized.offset
         );
 
         const dropdowns = this.cellDropdowns(id)(
             columns,
-            viewport.data,
-            viewport.indices,
+            virtualized.data,
+            virtualized.indices,
             column_conditional_dropdowns,
             column_static_dropdown,
             dropdown_properties
@@ -93,7 +95,8 @@ export default class CellFactory {
         const inputs = this.cellInputs(
             active_cell,
             columns,
-            viewport.data,
+            virtualized.data,
+            virtualized.offset,
             editable,
             !!is_focused,
             id,

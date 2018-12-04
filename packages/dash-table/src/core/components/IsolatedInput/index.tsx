@@ -49,7 +49,7 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
     handleKeyDown = (e: React.KeyboardEvent) => {
         const {
             stopPropagation,
-           updateOnEnter
+            updateOnEnter
         } = this.propsWithDefaults;
 
         if (stopPropagation) {

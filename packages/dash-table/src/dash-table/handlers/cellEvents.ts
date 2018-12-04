@@ -1,16 +1,17 @@
 import * as R from 'ramda';
-import { SelectedCells, ICellFactoryOptions } from 'dash-table/components/Table/props';
+import { SelectedCells, ICellFactoryProps } from 'dash-table/components/Table/props';
 import isActive from 'dash-table/derived/cell/isActive';
 
 function isCellSelected(selectedCells: SelectedCells, idx: number, i: number) {
     return selectedCells && R.contains([idx, i], selectedCells);
 }
 
-export const handleClick = (propsFn: () => ICellFactoryOptions, idx: number, i: number, e: any) => {
+export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: number, e: any) => {
     const {
         editable,
         selected_cells,
-        setProps
+        setProps,
+        virtualized
     } = propsFn();
 
     if (!editable) {
@@ -25,8 +26,12 @@ export const handleClick = (propsFn: () => ICellFactoryOptions, idx: number, i: 
     }
 
     e.preventDefault();
-    const cellLocation: [number, number] = [idx, i];
-    const newProps: Partial<ICellFactoryOptions> = {
+    const cellLocation: [number, number] = [
+        idx + virtualized.offset.rows,
+        i + virtualized.offset.columns
+    ];
+
+    const newProps: Partial<ICellFactoryProps> = {
         is_focused: false,
         active_cell: cellLocation
     };
@@ -54,18 +59,22 @@ export const handleClick = (propsFn: () => ICellFactoryOptions, idx: number, i: 
     setProps(newProps);
 };
 
-export const handleDoubleClick = (propsFn: () => ICellFactoryOptions, idx: number, i: number, e: any) => {
+export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number, i: number, e: any) => {
     const {
         editable,
         is_focused,
-        setProps
+        setProps,
+        virtualized
     } = propsFn();
 
     if (!editable) {
         return;
     }
 
-    const cellLocation: [number, number] = [idx, i];
+    const cellLocation: [number, number] = [
+        idx + virtualized.offset.rows,
+        i + virtualized.offset.columns
+    ];
 
     if (!is_focused) {
         e.preventDefault();
@@ -78,17 +87,17 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryOptions, idx: numbe
     }
 };
 
-export const handleChange = (propsFn: () => ICellFactoryOptions, idx: number, i: number, value: any) => {
+export const handleChange = (propsFn: () => ICellFactoryProps, idx: number, i: number, value: any) => {
     const {
         columns,
         data,
         editable,
         setProps,
-        viewport
+        virtualized
     } = propsFn();
 
     const c = columns[i];
-    const realIdx = viewport.indices[idx];
+    const realIdx = virtualized.indices[idx];
 
     if (!editable) {
         return;
@@ -105,7 +114,7 @@ export const handleChange = (propsFn: () => ICellFactoryOptions, idx: number, i:
 
 };
 
-export const handleOnMouseUp = (propsFn: () => ICellFactoryOptions, idx: number, i: number, e: any) => {
+export const handleOnMouseUp = (propsFn: () => ICellFactoryProps, idx: number, i: number, e: any) => {
     const {
         active_cell,
         is_focused
@@ -122,6 +131,6 @@ export const handleOnMouseUp = (propsFn: () => ICellFactoryOptions, idx: number,
     }
 };
 
-export const handlePaste = (_propsFn: () => ICellFactoryOptions, _idx: number, _i: number, e: ClipboardEvent) => {
+export const handlePaste = (_propsFn: () => ICellFactoryProps, _idx: number, _i: number, e: ClipboardEvent) => {
     e.preventDefault();
 };

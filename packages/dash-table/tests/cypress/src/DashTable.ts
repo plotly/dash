@@ -15,7 +15,17 @@ export default class DashTable {
         return cy.get(`#table tbody tr td.dash-select-cell`).eq(row);
     }
 
+    static getActiveCell() {
+        return cy.get(`#table tbody td.focused`);
+    }
+
     static getSelectedCells() {
         return cy.get(`#table tbody td.cell--selected`);
+    }
+
+    static toggleScroll(toggled: boolean) {
+        cy.get('.row-1').then($el => {
+            $el[0].style.overflow = toggled ? '' : 'unset';
+        });
     }
 }

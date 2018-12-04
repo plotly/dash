@@ -6,12 +6,12 @@ interface IAccumulator {
     count: number;
 }
 
-function renderFragment(cells: any[][] | null) {
+function renderFragment(cells: any[][] | null, offset: number = 0) {
     return cells ?
         (<table tabIndex={-1}>
             <tbody>
                 {cells.map(
-                    (row, idx) => <tr key={`row-${idx}`}>{row}</tr>)
+                    (row, idx) => <tr key={`row-${idx + offset}`}>{row}</tr>)
                 }
             </tbody>
         </table>) :
@@ -21,7 +21,8 @@ function renderFragment(cells: any[][] | null) {
 export default (
     fixedColumns: number,
     fixedRows: number,
-    cells: JSX.Element[][]
+    cells: JSX.Element[][],
+    offset: number
 ): (JSX.Element | null)[][] => {
     // slice out fixed columns
     const fixedColumnCells = fixedColumns ?
@@ -51,6 +52,6 @@ export default (
 
     return [
         [renderFragment(fixedRowAndColumnCells), renderFragment(fixedRowCells)],
-        [renderFragment(fixedColumnCells), renderFragment(cells)]
+        [renderFragment(fixedColumnCells), renderFragment(cells, offset)]
     ];
 };
