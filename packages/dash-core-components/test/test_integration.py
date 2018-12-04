@@ -482,6 +482,28 @@ class Tests(IntegrationTests):
                       'but initial month is')
         dt_input_4.send_keys("1997-05-03")
 
+    def test_tabs_in_vertical_mode(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.Tabs(id="tabs", value='tab-3', children=[
+                dcc.Tab(label='Tab one', value='tab-1', id='tab-1', children=[
+                    html.Div('Tab One Content')
+                ]),
+                dcc.Tab(label='Tab two', value='tab-2', id='tab-2', children=[
+                    html.Div('Tab Two Content')
+                ]),
+                dcc.Tab(label='Tab three', value='tab-3', id='tab-3', children=[
+                    html.Div('Tab Three Content')
+                ]),
+                ], vertical=True),
+            html.Div(id='tabs-content')
+        ])
+
+        self.startServer(app=app)
+        self.wait_for_text_to_equal('#tab-3', 'Tab three')
+
+        self.snapshot('Tabs - vertical mode')
     def test_tabs_without_children(self):
         app = dash.Dash(__name__)
 
