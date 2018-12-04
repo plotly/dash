@@ -63,24 +63,28 @@ export default class Input extends Component {
                         fireEvent({event: 'blur'});
                     }
                     if (setProps) {
-                        const castValue =
-                            type === 'number' ? Number(value) : value;
-                        setProps({
+                        const payload = {
                             n_blur: this.props.n_blur + 1,
                             n_blur_timestamp: new Date(),
-                            value: castValue,
-                        });
+                        };
+                        if (debounce) {
+                            payload.value =
+                                type === 'number' ? Number(value) : value;
+                        }
+                        setProps(payload);
                     }
                 }}
                 onKeyPress={e => {
                     if (setProps && e.key === 'Enter') {
-                        const castValue =
-                            type === 'number' ? Number(value) : value;
-                        setProps({
+                        const payload = {
                             n_submit: this.props.n_submit + 1,
                             n_submit_timestamp: new Date(),
-                            value: castValue,
-                        });
+                        };
+                        if (debounce) {
+                            payload.value =
+                                type === 'number' ? Number(value) : value;
+                        }
+                        setProps(payload);
                     }
                 }}
                 value={value}

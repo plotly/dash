@@ -2,9 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.40.2] - 2018-12-04
+### Fixed
+- Put Input value set in onBlur/onSubmit under a debounce check [#384](https://github.com/plotly/dash-core-components/pull/384)
+
 ## [0.40.1] - 2018-12-04
 ### Fixed
 - Fixed issue [#390](https://github.com/plotly/dash-core-components/issues/390) by providing better styles for vertical Tabs.
+
 ## [0.40.0] - 2018-11-28
 ### Added
 - Add Logout button (dash-deployment-server authentication integration) [#388](https://github.com/plotly/dash-core-components/pull/388)

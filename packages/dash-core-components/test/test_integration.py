@@ -22,6 +22,7 @@ from selenium.common.exceptions import InvalidElementStateException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 from textwrap import dedent
 try:
@@ -30,6 +31,7 @@ except ImportError:
     from urllib.parse import urlparse
 
 from .IntegrationTests import IntegrationTests
+from .utils import wait_for
 
 from multiprocessing import Value
 
@@ -54,9 +56,13 @@ class Tests(IntegrationTests):
         )
 
     def wait_for_text_to_equal(self, selector, assertion_text):
-        return WebDriverWait(self.driver, TIMEOUT).until(
+        WebDriverWait(self.driver, TIMEOUT).until(
             EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector),
                                              assertion_text)
+        )
+        self.assertEqual(
+            assertion_text,
+            self.driver.find_element_by_css_selector(selector).text
         )
 
     def snapshot(self, name):
@@ -1468,3 +1474,91 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#content', 'Logged out')
 
         self.assertFalse(self.driver.get_cookie('logout-cookie'))
+
+    def test_state_and_inputs(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(value='Initial Input', id='input'),
+            dcc.Input(value='Initial State', id='state'),
+            html.Div(id='output')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(Output('output', 'children'),
+                      inputs=[Input('input', 'value')],
+                      state=[State('state', 'value')])
+        def update_output(input, state):
+            call_count.value += 1
+            return 'input="{}", state="{}"'.format(input, state)
+
+        self.startServer(app)
+        output = lambda: self.driver.find_element_by_id('output')
+        input = lambda: self.driver.find_element_by_id('input')
+        state = lambda: self.driver.find_element_by_id('state')
+
+        # callback gets called with initial input
+        wait_for(lambda: call_count.value == 1)
+        self.assertEqual(
+            output().text,
+            'input="Initial Input", state="Initial State"'
+        )
+
+        input().send_keys('x')
+        wait_for(lambda: call_count.value == 2)
+        self.assertEqual(
+            output().text,
+            'input="Initial Inputx", state="Initial State"')
+
+        state().send_keys('x')
+        time.sleep(0.75)
+        self.assertEqual(call_count.value, 2)
+        self.assertEqual(
+            output().text,
+            'input="Initial Inputx", state="Initial State"')
+
+        input().send_keys('y')
+        wait_for(lambda: call_count.value == 3)
+        self.assertEqual(
+            output().text,
+            'input="Initial Inputxy", state="Initial Statex"')
+
+    def test_simple_callback(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+            ),
+            html.Div(
+                html.Div([
+                    1.5,
+                    None,
+                    'string',
+                    html.Div(id='output-1')
+                ])
+            )
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            call_count.value = call_count.value + 1
+            return value
+
+        self.startServer(app)
+
+        input1 = self.wait_for_element_by_css_selector('#input')
+        input1.send_keys('hello world')
+        output1 = self.wait_for_element_by_css_selector('#output-1')
+        self.wait_for_text_to_equal('#output-1', 'hello world')
+        output1.click()  # Lose focus, no callback sent for value.
+
+        self.assertEqual(
+            call_count.value,
+            # an initial call to retrieve the first value
+            1 +
+            # one for each hello world character
+            len('hello world')
+        )
+
