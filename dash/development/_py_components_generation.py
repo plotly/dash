@@ -1,7 +1,6 @@
 import collections
 import copy
 import os
-import textwrap
 
 from dash.development.base_component import _explicitize_args
 from ._all_keywords import python_keywords
@@ -167,19 +166,14 @@ def generate_class_file(typename, props, description, namespace):
 
 def generate_imports(project_shortname, components):
     with open(os.path.join(project_shortname, '_imports_.py'), 'w') as f:
-        f.write(textwrap.dedent(
-            '''
-            {}
+        imports_string = '{}\n\n{}'.format(
+            '\n'.join(
+                'from .{0} import {0}'.format(x) for x in components),
+            '__all__ = [\n{}\n]'.format(
+                ',\n'.join('    "{}"'.format(x) for x in components))
+        )
 
-            __all__ = [
-            {}
-            ]
-            '''.format(
-                '\n'.join(
-                    'from .{0} import {0}'.format(x) for x in components),
-                ',\n'.join('    "{}"'.format(x) for x in components)
-            )
-        ).lstrip())
+        f.write(imports_string)
 
 
 def generate_classes_files(project_shortname, metadata, *component_generators):
