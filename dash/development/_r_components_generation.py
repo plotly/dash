@@ -52,7 +52,7 @@ def generate_class_string_r(name, props, project_shortname, prefix):
     component <- list(
         props = list({default_paramtext}),
         type = '{name}',
-        project_shortname = '{project_shortname}',
+        namespace = '{project_shortname}',
         propNames = c({prop_names}),
         package = '{package_name}'
         )
@@ -336,6 +336,8 @@ def write_class_file_r(name, props, description, project_shortname, prefix=None)
         description,
         prefix
     )
+
+    print('Generated {}'.format(file_name))
 
 
 # pylint: disable=unused-variable
