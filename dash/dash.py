@@ -492,7 +492,8 @@ class Dash(object):
 
         mimetype = ({
             'js': 'application/JavaScript',
-            'css': 'text/css'
+            'css': 'text/css',
+            'map': 'application/json'
         })[path_in_package_dist.split('.')[-1]]
 
         headers = {
