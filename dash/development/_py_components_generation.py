@@ -4,7 +4,7 @@ import os
 import textwrap
 
 from dash.development.base_component import _explicitize_args
-from ._all_keywords import kwlist
+from ._all_keywords import python_keywords
 from .base_component import Component
 
 
@@ -122,7 +122,7 @@ def generate_class_string(typename, props, description, namespace):
           '{:s}=Component.UNDEFINED'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
-         p not in kwlist and
+         p not in python_keywords and
          p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
     )
 
