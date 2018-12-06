@@ -386,26 +386,26 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         // If there are selections above the active cell and we are
         // selecting down then pull down the top selection towards
         // the active cell.
-        if (selectingDown && active_cell[0] > minRow) {
+        if (selectingDown && (active_cell as any)[0] > minRow) {
             removeCells = selectedCols.map(col => [minRow, col]);
         } else if (selectingDown && maxRow !== viewport.data.length - 1) {
             // Otherwise if we are selecting down select the next row if possible.
             targetCells = selectedCols.map(col => [maxRow + 1, col]);
-        } else if (selectingUp && active_cell[0] < maxRow) {
+        } else if (selectingUp && (active_cell as any)[0] < maxRow) {
             // If there are selections below the active cell and we are selecting
             // up remove lower row.
             removeCells = selectedCols.map(col => [maxRow, col]);
         } else if (selectingUp && minRow > 0) {
             // Otherwise if we are selecting up select next row if possible.
             targetCells = selectedCols.map(col => [minRow - 1, col]);
-        } else if (selectingLeft && active_cell[1] < maxCol) {
+        } else if (selectingLeft && (active_cell as any)[1] < maxCol) {
             // If there are selections to the right of the active cell and
             // we are selecting left, move the right side closer to active_cell
             removeCells = selectedRows.map(row => [row, maxCol]);
         } else if (selectingLeft && minCol > 0) {
             // Otherwise increase the selection left if possible
             targetCells = selectedRows.map(row => [row, minCol - 1]);
-        } else if (selectingRight && active_cell[1] > minCol) {
+        } else if (selectingRight && (active_cell as any)[1] > minCol) {
             // If there are selections to the left of the active cell and
             // we are selecting right, move the left side closer to active_cell
             removeCells = selectedRows.map(row => [row, minCol]);

@@ -10,32 +10,22 @@ import {
     Indices,
     IColumnDropdown,
     IConditionalColumnDropdown,
-    IDropdownProperties
+    IDropdownProperties,
+    DropdownValues
 } from 'dash-table/components/Table/props';
 import SyntaxTree from 'core/syntax-tree';
 import memoizerCache from 'core/memoizerCache';
+import { IConditionalDropdown } from 'dash-table/components/CellDropdown/types';
 
-interface IDropdownOption {
-    label: string;
-    value: string;
-}
-
-type IDropdownOptions = IDropdownOption[];
-
-interface IConditionalDropdown {
-    condition: string;
-    dropdown: IDropdownOptions;
-}
-
-const mapData = R.addIndex<Datum, JSX.Element[]>(R.map);
+const mapData = R.addIndex<Datum, (DropdownValues | undefined)[]>(R.map);
 
 const getDropdown = (
     astCache: (key: [ColumnId, number], query: string) => SyntaxTree,
-    conditionalDropdowns: any,
+    conditionalDropdowns: IConditionalDropdown[],
     datum: Datum,
     property: ColumnId,
-    staticDropdown: any
-) => {
+    staticDropdown: DropdownValues | undefined
+): DropdownValues | undefined => {
     const dropdowns = [
         ...(staticDropdown ? [staticDropdown] : []),
         ...R.map(
@@ -60,10 +50,10 @@ const getter = (
     columnConditionalDropdown: IConditionalColumnDropdown[],
     columnStaticDropdown: IColumnDropdown[],
     dropdown_properties: IDropdownProperties
-): any[][] => mapData((datum, rowIndex) => R.map(column => {
+): (DropdownValues | undefined)[][] => mapData((datum, rowIndex) => R.map(column => {
     const realIndex = indices[rowIndex];
 
-    let legacyDropdown: any = (
+    let legacyDropdown = (
         (
             dropdown_properties &&
             dropdown_properties[column.id] &&
@@ -72,7 +62,7 @@ const getter = (
                     dropdown_properties[column.id][realIndex] :
                     null
             )
-        ) || column || { options: undefined }
+        ) || column
     ).options;
 
     const conditional = columnConditionalDropdown.find((cs: any) => cs.id === column.id);
@@ -93,7 +83,7 @@ const decoratedGetter = (_id: string): ((
     columnConditionalDropdown: any,
     columnStaticDropdown: any,
     dropdown_properties: any
-) => any[][]) => {
+) => (DropdownValues | undefined)[][]) => {
     const astCache = memoizerCache<[ColumnId, number], [string], SyntaxTree>(
         (query: string) => new SyntaxTree(query)
     );

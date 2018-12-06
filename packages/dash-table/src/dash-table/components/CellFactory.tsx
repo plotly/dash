@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ICellFactoryProps } from 'dash-table/components/Table/props';
 import derivedCellWrappers from 'dash-table/derived/cell/wrappers';
-import derivedCellInputs from 'dash-table/derived/cell/inputs';
+import derivedCellContents from 'dash-table/derived/cell/contents';
 import derivedCellOperations from 'dash-table/derived/cell/operations';
 import derivedCellStyles from 'dash-table/derived/cell/wrapperStyles';
 import derivedDropdowns from 'dash-table/derived/cell/dropdowns';
@@ -12,9 +12,6 @@ import { matrixMap3 } from 'core/math/matrixZipMap';
 import { arrayMap } from 'core/math/arrayZipMap';
 
 export default class CellFactory {
-    private readonly cellInputs = derivedCellInputs();
-    private readonly cellOperations = derivedCellOperations();
-    private readonly cellDropdowns = derivedDropdowns();
 
     private get props() {
         return this.propsFn();
@@ -22,6 +19,9 @@ export default class CellFactory {
 
     constructor(
         private readonly propsFn: () => ICellFactoryProps,
+        private readonly cellContents = derivedCellContents(),
+        private readonly cellDropdowns = derivedDropdowns(),
+        private readonly cellOperations = derivedCellOperations(),
         private readonly cellStyles = derivedCellStyles(),
         private readonly cellWrappers = derivedCellWrappers(propsFn().id),
         private readonly relevantStyles = derivedRelevantCellStyles()
@@ -92,14 +92,13 @@ export default class CellFactory {
             dropdown_properties
         );
 
-        const inputs = this.cellInputs(
+        const contents = this.cellContents(
             active_cell,
             columns,
             virtualized.data,
             virtualized.offset,
             editable,
             !!is_focused,
-            id,
             dropdowns,
             this.propsFn
         );
@@ -107,8 +106,8 @@ export default class CellFactory {
         const cells = matrixMap3(
             wrappers,
             wrapperStyles,
-            inputs,
-            (w, s, i) => React.cloneElement(w, { children: [i], style: s })
+            contents,
+            (w, s, c) => React.cloneElement(w, { children: [c], style: s })
         );
 
         return arrayMap(

@@ -13,7 +13,7 @@
         "noUnusedParameters": true,
         "sourceMap": false,
         "strict": true,
-        "strictNullChecks": false,
+        "strictNullChecks": true,
         "strictPropertyInitialization": false,
         "target": "esnext",
         "traceResolution": false

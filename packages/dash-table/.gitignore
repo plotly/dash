@@ -8,7 +8,7 @@
 
 # testing
 /coverage
-/tests/e2e/cypress/screenshots/**
+/tests/cypress/screenshots/**
 /storybook-static/**
 
 # misc

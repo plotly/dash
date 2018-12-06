@@ -25,10 +25,10 @@ export default (
     let newData = data;
     const newColumns = columns;
 
-    if (overflowColumns && values[0].length + activeCell[1] >= columns.length) {
+    if (overflowColumns && values[0].length + (activeCell as any)[1] >= columns.length) {
         for (
             let i = columns.length;
-            i < values[0].length + activeCell[1];
+            i < values[0].length + (activeCell as any)[1];
             i++
         ) {
             newColumns.push({
@@ -40,7 +40,7 @@ export default (
         }
     }
 
-    const realActiveRow = derived_viewport_indices[activeCell[0]];
+    const realActiveRow = derived_viewport_indices[(activeCell as any)[0]];
     if (overflowRows && values.length + realActiveRow >= data.length) {
         const emptyRow: any = {};
         columns.forEach(c => (emptyRow[c.id] = ''));
@@ -58,7 +58,7 @@ export default (
 
     values.forEach((row: string[], i: number) =>
         row.forEach((cell: string, j: number) => {
-            const viewportIndex = activeCell[0] + i;
+            const viewportIndex = (activeCell as any)[0] + i;
 
             let iRealCell: number | undefined = viewportSize > viewportIndex ?
                 derived_viewport_indices[viewportIndex] :
@@ -70,7 +70,7 @@ export default (
                 return;
             }
 
-            const jOffset = activeCell[1] + j;
+            const jOffset = (activeCell as any)[1] + j;
             const col = newColumns[jOffset];
             if (col && isEditable(true, col.editable)) {
                 newData = R.set(
