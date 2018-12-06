@@ -19,6 +19,8 @@ class Resources:
         filtered_resources = []
         for s in all_resources:
             filtered_resource = {}
+            if 'dynamic' in s:
+                filtered_resource['dynamic'] = s['dynamic']
             if 'namespace' in s:
                 filtered_resource['namespace'] = s['namespace']
             if 'external_url' in s and not self.config.serve_locally:

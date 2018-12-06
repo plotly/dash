@@ -378,15 +378,27 @@ class Dash(object):
 
         srcs = []
         for resource in resources:
+            is_dynamic_resource = (
+                'dynamic' in resource and
+                resource['dynamic'] is True
+            )
+
             if 'relative_package_path' in resource:
                 if isinstance(resource['relative_package_path'], str):
-                    srcs.append(_relative_url_path(**resource))
+                    path = _relative_url_path(
+                        resource['relative_package_path'],
+                        resource['namespace']
+                    )
+                    if not is_dynamic_resource:
+                        srcs.append(path)
                 else:
                     for rel_path in resource['relative_package_path']:
-                        srcs.append(_relative_url_path(
+                        path = _relative_url_path(
                             relative_package_path=rel_path,
                             namespace=resource['namespace']
-                        ))
+                        )
+                        if not is_dynamic_resource:
+                            srcs.append(path)
             elif 'external_url' in resource:
                 if isinstance(resource['external_url'], str):
                     srcs.append(resource['external_url'])
@@ -1029,6 +1041,7 @@ class Dash(object):
 
                 full = os.path.join(current, f)
 
+                print(f)
                 if f.endswith('js'):
                     self.scripts.append_script(
                         self._add_assets_resource(path, full))
