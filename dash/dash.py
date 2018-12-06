@@ -1041,7 +1041,6 @@ class Dash(object):
 
                 full = os.path.join(current, f)
 
-                print(f)
                 if f.endswith('js'):
                     self.scripts.append_script(
                         self._add_assets_resource(path, full))
