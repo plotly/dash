@@ -257,14 +257,14 @@ def write_help_file_r(name, props, description, prefix):
 \\name{{{prefix}{name}}}
 \\alias{{{prefix}{name}}}
 \\title{{{name} component}}
+\\description{{
+{description}
+}}
 \\usage{{
 {prefix}{name}(..., {default_argtext})
 }}
 \\arguments{{
 {item_text}
-}}
-\\description{{
-{description}
 }}
     '''
     if not os.path.exists('man'):
