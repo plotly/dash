@@ -352,6 +352,7 @@ class Dash(object):
             mimetype='application/json'
         )
 
+    # pylint: disable=too-many-branches
     def _collect_and_register_resources(self, resources):
         # now needs the app context.
         # template in the necessary component suite JS bundles
@@ -378,10 +379,8 @@ class Dash(object):
 
         srcs = []
         for resource in resources:
-            is_dynamic_resource = (
-                'dynamic' in resource and
-                resource['dynamic'] is True
-            )
+            is_dynamic_resource = 'dynamic' in resource and \
+                resource.get('dynamic')
 
             if 'relative_package_path' in resource:
                 if isinstance(resource['relative_package_path'], str):
