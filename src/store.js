@@ -27,7 +27,12 @@ const initializeStore = () => {
     store =
         process.env.NODE_ENV === 'production'
             ? createStore(reducer, applyMiddleware(thunk))
-            : createStore(reducer, applyMiddleware(thunk, logger));
+            : createStore(
+                  reducer,
+                  window.__REDUX_DEVTOOLS_EXTENSION__ &&
+                      window.__REDUX_DEVTOOLS_EXTENSION__(),
+                  applyMiddleware(thunk, logger)
+              );
 
     // TODO - Protect this under a debug mode?
     window.store = store; /* global window:true */
