@@ -1,3 +1,7 @@
+## 0.32.1 - 2018-12-07
+## Changed
+- Muted dash related missing props docstring from extract-meta warnings [#484](https://github.com/plotly/dash/pull/484)
+
 ## 0.32.0 - 2018-12-07
 ## Added
 - Support for .map file extension and dynamic (on demand) loading [#478](https://github.com/plotly/dash/pull/478)
