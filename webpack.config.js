@@ -31,6 +31,7 @@ module.exports = (env, argv) => {
             library: dashLibraryName,
             libraryTarget: 'window',
         },
+        devtool: 'source-map',
         externals: {
             react: 'React',
             'react-dom': 'ReactDOM',
@@ -57,7 +58,6 @@ module.exports = (env, argv) => {
                     ],
                 },
             ],
-        },
-        devtool: mode === 'development' ? 'eval-source-map' : 'none',
+        }
     };
 };
