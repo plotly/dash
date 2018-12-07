@@ -352,7 +352,6 @@ class Dash(object):
             mimetype='application/json'
         )
 
-    # pylint: disable=too-many-branches
     def _collect_and_register_resources(self, resources):
         # now needs the app context.
         # template in the necessary component suite JS bundles
@@ -376,29 +375,21 @@ class Dash(object):
 
         srcs = []
         for resource in resources:
-            is_dynamic_resource = 'dynamic' in resource and \
-                resource.get('dynamic')
+            is_dynamic_resource = resource.get('dynamic', False)
 
             if 'relative_package_path' in resource:
-                if isinstance(resource['relative_package_path'], str):
+                paths = resource['relative_package_path']
+                paths = [paths] if isinstance(paths, str) else paths
+
+                for rel_path in paths:
                     self.registered_paths[resource['namespace']]\
-                        .add(resource['relative_package_path'])
+                        .add(rel_path)
 
                     if not is_dynamic_resource:
                         srcs.append(_relative_url_path(
-                            resource['relative_package_path'],
-                            resource['namespace']
+                            relative_package_path=rel_path,
+                            namespace=resource['namespace']
                         ))
-                else:
-                    for rel_path in resource['relative_package_path']:
-                        self.registered_paths[resource['namespace']]\
-                            .add(rel_path)
-
-                        if not is_dynamic_resource:
-                            srcs.append(_relative_url_path(
-                                relative_package_path=rel_path,
-                                namespace=resource['namespace']
-                            ))
             elif 'external_url' in resource:
                 if isinstance(resource['external_url'], str):
                     srcs.append(resource['external_url'])
