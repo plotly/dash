@@ -12,7 +12,7 @@ module.exports = (preprocessor = {}, mode = 'development') => {
     return {
         entry: {
             bundle: './src/dash-table/index.ts',
-            demo: ['./demo/index.js', './demo/index.html'],
+            demo: ['./demo/index.js', './demo/index.html']
         },
         mode: mode,
         output: {
@@ -21,18 +21,19 @@ module.exports = (preprocessor = {}, mode = 'development') => {
             library: dashLibraryName,
             libraryTarget: 'umd'
         },
+        devtool: 'source-map',
         externals: {
             react: {
-                commonjs: "react",
-                commonjs2: "react",
-                amd: "React",
-                root: "React"
+                commonjs: 'react',
+                commonjs2: 'react',
+                amd: 'React',
+                root: 'React'
             },
-            "react-dom": {
-                commonjs: "react-dom",
-                commonjs2: "react-dom",
-                amd: "ReactDOM",
-                root: "ReactDOM"
+            'react-dom': {
+                commonjs: 'react-dom',
+                commonjs2: 'react-dom',
+                amd: 'ReactDOM',
+                root: 'ReactDOM'
             },
             'plotly.js': 'Plotly'
         },
@@ -58,7 +59,7 @@ module.exports = (preprocessor = {}, mode = 'development') => {
                     use: [
                         { loader: 'style-loader' },
                         { loader: 'css-loader' }
-                    ],
+                    ]
                 },
                 {
                     test: /\.less$/,
@@ -66,17 +67,17 @@ module.exports = (preprocessor = {}, mode = 'development') => {
                         { loader: 'style-loader' },
                         { loader: 'css-loader' },
                         { loader: 'less-loader' }
-                    ],
-                },
-            ],
+                    ]
+                }
+            ]
         },
         resolve: {
             alias: {
-                'cypress': path.resolve('./tests/cypress/src'),
+                cypress: path.resolve('./tests/cypress/src'),
                 'dash-table': path.resolve('./src/dash-table'),
-                'demo': path.resolve('./demo'),
-                'core': path.resolve('./src/core'),
-                'tests': path.resolve('./tests')
+                demo: path.resolve('./demo'),
+                core: path.resolve('./src/core'),
+                tests: path.resolve('./tests')
             },
             extensions: ['.js', '.ts', '.tsx']
         }

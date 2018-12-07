@@ -2,9 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [3.1.9-rc1] - 2018-12-03
+## [3.1.9] - 2018-12-06
+### Added
+- Source map [#284](https://github.com/plotly/dash-table/issues/284)
+    Related Dash issue [#480](https://github.com/plotly/dash/issues/480)
 ### Changed
-- Refactoring in preparation for data types
+- Refactoring in preparation for data types [#280](https://github.com/plotly/dash-table/issues/280)
 
 ## [3.1.8] - 2018-12-04
 ### Added

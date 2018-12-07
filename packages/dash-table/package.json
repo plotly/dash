@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "3.1.9-rc1",
+  "version": "3.1.9",
   "description": "Dash table",
   "main": "dash_table/bundle.js",
   "scripts": {
@@ -76,7 +76,7 @@
     "webpack-preprocessor": "^0.1.12"
   },
   "files": [
-    "/dash_table/bundle*.js"
+    "/dash_table/bundle*{.js,.map}"
   ],
   "peerDependencies": {
     "react": ">=0.14",
