@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.40.3] - 2018-12-07
+### Added
+- Source map [#404](https://github.com/plotly/dash-core-components/issues/404)
+    Related Dash issue [#480](https://github.com/plotly/dash/issues/480)
+
 ## [0.40.2] - 2018-12-04
 ### Fixed
 - Put Input value set in onBlur/onSubmit under a debounce check [#384](https://github.com/plotly/dash-core-components/pull/384)
@@ -64,7 +69,7 @@ See https://github.com/plotly/dash-core-components/pull/182.
 
 ## [0.36.0] - 2018-11-01
 ### Fixed
-- The `npm start` command now runs the Demo app again [#346](https://github.com/plotly/dash-core-components/issues/346) 
+- The `npm start` command now runs the Demo app again [#346](https://github.com/plotly/dash-core-components/issues/346)
 
 ## [0.36.0] - 2018-10-31
 ### Updated
@@ -187,7 +192,7 @@ See https://github.com/plotly/dash-core-components/pull/182.
 ## [0.33.0] -- 2018-10-04
 ### Added
 
-- Upgraded Plotly.js, the underlying library behind the dash_core_components.Graph component, to version 1.41.3. See https://github.com/plotly/plotly.js/releases/tag/v1.41.3 for the official notes. 
+- Upgraded Plotly.js, the underlying library behind the dash_core_components.Graph component, to version 1.41.3. See https://github.com/plotly/plotly.js/releases/tag/v1.41.3 for the official notes.
 Many of these features were funded directly by companies that rely on this library. If your organization or company would like to sponsor particular features or bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
 
 ### Fixed
@@ -236,7 +241,7 @@ As part of plotly.js release:
 ## [0.29.0] -- 2018-09-13
 ### Added
 
-- Upgraded Plotly.js, the underlying library behind the dash_core_components.Graph component, to version 1.41.0. See https://github.com/plotly/plotly.js/releases/tag/v1.41.0 for the official notes. 
+- Upgraded Plotly.js, the underlying library behind the dash_core_components.Graph component, to version 1.41.0. See https://github.com/plotly/plotly.js/releases/tag/v1.41.0 for the official notes.
 Many of these features were funded directly by companies that rely on this library. If your organization or company would like to sponsor particular features or bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
 
 As part of plotly.js release:
@@ -289,7 +294,7 @@ As part of plotly.js release:
 ## [0.28.3] - 2018-09-07
 ### Changed
 - The `Interval` component's `max_interval` prop can now be used to stop/restart the interval. Fixes [#266](https://github.com/plotly/dash-core-components/issues/266)
-- The `Graph` component's `id` is now not required to be set. 
+- The `Graph` component's `id` is now not required to be set.
 ### Fixed
 - Fixed bug where Graph would resize randomly when rerendered, for example in a dcc.Tabs component.
 
@@ -394,7 +399,7 @@ supported [#2697](https://github.com/plotly/plotly.js/pull/2697)
 - Fix colorbar edits for parcoords and histogram traces [#2681](https://github.com/plotly/plotly.js/pull/2681)
 - Fix bandwidth for single-value violins [#2775](https://github.com/plotly/plotly.js/pull/2775)
 - Make Plots.resize work when layout attribute is gone from graph div [#2710](https://github.com/plotly/plotly.js/pull/2710)
-- Fix colorscale attribute descriptions [#2658](https://github.com/plotly/plotly.js/pull/2658)    
+- Fix colorscale attribute descriptions [#2658](https://github.com/plotly/plotly.js/pull/2658)
 
 ## [0.23.0]
 ### Added

@@ -816,6 +816,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app=app)
 
+        time.sleep(1)
         self.snapshot('link -- location')
 
         # Check that link updates pathname
