@@ -1,6 +1,7 @@
 {
     "extends": [
-        ":onlyNpm"
+        ":onlyNpm",
+        "schedule:daily"
     ],
     "enabledManagers": ["npm"],
     "groupName": "all dependencies",
