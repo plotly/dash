@@ -1,4 +1,4 @@
-dash_core_components
+dash_core_components>=40.2
 dash_html_components
 dash
 percy
