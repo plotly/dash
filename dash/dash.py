@@ -359,9 +359,6 @@ class Dash(object):
         # for cache busting
         def _relative_url_path(relative_package_path='', namespace=''):
 
-            # track the registered packages
-            self.registered_paths[namespace].add(relative_package_path)
-
             module_path = os.path.join(
                 os.path.dirname(sys.modules[namespace].__file__),
                 relative_package_path)
@@ -378,11 +375,17 @@ class Dash(object):
 
         srcs = []
         for resource in resources:
+            is_dynamic_resource = resource.get('dynamic', False)
+
             if 'relative_package_path' in resource:
-                if isinstance(resource['relative_package_path'], str):
-                    srcs.append(_relative_url_path(**resource))
-                else:
-                    for rel_path in resource['relative_package_path']:
+                paths = resource['relative_package_path']
+                paths = [paths] if isinstance(paths, str) else paths
+
+                for rel_path in paths:
+                    self.registered_paths[resource['namespace']]\
+                        .add(rel_path)
+
+                    if not is_dynamic_resource:
                         srcs.append(_relative_url_path(
                             relative_package_path=rel_path,
                             namespace=resource['namespace']
@@ -492,7 +495,8 @@ class Dash(object):
 
         mimetype = ({
             'js': 'application/JavaScript',
-            'css': 'text/css'
+            'css': 'text/css',
+            'map': 'application/json'
         })[path_in_package_dist.split('.')[-1]]
 
         headers = {
