@@ -8,10 +8,10 @@ certifi==2018.8.24
 chardet==3.0.4
 chromedriver-binary==2.41.0
 click==6.7
-dash==0.26.5
-dash-core-components==0.29.0
-dash-html-components==0.12.0
-dash-renderer==0.13.2
+dash==0.32.0
+dash-core-components==0.40.2
+dash-html-components==0.13.2
+dash_renderer==0.15.1
 decorator==4.3.0
 flake8==3.5.0
 Flask==1.0.2
