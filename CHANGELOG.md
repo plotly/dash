@@ -1,6 +1,6 @@
-## 0.31.2 - 2018-12-06
+## 0.32.0 - 2018-12-07
 ## Added
-- Support for .map file extension [#478](https://github.com/plotly/dash/pull/478)
+- Support for .map file extension and dynamic (on demand) loading [#478](https://github.com/plotly/dash/pull/478)
 
 ## 0.31.1 - 2018-11-29
 ## Fixed
