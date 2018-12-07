@@ -360,9 +360,6 @@ class Dash(object):
         # for cache busting
         def _relative_url_path(relative_package_path='', namespace=''):
 
-            # track the registered packages
-            self.registered_paths[namespace].add(relative_package_path)
-
             module_path = os.path.join(
                 os.path.dirname(sys.modules[namespace].__file__),
                 relative_package_path)
@@ -384,20 +381,24 @@ class Dash(object):
 
             if 'relative_package_path' in resource:
                 if isinstance(resource['relative_package_path'], str):
-                    path = _relative_url_path(
-                        resource['relative_package_path'],
-                        resource['namespace']
-                    )
+                    self.registered_paths[resource['namespace']]\
+                        .add(resource['relative_package_path'])
+
                     if not is_dynamic_resource:
-                        srcs.append(path)
+                        srcs.append(_relative_url_path(
+                            resource['relative_package_path'],
+                            resource['namespace']
+                        ))
                 else:
                     for rel_path in resource['relative_package_path']:
-                        path = _relative_url_path(
-                            relative_package_path=rel_path,
-                            namespace=resource['namespace']
-                        )
+                        self.registered_paths[resource['namespace']]\
+                            .add(rel_path)
+
                         if not is_dynamic_resource:
-                            srcs.append(path)
+                            srcs.append(_relative_url_path(
+                                relative_package_path=rel_path,
+                                namespace=resource['namespace']
+                            ))
             elif 'external_url' in resource:
                 if isinstance(resource['external_url'], str):
                     srcs.append(resource['external_url'])
