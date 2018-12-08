@@ -734,7 +734,7 @@ class Dash(object):
                 Without `Input` or `Event` elements, this callback
                 will never get called.\n
                 (Subscribing to input components will cause the
-                callback to be called whenver their values
+                callback to be called whenever their values
                 change and subscribing to an event will cause the
                 callback to be called whenever the event is fired.)
             '''.format(
