@@ -202,8 +202,7 @@ all_files = FALSE), class = "html_dependency")'''.\
             format(project_shortname=project_shortname,
                    project_ver=project_ver,
                    rpkgname=rpkgname,
-                   dep_rpp=jsdist[0]['relative_package_path']
-                  )
+                   dep_rpp=jsdist[0]['relative_package_path'])
 
     function_frame_close = ''')
 return(deps_metadata)
@@ -211,8 +210,7 @@ return(deps_metadata)
 
     function_string = ''.join([function_frame_open,
                                function_frame_body,
-                               function_frame_close]
-                             )
+                               function_frame_close])
 
     return function_string
 
