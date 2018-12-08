@@ -10,7 +10,6 @@ import shutil
 import functools
 
 import pkg_resources
-from .component_loader import _get_metadata
 
 from ._r_components_generation import write_class_file_r
 from ._r_components_generation import generate_exports_r
@@ -18,6 +17,7 @@ from ._r_components_generation import get_shortname_prefix
 from ._py_components_generation import generate_class_file
 from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
+
 
 class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
                          argparse.RawDescriptionHelpFormatter):
@@ -67,12 +67,10 @@ def generate_components(components_source, project_shortname,
 
     metadata = json.loads(out.decode())
     generator_methods = [generate_class_file]
-    # pkg_generator_methods = [generate_imports]
 
     if generate_r_components:
         generator_methods.append(
             functools.partial(write_class_file_r, prefix=prefix))
-        #generator_methods.append(generate_rpkg)
 
     components = generate_classes_files(
         project_shortname,
@@ -94,34 +92,9 @@ def generate_components(components_source, project_shortname,
         with open('package.json', 'r') as f:
             pkg_data = json.load(f)
 
-        generate_exports_r(project_shortname, components, metadata, pkg_data, prefix)
-
-
-def generate_components_r(namespace,
-                          metadata_path='lib/metadata.json',
-                          pkgjson_path='package.json'):
-    """Load React component metadata into a format Dash can parse,
-    then create R files for component loading.
-
-    Usage: generate_classes_r()
-
-    Keyword arguments:
-    namespace -- name of the generated python package (also output dir)
-
-    metadata_path -- a path to a JSON file created by
-    [`react-docgen`](https://github.com/reactjs/react-docgen).
-
-    pkgjson_path -- a path to a JSON file created by
-    [`cookiecutter`](https://github.com/audreyr/cookiecutter).
-
-    Returns:
-    """
-
-    data = _get_metadata(metadata_path)
-    pkg_data = _get_metadata(pkgjson_path)
-    export_string = ''
-
-
+        generate_exports_r(
+            project_shortname, components, metadata, pkg_data, prefix
+        )
 
 
 def cli():
