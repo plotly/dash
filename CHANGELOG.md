@@ -1,3 +1,7 @@
+## 0.32.2 - 2018-12-09
+## Fixed
+- Fix typo in missing events/inputs error message [#485](https://github.com/plotly/dash/pull/485)
+
 ## 0.32.1 - 2018-12-07
 ## Changed
 - Muted dash related missing props docstring from extract-meta warnings [#484](https://github.com/plotly/dash/pull/484)
