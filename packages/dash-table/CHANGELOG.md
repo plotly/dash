@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.11] - 2018-12-10
+### Fixed
+- Selection, navigation, copy from readonly cell [#276](https://github.com/plotly/dash-table/issues/276)
+
 ## [3.1.10] - 2018-12-10
 ### Removed
 - Deprecated nested property 'displayed_pages' from 'pagination_settings' [#275](https://github.com/plotly/dash-table/issues/275)

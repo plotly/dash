@@ -1,8 +1,8 @@
 import DashTable from 'cypress/DashTable';
 
-import { AppMode } from 'demo/AppMode';
+import { ReadWriteModes } from 'demo/AppMode';
 
-Object.values(AppMode).forEach(mode => {
+Object.values(ReadWriteModes).forEach(mode => {
     describe(`delete, mode=${mode}`, () => {
         beforeEach(() => {
             cy.visit(`http://localhost:8080?mode=${mode}`);

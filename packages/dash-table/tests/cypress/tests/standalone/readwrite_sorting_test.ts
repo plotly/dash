@@ -1,9 +1,9 @@
 import DashTable from 'cypress/DashTable';
 
-import { AppMode } from 'demo/AppMode';
+import { ReadWriteModes } from 'demo/AppMode';
 
-Object.values(AppMode).forEach(mode => {
-    describe(`sort, mode=${mode}`, () => {
+Object.values(ReadWriteModes).forEach(mode => {
+    describe(`sort (readwrite), mode=${mode}`, () => {
         beforeEach(() => {
             cy.visit(`http://localhost:8080?mode=${mode}`);
             DashTable.toggleScroll(false);

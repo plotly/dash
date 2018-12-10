@@ -3,12 +3,23 @@ import * as R from 'ramda';
 import Environment from 'core/environment';
 
 import { generateMockData, IDataMock } from './data';
+import {
+    ContentStyle,
+    PropsWithDefaults
+} from 'dash-table/components/Table/props';
 
 export enum AppMode {
     Default = 'default',
     FixedVirtualized = 'fixed,virtualized',
+    ReadOnly = 'readonly',
     Virtualized = 'virtualized'
 }
+
+export const ReadWriteModes = [
+    AppMode.Default,
+    AppMode.FixedVirtualized,
+    AppMode.Virtualized
+];
 
 function getBaseTableProps(mock: IDataMock) {
     return {
@@ -44,7 +55,10 @@ function getBaseTableProps(mock: IDataMock) {
     };
 }
 
-function getDefaultState() {
+function getDefaultState(): {
+    filter: string,
+    tableProps: Partial<PropsWithDefaults>
+} {
     const mock = generateMockData(5000);
 
     return {
@@ -58,10 +72,22 @@ function getDefaultState() {
             merge_duplicate_headers: false,
             row_deletable: true,
             row_selectable: 'single',
-            content_style: 'fit',
+            content_style: ContentStyle.Fit,
             pagination_mode: 'fe'
-        })
+        }) as Partial<PropsWithDefaults>
     };
+}
+
+function getReadonlyState() {
+    const state = getDefaultState();
+    state.tableProps.editable = false;
+    state.tableProps.row_deletable = false;
+
+    R.forEach(column => {
+        column.editable = false;
+    }, state.tableProps.columns || []);
+
+    return state;
 }
 
 function getVirtualizedState() {
@@ -108,6 +134,8 @@ function getState() {
     switch (mode) {
         case AppMode.FixedVirtualized:
             return getFixedVirtualizedState();
+        case AppMode.ReadOnly:
+            return getReadonlyState();
         case AppMode.Virtualized:
             return getVirtualizedState();
         case AppMode.Default:

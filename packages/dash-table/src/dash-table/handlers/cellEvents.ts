@@ -8,15 +8,10 @@ function isCellSelected(selectedCells: SelectedCells, idx: number, i: number) {
 
 export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: number, e: any) => {
     const {
-        editable,
         selected_cells,
         setProps,
         virtualized
     } = propsFn();
-
-    if (!editable) {
-        return;
-    }
 
     const selected = isCellSelected(selected_cells, idx, i);
 
