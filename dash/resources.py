@@ -5,6 +5,7 @@ import os
 from .development.base_component import ComponentRegistry
 from . import exceptions
 
+
 # pylint: disable=old-style-class
 class Resources:
     def __init__(self, resource_name, layout):
