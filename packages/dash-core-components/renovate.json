@@ -1,8 +1,72 @@
 {
     "extends": [
         ":onlyNpm",
-        "group:all"
+        "schedule:daily"
     ],
-    "enabledManagers": ["npm"],
-    "schedule": "on monday"
+    "enabledManagers": [
+        "npm"
+    ],
+    "groupName": "all dependencies",
+    "groupSlug": "all",
+    "lockFileMaintenance": {
+        "enabled": false
+    },
+    "packageRules": [
+        {
+            "packageNames": [
+                "rc-slider"
+            ],
+            "allowedVersions": "<9.0.0"
+        },
+        {
+            "packageNames": [
+                "react-dates"
+            ],
+            "allowedVersions": "<13.0.0"
+        },
+        {
+            "packageNames": [
+                "react-dropzone"
+            ],
+            "allowedVersions": "<5.0.0"
+        },
+        {
+            "packageNames": [
+                "react-markdown"
+            ],
+            "allowedVersions": "<3.0.0"
+        },
+        {
+            "packageNames": [
+                "react-syntax-highlighter"
+            ],
+            "allowedVersions": "<6.0.0"
+        },
+        {
+            "packageNames": [
+                "react-virtualized-select"
+            ],
+            "allowedVersions": "<4.0.0"
+        },
+        {
+            "packagePatterns": [
+                "*"
+            ],
+            "depTypeList": [
+                "dependencies",
+                "devDependencies"
+            ],
+            "groupName": "all dependencies",
+            "groupSlug": "all"
+        },
+        {
+            "depTypeList": [
+                "peerDependencies",
+                "engines"
+            ],
+            "enabled": false
+        }
+    ],
+    "rangeStrategy": "bump",
+    "separateMajorMinor": false
 }
