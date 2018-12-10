@@ -1,6 +1,6 @@
 ## 0.32.3 - 2018-12-10
-## Changed 
-- Added specific Dash exception types to replace generic exceptions [#487](https://github.com/plotly/dash/pull/487)
+## Added
+- Added specific Dash exception types to replace generic exceptions (InvalidIndexException, DependencyException, ResourceException) [#487](https://github.com/plotly/dash/pull/487)
 
 ## 0.32.2 - 2018-12-09
 ## Fixed
