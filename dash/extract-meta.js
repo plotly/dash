@@ -36,7 +36,8 @@ function writeError(msg, filePath) {
 }
 
 function checkWarn(name, value) {
-    if (value.length < 1) {
+    const excluded = ['setProps', 'id', 'className', 'style', 'dashEvents', 'fireEvent'];
+    if (value.length < 1 && !excluded.includes(name)) {
         process.stderr.write(`\nDescription for ${name} is missing!\n`)
     }
 }
