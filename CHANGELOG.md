@@ -1,3 +1,7 @@
+## 0.32.3 - 2018-12-10
+## Changed 
+- Added specific Dash exception types to replace generic exceptions [#487](https://github.com/plotly/dash/pull/487)
+
 ## 0.32.2 - 2018-12-09
 ## Fixed
 - Fix typo in missing events/inputs error message [#485](https://github.com/plotly/dash/pull/485)
