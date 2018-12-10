@@ -64,3 +64,9 @@ class InvalidConfig(DashException):
 
 class InvalidResourceError(DashException):
     pass
+
+class InvalidIndexException(DashException):
+    pass
+
+class DependencyException(DashException):
+    pass

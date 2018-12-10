@@ -3,7 +3,7 @@ import warnings
 import os
 
 from .development.base_component import ComponentRegistry
-
+from . import exceptions
 
 # pylint: disable=old-style-class
 class Resources:
@@ -45,7 +45,7 @@ class Resources:
                 )
                 continue
             else:
-                raise Exception(
+                raise exceptions.ResourceException(
                     '{} does not have a '
                     'relative_package_path, absolute_path, or an '
                     'external_url.'.format(
