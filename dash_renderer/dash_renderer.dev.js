@@ -37246,7 +37246,7 @@ var initializeStore = function initializeStore() {
     }
 
     // only attach logger to middleware in non-production mode
-    store =  false ? undefined : (0, _redux.createStore)(_reducer2.default, (0, _redux.applyMiddleware)(_reduxThunk2.default, logger));
+    store =  false ? undefined : (0, _redux.createStore)(_reducer2.default, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), (0, _redux.applyMiddleware)(_reduxThunk2.default, logger));
 
     // TODO - Protect this under a debug mode?
     window.store = store; /* global window:true */

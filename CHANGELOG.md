@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.16.0] - 2018-12-07
+### Added
+- [Redux devtools](https://github.com/zalmoxisus/redux-devtools-extension) support [#107](https://github.com/plotly/dash-renderer/pull/107)
+
 ## [0.15.2] - 2018-12-07
 ### Added
 - Source map [#104](https://github.com/plotly/dash-renderer/issues/104)
