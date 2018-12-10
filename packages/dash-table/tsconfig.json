@@ -10,6 +10,11 @@
         }
     },
     "exclude": [
-        "tests/*"
+        "dash_table/*",
+        "dist/*",
+        "node_modules/*",
+        "storybook-static/*",
+        "tests/*",
+        "vv/*"
     ]
 }

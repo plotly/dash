@@ -20,7 +20,7 @@ function getFrontEndPagination(settings: IPaginationSettings, data: Data, indice
 
     const firstIndex = settings.page_size * currentPage;
     const lastIndex = Math.min(
-        firstIndex + settings.displayed_pages * settings.page_size,
+        firstIndex + settings.page_size,
         data.length
     );
 

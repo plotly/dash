@@ -32,7 +32,6 @@ app.layout = html.Div(
             data=df,
             pagination_mode="fe",
             pagination_settings={
-                "displayed_pages": 1,
                 "current_page": 0,
                 "page_size": 250,
             },

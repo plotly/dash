@@ -147,10 +147,8 @@ _and_ represents the current state of the pagination UI.
 displayed on a particular page.
 - `current_page` represents which page the user is on.
 Use this property to index through data in your callbacks with
-backend paging.
-- `displayed_pages` is DEPRECATED.. pagination_settings has the following type: dict containing keys 'displayed_pages', 'current_page', 'page_size'.
+backend paging.. pagination_settings has the following type: dict containing keys 'current_page', 'page_size'.
 Those keys have the following types: 
-  - displayed_pages (number; required)
   - current_page (number; required)
   - page_size (number; required)
 - navigation (string; optional): DEPRECATED

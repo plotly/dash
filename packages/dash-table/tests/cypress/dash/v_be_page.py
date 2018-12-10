@@ -30,7 +30,6 @@ app.layout = html.Div(
             data=[],
             pagination_mode="be",
             pagination_settings={
-                "displayed_pages": 1,
                 "current_page": 0,
                 "page_size": 250,
             },
@@ -71,11 +70,10 @@ def updateData(pagination_settings, sorting_settings):
     print(pagination_settings)
 
     current_page = pagination_settings["current_page"]
-    displayed_pages = pagination_settings["displayed_pages"]
     page_size = pagination_settings["page_size"]
 
     start_index = current_page * page_size
-    end_index = start_index + displayed_pages * page_size
+    end_index = start_index + page_size
     print(str(start_index) + "," + str(end_index))
     print(sorting_settings)
 

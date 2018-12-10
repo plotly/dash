@@ -402,10 +402,6 @@
         "type": {
           "name": "shape",
           "value": {
-            "displayed_pages": {
-              "name": "number",
-              "required": true
-            },
             "current_page": {
               "name": "number",
               "required": true
@@ -417,9 +413,9 @@
           }
         },
         "required": false,
-        "description": "`pagination_settings` controls the pagination settings\n_and_ represents the current state of the pagination UI.\n- `page_size` represents the number of rows that will be\ndisplayed on a particular page.\n- `current_page` represents which page the user is on.\nUse this property to index through data in your callbacks with\nbackend paging.\n- `displayed_pages` is DEPRECATED.",
+        "description": "`pagination_settings` controls the pagination settings\n_and_ represents the current state of the pagination UI.\n- `page_size` represents the number of rows that will be\ndisplayed on a particular page.\n- `current_page` represents which page the user is on.\nUse this property to index through data in your callbacks with\nbackend paging.",
         "defaultValue": {
-          "value": "{\n    displayed_pages: 1,\n    current_page: 0,\n    page_size: 250\n}",
+          "value": "{\n    current_page: 0,\n    page_size: 250\n}",
           "computed": false
         }
       },

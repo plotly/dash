@@ -45,7 +45,6 @@ export default class DataTable extends Component {
 export const defaultProps = {
     pagination_mode: 'fe',
     pagination_settings: {
-        displayed_pages: 1,
         current_page: 0,
         page_size: 250
     },
@@ -431,10 +430,8 @@ export const propTypes = {
      * - `current_page` represents which page the user is on.
      * Use this property to index through data in your callbacks with
      * backend paging.
-     * - `displayed_pages` is DEPRECATED.
      */
     pagination_settings: PropTypes.shape({
-        displayed_pages: PropTypes.number.isRequired,
         current_page: PropTypes.number.isRequired,
         page_size: PropTypes.number.isRequired
     }),
