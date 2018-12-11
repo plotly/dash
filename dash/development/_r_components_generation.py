@@ -1,3 +1,6 @@
+import shutil
+import glob
+
 from __future__ import absolute_import
 
 import os
@@ -6,8 +9,6 @@ import sys
 from ._all_keywords import r_keywords
 from ._py_components_generation import reorder_props
 
-import shutil
-import glob
 
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
@@ -135,9 +136,9 @@ def generate_class_string_r(name, props, project_shortname, prefix):
     # pylint: disable=C0301
     default_paramtext += ", ".join(
         '{}={}'.format(p, p)
-         if p != "children" else
+        if p != "children" else
         '{}=c(children, assert_valid_children(..., wildcards = {}))'
-            .format(p, default_wildcards)
+        .format(p, default_wildcards)
         for p in props.keys()
         if not p.endswith("-*") and
         p not in r_keywords and
@@ -203,7 +204,7 @@ def generate_js_metadata_r(project_shortname):
                 project_shortname=project_shortname,
                 dep_rpp=jsdist[dep]['relative_package_path']
             )
-            ]
+                              ]
             function_frame_body = ',\n'.join(function_frame)
     elif len(jsdist) == 1:
         function_frame_body = function_frame_body. \
