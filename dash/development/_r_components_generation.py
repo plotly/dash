@@ -15,7 +15,7 @@ def json_to_r_type(current_prop):
         if current_prop['defaultValue']['value'].__contains__('\''):
             argument = current_prop['defaultValue']['value']
         else:
-            argument = "\'{:s}\'".format(current_prop['defaultValue']['value'])
+            argument = "'{}'".format(current_prop['defaultValue']['value'])
     elif 'defaultValue' in current_prop and object_type == ['object']:
         argument = 'list()'
     elif 'defaultValue' in current_prop and \
