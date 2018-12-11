@@ -285,9 +285,6 @@ def write_class_file_r(name,
     )
     file_name = "{}{}.R".format(prefix, name)
 
-    if not os.path.exists('R'):
-        os.makedirs('R')
-
     file_path = os.path.join('R', file_name)
     with open(file_path, 'w') as f:
         f.write(import_string)
