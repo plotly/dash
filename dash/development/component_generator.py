@@ -112,7 +112,7 @@ def cli():
     parser.add_argument(
         '-r', '--rlang',
         action='store_true',
-        help='Generate Dash components for R, and package for installation.'
+        help='Experimental: write DashR components to R dir, create R package'
     )
     parser.add_argument(
         '--r-prefix',
