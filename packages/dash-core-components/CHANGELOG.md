@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.40.4] - 2018-12-10
+### Fixed
+- Add map files to manifest [#413](https://github.com/plotly/dash-core-components/pull/413)
+
 ## [0.40.3] - 2018-12-07
 ### Added
 - Source map [#404](https://github.com/plotly/dash-core-components/issues/404)
