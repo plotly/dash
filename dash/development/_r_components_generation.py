@@ -50,6 +50,7 @@ function_frame_close = ''')
 return(deps_metadata)
 }'''
 
+
 # This is an initial attempt at resolving type inconsistencies
 # between R and JSON.
 def json_to_r_type(current_prop):
@@ -82,7 +83,7 @@ def generate_class_string_r(name, props, project_shortname, prefix):
 
     # Produce a string with all property names other than WCs
     prop_names = ", ".join(
-        ("{}".format(p))
+        "{}".format(p)
         for p in prop_keys
         if '*' not in p and
         p not in ['setProps', 'dashEvents', 'fireEvent']
@@ -102,9 +103,9 @@ def generate_class_string_r(name, props, project_shortname, prefix):
         default_wildcards = 'c({})'.format(default_wildcards)
 
     default_argtext += ", ".join(
-        ('{}={}'.format(p, json_to_r_type(props[p]))
-         if 'defaultValue' in props[p] else
-         '{}=NULL'.format(p))
+        '{}={}'.format(p, json_to_r_type(props[p]))
+        if 'defaultValue' in props[p] else
+        '{}=NULL'.format(p)
         for p in prop_keys
         if not p.endswith("-*") and
         p not in r_keywords and
@@ -116,23 +117,23 @@ def generate_class_string_r(name, props, project_shortname, prefix):
 
     # pylint: disable=C0301
     default_paramtext += ", ".join(
-        ('{}={}'.format(p, p)
+        '{}={}'.format(p, p)
          if p != "children" else
-         '{}=c(children, assert_valid_children(..., wildcards = {}))'
-         .format(p, default_wildcards))
+        '{}=c(children, assert_valid_children(..., wildcards = {}))'
+            .format(p, default_wildcards)
         for p in props.keys()
         if not p.endswith("-*") and
         p not in r_keywords and
         p not in ['setProps', 'dashEvents', 'fireEvent']
     )
     return r_component_string.format(prefix=prefix,
-                    name=name,
-                    default_argtext=default_argtext,
-                    default_paramtext=default_paramtext,
-                    project_shortname=project_shortname,
-                    prop_names=prop_names,
-                    package_name=package_name,
-                    default_wildcards=default_wildcards)
+                                     name=name,
+                                     default_argtext=default_argtext,
+                                     default_paramtext=default_paramtext,
+                                     project_shortname=project_shortname,
+                                     prop_names=prop_names,
+                                     package_name=package_name,
+                                     default_wildcards=default_wildcards)
 
 
 # pylint: disable=R0914
@@ -185,10 +186,10 @@ def generate_js_metadata_r(project_shortname):
                 project_shortname=project_shortname,
                 dep_rpp=jsdist[dep]['relative_package_path']
             )
-                              ]
+            ]
             function_frame_body = ',\n'.join(function_frame)
     elif len(jsdist) == 1:
-        function_frame_body = function_frame_body.\
+        function_frame_body = function_frame_body. \
             format(project_shortname=project_shortname,
                    project_ver=project_ver,
                    rpkgname=rpkgname,
@@ -237,7 +238,7 @@ def write_help_file_r(name, props, description, prefix):
     )
 
     item_text += "\n\n".join(
-        ('\\item{{{}}}{{{}}}'.format(p, props[p]['description']))
+        '\\item{{{}}}{{{}}}'.format(p, props[p]['description'])
         for p in prop_keys
         if not p.endswith("-*") and
         p not in r_keywords and
@@ -277,7 +278,7 @@ def write_class_file_r(name,
                        description,
                        project_shortname,
                        prefix=None):
-    import_string =\
+    import_string = \
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string_r(
         name,
@@ -409,7 +410,7 @@ def generate_rpkg(pkg_data,
         if not os.path.isfile('LICENSE'):
             os.symlink("LICENSE.txt", "LICENSE")
 
-    import_string =\
+    import_string = \
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
 
     description_string = '''Package: {package_name}
