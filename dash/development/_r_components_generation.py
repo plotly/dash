@@ -6,6 +6,9 @@ import sys
 from ._all_keywords import r_keywords
 from ._py_components_generation import reorder_props
 
+import shutil
+import glob
+
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
@@ -343,9 +346,6 @@ def write_js_metadata_r(project_shortname):
         f.write(function_string)
 
     # now copy over all JS dependencies from the (Python) components dir
-    import shutil
-    import glob
-
     # the inst/lib directory for the package won't exist on first call
     # create this directory if it is missing
     if not os.path.exists('inst'):
@@ -356,6 +356,9 @@ def write_js_metadata_r(project_shortname):
 
     for javascript in glob.glob('{}/*.js'.format(project_shortname)):
         shutil.copy(javascript, 'inst/lib/')
+
+    for css in glob.glob('{}/*.css'.format(project_shortname)):
+        shutil.copy(css, 'inst/lib/')
 
 
 # pylint: disable=R0914
