@@ -80,6 +80,10 @@ def generate_components(components_source, project_shortname,
     generator_methods = [generate_class_file]
 
     if generate_r_components:
+        if not os.path.exists('man'):
+            os.makedirs('man')
+        if not os.path.exists('R'):
+            os.makedirs('R')
         generator_methods.append(
             functools.partial(write_class_file_r, prefix=prefix))
 
