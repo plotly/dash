@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.40.5] - 2018-12-11
+### Fixed
+- Fix typos in DatePickerSingle props [#361](https://github.com/plotly/dash-core-components/pull/361)
+
 ## [0.40.4] - 2018-12-10
 ### Fixed
 - Add map files to manifest [#413](https://github.com/plotly/dash-core-components/pull/413)

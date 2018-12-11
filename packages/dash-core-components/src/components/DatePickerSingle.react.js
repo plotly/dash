@@ -118,14 +118,14 @@ export default class DatePickerSingle extends Component {
                 withPortal={with_portal && verticalFlag}
                 withFullScreenPortal={with_full_screen_portal && verticalFlag}
                 firstDayOfWeek={first_day_of_week}
-                enableOutSideDays={show_outside_days}
+                enableOutsideDays={show_outside_days}
                 monthFormat={month_format}
                 displayFormat={display_format}
                 placeholder={placeholder}
                 showClearDate={clearable}
                 disabled={disabled}
                 keepOpenOnDateSelect={stay_open_on_select}
-                reopenPickerOnClearDates={reopen_calendar_on_clear}
+                reopenPickerOnClearDate={reopen_calendar_on_clear}
                 isRTL={is_RTL}
                 orientation={calendar_orientation}
                 daySize={day_size}
