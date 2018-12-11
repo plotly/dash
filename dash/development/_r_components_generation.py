@@ -28,25 +28,6 @@ def json_to_r_type(current_prop):
 
 # pylint: disable=R0914
 def generate_class_string_r(name, props, project_shortname, prefix):
-    """
-    Dynamically generate class strings to have nicely formatted documentation,
-    and function arguments
-
-    Inspired by http://jameso.be/2013/08/06/namedtuple.html
-
-    Parameters
-    ----------
-    name
-    props
-    project_shortname
-    prefix
-
-    Returns
-    -------
-    string
-
-    """
-
     c = '''{prefix}{name} <- function(..., {default_argtext}) {{
 
     component <- list(
@@ -65,8 +46,6 @@ def generate_class_string_r(name, props, project_shortname, prefix):
 
     # Here we convert from snake case to camel case
     package_name = make_package_name_r(project_shortname)
-
-    prop_keys = list(props.keys())
 
     default_paramtext = ''
     default_argtext = ''
