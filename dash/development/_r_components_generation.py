@@ -393,9 +393,9 @@ def generate_rpkg(pkg_data,
     package_author_no_email = package_author.split(" <")[0] + ' [aut]'
 
     if not (os.path.isfile('LICENSE') or os.path.isfile('LICENSE.txt')):
-        package_license = pkg_data['license']
+        package_license = pkg_data.get('license', '')
     else:
-        package_license = pkg_data['license'] + ' + file LICENSE'
+        package_license = pkg_data.get('license', '') + ' + file LICENSE'
         # R requires that the LICENSE.txt file be named LICENSE
         if not os.path.isfile('LICENSE'):
             os.symlink("LICENSE.txt", "LICENSE")
