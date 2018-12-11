@@ -109,7 +109,7 @@ def generate_class_string_r(name, props, project_shortname, prefix):
     # in R, we set parameters with no defaults to NULL
     # Here we'll do that if no default value exists
     default_wildcards += ", ".join(
-        ('\'{}\''.format(p))
+        "{}".format(p)
         for p in prop_keys
         if '*' in p
     )
