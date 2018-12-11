@@ -14,7 +14,6 @@ import pkg_resources
 
 from ._r_components_generation import write_class_file_r
 from ._r_components_generation import generate_exports_r
-from ._r_components_generation import get_shortname_prefix
 from ._py_components_generation import generate_class_file
 from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
@@ -28,13 +27,26 @@ class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
 # pylint: disable=too-many-locals
 def generate_components(components_source, project_shortname,
                         package_info_filename='package.json',
-                        generate_r_components=False):
+                        generate_r_components=False,
+                        rprefix=None):
     project_shortname = project_shortname.replace('-', '_').rstrip('/\\')
 
     # import component library module
     importlib.import_module(project_shortname)
 
-    prefix = get_shortname_prefix(project_shortname)
+    if rprefix:
+        prefix = rprefix
+    else:
+        s = [
+            x for x in project_shortname.split('_')
+            if x not in ('dash', 'component', 'components')
+        ]
+        prefix = s[-1]
+        print(
+            'Warning: a component prefix was '
+            'not provided. Using {}.'.format(prefix),
+            file=sys.stderr
+        )
 
     is_windows = sys.platform == 'win32'
 
@@ -116,14 +128,14 @@ def cli():
     )
     parser.add_argument(
         '--r-prefix',
-        default='',
         help='Inserts a prefix string that will be prepended to DashR component names at generation time.'
     )
 
     args = parser.parse_args()
     generate_components(args.components_source, args.project_shortname,
                         package_info_filename=args.package_info_filename,
-                        generate_r_components=args.rlang
+                        generate_r_components=args.rlang,
+                        rprefix=args.r_prefix
                         )
 
 
