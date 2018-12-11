@@ -11,7 +11,7 @@ from ._py_components_generation import reorder_props
 # between R and JSON.
 def json_to_r_type(current_prop):
     object_type = current_prop['type'].values()
-    if 'defaultValue' in current_prop and object_type == ['string']:
+    if 'defaultValue' in current_prop and object_type == 'string':
         if "\"" in current_prop['defaultValue']['value']:
             argument = current_prop['defaultValue']['value']
         else:
