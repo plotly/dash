@@ -278,7 +278,7 @@ def write_class_file_r(name,
                        description,
                        project_shortname,
                        prefix=None):
-    import_string = \
+    import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string_r(
         name,
@@ -400,7 +400,7 @@ def generate_rpkg(pkg_data,
         if not os.path.isfile('LICENSE'):
             os.symlink("LICENSE.txt", "LICENSE")
 
-    import_string = \
+    import_string =\
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
 
     description_string = '''Package: {package_name}
