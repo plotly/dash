@@ -132,16 +132,15 @@ def cli():
     )
     parser.add_argument(
         '--r-prefix',
-        help='Inserts a prefix string that will be prepended to DashR component'
-             'names at generation time.'
+        help='Inserts a prefix string that will be prepended to DashR'
+             'component names at generation time.'
     )
 
     args = parser.parse_args()
     generate_components(args.components_source, args.project_shortname,
                         package_info_filename=args.package_info_filename,
                         generate_r_components=args.rlang,
-                        rprefix=args.r_prefix
-                       )
+                        rprefix=args.r_prefix)
 
 
 if __name__ == '__main__':
