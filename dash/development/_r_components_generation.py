@@ -26,9 +26,12 @@ r_component_string = '''{prefix}{name} <- function(..., {default_argtext}) {{
     structure(component, class = c('dash_component', 'list'))
 }}'''  # noqa:E501
 
-# the following string represents all the elements in an object
+# the following strings represent all the elements in an object
 # of the html_dependency class, which will be propagated by
 # iterating over _js_dist in __init__.py
+function_frame_open = '''.{rpkgname}_js_metadata <- function() {{
+deps_metadata <- list('''
+
 function_frame_element = '''`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
 file = "lib/"), meta = NULL,
@@ -163,9 +166,7 @@ def generate_js_metadata_r(project_shortname):
     # here we define an opening, element, and closing string --
     # if the total number of dependencies > 1, we can concatenate
     # them and write a list object in R with multiple elements
-    function_frame_open = '''.{rpkgname}_js_metadata <- function() {{
-deps_metadata <- list(
-'''.format(rpkgname=rpkgname)
+    function_frame_open = function_frame_open.format(rpkgname=rpkgname)
 
     function_frame = []
 
@@ -187,7 +188,6 @@ deps_metadata <- list(
                               ]
             function_frame_body = ',\n'.join(function_frame)
     elif len(jsdist) == 1:
-        # pylint: disable=line-too-long
         function_frame_body = function_frame_body.\
             format(project_shortname=project_shortname,
                    project_ver=project_ver,
@@ -277,22 +277,6 @@ def write_class_file_r(name,
                        description,
                        project_shortname,
                        prefix=None):
-    """
-    Generate a R class file (.R) given a class string
-
-    Parameters
-    ----------
-    name
-    props
-    description
-    project_shortname
-    prefix
-
-    Returns
-    -------
-
-    """
-
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string_r(
@@ -346,13 +330,13 @@ def generate_export_string_r(name, prefix):
 
 def write_js_metadata_r(project_shortname):
     """
-    Write an internal (not exported) function to return all JS
-    dependencies as required by htmlDependency package given a
+    Write an internal (not exported) R function to return all JS
+    dependencies as required by htmltools package given a
     function string
 
     Parameters
     ----------
-    project_shortname
+    project_shortname = hyphenated string, e.g. dash-html-components
 
     Returns
     -------
