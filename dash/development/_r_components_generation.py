@@ -1,10 +1,9 @@
-import shutil
-import glob
-
 from __future__ import absolute_import
 
 import os
 import sys
+import shutil
+import glob
 
 from ._all_keywords import r_keywords
 from ._py_components_generation import reorder_props
@@ -32,24 +31,24 @@ r_component_string = '''{prefix}{name} <- function(..., {default_argtext}) {{
 # the following strings represent all the elements in an object
 # of the html_dependency class, which will be propagated by
 # iterating over _js_dist in __init__.py
-function_frame_open = '''.{rpkgname}_js_metadata <- function() {{
+frame_open_template = '''.{rpkgname}_js_metadata <- function() {{
 deps_metadata <- list('''
 
-function_frame_element = '''`{dep_name}` = structure(list(name = "{dep_name}",
+frame_element_template = '''`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
 file = "lib/"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''
 
-function_frame_body = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
+frame_body_template = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
 file = "lib/"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''
 
-function_frame_close = ''')
+frame_close_template = ''')
 return(deps_metadata)
 }'''
 
@@ -185,7 +184,7 @@ def generate_js_metadata_r(project_shortname):
     # here we define an opening, element, and closing string --
     # if the total number of dependencies > 1, we can concatenate
     # them and write a list object in R with multiple elements
-    function_frame_open = function_frame_open.format(rpkgname=rpkgname)
+    function_frame_open = frame_open_template.format(rpkgname=rpkgname)
 
     function_frame = []
 
@@ -197,7 +196,7 @@ def generate_js_metadata_r(project_shortname):
             else:
                 dep_name = '{}_{}'.format(project_shortname, str(dep))
                 project_ver = str(dep)
-            function_frame += [function_frame_element.format(
+            function_frame += [frame_element_template.format(
                 dep_name=dep_name,
                 project_ver=project_ver,
                 rpkgname=rpkgname,
@@ -207,7 +206,7 @@ def generate_js_metadata_r(project_shortname):
                               ]
             function_frame_body = ',\n'.join(function_frame)
     elif len(jsdist) == 1:
-        function_frame_body = function_frame_body. \
+        function_frame_body = frame_body_template. \
             format(project_shortname=project_shortname,
                    project_ver=project_ver,
                    rpkgname=rpkgname,
@@ -215,7 +214,7 @@ def generate_js_metadata_r(project_shortname):
 
     function_string = ''.join([function_frame_open,
                                function_frame_body,
-                               function_frame_close])
+                               frame_close_template])
 
     return function_string
 
