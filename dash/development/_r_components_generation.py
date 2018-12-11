@@ -6,6 +6,46 @@ import sys
 from ._all_keywords import r_keywords
 from ._py_components_generation import reorder_props
 
+# Declaring longer string templates as globals to improve
+# readability, make method logic clearer to anyone inspecting
+# code below
+
+r_component_string = '''{prefix}{name} <- function(..., {default_argtext}) {{
+
+    component <- list(
+        props = list({default_paramtext}),
+        type = '{name}',
+        namespace = '{project_shortname}',
+        propNames = c({prop_names}),
+        package = '{package_name}'
+        )
+
+    component$props <- filter_null(component$props)
+    component <- append_wildcard_props(component, wildcards = {default_wildcards}, ...)
+
+    structure(component, class = c('dash_component', 'list'))
+}}'''  # noqa:E501
+
+# the following string represents all the elements in an object
+# of the html_dependency class, which will be propagated by
+# iterating over _js_dist in __init__.py
+function_frame_element = '''`{dep_name}` = structure(list(name = "{dep_name}",
+version = "{project_ver}", src = list(href = NULL,
+file = "lib/"), meta = NULL,
+script = "{dep_rpp}",
+stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
+all_files = FALSE), class = "html_dependency")'''
+
+function_frame_body = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
+version = "{project_ver}", src = list(href = NULL,
+file = "lib/"), meta = NULL,
+script = "{dep_rpp}",
+stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
+all_files = FALSE), class = "html_dependency")'''
+
+function_frame_close = ''')
+return(deps_metadata)
+}'''
 
 # This is an initial attempt at resolving type inconsistencies
 # between R and JSON.
@@ -28,24 +68,10 @@ def json_to_r_type(current_prop):
 
 # pylint: disable=R0914
 def generate_class_string_r(name, props, project_shortname, prefix):
-    c = '''{prefix}{name} <- function(..., {default_argtext}) {{
-
-    component <- list(
-        props = list({default_paramtext}),
-        type = '{name}',
-        namespace = '{project_shortname}',
-        propNames = c({prop_names}),
-        package = '{package_name}'
-        )
-
-    component$props <- filter_null(component$props)
-    component <- append_wildcard_props(component, wildcards = {default_wildcards}, ...)
-
-    structure(component, class = c('dash_component', 'list'))
-}}'''  # noqa:E501
-
     # Here we convert from snake case to camel case
     package_name = make_package_name_r(project_shortname)
+
+    prop_keys = props.keys()
 
     default_paramtext = ''
     default_argtext = ''
@@ -53,7 +79,7 @@ def generate_class_string_r(name, props, project_shortname, prefix):
 
     # Produce a string with all property names other than WCs
     prop_names = ", ".join(
-        ('\'{:s}\''.format(p))
+        ("{}".format(p))
         for p in prop_keys
         if '*' not in p and
         p not in ['setProps', 'dashEvents', 'fireEvent']
@@ -62,7 +88,7 @@ def generate_class_string_r(name, props, project_shortname, prefix):
     # in R, we set parameters with no defaults to NULL
     # Here we'll do that if no default value exists
     default_wildcards += ", ".join(
-        ('\'{:s}\''.format(p))
+        ('\'{}\''.format(p))
         for p in prop_keys
         if '*' in p
     )
@@ -70,12 +96,12 @@ def generate_class_string_r(name, props, project_shortname, prefix):
     if default_wildcards == '':
         default_wildcards = 'NULL'
     else:
-        default_wildcards = 'c({:s})'.format(default_wildcards)
+        default_wildcards = 'c({})'.format(default_wildcards)
 
     default_argtext += ", ".join(
-        ('{:s}={}'.format(p, json_to_r_type(props[p]))
+        ('{}={}'.format(p, json_to_r_type(props[p]))
          if 'defaultValue' in props[p] else
-         '{:s}=NULL'.format(p))
+         '{}=NULL'.format(p))
         for p in prop_keys
         if not p.endswith("-*") and
         p not in r_keywords and
@@ -87,16 +113,16 @@ def generate_class_string_r(name, props, project_shortname, prefix):
 
     # pylint: disable=C0301
     default_paramtext += ", ".join(
-        ('{:s}={:s}'.format(p, p)
+        ('{}={}'.format(p, p)
          if p != "children" else
-         '{:s}=c(children, assert_valid_children(..., wildcards = {:s}))'
+         '{}=c(children, assert_valid_children(..., wildcards = {}))'
          .format(p, default_wildcards))
         for p in props.keys()
         if not p.endswith("-*") and
         p not in r_keywords and
         p not in ['setProps', 'dashEvents', 'fireEvent']
     )
-    return c.format(prefix=prefix,
+    return r_component_string.format(prefix=prefix,
                     name=name,
                     default_argtext=default_argtext,
                     default_paramtext=default_paramtext,
@@ -143,23 +169,13 @@ deps_metadata <- list(
 
     function_frame = []
 
-    # the following string represents all the elements in an object
-    # of the html_dependency class, which will be propagated by
-    # iterating over _js_dist in __init__.py
-    function_frame_element = '''`{dep_name}` = structure(list(name = "{dep_name}",
-version = "{project_ver}", src = list(href = NULL,
-file = "lib/"), meta = NULL,
-script = "{dep_rpp}",
-stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")'''
-
     # pylint: disable=consider-using-enumerate
     if len(jsdist) > 1:
         for dep in range(len(jsdist)):
             if jsdist[dep]['relative_package_path'].__contains__('dash_'):
                 dep_name = jsdist[dep]['relative_package_path'].split('.')[0]
             else:
-                dep_name = '{:s}_{:s}'.format(project_shortname, str(dep))
+                dep_name = '{}_{}'.format(project_shortname, str(dep))
                 project_ver = str(dep)
             function_frame += [function_frame_element.format(
                 dep_name=dep_name,
@@ -172,20 +188,11 @@ all_files = FALSE), class = "html_dependency")'''
             function_frame_body = ',\n'.join(function_frame)
     elif len(jsdist) == 1:
         # pylint: disable=line-too-long
-        function_frame_body = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
-version = "{project_ver}", src = list(href = NULL,
-file = "lib/"), meta = NULL,
-script = "{dep_rpp}",
-stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")'''.\
+        function_frame_body = function_frame_body.\
             format(project_shortname=project_shortname,
                    project_ver=project_ver,
                    rpkgname=rpkgname,
                    dep_rpp=jsdist[0]['relative_package_path'])
-
-    function_frame_close = ''')
-return(deps_metadata)
-}'''
 
     function_string = ''.join([function_frame_open,
                                function_frame_body,
@@ -210,7 +217,7 @@ def write_help_file_r(name, props, description, prefix):
 
 
     """
-    file_name = '{:s}{:s}.Rd'.format(prefix, name)
+    file_name = '{}{}.Rd'.format(prefix, name)
     prop_keys = list(props.keys())
 
     default_argtext = ''
@@ -220,9 +227,9 @@ def write_help_file_r(name, props, description, prefix):
     props = reorder_props(props=props)
 
     default_argtext += ", ".join(
-        '{:s}={}'.format(p, json_to_r_type(props[p]))
+        '{}={}'.format(p, json_to_r_type(props[p]))
         if 'defaultValue' in props[p] else
-        '{:s}=NULL'.format(p)
+        '{}=NULL'.format(p)
         for p in prop_keys
         if not p.endswith("-*") and
         p not in r_keywords and
@@ -230,7 +237,7 @@ def write_help_file_r(name, props, description, prefix):
     )
 
     item_text += "\n\n".join(
-        ('\\item{{{:s}}}{{{:s}}}'.format(p, props[p]['description']))
+        ('\\item{{{}}}{{{}}}'.format(p, props[p]['description']))
         for p in prop_keys
         if not p.endswith("-*") and
         p not in r_keywords and
@@ -294,7 +301,7 @@ def write_class_file_r(name,
         project_shortname,
         prefix
     )
-    file_name = "{:s}{:s}.R".format(prefix, name)
+    file_name = "{}{}.R".format(prefix, name)
 
     if not os.path.exists('R'):
         os.makedirs('R')
@@ -334,7 +341,7 @@ def generate_export_string_r(name, prefix):
     if not name.endswith('-*') and \
             str(name) not in r_keywords and \
             str(name) not in ['setProps', 'children', 'dashEvents']:
-        return 'export({:s}{:s})\n'.format(prefix, name)
+        return 'export({}{})\n'.format(prefix, name)
 
 
 def write_js_metadata_r(project_shortname):
@@ -497,24 +504,6 @@ def make_package_name_r(namestring):
     return first + ''.join(word.capitalize() for word in rest)
 
 
-# For the R packages corresponding to the component
-# libraries, use 'project_shortname' to determine
-# the prefix for the set of R functions we're
-# generating that correspond to Dash components.
-#
-# e.g. the graph component in DCC will be prepended
-# with 'core', so that the R function is coreGraph()
-def get_shortname_prefix(project_shortname):
-    if project_shortname == 'dash_html_components':
-        prefix = 'html'
-    elif project_shortname == 'dash_core_components':
-        prefix = 'core'
-    else:
-        prefix = ''
-
-    return prefix
-
-
 # pylint: disable=unused-argument
 def generate_exports_r(project_shortname,
                        components,
@@ -527,7 +516,7 @@ def generate_exports_r(project_shortname,
         if not component.endswith('-*') and \
                 str(component) not in r_keywords and \
                 str(component) not in ['setProps', 'children', 'dashEvents']:
-            export_string += 'export({:s}{:s})\n'.format(prefix, component)
+            export_string += 'export({}{})\n'.format(prefix, component)
 
     # now, bundle up the package information and create all the requisite
     # elements of an R package, so that the end result is installable either
