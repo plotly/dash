@@ -7,6 +7,7 @@ import shlex
 import os
 import argparse
 import shutil
+import importlib
 import functools
 
 import pkg_resources
@@ -29,8 +30,6 @@ def generate_components(components_source, project_shortname,
                         package_info_filename='package.json',
                         generate_r_components=False):
     project_shortname = project_shortname.replace('-', '_').rstrip('/\\')
-
-    import importlib
 
     # import component library module
     importlib.import_module(project_shortname)
