@@ -9,7 +9,6 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-
 r_component_string = '''{prefix}{name} <- function(..., {default_argtext}) {{
 
     component <- list(
@@ -49,6 +48,21 @@ all_files = FALSE), class = "html_dependency")'''
 function_frame_close = ''')
 return(deps_metadata)
 }'''
+
+help_string = '''% Auto-generated: do not edit by hand
+\\name{{{prefix}{name}}}
+\\alias{{{prefix}{name}}}
+\\title{{{name} component}}
+\\description{{
+{description}
+}}
+\\usage{{
+{prefix}{name}(..., {default_argtext})
+}}
+\\arguments{{
+{item_text}
+}}
+'''
 
 
 # This is an initial attempt at resolving type inconsistencies
@@ -219,7 +233,7 @@ def write_help_file_r(name, props, description, prefix):
 
     """
     file_name = '{}{}.Rd'.format(prefix, name)
-    prop_keys = list(props.keys())
+    prop_keys = props.keys()
 
     default_argtext = ''
     item_text = ''
@@ -244,23 +258,6 @@ def write_help_file_r(name, props, description, prefix):
         p not in r_keywords and
         p not in ['setProps', 'dashEvents', 'fireEvent']
     )
-
-    help_string = '''% Auto-generated: do not edit by hand
-\\name{{{prefix}{name}}}
-\\alias{{{prefix}{name}}}
-\\title{{{name} component}}
-\\description{{
-{description}
-}}
-\\usage{{
-{prefix}{name}(..., {default_argtext})
-}}
-\\arguments{{
-{item_text}
-}}
-    '''
-    if not os.path.exists('man'):
-        os.makedirs('man')
 
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
@@ -295,15 +292,6 @@ def write_class_file_r(name,
     with open(file_path, 'w') as f:
         f.write(import_string)
         f.write(class_string)
-
-    # generate the internal (not exported to the user) functions which
-    # supply the JavaScript dependencies to the htmlDependency package,
-    # which is required by DashR (this avoids having to generate an
-    # RData file from within Python, given the current package generation
-    # workflow)
-    write_js_metadata_r(
-        project_shortname
-    )
 
     # generate the R help pages for each of the Dash components that we
     # are transpiling -- this is done to avoid using Roxygen2 syntax,
@@ -469,6 +457,14 @@ LICENSE.txt
 ^.*\.Rproj$
 ^\.Rproj\.user$
 '''
+    # generate the internal (not exported to the user) functions which
+    # supply the JavaScript dependencies to the htmlDependency package,
+    # which is required by DashR (this avoids having to generate an
+    # RData file from within Python, given the current package generation
+    # workflow)
+    write_js_metadata_r(
+        project_shortname
+    )
 
     with open('NAMESPACE', 'w') as f:
         f.write(import_string)
