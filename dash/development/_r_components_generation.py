@@ -90,7 +90,7 @@ def json_to_r_type(current_prop):
 # pylint: disable=R0914
 def generate_class_string_r(name, props, project_shortname, prefix):
     # Here we convert from snake case to camel case
-    package_name = make_package_name_r(project_shortname)
+    package_name = snake_case_to_camel_case(project_shortname)
 
     prop_keys = props.keys()
 
@@ -177,7 +177,7 @@ def generate_js_metadata_r(project_shortname):
     jsdist = getattr(mod, '_js_dist', [])
     project_ver = getattr(mod, '__version__', [])
 
-    rpkgname = make_package_name_r(project_shortname)
+    rpkgname = snake_case_to_camel_case(project_shortname)
 
     # since _js_dist may suggest more than one dependency, need
     # a way to iterate over all dependencies for a given set.
@@ -379,14 +379,16 @@ def generate_rpkg(pkg_data,
 
     """
     # Leverage package.json to import specifics which are also applicable
-    # to R package that we're generating here
-    package_name = make_package_name_r(project_shortname)
-    package_description = pkg_data['description']
-    package_version = pkg_data['version']
-    package_issues = pkg_data['bugs']['url']
-    package_url = pkg_data['homepage']
+    # to R package that we're generating here, use .get in case the key
+    # does not exist in package.json
 
-    package_author = pkg_data['author']
+    package_name = snake_case_to_camel_case(project_shortname)
+    package_description = pkg_data.get('description', '')
+    package_version = pkg_data.get('version', '0.01')
+    package_issues = pkg_data['bugs'].get('url', '')
+    package_url = pkg_data.get('homepage', '')
+
+    package_author = pkg_data.get('author')
 
     package_author_no_email = package_author.split(" <")[0] + ' [aut]'
 
@@ -480,9 +482,9 @@ LICENSE.txt
 # This converts a string from snake case to camel case
 # Not required for R package name to be in camel case,
 # but probably more conventional this way
-def make_package_name_r(namestring):
-    first, rest = namestring.split('_')[0], namestring.split('_')[1:]
-    return first + ''.join(word.capitalize() for word in rest)
+def snake_case_to_camel_case(namestring):
+    s = namestring.split('_')
+    return s[0] + ''.join(w.capitalize() for w in s[1:])
 
 
 # pylint: disable=unused-argument
