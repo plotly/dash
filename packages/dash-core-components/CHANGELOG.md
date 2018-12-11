@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.41.0] - 2018-12-11
+### Added
+- `dangerously_allow_html` prop for Markdown component for allowing HTML.
+
 ## [0.40.5] - 2018-12-11
 ### Fixed
 - Fix typos in DatePickerSingle props [#361](https://github.com/plotly/dash-core-components/pull/361)

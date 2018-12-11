@@ -2212,6 +2212,17 @@
         "required": false,
         "description": "An object containing custom element props to put on the container\nelement such as id or style"
       },
+      "dangerously_allow_html": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "A boolean to control raw HTML escaping.\nSetting HTML from code is risky because it's easy to\ninadvertently expose your users to a cross-site scripting (XSS)\n(https://en.wikipedia.org/wiki/Cross-site_scripting) attack.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
       "children": {
         "type": {
           "name": "union",
