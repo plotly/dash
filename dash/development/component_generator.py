@@ -84,11 +84,6 @@ def generate_components(components_source, project_shortname,
     generate_imports(project_shortname, components)
 
     if generate_r_components:
-        # -- do all the R stuff here, remove loop as it is unnecessary
-        # Remove the R NAMESPACE file if it exists, this will be repopulated
-        # if os.path.isfile('NAMESPACE'):
-        #    os.remove('NAMESPACE')
-
         with open('package.json', 'r') as f:
             pkg_data = json.load(f)
 
@@ -120,11 +115,17 @@ def cli():
         action='store_true',
         help='Generate Dash components for R, and package for installation.'
     )
+    parser.add_argument(
+        '--r-prefix',
+        default='',
+        help='Inserts a prefix string that will be prepended to DashR component names at generation time.'
+    )
 
     args = parser.parse_args()
     generate_components(args.components_source, args.project_shortname,
                         package_info_filename=args.package_info_filename,
-                        generate_r_components=args.rlang)
+                        generate_r_components=args.rlang
+                        )
 
 
 if __name__ == '__main__':
