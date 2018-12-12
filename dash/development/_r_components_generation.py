@@ -275,10 +275,10 @@ def write_help_file(name, props, description, prefix):
 
 
 def write_class_file(name,
-                       props,
-                       description,
-                       project_shortname,
-                       prefix=None):
+                     props,
+                     description,
+                     project_shortname,
+                     prefix=None):
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string(
@@ -507,11 +507,11 @@ def snake_case_to_camel_case(namestring):
 
 # pylint: disable=unused-argument
 def generate_exports(project_shortname,
-                       components,
-                       metadata,
-                       pkg_data,
-                       prefix,
-                       **kwargs):
+                     components,
+                     metadata,
+                     pkg_data,
+                     prefix,
+                     **kwargs):
     export_string = ''
     for component in components:
         if not component.endswith('-*') and \
