@@ -89,7 +89,7 @@ def json_to_r_type(current_prop):
 
 
 # pylint: disable=R0914
-def generate_class_string_r(name, props, project_shortname, prefix):
+def generate_class_string(name, props, project_shortname, prefix):
     # Here we convert from snake case to camel case
     package_name = snake_case_to_camel_case(project_shortname)
 
@@ -155,7 +155,7 @@ def generate_class_string_r(name, props, project_shortname, prefix):
 
 
 # pylint: disable=R0914
-def generate_js_metadata_r(project_shortname):
+def generate_js_metadata(project_shortname):
     """
     Dynamically generate R function to supply JavaScript
     dependency information required by htmltools package,
@@ -220,7 +220,7 @@ def generate_js_metadata_r(project_shortname):
     return function_string
 
 
-def write_help_file_r(name, props, description, prefix):
+def write_help_file(name, props, description, prefix):
     """
     Write R documentation file (.Rd) given component name and properties
 
@@ -274,14 +274,14 @@ def write_help_file_r(name, props, description, prefix):
         ))
 
 
-def write_class_file_r(name,
+def write_class_file(name,
                        props,
                        description,
                        project_shortname,
                        prefix=None):
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
-    class_string = generate_class_string_r(
+    class_string = generate_class_string(
         name,
         props,
         project_shortname,
@@ -300,7 +300,7 @@ def write_class_file_r(name,
     # doxygen and an R plugin, but for now we'll just do it on our own
     # from within Python
     # noqa E344
-    write_help_file_r(
+    write_help_file(
         name,
         props,
         description,
@@ -311,14 +311,14 @@ def write_class_file_r(name,
 
 
 # pylint: disable=inconsistent-return-statements
-def generate_export_string_r(name, prefix):
+def generate_export_string(name, prefix):
     if not name.endswith('-*') and \
             str(name) not in r_keywords and \
             str(name) not in ['setProps', 'children', 'dashEvents']:
         return 'export({}{})\n'.format(prefix, name)
 
 
-def write_js_metadata_r(project_shortname):
+def write_js_metadata(project_shortname):
     """
     Write an internal (not exported) R function to return all JS
     dependencies as required by htmltools package given a
@@ -332,7 +332,7 @@ def write_js_metadata_r(project_shortname):
     -------
 
     """
-    function_string = generate_js_metadata_r(
+    function_string = generate_js_metadata(
         project_shortname
     )
     file_name = "internal.R"
@@ -482,7 +482,7 @@ LICENSE.txt
     # which is required by DashR (this avoids having to generate an
     # RData file from within Python, given the current package generation
     # workflow)
-    write_js_metadata_r(
+    write_js_metadata(
         project_shortname
     )
 
@@ -506,7 +506,7 @@ def snake_case_to_camel_case(namestring):
 
 
 # pylint: disable=unused-argument
-def generate_exports_r(project_shortname,
+def generate_exports(project_shortname,
                        components,
                        metadata,
                        pkg_data,
