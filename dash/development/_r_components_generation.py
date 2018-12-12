@@ -139,7 +139,7 @@ def generate_class_string(name, props, project_shortname, prefix):
         if p != "children" else
         '{}=c(children, assert_valid_children(..., wildcards = {}))'
         .format(p, default_wildcards)
-        for p in props.keys()
+        for p in prop_keys
         if not p.endswith("-*") and
         p not in r_keywords and
         p not in ['setProps', 'dashEvents', 'fireEvent']
