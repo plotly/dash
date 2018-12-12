@@ -47,7 +47,7 @@ version = "{project_ver}", src = list(href = NULL,
 file = "lib/"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")'''
+all_files = FALSE), class = "html_dependency")'''  # noqa:E501
 
 frame_close_template = ''')
 return(deps_metadata)
@@ -66,6 +66,52 @@ help_string = '''% Auto-generated: do not edit by hand
 \\arguments{{
 {item_text}
 }}
+'''
+
+description_string = '''Package: {package_name}
+Title: {package_description}
+Version: {package_version}
+Authors @R: as.person(c({package_author}))
+Description: {package_description}
+Suggests: testthat, roxygen2
+License: {package_license}
+URL: {package_url}
+BugReports: {package_issues}
+Encoding: UTF-8
+LazyData: true
+Author: {package_author_no_email}
+Maintainer: {package_author}
+'''
+
+rbuild_ignore_string = r'''# ignore JS config files/folders
+node_modules/
+coverage/
+src/
+lib/
+.babelrc
+.builderrc
+.eslintrc
+.npmignore
+
+# demo folder has special meaning in R
+# this should hopefully make it still
+# allow for the possibility to make R demos
+demo/*.js
+demo/*.html
+demo/*.css
+
+# ignore python files/folders
+setup.py
+usage.py
+setup.py
+requirements.txt
+MANIFEST.in
+CHANGELOG.md
+test/
+# CRAN has weird LICENSE requirements
+LICENSE.txt
+^.*\.Rproj$
+^\.Rproj\.user$
 '''
 
 
@@ -189,6 +235,7 @@ def generate_js_metadata(project_shortname):
     function_frame_open = frame_open_template.format(rpkgname=rpkgname)
 
     function_frame = []
+    function_frame_body = []
 
     # pylint: disable=consider-using-enumerate
     if len(jsdist) > 1:
@@ -421,21 +468,6 @@ def generate_rpkg(pkg_data,
     import_string =\
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
 
-    description_string = '''Package: {package_name}
-Title: {package_description}
-Version: {package_version}
-Authors @R: as.person(c({package_author}))
-Description: {package_description}
-Suggests: testthat, roxygen2
-License: {package_license}
-URL: {package_url}
-BugReports: {package_issues}
-Encoding: UTF-8
-LazyData: true
-Author: {package_author_no_email}
-Maintainer: {package_author}
-'''
-
     description_string = description_string.format(
         package_name=package_name,
         package_description=package_description,
@@ -447,36 +479,6 @@ Maintainer: {package_author}
         package_author_no_email=package_author_no_email
     )
 
-    rbuild_ignore_string = r'''# ignore JS config files/folders
-node_modules/
-coverage/
-src/
-lib/
-.babelrc
-.builderrc
-.eslintrc
-.npmignore
-
-# demo folder has special meaning in R
-# this should hopefully make it still
-# allow for the possibility to make R demos
-demo/*.js
-demo/*.html
-demo/*.css
-
-# ignore python files/folders
-setup.py
-usage.py
-setup.py
-requirements.txt
-MANIFEST.in
-CHANGELOG.md
-test/
-# CRAN has weird LICENSE requirements
-LICENSE.txt
-^.*\.Rproj$
-^\.Rproj\.user$
-'''
     # generate the internal (not exported to the user) functions which
     # supply the JavaScript dependencies to the htmlDependency package,
     # which is required by DashR (this avoids having to generate an
