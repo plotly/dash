@@ -120,14 +120,18 @@ def generate_class_string(name, props, project_shortname, prefix):
     else:
         default_wildcards = 'c({})'.format(default_wildcards)
 
+    # Filter props to remove those we don't want to expose
+    for p in prop_keys:
+        if p.endswith("-*") \
+                or p in r_keywords \
+                or p in ['setProps', 'dashEvents', 'fireEvent']:
+            prop_keys.remove(p)
+
     default_argtext += ", ".join(
         '{}={}'.format(p, json_to_r_type(props[p]))
         if 'defaultValue' in props[p] else
         '{}=NULL'.format(p)
         for p in prop_keys
-        if not p.endswith("-*") and
-        p not in r_keywords and
-        p not in ['setProps', 'dashEvents', 'fireEvent']
     )
 
     if 'children' in props:
@@ -140,9 +144,6 @@ def generate_class_string(name, props, project_shortname, prefix):
         '{}=c(children, assert_valid_children(..., wildcards = {}))'
         .format(p, default_wildcards)
         for p in prop_keys
-        if not p.endswith("-*") and
-        p not in r_keywords and
-        p not in ['setProps', 'dashEvents', 'fireEvent']
     )
     return r_component_string.format(prefix=prefix,
                                      name=name,
@@ -244,22 +245,23 @@ def write_help_file(name, props, description, prefix):
     # Ensure props are ordered with children first
     props = reorder_props(props=props)
 
+    # Filter props to remove those we don't want to expose
+    for p in prop_keys:
+        if p.endswith("-*") \
+                or p in r_keywords \
+                or p in ['setProps', 'dashEvents', 'fireEvent']:
+            prop_keys.remove(p)
+
     default_argtext += ", ".join(
         '{}={}'.format(p, json_to_r_type(props[p]))
         if 'defaultValue' in props[p] else
         '{}=NULL'.format(p)
         for p in prop_keys
-        if not p.endswith("-*") and
-        p not in r_keywords and
-        p not in ['setProps', 'dashEvents', 'fireEvent']
     )
 
     item_text += "\n\n".join(
         '\\item{{{}}}{{{}}}'.format(p, props[p]['description'])
         for p in prop_keys
-        if not p.endswith("-*") and
-        p not in r_keywords and
-        p not in ['setProps', 'dashEvents', 'fireEvent']
     )
 
     file_path = os.path.join('man', file_name)
@@ -298,7 +300,6 @@ def write_class_file(name,
     # we may eventually be able to generate similar documentation using
     # doxygen and an R plugin, but for now we'll just do it on our own
     # from within Python
-    # noqa E344
     write_help_file(
         name,
         props,
