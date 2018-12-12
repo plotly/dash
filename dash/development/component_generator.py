@@ -12,8 +12,8 @@ import functools
 
 import pkg_resources
 
-from ._r_components_generation import write_class_file_r
-from ._r_components_generation import generate_exports_r
+from ._r_components_generation import write_class_file
+from ._r_components_generation import generate_exports
 from ._py_components_generation import generate_class_file
 from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
@@ -85,7 +85,7 @@ def generate_components(components_source, project_shortname,
         if not os.path.exists('R'):
             os.makedirs('R')
         generator_methods.append(
-            functools.partial(write_class_file_r, prefix=prefix))
+            functools.partial(write_class_file, prefix=prefix))
 
     components = generate_classes_files(
         project_shortname,
@@ -102,7 +102,7 @@ def generate_components(components_source, project_shortname,
         with open('package.json', 'r') as f:
             pkg_data = json.load(f)
 
-        generate_exports_r(
+        generate_exports(
             project_shortname, components, metadata, pkg_data, prefix
         )
 
