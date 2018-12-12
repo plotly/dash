@@ -203,8 +203,7 @@ def generate_js_metadata(project_shortname):
                 rpkgname=rpkgname,
                 project_shortname=project_shortname,
                 dep_rpp=jsdist[dep]['relative_package_path']
-            )
-                              ]
+            )]
             function_frame_body = ',\n'.join(function_frame)
     elif len(jsdist) == 1:
         function_frame_body = frame_body_template. \
