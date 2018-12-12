@@ -68,7 +68,7 @@ help_string = '''% Auto-generated: do not edit by hand
 }}
 '''
 
-description_string = '''Package: {package_name}
+description_template = '''Package: {package_name}
 Title: {package_description}
 Version: {package_version}
 Authors @R: as.person(c({package_author}))
@@ -468,7 +468,7 @@ def generate_rpkg(pkg_data,
     import_string =\
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
 
-    description_string = description_string.format(
+    description_string = description_template.format(
         package_name=package_name,
         package_description=package_description,
         package_version=package_version,
