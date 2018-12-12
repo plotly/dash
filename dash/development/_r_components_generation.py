@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import print_function
 
 import os
 import sys
@@ -109,7 +110,7 @@ def generate_class_string_r(name, props, project_shortname, prefix):
     # in R, we set parameters with no defaults to NULL
     # Here we'll do that if no default value exists
     default_wildcards += ", ".join(
-        "{}".format(p)
+        '\'{}\''.format(p)
         for p in prop_keys
         if '*' in p
     )
@@ -385,8 +386,25 @@ def generate_rpkg(pkg_data,
     package_name = snake_case_to_camel_case(project_shortname)
     package_description = pkg_data.get('description', '')
     package_version = pkg_data.get('version', '0.01')
-    package_issues = pkg_data['bugs'].get('url', '')
-    package_url = pkg_data.get('homepage', '')
+
+    if 'bugs' in pkg_data.keys():
+        package_issues = pkg_data['bugs'].get('url', '')
+    else:
+        package_issues = ''
+        print(
+            'Warning: a URL for bug reports was '
+            'not provided. Empty string inserted.',
+            file=sys.stderr
+        )
+
+    if 'homepage' in pkg_data.keys():
+        package_url = pkg_data.get('homepage', '')
+    else:
+        package_url = ''
+        print(
+            'Warning: a homepage URL was not provided. Empty string inserted.',
+            file=sys.stderr
+        )
 
     package_author = pkg_data.get('author')
 
