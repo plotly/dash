@@ -25,7 +25,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - aria-* (string; optional): A wildcard aria attribute
 - charSet (string; optional): Declares the character encoding of the page or script.
 - content (string; optional): A value associated with http-equiv or name depending on the context.
-- httpEquiv (string; optional)
+- httpEquiv (string; optional): Defines a pragma directive.
 - name (string; optional): Name of the element. For example used by the server to identify the fields in form submits.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.
 - className (string; optional): Often used with CSS to style elements with common properties.

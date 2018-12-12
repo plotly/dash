@@ -101,7 +101,7 @@ Img.propTypes = {
     'src': PropTypes.string,
 
     /**
-     *
+     * One or more responsive image candidates.
      */
     'srcSet': PropTypes.string,
 
@@ -180,7 +180,9 @@ Img.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click'])
+    'dashEvents': PropTypes.oneOf(['click']),
+    
+    'setProps': PropTypes.func
     
 };
 

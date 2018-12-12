@@ -28,7 +28,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - height (string; optional): Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
 - sizes (string; optional)
 - src (string; optional): The URL of the embeddable content.
-- srcSet (string; optional)
+- srcSet (string; optional): One or more responsive image candidates.
 - useMap (string; optional)
 - width (string; optional): For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.

@@ -86,7 +86,7 @@ Meta.propTypes = {
     'content': PropTypes.string,
 
     /**
-     *
+     * Defines a pragma directive.
      */
     'httpEquiv': PropTypes.string,
 
@@ -160,7 +160,9 @@ Meta.propTypes = {
      */
     'fireEvent': PropTypes.func,
 
-    'dashEvents': PropTypes.oneOf(['click'])
+    'dashEvents': PropTypes.oneOf(['click']),
+    
+    'setProps': PropTypes.func
     
 };
 
