@@ -9,7 +9,7 @@
   "main": "src/index.js",
   "scripts": {
     "generate-python-classes": "python -c \"import dash; dash.development.component_loader.generate_classes('dash_core_components', 'dash_core_components/metadata.json');\"",
-    "prepublish": "npm run build:js && npm run build:js-dev && npm run build:py",
+    "prepare": "npm run build:all",
     "publish-all": "node scripts/publish.js",
     "start": "webpack-serve ./webpack.serve.config.js --open",
     "lint": "eslint src",
