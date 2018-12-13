@@ -118,13 +118,13 @@ LICENSE.txt
 # This is an initial attempt at resolving type inconsistencies
 # between R and JSON.
 def json_to_r_type(current_prop):
-    object_type = current_prop['type'].values()
+    object_type = current_prop['type']['name']
     if 'defaultValue' in current_prop and object_type == 'string':
         if "\"" in current_prop['defaultValue']['value']:
             argument = current_prop['defaultValue']['value']
         else:
             argument = "'{}'".format(current_prop['defaultValue']['value'])
-    elif 'defaultValue' in current_prop and object_type == ['object']:
+    elif 'defaultValue' in current_prop and object_type == 'object':
         argument = 'list()'
     elif 'defaultValue' in current_prop and \
             current_prop['defaultValue']['value'] == '[]':
