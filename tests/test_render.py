@@ -37,7 +37,7 @@ class Tests(IntegrationTests):
         while time.time() < start_time + 20:
             el = self.wait_for_element_by_css_selector(selector)
             try:
-                return self.assertEqual(el.text, assertion_text)
+                return self.assertEqual(str(el.text), assertion_text)
             except Exception as e:
                 exception = e
                 pass
@@ -1866,3 +1866,98 @@ class Tests(IntegrationTests):
         self.assertTrue(timestamp_2.value > timestamp_1.value)
         self.assertEqual(call_count.value, 4)
         self.percy_snapshot('button-2 click again')
+
+    def test_graphs_in_tabs_do_not_share_state(self):
+        app = dash.Dash()
+
+        app.config.suppress_callback_exceptions = True
+
+        app.layout = html.Div([
+            dcc.Tabs(
+                id="tabs",
+                children=[
+                    dcc.Tab(label="Tab 1", value="tab1", id="tab1"),
+                    dcc.Tab(label="Tab 2", value="tab2", id="tab2"),
+                ],
+                value="tab1",
+            ),
+
+            # Tab content
+            html.Div(id="tab_content"),
+        ])
+        tab1_layout = [
+            html.Div([dcc.Graph(id='graph1',
+                                figure={
+                                    'data': [{
+                                        'x': [1, 2, 3],
+                                        'y': [5, 10, 6],
+                                        'type': 'bar'
+                                        }]
+                                })]),
+
+            html.Pre(id='graph1_info'),
+        ]
+
+
+        tab2_layout = [
+            html.Div([dcc.Graph(id='graph2',
+                                figure={
+                                    'data': [{
+                                        'x': [4, 3, 2],
+                                        'y': [5, 10, 6],
+                                        'type': 'bar'
+                                        }]
+                                })]),
+
+            html.Pre(id='graph2_info'),
+        ]
+
+        @app.callback(Output(component_id='graph1_info', component_property='children'),
+                    [Input(component_id='graph1', component_property='clickData')])
+        def display_hover_data(hover_data):
+            return json.dumps(hover_data)
+
+
+        @app.callback(Output(component_id='graph2_info', component_property='children'),
+                    [Input(component_id='graph2', component_property='clickData')])
+        def display_hover_data(hover_data):
+            return json.dumps(hover_data)
+
+        @app.callback(Output("tab_content", "children"), [Input("tabs", "value")])
+        def render_content(tab):
+            if tab == "tab1":
+                return tab1_layout
+            elif tab == "tab2":
+                return tab2_layout
+            else:
+                return tab1_layout
+
+        self.startServer(app)
+
+        self.wait_for_element_by_css_selector('#graph1')
+
+        self.driver.find_elements_by_css_selector(
+            '#graph1'
+        )[0].click()
+
+        graph_1_expected_clickdata = {
+            "points": [{"curveNumber": 0, "pointNumber": 1, "pointIndex": 1, "x": 2, "y": 10}]
+        }
+
+        graph_2_expected_clickdata = {
+            "points": [{"curveNumber": 0, "pointNumber": 1, "pointIndex": 1, "x": 3, "y": 10}]
+        }
+
+        self.wait_for_text_to_equal('#graph1_info', json.dumps(graph_1_expected_clickdata))
+
+        self.driver.find_elements_by_css_selector(
+            '#tab2'
+        )[0].click()
+
+        self.wait_for_element_by_css_selector('#graph2')
+
+        self.driver.find_elements_by_css_selector(
+            '#graph2'
+        )[0].click()
+
+        self.wait_for_text_to_equal('#graph2_info', json.dumps(graph_2_expected_clickdata))

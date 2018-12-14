@@ -78,7 +78,7 @@ function render(component) {
         ...children
     );
 
-    return <NotifyObservers id={componentProps.id}>{parent}</NotifyObservers>;
+    return <NotifyObservers key={componentProps.id} id={componentProps.id}>{parent}</NotifyObservers>;
 }
 
 render.propTypes = {
