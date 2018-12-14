@@ -62,7 +62,7 @@ def generate_class_string(typename, props, description, namespace):
         _locals.update(kwargs)  # For wildcard attrs
         args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
 
-        for k in {required_args}:
+        for k in {required_props}:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
@@ -70,24 +70,18 @@ def generate_class_string(typename, props, description, namespace):
 '''
 
     filtered_props = reorder_props(filter_props(props))
-    # pylint: disable=unused-variable
-    list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
-    # pylint: disable=unused-variable
+    wildcard_prefixes = repr(parse_wildcards(props))
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
-    # pylint: disable=unused-variable
     docstring = create_docstring(
         component_name=typename,
         props=filtered_props,
         events=parse_events(props),
         description=description).replace('\r\n', '\n')
-
-    # pylint: disable=unused-variable
     events = '[' + ', '.join(parse_events(props)) + ']'
     prop_keys = list(props.keys())
     if 'children' in props:
         prop_keys.remove('children')
         default_argtext = "children=None, "
-        # pylint: disable=unused-variable
         argtext = 'children=children, **args'
     else:
         default_argtext = ""
@@ -99,11 +93,21 @@ def generate_class_string(typename, props, description, namespace):
          for p in prop_keys
          if not p.endswith("-*") and
          p not in kwlist and
-         p not in ['dashEvents', 'fireEvent', 'setProps']] + ['**kwargs']
+         p not in ['dashEvents', 'fireEvent', 'setProps']] + ["**kwargs"]
     )
-
     required_args = required_props(props)
-    return c.format(**locals())
+    return c.format(
+        typename=typename,
+        namespace=namespace,
+        filtered_props=filtered_props,
+        list_of_valid_wildcard_attr_prefixes=wildcard_prefixes,
+        list_of_valid_keys=list_of_valid_keys,
+        docstring=docstring,
+        events=events,
+        default_argtext=default_argtext,
+        argtext=argtext,
+        required_props=required_args
+    )
 
 
 def generate_class_file(typename, props, description, namespace):
