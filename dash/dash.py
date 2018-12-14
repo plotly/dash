@@ -304,7 +304,7 @@ class Dash(object):
     def layout(self, value):
         if (not isinstance(value, Component) and
                 not isinstance(value, collections.Callable)):
-            raise Exception(
+            raise exceptions.NoLayoutException(
                 ''
                 'Layout must be a dash component '
                 'or a function that returns '
@@ -330,7 +330,7 @@ class Dash(object):
         )
         missing = [missing for check, missing in checks if not check]
         if missing:
-            raise Exception(
+            raise exceptions.InvalidIndexException(
                 'Did you forget to include {} in your index string ?'.format(
                     ', '.join('{%' + x + '%}' for x in missing)
                 )
@@ -388,9 +388,6 @@ class Dash(object):
         # for cache busting
         def _relative_url_path(relative_package_path='', namespace=''):
 
-            # track the registered packages
-            self.registered_paths[namespace].add(relative_package_path)
-
             module_path = os.path.join(
                 os.path.dirname(sys.modules[namespace].__file__),
                 relative_package_path)
@@ -407,11 +404,17 @@ class Dash(object):
 
         srcs = []
         for resource in resources:
+            is_dynamic_resource = resource.get('dynamic', False)
+
             if 'relative_package_path' in resource:
-                if isinstance(resource['relative_package_path'], str):
-                    srcs.append(_relative_url_path(**resource))
-                else:
-                    for rel_path in resource['relative_package_path']:
+                paths = resource['relative_package_path']
+                paths = [paths] if isinstance(paths, str) else paths
+
+                for rel_path in paths:
+                    self.registered_paths[resource['namespace']]\
+                        .add(rel_path)
+
+                    if not is_dynamic_resource:
                         srcs.append(_relative_url_path(
                             relative_package_path=rel_path,
                             namespace=resource['namespace']
@@ -501,14 +504,14 @@ class Dash(object):
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
         if package_name not in self.registered_paths:
-            raise exceptions.InvalidResourceError(
+            raise exceptions.DependencyException(
                 'Error loading dependency.\n'
                 '"{}" is not a registered library.\n'
                 'Registered libraries are: {}'
                 .format(package_name, list(self.registered_paths.keys())))
 
         elif path_in_package_dist not in self.registered_paths[package_name]:
-            raise exceptions.InvalidResourceError(
+            raise exceptions.DependencyException(
                 '"{}" is registered but the path requested is not valid.\n'
                 'The path requested: "{}"\n'
                 'List of registered paths: {}'
@@ -521,7 +524,8 @@ class Dash(object):
 
         mimetype = ({
             'js': 'application/JavaScript',
-            'css': 'text/css'
+            'css': 'text/css',
+            'map': 'application/json'
         })[path_in_package_dist.split('.')[-1]]
 
         headers = {
@@ -571,7 +575,7 @@ class Dash(object):
 
         if missing:
             plural = 's' if len(missing) > 1 else ''
-            raise Exception(
+            raise exceptions.InvalidIndexException(
                 'Missing element{pl} {ids} in index.'.format(
                     ids=', '.join(missing),
                     pl=plural
@@ -759,7 +763,7 @@ class Dash(object):
                 Without `Input` or `Event` elements, this callback
                 will never get called.\n
                 (Subscribing to input components will cause the
-                callback to be called whenver their values
+                callback to be called whenever their values
                 change and subscribing to an event will cause the
                 callback to be called whenever the event is fired.)
             '''.format(

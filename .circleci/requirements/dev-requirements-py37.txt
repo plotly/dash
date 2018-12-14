@@ -1,4 +1,4 @@
-dash_core_components==0.35.1
+dash_core_components>=0.40.2
 dash_html_components==0.12.0rc3
 dash-flow-example==0.0.3
 dash-dangerously-set-inner-html
