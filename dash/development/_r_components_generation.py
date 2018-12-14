@@ -147,7 +147,7 @@ def generate_class_string(name, props, project_shortname, prefix):
 
     # Produce a string with all property names other than WCs
     prop_names = ", ".join(
-        "{}".format(p)
+        '\'{}\''.format(p)
         for p in prop_keys
         if '*' not in p and
         p not in ['setProps', 'dashEvents', 'fireEvent']
@@ -432,7 +432,7 @@ def generate_rpkg(pkg_data,
 
     package_name = snake_case_to_camel_case(project_shortname)
     package_description = pkg_data.get('description', '')
-    package_version = pkg_data.get('version', '0.01')
+    package_version = pkg_data.get('version', '0.0.1')
 
     if 'bugs' in pkg_data.keys():
         package_issues = pkg_data['bugs'].get('url', '')
