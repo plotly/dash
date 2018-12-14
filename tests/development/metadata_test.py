@@ -43,10 +43,10 @@ Available events: 'restyle', 'relayout', 'click'"""
         self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
         self._type = 'Table'
         self._namespace = 'TableComponents'
-        self._valid_wildcard_attributes =             ['data-', 'aria-']
+        self._valid_wildcard_attributes =            ['data-', 'aria-']
         self.available_events = ['restyle', 'relayout', 'click']
         self.available_properties = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
-        self.available_wildcard_properties =             ['data-', 'aria-']
+        self.available_wildcard_properties =            ['data-', 'aria-']
 
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
