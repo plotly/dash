@@ -572,7 +572,6 @@ class Tests(IntegrationTests):
 
         self.assertGreater(int(output2.text), t)
 
-
     def test_late_component_register(self):
         app = dash.Dash()
 
