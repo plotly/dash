@@ -275,7 +275,7 @@ class Dash(object):
     def layout(self, value):
         if (not isinstance(value, Component) and
                 not isinstance(value, collections.Callable)):
-            raise Exception(
+            raise exceptions.NoLayoutException(
                 ''
                 'Layout must be a dash component '
                 'or a function that returns '
@@ -301,7 +301,7 @@ class Dash(object):
         )
         missing = [missing for check, missing in checks if not check]
         if missing:
-            raise Exception(
+            raise exceptions.InvalidIndexException(
                 'Did you forget to include {} in your index string ?'.format(
                     ', '.join('{%' + x + '%}' for x in missing)
                 )
@@ -475,14 +475,14 @@ class Dash(object):
     # Serve the JS bundles for each package
     def serve_component_suites(self, package_name, path_in_package_dist):
         if package_name not in self.registered_paths:
-            raise exceptions.InvalidResourceError(
+            raise exceptions.DependencyException(
                 'Error loading dependency.\n'
                 '"{}" is not a registered library.\n'
                 'Registered libraries are: {}'
                 .format(package_name, list(self.registered_paths.keys())))
 
         elif path_in_package_dist not in self.registered_paths[package_name]:
-            raise exceptions.InvalidResourceError(
+            raise exceptions.DependencyException(
                 '"{}" is registered but the path requested is not valid.\n'
                 'The path requested: "{}"\n'
                 'List of registered paths: {}'
@@ -546,7 +546,7 @@ class Dash(object):
 
         if missing:
             plural = 's' if len(missing) > 1 else ''
-            raise Exception(
+            raise exceptions.InvalidIndexException(
                 'Missing element{pl} {ids} in index.'.format(
                     ids=', '.join(missing),
                     pl=plural
