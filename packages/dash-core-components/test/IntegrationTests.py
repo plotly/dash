@@ -1,11 +1,11 @@
 from __future__ import absolute_import
-import os
 import multiprocessing
+import os
+import platform
+import threading
 import time
 import unittest
 import percy
-import threading
-import platform
 import flask
 import requests
 

@@ -44,6 +44,12 @@ jobs:
                   command: npm run lint
 
             - run:
+                  name: python run lint
+                  command: |
+                      . venv/bin/activate
+                      flake8 --ignore=E501,F401,F841,F811 test
+
+            - run:
                   name: Build
                   command: |
                       . venv/bin/activate
