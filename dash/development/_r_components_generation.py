@@ -123,7 +123,23 @@ def json_to_r_type(current_prop):
         if "\"" in current_prop['defaultValue']['value']:
             argument = current_prop['defaultValue']['value']
         else:
-            argument = "'{}'".format(current_prop['defaultValue']['value'])
+            argument = "{}".format(current_prop['defaultValue']['value'])
+    elif object_type == 'custom' and 'raw' in current_prop['type']:
+        argument = current_prop['defaultValue'].get('value', 'numeric()')
+    elif object_type == 'enum':
+        val = current_prop['type']['value'][0]['value']
+        # Check if val is a string which can be cast to an int
+        try:
+            int(val)
+            argument = 'integer()'
+        # Check if val is a string which can be cast to a float, if not int
+        except ValueError:
+            try:
+                float(val)
+                argument = 'numeric()'
+            # If val cannot be cast to int nor float, assume string
+            except ValueError:
+                argument = 'character()'
     elif 'defaultValue' in current_prop and object_type == 'object':
         argument = 'list()'
     elif 'defaultValue' in current_prop and \
@@ -180,8 +196,8 @@ def generate_class_string(name, props, project_shortname, prefix):
         for p in prop_keys
     )
 
-    if 'children' in props:
-        prop_keys.remove('children')
+    # if 'children' in props:
+    #    prop_keys.remove('children')
 
     # pylint: disable=C0301
     default_paramtext += ", ".join(
