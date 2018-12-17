@@ -117,7 +117,7 @@ LICENSE.txt
 
 # This is an initial attempt at resolving type inconsistencies
 # between R and JSON.
-def json_to_r_type(current_prop):
+def props_to_r_type(current_prop):
     object_type = current_prop['type']['name']
     if 'defaultValue' in current_prop and object_type == 'string':
         if "\"" in current_prop['defaultValue']['value']:
@@ -190,7 +190,7 @@ def generate_class_string(name, props, project_shortname, prefix):
             prop_keys.remove(p)
 
     default_argtext += ", ".join(
-        '{}={}'.format(p, json_to_r_type(props[p]))
+        '{}={}'.format(p, props_to_r_type(props[p]))
         if 'defaultValue' in props[p] else
         '{}=NULL'.format(p)
         for p in prop_keys
@@ -313,7 +313,7 @@ def write_help_file(name, props, description, prefix):
             prop_keys.remove(p)
 
     default_argtext += ", ".join(
-        '{}={}'.format(p, json_to_r_type(props[p]))
+        '{}={}'.format(p, props_to_r_type(props[p]))
         if 'defaultValue' in props[p] else
         '{}=NULL'.format(p)
         for p in prop_keys
