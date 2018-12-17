@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.13.4] - 2018-12-17
+### Fixed
+- Fix build from wrong dash version.
+
 ## [0.13.3] - 2018-12-17
 ### Fixed
 - `n_clicks`/`n_clicks_timestamp` PropType changed from invalid `integer` to `number`.
