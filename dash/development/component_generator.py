@@ -43,7 +43,7 @@ def generate_components(components_source, project_shortname,
         ]
         prefix = s[-1]
         print(
-            'Warning: a component prefix was '
+            'Warning: a DashR component prefix was '
             'not provided. Using `{}`.'.format(prefix),
             file=sys.stderr
         )
