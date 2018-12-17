@@ -253,7 +253,7 @@ def generate_js_metadata(project_shortname):
     # pylint: disable=consider-using-enumerate
     if len(jsdist) > 1:
         for dep in range(len(jsdist)):
-            if jsdist[dep]['relative_package_path'].__contains__('dash_'):
+            if 'dash_' in jsdist[dep]['relative_package_path']:
                 dep_name = jsdist[dep]['relative_package_path'].split('.')[0]
             else:
                 dep_name = '{}_{}'.format(project_shortname, str(dep))
