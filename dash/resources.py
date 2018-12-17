@@ -3,6 +3,7 @@ import warnings
 import os
 
 from .development.base_component import ComponentRegistry
+from . import exceptions
 
 
 # pylint: disable=old-style-class
@@ -11,7 +12,6 @@ class Resources:
         self._resources = []
         self.resource_name = resource_name
         self.layout = layout
-        self._resources_cache = []
 
     def append_resource(self, resource):
         self._resources.append(resource)
@@ -20,6 +20,8 @@ class Resources:
         filtered_resources = []
         for s in all_resources:
             filtered_resource = {}
+            if 'dynamic' in s:
+                filtered_resource['dynamic'] = s['dynamic']
             if 'namespace' in s:
                 filtered_resource['namespace'] = s['namespace']
             if 'external_url' in s and not self.config.serve_locally:
@@ -46,7 +48,7 @@ class Resources:
                 )
                 continue
             else:
-                raise Exception(
+                raise exceptions.ResourceException(
                     '{} does not have a '
                     'relative_package_path, absolute_path, or an '
                     'external_url.'.format(
@@ -59,15 +61,10 @@ class Resources:
         return filtered_resources
 
     def get_all_resources(self, dev_bundles=False):
-        if self._resources_cache:
-            return self._resources_cache
+        lib_resources = ComponentRegistry.get_resources(self.resource_name)
+        all_resources = lib_resources + self._resources
 
-        all_resources = ComponentRegistry.get_resources(self.resource_name)
-        all_resources.extend(self._resources)
-
-        self._resources_cache = res = \
-            self._filter_resources(all_resources, dev_bundles)
-        return res
+        return self._filter_resources(all_resources, dev_bundles)
 
 
 class Css:  # pylint: disable=old-style-class

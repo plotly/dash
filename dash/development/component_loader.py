@@ -1,8 +1,13 @@
 import collections
 import json
 import os
-from .base_component import generate_class
-from .base_component import generate_class_file
+
+from ._py_components_generation import (
+    generate_class_file,
+    generate_imports,
+    generate_classes_files,
+    generate_class
+)
 from .base_component import ComponentRegistry
 
 
@@ -81,32 +86,7 @@ def generate_classes(namespace, metadata_path='lib/metadata.json'):
     if os.path.exists(imports_path):
         os.remove(imports_path)
 
-    # Iterate over each property name (which is a path to the component)
-    for componentPath in data:
-        componentData = data[componentPath]
-
-        # Extract component name from path
-        # e.g. src/components/MyControl.react.js
-        # TODO Make more robust - some folks will write .jsx and others
-        # will be on windows. Unfortunately react-docgen doesn't include
-        # the name of the component atm.
-        name = componentPath.split('/').pop().split('.')[0]
-        generate_class_file(
-            name,
-            componentData['props'],
-            componentData['description'],
-            namespace
-        )
-
-        # Add an import statement for this component
-        with open(imports_path, 'a') as f:
-            f.write('from .{0:s} import {0:s}\n'.format(name))
+    components = generate_classes_files(namespace, data, generate_class_file)
 
     # Add the __all__ value so we can import * from _imports_
-    all_imports = [p.split('/').pop().split('.')[0] for p in data]
-    with open(imports_path, 'a') as f:
-        array_string = '[\n'
-        for a in all_imports:
-            array_string += '    "{:s}",\n'.format(a)
-        array_string += ']\n'
-        f.write('\n\n__all__ = {:s}'.format(array_string))
+    generate_imports(namespace, components)

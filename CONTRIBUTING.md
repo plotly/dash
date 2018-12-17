@@ -86,7 +86,7 @@ _For larger features, your contribution will have a higher likelihood of getting
 - [ ] If significant enough, you have created an issue about documenting the new feature or change and you have added it to the [Documentation] project.
 - [ ] You have created a pull request in [Dash Docs] with the new release of your feature by editing that project's [`requirements.txt` file](https://github.com/plotly/dash-docs/blob/master/requirements.txt) and you have assigned `@chriddyp` to review.
 
-### Versioning Policy
+## Versioning Policy
 This repository adheres to [semver](https://semver.org/). The following policy is in effect for `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer`:
 1. Matching major version numbers are guarenteed to work together.
 2. Any change to the public API (breaking change) will increase a major version.
@@ -95,17 +95,17 @@ This repository adheres to [semver](https://semver.org/). The following policy i
 
 ### Major Release Candidate Window
 1. The major release candidate window will be announced internally at Plotly and through our popular community channels.
-2. Within one day `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0-rc1` and published.
+2. `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0-rc1` on the same day and published for testing.
 3. Pull requests especially those containing breaking changes will be merged.
 4. Per repo tests will be updated to target the latest `rc` versions.
 5. [dash-docs](https://github.com/plotly/dash-docs), some apps in the [dash gallery](https://dash.plot.ly/gallery) and Plotly internal projects will be updated to target the latest `rc` versions.
 6. steps 3-5 will continue until all breaking changes have been merged.
 7. A major release candidate freeze will go into effect. During this time steps 3-5 will continue but only bug fixes will be merged.
-8. Within one day `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0` and published ending the major release cnadidate window.
+8. Once testing and Q/A is complete `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0` and published ending the major release candidate window.
 
 ### Backporting fixes
 During and after the major release candidate window bug fixes that can apply to pre-major release candidate releases should be backported. This is accomplished by:
-1. If a pre-major release branch does not exist then check out a branch at the tag defining the last published release before the previous major release candidate window began. For example if we are in the `1.x` series and the last pre-`1.x` series release is `v0.18.1` checkout a branch at `0.18.1` called `0.18-release`. If the branch does exist check it out.
+1. If a pre-major release branch does not exist then check out a branch at the tag defining the last published release before the previous major release candidate window began. For example if we are in the `1.x` series and the last pre-`1.x` series release is `v0.18.1` checkout a branch at `v0.18.1` called `0.18-release`. If the branch does exist check it out.
 2. Cherry-pick or otherwise reapply the fix to the pre-major release branch and update the patch version. In the example above the new version and tag will be `v0.18.2` on the `0.18-release` branch.
 3. Publish.
 

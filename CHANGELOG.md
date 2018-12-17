@@ -1,6 +1,35 @@
-## [1.0.0-rc1] - 2018-11-12
+## [1.0.0a1] - 2018-12-17
 ### Changed
-- Updated `react` and `react-dom` in other Dash repo's to version `16.6.1`. Upgrading to React 16 includes some small breaking changes, discussed [here](https://reactjs.org/blog/2017/09/26/react-v16.0.html#breaking-changes)
+- Initial Dash 1.0 alpha release [#3](https://github.com/plotly/dash-core/issues/3)
+
+## 0.33.0 - 2018-12-10
+## Added
+- Added specific Dash exception types to replace generic exceptions (InvalidIndexException, DependencyException, ResourceException) [#487](https://github.com/plotly/dash/pull/487)
+
+## 0.32.2 - 2018-12-09
+## Fixed
+- Fix typo in missing events/inputs error message [#485](https://github.com/plotly/dash/pull/485)
+
+## 0.32.1 - 2018-12-07
+## Changed
+- Muted dash related missing props docstring from extract-meta warnings [#484](https://github.com/plotly/dash/pull/484)
+
+## 0.32.0 - 2018-12-07
+## Added
+- Support for .map file extension and dynamic (on demand) loading [#478](https://github.com/plotly/dash/pull/478)
+
+## 0.31.1 - 2018-11-29
+## Fixed
+- Fix `_imports_.py` indentation generation. [#473](https://github.com/plotly/dash/pull/473/files)
+
+## 0.31.0 - 2018-11-29
+## Added
+- Combined `extract-meta` and python component files generation in a cli [#451](https://github.com/plotly/dash/pull/451)
+
+## 0.30.0 - 2018-11-14
+## Added
+- Hot reload from the browser [#362](https://github.com/plotly/dash/pull/362)
+- Silence routes logging with `dev_tools_silence_routes_logging`.
 
 ## 0.29.0 - 2018-11-06
 ## Added
@@ -92,7 +121,7 @@
 - Take configs values from init or environ variables (Prefixed with `DASH_`). [#322](https://github.com/plotly/dash/pull/322)
 
 ## Fixed
-- Take `requests_pathname_prefix` config when creating scripts tags. 
+- Take `requests_pathname_prefix` config when creating scripts tags.
 - `requests/routes_pathname_prefix` must starts and end with `/`.
 - `requests_pathname_prefix` must ends with `routes_pathname_prefix`. If you supplied both `requests` and `routes` pathname before this update, make sure `requests_pathname_prefix` ends with the same value as `routes_pathname_prefix`.
 - `url_base_pathname` set both `requests/routes` pathname, cannot supply it with either `requests` or `routes` pathname prefixes.
