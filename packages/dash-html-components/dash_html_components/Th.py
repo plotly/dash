@@ -12,9 +12,9 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- n_clicks (optional): An integer that represents the number of times
+- n_clicks (number; optional): An integer that represents the number of times
 that this element has been clicked on.
-- n_clicks_timestamp (optional): An integer that represents the time (in ms since 1970)
+- n_clicks_timestamp (number; optional): An integer that represents the time (in ms since 1970)
 at which n_clicks changed. This can be used to tell
 which button was changed most recently.
 - key (string; optional): A unique identifier for the component, used to improve

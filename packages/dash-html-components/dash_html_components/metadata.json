@@ -20,8 +20,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -32,8 +31,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -253,8 +251,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -265,8 +262,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -437,8 +433,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -449,8 +444,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -621,8 +615,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -633,8 +626,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -805,8 +797,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -817,8 +808,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -1052,8 +1042,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -1064,8 +1053,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -1236,8 +1224,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -1248,8 +1235,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -1420,8 +1406,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -1432,8 +1417,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -1653,8 +1637,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -1665,8 +1648,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -1837,8 +1819,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -1849,8 +1830,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -2035,8 +2015,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -2047,8 +2026,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -2219,8 +2197,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -2231,8 +2208,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -2403,8 +2379,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -2415,8 +2390,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -2587,8 +2561,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -2599,8 +2572,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -2771,8 +2743,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -2783,8 +2754,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -2955,8 +2925,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -2967,8 +2936,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -3146,8 +3114,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -3158,8 +3125,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -3330,8 +3296,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -3342,8 +3307,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -3563,8 +3527,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -3575,8 +3538,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -3761,8 +3723,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -3773,8 +3734,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -3945,8 +3905,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -3957,8 +3916,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -4129,8 +4087,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -4141,8 +4098,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -4313,8 +4269,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -4325,8 +4280,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -4497,8 +4451,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -4509,8 +4462,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -4688,8 +4640,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -4700,8 +4651,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -4879,8 +4829,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -4891,8 +4840,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -5098,8 +5046,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -5110,8 +5057,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -5282,8 +5228,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -5294,8 +5239,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -5466,8 +5410,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -5478,8 +5421,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -5650,8 +5592,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -5662,8 +5603,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -5834,8 +5774,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -5846,8 +5785,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -6032,8 +5970,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -6044,8 +5981,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -6223,8 +6159,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -6235,8 +6170,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -6407,8 +6341,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -6419,8 +6352,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -6591,8 +6523,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -6603,8 +6534,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -6775,8 +6705,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -6787,8 +6716,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -6959,8 +6887,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -6971,8 +6898,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -7143,8 +7069,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -7155,8 +7080,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -7327,8 +7251,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -7339,8 +7262,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -7511,8 +7433,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -7523,8 +7444,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -7723,8 +7643,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -7735,8 +7654,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -7928,8 +7846,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -7940,8 +7857,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -8112,8 +8028,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -8124,8 +8039,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -8296,8 +8210,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -8308,8 +8221,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -8480,8 +8392,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -8492,8 +8403,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -8664,8 +8574,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -8676,8 +8585,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -8911,8 +8819,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -8923,8 +8830,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -9095,8 +9001,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -9107,8 +9012,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -9279,8 +9183,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -9291,8 +9194,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -9463,8 +9365,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -9475,8 +9376,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -9647,8 +9547,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -9659,8 +9558,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -9831,8 +9729,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -9843,8 +9740,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -10015,8 +9911,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -10027,8 +9922,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -10199,8 +10093,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -10211,8 +10104,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -10383,8 +10275,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -10395,8 +10286,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -10567,8 +10457,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -10579,8 +10468,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -10751,8 +10639,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -10763,8 +10650,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -10935,8 +10821,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -10947,8 +10832,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -11119,8 +11003,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -11131,8 +11014,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -11345,8 +11227,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -11357,8 +11238,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -11585,8 +11465,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -11597,8 +11476,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -11783,8 +11661,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -11795,8 +11672,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -11967,8 +11843,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -11979,8 +11854,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -12151,8 +12025,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -12163,8 +12036,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -12377,8 +12249,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -12389,8 +12260,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -12575,8 +12445,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -12587,8 +12456,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -12759,8 +12627,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -12771,8 +12638,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -12950,8 +12816,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -12962,8 +12827,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -13183,8 +13047,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -13195,8 +13058,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -13367,8 +13229,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -13379,8 +13240,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -13551,8 +13411,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -13563,8 +13422,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -13742,8 +13600,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -13754,8 +13611,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -13926,8 +13782,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -13938,8 +13793,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -14117,8 +13971,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -14129,8 +13982,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -14329,8 +14181,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -14341,8 +14192,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -14562,8 +14412,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -14574,8 +14423,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -14746,8 +14594,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -14758,8 +14605,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -14930,8 +14776,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -14942,8 +14787,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -15114,8 +14958,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -15126,8 +14969,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -15298,8 +15140,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -15310,8 +15151,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -15482,8 +15322,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -15494,8 +15333,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -15708,8 +15546,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -15720,8 +15557,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -15906,8 +15742,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -15918,8 +15753,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -16097,8 +15931,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -16109,8 +15942,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -16302,8 +16134,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -16314,8 +16145,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -16507,8 +16337,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -16519,8 +16348,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -16691,8 +16519,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -16703,8 +16530,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -16889,8 +16715,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -16901,8 +16726,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -17073,8 +16897,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -17085,8 +16908,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -17257,8 +17079,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -17269,8 +17090,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -17441,8 +17261,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -17453,8 +17272,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -17646,8 +17464,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -17658,8 +17475,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -17837,8 +17653,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -17849,8 +17664,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -18021,8 +17835,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -18033,8 +17846,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -18205,8 +18017,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -18217,8 +18028,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -18389,8 +18199,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -18401,8 +18210,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -18573,8 +18381,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -18585,8 +18392,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -18757,8 +18563,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -18769,8 +18574,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -18941,8 +18745,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -18953,8 +18756,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -19125,8 +18927,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -19137,8 +18938,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -19358,8 +19158,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -19370,8 +19169,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -19542,8 +19340,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -19554,8 +19351,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -19775,8 +19571,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -19787,8 +19582,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -19959,8 +19753,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -19971,8 +19764,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -20143,8 +19935,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -20155,8 +19946,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -20327,8 +20117,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -20339,8 +20128,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -20546,8 +20334,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -20558,8 +20345,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -20730,8 +20516,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -20742,8 +20527,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -20914,8 +20698,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -20926,8 +20709,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -21098,8 +20880,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -21110,8 +20891,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -21282,8 +21062,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -21294,8 +21073,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -21466,8 +21244,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -21478,8 +21255,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -21650,8 +21426,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -21662,8 +21437,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -21834,8 +21608,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -21846,8 +21619,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -22025,8 +21797,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -22037,8 +21808,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -22209,8 +21979,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -22221,8 +21990,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -22414,8 +22182,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -22426,8 +22193,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -22598,8 +22364,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -22610,8 +22375,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -22873,8 +22637,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -22885,8 +22648,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -23057,8 +22819,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -23069,8 +22830,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -23269,8 +23029,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -23281,8 +23040,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -23453,8 +23211,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -23465,8 +23222,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -23644,8 +23400,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -23656,8 +23411,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -23828,8 +23582,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -23840,8 +23593,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -24012,8 +23764,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -24024,8 +23775,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -24231,8 +23981,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -24243,8 +23992,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -24415,8 +24163,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -24427,8 +24174,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -24599,8 +24345,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -24611,8 +24356,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -24783,8 +24527,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -24795,8 +24538,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -25037,8 +24779,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -25049,8 +24790,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",
@@ -25221,8 +24961,7 @@
       },
       "n_clicks": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the number of times\nthat this element has been clicked on.",
@@ -25233,8 +24972,7 @@
       },
       "n_clicks_timestamp": {
         "type": {
-          "name": "custom",
-          "raw": "PropTypes.integer"
+          "name": "number"
         },
         "required": false,
         "description": "An integer that represents the time (in ms since 1970)\nat which n_clicks changed. This can be used to tell\nwhich button was changed most recently.",

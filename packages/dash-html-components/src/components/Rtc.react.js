@@ -1,6 +1,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import {omit} from 'ramda';
 
 const Rtc = (props) => {
     return (
@@ -14,7 +15,7 @@ const Rtc = (props) => {
                 }
                 if (props.fireEvent) props.fireEvent({event: 'click'});
             }}
-            {...props}
+            {...omit(['n_clicks', 'n_clicks_timestamp'], props)}
         >
             {props.children}
         </rtc>
@@ -43,14 +44,14 @@ Rtc.propTypes = {
      * An integer that represents the number of times
      * that this element has been clicked on.
      */
-    'n_clicks': PropTypes.integer,
+    'n_clicks': PropTypes.number,
 
     /**
      * An integer that represents the time (in ms since 1970)
      * at which n_clicks changed. This can be used to tell
      * which button was changed most recently.
      */
-    'n_clicks_timestamp': PropTypes.integer,
+    'n_clicks_timestamp': PropTypes.number,
 
     /**
      * A unique identifier for the component, used to improve

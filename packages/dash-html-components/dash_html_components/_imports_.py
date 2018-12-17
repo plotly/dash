@@ -130,6 +130,7 @@ from .Video import Video
 from .Wbr import Wbr
 from .Xmp import Xmp
 
+
 __all__ = [
     "A",
     "Abbr",
@@ -261,5 +262,5 @@ __all__ = [
     "Var",
     "Video",
     "Wbr",
-    "Xmp"
+    "Xmp",
 ]

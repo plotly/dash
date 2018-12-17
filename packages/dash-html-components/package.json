@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -36,9 +36,10 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "css-loader": "^0.28.11",
-    "eslint-plugin-react": "^7.11.1",
     "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-react": "^7.11.1",
     "prop-types": "^15.6.0",
+    "ramda": "^0.26.1",
     "react-docgen": "^2.20.1",
     "style-loader": "^0.21.0",
     "webpack": "^4.24.0",

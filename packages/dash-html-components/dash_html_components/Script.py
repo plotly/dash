@@ -12,9 +12,9 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- n_clicks (optional): An integer that represents the number of times
+- n_clicks (number; optional): An integer that represents the number of times
 that this element has been clicked on.
-- n_clicks_timestamp (optional): An integer that represents the time (in ms since 1970)
+- n_clicks_timestamp (number; optional): An integer that represents the time (in ms since 1970)
 at which n_clicks changed. This can be used to tell
 which button was changed most recently.
 - key (string; optional): A unique identifier for the component, used to improve
@@ -45,7 +45,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 
 Available events: 'click'"""
     @_explicitize_args
-    def __init__(self, children=None, id=Component.UNDEFINED, n_clicks=Component.UNDEFINED, n_clicks_timestamp=Component.UNDEFINED, key=Component.UNDEFINED, role=Component.UNDEFINED, charSet=Component.UNDEFINED, crossOrigin=Component.UNDEFINED, defer=Component.UNDEFINED, integrity=Component.UNDEFINED, src=Component.UNDEFINED, type=Component.UNDEFINED, accessKey=Component.UNDEFINED, className=Component.UNDEFINED, contentEditable=Component.UNDEFINED, contextMenu=Component.UNDEFINED, dir=Component.UNDEFINED, draggable=Component.UNDEFINED, hidden=Component.UNDEFINED, lang=Component.UNDEFINED, spellCheck=Component.UNDEFINED, style=Component.UNDEFINED, tabIndex=Component.UNDEFINED, title=Component.UNDEFINED, **kwargs):
+    def __init__(self, children=None, id=Component.UNDEFINED, n_clicks=Component.UNDEFINED, n_clicks_timestamp=Component.UNDEFINED, key=Component.UNDEFINED, role=Component.UNDEFINED, async=Component.UNDEFINED, charSet=Component.UNDEFINED, crossOrigin=Component.UNDEFINED, defer=Component.UNDEFINED, integrity=Component.UNDEFINED, src=Component.UNDEFINED, type=Component.UNDEFINED, accessKey=Component.UNDEFINED, className=Component.UNDEFINED, contentEditable=Component.UNDEFINED, contextMenu=Component.UNDEFINED, dir=Component.UNDEFINED, draggable=Component.UNDEFINED, hidden=Component.UNDEFINED, lang=Component.UNDEFINED, spellCheck=Component.UNDEFINED, style=Component.UNDEFINED, tabIndex=Component.UNDEFINED, title=Component.UNDEFINED, **kwargs):
         self._prop_names = ['children', 'id', 'n_clicks', 'n_clicks_timestamp', 'key', 'role', 'data-*', 'aria-*', 'async', 'charSet', 'crossOrigin', 'defer', 'integrity', 'src', 'type', 'accessKey', 'className', 'contentEditable', 'contextMenu', 'dir', 'draggable', 'hidden', 'lang', 'spellCheck', 'style', 'tabIndex', 'title']
         self._type = 'Script'
         self._namespace = 'dash_html_components'
