@@ -286,14 +286,14 @@ def write_help_file(name, props, description, prefix):
 
     Parameters
     ----------
-    name
-    props
-    description
-    prefix
+    name = the name of the Dash component for which a help file is generated
+    props = the properties of the component
+    description = the component's description, inserted into help file header
+    prefix = the DashR library prefix (optional, can be a blank string)
 
     Returns
     -------
-
+    writes an R help file to the man directory for the generated R package
 
     """
     file_name = '{}{}.Rd'.format(prefix, name)
