@@ -196,9 +196,6 @@ def generate_class_string(name, props, project_shortname, prefix):
         for p in prop_keys
     )
 
-    # if 'children' in props:
-    #    prop_keys.remove('children')
-
     # pylint: disable=C0301
     default_paramtext += ", ".join(
         '{}={}'.format(p, p)
