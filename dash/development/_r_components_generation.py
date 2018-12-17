@@ -266,7 +266,7 @@ def generate_js_metadata(project_shortname):
                 dep_rpp=jsdist[dep]['relative_package_path']
             )]
             function_frame_body = ',\n'.join(function_frame)
-    elif len(jsdist) == 1:
+    else len(jsdist) == 1:
         function_frame_body = frame_body_template. \
             format(project_shortname=project_shortname,
                    project_ver=project_ver,
@@ -409,9 +409,6 @@ def write_js_metadata(project_shortname):
     # now copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
     # create this directory if it is missing
-    if not os.path.exists('inst'):
-        os.makedirs('inst')
-
     if not os.path.exists('inst/lib'):
         os.makedirs('inst/lib')
 
