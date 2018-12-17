@@ -221,15 +221,13 @@ def generate_js_metadata(project_shortname):
     dependency information required by htmltools package,
     which is loaded by dashR.
 
-    Inspired by http://jameso.be/2013/08/06/namedtuple.html
-
     Parameters
     ----------
-    project_shortname
+    project_shortname = component library name, in snake case
 
     Returns
     -------
-    function_string
+    function_string = complete R function code to provide component features
     """
 
     # import component library module into sys
