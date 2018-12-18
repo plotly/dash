@@ -28,7 +28,7 @@ def generate_components(components_source, project_shortname,
                         package_info_filename='package.json',
                         ignore='^_',
                         rprefix=None):
-  
+
     project_shortname = project_shortname.replace('-', '_').rstrip('/\\')
 
     if rprefix:
@@ -123,7 +123,7 @@ def cli():
         help='Experimental: specify a prefix for DashR component names, write'
              'DashR components to R dir, create R package.'
     )
-    
+
     args = parser.parse_args()
     generate_components(
         args.components_source, args.project_shortname,
