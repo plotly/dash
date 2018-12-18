@@ -27,7 +27,6 @@ class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
 # pylint: disable=too-many-locals
 def generate_components(components_source, project_shortname,
                         package_info_filename='package.json',
-                        generate_r_components=False,
                         rprefix=None):
     project_shortname = project_shortname.replace('-', '_').rstrip('/\\')
 
@@ -36,17 +35,6 @@ def generate_components(components_source, project_shortname,
 
     if rprefix:
         prefix = rprefix
-    else:
-        s = [
-            x for x in project_shortname.split('_')
-            if x not in ('dash', 'component', 'components')
-        ]
-        prefix = s[-1]
-        print(
-            'Warning: a DashR component prefix was '
-            'not provided. Using `{}`.'.format(prefix),
-            file=sys.stderr
-        )
 
     is_windows = sys.platform == 'win32'
 
@@ -79,7 +67,7 @@ def generate_components(components_source, project_shortname,
     metadata = json.loads(out.decode())
     generator_methods = [generate_class_file]
 
-    if generate_r_components:
+    if rprefix:
         if not os.path.exists('man'):
             os.makedirs('man')
         if not os.path.exists('R'):
@@ -98,7 +86,7 @@ def generate_components(components_source, project_shortname,
 
     generate_imports(project_shortname, components)
 
-    if generate_r_components:
+    if rprefix:
         with open('package.json', 'r') as f:
             pkg_data = json.load(f)
 
@@ -126,20 +114,14 @@ def cli():
         help='The filename of the copied `package.json` to `project_shortname`'
     )
     parser.add_argument(
-        '-r', '--rlang',
-        action='store_true',
-        help='Experimental: write DashR components to R dir, create R package'
-    )
-    parser.add_argument(
         '--r-prefix',
-        help='Inserts a prefix string that will be prepended to DashR'
-             'component names at generation time.'
+        help='Experimental: specify a prefix for DashR component names, write'
+             'DashR components to R dir, create R package.'
     )
 
     args = parser.parse_args()
     generate_components(args.components_source, args.project_shortname,
                         package_info_filename=args.package_info_filename,
-                        generate_r_components=args.rlang,
                         rprefix=args.r_prefix)
 
 
