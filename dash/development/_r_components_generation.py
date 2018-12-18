@@ -264,7 +264,7 @@ def generate_js_metadata(project_shortname):
                 dep_rpp=jsdist[dep]['relative_package_path']
             )]
             function_frame_body = ',\n'.join(function_frame)
-    else len(jsdist) == 1:
+    elif len(jsdist) == 1:
         function_frame_body = frame_body_template. \
             format(project_shortname=project_shortname,
                    project_ver=project_ver,
