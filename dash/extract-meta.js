@@ -4,7 +4,13 @@ const fs = require('fs');
 const path = require('path');
 const reactDocs = require('react-docgen');
 
-const componentPaths = process.argv.slice(2);
+const componentPaths = process.argv.slice(3);
+const ignorePattern = new RegExp(process.argv[2]);
+
+const excludedDocProps = [
+    'setProps', 'id', 'className', 'style', 'dashEvents', 'fireEvent'
+];
+
 if (!componentPaths.length) {
     help();
     process.exit(1);
@@ -36,7 +42,7 @@ function writeError(msg, filePath) {
 }
 
 function checkWarn(name, value) {
-    if (value.length < 1) {
+    if (value.length < 1 && !excludedDocProps.includes(name.split('.').pop())) {
         process.stderr.write(`\nDescription for ${name} is missing!\n`)
     }
 }
@@ -68,6 +74,9 @@ function parseFile(filepath) {
 }
 
 function collectMetadataRecursively(componentPath) {
+    if (ignorePattern.test(componentPath)) {
+        return;
+    }
     if (fs.lstatSync(componentPath).isDirectory()) {
         let dirs;
         try {
@@ -79,11 +88,11 @@ function collectMetadataRecursively(componentPath) {
             const filepath = path.join(componentPath, filename);
             if (fs.lstatSync(filepath).isDirectory()) {
                 collectMetadataRecursively(filepath);
-            } else {
+            } else if (!ignorePattern.test(filename)) {
                 parseFile(filepath);
             }
         });
-    } else {
+    } else if (!ignorePattern.test(componentPath)) {
         parseFile(componentPath);
     }
 }

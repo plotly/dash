@@ -27,11 +27,10 @@ class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
 # pylint: disable=too-many-locals
 def generate_components(components_source, project_shortname,
                         package_info_filename='package.json',
+                        ignore='^_',
                         rprefix=None):
+  
     project_shortname = project_shortname.replace('-', '_').rstrip('/\\')
-
-    # import component library module
-    importlib.import_module(project_shortname)
 
     if rprefix:
         prefix = rprefix
@@ -41,8 +40,10 @@ def generate_components(components_source, project_shortname,
     extract_path = pkg_resources.resource_filename('dash', 'extract-meta.js')
 
     os.environ['NODE_PATH'] = 'node_modules'
-    cmd = shlex.split('node {} {}'.format(extract_path, components_source),
-                      posix=not is_windows)
+    cmd = shlex.split(
+        'node {} {} {}'.format(extract_path, ignore, components_source),
+        posix=not is_windows
+    )
 
     shutil.copyfile('package.json',
                     os.path.join(project_shortname, package_info_filename))
@@ -114,15 +115,22 @@ def cli():
         help='The filename of the copied `package.json` to `project_shortname`'
     )
     parser.add_argument(
+        '-i', '--ignore',
+        default='^_',
+        help='Files/directories matching the pattern will be ignored'
+    )
+    parser.add_argument(
         '--r-prefix',
         help='Experimental: specify a prefix for DashR component names, write'
              'DashR components to R dir, create R package.'
     )
-
+    
     args = parser.parse_args()
-    generate_components(args.components_source, args.project_shortname,
-                        package_info_filename=args.package_info_filename,
-                        rprefix=args.r_prefix)
+    generate_components(
+        args.components_source, args.project_shortname,
+        package_info_filename=args.package_info_filename,
+        ignore=args.ignore,
+        rprefix=args.r_prefix)
 
 
 if __name__ == '__main__':
