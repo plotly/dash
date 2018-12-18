@@ -5,6 +5,7 @@ import os
 import sys
 import shutil
 import glob
+import importlib
 
 from ._all_keywords import r_keywords
 from ._py_components_generation import reorder_props
@@ -225,6 +226,7 @@ def generate_js_metadata(project_shortname):
     -------
     function_string = complete R function code to provide component features
     """
+    importlib.import_module(project_shortname)
 
     # import component library module into sys
     mod = sys.modules[project_shortname]
