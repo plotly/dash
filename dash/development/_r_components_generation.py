@@ -368,14 +368,6 @@ def write_class_file(name,
     print('Generated {}'.format(file_name))
 
 
-# pylint: disable=inconsistent-return-statements
-def generate_export_string(name, prefix):
-    if not name.endswith('-*') and \
-            str(name) not in r_keywords and \
-            str(name) not in ['setProps', 'children', 'dashEvents']:
-        return 'export({}{})\n'.format(prefix, name)
-
-
 def write_js_metadata(project_shortname):
     """
     Write an internal (not exported) R function to return all JS
