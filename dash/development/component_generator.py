@@ -7,7 +7,6 @@ import shlex
 import os
 import argparse
 import shutil
-import importlib
 import functools
 
 import pkg_resources
