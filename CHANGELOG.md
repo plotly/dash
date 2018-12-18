@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [UNRELEASED] - 2018-12-17
+### Removed
+- Unused login api and Authentication component [#108](https://github.com/plotly/dash-renderer/pull/108)
+
 ## [0.16.1] - 2018-12-14
 ### Fixed
 - Added `key` to rendered components, fixing [#379](https://github.com/plotly/dash-core-components/issues/379)
