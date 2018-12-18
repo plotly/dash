@@ -22,14 +22,17 @@ class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
 
 # pylint: disable=too-many-locals
 def generate_components(components_source, project_shortname,
-                        package_info_filename='package.json'):
+                        package_info_filename='package.json',
+                        ignore='^_'):
     is_windows = sys.platform == 'win32'
 
     extract_path = pkg_resources.resource_filename('dash', 'extract-meta.js')
 
     os.environ['NODE_PATH'] = 'node_modules'
-    cmd = shlex.split('node {} {}'.format(extract_path, components_source),
-                      posix=not is_windows)
+    cmd = shlex.split(
+        'node {} {} {}'.format(extract_path, ignore, components_source),
+        posix=not is_windows
+    )
 
     shutil.copyfile('package.json',
                     os.path.join(project_shortname, package_info_filename))
@@ -83,10 +86,18 @@ def cli():
         default='package.json',
         help='The filename of the copied `package.json` to `project_shortname`'
     )
+    parser.add_argument(
+        '-i', '--ignore',
+        default='^_',
+        help='Files/directories matching the pattern will be ignored'
+    )
 
     args = parser.parse_args()
-    generate_components(args.components_source, args.project_shortname,
-                        package_info_filename=args.package_info_filename)
+    generate_components(
+        args.components_source, args.project_shortname,
+        package_info_filename=args.package_info_filename,
+        ignore=args.ignore
+    )
 
 
 if __name__ == '__main__':
