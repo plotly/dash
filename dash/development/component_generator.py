@@ -7,9 +7,12 @@ import shlex
 import os
 import argparse
 import shutil
+import functools
 
 import pkg_resources
 
+from ._r_components_generation import write_class_file
+from ._r_components_generation import generate_exports
 from ._py_components_generation import generate_class_file
 from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
@@ -23,7 +26,14 @@ class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
 # pylint: disable=too-many-locals
 def generate_components(components_source, project_shortname,
                         package_info_filename='package.json',
-                        ignore='^_'):
+                        ignore='^_',
+                        rprefix=None):
+
+    project_shortname = project_shortname.replace('-', '_').rstrip('/\\')
+
+    if rprefix:
+        prefix = rprefix
+
     is_windows = sys.platform == 'win32'
 
     extract_path = pkg_resources.resource_filename('dash', 'extract-meta.js')
@@ -55,17 +65,34 @@ def generate_components(components_source, project_shortname,
         sys.exit(1)
 
     metadata = json.loads(out.decode())
+    generator_methods = [generate_class_file]
+
+    if rprefix:
+        if not os.path.exists('man'):
+            os.makedirs('man')
+        if not os.path.exists('R'):
+            os.makedirs('R')
+        generator_methods.append(
+            functools.partial(write_class_file, prefix=prefix))
 
     components = generate_classes_files(
         project_shortname,
         metadata,
-        generate_class_file
+        *generator_methods
     )
 
     with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
         json.dump(metadata, f)
 
     generate_imports(project_shortname, components)
+
+    if rprefix:
+        with open('package.json', 'r') as f:
+            pkg_data = json.load(f)
+
+        generate_exports(
+            project_shortname, components, metadata, pkg_data, prefix
+        )
 
 
 def cli():
@@ -91,13 +118,18 @@ def cli():
         default='^_',
         help='Files/directories matching the pattern will be ignored'
     )
+    parser.add_argument(
+        '--r-prefix',
+        help='Experimental: specify a prefix for DashR component names, write'
+             'DashR components to R dir, create R package.'
+    )
 
     args = parser.parse_args()
     generate_components(
         args.components_source, args.project_shortname,
         package_info_filename=args.package_info_filename,
-        ignore=args.ignore
-    )
+        ignore=args.ignore,
+        rprefix=args.r_prefix)
 
 
 if __name__ == '__main__':
