@@ -127,24 +127,20 @@ def props_to_r_type(current_prop):
     elif object_type == 'custom' and 'raw' in current_prop['type']:
         argument = current_prop['defaultValue'].get('value', 'numeric()')
     elif object_type == 'enum':
-        val = current_prop['type']['value'][0]['value']
-        # Check if val is a string which can be cast to an int
-        try:
-            int(val)
-            argument = 'integer()'
-        # Check if val is a string which can be cast to a float, if not int
-        except ValueError:
-            try:
-                float(val)
-                argument = 'numeric()'
-            # If val cannot be cast to int nor float, assume string
-            except ValueError:
-                argument = 'character()'
+        argument = current_prop.get('defaultValue', {}).get('value', 'NULL')
     elif 'defaultValue' in current_prop and object_type == 'object':
         argument = 'list()'
     elif 'defaultValue' in current_prop and \
             current_prop['defaultValue']['value'] == '[]':
         argument = 'list()'
+    elif object_type == 'number':
+        argument = current_prop['defaultValue'].get('value', 'NULL')
+    elif object_type == 'bool':
+        argument = current_prop['defaultValue'].get('value')
+        if argument:
+            argument = 'TRUE'
+        else:
+            argument = 'logical()'
     else:
         argument = 'NULL'
     return argument
