@@ -1,4 +1,4 @@
-## 0.34.1 - 2018-12-18
+## 0.35.0 - 2018-12-18
 ## Added
 - Experimental `--r-prefix` option to `dash-generate-components`, optionally generates R version of components and corresponding R package.  [#483](https://github.com/plotly/dash/pull/483)
 
