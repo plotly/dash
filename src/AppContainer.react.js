@@ -7,6 +7,8 @@ import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
 import Reloader from './components/core/Reloader.react';
 import {readConfig} from './actions';
+import {type} from 'ramda';
+
 
 class UnconnectedAppContainer extends React.Component {
 
@@ -16,6 +18,10 @@ class UnconnectedAppContainer extends React.Component {
     }
 
     render() {
+        const {config} = this.props;
+        if (type(config) === 'Null') {
+            return <div className="_dash-loading">Loading...</div>;
+        }
         return (
             <div>
                 <Toolbar />
@@ -30,11 +36,13 @@ class UnconnectedAppContainer extends React.Component {
 
 UnconnectedAppContainer.propTypes = {
     dispatch: PropTypes.func,
+    config: PropTypes.object,
 };
 
 const AppContainer = connect(
     state => ({
         history: state.history,
+        config: state.config,
     }),
     dispatch => ({dispatch})
 )(UnconnectedAppContainer);
