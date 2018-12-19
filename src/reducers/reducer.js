@@ -94,9 +94,9 @@ function recordHistory(reducer) {
 function reloaderReducer(reducer) {
     return function(state, action) {
         if (action.type === 'RELOAD') {
-            const {history} = state;
+            const {history, config} = state;
             // eslint-disable-next-line no-param-reassign
-            state = {history};
+            state = {history, config};
         }
         return reducer(state, action);
     };
