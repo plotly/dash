@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Maintenance
+- Test with head of both Dash v0.x and Dash v1.x [#20](https://github.com/plotly/dash-core/issues/20)
+
 ## [3.1.11] - 2018-12-10
 ### Fixed
 - Selection, navigation, copy from readonly cell [#276](https://github.com/plotly/dash-table/issues/276)

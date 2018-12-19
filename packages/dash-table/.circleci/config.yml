@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-    "test":
+    "test-v0":
         docker:
             - image: circleci/python:3.6-node-browsers
             - image: cypress/base:10
@@ -33,12 +33,8 @@ jobs:
                 name: Install requirements
                 command: |
                     . venv/bin/activate
-                    pip install -r requirements.txt --quiet
-
-            - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
-                paths:
-                    - "venv"
+                    pip install -r requirements-base.txt --quiet
+                    pip install -r requirements-v0.txt --quiet
 
             - run:
                 name: Run build:js
@@ -54,7 +50,59 @@ jobs:
                 name: Run tests
                 command: |
                     . venv/bin/activate
-                    npm run test
+                    npm run test-v0
+
+
+    "test-v1":
+        docker:
+            - image: circleci/python:3.6-node-browsers
+            - image: cypress/base:10
+
+        steps:
+            - checkout
+            - restore_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+            - run:
+                name: Install npm packages
+                command: npm install
+            - run:
+                name: Cypress Install
+                command: |
+                    $(npm bin)/cypress install
+
+            - save_cache:
+                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+                paths:
+                    - node_modules
+                    - /home/circleci/.cache/Cypress
+
+            - run:
+                name: Create virtualenv
+                command: |
+                    python3 -m venv venv
+
+            - run:
+                name: Install requirements
+                command: |
+                    . venv/bin/activate
+                    pip install -r requirements-base.txt --quiet
+                    pip install -r requirements-v1.txt --quiet
+
+            - run:
+                name: Run build:js
+                command: npm run private::build:js-test
+
+            - run:
+                name: Run build:py
+                command: |
+                    . venv/bin/activate
+                    npm run private::build:py
+
+            - run:
+                name: Run tests
+                command: |
+                    . venv/bin/activate
+                    npm run test-v1
 
 
     "visual-test":
@@ -110,13 +158,13 @@ jobs:
                 when: always
 
 
-    "python-3.6":
+    "python-3.6-v0":
         docker:
             - image: circleci/python:3.6-stretch-browsers
 
         environment:
             PERCY_ENABLED: True
-            PERCY_PROJECT: plotly/dash-table-python
+            PERCY_PROJECT: plotly/dash-table-python-v0
 
         steps:
             - checkout
@@ -124,10 +172,7 @@ jobs:
             - run:
                 name: Inject Percy Environment variables
                 command: |
-                  echo 'export PERCY_TOKEN="$PERCY_PYTHON_TOKEN"' >> $BASH_ENV
-
-            - restore_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+                  echo 'export PERCY_TOKEN="$PERCY_PYTHON_TOKEN_V0"' >> $BASH_ENV
 
             - run:
                 name: Create virtualenv
@@ -138,12 +183,8 @@ jobs:
                 name: Install requirements
                 command: |
                     . venv/bin/activate
-                    pip install -r requirements.txt --quiet
-
-            - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
-                paths:
-                    - "venv"
+                    pip install -r requirements-base.txt --quiet
+                    pip install -r requirements-v0.txt --quiet
 
             - run:
                 name: Run integration tests
@@ -152,12 +193,48 @@ jobs:
                   python -m unittest tests.dash.test_integration
 
 
+    "python-3.6-v1":
+        docker:
+            - image: circleci/python:3.6-stretch-browsers
+
+        environment:
+            PERCY_ENABLED: True
+            PERCY_PROJECT: plotly/dash-table-python-v1
+
+        steps:
+            - checkout
+
+            - run:
+                name: Inject Percy Environment variables
+                command: |
+                  echo 'export PERCY_TOKEN="$PERCY_PYTHON_TOKEN_V1"' >> $BASH_ENV
+
+            - run:
+                name: Create virtualenv
+                command: |
+                    python3 -m venv venv
+
+            - run:
+                name: Install requirements
+                command: |
+                    . venv/bin/activate
+                    pip install -r requirements-base.txt --quiet
+                    pip install -r requirements-v1.txt --quiet
+
+            - run:
+                name: Run integration tests
+                command: |
+                  . venv/bin/activate
+                  python -m unittest tests.dash.test_integration
+
 
 workflows:
     version: 2
     build:
         jobs:
-            - "python-3.6"
+            - "python-3.6-v0"
+            - "python-3.6-v1"
             - "node"
-            - "test"
+            - "test-v0"
+            - "test-v1"
             - "visual-test"
