@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-Refer to the [readme](README.md) for installation and development instructions.
+Refer to the Dash User Guide for [installation](https://dash.plot.ly/installation) instructions.
 
 ## Coding Style
 
