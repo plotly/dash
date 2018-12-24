@@ -451,13 +451,13 @@ class Tests(IntegrationTests):
             'https://www.google-analytics.com/analytics.js',
             {'src': 'https://cdn.polyfill.io/v2/polyfill.min.js'},
             {
-                'src': 'https://cdnjs.cloudflare.com/ajax/libs/ramda/0.25.0/ramda.min.js',
-                'integrity': 'sha256-YN22NHB7zs5+LjcHWgk3zL0s+CRnzCQzDOFnndmUamY=',
+                'src': 'https://cdnjs.cloudflare.com/ajax/libs/ramda/0.26.1/ramda.min.js',
+                'integrity': 'sha256-43x9r7YRdZpZqTjDT5E0Vfrxn1ajIZLyYWtfAXsargA=',
                 'crossorigin': 'anonymous'
             },
             {
-                'src': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js',
-                'integrity': 'sha256-VKITM616rVzV+MI3kZMNUDoY5uTsuSl1ZvEeZhNoJVk=',
+                'src': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js',
+                'integrity': 'sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=',
                 'crossorigin': 'anonymous'
             }
         ]
