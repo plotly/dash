@@ -1,3 +1,6 @@
+import os
+import textwrap
+
 from dash import Dash
 from dash.dependencies import Input, Output, State, Event
 import dash
@@ -41,6 +44,24 @@ class Tests(IntegrationTests):
             except Exception as e:
                 exception = e
                 pass
+            time.sleep(0.25)
+
+        raise exception
+
+    def wait_for_style_to_equal(self, selector, style, assertion_style,
+                                timeout=20):
+        start = time.time()
+        exception = Exception('Time ran out, {} on {} not found'.format(
+            assertion_style, selector))
+        while time.time() < start + timeout:
+            element = self.wait_for_element_by_css_selector(selector)
+            try:
+                self.assertEqual(assertion_style,
+                                 element.value_of_css_property(style))
+            except Exception as e:
+                exception = e
+            else:
+                return
             time.sleep(0.25)
 
         raise exception
@@ -1961,3 +1982,42 @@ class Tests(IntegrationTests):
         )[0].click()
 
         self.wait_for_text_to_equal('#graph2_info', json.dumps(graph_2_expected_clickdata))
+
+    def test_hot_reload(self):
+        app = dash.Dash(__name__, assets_folder='tests/test_assets')
+
+        app.layout = html.Div([
+            html.H3('Hot reload')
+        ], id='hot-reload-content')
+
+        self.startServer(
+            app,
+            dev_tools_hot_reload=True,
+            dev_tools_hot_reload_interval=500,
+            dev_tools_hot_reload_max_retry=30,
+        )
+
+        hot_reload_file = os.path.join(
+            os.path.dirname(__file__), 'test_assets', 'hot_reload.css')
+
+        self.wait_for_style_to_equal(
+            '#hot-reload-content', 'background-color', 'rgba(0, 0, 255, 1)'
+        )
+
+        with open(hot_reload_file, 'r+') as f:
+            old_content = f.read()
+            f.truncate(0)
+            f.seek(0)
+            f.write(textwrap.dedent('''
+            #hot-reload-content {
+                background-color: red;
+            }
+            '''))
+        try:
+            self.wait_for_style_to_equal(
+                '#hot-reload-content', 'background-color', 'rgba(255, 0, 0, 1)'
+            )
+        finally:
+            with open(hot_reload_file, 'w') as f:
+                f.write(old_content)
+
