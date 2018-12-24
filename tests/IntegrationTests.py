@@ -49,15 +49,17 @@ class IntegrationTests(unittest.TestCase):
         s.server_process.terminate()
         time.sleep(2)
 
-    def startServer(s, dash):
+    def startServer(s, dash, **kwargs):
         def run():
             dash.scripts.config.serve_locally = True
-            dash.run_server(
+            kws = dict(
                 port=8050,
                 debug=False,
                 processes=4,
                 threaded=False
             )
+            kws.update(kwargs)
+            dash.run_server(**kws)
 
         # Run on a separate process so that it doesn't block
         s.server_process = multiprocessing.Process(target=run)
