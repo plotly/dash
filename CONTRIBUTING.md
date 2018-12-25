@@ -2,7 +2,16 @@
 
 ## Getting Started
 
-Refer to the Dash User Guide for [installation](https://dash.plot.ly/installation) instructions.
+To set up your development environment, run the following commands:
+```bash
+# Create a virtualenv (name it, say, dash-dev)
+python3 -m venv dash-dev
+# Activate this virtualenv
+. dash-dev/bin/activate
+# (On Windows, the above would be: dash-dev\scripts\activate)
+# Install the dev dependencies
+pip install -r .circleci/requirements/dev-requirements.txt
+```
 
 ## Coding Style
 
