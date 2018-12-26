@@ -788,7 +788,7 @@ class Dash(object):
                 {}
                 '''.format(
                     callback_id,
-                    pprint.pformat((ns['duplicates']))
+                    pprint.pformat(ns['duplicates'])
                 )
             else:
                 msg = '''
@@ -800,7 +800,7 @@ class Dash(object):
                     output.component_id,
                     output.component_property
                 ).replace('    ', '')
-            raise exceptions.CantHaveMultipleOutputs(msg)
+            raise exceptions.DuplicateCallbackOutput(msg)
 
     def _validate_callback_output(self, output_value, output):
         valid = [str, dict, int, float, type(None), Component]

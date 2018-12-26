@@ -51,6 +51,11 @@ class CantHaveMultipleOutputs(CallbackException):
     pass
 
 
+# Renamed for less confusion with multi output.
+class DuplicateCallbackOutput(CantHaveMultipleOutputs):
+    pass
+
+
 class PreventUpdate(CallbackException):
     pass
 

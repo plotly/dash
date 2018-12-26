@@ -12,7 +12,7 @@ import dash_flow_example
 import dash
 
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate, CallbackException, CantHaveMultipleOutputs
+from dash.exceptions import PreventUpdate, DuplicateCallbackOutput, CallbackException
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -561,7 +561,7 @@ class Tests(IntegrationTests):
 
             return n_clicks, n_clicks_timestamp
 
-        # Dummy callback for CantHaveMultipleOutputs
+        # Dummy callback for DuplicateCallbackOutput test.
         @app.callback(Output('output3', 'children'),
                       [Input('output-btn', 'n_clicks')])
         def dummy_callback(n_clicks):
@@ -571,7 +571,7 @@ class Tests(IntegrationTests):
             return 'Output 3: {}'.format(n_clicks)
 
         # Test that a multi output can't be included in a single output
-        with self.assertRaises(CantHaveMultipleOutputs) as context:
+        with self.assertRaises(DuplicateCallbackOutput) as context:
             @app.callback(Output('output1', 'children'),
                           [Input('output-btn', 'n_clicks')])
             def on_click_duplicate(n_clicks):
@@ -583,7 +583,7 @@ class Tests(IntegrationTests):
         self.assertTrue('output1' in context.exception.args[0])
 
         # Test a multi output cannot contain a used single output
-        with self.assertRaises(CantHaveMultipleOutputs) as context:
+        with self.assertRaises(DuplicateCallbackOutput) as context:
             @app.callback([Output('output3', 'children'),
                            Output('output4', 'children')],
                           [Input('output-btn', 'n_clicks')])
