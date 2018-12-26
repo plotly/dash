@@ -925,13 +925,13 @@ class Dash(object):
                             )
                         )
 
-                    props = collections.defaultdict(dict)
-                    for i, out in enumerate(output):
-                        props[out.component_id][out.component_property] =\
+                    component_ids = collections.defaultdict(dict)
+                    for i, o in enumerate(output):
+                        component_ids[o.component_id][o.component_property] =\
                             output_value[i]
 
                     response = {
-                        'response': props,
+                        'response': component_ids,
                         'multi': True
                     }
                 else:
