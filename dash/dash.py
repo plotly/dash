@@ -681,7 +681,7 @@ class Dash(object):
 
                 invalid_characters = ['.', ':', '[', ']']
                 if any(x in arg.component_id for x in invalid_characters):
-                    raise exceptions.IDsCantContainPeriods('''The element
+                    raise exceptions.InvalidComponentIdError('''The element
                     `{}` contains {} in its ID.
                     Periods are not allowed in IDs right now.'''.format(
                         arg.component_id,
