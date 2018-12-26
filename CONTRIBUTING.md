@@ -2,7 +2,20 @@
 
 ## Getting Started
 
-Refer to the [readme](README.md) for installation and development instructions.
+Fork and clone the dash [repo](https://github.com/plotly/dash).
+
+To set up your development environment, run the following commands:
+```bash
+# Move into the clone
+$ cd dash
+# Create a virtualenv
+$ python3 -m venv venv
+# Activate the virtualenv
+$ . venv/bin/activate
+# (On Windows, the above would be: venv\scripts\activate)
+# Install the dev dependencies
+$ pip install -r .circleci/requirements/dev-requirements.txt
+```
 
 ## Coding Style
 
