@@ -12,7 +12,7 @@ import dash_flow_example
 import dash
 
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate, CallbackException
+from dash.exceptions import PreventUpdate, CallbackException, CantHaveMultipleOutputs
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -547,6 +547,9 @@ class Tests(IntegrationTests):
                     html.Tr([html.Td(id='output1'), html.Td(id='output2')]),
                 ])
             ]),
+
+            html.Div(id='output3'),
+            html.Div(id='output4')
         ])
 
         @app.callback([Output('output1', 'children'), Output('output2', 'children')],
@@ -557,6 +560,40 @@ class Tests(IntegrationTests):
                 raise PreventUpdate
 
             return n_clicks, n_clicks_timestamp
+
+        # Dummy callback for CantHaveMultipleOutputs
+        @app.callback(Output('output3', 'children'),
+                      [Input('output-btn', 'n_clicks')])
+        def dummy_callback(n_clicks):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            return 'Output 3: {}'.format(n_clicks)
+
+        # Test that a multi output can't be included in a single output
+        with self.assertRaises(CantHaveMultipleOutputs) as context:
+            @app.callback(Output('output1', 'children'),
+                          [Input('output-btn', 'n_clicks')])
+            def on_click_duplicate(n_clicks):
+                if n_clicks is None:
+                    raise PreventUpdate
+
+                return 'something else'
+
+        self.assertTrue('output1' in context.exception.args[0])
+
+        # Test a multi output cannot contain a used single output
+        with self.assertRaises(CantHaveMultipleOutputs) as context:
+            @app.callback([Output('output3', 'children'),
+                           Output('output4', 'children')],
+                          [Input('output-btn', 'n_clicks')])
+            def on_click_duplicate_multi(n_clicks):
+                if n_clicks is None:
+                    raise PreventUpdate
+
+                return 'something else'
+
+        self.assertTrue('output3' in context.exception.args[0])
 
         self.startServer(app)
 
