@@ -12,6 +12,7 @@ import threading
 import warnings
 import re
 import logging
+import pprint
 
 from functools import wraps
 
@@ -759,15 +760,47 @@ class Dash(object):
             ).replace('    ', ''))
 
         callback_id = _create_callback_id(output)
-        if callback_id in self.callback_map:
-            raise exceptions.CantHaveMultipleOutputs('''
+        is_multi = isinstance(output, (list, tuple))
+        callbacks = set(itertools.chain(*(
+            x[1:-1].split(':')
+            if x.startswith('[')
+            else [x]
+            for x in self.callback_map
+        )))
+        ns = {
+            'duplicates': callback_id
+        }
+        if is_multi:
+            def duplicate_check():
+                ns['duplicates'] = intersection = callbacks.intersection(
+                    _create_callback_id(y) for y in output
+                )
+                return intersection
+        else:
+            def duplicate_check():
+                return callback_id in callbacks
+        if duplicate_check():
+            if is_multi:
+                msg = '''
+                Multi output {} contains an `Output` object
+                that was already assigned.
+                Duplicates:
+                {}
+                '''.format(
+                    callback_id,
+                    pprint.pformat((ns['duplicates']))
+                )
+            else:
+                msg = '''
                 You have already assigned a callback to the output
                 with ID "{}" and property "{}". An output can only have
                 a single callback function. Try combining your inputs and
                 callback functions together into one function.
-            '''.format(
-                output.component_id,
-                output.component_property).replace('    ', ''))
+                '''.format(
+                    output.component_id,
+                    output.component_property
+                ).replace('    ', '')
+            raise exceptions.CantHaveMultipleOutputs(msg)
 
     def _validate_callback_output(self, output_value, output):
         valid = [str, dict, int, float, type(None), Component]
