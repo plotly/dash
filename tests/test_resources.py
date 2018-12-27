@@ -1,7 +1,8 @@
 import unittest
-import dash
 import mock
 import dash_core_components as dcc
+
+import dash
 
 _monkey_patched_js_dist = [
     {
