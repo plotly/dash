@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.41.1] - 2018-12-26
+### Fixed
+- Fix `dcc.Store` null values in list causing an infinite loop [#424](https://github.com/plotly/dash-core-components/pull/424)
+
 ## [0.41.0] - 2018-12-11
 ### Added
 - `dangerously_allow_html` prop for Markdown component for allowing HTML.

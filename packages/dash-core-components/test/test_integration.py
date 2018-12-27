@@ -1558,3 +1558,25 @@ class Tests(IntegrationTests):
             # one for each hello world character  # noqa: W504
             len('hello world')
         )
+
+    def test_store_null_values(self):
+        # https://github.com/plotly/dash-core-components/issues/422
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Div(id='output'),
+            dcc.Store(id='store', data={'hello': [1.1, 1.1, None]})
+        ])
+
+        # Needs a callback with the store.
+        @app.callback(Output('output', 'children'),
+                      [Input('store', 'data')])
+        def hello(data):
+            if data is None:
+                raise PreventUpdate
+
+            return json.dumps(data)
+
+        self.startServer(app)
+
+        # Gets error loading dependencies.
+        self.wait_for_element_by_css_selector('#output')

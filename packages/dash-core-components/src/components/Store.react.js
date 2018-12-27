@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 
 function dataCheck(data, old) {
     // Assuming data and old are of the same type.
-    if (R.isNil(old) || R.isNil(data)) {
-        return true;
+    const oldNull = R.isNil(old);
+    const newNull = R.isNil(data);
+    if (oldNull || newNull) {
+        return oldNull !== newNull;
     }
     const type = R.type(data);
     if (type === 'Array') {
