@@ -2,9 +2,98 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.41.1] - 2018-12-26
+## [0.42.0] - 2018-12-27
 ### Fixed
 - Fix `dcc.Store` null values in list causing an infinite loop [#424](https://github.com/plotly/dash-core-components/pull/424)
+
+### Updated
+- Updated plotly.js to 1.43.1 [#423](https://github.com/plotly/dash-core-components/pull/423)
+
+### As part of [plotly.js 1.43.1](https://github.com/plotly/plotly.js/releases/tag/v1.43.1)
+
+### Fixed
+- Fix z-axis auto-type for cartesian + gl3d graphs (bug introduced in 1.43.0) [#3360]
+- Fix multicategory axis coordinate sorting [#3362]
+- Fix multicategory y-axes clearance [#3354]
+- Fix contour label clipPath segments for reversed axes [#3352]
+- Fix axis autorange on double-click on graph fixedrange:true [#3351]
+
+### As part of [plotly.js 1.43.0](https://github.com/plotly/plotly.js/releases/tag/v1.43.0)
+
+### Added
+- Add `hovertemplate` attribute to `scatter`, `scattergl`, `bar`, `histogram`,
+  `pie` and `sankey` traces [#3126, #3265, #3284]
+- Add `layout.title` placement attributes `x`, `y`, `xref`, `yref`,
+  `xanchor`, `yanchor` and `pad` [#3276]
+- Add support for `<br>`, `<sup>`, and `<sub>` pseudo-html in `scatter3d` and `gl3d`
+  scene text [#3207]
+- Add `multicategory` axis type, allowing for "multi-level" categorical axis labels
+  and category dividers with axis attributes: `showdividers`,
+  `dividercolor` and `diverwidth` [#3254, #3300, #3326]
+- Add cartesian axis attribute `tickson` with value '`boundaries`' to
+  place categorical ticks on the category boundaries [#3254, #3275]
+- Add `uirevision` attributes to control the persistence of user-driven changes
+  on the graph [#3236]
+- Add `legend.valign` to set the vertical alignment of the legend symbols
+  with respect to their associated text labels [#3263]
+- Implement `arrayOk` `textposition` for `scatter3d` traces [#3200]
+- Add layout attributes `colorscale.sequential`, `colorscale.sequentialminus` and
+ `colorscale.diverging` to set graph-wide colorscale defaults [#3274]
+- Add `dragmode: false` to disable all drag interactions on cartesian subplots [#3170]
+- Add `plotly.js-locales` npm packages that includes all official locales modules [#3223]
+- Add `watermark` config option to permanently show Plotly's logo
+  in the mode bar (set to false by default) [#3280]
+- Add Finnish locale (`fi`) [#3325]
+
+### Changed
+- Remove "Edit in Chart Studio" button by default [#3307]
+- `title` attributes linked to strings are now deprecated. Please use
+  `title.text` instead to fill in your title text [#3276]
+- `title*` attributes are new deprecated. They moved to `title.*`. For
+  example, `colorbar.titleside` is now `colorbar.title.side` [#3276]
+- No longer mutate `colorscale` values into user data [#3341]
+- No longer mutate `zmin`/`zmax`, `cmin`/`cmax` values into user data [#3341]
+
+### Fixed
+- Fix `react` when updates trigger a new set of auto-margins [#3323]
+- Fix `scattergl` coloring when more than 255 marker colors are present [#3328, #3334]
+- More `scattergl` IE11 fixes [#3333, #3335]
+- Multiple `surface` rendering fixes [#3281]
+- Correctly default `scene.dragmode` to `'orbit'` when camera up vector is
+  tilted [#3256]
+- Fix hover on `scatter3d` traces with `opacity: 1` on Ubuntu [#3301]
+- Fix console error _Uncaught ax.dtick error: NaN_ in gl3d subplots [#3233]
+- Fix histogram hover event triggers when hovering from bar to bar [#3345]
+- Fix graphs with empty and non-empty histogram traces [#3343]
+- Fix contour labels on reversed axes [#3279]
+- Fix `autocolorscale` toggling [#3341]
+- Fix template support for `marker.colorscale` [#3341]
+- Fix `scatter3D` trace with `mode: 'lines+markers'` with line color array error [#3341]
+- Do not add `<base>` href to SVG clip paths during toImage [#3272]
+- Fix table scrolling that leaked into window scope [#3327]
+- Fix fills on segment-less marker-less traces [#3282]
+- Fix rangesliders on reversed-range axes [#3304]
+- Fix rangesliders on `side: 'top'`x-axes [#3329]
+- Fix typed array support for `ohlc` and `candlestick` traces [#3342]
+- Fix `restyle` with `impliedEdits` on trace with `groupby` transforms [#3236]
+- Fix `editable: true` drag on `marker` colorbars [#3236]
+
+### As part of [plotly.js 1.42.5](https://github.com/plotly/plotly.js/releases/tag/v1.42.5)
+- Fix scattergl / scatterpolargl with mode: lines and more than 1e5 pts (bug introduced in 1.42.0) [#3228]
+
+### As part of [plotly.js 1.42.4](https://github.com/plotly/plotly.js/releases/tag/v1.42.4)
+
+### Fixed
+- Remove rendering artifacts from table orca PDF exports [#3220]
+
+### As part of [plotly.js 1.42.3](https://github.com/plotly/plotly.js/releases/tag/v1.42.3)
+
+### Fixed
+- Fix histogram binning for typed array inputs (bug introduced in 1.42.0) [#3211]
+- Fix textfont color restyle calls for pie traces [#3214]
+- Fix textfont color editType for bar traces [#3214]
+- Fix array hoverinfo support for ohlc and candelestick [#3213]
+- Correctly list parcats hoverinfo attributes which does not support array inputs [#3213]
 
 ## [0.41.0] - 2018-12-11
 ### Added
