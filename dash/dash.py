@@ -768,14 +768,14 @@ class Dash(object):
             for x in self.callback_map
         )))
         ns = {
-            'duplicates': callback_id
+            'duplicates': set()
         }
         if is_multi:
             def duplicate_check():
-                ns['duplicates'] = intersection = callbacks.intersection(
+                ns['duplicates'] = callbacks.intersection(
                     _create_callback_id(y) for y in output
                 )
-                return intersection
+                return ns['duplicates']
         else:
             def duplicate_check():
                 return callback_id in callbacks
