@@ -41,11 +41,19 @@ class StatMock(object):
 class Tests(unittest.TestCase):
 
     def test_external(self):
-        app = dash.Dash(__name__, assets_folder='tests/assets', assets_ignore='load_after.+.js')
+        app = dash.Dash(
+            __name__,
+            assets_folder='tests/assets',
+            assets_ignore='load_after.+.js'
+        )
         app.layout = dcc.Markdown()
         app.scripts.config.serve_locally = False
+
         with mock.patch('dash.dash.os.stat', return_value=StatMock()):
-            resource = app._collect_and_register_resources(app.scripts.get_all_scripts())
+            resource = app._collect_and_register_resources(
+                app.scripts.get_all_scripts()
+            )
+
         assert resource == [
             'https://external_javascript.js',
             'https://external_css.css',
@@ -53,14 +61,26 @@ class Tests(unittest.TestCase):
         ]
 
     def test_internal(self):
-        app = dash.Dash(__name__, assets_folder='tests/assets', assets_ignore='load_after.+.js')
+        app = dash.Dash(
+            __name__,
+            assets_folder='tests/assets',
+            assets_ignore='load_after.+.js'
+        )
         app.layout = dcc.Markdown()
         app.scripts.config.serve_locally = True
+
         with mock.patch('dash.dash.os.stat', return_value=StatMock()):
-            with mock.patch('dash.dash.importlib.import_module', return_value=dcc):
-                resource = app._collect_and_register_resources(app.scripts.get_all_scripts())
+            with mock.patch('dash.dash.importlib.import_module',
+                            return_value=dcc):
+                resource = app._collect_and_register_resources(
+                    app.scripts.get_all_scripts()
+                )
+
         assert resource == [
-            '/_dash-component-suites/dash_core_components/external_javascript.js?v=1&m=1',
-            '/_dash-component-suites/dash_core_components/external_css.css?v=1&m=1',
-            '/_dash-component-suites/dash_core_components/fake_dcc.js?v=1&m=1'
+            '/_dash-component-suites/'
+            'dash_core_components/external_javascript.js?v=1&m=1',
+            '/_dash-component-suites/'
+            'dash_core_components/external_css.css?v=1&m=1',
+            '/_dash-component-suites/'
+            'dash_core_components/fake_dcc.js?v=1&m=1',
         ]
