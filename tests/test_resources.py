@@ -54,11 +54,11 @@ class Tests(unittest.TestCase):
                 app.scripts.get_all_scripts()
             )
 
-        assert resource == [
+        self.assertEqual(resource, [
             'https://external_javascript.js',
             'https://external_css.css',
             'https://component_library.bundle.js'
-        ]
+        ])
 
     def test_internal(self):
         app = dash.Dash(
@@ -76,14 +76,14 @@ class Tests(unittest.TestCase):
                     app.scripts.get_all_scripts()
                 )
 
-        assert resource == [
+        self.assertEqual(resource, [
             '/_dash-component-suites/'
             'dash_core_components/external_javascript.js?v=1&m=1',
             '/_dash-component-suites/'
             'dash_core_components/external_css.css?v=1&m=1',
             '/_dash-component-suites/'
             'dash_core_components/fake_dcc.js?v=1&m=1',
-        ]
+        ])
 
         self.assertTrue(
             'fake_dcc.min.js.map'
