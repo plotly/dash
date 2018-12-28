@@ -84,3 +84,11 @@ class Tests(unittest.TestCase):
             '/_dash-component-suites/'
             'dash_core_components/fake_dcc.js?v=1&m=1',
         ]
+
+        self.assertTrue(
+            'fake_dcc.min.js.map'
+            in app.registered_paths['dash_core_components'],
+            'Dynamic resource not available in registered path {}'.format(
+                app.registered_paths['dash_core_components']
+            )
+        )
