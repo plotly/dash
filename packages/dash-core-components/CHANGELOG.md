@@ -7,93 +7,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix `dcc.Store` null values in list causing an infinite loop [#424](https://github.com/plotly/dash-core-components/pull/424)
 
 ### Updated
-- Updated plotly.js to 1.43.1 [#423](https://github.com/plotly/dash-core-components/pull/423)
-
-### As part of [plotly.js 1.43.1](https://github.com/plotly/plotly.js/releases/tag/v1.43.1)
-
-### Fixed
-- Fix z-axis auto-type for cartesian + gl3d graphs (bug introduced in 1.43.0) [#3360]
-- Fix multicategory axis coordinate sorting [#3362]
-- Fix multicategory y-axes clearance [#3354]
-- Fix contour label clipPath segments for reversed axes [#3352]
-- Fix axis autorange on double-click on graph fixedrange:true [#3351]
-
-### As part of [plotly.js 1.43.0](https://github.com/plotly/plotly.js/releases/tag/v1.43.0)
-
-### Added
-- Add `hovertemplate` attribute to `scatter`, `scattergl`, `bar`, `histogram`,
-  `pie` and `sankey` traces [#3126, #3265, #3284]
-- Add `layout.title` placement attributes `x`, `y`, `xref`, `yref`,
-  `xanchor`, `yanchor` and `pad` [#3276]
-- Add support for `<br>`, `<sup>`, and `<sub>` pseudo-html in `scatter3d` and `gl3d`
-  scene text [#3207]
-- Add `multicategory` axis type, allowing for "multi-level" categorical axis labels
-  and category dividers with axis attributes: `showdividers`,
-  `dividercolor` and `diverwidth` [#3254, #3300, #3326]
-- Add cartesian axis attribute `tickson` with value '`boundaries`' to
-  place categorical ticks on the category boundaries [#3254, #3275]
-- Add `uirevision` attributes to control the persistence of user-driven changes
-  on the graph [#3236]
-- Add `legend.valign` to set the vertical alignment of the legend symbols
-  with respect to their associated text labels [#3263]
-- Implement `arrayOk` `textposition` for `scatter3d` traces [#3200]
-- Add layout attributes `colorscale.sequential`, `colorscale.sequentialminus` and
- `colorscale.diverging` to set graph-wide colorscale defaults [#3274]
-- Add `dragmode: false` to disable all drag interactions on cartesian subplots [#3170]
-- Add `plotly.js-locales` npm packages that includes all official locales modules [#3223]
-- Add `watermark` config option to permanently show Plotly's logo
-  in the mode bar (set to false by default) [#3280]
-- Add Finnish locale (`fi`) [#3325]
-
-### Changed
-- Remove "Edit in Chart Studio" button by default [#3307]
-- `title` attributes linked to strings are now deprecated. Please use
-  `title.text` instead to fill in your title text [#3276]
-- `title*` attributes are new deprecated. They moved to `title.*`. For
-  example, `colorbar.titleside` is now `colorbar.title.side` [#3276]
-- No longer mutate `colorscale` values into user data [#3341]
-- No longer mutate `zmin`/`zmax`, `cmin`/`cmax` values into user data [#3341]
-
-### Fixed
-- Fix `react` when updates trigger a new set of auto-margins [#3323]
-- Fix `scattergl` coloring when more than 255 marker colors are present [#3328, #3334]
-- More `scattergl` IE11 fixes [#3333, #3335]
-- Multiple `surface` rendering fixes [#3281]
-- Correctly default `scene.dragmode` to `'orbit'` when camera up vector is
-  tilted [#3256]
-- Fix hover on `scatter3d` traces with `opacity: 1` on Ubuntu [#3301]
-- Fix console error _Uncaught ax.dtick error: NaN_ in gl3d subplots [#3233]
-- Fix histogram hover event triggers when hovering from bar to bar [#3345]
-- Fix graphs with empty and non-empty histogram traces [#3343]
-- Fix contour labels on reversed axes [#3279]
-- Fix `autocolorscale` toggling [#3341]
-- Fix template support for `marker.colorscale` [#3341]
-- Fix `scatter3D` trace with `mode: 'lines+markers'` with line color array error [#3341]
-- Do not add `<base>` href to SVG clip paths during toImage [#3272]
-- Fix table scrolling that leaked into window scope [#3327]
-- Fix fills on segment-less marker-less traces [#3282]
-- Fix rangesliders on reversed-range axes [#3304]
-- Fix rangesliders on `side: 'top'`x-axes [#3329]
-- Fix typed array support for `ohlc` and `candlestick` traces [#3342]
-- Fix `restyle` with `impliedEdits` on trace with `groupby` transforms [#3236]
-- Fix `editable: true` drag on `marker` colorbars [#3236]
-
-### As part of [plotly.js 1.42.5](https://github.com/plotly/plotly.js/releases/tag/v1.42.5)
-- Fix scattergl / scatterpolargl with mode: lines and more than 1e5 pts (bug introduced in 1.42.0) [#3228]
-
-### As part of [plotly.js 1.42.4](https://github.com/plotly/plotly.js/releases/tag/v1.42.4)
-
-### Fixed
-- Remove rendering artifacts from table orca PDF exports [#3220]
-
-### As part of [plotly.js 1.42.3](https://github.com/plotly/plotly.js/releases/tag/v1.42.3)
-
-### Fixed
-- Fix histogram binning for typed array inputs (bug introduced in 1.42.0) [#3211]
-- Fix textfont color restyle calls for pie traces [#3214]
-- Fix textfont color editType for bar traces [#3214]
-- Fix array hoverinfo support for ohlc and candelestick [#3213]
-- Correctly list parcats hoverinfo attributes which does not support array inputs [#3213]
+- Upgraded plotly.js to 1.43.1 [#423](https://github.com/plotly/dash-core-components/pull/423). This includes:
+  - [Feature release 1.43.0](https://github.com/plotly/plotly.js/releases/tag/v1.43.0), which contains:
+    - `multicategory` axis type for hierarchical categories
+    - `uirevision` attributes to control persistence of user-driven changes to the graph
+    - `hovertemplate` for more control of hover labels for certain trace types
+    - Alignment options for titles and legend items
+    - And many other features and bug fixes
+  - Patch releases [1.43.1](https://github.com/plotly/plotly.js/releases/tag/v1.43.1), [1.42.5](https://github.com/plotly/plotly.js/releases/tag/v1.42.5), [1.42.4](https://github.com/plotly/plotly.js/releases/tag/v1.42.4), and [1.42.3](https://github.com/plotly/plotly.js/releases/tag/v1.42.3) containing numerous bug fixes
 
 ## [0.41.0] - 2018-12-11
 ### Added
@@ -178,95 +99,13 @@ See https://github.com/plotly/dash-core-components/pull/182.
 
 ## [0.36.0] - 2018-10-31
 ### Updated
-- Updated plotly.js to 1.42.1 [#354](https://github.com/plotly/dash-core-components/pull/354)
-  - https://github.com/plotly/plotly.js/releases/tag/v1.42.0
-  - https://github.com/plotly/plotly.js/releases/tag/v1.42.1
-  - https://github.com/plotly/plotly.js/releases/tag/v1.42.2
-
-### Fixed
-- Fix runaway loops for `scattergl` lines and fill traces
-  (bug introduced in 1.42.0) [#3199]
-- Fix size and alignment in vertical modebars [#3193]
-- Fix legend item rendering for traces with typed array marker
-  settings [#3192]
-
-
-### As part of [plotly.js 1.42.1](https://github.com/plotly/plotly.js/releases/tag/v1.42.1)
-
-#### Fixed
-- Fix IE regression introduced in 1.42.0 [#3187]
-- Fix parcats text-shadowing on dark plot_bgcolor [#3191]
-- Fix scatter3d text alignment [#3180]
-- Fix hoverinfo flags in attribute descriptions [#3158]
-- No longer list and coerce unused hoverlabel attribute in parcoods [#3158]
-- No longer list and coerce transforms attributes in traces that don't support them [#3158]
-
-### As part of [plotly.js 1.42.0](https://github.com/plotly/plotly.js/releases/tag/v1.42.0)
-
-### Added
-- Add `parcats` (aka parallel categories) trace type [#2963, #3072]
-- Add new gl3d tick and title auto-rotation algorithm that limits text
-  overlaps [#3084, #3104, #3131]
-- Add support for reversed-range axes on gl3d subplots [#3141]
-- Add modebar layout style attributes: `orientation`, `bgcolor`, `color`
-  and `activecolor` [#3068, #3091]
-- Add `title`, `titleposition` and `titlefont` attributes to `pie` traces [#2987]
-- Add `hoverlabel.split` attribute to `ohlc` and `candlestick` traces to split
-  hover labels into multiple pieces [#2959]
-- Add support for `line.shape` values 'hv', 'vh', 'hvh' and 'vhv'
-  in `scattergl` traces [#3087]
-- Add handler for `PlotlyConfig.MathJaxConfig: 'local'` to override our default
-  MathJax behavior which modifies the global MathJax config on load [#2994]
-- Add support for graph div as first argument for `Plotly.makeTemplate`
-  and `Plotly.validateTemplate` [#3111, #3118]
-- Implement trace, node and link hoverinfo for `sankey` traces [#3096, #3150]
-- Implement per-sector textfont settings in `pie` traces [#3130]
-
-### Changed
-- Use new Plotly logo in "Produced with Plotly" modebar button [#3068]
-- Improve `histogram` autobin algorithm: allow partial bin specification,
-  deprecate `autobin(x|y)` attributes, force stacked/grouped histograms to match size
-  and have compatible `start` value [#3044]
-- Count distinct values for category and date axis auto-type, which
-  improves the detection of "NaN" string values in numerical data [#3070]
-- Improve bar and pie textfont color inheritance [#3130]
-- Improve `splom` first-render, axis range relayout and marker restyle
-  performance [#3057, #3161]
-- Make `splom` `xaxes` and `yaxes` list always have same length as the trace
-  `dimensions` regardless of their partial visiblities [#3057]
-- Improve axis `overlaying` documentation [#3082]
-
-### Fixed
-- Fix `gl3d` subplots on tablets [#3088]
-- Fix responsive behavior under flexbox and grid CSS [#3056, #3090, #3122]
-- Fix relayout calls turning back `autosize` on [#3120]
-- Fix MathJax rendering (for recent versions of MathJax) [#2994]
-- Fix `scattergl` update on graphs with fractional computed dimensions [#3132]
-- Fix `scattergl` symbols in MS Edge [#2750]
-- Fix `scattergl` selections on overlaying axes [#3067]
-- Fix `scattergl` `tozero` fills with bad values [#3087, #3168]
-- Fix `scattergl` fill layer ordering [#3087]
-- Fix `scattergl` lines on reversed-range axes [#3078]
-- Fix axis auto-type routine for boolean data [#3070]
-- Fix `splom` axis placement when the diagonal is missing [#3057]
-- Fix line `restyle` calls on `parcoords` traces [#3178]
-- Fix `parcoods` rendering after `hovermode` relayout calls [#3123]
-- Fix WebGL warnings for `scatter3d` traces with blank text items [#3171, #3177]
-- Fix WebGL warnings for `scatter3d` trace with empty lines [#3174]
-- Fix rendering of `scatter3d` lines for certain scene angles [#3163]
-- Fix handling of large pad values in `sankey` traces [#3143]
-- Fix `scatterpolargl`  to `scatterpolar` toggling [#3098]
-- Fix `scatterpolargl` axis-autorange padding [#3098]
-- Fix `bar` text position for traces with set `base` [#3156]
-- Fix `bar` support for typed arrays for `width` and `offset` attributes [#3169]
-- Fix aggregate transforms with bad group values [#3093]
-- Fix transforms operating on auto-invisible traces [#3139]
-- Fix templating for polar and carpet axes [#3092, #3095]
-- Ignore invalid trace indices in restyle and update [#3114]
-- Fix grid style `relayout` calls on graph with large `splom` traces [#3067]
-- Fix logging on some old browsers [#3137]
-- Remove erroneous warning `WARN: unrecognized full object value` when
-  relayouting array containers [#3053]
+- Upgraded plotly.js to 1.42.2 [#354](https://github.com/plotly/dash-core-components/pull/354). This includes:
+  - [Feature release 1.42.0](https://github.com/plotly/plotly.js/releases/tag/v1.42.0) which contains:
+    - A new trace type `parcats` (parallel categories)
+    - `modebar` styling
+    - `pie` trace titles
+    - And many other features and bug fixes
+  - Patch releases [1.42.2](https://github.com/plotly/plotly.js/releases/tag/v1.42.2) and [1.42.1](https://github.com/plotly/plotly.js/releases/tag/v1.42.1) containing numerous bug fixes
 
 ## [0.35.2] - 2018-10-30
 ### Fixed
@@ -295,26 +134,8 @@ See https://github.com/plotly/dash-core-components/pull/182.
 - Fix Store component nested data [#333](https://github.com/plotly/dash-core-components/pull/333)
 
 ## [0.33.0] -- 2018-10-04
-### Added
-
-- Upgraded Plotly.js, the underlying library behind the dash_core_components.Graph component, to version 1.41.3. See https://github.com/plotly/plotly.js/releases/tag/v1.41.3 for the official notes.
-Many of these features were funded directly by companies that rely on this library. If your organization or company would like to sponsor particular features or bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
-
 ### Fixed
-As part of plotly.js release:
-
-- Fix handling of hover `text` in `barpolar` traces [#3040]
-- Fix `scatterpolar[gl]` `text` placement in hover label [#3040]
-- Fix `pie` trace support for individual stroke width values [#3030]
-- Fix handling of CSS `max-width` and `max-height` in auto-size routine [#3033]
-- Rotate hover labels when `hovermode: 'y'` and a single trace produces multiple
-  labels [#3043]
-- Rotate hover labels when `hovermode: 'closest'` and multiple labels are
-  generated including one from an horizontal trace [#3043]
-- Fix hover label coloring on white bgcolor [#3048]
-- Do not coerce nor validate `polar?.bar*` attributes on
-  subplots w/o visible `barpolar` traces [#3023]
-- Fix legacy polar attribute descriptions [#3023]
+- Patched plotly.js version 1.41.3 [#320](https://github.com/plotly/dash-core-components/pull/320). This includes patch releases [1.41.3](https://github.com/plotly/plotly.js/releases/tag/v1.41.3), [1.41.2](https://github.com/plotly/plotly.js/releases/tag/v1.41.2), and [1.41.1](https://github.com/plotly/plotly.js/releases/tag/v1.41.1) containing numerous bug fixes.
 
 ## [0.32.0] - 2018-10-2
 ### Added
@@ -344,57 +165,14 @@ As part of plotly.js release:
 - Unminified dev bundle support. [#293](https://github.com/plotly/dash-core-components/pull/293)
 
 ## [0.29.0] -- 2018-09-13
-### Added
+### Updated
+- Upgraded Plotly.js, the underlying library behind the `dash_core_components.Graph` component, to version 1.41.0 [#302](https://github.com/plotly/dash-core-components/pull/302). Feature release [1.41.0](https://github.com/plotly/plotly.js/releases/tag/v1.41.0) adds:
+  - Stacked area charts, as part of `scatter` traces
+  - A new `barpolar` trace type for polar "bar" traces. This replaces and improves the deprecated `area` trace type.
+  - A `responsive` plot config option
+  - And various other features and bug fixes.
 
-- Upgraded Plotly.js, the underlying library behind the dash_core_components.Graph component, to version 1.41.0. See https://github.com/plotly/plotly.js/releases/tag/v1.41.0 for the official notes.
-Many of these features were funded directly by companies that rely on this library. If your organization or company would like to sponsor particular features or bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
-
-As part of plotly.js release:
-
-- Enable selection by clicking on points via new layout attribute `clickmode`
-  and flag `'select'` [#2944]
-- Add stacked area charts via new attributes `stackgroup` and `stackgaps` in
-  `scatter` traces [#2960]
-- Add `barpolar` traces - which replace and augment `area` traces [#2954]
-- Add `polar.hole` to punch hole at the middle of polar subplot offsetting the
-  start of the radial range [#2977, #2996]
-- Add an 'inner' radial axis drag box on polar subplots [#2977]
-- Add `{responsive: true}` plot config option [#2974]
-- Emit `plotly_webglcontextlost` event on WebGL context lost [#2986]
-- Support all numbered HTML entities (decimal and hex) in text elements [#2932]
-- Add Welsh (`cy`) locale [#2945]
-
-### Changed
-As part of plotly.js release:
-
-- Attribute meta information is now stripped be stripped out of bundles (made
-  with bundlers that support browserify transforms) by default [#1584]
-- Draw polar axis ticks above polar axis lines [#2977]
-- Improve ordering of trace hover labels for matching positions [#2960]
-- Speed polar subplot radial drag interactions [#2954]
-- Improve pseudo-html conversion performance [#2932]
-- Bump `regl-splom` requirement to `^1.0.4` [#2956]
-- Bump `glslify` requirement to `^6.3.1` [#2990]
-- Use `gl-text` instead of `@etpinard/gl-text` [#2956]
-
-### Fixed
-As part of plotly.js release:
-
-- Fix `scatter` ordering in inner SVG `<g>` on some restyle calls [#2978]
-- Fix cartesian axis autorange edge cases [#2960]
-- Fix double-decoding of some HTML entities in text nodes [#2927]
-- Fix `scattergl` line traces rendered after non-line traces [#2990]
-- Fix legend positioning on graphs with very large margins [#2983]
-- Fix rendering of ternary subplots fix with `showticklabels: false` [#2993]
-- Fix show/hide updates of tick and tick labels on ternary subplots [#2993]
-- Fix handling of multi-selections in ternary subplots [#2944]
-- Fix `sankey` hover under `hovermode: false` [#2949]
-- Fix `sankey` positioning for non-default `domain.x` values [#2984]
-- Fix `type: 'date'` polar radial axes [#2954]
-- Fix send-to-cloud modebar buttons on graphs with typed arrays [#2995]
-- Fix handling of custom transforms that make their own data arrays in
-  `Plotly.react`[#2973]
-- Fix missing violin and colorbar attributes in `gd._fullData` [#2850]
+  Many of these features were funded directly by companies that rely on this library. If your organization or company would like to sponsor particular features or bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
 
 ## [0.28.3] - 2018-09-07
 ### Changed
@@ -415,23 +193,11 @@ As part of plotly.js release:
 - Fix bug where front-end error was thrown when setting `Graph.figure = {}` (fixes [#260]).
 
 ## [0.28.0]
-- Upgraded Plotly.js, the underlying library behind the
-`dash_core_components.Graph` component, to [version 1.40.1](https://github.com/plotly/plotly.js/releases/tag/v1.40.1).
-See https://github.com/plotly/plotly.js/releases/tag/v1.40.1 for the official notes.
-
-As part of plotly.js release:
-### Changed
-- Bump `browserify` to `v16` [#2923]
-- Bump `glslify` to `v6.2.1` [#2923]
-- Use `color-normlize@1.3.0` throughout code base [#2923]
-### Fixed
-- Fix logic for hiding zero lines when they conflict with axis lines [#2936]
-- Fix `exponentformat` values `'e'` and `'E'` on log axes [#2921]
-- Fix dynamic layer ordering of heatmap and carpet traces [#2917]
-- Fix `Plotly.downloadImage` when using graph id or figure object
-as first argument [#2931]
-- Fix regl-based rendering when WebGL buffer dimensions don't match canvas
-dimensions [#2939]
+### Updated
+- Upgraded plotly.js to version 1.40.1 [#280](https://github.com/plotly/dash-core-components/pull/280). This includes [Feature release 1.40.0](https://github.com/plotly/plotly.js/releases/tag/v1.40.0) and patch releases [1.40.1](https://github.com/plotly/plotly.js/releases/tag/v1.40.1), [1.39.4](https://github.com/plotly/plotly.js/releases/tag/v1.39.4), [1.39.3](https://github.com/plotly/plotly.js/releases/tag/v1.39.3), and [1.39.2](https://github.com/plotly/plotly.js/releases/tag/v1.39.2), containing:
+  - `contour` trace legend items
+  - `piecolorway` and `extendpiecolors` attributes for more control over `pie` colors
+  - And many other features and bug fixes
 
 ## [0.27.2]
 ### Fixed
@@ -447,7 +213,7 @@ dimensions [#2939]
 ## [0.27.0]
 ### Changed
 - `dash_core_components/__init__.py` now imports from python class files rather than generating classes at runtime,
-adding support for IDE autocomplete ect.
+adding support for IDE autocomplete etc.
 
 ## [0.26.0]
 ### Added
@@ -469,75 +235,30 @@ adding support for IDE autocomplete ect.
 
 
 ## [0.24.0]
-### Added
-- Upgraded Plotly.js, the underlying library behind the
-`dash_core_components.Graph` component, to [version 1.39.1](https://github.com/plotly/plotly.js/releases/tag/v1.39.1).
-See https://github.com/plotly/plotly.js/releases/tag/v1.39.1 for the official notes.
-
-    Many of these features were funded directly by companies that rely on this library.
-    If your organization or company would like to sponsor particular features or
-    bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
-
-As part of plotly.js release:
-- Add support for on-graph text in scattergl traces [#2737](https://github.com/plotly/plotly.js/pull/2737), [#2783](https://github.com/plotly/plotly.js/pull/2783)
-- Add gridshape attribute to polar subplots with values 'circular' (the default) and 'linear' (to draw polygon grids) [#2739](https://github.com/plotly/plotly.js/pull/2739)
-- Add support for colorbar linked to marker.color values for splom,
-scatterpolar and scatterpolargl traces [#2681](https://github.com/plotly/plotly.js/pull/2681)
-- Revamp icon settings in custom mode bar buttons, allowing users to specify their own dimensions and SVG transforms [#2762](https://github.com/plotly/plotly.js/pull/2762)
-- Add plotlyServerURL config option [#2760](https://github.com/plotly/plotly.js/pull/2760)
-- Added no-WebGL warnings for graphs with scattergl, scatterpolargl, splom and parcoords traces [#2697](https://github.com/plotly/plotly.js/pull/2697)
-
-### Fixed
-As part of plotly.js release:
-- Fix Plotly.react's handling of changing auto-margins [#2681](https://github.com/plotly/plotly.js/pull/2681)
-- Make plotting/updating WebGL-based traces fail gracefully when WebGL isn't
-supported [#2697](https://github.com/plotly/plotly.js/pull/2697)
-- Fix mapbox layout layer updates [#2734](https://github.com/plotly/plotly.js/pull/2734)
-- Fix mapbox event inconsistencies [#2766](https://github.com/plotly/plotly.js/pull/2766)
-- Correctly emit plotly_relayout at end of scroll on mapbox subplots [#2709](https://github.com/plotly/plotly.js/pull/2709)
-- Fix scatter3d scalar hovertext handling [#2698](https://github.com/plotly/plotly.js/pull/2698)
-- Fix line decimation for segments crossing the viewport [#2705](https://github.com/plotly/plotly.js/pull/2705)
-- Fix surface trace contours when first level has length zero [#2712](https://github.com/plotly/plotly.js/pull/2712)
-- Fix contour(x|y|z).highlight partial settings [#2712](https://github.com/plotly/plotly.js/pull/2712)
-- Fix old date timezone precision in Chrome 67+ [#2747](https://github.com/plotly/plotly.js/pull/2747)
-- Fix x-only zoom moves when xaxis.fixedrange: true[#2776](https://github.com/plotly/plotly.js/pull/2776)
-- Fix colorbar edits for parcoords and histogram traces [#2681](https://github.com/plotly/plotly.js/pull/2681)
-- Fix bandwidth for single-value violins [#2775](https://github.com/plotly/plotly.js/pull/2775)
-- Make Plots.resize work when layout attribute is gone from graph div [#2710](https://github.com/plotly/plotly.js/pull/2710)
-- Fix colorscale attribute descriptions [#2658](https://github.com/plotly/plotly.js/pull/2658)
+### Updated
+- Upgraded plotly.js, the underlying library behind the
+`dash_core_components.Graph` component, to version 1.39.1 [#228](https://github.com/plotly/dash-core-components/pull/228). This includes:
+  - [Feature release 1.39.0](https://github.com/plotly/plotly.js/releases/tag/v1.39.0), which contains:
+    - `layout.template` capability, along with `Plotly.makeTemplate` and `Plotly.validateTemplate`.
+    - A new 3D `streamtube` trace type
+    - `scattergl` on-graph text
+    - `polar` polygon grids
+    - And many other features and bug fixes
+  - Patch releases [1.39.1](https://github.com/plotly/plotly.js/releases/tag/v1.39.1), [1.38.3](https://github.com/plotly/plotly.js/releases/tag/v1.38.3), [1.38.2](https://github.com/plotly/plotly.js/releases/tag/v1.38.2), and [1.38.1](https://github.com/plotly/plotly.js/releases/tag/v1.38.1) containing numerous bug fixes.
+  - Many of these features were funded directly by companies that rely on this library. If your organization or company would like to sponsor particular features or bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
 
 ## [0.23.0]
-### Added
-- Upgraded Plotly.js, the underlying library behind the
-`dash_core_components.Graph` component, to [version 1.38.0](https://github.com/plotly/plotly.js/releases/tag/v1.38.0).
-See https://github.com/plotly/plotly.js/releases/tag/v1.38.0 for the official notes.
-
-    - Add 3D `cone` traces to visualize vector fields [#2641](https://github.com/plotly/plotly.js/pull/2641), [#2647](https://github.com/plotly/plotly.js/pull/2647)
-    - Add ability to interactively change length and rotate line shapes [#2594](https://github.com/plotly/plotly.js/pull/2594)
-    - Add `toImageButtonOptions` config object to override to-image mode bar button options [#2607](https://github.com/plotly/plotly.js/pull/2607)
-    - Add `plotly_legendclick` and `plotly_legenddoubleclick` events [#2581](https://github.com/plotly/plotly.js/pull/2581)
-    - Add splom (aka scatter plot matrix) traces [#2505](https://github.com/plotly/plotly.js/pull/2505)
-    - Add selection and improve legend items for ohlc and candlestick [#2561](https://github.com/plotly/plotly.js/pull/2561)
-
-### Changed
-As part of the Plotly.js upgrade:
-- Improve cartesian scroll and pan (mostly) performance for graphs with
-many marker or/and text nodes [#2623](https://github.com/plotly/plotly.js/pull/2623)
-- Improve multi-axis axis-range relayout performance by updating minimal set of
-axes instead of all axes [#2628](https://github.com/plotly/plotly.js/pull/2628)
-- New and improved point-clustering algorithm for `scattergl` [#2499](https://github.com/plotly/plotly.js/pull/2499)
-
-### Fixed
-As part of the plotly.js upgrade:
-- Fix `scattergl` error bar computations when input value are numeric strings [#2620](https://github.com/plotly/plotly.js/pull/2620)
-- Fix `scattergl` error bar computations for `x0`/`dx` and `y0`/`dy` coordinates [#2620](https://github.com/plotly/plotly.js/pull/2620)
-- Fix `violin` kde span edge cases [#2650](https://github.com/plotly/plotly.js/pull/2650)
-- Make `sankey` traces accept numeric strings [#2629](https://github.com/plotly/plotly.js/pull/2629)
-- Fix axis range edits under axis constraints [#2620](https://github.com/plotly/plotly.js/pull/2620)
-- Fix "sloppy click" event emission during cartesian zoom [#2649](https://github.com/plotly/plotly.js/pull/2649)
-- Fix layout `grid` validation which lead to exceptions [#2638](https://github.com/plotly/plotly.js/pull/2638)
-- Fix `parcoords` rendering in old Safari version [#2612](https://github.com/plotly/plotly.js/pull/2612)
-- Link to https://get.webgl.org instead of http version in no WebGL message [#2617](https://github.com/plotly/plotly.js/pull/2617)
+### Updated
+- Upgraded plotly.js to version 1.38.0 [#207](https://github.com/plotly/dash-core-components/pull/207). This includes:
+  - Feature releases [1.38.0](https://github.com/plotly/plotly.js/releases/tag/v1.38.0), [1.37.0](https://github.com/plotly/plotly.js/releases/tag/v1.37.0), and [1.36.0](https://github.com/plotly/plotly.js/releases/tag/v1.36.0), which contain:
+    - A new 3D `cone` trace type to visualize vector fields
+    - A new `splom` (aka Scatter PLOt Matrix) trace type
+    - Performance improvements for `splom` and other multi-subplot graphs
+    - `plotly_legendclick` and `plotly_legenddoubleclick` events
+    - Multi-selection and click-to-select for `parcoords` axes
+    - Fixed-size shapes
+    - And many other features and bug fixes
+  - Patch releases [1.37.1](https://github.com/plotly/plotly.js/releases/tag/v1.37.1) and [1.36.1](https://github.com/plotly/plotly.js/releases/tag/v1.36.1) containing numerous bug fixes
 
 ## [0.22.2] - 2018-05-22
 ### Fixed
@@ -566,62 +287,13 @@ will stop working (`selectedData`, `hoverData`, `relayoutData`). This should be 
 where the `dcc.Graph` component was not fitting to the size of its container. https://github.com/plotly/dash-core-components/pull/178
 
 ## [0.21.0] - 2018-03-12
-### Added
+### Updated
 - Upgraded Plotly.js, the underlying library behind the
-`dash_core_components.Graph` component, to [version 1.35.2](https://github.com/plotly/plotly.js/releases/tag/v1.34.0).
-See https://github.com/plotly/plotly.js/releases/tag/v1.35.2 for the official notes.
-
-    Many of these features were funded directly by companies that rely on this library.
-    If your organization or company would like to sponsor particular features or
-    bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
-
-    - Add `automargin` attribute to cartesian axes which auto-expands margins
-      when ticks, tick labels and/or axis titles do not fit on the graph [#2243](https://github.com/plotly/plotly.js/pull/2243)
-    - Add support for typed arrays as data array inputs [#2388](https://github.com/plotly/plotly.js/pull/2388)
-    - Add layout `grids` attribute for easy subplot generation [#2399](https://github.com/plotly/plotly.js/pull/2399)
-    - Implement `cliponaxis: false` for bar text [#2378](https://github.com/plotly/plotly.js/pull/2378)
-    - Add opposite axis attributes for range slider to control y axis range behavior [#2364](https://github.com/plotly/plotly.js/pull/2364)
-    - Generalize `hoverdistance` and `spikedistance` for area-like objects [#2379](https://github.com/plotly/plotly.js/pull/2379)
-    - Bring `scattergl` auto-range logic to par with SVG `scatter` [#2404](https://github.com/plotly/plotly.js/pull/2404)
-    - Add selected/unselected marker color size support to `scattermapbox` traces [#2361](https://github.com/plotly/plotly.js/pull/2361)
-
-### Changed
-As part of the Plotly.js upgrade:
-- Bump `mapbox-gl` to `v0.44.0` [#2361](https://github.com/plotly/plotly.js/pull/2361)
-- Bump `glslify` to `v6.1.1` [#2377](https://github.com/plotly/plotly.js/pull/2377)
-- Stop relinking `customdata`, `ids` and any matching objects
-  in `gd._fullLayout` during `Plots.supplyDefaults` [#2375](https://github.com/plotly/plotly.js/pull/2375)
-
-### Fixed
-As part of the plotly.js upgrade:
-- Fix buggy auto-range / auto-margin interaction
-  leading to axis range inconsistencies on redraws
-  (this bug was mostly noticeable on graphs with legends) [#2437](https://github.com/plotly/plotly.js/pull/2437)
-- Bring back `scattergl` lines under select/lasso `dragmode`
-  (bug introduced in `1.33.0`) [#2377](https://github.com/plotly/plotly.js/pull/2377)
-- Fix `scattergl` visible toggling for graphs with multiple traces
-  with different modes (bug introduced in `1.33.0`) [#2442](https://github.com/plotly/plotly.js/pull/2442)
-- Bring back `spikelines` for traces other than `scatter`
-  (bug introduced in `1.33.0`) [#2379](https://github.com/plotly/plotly.js/pull/2379)
-- Fix `Plotly.Fx.hover` acting on multiple subplots
-  (bug introduced in `1.32.0`) [#2379](https://github.com/plotly/plotly.js/pull/2379)
-- Fix range slider with stacked y axes positioning
-  (bug introduced in `1.32.0`) [#2451](https://github.com/plotly/plotly.js/pull/2451)
-- Fix `scattergl` color clustering [#2377](https://github.com/plotly/plotly.js/pull/2377)
-- Fix `Plotly.restyle` for `scattergl` `fill` [#2377](https://github.com/plotly/plotly.js/pull/2377)
-- Fix multi-line y-axis label positioning [#2424](https://github.com/plotly/plotly.js/pull/2424)
-- Fix centered hover labels edge cases [#2440, #2445](https://github.com/plotly/plotly.js/pull/2440)
-- Fix hover labels in bar groups in compare mode [#2414](https://github.com/plotly/plotly.js/pull/2414)
-- Fix axes and axis lines removal [#2416](https://github.com/plotly/plotly.js/pull/2416)
-- Fix auto-sizing in `Plotly.react` [#2437](https://github.com/plotly/plotly.js/pull/2437)
-- Fix error bars for `Plotly.react` and uneven data arrays [#2360](https://github.com/plotly/plotly.js/pull/2360)
-- Fix edits for date-string referenced annotations [#2368](https://github.com/plotly/plotly.js/pull/2368)
-- Fix `z` hover labels with exponents [#2422](https://github.com/plotly/plotly.js/pull/2422)
-- Fix yet another histogram edge case [#2413](https://github.com/plotly/plotly.js/pull/2413)
-- Fix fall back for contour labels when there's only one contour [#2411](https://github.com/plotly/plotly.js/pull/2411)
-- Fix `scatterpolar` category angular period calculations [#2449](https://github.com/plotly/plotly.js/pull/2449)
-- Clear select outlines on mapbox zoomstart [#2361](https://github.com/plotly/plotly.js/pull/2361)
-- Fix legend click to causes legend scroll bug [#2426](https://github.com/plotly/plotly.js/pull/2426)
+`dash_core_components.Graph` component, to version 1.35.2 [#174](https://github.com/plotly/dash-core-components/pull/174). This includes [Feature release 1.35.0](https://github.com/plotly/plotly.js/releases/tag/v1.35.0) and patch releases [1.35.2](https://github.com/plotly/plotly.js/releases/tag/v1.35.2), [1.35.1](https://github.com/plotly/plotly.js/releases/tag/v1.35.1), which contain:
+  - An `automargin` attribute for cartesian axes with long tick labels
+  - Support for typed arrays as data inputs
+  - layout `grid` attribute for easy subplot generation
+  - And numerous other features and bug fixes
 
 ## [0.20.2] - 2018-03-05
 ### Fixed
@@ -633,35 +305,14 @@ removed every time the graph was updated. They are now removed and reattached. #
 - The `serve_locally` was broken - the Plotly.js bundle wasn't being served correctly.
 
 ## [0.20.0] - 2018-03-01
-### Added
-- Upgraded Plotly.js, the underlying library behind the
-`dash_core_components.Graph` component, to [version 1.34.0](https://github.com/plotly/plotly.js/releases/tag/v1.34.0).
-See https://github.com/plotly/plotly.js/releases/tag/v1.34.0 for the official notes.
-
-    Many of these features were funded directly by companies that rely on this library.
-    If your organization or company would like to sponsor particular features or
-    bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
-
-    - Add constraint-type contours to `contour` traces [https://github.com/plotly/plotly.js/pull/2270]
-    - Add `notched` and `notchwidth` attributes to `box` traces [https://github.com/plotly/plotly.js/pull/2305]
-    - Add localization machinery to auto-formatted date axis ticks [https://github.com/plotly/plotly.js/pull/2261]
-    - Add support for `text` in `mesh3d` traces [https://github.com/plotly/plotly.js/pull/2327]
-    - Add support for scalar `text` in `surface` traces [https://github.com/plotly/plotly.js/pull/2327]
-    - Make mode bar for graphs with multiple subplot types more usable [https://github.com/plotly/plotly.js/pull/2339]
-
-### Fixed
-- The `Graph` component now uses `Plotly.react` instead of `Plotly.newPlot`. This should fix issues when repeatedly updating GL chart types (`surface`, `scatter3d`, `scattergl`). #170
-    - Many other bug fixes from the PLotly.js upgrade, including:
-    - Prevent page scroll on mobile device on `gl2d` and `gl3d` subplots [https://github.com/plotly/plotly.js/pull/2296]
-    - Fix multi-marker `scattergl` selection errors (bug introduced in `1.33.0`) [https://github.com/plotly/plotly.js/pull/2295]
-    - Fix trace `opacity` restyle for `scattergl` traces (bug introduced in `1.33.0`) [https://github.com/plotly/plotly.js/pull/2299]
-    - Fix `scattergl` handling of `selectedpoints` across multiple traces [https://github.com/plotly/plotly.js/pull/2311]
-    - Fix `scattergl` horizontal and vertical line rendering [https://github.com/plotly/plotly.js/pull/2340]
-    - Fix `table` when content-less cells and headers are supplied [https://github.com/plotly/plotly.js/pull/2314]
-    - Fix `hoverformat` on `visible: false` cartesian axes (bug introduced in `1.33.0`) [https://github.com/plotly/plotly.js/pull/2329]
-    - Fix handling of double negative translate transform values [https://github.com/plotly/plotly.js/pull/2339]
-    - Fix compare `hovermode` fallback for non-cartesian subplot types [https://github.com/plotly/plotly.js/pull/2339]
-
+### Updated
+- Upgraded plotly.js, the underlying library behind the
+`dash_core_components.Graph` component, to version 1.34.0 [#170](https://github.com/plotly/dash-core-components/pull/170). [Feature release 1.34.0](https://github.com/plotly/plotly.js/releases/tag/v1.34.0) contains:
+  - `Plotly.react`, a new do-it-all API method that creates and updates graphs using the same API signature
+  - Constraint-type contours in `contour` traces
+  - `notched` `box` traces
+  - Localization machinery for auto-formatted date axis ticks
+  - And many other features and bug fixes
 
 ## [0.19.0] - 2018-02-11
 ### Changed
@@ -669,59 +320,20 @@ See https://github.com/plotly/plotly.js/releases/tag/v1.34.0 for the official no
 
 ## [0.18.1] - 2017-01-25
 ### Fixed
-- Upgraded Plotly.js, the underlying library behind the
-`dash_core_components.Graph` component, to [version 1.33.1](https://github.com/plotly/plotly.js/releases/tag/v1.33.1). Fixes include
-    - Fix selection on scattergl plots with >20k points [#2266](https://github.com/plotly/plotly.js/issues/2266)
-    - Update Spanish localization with new strings [#2268](https://github.com/plotly/plotly.js/issues/2268)
-    - Fix test_dashboard overly rigid restriction so parcoods works there [#2273](https://github.com/plotly/plotly.js/issues/2273)
-    - Make layout.colorway compatible with sankey traces [#2277](https://github.com/plotly/plotly.js/issues/2277)
-    - Fix click events on fixedrange subplots [#2279](https://github.com/plotly/plotly.js/issues/2279)
-    - Remove ghost fill when trace data is emptied out [#2280](https://github.com/plotly/plotly.js/issues/2280)
-    - Fix resizing of new scattergl plots [#2283](https://github.com/plotly/plotly.js/issues/2283)
-    - Fix positioning of carpet axis titles for cheaterslope edge cases [#2285](https://github.com/plotly/plotly.js/issues/2285)
-    - Fix coloring and hover info for heatmaps and contour maps with nonuniform bins [#2288](https://github.com/plotly/plotly.js/issues/2288)
-
+- Patched plotly.js to version 1.33.1 [#151](https://github.com/plotly/dash-core-components/pull/151). [Patch release 1.33.1](https://github.com/plotly/plotly.js/releases/tag/v1.33.1) includes numerous bug fixes.
 
 ## [0.18.0] - 2017-01-19
-### Added
-- Upgraded Plotly.js, the underlying library behind the
-`dash_core_components.Graph` component, to [version 1.33.0](https://github.com/plotly/plotly.js/releases/tag/v1.33.0).
-This was a huge release! Here are some of the new features that
-are available. See https://github.com/plotly/plotly.js/releases/tag/v1.33.0 for the official notes.
-
-    Many of these features were funded directly by companies that rely on this library.
-    If your organization or company would like to sponsor particular features or
-    bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
-
-    - Completely rewritten `scattergl` trace type using `regl` [plotly.js/pull/2258](https://github.com/plotly/plotly.js/pull/2258)
-    - Completely rewritten polar chart renderer accompanied by new
-      `scatterpolar` and `scatterpolargl` trace types [plotly.js/pull/2200](https://github.com/plotly/plotly.js/pull/2200)
-    - Add the ability to draw layout images and layout shapes on subplot
-      with `scattergl` traces [plotly.js/pull/2258](https://github.com/plotly/plotly.js/pull/2258)
-    - Add `fill` capabilities to `scattergl` traces [plotly.js/pull/2258](https://github.com/plotly/plotly.js/pull/2258)
-    - Add `spikedistance`, `hoverdistance` and `skipsnap` for more customizable
-      spikes and hover behavior on cartesian subplots [plotly.js/pull/2247](https://github.com/plotly/plotly.js/pull/2247)
-    - Add official Spanish translation (locale `es`) [plotly.js/pull/2249](https://github.com/plotly/plotly.js/pull/2249)
-    - Add official French translation (locale `fr`) [plotly.js/pull/2252](https://github.com/plotly/plotly.js/pull/2252)
-
-
-### Changed
-- With the plotly.js upgrade, the old polar trace types
-  (`scatter` with `(r, t)` coordinates, bar with (`(r, t)` coordinates and
-   `area`) are now deprecated).
-
-### Fixed
-- Several bugs with the `dcc.Graph` component were fixed with the plotly.js upgrade.
-These include:
-    - Fix `gl2d` tick label on pan interaction regression [plotly.js/pull/2258](https://github.com/plotly/plotly.js/pull/2258)
-    - Fix `candlestick` hover label regression (bug introduced in v1.32.0) [plotly.js/pull/2264](https://github.com/plotly/plotly.js/pull/2264)
-    - Fix several `gl2d` axis related bugs with new regl-based `scattergl` [plotly.js/pull/2258](https://github.com/plotly/plotly.js/pull/2258)
-      See full list under the On-par gl2d milestone https://github.com/plotly/plotly.js/milestone/3
-    - Fix several polar bugs with `scatterpolar` [plotly.js/pull/2200].(https://github.com/plotly/plotly.js/pull/2200)
-      See full list under the On-par polar milestone https://github.com/plotly/plotly.js/milestone/2
-    - Fix `scattergl` marker.colorscale handling [plotly.js/pull/2258](https://github.com/plotly/plotly.js/pull/2258)
-    - Fix decimal and thousands settings in `de` locale [plotly.js/pull/2246](https://github.com/plotly/plotly.js/pull/2246)
-    - Make scroll handler _passive_, removing those annoying console warnings [plotly.js/pull/2251](https://github.com/plotly/plotly.js/pull/2251)
+### Updated
+- Upgraded Plotly.js, the underlying library behind the `dash_core_components.Graph` component, to [version 1.33.0](https://github.com/plotly/plotly.js/releases/tag/v1.33.0). This was a huge release! Here are some of the new features that are available:
+  - Completely rewritten `scattergl` trace type using `regl` [plotly.js#2258](https://github.com/plotly/plotly.js/pull/2258)
+  - Completely rewritten polar chart renderer accompanied by new `scatterpolar` and `scatterpolargl` trace types [plotly.js#2200](https://github.com/plotly/plotly.js/pull/2200). The old polar trace types - `scatter` with `(r, t)` coordinates, bar with `(r, t)` coordinates, and `area` - are now deprecated.
+  - Add the ability to draw layout images and layout shapes on subplot with `scattergl` traces [plotly.js#2258](https://github.com/plotly/plotly.js/pull/2258)
+  - Add `fill` capabilities to `scattergl` traces [plotly.js#2258](https://github.com/plotly/plotly.js/pull/2258)
+  - Add `spikedistance`, `hoverdistance` and `spikesnap` for more customizable spikes and hover behavior on cartesian subplots [plotly.js#2247](https://github.com/plotly/plotly.js/pull/2247)
+  - Add official Spanish translation (locale `es`) [plotly.js#2249](https://github.com/plotly/plotly.js/pull/2249)
+  - Add official French translation (locale `fr`) [plotly.js#2252](https://github.com/plotly/plotly.js/pull/2252)
+  - And numerous other features and bug fixes
+  - Many of these features were funded directly by companies that rely on this library. If your organization or company would like to sponsor particular features or bug fixes in these open source libraries, please reach out: http://plot.ly/products/consulting-and-oem
 
 ## [0.17.1] - 2017-01-18
 ### Fixed
@@ -737,50 +349,14 @@ v0.15.4.
 and `hoverData` if the chart type is a `histogram`, `histogram2d`, or `histogram2dcontour`.
 
 ## [0.16.0] - 2017-01-11
-### Added
-- Upgraded Plotly.js, the underlying library behind the
-`dash_core_components.Graph` component, to [version 1.32.0](https://github.com/plotly/plotly.js/releases/tag/v1.32.0).
-This was a huge release! Here are some of the new features that
-are available. See https://github.com/plotly/plotly.js/releases/tag/v1.32.0 for the official notes.
-- Add localization machinery  [https://github.com/plotly/plotly.js/pull/2195, https://github.com/plotly/plotly.js/pull/2207, https://github.com/plotly/plotly.js/pull/2210, https://github.com/plotly/plotly.js/pull/2232],
-   including an official German translation (locale `de`) [https://github.com/plotly/plotly.js/pull/2217]
-- Add `violin` trace type [https://github.com/plotly/plotly.js/pull/2116]
-- Add `selected` and `unselected` attribute containers to customize selection states [https://github.com/plotly/plotly.js/pull/2135]
-- Add support for multi-selections [https://github.com/plotly/plotly.js/pull/2140]
-- Add layout `colorway` to custom the trace-to-trace color sequence [https://github.com/plotly/plotly.js/pull/2156]
-- Add `tickformatstops` to set tick format per cartesian axis range [https://github.com/plotly/plotly.js/pull/1965]
-- Add hover labels and selections to box points [https://github.com/plotly/plotly.js/pull/2094]
-- Histogram events & bin hover label improvements [https://github.com/plotly/plotly.js/pull/2113]
-- Add support for aggregation in `pie` traces [https://github.com/plotly/plotly.js/pull/2117]
-- Add annotations `startarrowhead`, `arrowside`, `startarrowsize` and `startstandoff` attributes [https://github.com/plotly/plotly.js/pull/2164]
-- Add `zhoverformat` to format `z` values in `heatmap`, `contour` and 2d histogram traces [https://github.com/plotly/plotly.js/pull/2106, https://github.com/plotly/plotly.js/pull/2127]
-- Add `marker.opacity` to bar traces [https://github.com/plotly/plotly.js/pull/2163]
-- Add `Cividis` colorscale [https://github.com/plotly/plotly.js/pull/2178]
-- Implement transform inverse mapping [https://github.com/plotly/plotly.js/pull/2126, https://github.com/plotly/plotly.js/pull/2162]
-- Selections are now persistent [https://github.com/plotly/plotly.js/pull/2135]
-- Rename _Save and edit plot in cloud_ mode bar button _Edit in Chart Studio_ [https://github.com/plotly/plotly.js/pull/2183]
-
-### Fixed
-Here the bug fixes in the `Graph` component brought to you by the plotly.js release.
-See https://github.com/plotly/plotly.js/releases/tag/v1.32.0 for the official notes.
-
-- Fix right-click handling [https://github.com/plotly/plotly.js/pull/2241]
-- Miscellaneous fixes for `table` traces [https://github.com/plotly/plotly.js/pull/2107, https://github.com/plotly/plotly.js/pull/2182]
-- Fix horizontal legend items alignment edge case [https://github.com/plotly/plotly.js/pull/2149]
-- Fix shape and updatemenu layering [https://github.com/plotly/plotly.js/pull/2121]
-- Fix bar with error bar with set `ids` edge case [https://github.com/plotly/plotly.js/pull/2169]
-- Fix `cliponaxis: false` for non linear cartesian axes [https://github.com/plotly/plotly.js/pull/2177]
-- Fix heatmap non-uniform brick gaps problem [https://github.com/plotly/plotly.js/pull/2213]
-- Fix choropleth selection when `visible: false` trace are present on graph [https://github.com/plotly/plotly.js/pull/2099, https://github.com/plotly/plotly.js/pull/2109]
-- Fix yet another contour drawing bug [https://github.com/plotly/plotly.js/pull/2091]
-- Clean up pie event data [https://github.com/plotly/plotly.js/pull/2117]
-- Fix scatter + bar hover edge cases [https://github.com/plotly/plotly.js/pull/2218]
-- Allow hover labels to extend to edges of graph area [https://github.com/plotly/plotly.js/pull/2215]
-- Harden location-to-feature against non-string country names for geo subplot [https://github.com/plotly/plotly.js/pull/2122]
-- Remove obsolete `smith` attribute from plot schema [https://github.com/plotly/plotly.js/pull/2093]
-- Fix colorbar class name [https://github.com/plotly/plotly.js/pull/2139]
-
-
+### Updated
+- Upgraded Plotly.js, the underlying library behind the `dash_core_components.Graph` component, to version 1.32.0 [#143](https://github.com/plotly/dash-core-components/pull/143). [Feature release 1.32.0](https://github.com/plotly/plotly.js/releases/tag/v1.32.0) includes:
+  - Localization machinery, including an official German translation (locale `de`)
+  - A new `violin` trace type
+  - Selection improvements: `selected` and `unselected` attribute containers to customize selection states, Support for multi-selections, persistent selections.
+  - `colorway` attribute to customize the trace-to-trace color sequence
+  - Add `tickformatstops` to set tick format per cartesian axis range
+  - And many more features and bug fixes
 
 ## [0.15.5] - 2017-01-08
 ### Fixed
@@ -804,7 +380,7 @@ breaks (see #134).
 
 ## [0.15.3] - 2017-12-11
 ### Fixed
-- Upgrade the version of [plotly.js](https://github.com/plotly/plotly.js) from 1.31.0 to 1.31.2. See the list of fixes here: https://github.com/plotly/plotly.js/blob/master/CHANGELOG.md
+- Patched plotly.js to version 1.31.2 [#125](https://github.com/plotly/dash-core-components/pull/125), including patch releases [1.31.2](https://github.com/plotly/plotly.js/releases/tag/v1.31.2) and [1.31.1](https://github.com/plotly/plotly.js/releases/tag/v1.31.1) with numerous bug fixes.
 
 
 ## [0.15.2] - 2017-11-24
@@ -847,42 +423,15 @@ Big thanks to community contributor @Akronix!
 - An `Upload` component! :tada: See [https://plot.ly/dash/dash-core-components/upload](https://plot.ly/dash/dash-core-components/upload) for docs.
 
 ## [0.13.0] - 2017-10-05
-### Added
-- Bumped [plotly.js](https://github.com/plotly/plotly.js) from `v1.29.3` to `v1.30.0`.
-This was a huge release by the plotly.js team! :clap:
-See the full changelog here: https://github.com/plotly/plotly.js/releases/tag/v1.31.0.
-The following improvements from this version update apply to dash:
-    - Add `table` trace type [2030](https://github.com/plotly/plotly.js/issue/2030)
-    - Add `geo.center` making geo views fully reproducible using layout attributes [2030](https://github.com/plotly/plotly.js/issue/2030)
-    - Add lasso and select-box drag modes to `scattergeo` and `choropleth` traces [2030](https://github.com/plotly/plotly.js/issue/2030)
-    - Add lasso and select-box drag modes to `bar` and `histogram` traces [2045](https://github.com/plotly/plotly.js/issue/2045)
-    - Throttle lasso and select-box events for smoother behavior [2040](https://github.com/plotly/plotly.js/issue/2040)
-    - Add constraintext attribute for bar traces [1931](https://github.com/plotly/plotly.js/1931)
-    - Add axis layer attribute to ternary axes [1952](https://github.com/plotly/plotly.js/1952)
-    - Add cross-trace matching auto-binning logic to histogram traces [1944](https://github.com/plotly/plotly.js/1944)
-    - Harmonize gl3d and gl2d zoom speed with cartesian behavior [2041](https://github.com/plotly/plotly.js/issue/2041)
-    - Fix handling of extreme off-plot data points in scatter lines [2060](https://github.com/plotly/plotly.js/issue/2060)
-    - Fix `hoverinfo` array support for `scattergeo`, `choropleth`, `scatterternary` and `scattermapbox` traces [2055](https://github.com/plotly/plotly.js/issue/2055)
-    - Fix single-bin histogram edge case [2028](https://github.com/plotly/plotly.js/issue/2028)
-    - Fix autorange for bar with base zero [2050](https://github.com/plotly/plotly.js/issue/2050)
-    - Fix annotations arrow rendering when graph div is off the DOM [2046](https://github.com/plotly/plotly.js/issue/2046)
-    - Fix hover for graphs with `scattergeo` markers outside 'usa' scope [2030](https://github.com/plotly/plotly.js/issue/2030)
-    - Fix handling of cross anti-meridian geo `lonaxis` ranges [2030](https://github.com/plotly/plotly.js/issue/2030)
-    - Fix miter limit for lines on geo subplots [2030](https://github.com/plotly/plotly.js/issue/2030)
-    - Fix `marker.opacity` handling for `scattergeo` bubbles [2030](https://github.com/plotly/plotly.js/issue/2030)
-    - Fix layout animation of secondary axes [1999](https://github.com/plotly/plotly.js/issue/1999)
-    - Fix `sankey` hover text placement for empty `link.label` items [2016](https://github.com/plotly/plotly.js/issue/2016)
-    - Fix `sankey` rendering of nodes with very small values [2017](https://github.com/plotly/plotly.js/issue/2017,2021] https://github.com/plotly/plotly.js/issue/2021)
-    - Fix `sankey` hover label positioning on pages that style the 'svg-container' div node [2027](https://github.com/plotly/plotly.js/issue/2027)
-    - Fix hover label exponents [1932](https://github.com/plotly/plotly.js/issue/1932)
-    - Fix scatter fill with isolated endpoints [1933](https://github.com/plotly/plotly.js/issue/1933)
-    - Fix parcoords axis tick scale when ticktext is unordered [1945](https://github.com/plotly/plotly.js/issue/1945)
-    - Fix sankey with 4 multi-links or more [1934](https://github.com/plotly/plotly.js/issue/1934)
-    - Fix exponent labels beyond SI prefixes [1930](https://github.com/plotly/plotly.js/issue/1930)
-    - Fix image generation for marker gradient legend items [1928](https://github.com/plotly/plotly.js/issue/1928)
-    - Fix parcoords image generation when multiple parcoords graphs are present on page [1947](https://github.com/plotly/plotly.js/issue/1947)
-    - Ignore bare closing tags in pseudo-html string inputs [1926](https://github.com/plotly/plotly.js/issue/1926)
-
+### Updated
+- Upgraded plotly.js to version 1.31.0. This includes:
+  - Two huge feature releases by the plotly.js team! :clap: - [1.31.0](https://github.com/plotly/plotly.js/releases/tag/v1.31.0) and [1.30.0](https://github.com/plotly/plotly.js/releases/tag/v1.30.0), which contain:
+    - A new `table` trace type
+    - `geo.center` making geo views fully reproducible
+    - Extend lasso and select-box drag modes to `bar`, `histogram`, `scattergeo`, and `choropleth` trace types
+    - `aggregate` transforms
+    - And many other features and bug fixes
+  - Patch release [1.30.1](https://github.com/plotly/plotly.js/releases/tag/v1.30.1) with bug fixes
 
 ## [0.12.7] - 2017-09-26
 ### :bug: Fixed
@@ -938,8 +487,8 @@ The following improvements from this version update apply to dash:
 - The `Dropdown` component renders `options` much, much faster. It can render 50,000 options (client-side) without crashing! This fixes https://github.com/plotly/dash/issues/103
 
 ## [0.10.0] - 2017-08-03
-### Added
-- Upgrade [plotly.js](https://github.com/plotly/plotly.js) (the library behind the `Graph` component) from 1.27.0 to 1.29.3. This includes TONS of fixes and improvements, see https://github.com/plotly/plotly.js/releases for more details. Notable improvements include:
+### Updated
+- Upgraded plotly.js to version 1.29.3, including feature releases [1.29.0](https://github.com/plotly/plotly.js/releases/tag/v1.29.0) and [1.28.0](https://github.com/plotly/plotly.js/releases/tag/v1.28.0), and patch releases [1.29.3](https://github.com/plotly/plotly.js/releases/tag/v1.29.3), [1.29.2](https://github.com/plotly/plotly.js/releases/tag/v1.29.2), [1.29.1](https://github.com/plotly/plotly.js/releases/tag/v1.29.1), [1.28.2](https://github.com/plotly/plotly.js/releases/tag/v1.28.2), [1.28.1](https://github.com/plotly/plotly.js/releases/tag/v1.28.1), and [1.27.1](https://github.com/plotly/plotly.js/releases/tag/v1.27.1) This includes TONS of fixes and improvements, notably:
     - Add touch interactions to cartesian, gl2d and ternary subplots including for
     select and lasso drag modes
     - Add support for contour line labels in contour and contourcarpet traces
@@ -951,22 +500,6 @@ The following improvements from this version update apply to dash:
     - Add cliponaxis attribute to scatter and scatterternary traces to allow
     markers and text nodes to be displayed above their subplot's axes
     - Add axis layer attribute with 'above traces' and 'below traces' values
-
-    And fixes include:
-    - Fix axis line width, length, and positioning for coupled subplots
-    - Fix alignment of cartesian tick labels
-    - Fix rendering and updates of overlaying axis lines
-    - Fix hover for 2D traces with custom colorbar tickvals
-    - Fix hover and event data for heatmapgl and contourgl traces
-    - Fix event data for pie and sankey traces
-    - Fix drag mode 'pan' in IE and Edge
-    - Fix bar, error bar and box point scaling on scroll zoom
-    - Fix shading issue in surface trace in iOS
-    - Fix lasso and select drag modes for `scatterternary` traces
-    - Fix cases of intersecting contour lines on log axes
-    - Fix animation of annotations, shapes and images
-    - Fix histogram bin computation when more than 5000 bins are needed
-    - Fix tick label rendering when more than 1000 labels are present
 
 ## [0.9.0] - 2017-07-28
 ### Added

@@ -75,7 +75,19 @@ respectively. TODO:
     * In the description, link to the PR and any relevant issue(s)
     * Pin the topic so that it appears at the top of the forum for two weeks
     * For a good example, see the [Confirmation Modal announcement][]
-    
+
+## Updating Plotly.js
+
+1. Download the latest plotly.js from the cdn: `$ wget https://cdn.plot.ly/plotly-1.43.1.min.js`
+2. Update `dash_core_components/__init__.py` plotly.js `external_url`
+3. Update `MANIFEST.in`
+4. Update `CHANGELOG.md` with links to the releases and a description of the changes. The message should state (see the existing `CHANGELOG.md` for examples):
+    * If you're only bumping the patch level, the heading is "Fixed" and the text starts "Patched plotly.js". Otherwise the heading is "Updated" and the text starts "Upgraded plotly.js"
+    * The new plotly.js version number, and the PR in which this was done
+    * All major or minor versions included, with links to their release pages and a summary of the major new features in each. If there are multiple minor/major releases included, be sure to look at all of their release notes to construct the summary. Call minor versions "feature" versions for the benefit of users not steeped in semver terminology.
+    * All patch versions included, with links to their release pages and a note that these fix bugs
+5. When bumping the dcc version, a plotly.js patch/minor/major constitutes a dcc patch/minor/major respectively as well.
+
 ## Financial Contributions
 
 If your company wishes to sponsor development of open source dash components, please [get in touch][].
@@ -84,7 +96,7 @@ If your company wishes to sponsor development of open source dash components, pl
 [Dash HTML Components]: https://github.com/plotly/dash-html-components
 [write your own components]: https://dash.plot.ly/plugins
 [Dash Components Archetype]: https://github.com/plotly/dash-components-archetype
-[issues]: https://github.com/plotly/dash-core-components/issues 
+[issues]: https://github.com/plotly/dash-core-components/issues
 [GitHub flow]: https://guides.github.com/introduction/flow/
 [eslintrc-react.json]: https://github.com/plotly/dash-components-archetype/blob/master/config/eslint/eslintrc-react.json
 [contributors]: https://github.com/plotly/dash-core-components/graphs/contributors
