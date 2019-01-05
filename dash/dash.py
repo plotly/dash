@@ -942,6 +942,11 @@ class Dash(object):
 
         return wrap_func
 
+    def add_callback(self, func, output, inputs=[], state=[], events=[]):
+        """Register a callback via a function rather than a decorator"""
+        callback_func = self.callback(output, inputs, state, events)
+        callback_func(func)
+
     def dispatch(self):
         body = flask.request.get_json()
         inputs = body.get('inputs', [])
