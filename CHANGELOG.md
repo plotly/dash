@@ -1,3 +1,7 @@
+## Unreleased - 2019-01-07
+## Fixed
+- Fix typo in some exception names [#522](https://github.com/plotly/dash/pull/522)
+
 ## 0.35.0 - 2018-12-18
 ## Added
 - Experimental `--r-prefix` option to `dash-generate-components`, optionally generates R version of components and corresponding R package.  [#483](https://github.com/plotly/dash/pull/483)
