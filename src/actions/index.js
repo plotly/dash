@@ -559,6 +559,9 @@ function updateOutput(
                     props,
                     source: 'response'
                 };
+                if (!observerUpdatePayload.itempath) {
+                    return;
+                }
                 dispatch(updateProps(observerUpdatePayload));
 
                 dispatch(
