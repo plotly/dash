@@ -10,15 +10,15 @@ class CallbackException(DashException):
     pass
 
 
-class NonExistantIdException(CallbackException):
+class NonExistentIdException(CallbackException):
     pass
 
 
-class NonExistantPropException(CallbackException):
+class NonExistentPropException(CallbackException):
     pass
 
 
-class NonExistantEventException(CallbackException):
+class NonExistentEventException(CallbackException):
     pass
 
 

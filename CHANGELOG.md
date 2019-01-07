@@ -1,3 +1,7 @@
+## Unreleased - 2019-01-07
+## Fixed
+- Fix typo in some exception names [#522](https://github.com/plotly/dash/pull/522)
+
 ## 0.35.1 - 2018-12-27
 ### Fixed
 - Always skip `dynamic` resources from index resources collection. [#518](https://github.com/plotly/dash/pull/518)

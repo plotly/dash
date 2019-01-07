@@ -381,7 +381,7 @@ class TestCallbacks(unittest.TestCase):
         app = dash.Dash('')
         app.layout = Div('', id='test')
         self.assertRaises(
-            exceptions.NonExistantIdException,
+            exceptions.NonExistentIdException,
             app.callback,
             Output('output', 'children'),
             [Input('input', 'value')]
@@ -395,21 +395,21 @@ class TestCallbacks(unittest.TestCase):
         ], id='body')
 
         self.assertRaises(
-            exceptions.NonExistantPropException,
+            exceptions.NonExistentPropException,
             app.callback,
             Output('output', 'non-there'),
             [Input('input', 'value')]
         )
 
         self.assertRaises(
-            exceptions.NonExistantPropException,
+            exceptions.NonExistentPropException,
             app.callback,
             Output('output', 'children'),
             [Input('input', 'valuez')]
         )
 
         self.assertRaises(
-            exceptions.NonExistantPropException,
+            exceptions.NonExistentPropException,
             app.callback,
             Output('body', 'childrenz'),
             [Input('input', 'value')]
@@ -426,7 +426,7 @@ class TestCallbacks(unittest.TestCase):
 
         for id in ['output', 'body']:
             self.assertRaises(
-                exceptions.NonExistantEventException,
+                exceptions.NonExistentEventException,
                 app.callback,
                 Output(id, 'children'),
                 events=[Event(id, 'style')]
@@ -437,7 +437,7 @@ class TestCallbacks(unittest.TestCase):
             )
 
         self.assertRaises(
-            exceptions.NonExistantEventException,
+            exceptions.NonExistentEventException,
             app.callback,
             Output('output', 'children'),
             events=[Event('graph', 'zoom')]
@@ -474,7 +474,7 @@ class TestCallbacks(unittest.TestCase):
             Div(id='output')
         ], id='body')
         self.assertRaises(
-            exceptions.NonExistantIdException,
+            exceptions.NonExistentIdException,
             app.callback,
             Output('id-not-there', 'children'),
             [Input('input', 'value')]

@@ -665,7 +665,7 @@ class Dash(object):
                                           'supress_callback_exceptions') and
                         arg.component_id not in layout and
                         arg.component_id != getattr(layout, 'id', None)):
-                    raise exceptions.NonExistantIdException('''
+                    raise exceptions.NonExistentIdException('''
                         Attempting to assign a callback to the
                         component with the id "{}" but no
                         components with id "{}" exist in the
@@ -698,7 +698,7 @@ class Dash(object):
                             component.available_properties and not
                             any(arg.component_property.startswith(w) for w in
                                 component.available_wildcard_properties)):
-                        raise exceptions.NonExistantPropException('''
+                        raise exceptions.NonExistentPropException('''
                             Attempting to assign a callback with
                             the property "{}" but the component
                             "{}" doesn't have "{}" as a property.\n
@@ -715,7 +715,7 @@ class Dash(object):
                     if (hasattr(arg, 'component_event') and
                             arg.component_event not in
                             component.available_events):
-                        raise exceptions.NonExistantEventException('''
+                        raise exceptions.NonExistentEventException('''
                             Attempting to assign a callback with
                             the event "{}" but the component
                             "{}" doesn't have "{}" as an event.\n
