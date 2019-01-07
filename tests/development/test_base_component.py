@@ -11,7 +11,7 @@ from dash.development.base_component import (
     Component,
     _explicitize_args)
 from dash.development._py_components_generation import generate_class_string, generate_class_file, generate_class, \
-    create_docstring, parse_events, js_to_py_type
+    create_docstring, prohibit_events, js_to_py_type
 
 Component._prop_names = ('id', 'a', 'children', 'style', )
 Component._type = 'TestComponent'
@@ -687,8 +687,8 @@ class TestGenerateClass(unittest.TestCase):
 
     def test_events(self):
         self.assertEqual(
-            self.ComponentClass().available_events,
-            ['restyle', 'relayout', 'click']
+            hasattr(self.ComponentClass(), 'available_events'),
+            False
         )
 
     # This one is kind of pointless now
@@ -815,18 +815,16 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['in', 'string'],
 
-            ['id', 'string'],
-
-            ['dashEvents', "a value equal to: 'restyle', 'relayout', 'click'"]
+            ['id', 'string']
         ])
 
     def test_docstring(self):
         docstring = create_docstring(
             'Table',
             self.data['props'],
-            parse_events(self.data['props']),
             self.data['description'],
         )
+        prohibit_events(self.data['props']),
         assert_docstring(self.assertEqual, docstring)
 
     def test_docgen_to_python_args(self):
@@ -894,8 +892,6 @@ def assert_docstring(assertEqual, docstring):
             '- aria-* (string; optional)',
             '- in (string; optional)',
             '- id (string; optional)',
-            '',
-            "Available events: 'restyle', 'relayout', 'click'",
             '        '
             ])[i]
                    )
@@ -968,9 +964,9 @@ class TestFlowMetaDataConversions(unittest.TestCase):
         docstring = create_docstring(
             'Flow_component',
             self.data['props'],
-            parse_events(self.data['props']),
             self.data['description'],
         )
+        prohibit_events(self.data['props']),
         assert_flow_docstring(self.assertEqual, docstring)
 
     def test_docgen_to_python_args(self):
@@ -1041,7 +1037,5 @@ def assert_flow_docstring(assertEqual, docstring):
             "    - style (dict; optional)",
             "    - value (bool | number | str | dict | list; required)",
             "  - value (bool | number | str | dict | list; required)",
-            "",
-            "Available events: "
         ])[i]
                    )

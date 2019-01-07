@@ -7,7 +7,7 @@ import dash_renderer
 import dash_core_components as dcc
 import dash
 
-from dash.dependencies import Event, Input, Output, State
+from dash.dependencies import Input, Output, State
 from dash import exceptions
 
 
@@ -73,23 +73,20 @@ class IntegrationTest(unittest.TestCase):
         self.assertEqual(
             json.loads(response.data), {
                 'header': {
-                    'state': [{'id': 'id1'}],
-                    'events': [{'id': 'id1'}]
+                    'state': [{'id': 'id1'}]
                 }
             }
         )
 
         self.app.callback(
             'header',
-            state=[{'id': 'id1'}],
-            events=[{'id': 'id1'}])
+            state=[{'id': 'id1'}])
         response = self.client.get('/dependencies')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             json.loads(response.data), {
                 'header': {
-                    'state': [{'id': 'id1'}],
-                    'events': [{'id': 'id1'}]
+                    'state': [{'id': 'id1'}]
                 }
             }
         )
@@ -103,18 +100,13 @@ class IntegrationTest(unittest.TestCase):
             # Nested state
             {'id': 'id1', 'prop': ['style', 'color']}
         ]
-        events = [
-            {'id': 'id1', 'event': 'click'},
-            {'id': 'id1', 'event': 'submit'}
-        ]
-        self.app.callback('header', state=state, events=events)
+        self.app.callback('header', state=state)
         response = self.client.get('/dependencies')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             json.loads(response.data), {
                 'header': {
-                    'state': state,
-                    'events': events
+                    'state': state
                 }
             }
         )
@@ -339,7 +331,6 @@ class TestCallbacks(unittest.TestCase):
     def test_callback_registry(self):
         app = dash.Dash('')
         input = dcc.Input(id='input')
-        input._events = ['blur', 'change']
 
         app.layout = Div([
             input,
@@ -364,8 +355,7 @@ class TestCallbacks(unittest.TestCase):
         app.callback(
             Output('output-3', 'children'),
             [Input('input', 'value')],
-            state=[State('input', 'value')],
-            events=[Event('input', 'blur')],
+            state=[State('input', 'value')]
         )
 
     def test_no_layout_exception(self):
@@ -416,6 +406,7 @@ class TestCallbacks(unittest.TestCase):
         )
 
     def test_exception_event_not_in_component(self):
+        # no events anymore, period!
         app = dash.Dash('')
         app.layout = Div([
             Div(id='button'),
@@ -426,26 +417,11 @@ class TestCallbacks(unittest.TestCase):
 
         for id in ['output', 'body']:
             self.assertRaises(
-                exceptions.NonExistentEventException,
+                TypeError,
                 app.callback,
                 Output(id, 'children'),
-                events=[Event(id, 'style')]
+                events=[]
             )
-            app.callback(
-                Output(id, 'children'),
-                events=[Event(id, 'click')]
-            )
-
-        self.assertRaises(
-            exceptions.NonExistentEventException,
-            app.callback,
-            Output('output', 'children'),
-            events=[Event('graph', 'zoom')]
-        )
-        app.callback(
-            Output('graph-output', 'children'),
-            events=[Event('graph', 'click')]
-        )
 
     def test_exception_component_is_not_right_type(self):
         app = dash.Dash('')
@@ -458,7 +434,6 @@ class TestCallbacks(unittest.TestCase):
             ['asdf', ['asdf'], [], []],
             [Output('output', 'children'), Input('input', 'value'), [], []],
             [Output('output', 'children'), [], State('input', 'value'), []],
-            [Output('output', 'children'), [], [], Event('input', 'click')],
         ]
         for args in test_args:
             self.assertRaises(
@@ -483,13 +458,13 @@ class TestCallbacks(unittest.TestCase):
         app.callback(Output('id-not-there', 'children'),
                      [Input('input', 'value')])
 
-    def test_missing_input_and_events(self):
+    def test_missing_inputs(self):
         app = dash.Dash('')
         app.layout = Div([
             dcc.Input(id='input')
         ], id='body')
         self.assertRaises(
-            exceptions.MissingEventsException,
+            exceptions.MissingInputsException,
             app.callback,
             Output('body', 'children'),
             [],

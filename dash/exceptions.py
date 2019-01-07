@@ -30,7 +30,7 @@ class IncorrectTypeException(CallbackException):
     pass
 
 
-class MissingEventsException(CallbackException):
+class MissingInputsException(CallbackException):
     pass
 
 
