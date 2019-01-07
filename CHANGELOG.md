@@ -2,6 +2,10 @@
 ## Fixed
 - Fix typo in some exception names [#522](https://github.com/plotly/dash/pull/522)
 
+## 0.35.1 - 2018-12-27
+### Fixed
+- Always skip `dynamic` resources from index resources collection. [#518](https://github.com/plotly/dash/pull/518)
+
 ## 0.35.0 - 2018-12-18
 ## Added
 - Experimental `--r-prefix` option to `dash-generate-components`, optionally generates R version of components and corresponding R package.  [#483](https://github.com/plotly/dash/pull/483)

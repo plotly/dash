@@ -391,11 +391,12 @@ class Dash(object):
                             namespace=resource['namespace']
                         ))
             elif 'external_url' in resource:
-                if isinstance(resource['external_url'], str):
-                    srcs.append(resource['external_url'])
-                else:
-                    for url in resource['external_url']:
-                        srcs.append(url)
+                if not is_dynamic_resource:
+                    if isinstance(resource['external_url'], str):
+                        srcs.append(resource['external_url'])
+                    else:
+                        for url in resource['external_url']:
+                            srcs.append(url)
             elif 'absolute_path' in resource:
                 raise Exception(
                     'Serving files from absolute_path isn\'t supported yet'
