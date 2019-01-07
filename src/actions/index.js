@@ -314,11 +314,9 @@ export function notifyObservers(payload) {
              * for example, perhaps the user has hidden one of the observers
              */
 
-            const {paths} = getState();
-
             if (
                 controllersInFutureQueue.length === 0 &&
-                any(e => has(e, paths))(outputIds) &&
+                any(e => has(e, getState().paths))(outputIds) &&
                 !controllerIsInExistingQueue
             ) {
                 queuedObservers.push(outputIdAndProp);
@@ -365,7 +363,7 @@ function updateOutput(
     requestUid,
     dispatch
 ) {
-    const {config, layout, graphs, paths, dependenciesRequest} = getState();
+    const {config, layout, graphs, dependenciesRequest} = getState();
     const {InputGraph} = graphs;
 
     /*
@@ -395,7 +393,7 @@ function updateOutput(
                 dependency.output.property === outputProp
         }
     );
-    const validKeys = keys(paths);
+    const validKeys = keys(getState().paths);
 
     payload.inputs = inputs.map(inputObject => {
         // Make sure the component id exists in the layout
@@ -414,7 +412,7 @@ function updateOutput(
             );
         }
         const propLens = lensPath(
-            concat(paths[inputObject.id], ['props', inputObject.property])
+            concat(getState().paths[inputObject.id], ['props', inputObject.property])
         );
         return {
             id: inputObject.id,
@@ -422,7 +420,6 @@ function updateOutput(
             value: view(propLens, layout),
         };
     });
-
     if (state.length > 0) {
         payload.state = state.map(stateObject => {
             // Make sure the component id exists in the layout
@@ -441,7 +438,7 @@ function updateOutput(
                 );
             }
             const propLens = lensPath(
-                concat(paths[stateObject.id], ['props', stateObject.property])
+                concat(getState().paths[stateObject.id], ['props', stateObject.property])
             );
             return {
                 id: stateObject.id,
@@ -552,14 +549,13 @@ function updateOutput(
              * to the store
              */
 
-            const {paths} = getState();
             const multi = data.multi;
 
             const handleResponse = ([outputIdAndProp, props]) => {
                 // Backward compatibility
                 const pathKey = multi ? outputIdAndProp : outputComponentId;
                 const observerUpdatePayload = {
-                    itempath: paths[pathKey],
+                    itempath: getState().paths[pathKey],
                     props,
                     source: 'response'
                 };
@@ -582,7 +578,7 @@ function updateOutput(
                         computePaths({
                             subTree: observerUpdatePayload.props.children,
                             startingPath: concat(
-                                paths[pathKey],
+                                getState().paths[pathKey],
                                 ['props', 'children']
                             ),
                         })
