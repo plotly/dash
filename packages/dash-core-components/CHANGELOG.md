@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.42.1] - 2019-01-07
+### Fixed
+- Fix `dcc.Store` type changes [#427](https://github.com/plotly/dash-core-components/pull/427)
+
 ## [0.42.0] - 2018-12-27
 ### Fixed
 - Fix `dcc.Store` null values in list causing an infinite loop [#424](https://github.com/plotly/dash-core-components/pull/424)

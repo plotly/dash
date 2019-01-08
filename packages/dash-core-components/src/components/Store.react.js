@@ -1,32 +1,51 @@
-import R from 'ramda';
+import {isNil, type, contains, any} from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-function dataCheck(data, old) {
-    // Assuming data and old are of the same type.
-    const oldNull = R.isNil(old);
-    const newNull = R.isNil(data);
+/**
+ * Deep equality check to know if the data has changed.
+ *
+ * @param {*} newData - New data to compare
+ * @param {*} oldData - The old data to compare
+ * @returns {boolean} The data has changed.
+ */
+function dataChanged(newData, oldData) {
+    const oldNull = isNil(oldData);
+    const newNull = isNil(newData);
     if (oldNull || newNull) {
-        return oldNull !== newNull;
+        return newData !== oldData;
     }
-    const type = R.type(data);
-    if (type === 'Array') {
-        if (data.length !== old.length) {
+    const newType = type(newData);
+    if (newType !== type(oldData)) {
+        return true;
+    }
+    if (newType === 'Array') {
+        if (newData.length !== oldData.length) {
             return true;
         }
-        for (let i = 0; i < data.length; i++) {
-            if (dataCheck(data[i], old[i])) {
+        for (let i = 0; i < newData.length; i++) {
+            if (dataChanged(newData[i], oldData[i])) {
                 return true;
             }
         }
-    } else if (R.contains(type, ['String', 'Number'])) {
-        return old !== data;
-    } else if (type === 'Object') {
-        return R.any(([k, v]) => dataCheck(v, old[k]))(Object.entries(data));
+    } else if (contains(newType, ['String', 'Number', 'Boolean'])) {
+        return oldData !== newData;
+    } else if (newType === 'Object') {
+        const oldEntries = Object.entries(oldData);
+        const newEntries = Object.entries(newData);
+        if (oldEntries.length !== newEntries.length) {
+            return true;
+        }
+        return any(([k, v]) => dataChanged(v, oldData[k]))(newEntries);
     }
     return false;
 }
 
+/**
+ * Abstraction for the memory storage_type to work the same way as local/session
+ *
+ * Each memory Store component get it's own MemStore.
+ */
 class MemStore {
     constructor() {
         this._data = {};
@@ -58,6 +77,11 @@ class MemStore {
     }
 }
 
+/**
+ * Abstraction for local/session storage_type.
+ *
+ * Single instances for localStorage, sessionStorage
+ */
 class WebStore {
     constructor(storage) {
         this._storage = storage;
@@ -129,7 +153,7 @@ export default class Store extends React.Component {
         }
 
         const old = this._backstore.getItem(id);
-        if (R.isNil(old) && data) {
+        if (isNil(old) && data) {
             // Initial data mount
             this._backstore.setItem(id, data);
             if (setProps) {
@@ -140,7 +164,7 @@ export default class Store extends React.Component {
             return;
         }
 
-        if (setProps && dataCheck(old, data)) {
+        if (setProps && dataChanged(old, data)) {
             setProps({
                 data: old,
                 modified_timestamp: this._backstore.getModified(id),
@@ -165,16 +189,16 @@ export default class Store extends React.Component {
                     modified_timestamp: this._backstore.getModified(id),
                 });
             }
-        } else if (data) {
-            const old = this._backstore.getItem(id);
-            // Only set the data if it's not the same data.
-            if (dataCheck(data, old)) {
-                this._backstore.setItem(id, data);
-                if (setProps) {
-                    setProps({
-                        modified_timestamp: this._backstore.getModified(id),
-                    });
-                }
+            return;
+        }
+        const old = this._backstore.getItem(id);
+        // Only set the data if it's not the same data.
+        if (dataChanged(data, old)) {
+            this._backstore.setItem(id, data);
+            if (setProps) {
+                setProps({
+                    modified_timestamp: this._backstore.getModified(id),
+                });
             }
         }
     }
@@ -213,6 +237,7 @@ Store.propTypes = {
         PropTypes.array,
         PropTypes.number,
         PropTypes.string,
+        PropTypes.bool,
     ]),
 
     /**

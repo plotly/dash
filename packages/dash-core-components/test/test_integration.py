@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import base64
+import itertools
 from datetime import datetime
 import io
 import os
@@ -18,7 +19,7 @@ import dash_table_experiments as dt
 from dash.exceptions import PreventUpdate
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import InvalidElementStateException
+from selenium.common.exceptions import InvalidElementStateException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -56,13 +57,13 @@ class Tests(IntegrationTests):
         )
 
     def wait_for_text_to_equal(self, selector, assertion_text):
+
+        def text_equal(driver):
+            text = driver.find_element_by_css_selector(selector).text
+            return text == assertion_text
+
         WebDriverWait(self.driver, TIMEOUT).until(
-            EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector),
-                                             assertion_text)
-        )
-        self.assertEqual(
-            assertion_text,
-            self.driver.find_element_by_css_selector(selector).text
+            text_equal
         )
 
     def snapshot(self, name):
@@ -1559,24 +1560,64 @@ class Tests(IntegrationTests):
             len('hello world')
         )
 
-    def test_store_null_values(self):
-        # https://github.com/plotly/dash-core-components/issues/422
+    def test_store_type_updates(self):
         app = dash.Dash(__name__)
+
+        types = [
+            ('str', 'hello'),
+            ('number', 1),
+            ('dict', {'data': [2, 3, None]}),
+            ('list', [5, 6, 7]),
+            ('null', None),
+            ('bool', True),
+            ('bool', False),
+            ('empty-dict', {}),
+        ]
+        types_changes = list(
+            itertools.chain(*itertools.combinations(types, 2))
+        ) + [  # No combinations as it add much test time.
+            ('list-dict-1', [1, 2, {'data': [55, 66, 77], 'dummy': 'dum'}]),
+            ('list-dict-2', [1, 2, {'data': [111, 99, 88]}]),
+            ('dict-3', {'a': 1, 'c': 1}),
+            ('dict-2', {'a': 1, 'b': None}),
+        ]
+
         app.layout = html.Div([
             html.Div(id='output'),
-            dcc.Store(id='store', data={'hello': [1.1, 1.1, None]})
+            html.Button('click', id='click'),
+            dcc.Store(id='store')
         ])
 
-        # Needs a callback with the store.
         @app.callback(Output('output', 'children'),
-                      [Input('store', 'data')])
-        def hello(data):
-            if data is None:
+                      [Input('store', 'modified_timestamp')],
+                      [State('store', 'data')])
+        def on_data(ts, data):
+            if ts is None:
                 raise PreventUpdate
 
             return json.dumps(data)
 
+        @app.callback(Output('store', 'data'), [Input('click', 'n_clicks')])
+        def on_click(n_clicks):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            return types_changes[n_clicks - 1][1]
+
         self.startServer(app)
 
-        # Gets error loading dependencies.
-        self.wait_for_element_by_css_selector('#output')
+        button = self.wait_for_element_by_css_selector('#click')
+
+        for i, type_change in enumerate(types_changes):
+            button.click()
+            try:
+                self.wait_for_text_to_equal(
+                    '#output', json.dumps(type_change[1]),
+                )
+            except TimeoutException:
+                raise Exception(
+                    'Output type did not change from {} to {}'.format(
+                        types_changes[i - 1],
+                        type_change
+                    )
+                )
