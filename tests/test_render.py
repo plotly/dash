@@ -2032,3 +2032,36 @@ class Tests(IntegrationTests):
         finally:
             with open(hot_reload_file, 'w') as f:
                 f.write(old_content)
+
+    def test_single_input_multi_outputs_on_multiple_components(self):
+        call_count = Value('i')
+
+        app = dash.Dash(__name__)
+
+        N_OUTPUTS = 50
+
+        app.layout = html.Div([
+            html.Button('click me', id='btn'),
+        ] + [html.Div(id='output-{}'.format(i)) for i in range(N_OUTPUTS)])
+
+        @app.callback([Output('output-{}'.format(i), 'children') for i in range(N_OUTPUTS)],
+                      [Input('btn', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            call_count.value += 1
+            return ['{}={}'.format(i, i+n_clicks) for i in range(N_OUTPUTS)]
+
+        self.startServer(app)
+
+        btn = self.wait_for_element_by_css_selector('#btn')
+
+        for click in range(1, 20):
+            btn.click()
+
+            for i in range(N_OUTPUTS):
+                self.wait_for_text_to_equal(
+                    '#output-{}'.format(i), '{}={}'.format(i, i+click))
+
+            self.assertEqual(call_count.value, click)
