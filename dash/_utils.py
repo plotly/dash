@@ -88,7 +88,7 @@ class AttributeDict(dict):
 
 def create_callback_id(output):
     if isinstance(output, (list, tuple)):
-        return '[{}]'.format(':'.join(
+        return '..{}..'.format('...'.join(
             '{}.{}'.format(x.component_id, x.component_property)
             for x in output
         ))

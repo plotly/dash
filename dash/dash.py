@@ -762,8 +762,8 @@ class Dash(object):
         callback_id = _create_callback_id(output)
         is_multi = isinstance(output, (list, tuple))
         callbacks = set(itertools.chain(*(
-            x[1:-1].split(':')
-            if x.startswith('[')
+            x[1:-1].split('...')
+            if x.startswith('..')
             else [x]
             for x in self.callback_map
         )))
