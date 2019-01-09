@@ -680,7 +680,7 @@ class Dash(object):
                             name.lower(), str(arg), name
                         ))
 
-                invalid_characters = ['.', ':', '[', ']']
+                invalid_characters = ['.']
                 if any(x in arg.component_id for x in invalid_characters):
                     raise exceptions.InvalidComponentIdError('''The element
                     `{}` contains {} in its ID.
