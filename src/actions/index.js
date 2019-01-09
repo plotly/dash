@@ -238,10 +238,10 @@ export function notifyObservers(payload) {
         const queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
             let outputIds;
-            if (outputIdAndProp.startsWith('[')) {
+            if (outputIdAndProp.startsWith('..')) {
                 outputIds = outputIdAndProp
-                    .slice(1, outputIdAndProp.length - 1)
-                    .split(':')
+                    .slice(1, outputIdAndProp.length - 2)
+                    .split('...')
                     .map(e => e.split('.')[0]);
             } else {
                 outputIds = [outputIdAndProp.split('.')[0]];
