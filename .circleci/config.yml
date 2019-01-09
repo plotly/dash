@@ -28,7 +28,7 @@ jobs:
               sudo pip install virtualenv
               virtualenv venv
               . venv/bin/activate
-              pip install -r $REQUIREMENTS_FILE
+              pip install -r $REQUIREMENTS_FILE --force-reinstall
 
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
