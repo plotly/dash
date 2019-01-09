@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- Regression, misaligned header [#324](https://github.com/plotly/dash-core/issues/324)
 ### Maintenance
 - Test with head of both Dash v0.x and Dash v1.x [#20](https://github.com/plotly/dash-core/issues/20)
 
