@@ -2065,3 +2065,55 @@ class Tests(IntegrationTests):
                     '#output-{}'.format(i), '{}={}'.format(i, i+click))
 
             self.assertEqual(call_count.value, click)
+
+    def test_multi_outputs_on_single_component(self):
+        call_count = Value('i')
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.Input(id='input', value='dash'),
+            html.Div(html.Div(id='output'), id='output-container'),
+        ])
+
+        @app.callback(
+            [Output('output', 'children'),
+             Output('output', 'style'),
+             Output('output', 'className')],
+
+            [Input('input', 'value')])
+        def update_output(value):
+            call_count.value += 1
+            return [
+                value,
+                {'fontFamily': value},
+                value
+            ]
+
+        self.startServer(app)
+
+        def html_equal(selector, inner_html):
+            return self.driver.find_element_by_css_selector(selector)\
+                       .get_property('innerHTML') == inner_html
+
+        wait_for(
+            lambda: html_equal(
+                '#output-container',
+                '<div id="output" class="dash" style="font-family: dash;">dash</div>'
+            ),
+            get_message=lambda: self.driver.find_element_by_css_selector('#output-container').get_property('innerHTML')
+        )
+
+        self.assertEqual(call_count.value, 1)
+
+        el = self.wait_for_element_by_css_selector('#input')
+        el.send_keys(' hello')
+
+        wait_for(
+            lambda: html_equal(
+                '#output-container',
+                '<div id="output" class="dash hello" style="font-family: &quot;dash hello&quot;;">dash hello</div>'
+            ),
+            get_message=lambda: self.driver.find_element_by_css_selector('#output-container').get_property('innerHTML')
+        )
+
+        self.assertEqual(call_count.value, 7)
