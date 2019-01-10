@@ -34777,7 +34777,6 @@ function reduceInputIds(nodeIds, InputGraph) {
 function notifyObservers(payload) {
     return function (dispatch, getState) {
         var id = payload.id,
-            event = payload.event,
             props = payload.props,
             excludedOutputs = payload.excludedOutputs;
 
@@ -34785,42 +34784,36 @@ function notifyObservers(payload) {
             graphs = _getState2.graphs,
             requestQueue = _getState2.requestQueue;
 
-        var EventGraph = graphs.EventGraph,
-            InputGraph = graphs.InputGraph;
+        var InputGraph = graphs.InputGraph;
         /*
-         * Figure out all of the output id's that depend on this
-         * event or input.
+         * Figure out all of the output id's that depend on this input.
          * This includes id's that are direct children as well as
          * grandchildren.
          * grandchildren will get filtered out in a later stage.
          */
 
-        var outputObservers = void 0;
-        if (event) {
-            outputObservers = EventGraph.dependenciesOf(id + '.' + event);
-        } else {
-            var changedProps = (0, _ramda.keys)(props);
-            outputObservers = [];
-            changedProps.forEach(function (propName) {
-                var node = id + '.' + propName;
-                if (!InputGraph.hasNode(node)) {
-                    return;
+        var outputObservers = [];
+
+        var changedProps = (0, _ramda.keys)(props);
+        changedProps.forEach(function (propName) {
+            var node = id + '.' + propName;
+            if (!InputGraph.hasNode(node)) {
+                return;
+            }
+            InputGraph.dependenciesOf(node).forEach(function (outputId) {
+                /*
+                 * Multiple input properties that update the same
+                 * output can change at once.
+                 * For example, `n_clicks` and `n_clicks_previous`
+                 * on a button component.
+                 * We only need to update the output once for this
+                 * update, so keep outputObservers unique.
+                 */
+                if (!(0, _ramda.contains)(outputId, outputObservers)) {
+                    outputObservers.push(outputId);
                 }
-                InputGraph.dependenciesOf(node).forEach(function (outputId) {
-                    /*
-                     * Multiple input properties that update the same
-                     * output can change at once.
-                     * For example, `n_clicks` and `n_clicks_previous`
-                     * on a button component.
-                     * We only need to update the output once for this
-                     * update, so keep outputObservers unique.
-                     */
-                    if (!(0, _ramda.contains)(outputId, outputObservers)) {
-                        outputObservers.push(outputId);
-                    }
-                });
             });
-        }
+        });
 
         if (excludedOutputs) {
             outputObservers = (0, _ramda.reject)((0, _ramda.flip)(_ramda.contains)(excludedOutputs), outputObservers);
@@ -34862,11 +34855,7 @@ function notifyObservers(payload) {
              * this loop hits C because of the overallOrder sorting logic
              */
 
-            /*
-              * if the output just listens to events, then it won't be in
-              * the InputGraph
-              */
-            var controllers = InputGraph.hasNode(outputIdAndProp) ? InputGraph.dependantsOf(outputIdAndProp) : [];
+            var controllers = InputGraph.dependantsOf(outputIdAndProp);
 
             var controllersInFutureQueue = (0, _ramda.intersection)(queuedObservers, controllers);
 
@@ -34938,7 +34927,7 @@ function notifyObservers(payload) {
 
             var requestUid = newRequestQueue[i].uid;
 
-            promises.push(updateOutput(outputComponentId, outputProp, event, getState, requestUid, dispatch));
+            promises.push(updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch));
         }
 
         /* eslint-disable consistent-return */
@@ -34947,7 +34936,7 @@ function notifyObservers(payload) {
     };
 }
 
-function updateOutput(outputComponentId, outputProp, event, getState, requestUid, dispatch) {
+function updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch) {
     var _getState3 = getState(),
         config = _getState3.config,
         layout = _getState3.layout,
@@ -34958,29 +34947,17 @@ function updateOutput(outputComponentId, outputProp, event, getState, requestUid
     var InputGraph = graphs.InputGraph;
 
     /*
-     * Construct a payload of the input, state, and event.
+     * Construct a payload of the input and state.
      * For example:
-     * If the input triggered this update, then:
      * {
      *      inputs: [{'id': 'input1', 'property': 'new value'}],
      *      state: [{'id': 'state1', 'property': 'existing value'}]
      * }
-     *
-     * If an event triggered this udpate, then:
-     * {
-     *      state: [{'id': 'state1', 'property': 'existing value'}],
-     *      event: {'id': 'graph', 'event': 'click'}
-     * }
-     *
      */
 
     var payload = {
         output: { id: outputComponentId, property: outputProp }
     };
-
-    if (event) {
-        payload.event = event;
-    }
 
     var _dependenciesRequest$ = dependenciesRequest.content.find(function (dependency) {
         return dependency.output.id === outputComponentId && dependency.output.property === outputProp;
@@ -34989,20 +34966,20 @@ function updateOutput(outputComponentId, outputProp, event, getState, requestUid
         state = _dependenciesRequest$.state;
 
     var validKeys = (0, _ramda.keys)(paths);
-    if (inputs.length > 0) {
-        payload.inputs = inputs.map(function (inputObject) {
-            // Make sure the component id exists in the layout
-            if (!(0, _ramda.contains)(inputObject.id, validKeys)) {
-                throw new ReferenceError('An invalid input object was used in an ' + '`Input` of a Dash callback. ' + 'The id of this object is `' + inputObject.id + '` and the property is `' + inputObject.property + '`. The list of ids in the current layout is ' + '`[' + validKeys.join(', ') + ']`');
-            }
-            var propLens = (0, _ramda.lensPath)((0, _ramda.concat)(paths[inputObject.id], ['props', inputObject.property]));
-            return {
-                id: inputObject.id,
-                property: inputObject.property,
-                value: (0, _ramda.view)(propLens, layout)
-            };
-        });
-    }
+
+    payload.inputs = inputs.map(function (inputObject) {
+        // Make sure the component id exists in the layout
+        if (!(0, _ramda.contains)(inputObject.id, validKeys)) {
+            throw new ReferenceError('An invalid input object was used in an ' + '`Input` of a Dash callback. ' + 'The id of this object is `' + inputObject.id + '` and the property is `' + inputObject.property + '`. The list of ids in the current layout is ' + '`[' + validKeys.join(', ') + ']`');
+        }
+        var propLens = (0, _ramda.lensPath)((0, _ramda.concat)(paths[inputObject.id], ['props', inputObject.property]));
+        return {
+            id: inputObject.id,
+            property: inputObject.property,
+            value: (0, _ramda.view)(propLens, layout)
+        };
+    });
+
     if (state.length > 0) {
         payload.state = state.map(function (stateObject) {
             // Make sure the component id exists in the layout
@@ -35457,13 +35434,6 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
         dependencies: stateProps.dependencies,
         paths: stateProps.paths,
 
-        fireEvent: function fireEvent(_ref) {
-            var event = _ref.event;
-
-            // Update this component's observers with the updated props
-            dispatch((0, _actions.notifyObservers)({ event: event, id: ownProps.id }));
-        },
-
         setProps: function setProps(newProps) {
             var payload = {
                 props: newProps,
@@ -35480,19 +35450,13 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
     };
 }
 
-function NotifyObserversComponent(_ref2) {
-    var children = _ref2.children,
-        id = _ref2.id,
-        paths = _ref2.paths,
-        dependencies = _ref2.dependencies,
-        fireEvent = _ref2.fireEvent,
-        setProps = _ref2.setProps;
+function NotifyObserversComponent(_ref) {
+    var children = _ref.children,
+        id = _ref.id,
+        paths = _ref.paths,
+        dependencies = _ref.dependencies,
+        setProps = _ref.setProps;
 
-    var thisComponentTriggersEvents = dependencies && dependencies.find(function (dependency) {
-        return dependency.events.find(function (event) {
-            return event.id === id;
-        });
-    });
     var thisComponentSharesState = dependencies && dependencies.find(function (dependency) {
         return dependency.inputs.find(function (input) {
             return input.id === id;
@@ -35501,19 +35465,17 @@ function NotifyObserversComponent(_ref2) {
         });
     });
     /*
-     * Only pass in `setProps` and `fireEvent` if they are actually
-     * necessary.
-     * This allows component authors to skip computing data
-     * for `setProps` or `fireEvent` (which can be expensive)
-     * in the case when they aren't actually used.
+     * Only pass in `setProps` if necessary.
+     * This allows component authors to skip computing unneeded data
+     * for `setProps`, which can be expensive.
      * For example, consider `hoverData` for graphs. If it isn't
      * actually used, then the component author can skip binding
      * the events for the component.
      *
-     * TODO - A nice enhancement would be to pass in the actual events
-     * and properties that are used into the component so that the
-     * component author can check for something like `subscribed_events`
-     * or `subscribed_properties` instead of `fireEvent` and `setProps`.
+     * TODO - A nice enhancement would be to pass in the actual
+     * properties that are used into the component so that the
+     * component author can check for something like
+     * `subscribed_properties` instead of just `setProps`.
      */
     var extraProps = {};
     if (thisComponentSharesState &&
@@ -35524,9 +35486,6 @@ function NotifyObserversComponent(_ref2) {
     // if the item's path exists for now.
     paths[id]) {
         extraProps.setProps = setProps;
-    }
-    if (thisComponentTriggersEvents && paths[id]) {
-        extraProps.fireEvent = fireEvent;
     }
 
     if (!(0, _ramda.isEmpty)(extraProps)) {
@@ -36143,12 +36102,10 @@ var graphs = function graphs() {
             {
                 var dependencies = action.payload;
                 var inputGraph = new _dependencyGraph.DepGraph();
-                var eventGraph = new _dependencyGraph.DepGraph();
 
                 dependencies.forEach(function registerDependency(dependency) {
                     var output = dependency.output,
-                        inputs = dependency.inputs,
-                        events = dependency.events;
+                        inputs = dependency.inputs;
 
                     var outputId = output.id + '.' + output.property;
                     inputs.forEach(function (inputObject) {
@@ -36157,15 +36114,9 @@ var graphs = function graphs() {
                         inputGraph.addNode(inputId);
                         inputGraph.addDependency(inputId, outputId);
                     });
-                    events.forEach(function (eventObject) {
-                        var eventId = eventObject.id + '.' + eventObject.event;
-                        eventGraph.addNode(outputId);
-                        eventGraph.addNode(eventId);
-                        eventGraph.addDependency(eventId, outputId);
-                    });
                 });
 
-                return { InputGraph: inputGraph, EventGraph: eventGraph };
+                return { InputGraph: inputGraph };
             }
 
         default:
