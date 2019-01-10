@@ -1557,6 +1557,44 @@ class Tests(IntegrationTests):
         self.assertFalse(request_queue[0]['rejected'])
         self.assertEqual(len(request_queue), 1)
 
+    def test_callbacks_called_multiple_times_and_out_of_order_multi_output(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            html.Button(id='input', n_clicks=0),
+            html.Div(id='output1'),
+            html.Div(id='output2')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(
+            [Output('output1', 'children'),
+             Output('output2', 'children')],
+            [Input('input', 'n_clicks')]
+        )
+        def update_output(n_clicks):
+            call_count.value = call_count.value + 1
+            if n_clicks == 1:
+                time.sleep(4)
+            return n_clicks, n_clicks + 1
+
+        self.startServer(app)
+        button = self.wait_for_element_by_css_selector('#input')
+        button.click()
+        button.click()
+        time.sleep(8)
+        self.percy_snapshot(
+            name='test_callbacks_called_multiple_times'
+                 '_and_out_of_order_multi_output'
+        )
+        self.assertEqual(call_count.value, 3)
+        self.wait_for_text_to_equal('#output1', '2')
+        self.wait_for_text_to_equal('#output2', '3')
+        request_queue = self.driver.execute_script(
+            'return window.store.getState().requestQueue'
+        )
+        self.assertFalse(request_queue[0]['rejected'])
+        self.assertEqual(len(request_queue), 1)
 
     def test_callbacks_with_shared_grandparent(self):
         app = dash.Dash()
