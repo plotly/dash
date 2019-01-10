@@ -2,7 +2,8 @@ import os
 import textwrap
 
 from dash import Dash
-from dash.dependencies import Input, Output, State, Event
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 import dash
 from dash.development.base_component import Component
 import dash_html_components as html
@@ -14,7 +15,6 @@ import time
 import re
 import itertools
 import json
-import unittest
 
 
 class Tests(IntegrationTests):
@@ -371,11 +371,6 @@ class Tests(IntegrationTests):
             ),
             {
               "InputGraph": {
-                "nodes": {},
-                "outgoingEdges": {},
-                "incomingEdges": {}
-              },
-              "EventGraph": {
                 "nodes": {},
                 "outgoingEdges": {},
                 "incomingEdges": {}
@@ -972,8 +967,7 @@ class Tests(IntegrationTests):
 
         assert_clean_console(self)
 
-    @unittest.skip("button events are temporarily broken")
-    def test_events(self):
+    def test_event_properties(self):
         app = Dash(__name__)
         app.layout = html.Div([
             html.Button('Click Me', id='button'),
@@ -983,8 +977,10 @@ class Tests(IntegrationTests):
         call_count = Value('i', 0)
 
         @app.callback(Output('output', 'children'),
-                      events=[Event('button', 'click')])
-        def update_output():
+                      [Input('button', 'n_clicks')])
+        def update_output(n_clicks):
+            if(not n_clicks):
+                raise PreventUpdate
             call_count.value += 1
             return 'Click'
 
@@ -998,8 +994,7 @@ class Tests(IntegrationTests):
         wait_for(lambda: output().text == 'Click')
         self.assertEqual(call_count.value, 1)
 
-    @unittest.skip("button events are temporarily broken")
-    def test_events_and_state(self):
+    def test_event_properties_and_state(self):
         app = Dash(__name__)
         app.layout = html.Div([
             html.Button('Click Me', id='button'),
@@ -1010,9 +1005,11 @@ class Tests(IntegrationTests):
         call_count = Value('i', 0)
 
         @app.callback(Output('output', 'children'),
-                      state=[State('state', 'value')],
-                      events=[Event('button', 'click')])
-        def update_output(value):
+                      [Input('button', 'n_clicks')],
+                      [State('state', 'value')])
+        def update_output(n_clicks, value):
+            if(not n_clicks):
+                raise PreventUpdate
             call_count.value += 1
             return value
 
@@ -1038,8 +1035,7 @@ class Tests(IntegrationTests):
         wait_for(lambda: output().text == 'Initial Statex')
         self.assertEqual(call_count.value, 2)
 
-    @unittest.skip("button events are temporarily broken")
-    def test_events_state_and_inputs(self):
+    def test_event_properties_state_and_inputs(self):
         app = Dash(__name__)
         app.layout = html.Div([
             html.Button('Click Me', id='button'),
@@ -1051,10 +1047,9 @@ class Tests(IntegrationTests):
         call_count = Value('i', 0)
 
         @app.callback(Output('output', 'children'),
-                      inputs=[Input('input', 'value')],
-                      state=[State('state', 'value')],
-                      events=[Event('button', 'click')])
-        def update_output(input, state):
+                      [Input('input', 'value'), Input('button', 'n_clicks')],
+                      [State('state', 'value')])
+        def update_output(input, n_clicks, state):
             call_count.value += 1
             return 'input="{}", state="{}"'.format(input, state)
 
@@ -1144,7 +1139,7 @@ class Tests(IntegrationTests):
             output().text,
             'input="Initial Inputxy", state="Initial Statex"')
 
-    def test_event_creating_inputs(self):
+    def test_event_properties_creating_inputs(self):
         app = Dash(__name__)
 
         ids = {
@@ -1166,8 +1161,10 @@ class Tests(IntegrationTests):
 
         @app.callback(
             Output(ids['button-output'], 'children'),
-            events=[Event(ids['button'], 'click')])
-        def display():
+            [Input(ids['button'], 'n_clicks')])
+        def display(n_clicks):
+            if(not n_clicks):
+                raise PreventUpdate
             call_counts['button-output'].value += 1
             return html.Div([
                 dcc.Input(id=ids['input'], value='initial state'),
@@ -1353,8 +1350,8 @@ class Tests(IntegrationTests):
 
         @app.callback(
             Output('button-output', 'children'),
-            events=[Event('button', 'click')])
-        def this_callback_takes_forever():
+            [Input('button', 'n_clicks')])
+        def this_callback_takes_forever(n_clicks):
             time.sleep(5)
             call_counts['button-output'].value += 1
             return 'New value!'
@@ -2020,4 +2017,3 @@ class Tests(IntegrationTests):
         finally:
             with open(hot_reload_file, 'w') as f:
                 f.write(old_content)
-

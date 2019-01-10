@@ -181,43 +181,38 @@ function reduceInputIds(nodeIds, InputGraph) {
 
 export function notifyObservers(payload) {
     return function(dispatch, getState) {
-        const {id, event, props, excludedOutputs} = payload;
+        const {id, props, excludedOutputs} = payload;
 
         const {graphs, requestQueue} = getState();
-        const {EventGraph, InputGraph} = graphs;
+        const {InputGraph} = graphs;
         /*
-         * Figure out all of the output id's that depend on this
-         * event or input.
+         * Figure out all of the output id's that depend on this input.
          * This includes id's that are direct children as well as
          * grandchildren.
          * grandchildren will get filtered out in a later stage.
          */
-        let outputObservers;
-        if (event) {
-            outputObservers = EventGraph.dependenciesOf(`${id}.${event}`);
-        } else {
-            const changedProps = keys(props);
-            outputObservers = [];
-            changedProps.forEach(propName => {
-                const node = `${id}.${propName}`;
-                if (!InputGraph.hasNode(node)) {
-                    return;
+        let outputObservers = [];
+
+        const changedProps = keys(props);
+        changedProps.forEach(propName => {
+            const node = `${id}.${propName}`;
+            if (!InputGraph.hasNode(node)) {
+                return;
+            }
+            InputGraph.dependenciesOf(node).forEach(outputId => {
+                /*
+                 * Multiple input properties that update the same
+                 * output can change at once.
+                 * For example, `n_clicks` and `n_clicks_previous`
+                 * on a button component.
+                 * We only need to update the output once for this
+                 * update, so keep outputObservers unique.
+                 */
+                if (!contains(outputId, outputObservers)) {
+                    outputObservers.push(outputId);
                 }
-                InputGraph.dependenciesOf(node).forEach(outputId => {
-                    /*
-                     * Multiple input properties that update the same
-                     * output can change at once.
-                     * For example, `n_clicks` and `n_clicks_previous`
-                     * on a button component.
-                     * We only need to update the output once for this
-                     * update, so keep outputObservers unique.
-                     */
-                    if (!contains(outputId, outputObservers)) {
-                        outputObservers.push(outputId);
-                    }
-                });
             });
-        }
+        });
 
         if (excludedOutputs) {
             outputObservers = reject(
@@ -263,13 +258,7 @@ export function notifyObservers(payload) {
              * this loop hits C because of the overallOrder sorting logic
              */
 
-            /*
-              * if the output just listens to events, then it won't be in
-              * the InputGraph
-              */
-            const controllers = InputGraph.hasNode(outputIdAndProp)
-                ? InputGraph.dependantsOf(outputIdAndProp)
-                : [];
+            const controllers = InputGraph.dependantsOf(outputIdAndProp);
 
             const controllersInFutureQueue = intersection(
                 queuedObservers,
@@ -349,7 +338,6 @@ export function notifyObservers(payload) {
                 updateOutput(
                     outputComponentId,
                     outputProp,
-                    event,
                     getState,
                     requestUid,
                     dispatch
@@ -366,7 +354,6 @@ export function notifyObservers(payload) {
 function updateOutput(
     outputComponentId,
     outputProp,
-    event,
     getState,
     requestUid,
     dispatch
@@ -375,28 +362,16 @@ function updateOutput(
     const {InputGraph} = graphs;
 
     /*
-     * Construct a payload of the input, state, and event.
+     * Construct a payload of the input and state.
      * For example:
-     * If the input triggered this update, then:
      * {
      *      inputs: [{'id': 'input1', 'property': 'new value'}],
      *      state: [{'id': 'state1', 'property': 'existing value'}]
      * }
-     *
-     * If an event triggered this udpate, then:
-     * {
-     *      state: [{'id': 'state1', 'property': 'existing value'}],
-     *      event: {'id': 'graph', 'event': 'click'}
-     * }
-     *
      */
     const payload = {
         output: {id: outputComponentId, property: outputProp},
     };
-
-    if (event) {
-        payload.event = event;
-    }
 
     const {inputs, state} = dependenciesRequest.content.find(
         dependency =>
@@ -404,33 +379,33 @@ function updateOutput(
             dependency.output.property === outputProp
     );
     const validKeys = keys(paths);
-    if (inputs.length > 0) {
-        payload.inputs = inputs.map(inputObject => {
-            // Make sure the component id exists in the layout
-            if (!contains(inputObject.id, validKeys)) {
-                throw new ReferenceError(
-                    'An invalid input object was used in an ' +
-                        '`Input` of a Dash callback. ' +
-                        'The id of this object is `' +
-                        inputObject.id +
-                        '` and the property is `' +
-                        inputObject.property +
-                        '`. The list of ids in the current layout is ' +
-                        '`[' +
-                        validKeys.join(', ') +
-                        ']`'
-                );
-            }
-            const propLens = lensPath(
-                concat(paths[inputObject.id], ['props', inputObject.property])
+
+    payload.inputs = inputs.map(inputObject => {
+        // Make sure the component id exists in the layout
+        if (!contains(inputObject.id, validKeys)) {
+            throw new ReferenceError(
+                'An invalid input object was used in an ' +
+                    '`Input` of a Dash callback. ' +
+                    'The id of this object is `' +
+                    inputObject.id +
+                    '` and the property is `' +
+                    inputObject.property +
+                    '`. The list of ids in the current layout is ' +
+                    '`[' +
+                    validKeys.join(', ') +
+                    ']`'
             );
-            return {
-                id: inputObject.id,
-                property: inputObject.property,
-                value: view(propLens, layout),
-            };
-        });
-    }
+        }
+        const propLens = lensPath(
+            concat(paths[inputObject.id], ['props', inputObject.property])
+        );
+        return {
+            id: inputObject.id,
+            property: inputObject.property,
+            value: view(propLens, layout),
+        };
+    });
+
     if (state.length > 0) {
         payload.state = state.map(stateObject => {
             // Make sure the component id exists in the layout
