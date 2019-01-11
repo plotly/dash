@@ -1,4 +1,4 @@
-## Unreleased - 2019-01-07
+## [0.35.2] - 2019-01-11
 ## Fixed
 - Fix typo in some exception names [#522](https://github.com/plotly/dash/pull/522)
 
