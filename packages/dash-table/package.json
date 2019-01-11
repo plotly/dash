@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "3.1.11",
+  "version": "3.1.12",
   "description": "Dash table",
   "main": "dash_table/bundle.js",
   "scripts": {
