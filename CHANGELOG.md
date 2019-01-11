@@ -2,10 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [UNRELEASED] 
-### Fixed - 2018-12-19
+## [0.16.2] - 2019-01-11
+### Fixed
 [#110](https://github.com/plotly/dash-renderer/pull/110)
-
 - Keep the config store state on soft reload.
 - AppProvider returns `Loading...` if no configs as before #108
 
