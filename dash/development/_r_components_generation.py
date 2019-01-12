@@ -14,20 +14,21 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-r_component_string = '''{prefix}{name} <- function(..., {default_argtext}) {{
+r_component_string = '''{prefix}{name} <- function({default_argtext}, ...) {{
 
+    wildcard_names = names(list(...))
+    
     component <- list(
-        props = list({default_paramtext}),
+        props = list({default_paramtext}, ...),
         type = '{name}',
         namespace = '{project_shortname}',
-        propNames = c({prop_names}),
+        propNames = c({prop_names}, wildcard_names),
         package = '{package_name}'
         )
 
     component$props <- filter_null(component$props)
-    component <- append_wildcard_props(component, wildcards = {default_wildcards}, ...)
-
-    structure(component, class = c('dash_component', 'list'))
+    
+    structure(component, class = c('dash_component', 'list'))    
 }}'''  # noqa:E501
 
 # the following strings represent all the elements in an object
@@ -62,7 +63,7 @@ help_string = '''% Auto-generated: do not edit by hand
 {description}
 }}
 \\usage{{
-{prefix}{name}(..., {default_argtext})
+{prefix}{name}({default_argtext}, ...)
 }}
 \\arguments{{
 {item_text}
@@ -116,41 +117,13 @@ LICENSE.txt
 '''
 
 
-# This is an initial attempt at resolving type inconsistencies
-# between R and JSON.
-def props_to_r_type(current_prop):
-    object_type = current_prop['type']['name']
-    if 'defaultValue' in current_prop and object_type == 'string':
-        if "\"" in current_prop['defaultValue']['value']:
-            argument = current_prop['defaultValue']['value']
-        else:
-            argument = "{}".format(current_prop['defaultValue']['value'])
-    elif object_type == 'custom' and 'raw' in current_prop['type']:
-        argument = current_prop['defaultValue'].get('value', 'numeric()')
-    elif object_type == 'enum':
-        argument = current_prop.get('defaultValue', {}).get('value', 'NULL')
-    elif 'defaultValue' in current_prop and object_type == 'object':
-        argument = 'list()'
-    elif 'defaultValue' in current_prop and \
-            current_prop['defaultValue']['value'] == '[]':
-        argument = 'list()'
-    elif object_type == 'number':
-        argument = current_prop['defaultValue'].get('value', 'NULL')
-    elif object_type == 'bool':
-        argument = current_prop['defaultValue'].get('value')
-        if argument:
-            argument = 'TRUE'
-        else:
-            argument = 'logical()'
-    else:
-        argument = 'NULL'
-    return argument
-
-
 # pylint: disable=R0914
 def generate_class_string(name, props, project_shortname, prefix):
     # Here we convert from snake case to camel case
     package_name = snake_case_to_camel_case(project_shortname)
+
+    # Ensure props are ordered with children first
+    props = reorder_props(props=props)
 
     prop_keys = props.keys()
 
@@ -187,8 +160,6 @@ def generate_class_string(name, props, project_shortname, prefix):
             prop_keys.remove(p)
 
     default_argtext += ", ".join(
-        '{}={}'.format(p, props_to_r_type(props[p]))
-        if 'defaultValue' in props[p] else
         '{}=NULL'.format(p)
         for p in prop_keys
     )
@@ -197,18 +168,18 @@ def generate_class_string(name, props, project_shortname, prefix):
     default_paramtext += ", ".join(
         '{}={}'.format(p, p)
         if p != "children" else
-        '{}=c(children, assert_valid_children(..., wildcards = {}))'
-        .format(p, default_wildcards)
+        '{}=children'
+        .format(p)
         for p in prop_keys
     )
+
     return r_component_string.format(prefix=prefix,
                                      name=name,
                                      default_argtext=default_argtext,
                                      default_paramtext=default_paramtext,
                                      project_shortname=project_shortname,
                                      prop_names=prop_names,
-                                     package_name=package_name,
-                                     default_wildcards=default_wildcards)
+                                     package_name=package_name)
 
 
 # pylint: disable=R0914
@@ -309,8 +280,6 @@ def write_help_file(name, props, description, prefix):
             prop_keys.remove(p)
 
     default_argtext += ", ".join(
-        '{}={}'.format(p, props_to_r_type(props[p]))
-        if 'defaultValue' in props[p] else
         '{}=NULL'.format(p)
         for p in prop_keys
     )
@@ -319,6 +288,8 @@ def write_help_file(name, props, description, prefix):
         '\\item{{{}}}{{{}}}'.format(p, props[p]['description'])
         for p in prop_keys
     )
+
+    item_text += '\n\\item{...} wildcards of the form: `data-*` or `aria-*`'
 
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
@@ -336,6 +307,8 @@ def write_class_file(name,
                      description,
                      project_shortname,
                      prefix=None):
+    props = reorder_props(props=props)
+
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string(
@@ -405,6 +378,9 @@ def write_js_metadata(project_shortname):
 
     for css in glob.glob('{}/*.css'.format(project_shortname)):
         shutil.copy(css, 'inst/lib/')
+
+    for sourcemap in glob.glob('{}/*.map'.format(project_shortname)):
+        shutil.copy(sourcemap, 'inst/lib/')
 
 
 # pylint: disable=R0914
