@@ -3,15 +3,15 @@ import datetime
 import itertools
 import re
 import time
-from flask import Flask
 from multiprocessing import Value
-from werkzeug.wsgi import DispatcherMiddleware
 
-import dash
+from flask import Flask
+from werkzeug.wsgi import DispatcherMiddleware
 import dash_html_components as html
-import dash_dangerously_set_inner_html
 import dash_core_components as dcc
+import dash_dangerously_set_inner_html
 import dash_flow_example
+import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
