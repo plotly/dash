@@ -555,7 +555,7 @@ class Tests(IntegrationTests):
         time.sleep(1)
 
         self.wait_for_element_by_css_selector('#inserted-input')
-        
+
     def test_flask_integration(self):
         server = Flask(__name__)
 
@@ -584,7 +584,7 @@ class Tests(IntegrationTests):
 
         content = self.wait_for_element_by_id('content')
         self.assertEqual('Flask app', content.text)
-        
+
         self.driver.get('http://localhost:8050/app1')
         time.sleep(0.5)
         content = self.wait_for_element_by_id('content')
@@ -613,14 +613,14 @@ class Tests(IntegrationTests):
 
         application = DispatcherMiddleware(flask_app, {
             '/app1': app1.server,
-            '/app2': app2.server,    
+            '/app2': app2.server,
         })
 
         self.startWerkzeugServer(application)
 
         content = self.wait_for_element_by_id('content')
         self.assertEqual('Flask app', content.text)
-        
+
         self.driver.get('http://localhost:8050/app1')
         time.sleep(0.5)
         content = self.wait_for_element_by_id('content')

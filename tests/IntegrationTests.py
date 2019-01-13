@@ -39,7 +39,7 @@ class IntegrationTests(unittest.TestCase):
             return _error.apply(console, arguments);
         };
         '''
-    
+
     def percy_snapshot(cls, name=''):
         snapshot_name = '{} - {}'.format(name, sys.version_info)
         print(snapshot_name)
