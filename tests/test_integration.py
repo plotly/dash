@@ -1,18 +1,20 @@
 import json
-from multiprocessing import Value
 import datetime
 import itertools
 import re
 import time
+from flask import Flask
+from multiprocessing import Value
+from werkzeug.wsgi import DispatcherMiddleware
+
+import dash
 import dash_html_components as html
 import dash_dangerously_set_inner_html
 import dash_core_components as dcc
 import dash_flow_example
-
-import dash
-
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
+
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -553,3 +555,78 @@ class Tests(IntegrationTests):
         time.sleep(1)
 
         self.wait_for_element_by_css_selector('#inserted-input')
+        
+    def test_flask_integration(self):
+        server = Flask(__name__)
+
+        @server.route('/')
+        def index():
+            return '<div id="content">Flask app</div>'
+
+        app1 = dash.Dash(
+            server=server,
+            requests_pathname_prefix='/app1/',
+            routes_pathname_prefix='/app1/',
+        )
+        app1.layout = html.Div("Dash app 1", id="content")
+
+        app2 = dash.Dash(
+            server=server,
+            requests_pathname_prefix='/app2/',
+            routes_pathname_prefix='/app2/',
+        )
+        app2.layout = html.Div("Dash app 2", id="content")
+
+        app1.scripts.config.serve_locally = True
+        app2.scripts.config.serve_locally = True
+
+        self.startFlaskServer(server)
+
+        content = self.wait_for_element_by_id('content')
+        self.assertEqual('Flask app', content.text)
+        
+        self.driver.get('http://localhost:8050/app1')
+        time.sleep(0.5)
+        content = self.wait_for_element_by_id('content')
+        self.assertEqual('Dash app 1', content.text)
+
+        self.driver.get('http://localhost:8050/app2')
+        time.sleep(0.5)
+        content = self.wait_for_element_by_id('content')
+        self.assertEqual('Dash app 2', content.text)
+
+    def test_wsgi_integration(self):
+        flask_app = Flask(__name__)
+
+        @flask_app.route('/')
+        def index():
+            return '<div id="content">Flask app</div>'
+
+        app1 = dash.Dash(requests_pathname_prefix='/app1/')
+        app1.layout = html.Div("Dash app 1", id="content")
+
+        app2 = dash.Dash(requests_pathname_prefix='/app2/')
+        app2.layout = html.Div("Dash app 2", id="content")
+
+        app1.scripts.config.serve_locally = True
+        app2.scripts.config.serve_locally = True
+
+        application = DispatcherMiddleware(flask_app, {
+            '/app1': app1.server,
+            '/app2': app2.server,    
+        })
+
+        self.startWerkzeugServer(application)
+
+        content = self.wait_for_element_by_id('content')
+        self.assertEqual('Flask app', content.text)
+        
+        self.driver.get('http://localhost:8050/app1')
+        time.sleep(0.5)
+        content = self.wait_for_element_by_id('content')
+        self.assertEqual('Dash app 1', content.text)
+
+        self.driver.get('http://localhost:8050/app2')
+        time.sleep(0.5)
+        content = self.wait_for_element_by_id('content')
+        self.assertEqual('Dash app 2', content.text)

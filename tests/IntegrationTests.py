@@ -8,12 +8,38 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from werkzeug.serving import run_simple
+
 
 TIMEOUT = 20
 
 
 class IntegrationTests(unittest.TestCase):
 
+    logger = '''
+        window.tests = {};
+        window.tests.console = {error: [], warn: [], log: []};
+
+        var _log = console.log;
+        var _warn = console.warn;
+        var _error = console.error;
+
+        console.log = function() {
+            window.tests.console.log.push({method: 'log', arguments: arguments});
+            return _log.apply(console, arguments);
+        };
+
+        console.warn = function() {
+            window.tests.console.warn.push({method: 'warn', arguments: arguments});
+            return _warn.apply(console, arguments);
+        };
+
+        console.error = function() {
+            window.tests.console.error.push({method: 'error', arguments: arguments});
+            return _error.apply(console, arguments);
+        };
+        '''
+    
     def percy_snapshot(cls, name=''):
         snapshot_name = '{} - {}'.format(name, sys.version_info)
         print(snapshot_name)
@@ -80,27 +106,47 @@ class IntegrationTests(unittest.TestCase):
         time.sleep(0.5)
 
         # Inject an error and warning logger
-        logger = '''
-        window.tests = {};
-        window.tests.console = {error: [], warn: [], log: []};
+        s.driver.execute_script(s.logger)
 
-        var _log = console.log;
-        var _warn = console.warn;
-        var _error = console.error;
+    def startFlaskServer(s, flask):
+        def run():
+            flask.run(
+                port=8050,
+                debug=False,
+                processes=4,
+                threaded=False
+            )
 
-        console.log = function() {
-            window.tests.console.log.push({method: 'log', arguments: arguments});
-            return _log.apply(console, arguments);
-        };
+        # Run on a separate process so that it doesn't block
+        s.server_process = multiprocessing.Process(target=run)
+        s.server_process.start()
+        time.sleep(0.5)
 
-        console.warn = function() {
-            window.tests.console.warn.push({method: 'warn', arguments: arguments});
-            return _warn.apply(console, arguments);
-        };
+        # Visit the dash page
+        s.driver.get('http://localhost:8050')
+        time.sleep(0.5)
 
-        console.error = function() {
-            window.tests.console.error.push({method: 'error', arguments: arguments});
-            return _error.apply(console, arguments);
-        };
-        '''
-        s.driver.execute_script(logger)
+        # Inject an error and warning logger
+        s.driver.execute_script(s.logger)
+
+    def startWerkzeugServer(s, application):
+        def run():
+            run_simple(
+                'localhost',
+                8050,
+                application,
+                processes=4,
+                threaded=False
+            )
+
+        # Run on a separate process so that it doesn't block
+        s.server_process = multiprocessing.Process(target=run)
+        s.server_process.start()
+        time.sleep(0.5)
+
+        # Visit the dash page
+        s.driver.get('http://localhost:8050')
+        time.sleep(0.5)
+
+        # Inject an error and warning logger
+        s.driver.execute_script(s.logger)
