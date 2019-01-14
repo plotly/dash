@@ -47,7 +47,7 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
-    "@cypress/webpack-preprocessor": "^4.0.2",
+    "@cypress/webpack-preprocessor": "^4.0.3",
     "@percy-io/percy-storybook": "^2.1.0",
     "@storybook/cli": "^4.1.6",
     "@storybook/react": "^4.1.6",
