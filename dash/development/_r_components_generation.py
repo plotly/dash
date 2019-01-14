@@ -75,6 +75,8 @@ Title: {package_description}
 Version: {package_version}
 Authors @R: as.person(c({package_author}))
 Description: {package_description}
+Depends: R (>= 3.5.0)
+Imports: dashR, fiery, routr
 Suggests: testthat, roxygen2
 License: {package_license}
 URL: {package_url}
