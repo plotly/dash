@@ -13,7 +13,6 @@ const Embed = (props) => {
                         n_clicks_timestamp: Date.now()
                     })
                 }
-                if (props.fireEvent) props.fireEvent({event: 'click'});
             }}
             {...omit(['n_clicks', 'n_clicks_timestamp'], props)}
         >
@@ -74,7 +73,6 @@ Embed.propTypes = {
      * A wildcard aria attribute
      */
     'aria-*': PropTypes.string,
-    
 
     /**
      * Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
@@ -156,15 +154,7 @@ Embed.propTypes = {
      */
     'title': PropTypes.string,
 
-    /**
-     * A callback for firing events to dash.
-     */
-    'fireEvent': PropTypes.func,
-
-    'dashEvents': PropTypes.oneOf(['click']),
-    
     'setProps': PropTypes.func
-    
 };
 
 export default Embed;

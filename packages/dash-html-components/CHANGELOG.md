@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `.idea`, `tests`, `dist`, `.circleci` to npmignore.
 - Added repository url and long_description to setup.py
 
+### Removed
+- Removed click events - these have been obsolete since 0.7.0 [#89](https://github.com/plotly/dash-html-components/pull/89)
+
 ## [0.13.4] - 2018-12-17
 ### Fixed
 - Fix build from wrong dash version.

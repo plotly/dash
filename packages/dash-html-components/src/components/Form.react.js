@@ -13,7 +13,6 @@ const Form = (props) => {
                         n_clicks_timestamp: Date.now()
                     })
                 }
-                if (props.fireEvent) props.fireEvent({event: 'click'});
             }}
             {...omit(['n_clicks', 'n_clicks_timestamp'], props)}
         >
@@ -74,7 +73,6 @@ Form.propTypes = {
      * A wildcard aria attribute
      */
     'aria-*': PropTypes.string,
-    
 
     /**
      * List of types the server accepts, typically a file type.
@@ -181,15 +179,7 @@ Form.propTypes = {
      */
     'title': PropTypes.string,
 
-    /**
-     * A callback for firing events to dash.
-     */
-    'fireEvent': PropTypes.func,
-
-    'dashEvents': PropTypes.oneOf(['click']),
-    
     'setProps': PropTypes.func
-    
 };
 
 export default Form;

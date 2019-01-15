@@ -13,7 +13,6 @@ const Li = (props) => {
                         n_clicks_timestamp: Date.now()
                     })
                 }
-                if (props.fireEvent) props.fireEvent({event: 'click'});
             }}
             {...omit(['n_clicks', 'n_clicks_timestamp'], props)}
         >
@@ -74,7 +73,6 @@ Li.propTypes = {
      * A wildcard aria attribute
      */
     'aria-*': PropTypes.string,
-    
 
     /**
      * Defines a default value which will be displayed in the element on page load.
@@ -141,15 +139,7 @@ Li.propTypes = {
      */
     'title': PropTypes.string,
 
-    /**
-     * A callback for firing events to dash.
-     */
-    'fireEvent': PropTypes.func,
-
-    'dashEvents': PropTypes.oneOf(['click']),
-    
     'setProps': PropTypes.func
-    
 };
 
 export default Li;

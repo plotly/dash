@@ -26,7 +26,8 @@
     "build:js-dev": "webpack --mode development",
     "build:py": "node ./extract-meta src/components > dash_html_components/metadata.json && cp package.json dash_html_components && npm run generate-python-classes",
     "build:all": "npm run build:js && npm run build:js-dev && npm run build:py",
-    "build:watch": "watch 'npm run build:all' src"
+    "build:watch": "watch 'npm run build:all' src",
+    "test": "python -m unittest tests.test_dash_html_components && python -m unittest tests.test_integration && python -m unittest tests.test_dash_import"
   },
   "author": "Chris Parmer <chris@plot.ly>",
   "dependencies": {

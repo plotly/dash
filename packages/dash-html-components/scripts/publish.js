@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 const execSh = require('exec-sh');
 let version = require('../package.json').version;
-let name = require('../package.json').name.replace(/-/g, '_');
+const name = require('../package.json').name.replace(/-/g, '_');
  if(version.includes("rc")) {
     version = version.replace('-', '');
     console.log("Adjusted version to", version, "for PyPi");

@@ -13,7 +13,6 @@ const Audio = (props) => {
                         n_clicks_timestamp: Date.now()
                     })
                 }
-                if (props.fireEvent) props.fireEvent({event: 'click'});
             }}
             {...omit(['n_clicks', 'n_clicks_timestamp'], props)}
         >
@@ -74,7 +73,6 @@ Audio.propTypes = {
      * A wildcard aria attribute
      */
     'aria-*': PropTypes.string,
-    
 
     /**
      * The audio or video should play as soon as possible.
@@ -171,15 +169,7 @@ Audio.propTypes = {
      */
     'title': PropTypes.string,
 
-    /**
-     * A callback for firing events to dash.
-     */
-    'fireEvent': PropTypes.func,
-
-    'dashEvents': PropTypes.oneOf(['click']),
-    
     'setProps': PropTypes.func
-    
 };
 
 export default Audio;

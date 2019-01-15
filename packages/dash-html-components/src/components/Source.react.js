@@ -13,7 +13,6 @@ const Source = (props) => {
                         n_clicks_timestamp: Date.now()
                     })
                 }
-                if (props.fireEvent) props.fireEvent({event: 'click'});
             }}
             {...omit(['n_clicks', 'n_clicks_timestamp'], props)}
         >
@@ -74,7 +73,6 @@ Source.propTypes = {
      * A wildcard aria attribute
      */
     'aria-*': PropTypes.string,
-    
 
     /**
      * Specifies a hint of the media for which the linked resource was designed.
@@ -161,15 +159,7 @@ Source.propTypes = {
      */
     'title': PropTypes.string,
 
-    /**
-     * A callback for firing events to dash.
-     */
-    'fireEvent': PropTypes.func,
-
-    'dashEvents': PropTypes.oneOf(['click']),
-    
     'setProps': PropTypes.func
-    
 };
 
 export default Source;
