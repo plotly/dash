@@ -291,7 +291,7 @@ def write_help_file(name, props, description, prefix):
         for p in prop_keys
     )
 
-    item_text += '\n\\item{...} wildcards of the form: `data-*` or `aria-*`'
+    item_text += '\n\\item{...}{wildcards of the form: `data-*` or `aria-*`}'
 
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
