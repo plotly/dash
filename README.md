@@ -6,6 +6,10 @@ Build on top of Plotly.js, React, and Flask, Dash ties modern UI elements like d
 
 [![CircleCI](https://circleci.com/gh/plotly/dash.svg?style=svg)](https://circleci.com/gh/plotly/dash)
 
+[ONLINE DOCUMENTATION](https://dash.plot.ly/getting-started)
+
+[OFFLINE (PDF) DOCUMENTATION](https://github.com/plotly/dash-docs/blob/pdf-docs/pdf-docs/Dash_User_Guide_and_Documentation.pdf)
+
 Here’s a 43-line example of a Dash App that ties a Dropdown to a D3.js Plotly Graph.
 As the user selects a value in the Dropdown, the application code dynamically
 exports data from Google Finance into a Pandas DataFrame. This app was written in just 43 lines of code ([view the source](https://gist.github.com/chriddyp/3d2454905d8f01886d651f207e2419f0)).
