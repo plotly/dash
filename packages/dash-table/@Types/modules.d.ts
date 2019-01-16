@@ -8,3 +8,9 @@ declare module 'sheetclip' {
 
     export default value;
 }
+
+declare module 'fast-isnumeric' {
+    const value: (value: any) => boolean;
+
+    export default value;
+}

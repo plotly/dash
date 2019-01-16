@@ -1,5 +1,6 @@
 /* eslint no-magic-numbers: 0 */
 import * as R from 'ramda';
+import { ColumnType } from 'dash-table/components/Table/props';
 
 const N_DATA = 100000;
 
@@ -11,7 +12,7 @@ export interface IDataMock {
 export const generateMockData = (rows: number) => unpackIntoColumnsAndData([
     {
         id: 'rows',
-        type: 'numeric',
+        type: ColumnType.Numeric,
         editable: false,
         data: gendata(i => i, rows)
     },
@@ -19,35 +20,35 @@ export const generateMockData = (rows: number) => unpackIntoColumnsAndData([
     {
         id: 'ccc',
         name: ['City', 'Canada', 'Toronto'],
-        type: 'numeric',
+        type: ColumnType.Numeric,
         data: gendata(i => i, rows)
     },
 
     {
         id: 'ddd',
         name: ['City', 'Canada', 'Montréal'],
-        type: 'numeric',
+        type: ColumnType.Numeric,
         data: gendata(i => i * 100, rows)
     },
 
     {
         id: 'eee',
         name: ['City', 'America', 'New York City'],
-        type: 'numeric',
+        type: ColumnType.Numeric,
         data: gendata(i => i, rows)
     },
 
     {
         id: 'fff',
         name: ['City', 'America', 'Boston'],
-        type: 'numeric',
+        type: ColumnType.Numeric,
         data: gendata(i => i + 1, rows)
     },
 
     {
         id: 'ggg',
         name: ['City', 'France', 'Paris'],
-        type: 'numeric',
+        type: ColumnType.Numeric,
         editable: true,
         data: gendata(i => i * 10, rows)
     },
@@ -55,7 +56,8 @@ export const generateMockData = (rows: number) => unpackIntoColumnsAndData([
     {
         id: 'bbb',
         name: ['', 'Weather', 'Climate'],
-        type: 'dropdown',
+        type: ColumnType.Text,
+        presentation: 'dropdown',
         clearable: true,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4],
@@ -66,7 +68,7 @@ export const generateMockData = (rows: number) => unpackIntoColumnsAndData([
     {
         id: 'bbb-readonly',
         name: ['', 'Weather', 'Climate-RO'],
-        type: 'dropdown',
+        type: ColumnType.Text,
         editable: false,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4],
@@ -77,14 +79,14 @@ export const generateMockData = (rows: number) => unpackIntoColumnsAndData([
     {
         id: 'aaa',
         name: ['', 'Weather', 'Temperature'],
-        type: 'numeric',
+        type: ColumnType.Numeric,
         data: gendata(i => i + 1, rows)
     },
 
     {
         id: 'aaa-readonly',
         name: ['', 'Weather', 'Temperature-RO'],
-        type: 'numeric',
+        type: ColumnType.Numeric,
         editable: false,
         data: gendata(i => i + 1, rows)
     }
@@ -94,14 +96,15 @@ export const mockDataSimple = (rows: number) => unpackIntoColumnsAndData([
     {
         id: 'aaa',
         name: 'Temperature',
-        type: 'numeric',
+        type: ColumnType.Numeric,
         data: gendata(i => i + 1, rows)
     },
 
     {
         id: 'bbb',
         name: 'Climate',
-        type: 'numeric',
+        type: ColumnType.Text,
+        presentation: 'dropdown',
         options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
             label: i,
             value: i

@@ -2,7 +2,7 @@ import DashTable from 'cypress/DashTable';
 import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
 
-import { ReadWriteModes } from 'demo/AppMode';
+import { AppMode, ReadWriteModes } from 'demo/AppMode';
 
 Object.values(ReadWriteModes).forEach(mode => {
     describe(`edit, mode=${mode}`, () => {
@@ -119,6 +119,69 @@ Object.values(ReadWriteModes).forEach(mode => {
             DOM.focused.type(`abc`);
             DashTable.getCell(0, 0).click();
             DashTable.getCell(0, 1).within(() => cy.get('.dash-cell-value').should('have.html', `abc`));
+        });
+    });
+});
+
+describe(`edit, mode=${AppMode.Typed}`, () => {
+    beforeEach(() => {
+        cy.visit(`http://localhost:8080?mode=${AppMode.Typed}`);
+        DashTable.toggleScroll(false);
+    });
+
+    it('can edit number cell with a number string', () => {
+        DashTable.getCellById(0, 'ccc').click();
+        DOM.focused.type(`123${Key.Enter}`);
+        DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', `123`));
+    });
+
+    it('cannot edit number cell with a non-number string', () => {
+        DashTable.getCellById(0, 'ccc').click();
+        DOM.focused.type(`abc${Key.Enter}`);
+        DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('not.have.html', `abc`));
+    });
+
+    describe('copy/paste', () => {
+        describe('string into a number', () => {
+            let copiedValue;
+
+            beforeEach(() => {
+                DashTable.getCellById(0, 'bbb-readonly').within(
+                    () => cy.get('.dash-cell-value').then($cells => copiedValue = $cells[0].innerHTML)
+                );
+
+                DashTable.getCellById(0, 'bbb-readonly').click();
+                DOM.focused.type(`${Key.Meta}c`);
+            });
+
+            it('does nothing', () => {
+                DashTable.getCellById(0, 'ccc').click();
+                DOM.focused.type(`${Key.Meta}v`);
+                DashTable.getCellById(0, 'ccc').within(
+                    () => cy.get('.dash-cell-value').should('not.have.value', copiedValue)
+                );
+            });
+        });
+
+        describe('number into a number', () => {
+            let copiedValue;
+
+            beforeEach(() => {
+                DashTable.getCellById(0, 'ddd').within(
+                    () => cy.get('.dash-cell-value').then($cells => copiedValue = $cells[0].innerHTML)
+                );
+
+                DashTable.getCellById(0, 'ddd').click();
+                DOM.focused.type(`${Key.Meta}c`);
+            });
+
+            it('copies value', () => {
+                DashTable.getCellById(0, 'ccc').click();
+                DOM.focused.type(`${Key.Meta}v`);
+                DashTable.getCellById(0, 'ccc').within(
+                    () => cy.get('.dash-cell-value').should('have.value', copiedValue)
+                );
+            });
         });
     });
 });

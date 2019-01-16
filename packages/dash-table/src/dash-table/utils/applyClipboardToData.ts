@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import Logger from 'core/Logger';
 
 import { ActiveCell, Columns, Data, ColumnType } from 'dash-table/components/Table/props';
+import reconcile from 'dash-table/reconcile';
 import isEditable from 'dash-table/derived/cell/isEditable';
 
 export default (
@@ -22,8 +23,9 @@ export default (
         Logger.debug(`Clipboard -- Do not create new columns`);
     }
 
-    let newData = data;
-    const newColumns = columns;
+    // don't modify the data and columns directly -- we may abort the paste
+    let newData = R.clone(data);
+    const newColumns = R.clone(columns);
 
     if (overflowColumns && values[0].length + (activeCell as any)[1] >= columns.length) {
         for (
@@ -34,7 +36,7 @@ export default (
             newColumns.push({
                 id: `Column ${i + 1}`,
                 name: `Column ${i + 1}`,
-                type: ColumnType.Text
+                type: ColumnType.Any
             });
             newData.forEach(row => (row[`Column ${i}`] = ''));
         }
@@ -56,8 +58,8 @@ export default (
     const lastEntry = derived_viewport_indices.slice(-1)[0] || 0;
     const viewportSize = derived_viewport_indices.length;
 
-    values.forEach((row: string[], i: number) =>
-        row.forEach((cell: string, j: number) => {
+    for (let [i, row] of values.entries()) {
+        for (let [j, value] of row.entries()) {
             const viewportIndex = (activeCell as any)[0] + i;
 
             let iRealCell: number | undefined = viewportSize > viewportIndex ?
@@ -67,20 +69,28 @@ export default (
                     undefined;
 
             if (iRealCell === undefined) {
-                return;
+                continue;
             }
 
             const jOffset = (activeCell as any)[1] + j;
             const col = newColumns[jOffset];
-            if (col && isEditable(true, col.editable)) {
-                newData = R.set(
-                    R.lensPath([iRealCell, col.id]),
-                    cell,
-                    newData
-                );
+            if (!col || !isEditable(true, col.editable)) {
+                continue;
             }
-        })
-    );
+
+            const coerced = reconcile(value, col);
+
+            if (!coerced.success) {
+                continue;
+            }
+
+            newData = R.set(
+                R.lensPath([iRealCell, col.id]),
+                coerced.value,
+                newData
+            );
+        }
+    }
 
     return { data: newData, columns: newColumns };
 };

@@ -179,6 +179,48 @@ export const propTypes = {
         ]).isRequired,
 
         /**
+         * The `presentation` to use to display the value.
+         * Defaults to 'input' for ['numeric', 'text', 'any'].
+         */
+        presentation: PropTypes.oneOf(['input', 'dropdown']),
+
+        /**
+         * The `on_change` behavior of the column for user-initiated modifications.
+         * 'action' (default 'coerce'):
+         *  none: do not validate data
+         *  coerce: check if the data corresponds to the destination type and
+         *  attempts to coerce it into the destination type if not
+         *  validate: check if the data corresponds to the destination type (no coercion)
+         *
+         * 'failure' (default 'reject'): what to do with the value if the action fails
+         *  accept: use the invalid value
+         *  default: replace the provided value with `validation.default`
+         *  reject: do not modify the existing value
+         */
+        on_change: PropTypes.shape({
+            action: PropTypes.oneOf([
+                'coerce',
+                'none',
+                'validate'
+            ]),
+            failure: PropTypes.oneOf([
+                'accept',
+                'default',
+                'reject'
+            ])
+        }),
+
+        /**
+         * The `validation` options.
+         * 'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)
+         * 'default': The default value to apply with on_change.failure = 'default' (default: null)
+         */
+        validation: PropTypes.shape({
+            allow_null: PropTypes.bool,
+            default: PropTypes.any
+        }),
+
+        /**
          * DEPRECATED
          * Please use `column_static_dropdown` instead.
          * NOTE - Dropdown behaviour will likely change in the future,
@@ -198,8 +240,12 @@ export const propTypes = {
 
         /**
          * The data-type of the column's data.
-         * `numeric` and `text` are currently the same.
-         * `dropdown` is used to render cells as dropdowns.
+         * 'numeric': represents both floats and ints
+         * 'text': represents a string
+         * 'any': represents any type of data
+         *
+         * Defaults to 'any' if undefined.
+         *
          * NOTE: This feature has not been fully implemented.
          * In the future, it's data types will impact things like
          * text formatting options in the cell (e.g. display 2 decimals
@@ -207,7 +253,7 @@ export const propTypes = {
          * behavior.
          * Stay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)
          */
-        type: PropTypes.oneOf(['dropdown', 'numeric', 'text'])
+        type: PropTypes.oneOf(['any', 'numeric', 'text'])
 
     })),
 

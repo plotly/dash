@@ -11,8 +11,8 @@ import {
     VisibleColumns,
     ICellFactoryProps,
     IViewportOffset,
-    ColumnType,
-    DropdownValues
+    DropdownValues,
+    Presentation
 } from 'dash-table/components/Table/props';
 import CellInput from 'dash-table/components/CellInput';
 import derivedCellEventHandlerProps from 'dash-table/derived/cell/eventHandlerProps';
@@ -36,16 +36,15 @@ function getCellType(
     active: boolean,
     editable: boolean,
     dropdown: DropdownValues | undefined,
-    type: ColumnType = ColumnType.Text
-) {
-    switch (type) {
-        case ColumnType.Text:
-        case ColumnType.Numeric:
+    presentation: Presentation | undefined
+): CellType {
+    switch (presentation) {
+        case Presentation.Input:
             return (!active || !editable) ? CellType.Label : CellType.Input;
-        case ColumnType.Dropdown:
+        case Presentation.Dropdown:
             return (!dropdown || !editable) ? CellType.Label : CellType.Dropdown;
         default:
-            return CellType.Label;
+            return (!active || !editable) ? CellType.Label : CellType.Input;
     }
 }
 
@@ -74,7 +73,7 @@ const getter = (
                 ...['dash-cell-value']
             ].join(' ');
 
-            switch (getCellType(active, isEditable, dropdown, column.type)) {
+            switch (getCellType(active, isEditable, dropdown, column.presentation)) {
                 case CellType.Dropdown:
                     return (<CellDropdown
                         key={`column-${columnIndex}`}

@@ -10,7 +10,7 @@ import {
 } from 'dash-table/derived/style/props';
 
 export enum ColumnType {
-    Dropdown = 'dropdown',
+    Any = 'any',
     Numeric = 'numeric',
     Text = 'text'
 }
@@ -65,11 +65,54 @@ export type Sorting = 'fe' | 'be' | boolean;
 export type SortingType = 'multi' | 'single';
 export type VisibleColumns = IVisibleColumn[];
 
-export interface IColumn extends IVisibleColumn {
-    hidden?: boolean;
+export enum ChangeAction {
+    Coerce = 'coerce',
+    None = 'none',
+    Validate = 'validate'
 }
 
-export interface IVisibleColumn {
+export enum ChangeFailure {
+    Default = 'default',
+    Accept = 'accept',
+    Reject = 'reject'
+}
+
+export enum Presentation {
+    Dropdown = 'dropdown',
+    Input = 'input'
+}
+
+export interface IChangeOptions {
+    action?: ChangeAction;
+    failure?: ChangeFailure;
+}
+
+export interface IAnyColumn {
+    on_change?: undefined;
+    presentation?: Presentation.Input | Presentation.Dropdown;
+    type?: ColumnType.Any;
+    validation?: undefined;
+}
+
+export interface ITypeColumn {
+    on_change?: IChangeOptions;
+    validation?: {
+        allow_null?: boolean;
+        default?: null | number;
+    };
+}
+
+export interface INumberColumn extends ITypeColumn {
+    presentation?: Presentation.Input | Presentation.Dropdown;
+    type: ColumnType.Numeric;
+}
+
+export interface ITextColumn extends ITypeColumn {
+    presentation?: Presentation.Input | Presentation.Dropdown;
+    type: ColumnType.Text;
+}
+
+export interface IBaseVisibleColumn {
     clearable?: boolean;
     deletable?: boolean | number;
     editable?: boolean;
@@ -77,8 +120,14 @@ export interface IVisibleColumn {
     id: ColumnId;
     name: string | string[];
     options?: IDropdownValue[]; // legacy
-    type?: ColumnType;
 }
+
+export type IColumnType = INumberColumn | ITextColumn | IAnyColumn;
+export type IVisibleColumn = IBaseVisibleColumn & IColumnType;
+
+export type IColumn = IVisibleColumn & {
+    hidden?: boolean;
+};
 
 interface IDatumObject {
     [key: string]: any;

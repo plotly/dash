@@ -1,20 +1,9 @@
+import DebugLevel from './DebugLevel';
+import LogLevel from './LogLevel';
+
 /*#if dev*/
 import __isChrome from 'core/browser/isChrome';
 /*#endif*/
-
-export enum DebugLevel {
-    DEBUG = 6,
-    NONE = 7
-}
-
-export enum LogLevel {
-    TRACE = 0,
-    INFO = 1,
-    WARNING = 2,
-    ERROR = 3,
-    FATAL = 4,
-    NONE = 5
-}
 
 let LogString: string[] = [];
 LogString[LogLevel.TRACE] = 'trace';
@@ -140,3 +129,5 @@ Object.defineProperties(logger, {
 Object.freeze(logger);
 
 export default logger as ILogger;
+
+export { DebugLevel, LogLevel };

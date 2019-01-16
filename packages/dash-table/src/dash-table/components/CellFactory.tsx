@@ -61,14 +61,6 @@ export default class CellFactory {
             setProps
         );
 
-        const wrappers = this.cellWrappers(
-            active_cell,
-            columns,
-            virtualized.data,
-            virtualized.offset,
-            selected_cells
-        );
-
         const relevantStyles = this.relevantStyles(
             style_cell,
             style_data,
@@ -90,6 +82,14 @@ export default class CellFactory {
             column_conditional_dropdowns,
             column_static_dropdown,
             dropdown_properties
+        );
+
+        const wrappers = this.cellWrappers(
+            active_cell,
+            columns,
+            virtualized.data,
+            virtualized.offset,
+            selected_cells
         );
 
         const contents = this.cellContents(

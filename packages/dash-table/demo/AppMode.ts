@@ -5,13 +5,17 @@ import Environment from 'core/environment';
 import { generateMockData, IDataMock } from './data';
 import {
     ContentStyle,
-    PropsWithDefaults
+    PropsWithDefaults,
+    ChangeAction,
+    ChangeFailure,
+    IVisibleColumn
 } from 'dash-table/components/Table/props';
 
 export enum AppMode {
     Default = 'default',
     FixedVirtualized = 'fixed,virtualized',
     ReadOnly = 'readonly',
+    Typed = 'typed',
     Virtualized = 'virtualized'
 }
 
@@ -26,6 +30,9 @@ function getBaseTableProps(mock: IDataMock) {
         id: 'table',
         columns: mock.columns.map((col: any) => R.merge(col, {
             name: col.name || col.id,
+            on_change: {
+                action: ChangeAction.None
+            },
             editable_name: true,
             deletable: true
             //     type: 'dropdown'
@@ -90,6 +97,19 @@ function getReadonlyState() {
     return state;
 }
 
+function getTypedState() {
+    const state = getDefaultState();
+
+    R.forEach(column => {
+        (column as IVisibleColumn).on_change = {
+            action: ChangeAction.Coerce,
+            failure: ChangeFailure.Reject
+        };
+    }, state.tableProps.columns || []);
+
+    return state;
+}
+
 function getVirtualizedState() {
     const mock = generateMockData(5000);
 
@@ -138,6 +158,8 @@ function getState() {
             return getReadonlyState();
         case AppMode.Virtualized:
             return getVirtualizedState();
+        case AppMode.Typed:
+            return getTypedState();
         case AppMode.Default:
         default:
             return getDefaultState();

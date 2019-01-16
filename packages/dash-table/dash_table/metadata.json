@@ -83,6 +83,79 @@
                 "description": "The `name` of the column,\nas it appears in the column header.\nIf `name` is a list of strings, then the columns\nwill render with multiple headers rows.",
                 "required": true
               },
+              "presentation": {
+                "name": "enum",
+                "value": [
+                  {
+                    "value": "'input'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'dropdown'",
+                    "computed": false
+                  }
+                ],
+                "description": "The `presentation` to use to display the value.\nDefaults to 'input' for ['numeric', 'text', 'any'].",
+                "required": false
+              },
+              "on_change": {
+                "name": "shape",
+                "value": {
+                  "action": {
+                    "name": "enum",
+                    "value": [
+                      {
+                        "value": "'coerce'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'none'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'validate'",
+                        "computed": false
+                      }
+                    ],
+                    "required": false
+                  },
+                  "failure": {
+                    "name": "enum",
+                    "value": [
+                      {
+                        "value": "'accept'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'default'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'reject'",
+                        "computed": false
+                      }
+                    ],
+                    "required": false
+                  }
+                },
+                "description": "The `on_change` behavior of the column for user-initiated modifications.\n'action' (default 'coerce'):\n none: do not validate data\n coerce: check if the data corresponds to the destination type and\n attempts to coerce it into the destination type if not\n validate: check if the data corresponds to the destination type (no coercion)\n\n'failure' (default 'reject'): what to do with the value if the action fails\n accept: use the invalid value\n default: replace the provided value with `validation.default`\n reject: do not modify the existing value",
+                "required": false
+              },
+              "validation": {
+                "name": "shape",
+                "value": {
+                  "allow_null": {
+                    "name": "bool",
+                    "required": false
+                  },
+                  "default": {
+                    "name": "any",
+                    "required": false
+                  }
+                },
+                "description": "The `validation` options.\n'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)\n'default': The default value to apply with on_change.failure = 'default' (default: null)",
+                "required": false
+              },
               "options": {
                 "name": "arrayOf",
                 "value": {
@@ -121,7 +194,7 @@
                 "name": "enum",
                 "value": [
                   {
-                    "value": "'dropdown'",
+                    "value": "'any'",
                     "computed": false
                   },
                   {
@@ -133,7 +206,7 @@
                     "computed": false
                   }
                 ],
-                "description": "The data-type of the column's data.\n`numeric` and `text` are currently the same.\n`dropdown` is used to render cells as dropdowns.\nNOTE: This feature has not been fully implemented.\nIn the future, it's data types will impact things like\ntext formatting options in the cell (e.g. display 2 decimals\nfor a number), filtering options and behavior, and editing\nbehavior.\nStay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)",
+                "description": "The data-type of the column's data.\n'numeric': represents both floats and ints\n'text': represents a string\n'any': represents any type of data\n\nDefaults to 'any' if undefined.\n\nNOTE: This feature has not been fully implemented.\nIn the future, it's data types will impact things like\ntext formatting options in the cell (e.g. display 2 decimals\nfor a number), filtering options and behavior, and editing\nbehavior.\nStay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)",
                 "required": false
               }
             }

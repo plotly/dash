@@ -2,6 +2,25 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+[#297](https://github.com/plotly/dash-core/issues/297)
+- Added column.validation nested prop to tweak coercion and validation behavior
+    - allow_null (boolean): [numeric, text] Allow null/undefined/NaN value
+    - default (any): [numeric, text] Default value to use on validation/coercion failure
+- Added on user-initiated data change processing (column.on_change.action)
+    - Coerce: As Validation + attempts to convert the user-provided value into the destination type
+    - None: Accept the user-provided value without verification
+    - Validation: Check if the user-provided value is of the correct type/format/etc.
+- Added on user-initiated data change failure processing (column.on_change.failure)
+    This comes into effect after the column.on_change.action has failed
+    - Accept: Accept the user-provide value
+    - Default Applies the value defined in column.validation.default
+    - Reject: Confirms the failure
+### Changed
+[#297](https://github.com/plotly/dash-core/issues/297)
+- Moved column.type `dropdown` to column.presentation=`dropdown`
+
 ## [3.1.12] - 2019-01-11
 ### Fixed
 - Regression, misaligned header [#324](https://github.com/plotly/dash-core/issues/324)

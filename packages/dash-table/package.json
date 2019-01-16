@@ -58,6 +58,7 @@
     "core-js": "^2.6.2",
     "css-loader": "^2.1.0",
     "cypress": "^3.1.4",
+    "fast-isnumeric": "^1.1.2",
     "file-loader": "^3.0.1",
     "http-server": "^0.11.1",
     "less": "^3.9.0",
