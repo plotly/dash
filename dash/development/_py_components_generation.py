@@ -501,7 +501,7 @@ def map_js_to_py_types_prop_types(type_object):
             ', '.join(
                 "'{}'".format(t)
                 for t in list(type_object['value'].keys())),
-            'Those keys have the following types: \n{}'.format(
+            'Those keys have the following types:\n{}'.format(
                 '\n'.join(create_prop_docstring(
                     prop_name=prop_name,
                     type_object=prop,
@@ -544,7 +544,7 @@ def map_js_to_py_types_flow_types(type_object):
         signature=lambda indent_num: 'dict containing keys {}.\n{}'.format(
             ', '.join("'{}'".format(d['key'])
                       for d in type_object['signature']['properties']),
-            '{}Those keys have the following types: \n{}'.format(
+            '{}Those keys have the following types:\n{}'.format(
                 '  ' * indent_num,
                 '\n'.join(
                     create_prop_docstring(
