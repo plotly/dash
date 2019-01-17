@@ -10,64 +10,73 @@ import React, {Component} from 'react'; // eslint-disable-line no-unused-vars
 export default class Interval extends Component {
     constructor(props) {
         super(props);
-        this.state = {};
-        this.setInterval = this.setInterval.bind(this);
+        this.intervalId = null;
+        this.handleInterval = this.handleInterval.bind(this);
     }
 
-    setInterval(props) {
-        const {interval, fireEvent, setProps} = props;
-        this.setState({
-            intervalId: window.setInterval(() => {
-                if (fireEvent && !props.disabled) {
-                    fireEvent({event: 'interval'});
-                }
-                if (setProps && !props.disabled) {
-                    setProps({n_intervals: this.props.n_intervals + 1});
-                }
-            }, interval),
-        });
+    startTimer(props) {
+        if (this.intervalId) {
+            throw new Error('startTimer() invoked when timer already started');
+        }
+
+        this.intervalId = window.setInterval(
+            this.handleInterval,
+            props.interval
+        );
     }
 
-    componentDidMount() {
-        if (this.props.fireEvent || this.props.setProps) {
-            this.setInterval(this.props);
+    resetTimer(props) {
+        this.clearTimer();
+        this.startTimer(props);
+    }
+
+    clearTimer() {
+        window.clearInterval(this.intervalId);
+        this.intervalId = null;
+    }
+
+    handleInterval() {
+        const {
+            disabled,
+            fireEvent,
+            max_intervals,
+            n_intervals,
+            setProps,
+        } = this.props;
+        const withinMaximum =
+            max_intervals === -1 || n_intervals < max_intervals;
+        if (disabled || !withinMaximum) {
+            return;
+        }
+        if (fireEvent) {
+            fireEvent({event: 'interval'});
+        }
+        if (setProps) {
+            setProps({n_intervals: n_intervals + 1});
         }
     }
 
+    componentDidMount() {
+        if (this.canStartTimer(this.props)) {
+            this.startTimer(this.props);
+        }
+    }
+
+    canStartTimer(props) {
+        return props.fireEvent || props.setProps;
+    }
+
     componentWillReceiveProps(nextProps) {
-        if (
-            nextProps.n_intervals < this.props.max_intervals ||
-            this.props.max_intervals === -1
-        ) {
-            if (
-                (!this.props.fireEvent && nextProps.fireEvent) ||
-                (!this.props.setProps && nextProps.setProps)
-            ) {
-                this.setInterval(nextProps);
-            } else if (
-                this.props.interval !== nextProps.interval &&
-                this.state.intervalId
-            ) {
-                window.clearInterval(this.state.intervalId);
-                this.setInterval(nextProps);
-            }
-        } else {
-            // So we can restart the interval after it was 0
-            if (
-                this.props.max_intervals === 0 &&
-                nextProps.max_intervals !== 0
-            ) {
-                if (this.props.fireEvent || this.props.setProps) {
-                    this.setInterval(nextProps);
-                }
-            } else {
-                window.clearInterval(this.state.intervalId);
-            }
+        // If we couldn't start the timer before, and we can now, start it.
+        if (!this.canStartTimer(this.props) && this.canStartTimer(nextProps)) {
+            this.startTimer(nextProps);
+        } else if (this.props.interval !== nextProps.interval) {
+            this.resetTimer(nextProps);
         }
     }
 
     componentWillUnmount() {
-        window.clearInterval(this.state.intervalId);
+        this.clearTimer();
     }
 
     render() {

@@ -1894,7 +1894,45 @@
     "displayName": "Interval",
     "methods": [
       {
-        "name": "setInterval",
+        "name": "startTimer",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "resetTimer",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "clearTimer",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "handleInterval",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "canStartTimer",
         "docblock": null,
         "modifiers": [],
         "params": [
@@ -2789,6 +2827,9 @@
             },
             {
               "name": "string"
+            },
+            {
+              "name": "bool"
             }
           ]
         },

@@ -66,9 +66,7 @@ describe('Tabs parses inline styles if they are set', () => {
         );
     });
     test('props.parent_style =>', () => {
-        expect(
-            tabs.prop('style')['background-color']
-        ).toEqual(testColor);
+        expect(tabs.prop('style')['background-color']).toEqual(testColor);
     });
 });
 describe('Tabs correctly appends classes', () => {
@@ -88,8 +86,7 @@ describe('Tabs correctly appends classes', () => {
                 <Tab value="tab-1" label="test-tab" />
             </Tabs>
         );
-
-    })
+    });
     // jsx-24123 className's that get appended by styled-jsx are
     // removed here by using the styled-jsx/babel-test plugin in .babelrc
     test('props.className =>', () => {
@@ -103,9 +100,7 @@ describe('Tabs correctly appends classes', () => {
         );
     });
     test('props.parent_className=>', () => {
-        expect(tabs.prop('class')).toEqual(
-            'tab-parent ' + testParentClass
-        );
+        expect(tabs.prop('class')).toEqual('tab-parent ' + testParentClass);
     });
 });
 describe('Tabs render content correctly', () => {
@@ -179,7 +174,7 @@ describe('Tabs handle Tab selection logic', () => {
                 </Tab>
             </Tabs>
         );
-    })
+    });
     test('Tab can be clicked and will display its content', () => {
         tabs.find('[value="tab-2"]').simulate('click');
         const renderedContent = tabs.find('.tab-content > div').html();
@@ -196,10 +191,10 @@ describe('Tabs can be used 2 ways', () => {
         const mockSetProps = jest.fn(value => value);
         const tabs = mount(
             <Tabs id="tabs" setProps={mockSetProps}>
-                <Tab value='custom-tab-1' id="tab-1" label="Tab 1">
+                <Tab value="custom-tab-1" id="tab-1" label="Tab 1">
                     <div>Tab 1 child</div>
                 </Tab>
-                <Tab value='custom-tab-2' id="tab-2" label="Tab 2">
+                <Tab value="custom-tab-2" id="tab-2" label="Tab 2">
                     <div>Tab 2 child</div>
                 </Tab>
             </Tabs>
@@ -208,23 +203,27 @@ describe('Tabs can be used 2 ways', () => {
         expect(mockSetProps).toBeCalledTimes(1);
         tabs.find('[value="custom-tab-2"]').simulate('click');
         expect(mockSetProps).toBeCalledTimes(2);
-        expect(mockSetProps.mock.results[1].value.value).toEqual('custom-tab-2');
+        expect(mockSetProps.mock.results[1].value.value).toEqual(
+            'custom-tab-2'
+        );
         // expect state to not be updated (default is tab-1)
         expect(tabs.state().selected).toEqual('tab-1');
 
         tabs.find('[value="custom-tab-1"]').simulate('click');
         expect(mockSetProps).toBeCalledTimes(3);
-        expect(mockSetProps.mock.results[2].value.value).toEqual('custom-tab-1');
+        expect(mockSetProps.mock.results[2].value.value).toEqual(
+            'custom-tab-1'
+        );
         // expect state to not be updated (default is tab-1)
         expect(tabs.state().selected).toEqual('tab-1');
     });
     test('Without Dash callbacks, using internal state', () => {
         const tabs = mount(
             <Tabs id="tabs">
-                <Tab value='custom-tab-1' id="tab-1" label="Tab 1">
+                <Tab value="custom-tab-1" id="tab-1" label="Tab 1">
                     <div>Tab 1 child</div>
                 </Tab>
-                <Tab value='custom-tab-2' id="tab-2" label="Tab 2">
+                <Tab value="custom-tab-2" id="tab-2" label="Tab 2">
                     <div>Tab 2 child</div>
                 </Tab>
             </Tabs>
@@ -239,9 +238,6 @@ describe('Tabs can be used 2 ways', () => {
 });
 describe('Tabs can have null children', () => {
     test('Try to create a Tabs with null children', () => {
-        mount(
-            <Tabs id="tabs">
-            </Tabs>
-        );
+        mount(<Tabs id="tabs" />);
     });
 });

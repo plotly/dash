@@ -209,8 +209,12 @@ describe('Input with type=number', () => {
             });
             test('Input can be updated', () => {
                 input.find('input').simulate('change', {target: {value: '-1'}});
-                expect(Number(input.find('input').instance().value)).toEqual(-1);
-                input.find('input').simulate('change', {target: {value: '100'}});
+                expect(Number(input.find('input').instance().value)).toEqual(
+                    -1
+                );
+                input
+                    .find('input')
+                    .simulate('change', {target: {value: '100'}});
                 expect(Number(input.find('input').instance().value)).toEqual(
                     100
                 );
@@ -269,7 +273,9 @@ describe('Input with type=number', () => {
                 );
             });
             test('Input can update normally', () => {
-                input.find('input').simulate('change', {target: {value: '100'}});
+                input
+                    .find('input')
+                    .simulate('change', {target: {value: '100'}});
                 expect(mockSetProps.mock.calls.length).toEqual(1);
                 expect(mockSetProps.mock.calls[0][0].value).toEqual(100);
             });
