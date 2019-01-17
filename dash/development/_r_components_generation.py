@@ -39,14 +39,14 @@ deps_metadata <- list('''
 
 frame_element_template = '''`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
-file = "lib/"), meta = NULL,
+file = "deps/"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''
 
 frame_body_template = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
-file = "lib/"), meta = NULL,
+file = "deps/"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''  # noqa:E501
@@ -81,7 +81,6 @@ Version: {package_version}
 Authors @R: as.person(c({package_author}))
 Description: {package_description}
 Depends: R (>= 3.5.0)
-Imports: dashR, fiery, routr
 Suggests: testthat, roxygen2
 License: {package_license}
 URL: {package_url}
