@@ -1,4 +1,5 @@
 from __future__ import print_function
+from collections import OrderedDict
 
 import json
 import sys
@@ -64,7 +65,7 @@ def generate_components(components_source, project_shortname,
             file=sys.stderr)
         sys.exit(1)
 
-    metadata = json.loads(out.decode(), object_pairs_hook=OrderedDict) 
+    metadata = json.loads(out.decode(), object_pairs_hook=OrderedDict)
     generator_methods = [generate_class_file]
 
     if rprefix:
@@ -89,7 +90,7 @@ def generate_components(components_source, project_shortname,
     if rprefix:
         with open('package.json', 'r') as f:
             pkg_data = json.load(f, object_pairs_hook=OrderedDict)
-        
+
         pkg_data = metadata
 
         generate_exports(
