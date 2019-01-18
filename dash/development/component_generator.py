@@ -16,7 +16,6 @@ from ._r_components_generation import generate_exports
 from ._py_components_generation import generate_class_file
 from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
-from .component_loader import _get_metadata
 
 
 class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
