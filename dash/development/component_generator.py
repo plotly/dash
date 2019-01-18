@@ -65,7 +65,7 @@ def generate_components(components_source, project_shortname,
             file=sys.stderr)
         sys.exit(1)
 
-    metadata = json.loads(out.decode())
+    metadata = _get_metadata(out.decode())
     generator_methods = [generate_class_file]
 
     if rprefix:
@@ -85,8 +85,7 @@ def generate_components(components_source, project_shortname,
     generate_imports(project_shortname, components)
 
     if rprefix:
-        with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
-            pkg_data = _get_metadata(f)
+        pkg_data = metadata 
 
         generate_exports(
             project_shortname, components, metadata, pkg_data, prefix
