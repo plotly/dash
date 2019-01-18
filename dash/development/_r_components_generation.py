@@ -376,17 +376,17 @@ def write_js_metadata(project_shortname):
     # now copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
     # create this directory if it is missing
-    if not os.path.exists('inst/lib'):
-        os.makedirs('inst/lib')
+    if not os.path.exists('inst/deps'):
+        os.makedirs('inst/deps')
 
     for javascript in glob.glob('{}/*.js'.format(project_shortname)):
-        shutil.copy(javascript, 'inst/lib/')
+        shutil.copy(javascript, 'inst/deps/')
 
     for css in glob.glob('{}/*.css'.format(project_shortname)):
-        shutil.copy(css, 'inst/lib/')
+        shutil.copy(css, 'inst/deps/')
 
     for sourcemap in glob.glob('{}/*.map'.format(project_shortname)):
-        shutil.copy(sourcemap, 'inst/lib/')
+        shutil.copy(sourcemap, 'inst/deps/')
 
 
 # pylint: disable=R0914
