@@ -81,14 +81,11 @@ def generate_components(components_source, project_shortname,
         *generator_methods
     )
 
-    with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
-        json.dump(metadata, f)
-
     generate_imports(project_shortname, components)
 
     if rprefix:
-        with open('package.json', 'r') as f:
-            pkg_data = json.load(f)
+        with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
+            pkg_data = _get_metadata(f)
 
         generate_exports(
             project_shortname, components, metadata, pkg_data, prefix
