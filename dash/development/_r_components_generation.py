@@ -163,7 +163,7 @@ def generate_class_string(name, props, project_shortname, prefix):
         if item.endswith('-*') \
                 or item in r_keywords \
                 or item in ['setProps']:
-                    prop_keys.remove(item)
+            prop_keys.remove(item)
 
     default_argtext += ", ".join(
         '{}=NULL'.format(p)
