@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import json
 import sys
 import subprocess
 import shlex
@@ -85,7 +84,7 @@ def generate_components(components_source, project_shortname,
     generate_imports(project_shortname, components)
 
     if rprefix:
-        pkg_data = metadata 
+        pkg_data = metadata
 
         generate_exports(
             project_shortname, components, metadata, pkg_data, prefix
