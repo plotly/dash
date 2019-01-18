@@ -17,7 +17,7 @@ Keyword arguments:
 memory: only kept in memory, reset on page refresh.
 local: window.localStorage, data is kept after the browser quit.
 session: window.sessionStorage, data is cleared once the browser quit.
-- data (dict | list | number | string; optional): The stored data for the id.
+- data (dict | list | number | string | boolean; optional): The stored data for the id.
 - clear_data (boolean; optional): Set to true to remove the data contained in `data_key`.
 - modified_timestamp (number; optional): The last time the storage was modified.
 
@@ -37,7 +37,7 @@ Available events: """
         _locals.update(kwargs)  # For wildcard attrs
         args = {k: _locals[k] for k in _explicit_args if k != 'children'}
 
-        for k in ['id']:
+        for k in [u'id']:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
