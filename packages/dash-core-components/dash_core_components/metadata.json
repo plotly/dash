@@ -1,1 +1,3690 @@
-{"src/components/Checklist.react.js": {"description": "Checklist is a component that encapsulates several checkboxes.\nThe values and labels of the checklist is specified in the `options`\nproperty and the checked items are specified with the `values` property.\nEach checkbox is rendered as an input with a surrounding label.", "displayName": "Checklist", "methods": [], "props": {"className": {"description": "The class of the container (div)", "required": false, "type": {"name": "string"}}, "dashEvents": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'change'"}]}}, "fireEvent": {"description": "Dash-assigned callback that gets fired when the checkbox item gets selected.", "required": false, "type": {"name": "func"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "inputClassName": {"defaultValue": {"computed": false, "value": "''"}, "description": "The class of the <input> checkbox element", "required": false, "type": {"name": "string"}}, "inputStyle": {"defaultValue": {"computed": false, "value": "{}"}, "description": "The style of the <input> checkbox element", "required": false, "type": {"name": "object"}}, "labelClassName": {"defaultValue": {"computed": false, "value": "''"}, "description": "The class of the <label> that wraps the checkbox input\n and the option's label", "required": false, "type": {"name": "string"}}, "labelStyle": {"defaultValue": {"computed": false, "value": "{}"}, "description": "The style of the <label> that wraps the checkbox input\n and the option's label", "required": false, "type": {"name": "object"}}, "options": {"defaultValue": {"computed": false, "value": "[]"}, "description": "An array of options", "required": false, "type": {"name": "arrayOf", "value": {"name": "shape", "value": {"disabled": {"description": "If true, this checkbox is disabled and can't be clicked on.", "name": "bool", "required": false}, "label": {"description": "The checkbox's label", "name": "string", "required": false}, "value": {"description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.", "name": "string", "required": false}}}}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "style": {"description": "The style of the container (div)", "required": false, "type": {"name": "object"}}, "values": {"description": "The currently selected value", "required": false, "type": {"name": "arrayOf", "value": {"name": "string"}}}}}, "src/components/ConfirmDialog.react.js": {"description": "ConfirmDialog is used to display the browser's native \"confirm\" modal,\nwith an optional message and two buttons (\"OK\" and \"Cancel\").\nThis ConfirmDialog can be used in conjunction with buttons when the user\nis performing an action that should require an extra step of verification.", "displayName": "ConfirmDialog", "methods": [{"docblock": null, "modifiers": [], "name": "_setStateAndProps", "params": [{"name": "value", "type": null}], "returns": null}, {"docblock": null, "modifiers": [], "name": "_update", "params": [], "returns": null}], "props": {"cancel_n_clicks": {"defaultValue": {"computed": false, "value": "0"}, "description": "Number of times the popup was canceled.", "required": false, "type": {"name": "number"}}, "cancel_n_clicks_timestamp": {"defaultValue": {"computed": false, "value": "-1"}, "description": "Last time the cancel button was clicked.", "required": false, "type": {"name": "number"}}, "displayed": {"description": "Set to true to send the ConfirmDialog.", "required": false, "type": {"name": "bool"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "key": {"description": "", "required": false, "type": {"name": "string"}}, "message": {"description": "Message to show in the popup.", "required": false, "type": {"name": "string"}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "submit_n_clicks": {"defaultValue": {"computed": false, "value": "0"}, "description": "Number of times the submit button was clicked", "required": false, "type": {"name": "number"}}, "submit_n_clicks_timestamp": {"defaultValue": {"computed": false, "value": "-1"}, "description": "Last time the submit button was clicked.", "required": false, "type": {"name": "number"}}}}, "src/components/ConfirmDialogProvider.react.js": {"description": "A wrapper component that will display a confirmation dialog\nwhen its child component has been clicked on.\n\nFor example:\n```\ndcc.ConfirmDialogProvider(\n    html.Button('click me', id='btn'),\n    message='Danger - Are you sure you want to continue.'\n    id='confirm')\n```", "displayName": "ConfirmDialogProvider", "methods": [], "props": {"cancel_n_clicks": {"defaultValue": {"computed": false, "value": "0"}, "description": "Number of times the popup was canceled.", "required": false, "type": {"name": "number"}}, "cancel_n_clicks_timestamp": {"defaultValue": {"computed": false, "value": "-1"}, "description": "Last time the cancel button was clicked.", "required": false, "type": {"name": "number"}}, "displayed": {"description": "Is the modal currently displayed.", "required": false, "type": {"name": "bool"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "message": {"description": "Message to show in the popup.", "required": false, "type": {"name": "string"}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "submit_n_clicks": {"defaultValue": {"computed": false, "value": "0"}, "description": "Number of times the submit was clicked", "required": false, "type": {"name": "number"}}, "submit_n_clicks_timestamp": {"defaultValue": {"computed": false, "value": "-1"}, "description": "Last time the submit button was clicked.", "required": false, "type": {"name": "number"}}}}, "src/components/DatePickerRange.react.js": {"description": "DatePickerRange is a tailor made component designed for selecting\ntimespan across multiple days off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates", "displayName": "DatePickerRange", "methods": [{"docblock": null, "modifiers": [], "name": "propsToState", "params": [{"name": "newProps", "type": null}], "returns": null}, {"docblock": null, "modifiers": [], "name": "onDatesChange", "params": [{"name": "{startDate: start_date, endDate: end_date}", "type": null}], "returns": null}, {"docblock": null, "modifiers": [], "name": "isOutsideRange", "params": [{"name": "date", "type": null}], "returns": null}], "props": {"calendar_orientation": {"defaultValue": {"computed": false, "value": "'horizontal'"}, "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'vertical'"}, {"computed": false, "value": "'horizontal'"}]}}, "clearable": {"defaultValue": {"computed": false, "value": "false"}, "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.", "required": false, "type": {"name": "bool"}}, "dashEvents": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'change'"}]}}, "day_size": {"defaultValue": {"computed": false, "value": "39"}, "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall", "required": false, "type": {"name": "number"}}, "disabled": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True, no dates can be selected.", "required": false, "type": {"name": "bool"}}, "display_format": {"description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997", "required": false, "type": {"name": "string"}}, "end_date": {"description": "Specifies the ending date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'", "required": false, "type": {"name": "string"}}, "end_date_placeholder_text": {"description": "Text that will be displayed in the second input\nbox of the date picker when no date is selected. Default value is 'End Date'", "required": false, "type": {"name": "string"}}, "fireEvent": {"description": "", "required": false, "type": {"name": "func"}}, "first_day_of_week": {"defaultValue": {"computed": false, "value": "0"}, "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "0"}, {"computed": false, "value": "1"}, {"computed": false, "value": "2"}, {"computed": false, "value": "3"}, {"computed": false, "value": "4"}, {"computed": false, "value": "5"}, {"computed": false, "value": "6"}]}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "initial_visible_month": {"description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'", "required": false, "type": {"name": "string"}}, "is_RTL": {"defaultValue": {"computed": false, "value": "false"}, "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left", "required": false, "type": {"name": "bool"}}, "max_date_allowed": {"description": "Specifies the highest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'", "required": false, "type": {"name": "string"}}, "min_date_allowed": {"description": "Specifies the lowest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'", "required": false, "type": {"name": "string"}}, "minimum_nights": {"description": "Specifies a minimum number of nights that must be selected between\nthe startDate and the endDate", "required": false, "type": {"name": "number"}}, "month_format": {"description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997", "required": false, "type": {"name": "string"}}, "number_of_months_shown": {"defaultValue": {"computed": false, "value": "1"}, "description": "Number of calendar months that are shown when calendar is opened", "required": false, "type": {"name": "number"}}, "reopen_calendar_on_clear": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True, the calendar will automatically open when cleared", "required": false, "type": {"name": "bool"}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "show_outside_days": {"description": "If True the calendar will display days that rollover into\nthe next month", "required": false, "type": {"name": "bool"}}, "start_date": {"description": "Specifies the starting date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'", "required": false, "type": {"name": "string"}}, "start_date_placeholder_text": {"description": "Text that will be displayed in the first input\nbox of the date picker when no date is selected. Default value is 'Start Date'", "required": false, "type": {"name": "string"}}, "stay_open_on_select": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar", "required": false, "type": {"name": "bool"}}, "updatemode": {"defaultValue": {"computed": false, "value": "'singledate'"}, "description": "Determines when the component should update\nits value. If `bothdates`, then the DatePicker\nwill only trigger its value when the user has\nfinished picking both dates. If `singledate`, then\nthe DatePicker will update its value\nas one date is picked.", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'singledate'"}, {"computed": false, "value": "'bothdates'"}]}}, "with_full_screen_portal": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true,\nnot supported on vertical calendar", "required": false, "type": {"name": "bool"}}, "with_portal": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar", "required": false, "type": {"name": "bool"}}}}, "src/components/DatePickerSingle.react.js": {"description": "DatePickerSingle is a tailor made component designed for selecting\na single day off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates", "displayName": "DatePickerSingle", "methods": [{"docblock": null, "modifiers": [], "name": "propsToState", "params": [{"name": "newProps", "type": null}], "returns": null}, {"docblock": null, "modifiers": [], "name": "isOutsideRange", "params": [{"name": "date", "type": null}], "returns": null}, {"docblock": null, "modifiers": [], "name": "onDateChange", "params": [{"name": "date", "type": null}], "returns": null}], "props": {"calendar_orientation": {"defaultValue": {"computed": false, "value": "'horizontal'"}, "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'vertical'"}, {"computed": false, "value": "'horizontal'"}]}}, "clearable": {"defaultValue": {"computed": false, "value": "false"}, "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.", "required": false, "type": {"name": "bool"}}, "dashEvents": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'change'"}]}}, "date": {"description": "Specifies the starting date for the component, best practice is to pass\nvalue via datetime object", "required": false, "type": {"name": "string"}}, "day_size": {"defaultValue": {"computed": false, "value": "39"}, "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall", "required": false, "type": {"name": "number"}}, "disabled": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True, no dates can be selected.", "required": false, "type": {"name": "bool"}}, "display_format": {"description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997", "required": false, "type": {"name": "string"}}, "fireEvent": {"description": "", "required": false, "type": {"name": "func"}}, "first_day_of_week": {"defaultValue": {"computed": false, "value": "0"}, "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "0"}, {"computed": false, "value": "1"}, {"computed": false, "value": "2"}, {"computed": false, "value": "3"}, {"computed": false, "value": "4"}, {"computed": false, "value": "5"}, {"computed": false, "value": "6"}]}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "initial_visible_month": {"description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'", "required": false, "type": {"name": "string"}}, "is_RTL": {"defaultValue": {"computed": false, "value": "false"}, "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left", "required": false, "type": {"name": "bool"}}, "max_date_allowed": {"description": "Specifies the highest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'", "required": false, "type": {"name": "string"}}, "min_date_allowed": {"description": "Specifies the lowest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'", "required": false, "type": {"name": "string"}}, "month_format": {"description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997", "required": false, "type": {"name": "string"}}, "number_of_months_shown": {"defaultValue": {"computed": false, "value": "1"}, "description": "Number of calendar months that are shown when calendar is opened", "required": false, "type": {"name": "number"}}, "placeholder": {"description": "Text that will be displayed in the input\nbox of the date picker when no date is selected.\nDefault value is 'Start Date'", "required": false, "type": {"name": "string"}}, "reopen_calendar_on_clear": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True, the calendar will automatically open when cleared", "required": false, "type": {"name": "bool"}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "show_outside_days": {"defaultValue": {"computed": false, "value": "true"}, "description": "If True the calendar will display days that rollover into\nthe next month", "required": false, "type": {"name": "bool"}}, "stay_open_on_select": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar", "required": false, "type": {"name": "bool"}}, "with_full_screen_portal": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to True,\nnot supported on vertical calendar", "required": false, "type": {"name": "bool"}}, "with_portal": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar", "required": false, "type": {"name": "bool"}}}}, "src/components/Dropdown.react.js": {"description": "Dropdown is an interactive dropdown element for selecting one or more\nitems.\nThe values and labels of the dropdown items are specified in the `options`\nproperty and the selected item(s) are specified with the `value` property.\n\nUse a dropdown when you have many options (more than 5) or when you are\nconstrained for space. Otherwise, you can use RadioItems or a Checklist,\nwhich have the benefit of showing the users all of the items at once.", "displayName": "Dropdown", "methods": [], "props": {"className": {"description": "className of the dropdown element", "required": false, "type": {"name": "string"}}, "clearable": {"defaultValue": {"computed": false, "value": "true"}, "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.", "required": false, "type": {"name": "bool"}}, "dashEvents": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'change'"}]}}, "disabled": {"defaultValue": {"computed": false, "value": "false"}, "description": "If true, the option is disabled", "required": false, "type": {"name": "bool"}}, "fireEvent": {"description": "", "required": false, "type": {"name": "func"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "multi": {"defaultValue": {"computed": false, "value": "false"}, "description": "If true, the user can select multiple values", "required": false, "type": {"name": "bool"}}, "options": {"description": "An array of options", "required": false, "type": {"name": "arrayOf", "value": {"name": "shape", "value": {"disabled": {"description": "If true, this dropdown is disabled and items can't be selected.", "name": "bool", "required": false}, "label": {"description": "The dropdown's label", "name": "string", "required": false}, "value": {"description": "The value of the dropdown. This value\ncorresponds to the items specified in the\n`values` property.", "name": "string", "required": false}}}}}, "placeholder": {"description": "The grey, default text shown when no option is selected", "required": false, "type": {"name": "string"}}, "searchable": {"defaultValue": {"computed": false, "value": "true"}, "description": "Whether to enable the searching feature or not", "required": false, "type": {"name": "bool"}}, "setProps": {"description": "Dash-assigned callback that gets fired when the input changes", "required": false, "type": {"name": "func"}}, "style": {"description": "", "required": false, "type": {"name": "object"}}, "value": {"description": "The value of the input. If `multi` is false (the default)\nthen value is just a string that corresponds to the values\nprovided in the `options` property. If `multi` is true, then\nmultiple values can be selected at once, and `value` is an\narray of items with values corresponding to those in the\n`options` prop.", "required": false, "type": {"name": "union", "value": [{"name": "string"}, {"name": "arrayOf", "value": {"name": "string"}}]}}}}, "src/components/Graph.react.js": {"description": "", "displayName": "GraphWithDefaults", "methods": [], "props": {"animate": {"defaultValue": {"computed": false, "value": "false"}, "description": "Beta: If true, animate between updates using\nplotly.js's `animate` function", "required": false, "type": {"name": "bool"}}, "animation_options": {"defaultValue": {"computed": false, "value": "{\n    frame: {\n        redraw: false,\n    },\n    transition: {\n        duration: 750,\n        ease: 'cubic-in-out',\n    },\n}"}, "description": "Beta: Object containing animation settings.\nOnly applies if `animate` is `true`", "required": false, "type": {"name": "object"}}, "className": {"description": "className of the parent div", "required": false, "type": {"name": "string"}}, "clear_on_unhover": {"defaultValue": {"computed": false, "value": "false"}, "description": "If True, `clear_on_unhover` will clear the `hoverData` property\nwhen the user \"unhovers\" from a point.\nIf False, then the `hoverData` property will be equal to the\ndata from the last point that was hovered over.", "required": false, "type": {"name": "bool"}}, "clickAnnotationData": {"defaultValue": {"computed": false, "value": "null"}, "description": "Data from latest click annotation event", "required": false, "type": {"name": "object"}}, "clickData": {"defaultValue": {"computed": false, "value": "null"}, "description": "Data from latest click event", "required": false, "type": {"name": "object"}}, "config": {"defaultValue": {"computed": false, "value": "{\n    staticPlot: false,\n    editable: false,\n    edits: {\n        annotationPosition: false,\n        annotationTail: false,\n        annotationText: false,\n        axisTitleText: false,\n        colorbarPosition: false,\n        colorbarTitleText: false,\n        legendPosition: false,\n        legendText: false,\n        shapePosition: false,\n        titleText: false,\n    },\n    autosizable: false,\n    queueLength: 0,\n    fillFrame: false,\n    frameMargins: 0,\n    scrollZoom: false,\n    doubleClick: 'reset+autosize',\n    showTips: true,\n    showAxisDragHandles: true,\n    showAxisRangeEntryBoxes: true,\n    showLink: false,\n    sendData: true,\n    linkText: 'Edit chart',\n    showSources: false,\n    displayModeBar: 'hover',\n    modeBarButtonsToRemove: [],\n    modeBarButtonsToAdd: [],\n    modeBarButtons: false,\n    displaylogo: true,\n    plotGlPixelRatio: 2,\n    topojsonURL: 'https://cdn.plot.ly/',\n    mapboxAccessToken: null,\n}"}, "description": "Plotly.js config options.\nSee https://plot.ly/javascript/configuration-options/\nfor more info.", "required": false, "type": {"name": "shape", "value": {"autosizable": {"description": "DO autosize once regardless of layout.autosize\n(use default width or height values otherwise)", "name": "bool", "required": false}, "displayModeBar": {"description": "display the mode bar (true, false, or 'hover')", "name": "enum", "required": false, "value": [{"computed": false, "value": "true"}, {"computed": false, "value": "false"}, {"computed": false, "value": "'hover'"}]}, "displaylogo": {"description": "add the plotly logo on the end of the mode bar", "name": "bool", "required": false}, "doubleClick": {"description": "double click interaction (false, 'reset', 'autosize' or 'reset+autosize')", "name": "enum", "required": false, "value": [{"computed": false, "value": "false"}, {"computed": false, "value": "'reset'"}, {"computed": false, "value": "'autosize'"}, {"computed": false, "value": "'reset+autosize'"}]}, "editable": {"description": "we can edit titles, move annotations, etc - sets all pieces of `edits`\nunless a separate `edits` config item overrides individual parts", "name": "bool", "required": false}, "edits": {"description": "a set of editable properties", "name": "shape", "required": false, "value": {"annotationPosition": {"description": "annotationPosition: the main anchor of the annotation, which is the\ntext (if no arrow) or the arrow (which drags the whole thing leaving\nthe arrow length & direction unchanged)", "name": "bool", "required": false}, "annotationTail": {"description": "just for annotations with arrows, change the length and direction of the arrow", "name": "bool", "required": false}, "annotationText": {"name": "bool", "required": false}, "axisTitleText": {"name": "bool", "required": false}, "colorbarPosition": {"name": "bool", "required": false}, "colorbarTitleText": {"name": "bool", "required": false}, "legendPosition": {"name": "bool", "required": false}, "legendText": {"description": "edit the trace name fields from the legend", "name": "bool", "required": false}, "shapePosition": {"name": "bool", "required": false}, "titleText": {"description": "the global `layout.title`", "name": "bool", "required": false}}}, "fillFrame": {"description": "if we DO autosize, do we fill the container or the screen?", "name": "bool", "required": false}, "frameMargins": {"description": "if we DO autosize, set the frame margins in percents of plot size", "name": "number", "required": false}, "linkText": {"description": "text appearing in the sendData link", "name": "string", "required": false}, "mapboxAccessToken": {"description": "Mapbox access token (required to plot mapbox trace types)\nIf using an Mapbox Atlas server, set this option to '',\nso that plotly.js won't attempt to authenticate to the public Mapbox server.", "name": "any", "required": false}, "modeBarButtons": {"description": "fully custom mode bar buttons as nested array,\nwhere the outer arrays represents button groups, and\nthe inner arrays have buttons config objects or names of default buttons", "name": "any", "required": false}, "modeBarButtonsToAdd": {"description": "add mode bar button using config objects", "name": "array", "required": false}, "modeBarButtonsToRemove": {"description": "remove mode bar button by name.\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\nCommon names include:\n - sendDataToCloud\n- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d\n- (Cartesian): hoverClosestCartesian, hoverCompareCartesian\n- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d\n- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo\n- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews", "name": "array", "required": false}, "plotGlPixelRatio": {"description": "increase the pixel ratio for Gl plot images", "name": "number", "required": false}, "queueLength": {"description": "set the length of the undo/redo queue", "name": "number", "required": false}, "scrollZoom": {"description": "mousewheel or two-finger scroll zooms the plot", "name": "bool", "required": false}, "sendData": {"description": "if we show a link, does it contain data or just link to a plotly file?", "name": "bool", "required": false}, "showAxisDragHandles": {"description": "enable axis pan/zoom drag handles", "name": "bool", "required": false}, "showAxisRangeEntryBoxes": {"description": "enable direct range entry at the pan/zoom drag points\n(drag handles must be enabled above)", "name": "bool", "required": false}, "showLink": {"description": "link to open this plot in plotly", "name": "bool", "required": false}, "showTips": {"description": "new users see some hints about interactivity", "name": "bool", "required": false}, "staticPlot": {"description": "no interactivity, for export or image generation", "name": "bool", "required": false}, "topojsonURL": {"description": "URL to topojson files used in geo charts", "name": "string", "required": false}}}}, "dashEvents": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'click'"}, {"computed": false, "value": "'clickannotation'"}, {"computed": false, "value": "'hover'"}, {"computed": false, "value": "'selected'"}, {"computed": false, "value": "'relayout'"}, {"computed": false, "value": "'unhover'"}]}}, "figure": {"defaultValue": {"computed": false, "value": "{data: [], layout: {}}"}, "description": "Plotly `figure` object. See schema:\nhttps://plot.ly/javascript/reference", "required": false, "type": {"name": "object"}}, "fireEvent": {"description": "Function that fires events", "required": false, "type": {"name": "func"}}, "hoverData": {"defaultValue": {"computed": false, "value": "null"}, "description": "Data from latest hover event", "required": false, "type": {"name": "object"}}, "id": {"description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app.", "required": false, "type": {"name": "string"}}, "relayoutData": {"defaultValue": {"computed": false, "value": "null"}, "description": "Data from latest relayout event which occurs\nwhen the user zooms or pans on the plot", "required": false, "type": {"name": "object"}}, "selectedData": {"defaultValue": {"computed": false, "value": "null"}, "description": "Data from latest select event", "required": false, "type": {"name": "object"}}, "setProps": {"description": "Function that updates the state tree.", "required": false, "type": {"name": "func"}}, "style": {"description": "Generic style overrides on the plot div", "required": false, "type": {"name": "object"}}}}, "src/components/Input.react.js": {"description": "A basic HTML input control for entering text, numbers, or passwords.\n\nNote that checkbox and radio types are supported through\nthe Checklist and RadioItems component. Dates, times, and file uploads\nare also supported through separate components.", "displayName": "Input", "methods": [], "props": {"autocomplete": {"description": "This attribute indicates whether the value of the control can be automatically completed by the browser.", "required": false, "type": {"name": "string"}}, "autofocus": {"description": "The element should be automatically focused after the page loaded.", "required": false, "type": {"name": "string"}}, "className": {"description": "The class of the input element", "required": false, "type": {"name": "string"}}, "dashEvents": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'blur'"}, {"computed": false, "value": "'change'"}]}}, "debounce": {"defaultValue": {"computed": false, "value": "false"}, "description": "If true, changes to input will be sent back to the Dash server only on enter or when losing focus.\nIf it's false, it will sent the value back on every change.", "required": false, "type": {"name": "bool"}}, "disabled": {"description": "If true, the input is disabled and can't be clicked on.", "required": false, "type": {"name": "bool"}}, "fireEvent": {"description": "Dash-assigned callback that gets fired when the input changes.", "required": false, "type": {"name": "func"}}, "id": {"description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app.", "required": false, "type": {"name": "string"}}, "inputmode": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "\"verbatim\""}, {"computed": false, "value": "\"latin\""}, {"computed": false, "value": "\"latin-name\""}, {"computed": false, "value": "\"latin-prose\""}, {"computed": false, "value": "\"full-width-latin\""}, {"computed": false, "value": "\"kana\""}, {"computed": false, "value": "\"katakana\""}, {"computed": false, "value": "\"numeric\""}, {"computed": false, "value": "\"tel\""}, {"computed": false, "value": "\"email\""}, {"computed": false, "value": "\"url\""}]}}, "list": {"description": "Identifies a list of pre-defined options to suggest to the user.\nThe value must be the id of a <datalist> element in the same document.\nThe browser displays only options that are valid values for this\ninput element.\nThis attribute is ignored when the type attribute's value is\nhidden, checkbox, radio, file, or a button type.", "required": false, "type": {"name": "string"}}, "max": {"description": "The maximum (numeric or date-time) value for this item, which must not be less than its minimum (min attribute) value.", "required": false, "type": {"name": "union", "value": [{"name": "string"}, {"name": "number"}]}}, "maxlength": {"description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed.", "required": false, "type": {"name": "string"}}, "min": {"description": "The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value.", "required": false, "type": {"name": "union", "value": [{"name": "string"}, {"name": "number"}]}}, "minlength": {"description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored.", "required": false, "type": {"name": "string"}}, "multiple": {"description": "This Boolean attribute indicates whether the user can enter more than one value. This attribute applies when the type attribute is set to email or file, otherwise it is ignored.", "required": false, "type": {"name": "bool"}}, "n_blur": {"defaultValue": {"computed": false, "value": "0"}, "description": "Number of times the input lost focus.", "required": false, "type": {"name": "number"}}, "n_blur_timestamp": {"defaultValue": {"computed": false, "value": "-1"}, "description": "Last time the input lost focus.", "required": false, "type": {"name": "number"}}, "n_submit": {"defaultValue": {"computed": false, "value": "0"}, "description": "Number of times the `Enter` key was pressed while the input had focus.", "required": false, "type": {"name": "number"}}, "n_submit_timestamp": {"defaultValue": {"computed": false, "value": "-1"}, "description": "Last time that `Enter` was pressed.", "required": false, "type": {"name": "number"}}, "name": {"description": "The name of the control, which is submitted with the form data.", "required": false, "type": {"name": "string"}}, "pattern": {"description": "A regular expression that the control's value is checked against. The pattern must match the entire value, not just some subset. Use the title attribute to describe the pattern to help the user. This attribute applies when the value of the type attribute is text, search, tel, url, email, or password, otherwise it is ignored. The regular expression language is the same as JavaScript RegExp algorithm, with the 'u' parameter that makes it treat the pattern as a sequence of unicode code points. The pattern is not surrounded by forward slashes.", "required": false, "type": {"name": "string"}}, "placeholder": {"description": "A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it.", "required": false, "type": {"name": "string"}}, "readOnly": {"description": "This attribute indicates that the user cannot modify the value of the control. The value of the attribute is irrelevant. If you need read-write access to the input value, do not add the \"readonly\" attribute. It is ignored if the value of the type attribute is hidden, range, color, checkbox, radio, file, or a button type (such as button or submit).", "required": false, "type": {"name": "string"}}, "required": {"description": "This attribute specifies that the user must fill in a value before submitting a form. It cannot be used when the type attribute is hidden, image, or a button type (submit, reset, or button). The :optional and :required CSS pseudo-classes will be applied to the field as appropriate.", "required": false, "type": {"name": "string"}}, "selectionDirection": {"description": "The direction in which selection occurred. This is \"forward\" if the selection was made from left-to-right in an LTR locale or right-to-left in an RTL locale, or \"backward\" if the selection was made in the opposite direction. On platforms on which it's possible this value isn't known, the value can be \"none\"; for example, on macOS, the default direction is \"none\", then as the user begins to modify the selection using the keyboard, this will change to reflect the direction in which the selection is expanding.", "required": false, "type": {"name": "string"}}, "selectionEnd": {"description": "The offset into the element's text content of the last selected character. If there's no selection, this value indicates the offset to the character following the current text input cursor position (that is, the position the next character typed would occupy).", "required": false, "type": {"name": "string"}}, "selectionStart": {"description": "The offset into the element's text content of the first selected character. If there's no selection, this value indicates the offset to the character following the current text input cursor position (that is, the position the next character typed would occupy).", "required": false, "type": {"name": "string"}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "size": {"description": "The initial size of the control. This value is in pixels unless the value of the type attribute is text or password, in which case it is an integer number of characters. Starting in, this attribute applies only when the type attribute is set to text, search, tel, url, email, or password, otherwise it is ignored. In addition, the size must be greater than zero. If you do not specify a size, a default value of 20 is used.' simply states \"the user agent should ensure that at least that many characters are visible\", but different characters can have different widths in certain fonts. In some browsers, a certain string with x characters will not be entirely visible even if size is defined to at least x.", "required": false, "type": {"name": "string"}}, "spellCheck": {"description": "Setting the value of this attribute to true indicates that the element needs to have its spelling and grammar checked. The value default indicates that the element is to act according to a default behavior, possibly based on the parent element's own spellcheck value. The value false indicates that the element should not be checked.", "required": false, "type": {"name": "string"}}, "step": {"description": "Works with the min and max attributes to limit the increments at which a numeric or date-time value can be set. It can be the string any or a positive floating point number. If this attribute is not set to any, the control accepts only values at multiples of the step value greater than the minimum.", "required": false, "type": {"name": "union", "value": [{"name": "string"}, {"name": "number"}]}}, "style": {"description": "The input's inline styles", "required": false, "type": {"name": "object"}}, "type": {"description": "The type of control to render.", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "\"text\""}, {"computed": false, "value": "'number'"}, {"computed": false, "value": "'password'"}, {"computed": false, "value": "'email'"}, {"computed": false, "value": "'range'"}, {"computed": false, "value": "'search'"}, {"computed": false, "value": "'tel'"}, {"computed": false, "value": "'url'"}, {"computed": false, "value": "'hidden'"}]}}, "value": {"description": "The value of the input", "required": false, "type": {"name": "union", "value": [{"name": "string"}, {"name": "number"}]}}}}, "src/components/Interval.react.js": {"description": "A component that repeatedly fires an event (\"interval\")\nwith a fixed time delay between each event.\nInterval is good for triggering a component on a recurring basis.\nThe time delay is set with the property \"interval\" in milliseconds.", "displayName": "Interval", "methods": [{"docblock": null, "modifiers": [], "name": "startTimer", "params": [{"name": "props", "type": null}], "returns": null}, {"docblock": null, "modifiers": [], "name": "resetTimer", "params": [{"name": "props", "type": null}], "returns": null}, {"docblock": null, "modifiers": [], "name": "clearTimer", "params": [], "returns": null}, {"docblock": null, "modifiers": [], "name": "handleInterval", "params": [], "returns": null}, {"docblock": null, "modifiers": [], "name": "canStartTimer", "params": [{"name": "props", "type": null}], "returns": null}], "props": {"dashEvents": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'interval'"}]}}, "disabled": {"description": "If True, the interval will no longer trigger\nan event.", "required": false, "type": {"name": "bool"}}, "fireEvent": {"description": "Dash assigned callback", "required": false, "type": {"name": "func"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "interval": {"defaultValue": {"computed": false, "value": "1000"}, "description": "This component will fire an event every `interval`\nmilliseconds with the event name `setInterval`", "required": false, "type": {"name": "number"}}, "max_intervals": {"defaultValue": {"computed": false, "value": "-1"}, "description": "Number of times the interval will be fired. If -1, then the interval has no limit (the default) and if 0 then the interval stops running.", "required": false, "type": {"name": "number"}}, "n_intervals": {"defaultValue": {"computed": false, "value": "0"}, "description": "Number of times the interval has passed", "required": false, "type": {"name": "number"}}, "setProps": {"description": "Dash assigned callback", "required": false, "type": {"name": "func"}}}}, "src/components/Link.react.js": {"description": "", "displayName": "Link", "methods": [{"docblock": null, "modifiers": [], "name": "updateLocation", "params": [{"name": "e", "type": null}], "returns": null}], "props": {"className": {"description": "", "required": false, "type": {"name": "string"}}, "href": {"description": "", "required": false, "type": {"name": "string"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "refresh": {"defaultValue": {"computed": false, "value": "false"}, "description": "", "required": false, "type": {"name": "bool"}}, "style": {"description": "", "required": false, "type": {"name": "object"}}}}, "src/components/Location.react.js": {"description": "Update and track the current window.location object through the window.history state.\nUse in conjunction with the `dash_core_components.Link` component to make apps with multiple pages.", "displayName": "Location", "methods": [{"docblock": null, "modifiers": [], "name": "updateLocation", "params": [{"name": "props", "type": null}], "returns": null}], "props": {"hash": {"description": "hash in window.location - e.g., \"#myhash\"", "required": false, "type": {"name": "string"}}, "href": {"description": "href in window.location - e.g., \"/my/full/pathname?myargument=1#myhash\"", "required": false, "type": {"name": "string"}}, "id": {"description": "", "required": true, "type": {"name": "string"}}, "pathname": {"description": "pathname in window.location - e.g., \"/my/full/pathname\"", "required": false, "type": {"name": "string"}}, "refresh": {"defaultValue": {"computed": false, "value": "true"}, "description": "Refresh the page when the location is updated?", "required": false, "type": {"name": "bool"}}, "search": {"description": "search in window.location - e.g., \"?myargument=1\"", "required": false, "type": {"name": "string"}}, "setProps": {"description": "", "required": false, "type": {"name": "func"}}}}, "src/components/LogoutButton.react.js": {"description": "Logout button to submit a form post request to the `logout_url` prop.\nUsage is intended for dash-deployment-server authentication.\n\nDDS usage:\n\n`dcc.LogoutButton(logout_url=os.getenv('DASH_LOGOUT_URL'))`\n\nCustom usage:\n\n- Implement a login mechanism.\n- Create a flask route with a post method handler.\n`@app.server.route('/logout', methods=['POST'])`\n  - The logout route should perform what's necessary for the user to logout.\n  - If you store the session in a cookie, clear the cookie:\n  `rep = flask.Response(); rep.set_cookie('session', '', expires=0)`\n\n- Create a logout button component and assign it the logout_url\n`dcc.LogoutButton(logout_url='/logout')`\n\nSee https://dash.plot.ly/dash-core-components/logout_button\nfor more documentation and examples.", "displayName": "LogoutButton", "methods": [], "props": {"className": {"description": "CSS class for the button.", "required": false, "type": {"name": "string"}}, "id": {"description": "Id of the button.", "required": false, "type": {"name": "string"}}, "label": {"defaultValue": {"computed": false, "value": "'Logout'"}, "description": "Text of the button", "required": false, "type": {"name": "string"}}, "logout_url": {"description": "Url to submit a post logout request.", "required": false, "type": {"name": "string"}}, "method": {"defaultValue": {"computed": false, "value": "'post'"}, "description": "Http method to submit the logout form.", "required": false, "type": {"name": "string"}}, "setProps": {"description": "", "required": false, "type": {"name": "func"}}, "style": {"description": "Style of the button", "required": false, "type": {"name": "object"}}}}, "src/components/Markdown.react.js": {"description": "A component that renders Markdown text as specified by the\nCommonMark spec.", "displayName": "DashMarkdown", "methods": [], "props": {"className": {"description": "Class name of the container element", "required": false, "type": {"name": "string"}}, "containerProps": {"description": "An object containing custom element props to put on the container\nelement such as id or style", "required": false, "type": {"name": "object"}}, "dangerously_allow_html": {"defaultValue": {"computed": false, "value": "false"}, "description": "A boolean to control raw HTML escaping.\nSetting HTML from code is risky because it's easy to\ninadvertently expose your users to a cross-site scripting (XSS)\n(https://en.wikipedia.org/wiki/Cross-site_scripting) attack.", "required": false, "type": {"name": "bool"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}}}, "src/components/RadioItems.react.js": {"description": "RadioItems is a component that encapsulates several radio item inputs.\nThe values and labels of the RadioItems is specified in the `options`\nproperty and the seleced item is specified with the `value` property.\nEach radio item is rendered as an input with a surrounding label.", "displayName": "RadioItems", "methods": [], "props": {"className": {"description": "The class of the container (div)", "required": false, "type": {"name": "string"}}, "dashEvents": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'change'"}]}}, "fireEvent": {"description": "Dash-assigned callback that gets fired when the radio item gets selected.", "required": false, "type": {"name": "func"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "inputClassName": {"defaultValue": {"computed": false, "value": "''"}, "description": "The class of the <input> radio element", "required": false, "type": {"name": "string"}}, "inputStyle": {"defaultValue": {"computed": false, "value": "{}"}, "description": "The style of the <input> radio element", "required": false, "type": {"name": "object"}}, "labelClassName": {"defaultValue": {"computed": false, "value": "''"}, "description": "The class of the <label> that wraps the radio input\n and the option's label", "required": false, "type": {"name": "string"}}, "labelStyle": {"defaultValue": {"computed": false, "value": "{}"}, "description": "The style of the <label> that wraps the radio input\n and the option's label", "required": false, "type": {"name": "object"}}, "options": {"defaultValue": {"computed": false, "value": "[]"}, "description": "An array of options", "required": false, "type": {"name": "arrayOf", "value": {"name": "shape", "value": {"disabled": {"description": "If true, this radio item is disabled and can't be clicked on.", "name": "bool", "required": false}, "label": {"description": "The radio item's label", "name": "string", "required": false}, "value": {"description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`values` property.", "name": "string", "required": false}}}}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "style": {"description": "The style of the container (div)", "required": false, "type": {"name": "object"}}, "value": {"description": "The currently selected value", "required": false, "type": {"name": "string"}}}}, "src/components/RangeSlider.react.js": {"description": "A double slider with two handles.\nUsed for specifying a range of numerical values.", "displayName": "RangeSlider", "methods": [], "props": {"allowCross": {"description": "allowCross could be set as true to allow those handles to cross.", "required": false, "type": {"name": "bool"}}, "className": {"description": "Additional CSS class for the root DOM node", "required": false, "type": {"name": "string"}}, "count": {"description": "Determine how many ranges to render, and multiple handles\nwill be rendered (number + 1).", "required": false, "type": {"name": "number"}}, "dashEvents": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'change'"}]}}, "disabled": {"description": "If true, the handles can't be moved.", "required": false, "type": {"name": "bool"}}, "dots": {"description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots.", "required": false, "type": {"name": "bool"}}, "fireEvent": {"description": "Dash-assigned callback that gets fired when the checkbox item gets selected.", "required": false, "type": {"name": "func"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "included": {"description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value.", "required": false, "type": {"name": "bool"}}, "marks": {"description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties.", "required": false, "type": {"name": "shape", "value": {"number": {"name": "union", "required": false, "value": [{"name": "string"}, {"name": "shape", "value": {"label": {"name": "string", "required": false}, "style": {"name": "object", "required": false}}}]}}}}, "max": {"description": "Maximum allowed value of the slider", "required": false, "type": {"name": "number"}}, "min": {"description": "Minimum allowed value of the slider", "required": false, "type": {"name": "number"}}, "pushable": {"description": "pushable could be set as true to allow pushing of\nsurrounding handles when moving an handle.\nWhen set to a number, the number will be the\nminimum ensured distance between handles.", "required": false, "type": {"name": "union", "value": [{"name": "bool"}, {"name": "number"}]}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "step": {"description": "Value by which increments or decrements are made", "required": false, "type": {"name": "number"}}, "updatemode": {"defaultValue": {"computed": false, "value": "'mouseup'"}, "description": "Determines when the component should update\nits value. If `mouseup`, then the slider\nwill only trigger its value when the user has\nfinished dragging the slider. If `drag`, then\nthe slider will update its value continuously\nas it is being dragged.\nOnly use `drag` if your updates are fast.", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'mouseup'"}, {"computed": false, "value": "'drag'"}]}}, "value": {"description": "The value of the input", "required": false, "type": {"name": "arrayOf", "value": {"name": "number"}}}, "vertical": {"description": "If true, the slider will be vertical", "required": false, "type": {"name": "bool"}}}}, "src/components/Slider.react.js": {"description": "A slider component with a single handle.", "displayName": "Slider", "methods": [], "props": {"className": {"description": "Additional CSS class for the root DOM node", "required": false, "type": {"name": "string"}}, "dashEvents": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'change'"}]}}, "disabled": {"description": "If true, the handles can't be moved.", "required": false, "type": {"name": "bool"}}, "dots": {"description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots.", "required": false, "type": {"name": "bool"}}, "fireEvent": {"description": "Dash-assigned callback that gets fired when the checkbox item gets selected.", "required": false, "type": {"name": "func"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "included": {"description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value.", "required": false, "type": {"name": "bool"}}, "marks": {"description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties.", "required": false, "type": {"name": "shape", "value": {"number": {"name": "union", "required": false, "value": [{"name": "string"}, {"name": "shape", "value": {"label": {"name": "string", "required": false}, "style": {"name": "object", "required": false}}}]}}}}, "max": {"description": "Maximum allowed value of the slider", "required": false, "type": {"name": "number"}}, "min": {"description": "Minimum allowed value of the slider", "required": false, "type": {"name": "number"}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "step": {"description": "Value by which increments or decrements are made", "required": false, "type": {"name": "number"}}, "updatemode": {"defaultValue": {"computed": false, "value": "'mouseup'"}, "description": "Determines when the component should update\nits value. If `mouseup`, then the slider\nwill only trigger its value when the user has\nfinished dragging the slider. If `drag`, then\nthe slider will update its value continuously\nas it is being dragged.\nOnly use `drag` if your updates are fast.", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'mouseup'"}, {"computed": false, "value": "'drag'"}]}}, "value": {"description": "The value of the input", "required": false, "type": {"name": "number"}}, "vertical": {"description": "If true, the slider will be vertical", "required": false, "type": {"name": "bool"}}}}, "src/components/Store.react.js": {"description": "Easily keep data on the client side with this component.\nThe data is not inserted in the DOM.\nData can be in memory, localStorage or sessionStorage.\nThe data will be kept with the id as key.", "displayName": "Store", "methods": [{"docblock": null, "modifiers": [], "name": "onStorageChange", "params": [{"name": "e", "type": null}], "returns": null}], "props": {"clear_data": {"defaultValue": {"computed": false, "value": "false"}, "description": "Set to true to remove the data contained in `data_key`.", "required": false, "type": {"name": "bool"}}, "data": {"description": "The stored data for the id.", "required": false, "type": {"name": "union", "value": [{"name": "object"}, {"name": "array"}, {"name": "number"}, {"name": "string"}, {"name": "bool"}]}}, "id": {"description": "The key of the storage.", "required": true, "type": {"name": "string"}}, "modified_timestamp": {"defaultValue": {"computed": false, "value": "-1"}, "description": "The last time the storage was modified.", "required": false, "type": {"name": "number"}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "storage_type": {"defaultValue": {"computed": false, "value": "'memory'"}, "description": "The type of the web storage.\n\nmemory: only kept in memory, reset on page refresh.\nlocal: window.localStorage, data is kept after the browser quit.\nsession: window.sessionStorage, data is cleared once the browser quit.", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'local'"}, {"computed": false, "value": "'session'"}, {"computed": false, "value": "'memory'"}]}}}}, "src/components/SyntaxHighlighter.react.js": {"description": "A component for pretty printing code.", "displayName": "SyntaxHighlighter", "methods": [], "props": {"codeTagProps": {"description": "props that will be spread into the <code> tag that is the direct parent of the highlighted code elements. Useful for styling/assigning classNames.", "required": false, "type": {"name": "object"}}, "customStyle": {"description": "prop that will be combined with the top level style on the pre tag, styles here will overwrite earlier styles.", "required": false, "type": {"name": "object"}}, "id": {"description": "", "required": false, "type": {"name": "string"}}, "language": {"description": "the language to highlight code in.", "required": false, "type": {"name": "string"}}, "lineNumberContainerStyle": {"description": "the line numbers container default to appearing to the left with 10px of right padding. You can use this to override those styles.", "required": false, "type": {"name": "object"}}, "lineNumberStyle": {"description": "inline style to be passed to the span wrapping each number. Can be either an object or a function that recieves current line number as argument and returns style object.", "required": false, "type": {"name": "object"}}, "lineStyle": {"description": "inline style to be passed to the span wrapping each line if wrapLines is true. Can be either an object or a function that recieves current line number as argument and returns style object.", "required": false, "type": {"name": "object"}}, "showLineNumbers": {"description": "if this is enabled line numbers will be shown next to the code block.", "required": false, "type": {"name": "bool"}}, "startingLineNumber": {"description": "if showLineNumbers is enabled the line numbering will start from here.", "required": false, "type": {"name": "number"}}, "theme": {"description": "theme: light or dark", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'light'"}, {"computed": false, "value": "'dark'"}]}}, "useInlineStyles": {"description": "if this prop is passed in as false, react syntax highlighter will not add style objects to elements, and will instead append classNames. You can then style the code block by using one of the CSS files provided by highlight.js.", "required": false, "type": {"name": "bool"}}, "wrapLines": {"description": "a boolean value that determines whether or not each line of code should be wrapped in a parent element. defaults to false, when false one can not take action on an element on the line level. You can see an example of what this enables here", "required": false, "type": {"name": "bool"}}}}, "src/components/Tab.react.js": {"description": "", "displayName": "Tab", "methods": [], "props": {"className": {"description": "Appends a class to the Tab component.", "required": false, "type": {"name": "string"}}, "disabled": {"defaultValue": {"computed": false, "value": "false"}, "description": "Determines if tab is disabled or not - defaults to false", "required": false, "type": {"name": "bool"}}, "disabled_className": {"description": "Appends a class to the Tab component when it is disabled.", "required": false, "type": {"name": "string"}}, "disabled_style": {"defaultValue": {"computed": false, "value": "{\n    color: '#d6d6d6',\n}"}, "description": "Overrides the default (inline) styles when disabled", "required": false, "type": {"name": "object"}}, "id": {"description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app.", "required": false, "type": {"name": "string"}}, "label": {"description": "The tab's label", "required": false, "type": {"name": "string"}}, "selected_className": {"description": "Appends a class to the Tab component when it is selected.", "required": false, "type": {"name": "string"}}, "selected_style": {"description": "Overrides the default (inline) styles for the Tab component when it is selected.", "required": false, "type": {"name": "object"}}, "style": {"description": "Overrides the default (inline) styles for the Tab component.", "required": false, "type": {"name": "object"}}, "value": {"description": "Value for determining which Tab is currently selected", "required": false, "type": {"name": "string"}}}}, "src/components/Tabs.react.js": {"description": "A Dash component that lets you render pages with tabs - the Tabs component's children\ncan be dcc.Tab components, which can hold a label that will be displayed as a tab, and can in turn hold\nchildren components that will be that tab's content.", "displayName": "Tabs", "methods": [{"docblock": null, "modifiers": [], "name": "parseChildrenToArray", "params": [], "returns": null}, {"docblock": null, "modifiers": [], "name": "selectHandler", "params": [{"name": "value", "type": null}], "returns": null}], "props": {"className": {"description": "Appends a class to the Tabs container holding the individual Tab components.", "required": false, "type": {"name": "string"}}, "colors": {"defaultValue": {"computed": false, "value": "{\n    border: '#d6d6d6',\n    primary: '#1975FA',\n    background: '#f9f9f9',\n}"}, "description": "Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:\ncolors: {\n   border: '#d6d6d6',\n   primary: '#1975FA',\n   background: '#f9f9f9'\n }", "required": false, "type": {"name": "shape", "value": {"background": {"name": "string", "required": false}, "border": {"name": "string", "required": false}, "primary": {"name": "string", "required": false}}}}, "content_className": {"description": "Appends a class to the Tab content container holding the children of the Tab that is selected.", "required": false, "type": {"name": "string"}}, "content_style": {"description": "Appends (inline) styles to the tab content container holding the children of the Tab that is selected.", "required": false, "type": {"name": "object"}}, "id": {"description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app.", "required": false, "type": {"name": "string"}}, "mobile_breakpoint": {"defaultValue": {"computed": false, "value": "800"}, "description": "Breakpoint at which tabs are rendered full width (can be 0 if you don't want full width tabs on mobile)", "required": false, "type": {"name": "number"}}, "parent_className": {"description": "Appends a class to the top-level parent container holding both the Tabs container and the content container.", "required": false, "type": {"name": "string"}}, "parent_style": {"description": "Appends (inline) styles to the top-level parent container holding both the Tabs container and the content container.", "required": false, "type": {"name": "object"}}, "style": {"description": "Appends (inline) styles to the Tabs container holding the individual Tab components.", "required": false, "type": {"name": "object"}}, "value": {"description": "The value of the currently selected Tab", "required": false, "type": {"name": "string"}}, "vertical": {"defaultValue": {"computed": false, "value": "false"}, "description": "Renders the tabs vertically (on the side)", "required": false, "type": {"name": "bool"}}}}, "src/components/Textarea.react.js": {"description": "A basic HTML textarea for entering multiline text.", "displayName": "Textarea", "methods": [], "props": {"accessKey": {"description": "Defines a keyboard shortcut to activate or add focus to the element.", "required": false, "type": {"name": "string"}}, "autoFocus": {"description": "The element should be automatically focused after the page loaded.", "required": false, "type": {"name": "string"}}, "className": {"description": "Often used with CSS to style elements with common properties.", "required": false, "type": {"name": "string"}}, "cols": {"description": "Defines the number of columns in a textarea.", "required": false, "type": {"name": "string"}}, "contentEditable": {"description": "Indicates whether the element's content is editable.", "required": false, "type": {"name": "string"}}, "contextMenu": {"description": "Defines the ID of a <menu> element which will serve as the element's context menu.", "required": false, "type": {"name": "string"}}, "dashEvents": {"description": "", "required": false, "type": {"name": "enum", "value": [{"computed": false, "value": "'click'"}, {"computed": false, "value": "'blur'"}, {"computed": false, "value": "'change'"}]}}, "dir": {"description": "Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)", "required": false, "type": {"name": "string"}}, "disabled": {"description": "Indicates whether the user can interact with the element.", "required": false, "type": {"name": "string"}}, "draggable": {"description": "Defines whether the element can be dragged.", "required": false, "type": {"name": "string"}}, "fireEvent": {"description": "A callback for firing events to dash.", "required": false, "type": {"name": "func"}}, "form": {"description": "Indicates the form that is the owner of the element.", "required": false, "type": {"name": "string"}}, "hidden": {"description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active.", "required": false, "type": {"name": "string"}}, "id": {"description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app.", "required": false, "type": {"name": "string"}}, "lang": {"description": "Defines the language used in the element.", "required": false, "type": {"name": "string"}}, "maxLength": {"description": "Defines the maximum number of characters allowed in the element.", "required": false, "type": {"name": "string"}}, "minLength": {"description": "Defines the minimum number of characters allowed in the element.", "required": false, "type": {"name": "string"}}, "name": {"description": "Name of the element. For example used by the server to identify the fields in form submits.", "required": false, "type": {"name": "string"}}, "placeholder": {"description": "Provides a hint to the user of what can be entered in the field.", "required": false, "type": {"name": "string"}}, "readOnly": {"description": "Indicates whether the element can be edited.", "required": false, "type": {"name": "string"}}, "required": {"description": "Indicates whether this element is required to fill out or not.", "required": false, "type": {"name": "string"}}, "rows": {"description": "Defines the number of rows in a text area.", "required": false, "type": {"name": "string"}}, "setProps": {"description": "Dash-assigned callback that gets fired when the value changes.", "required": false, "type": {"name": "func"}}, "spellCheck": {"description": "Indicates whether spell checking is allowed for the element.", "required": false, "type": {"name": "string"}}, "style": {"description": "Defines CSS styles which will override styles previously set.", "required": false, "type": {"name": "object"}}, "tabIndex": {"description": "Overrides the browser's default tab order and follows the one specified instead.", "required": false, "type": {"name": "string"}}, "title": {"description": "Text to be displayed in a tooltip when hovering over the element.", "required": false, "type": {"name": "string"}}, "value": {"description": "The value of the textarea", "required": false, "type": {"name": "string"}}, "wrap": {"description": "Indicates whether the text should be wrapped.", "required": false, "type": {"name": "string"}}}}, "src/components/Upload.react.js": {"description": "", "displayName": "Upload", "methods": [{"docblock": null, "modifiers": [], "name": "onDrop", "params": [{"name": "files", "type": null}], "returns": null}], "props": {"accept": {"description": "Allow specific types of files.\nSee https://github.com/okonet/attr-accept for more information.\nKeep in mind that mime type determination is not reliable across\nplatforms. CSV files, for example, are reported as text/plain\nunder macOS but as application/vnd.ms-excel under Windows.\nIn some cases there might not be a mime type set at all.\nSee: https://github.com/react-dropzone/react-dropzone/issues/276", "required": false, "type": {"name": "string"}}, "className": {"description": "HTML class name of the component", "required": false, "type": {"name": "string"}}, "className_active": {"description": "HTML class name of the component while active", "required": false, "type": {"name": "string"}}, "className_disabled": {"description": "HTML class name of the component if disabled", "required": false, "type": {"name": "string"}}, "className_reject": {"description": "HTML class name of the component if rejected", "required": false, "type": {"name": "string"}}, "contents": {"description": "The contents of the uploaded file as a binary string", "required": false, "type": {"name": "union", "value": [{"name": "string"}, {"name": "arrayOf", "value": {"name": "string"}}]}}, "disable_click": {"defaultValue": {"computed": false, "value": "false"}, "description": "Disallow clicking on the component to open the file dialog", "required": false, "type": {"name": "bool"}}, "disabled": {"defaultValue": {"computed": false, "value": "false"}, "description": "Enable/disable the upload component entirely", "required": false, "type": {"name": "bool"}}, "filename": {"description": "The name of the file(s) that was(were) uploaded.\nNote that this does not include the path of the file\n(for security reasons).", "required": false, "type": {"name": "union", "value": [{"name": "string"}, {"name": "arrayOf", "value": {"name": "string"}}]}}, "id": {"description": "ID of the component. Used to identify component\nin Dash callback functions.", "required": false, "type": {"name": "string"}}, "last_modified": {"description": "The last modified date of the file that was uploaded in unix time\n(seconds since 1970).", "required": false, "type": {"name": "union", "value": [{"name": "number"}, {"name": "arrayOf", "value": {"name": "number"}}]}}, "max_size": {"defaultValue": {"computed": false, "value": "-1"}, "description": "Maximum file size. If `-1`, then infinite", "required": false, "type": {"name": "number"}}, "min_size": {"defaultValue": {"computed": false, "value": "0"}, "description": "Minimum file size", "required": false, "type": {"name": "number"}}, "multiple": {"defaultValue": {"computed": false, "value": "false"}, "description": "Allow dropping multiple files", "required": false, "type": {"name": "bool"}}, "setProps": {"description": "Dash-supplied function for updating props", "required": false, "type": {"name": "func"}}, "style": {"defaultValue": {"computed": false, "value": "{}"}, "description": "CSS styles to apply", "required": false, "type": {"name": "object"}}, "style_active": {"defaultValue": {"computed": false, "value": "{\n    borderStyle: 'solid',\n    borderColor: '#6c6',\n    backgroundColor: '#eee',\n}"}, "description": "CSS styles to apply while active", "required": false, "type": {"name": "object"}}, "style_disabled": {"defaultValue": {"computed": false, "value": "{\n    opacity: 0.5,\n}"}, "description": "CSS styles if disabled", "required": false, "type": {"name": "object"}}, "style_reject": {"defaultValue": {"computed": false, "value": "{\n    borderStyle: 'solid',\n    borderColor: '#c66',\n    backgroundColor: '#eee',\n}"}, "description": "CSS styles if rejected", "required": false, "type": {"name": "object"}}}}}
+{
+  "src/components/Checklist.react.js": {
+    "description": "Checklist is a component that encapsulates several checkboxes.\nThe values and labels of the checklist is specified in the `options`\nproperty and the checked items are specified with the `values` property.\nEach checkbox is rendered as an input with a surrounding label.",
+    "displayName": "Checklist",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "options": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "label": {
+                "name": "string",
+                "description": "The checkbox's label",
+                "required": false
+              },
+              "value": {
+                "name": "string",
+                "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
+                "required": false
+              },
+              "disabled": {
+                "name": "bool",
+                "description": "If true, this checkbox is disabled and can't be clicked on.",
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "An array of options",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "values": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "The currently selected value"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the container (div)"
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the container (div)"
+      },
+      "inputStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the <input> checkbox element",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "inputClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the <input> checkbox element",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
+      "labelStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the <label> that wraps the checkbox input\n and the option's label",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "labelClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the <label> that wraps the checkbox input\n and the option's label",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the checkbox item gets selected."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/ConfirmDialog.react.js": {
+    "description": "ConfirmDialog is used to display the browser's native \"confirm\" modal,\nwith an optional message and two buttons (\"OK\" and \"Cancel\").\nThis ConfirmDialog can be used in conjunction with buttons when the user\nis performing an action that should require an extra step of verification.",
+    "displayName": "ConfirmDialog",
+    "methods": [
+      {
+        "name": "_setStateAndProps",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "value",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "_update",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "message": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Message to show in the popup."
+      },
+      "submit_n_clicks": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the submit button was clicked",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "submit_n_clicks_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Last time the submit button was clicked.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "cancel_n_clicks": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the popup was canceled.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "cancel_n_clicks_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Last time the cancel button was clicked.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "displayed": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Set to true to send the ConfirmDialog."
+      },
+      "key": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      }
+    }
+  },
+  "src/components/ConfirmDialogProvider.react.js": {
+    "description": "A wrapper component that will display a confirmation dialog\nwhen its child component has been clicked on.\n\nFor example:\n```\ndcc.ConfirmDialogProvider(\n    html.Button('click me', id='btn'),\n    message='Danger - Are you sure you want to continue.'\n    id='confirm')\n```",
+    "displayName": "ConfirmDialogProvider",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "message": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Message to show in the popup."
+      },
+      "submit_n_clicks": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the submit was clicked",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "submit_n_clicks_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Last time the submit button was clicked.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "cancel_n_clicks": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the popup was canceled.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "cancel_n_clicks_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Last time the cancel button was clicked.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "displayed": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Is the modal currently displayed."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "children": {
+        "type": {
+          "name": "any"
+        },
+        "required": false,
+        "description": "The children to hijack clicks from and display the popup."
+      }
+    }
+  },
+  "src/components/DatePickerRange.react.js": {
+    "description": "DatePickerRange is a tailor made component designed for selecting\ntimespan across multiple days off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates",
+    "displayName": "DatePickerRange",
+    "methods": [
+      {
+        "name": "propsToState",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "newProps",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "onDatesChange",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "{startDate: start_date, endDate: end_date}",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "isOutsideRange",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "date",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "start_date": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the starting date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+      },
+      "end_date": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the ending date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+      },
+      "min_date_allowed": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the lowest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+      },
+      "max_date_allowed": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the highest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+      },
+      "initial_visible_month": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+      },
+      "start_date_placeholder_text": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Text that will be displayed in the first input\nbox of the date picker when no date is selected. Default value is 'Start Date'"
+      },
+      "end_date_placeholder_text": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Text that will be displayed in the second input\nbox of the date picker when no date is selected. Default value is 'End Date'"
+      },
+      "day_size": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
+        "defaultValue": {
+          "value": "39",
+          "computed": false
+        }
+      },
+      "calendar_orientation": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'vertical'",
+              "computed": false
+            },
+            {
+              "value": "'horizontal'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
+        "defaultValue": {
+          "value": "'horizontal'",
+          "computed": false
+        }
+      },
+      "is_RTL": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "reopen_calendar_on_clear": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, the calendar will automatically open when cleared",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "number_of_months_shown": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of calendar months that are shown when calendar is opened",
+        "defaultValue": {
+          "value": "1",
+          "computed": false
+        }
+      },
+      "with_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "with_full_screen_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to true,\nnot supported on vertical calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "first_day_of_week": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "0",
+              "computed": false
+            },
+            {
+              "value": "1",
+              "computed": false
+            },
+            {
+              "value": "2",
+              "computed": false
+            },
+            {
+              "value": "3",
+              "computed": false
+            },
+            {
+              "value": "4",
+              "computed": false
+            },
+            {
+              "value": "5",
+              "computed": false
+            },
+            {
+              "value": "6",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "minimum_nights": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Specifies a minimum number of nights that must be selected between\nthe startDate and the endDate"
+      },
+      "stay_open_on_select": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "show_outside_days": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True the calendar will display days that rollover into\nthe next month"
+      },
+      "month_format": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
+      },
+      "display_format": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, no dates can be selected.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "clearable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "updatemode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'singledate'",
+              "computed": false
+            },
+            {
+              "value": "'bothdates'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Determines when the component should update\nits value. If `bothdates`, then the DatePicker\nwill only trigger its value when the user has\nfinished picking both dates. If `singledate`, then\nthe DatePicker will update its value\nas one date is picked.",
+        "defaultValue": {
+          "value": "'singledate'",
+          "computed": false
+        }
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/DatePickerSingle.react.js": {
+    "description": "DatePickerSingle is a tailor made component designed for selecting\na single day off of a calendar.\n\nThe DatePicker integrates well with the Python datetime module with the\nstartDate and endDate being returned in a string format suitable for\ncreating datetime objects.\n\nThis component is based off of Airbnb's react-dates react component\nwhich can be found here: https://github.com/airbnb/react-dates",
+    "displayName": "DatePickerSingle",
+    "methods": [
+      {
+        "name": "propsToState",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "newProps",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "isOutsideRange",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "date",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "onDateChange",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "date",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "date": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the starting date for the component, best practice is to pass\nvalue via datetime object"
+      },
+      "min_date_allowed": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the lowest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+      },
+      "max_date_allowed": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the highest selectable date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+      },
+      "initial_visible_month": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the month that is initially presented when the user\nopens the calendar. Accepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
+      },
+      "day_size": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Size of rendered calendar days, higher number\nmeans bigger day size and larger calendar overall",
+        "defaultValue": {
+          "value": "39",
+          "computed": false
+        }
+      },
+      "calendar_orientation": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'vertical'",
+              "computed": false
+            },
+            {
+              "value": "'horizontal'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Orientation of calendar, either vertical or horizontal.\nValid options are 'vertical' or 'horizontal'.",
+        "defaultValue": {
+          "value": "'horizontal'",
+          "computed": false
+        }
+      },
+      "is_RTL": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Determines whether the calendar and days operate\nfrom left to right or from right to left",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "placeholder": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Text that will be displayed in the input\nbox of the date picker when no date is selected.\nDefault value is 'Start Date'"
+      },
+      "reopen_calendar_on_clear": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, the calendar will automatically open when cleared",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "number_of_months_shown": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of calendar months that are shown when calendar is opened",
+        "defaultValue": {
+          "value": "1",
+          "computed": false
+        }
+      },
+      "with_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, calendar will open in a screen overlay portal,\nnot supported on vertical calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "with_full_screen_portal": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, calendar will open in a full screen overlay portal, will\ntake precedent over 'withPortal' if both are set to True,\nnot supported on vertical calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "first_day_of_week": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "0",
+              "computed": false
+            },
+            {
+              "value": "1",
+              "computed": false
+            },
+            {
+              "value": "2",
+              "computed": false
+            },
+            {
+              "value": "3",
+              "computed": false
+            },
+            {
+              "value": "4",
+              "computed": false
+            },
+            {
+              "value": "5",
+              "computed": false
+            },
+            {
+              "value": "6",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Specifies what day is the first day of the week, values must be\nfrom [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "stay_open_on_select": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True the calendar will not close when the user has selected a value\nand will wait until the user clicks off the calendar",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "show_outside_days": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True the calendar will display days that rollover into\nthe next month",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      },
+      "month_format": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the format that the month will be displayed in the calendar,\nvalid formats are variations of \"MM YY\". For example:\n\"MM YY\" renders as '05 97' for May 1997\n\"MMMM, YYYY\" renders as 'May, 1997' for May 1997\n\"MMM, YY\" renders as 'Sep, 97' for September 1997"
+      },
+      "display_format": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies the format that the selected dates will be displayed\nvalid formats are variations of \"MM YY DD\". For example:\n\"MM YY DD\" renders as '05 10 97' for May 10th 1997\n\"MMMM, YY\" renders as 'May, 1997' for May 10th 1997\n\"M, D, YYYY\" renders as '07, 10, 1997' for September 10th 1997\n\"MMMM\" renders as 'May' for May 10 1997"
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, no dates can be selected.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "clearable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Dropdown.react.js": {
+    "description": "Dropdown is an interactive dropdown element for selecting one or more\nitems.\nThe values and labels of the dropdown items are specified in the `options`\nproperty and the selected item(s) are specified with the `value` property.\n\nUse a dropdown when you have many options (more than 5) or when you are\nconstrained for space. Otherwise, you can use RadioItems or a Checklist,\nwhich have the benefit of showing the users all of the items at once.",
+    "displayName": "Dropdown",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "options": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "label": {
+                "name": "string",
+                "description": "The dropdown's label",
+                "required": false
+              },
+              "value": {
+                "name": "string",
+                "description": "The value of the dropdown. This value\ncorresponds to the items specified in the\n`values` property.",
+                "required": false
+              },
+              "disabled": {
+                "name": "bool",
+                "description": "If true, this dropdown is disabled and items can't be selected.",
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "An array of options"
+      },
+      "value": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The value of the input. If `multi` is false (the default)\nthen value is just a string that corresponds to the values\nprovided in the `options` property. If `multi` is true, then\nmultiple values can be selected at once, and `value` is an\narray of items with values corresponding to those in the\n`options` prop."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "className of the dropdown element"
+      },
+      "clearable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Whether or not the dropdown is \"clearable\", that is, whether or\nnot a small \"x\" appears on the right of the dropdown that removes\nthe selected value.",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the option is disabled",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "multi": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the user can select multiple values",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "placeholder": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The grey, default text shown when no option is selected"
+      },
+      "searchable": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Whether to enable the searching feature or not",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the input changes"
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": ""
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Graph.react.js": {
+    "description": "",
+    "displayName": "GraphWithDefaults",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+      },
+      "clickData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest click event",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "clickAnnotationData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest click annotation event",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "hoverData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest hover event",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "clear_on_unhover": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, `clear_on_unhover` will clear the `hoverData` property\nwhen the user \"unhovers\" from a point.\nIf False, then the `hoverData` property will be equal to the\ndata from the last point that was hovered over.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "selectedData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest select event",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "relayoutData": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Data from latest relayout event which occurs\nwhen the user zooms or pans on the plot",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "figure": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Plotly `figure` object. See schema:\nhttps://plot.ly/javascript/reference",
+        "defaultValue": {
+          "value": "{data: [], layout: {}}",
+          "computed": false
+        }
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Generic style overrides on the plot div"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "className of the parent div"
+      },
+      "animate": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Beta: If true, animate between updates using\nplotly.js's `animate` function",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "animation_options": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Beta: Object containing animation settings.\nOnly applies if `animate` is `true`",
+        "defaultValue": {
+          "value": "{\n    frame: {\n        redraw: false,\n    },\n    transition: {\n        duration: 750,\n        ease: 'cubic-in-out',\n    },\n}",
+          "computed": false
+        }
+      },
+      "config": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "staticPlot": {
+              "name": "bool",
+              "description": "no interactivity, for export or image generation",
+              "required": false
+            },
+            "editable": {
+              "name": "bool",
+              "description": "we can edit titles, move annotations, etc - sets all pieces of `edits`\nunless a separate `edits` config item overrides individual parts",
+              "required": false
+            },
+            "edits": {
+              "name": "shape",
+              "value": {
+                "annotationPosition": {
+                  "name": "bool",
+                  "description": "annotationPosition: the main anchor of the annotation, which is the\ntext (if no arrow) or the arrow (which drags the whole thing leaving\nthe arrow length & direction unchanged)",
+                  "required": false
+                },
+                "annotationTail": {
+                  "name": "bool",
+                  "description": "just for annotations with arrows, change the length and direction of the arrow",
+                  "required": false
+                },
+                "annotationText": {
+                  "name": "bool",
+                  "required": false
+                },
+                "axisTitleText": {
+                  "name": "bool",
+                  "required": false
+                },
+                "colorbarPosition": {
+                  "name": "bool",
+                  "required": false
+                },
+                "colorbarTitleText": {
+                  "name": "bool",
+                  "required": false
+                },
+                "legendPosition": {
+                  "name": "bool",
+                  "required": false
+                },
+                "legendText": {
+                  "name": "bool",
+                  "description": "edit the trace name fields from the legend",
+                  "required": false
+                },
+                "shapePosition": {
+                  "name": "bool",
+                  "required": false
+                },
+                "titleText": {
+                  "name": "bool",
+                  "description": "the global `layout.title`",
+                  "required": false
+                }
+              },
+              "description": "a set of editable properties",
+              "required": false
+            },
+            "autosizable": {
+              "name": "bool",
+              "description": "DO autosize once regardless of layout.autosize\n(use default width or height values otherwise)",
+              "required": false
+            },
+            "queueLength": {
+              "name": "number",
+              "description": "set the length of the undo/redo queue",
+              "required": false
+            },
+            "fillFrame": {
+              "name": "bool",
+              "description": "if we DO autosize, do we fill the container or the screen?",
+              "required": false
+            },
+            "frameMargins": {
+              "name": "number",
+              "description": "if we DO autosize, set the frame margins in percents of plot size",
+              "required": false
+            },
+            "scrollZoom": {
+              "name": "bool",
+              "description": "mousewheel or two-finger scroll zooms the plot",
+              "required": false
+            },
+            "doubleClick": {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "false",
+                  "computed": false
+                },
+                {
+                  "value": "'reset'",
+                  "computed": false
+                },
+                {
+                  "value": "'autosize'",
+                  "computed": false
+                },
+                {
+                  "value": "'reset+autosize'",
+                  "computed": false
+                }
+              ],
+              "description": "double click interaction (false, 'reset', 'autosize' or 'reset+autosize')",
+              "required": false
+            },
+            "showTips": {
+              "name": "bool",
+              "description": "new users see some hints about interactivity",
+              "required": false
+            },
+            "showAxisDragHandles": {
+              "name": "bool",
+              "description": "enable axis pan/zoom drag handles",
+              "required": false
+            },
+            "showAxisRangeEntryBoxes": {
+              "name": "bool",
+              "description": "enable direct range entry at the pan/zoom drag points\n(drag handles must be enabled above)",
+              "required": false
+            },
+            "showLink": {
+              "name": "bool",
+              "description": "link to open this plot in plotly",
+              "required": false
+            },
+            "sendData": {
+              "name": "bool",
+              "description": "if we show a link, does it contain data or just link to a plotly file?",
+              "required": false
+            },
+            "linkText": {
+              "name": "string",
+              "description": "text appearing in the sendData link",
+              "required": false
+            },
+            "displayModeBar": {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "true",
+                  "computed": false
+                },
+                {
+                  "value": "false",
+                  "computed": false
+                },
+                {
+                  "value": "'hover'",
+                  "computed": false
+                }
+              ],
+              "description": "display the mode bar (true, false, or 'hover')",
+              "required": false
+            },
+            "modeBarButtonsToRemove": {
+              "name": "array",
+              "description": "remove mode bar button by name.\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\nCommon names include:\n - sendDataToCloud\n- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d\n- (Cartesian): hoverClosestCartesian, hoverCompareCartesian\n- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d\n- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo\n- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews",
+              "required": false
+            },
+            "modeBarButtonsToAdd": {
+              "name": "array",
+              "description": "add mode bar button using config objects",
+              "required": false
+            },
+            "modeBarButtons": {
+              "name": "any",
+              "description": "fully custom mode bar buttons as nested array,\nwhere the outer arrays represents button groups, and\nthe inner arrays have buttons config objects or names of default buttons",
+              "required": false
+            },
+            "displaylogo": {
+              "name": "bool",
+              "description": "add the plotly logo on the end of the mode bar",
+              "required": false
+            },
+            "plotGlPixelRatio": {
+              "name": "number",
+              "description": "increase the pixel ratio for Gl plot images",
+              "required": false
+            },
+            "topojsonURL": {
+              "name": "string",
+              "description": "URL to topojson files used in geo charts",
+              "required": false
+            },
+            "mapboxAccessToken": {
+              "name": "any",
+              "description": "Mapbox access token (required to plot mapbox trace types)\nIf using an Mapbox Atlas server, set this option to '',\nso that plotly.js won't attempt to authenticate to the public Mapbox server.",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Plotly.js config options.\nSee https://plot.ly/javascript/configuration-options/\nfor more info.",
+        "defaultValue": {
+          "value": "{\n    staticPlot: false,\n    editable: false,\n    edits: {\n        annotationPosition: false,\n        annotationTail: false,\n        annotationText: false,\n        axisTitleText: false,\n        colorbarPosition: false,\n        colorbarTitleText: false,\n        legendPosition: false,\n        legendText: false,\n        shapePosition: false,\n        titleText: false,\n    },\n    autosizable: false,\n    queueLength: 0,\n    fillFrame: false,\n    frameMargins: 0,\n    scrollZoom: false,\n    doubleClick: 'reset+autosize',\n    showTips: true,\n    showAxisDragHandles: true,\n    showAxisRangeEntryBoxes: true,\n    showLink: false,\n    sendData: true,\n    linkText: 'Edit chart',\n    showSources: false,\n    displayModeBar: 'hover',\n    modeBarButtonsToRemove: [],\n    modeBarButtonsToAdd: [],\n    modeBarButtons: false,\n    displaylogo: true,\n    plotGlPixelRatio: 2,\n    topojsonURL: 'https://cdn.plot.ly/',\n    mapboxAccessToken: null,\n}",
+          "computed": false
+        }
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'click'",
+              "computed": false
+            },
+            {
+              "value": "'clickannotation'",
+              "computed": false
+            },
+            {
+              "value": "'hover'",
+              "computed": false
+            },
+            {
+              "value": "'selected'",
+              "computed": false
+            },
+            {
+              "value": "'relayout'",
+              "computed": false
+            },
+            {
+              "value": "'unhover'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Function that updates the state tree."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Function that fires events"
+      }
+    }
+  },
+  "src/components/Input.react.js": {
+    "description": "A basic HTML input control for entering text, numbers, or passwords.\n\nNote that checkbox and radio types are supported through\nthe Checklist and RadioItems component. Dates, times, and file uploads\nare also supported through separate components.",
+    "displayName": "Input",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+      },
+      "value": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
+        },
+        "required": false,
+        "description": "The value of the input"
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The input's inline styles"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the input element"
+      },
+      "debounce": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, changes to input will be sent back to the Dash server only on enter or when losing focus.\nIf it's false, it will sent the value back on every change.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "type": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "\"text\"",
+              "computed": false
+            },
+            {
+              "value": "'number'",
+              "computed": false
+            },
+            {
+              "value": "'password'",
+              "computed": false
+            },
+            {
+              "value": "'email'",
+              "computed": false
+            },
+            {
+              "value": "'range'",
+              "computed": false
+            },
+            {
+              "value": "'search'",
+              "computed": false
+            },
+            {
+              "value": "'tel'",
+              "computed": false
+            },
+            {
+              "value": "'url'",
+              "computed": false
+            },
+            {
+              "value": "'hidden'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "The type of control to render."
+      },
+      "autocomplete": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "This attribute indicates whether the value of the control can be automatically completed by the browser."
+      },
+      "autofocus": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The element should be automatically focused after the page loaded."
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the input is disabled and can't be clicked on."
+      },
+      "inputmode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "\"verbatim\"",
+              "computed": false
+            },
+            {
+              "value": "\"latin\"",
+              "computed": false
+            },
+            {
+              "value": "\"latin-name\"",
+              "computed": false
+            },
+            {
+              "value": "\"latin-prose\"",
+              "computed": false
+            },
+            {
+              "value": "\"full-width-latin\"",
+              "computed": false
+            },
+            {
+              "value": "\"kana\"",
+              "computed": false
+            },
+            {
+              "value": "\"katakana\"",
+              "computed": false
+            },
+            {
+              "value": "\"numeric\"",
+              "computed": false
+            },
+            {
+              "value": "\"tel\"",
+              "computed": false
+            },
+            {
+              "value": "\"email\"",
+              "computed": false
+            },
+            {
+              "value": "\"url\"",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      },
+      "list": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Identifies a list of pre-defined options to suggest to the user.\nThe value must be the id of a <datalist> element in the same document.\nThe browser displays only options that are valid values for this\ninput element.\nThis attribute is ignored when the type attribute's value is\nhidden, checkbox, radio, file, or a button type."
+      },
+      "max": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
+        },
+        "required": false,
+        "description": "The maximum (numeric or date-time) value for this item, which must not be less than its minimum (min attribute) value."
+      },
+      "maxlength": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed."
+      },
+      "min": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
+        },
+        "required": false,
+        "description": "The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value."
+      },
+      "minlength": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored."
+      },
+      "multiple": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "This Boolean attribute indicates whether the user can enter more than one value. This attribute applies when the type attribute is set to email or file, otherwise it is ignored."
+      },
+      "name": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The name of the control, which is submitted with the form data."
+      },
+      "pattern": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A regular expression that the control's value is checked against. The pattern must match the entire value, not just some subset. Use the title attribute to describe the pattern to help the user. This attribute applies when the value of the type attribute is text, search, tel, url, email, or password, otherwise it is ignored. The regular expression language is the same as JavaScript RegExp algorithm, with the 'u' parameter that makes it treat the pattern as a sequence of unicode code points. The pattern is not surrounded by forward slashes."
+      },
+      "placeholder": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it."
+      },
+      "readOnly": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "This attribute indicates that the user cannot modify the value of the control. The value of the attribute is irrelevant. If you need read-write access to the input value, do not add the \"readonly\" attribute. It is ignored if the value of the type attribute is hidden, range, color, checkbox, radio, file, or a button type (such as button or submit)."
+      },
+      "required": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "This attribute specifies that the user must fill in a value before submitting a form. It cannot be used when the type attribute is hidden, image, or a button type (submit, reset, or button). The :optional and :required CSS pseudo-classes will be applied to the field as appropriate."
+      },
+      "selectionDirection": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The direction in which selection occurred. This is \"forward\" if the selection was made from left-to-right in an LTR locale or right-to-left in an RTL locale, or \"backward\" if the selection was made in the opposite direction. On platforms on which it's possible this value isn't known, the value can be \"none\"; for example, on macOS, the default direction is \"none\", then as the user begins to modify the selection using the keyboard, this will change to reflect the direction in which the selection is expanding."
+      },
+      "selectionEnd": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The offset into the element's text content of the last selected character. If there's no selection, this value indicates the offset to the character following the current text input cursor position (that is, the position the next character typed would occupy)."
+      },
+      "selectionStart": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The offset into the element's text content of the first selected character. If there's no selection, this value indicates the offset to the character following the current text input cursor position (that is, the position the next character typed would occupy)."
+      },
+      "size": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The initial size of the control. This value is in pixels unless the value of the type attribute is text or password, in which case it is an integer number of characters. Starting in, this attribute applies only when the type attribute is set to text, search, tel, url, email, or password, otherwise it is ignored. In addition, the size must be greater than zero. If you do not specify a size, a default value of 20 is used.' simply states \"the user agent should ensure that at least that many characters are visible\", but different characters can have different widths in certain fonts. In some browsers, a certain string with x characters will not be entirely visible even if size is defined to at least x."
+      },
+      "spellCheck": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Setting the value of this attribute to true indicates that the element needs to have its spelling and grammar checked. The value default indicates that the element is to act according to a default behavior, possibly based on the parent element's own spellcheck value. The value false indicates that the element should not be checked."
+      },
+      "step": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
+        },
+        "required": false,
+        "description": "Works with the min and max attributes to limit the increments at which a numeric or date-time value can be set. It can be the string any or a positive floating point number. If this attribute is not set to any, the control accepts only values at multiples of the step value greater than the minimum."
+      },
+      "n_submit": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the `Enter` key was pressed while the input had focus.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "n_submit_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Last time that `Enter` was pressed.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "n_blur": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the input lost focus.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "n_blur_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Last time the input lost focus.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the input changes."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'blur'",
+              "computed": false
+            },
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Interval.react.js": {
+    "description": "A component that repeatedly fires an event (\"interval\")\nwith a fixed time delay between each event.\nInterval is good for triggering a component on a recurring basis.\nThe time delay is set with the property \"interval\" in milliseconds.",
+    "displayName": "Interval",
+    "methods": [
+      {
+        "name": "startTimer",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "resetTimer",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "clearTimer",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "handleInterval",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "canStartTimer",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "interval": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "This component will fire an event every `interval`\nmilliseconds with the event name `setInterval`",
+        "defaultValue": {
+          "value": "1000",
+          "computed": false
+        }
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If True, the interval will no longer trigger\nan event."
+      },
+      "n_intervals": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the interval has passed",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "max_intervals": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the interval will be fired. If -1, then the interval has no limit (the default) and if 0 then the interval stops running.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash assigned callback"
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash assigned callback"
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'interval'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Link.react.js": {
+    "description": "",
+    "displayName": "Link",
+    "methods": [
+      {
+        "name": "updateLocation",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "e",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "href": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "refresh": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": ""
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Location.react.js": {
+    "description": "Update and track the current window.location object through the window.history state.\nUse in conjunction with the `dash_core_components.Link` component to make apps with multiple pages.",
+    "displayName": "Location",
+    "methods": [
+      {
+        "name": "updateLocation",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": true,
+        "description": ""
+      },
+      "pathname": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "pathname in window.location - e.g., \"/my/full/pathname\""
+      },
+      "search": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "search in window.location - e.g., \"?myargument=1\""
+      },
+      "hash": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "hash in window.location - e.g., \"#myhash\""
+      },
+      "href": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "href in window.location - e.g., \"/my/full/pathname?myargument=1#myhash\""
+      },
+      "refresh": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Refresh the page when the location is updated?",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/LogoutButton.react.js": {
+    "description": "Logout button to submit a form post request to the `logout_url` prop.\nUsage is intended for dash-deployment-server authentication.\n\nDDS usage:\n\n`dcc.LogoutButton(logout_url=os.getenv('DASH_LOGOUT_URL'))`\n\nCustom usage:\n\n- Implement a login mechanism.\n- Create a flask route with a post method handler.\n`@app.server.route('/logout', methods=['POST'])`\n  - The logout route should perform what's necessary for the user to logout.\n  - If you store the session in a cookie, clear the cookie:\n  `rep = flask.Response(); rep.set_cookie('session', '', expires=0)`\n\n- Create a logout button component and assign it the logout_url\n`dcc.LogoutButton(logout_url='/logout')`\n\nSee https://dash.plot.ly/dash-core-components/logout_button\nfor more documentation and examples.",
+    "displayName": "LogoutButton",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Id of the button."
+      },
+      "label": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Text of the button",
+        "defaultValue": {
+          "value": "'Logout'",
+          "computed": false
+        }
+      },
+      "logout_url": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Url to submit a post logout request."
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Style of the button"
+      },
+      "method": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Http method to submit the logout form.",
+        "defaultValue": {
+          "value": "'post'",
+          "computed": false
+        }
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "CSS class for the button."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Markdown.react.js": {
+    "description": "A component that renders Markdown text as specified by the\nCommonMark spec.",
+    "displayName": "DashMarkdown",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Class name of the container element"
+      },
+      "containerProps": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "An object containing custom element props to put on the container\nelement such as id or style"
+      },
+      "dangerously_allow_html": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "A boolean to control raw HTML escaping.\nSetting HTML from code is risky because it's easy to\ninadvertently expose your users to a cross-site scripting (XSS)\n(https://en.wikipedia.org/wiki/Cross-site_scripting) attack.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "children": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "A markdown string (or array of strings) that adhreres to the CommonMark spec"
+      }
+    }
+  },
+  "src/components/RadioItems.react.js": {
+    "description": "RadioItems is a component that encapsulates several radio item inputs.\nThe values and labels of the RadioItems is specified in the `options`\nproperty and the seleced item is specified with the `value` property.\nEach radio item is rendered as an input with a surrounding label.",
+    "displayName": "RadioItems",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "options": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "label": {
+                "name": "string",
+                "description": "The radio item's label",
+                "required": false
+              },
+              "value": {
+                "name": "string",
+                "description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`values` property.",
+                "required": false
+              },
+              "disabled": {
+                "name": "bool",
+                "description": "If true, this radio item is disabled and can't be clicked on.",
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "An array of options",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "value": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The currently selected value"
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the container (div)"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the container (div)"
+      },
+      "inputStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the <input> radio element",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "inputClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the <input> radio element",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
+      "labelStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The style of the <label> that wraps the radio input\n and the option's label",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "labelClassName": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The class of the <label> that wraps the radio input\n and the option's label",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the radio item gets selected."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/RangeSlider.react.js": {
+    "description": "A double slider with two handles.\nUsed for specifying a range of numerical values.",
+    "displayName": "RangeSlider",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "marks": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "number": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "shape",
+                  "value": {
+                    "style": {
+                      "name": "object",
+                      "required": false
+                    },
+                    "label": {
+                      "name": "string",
+                      "required": false
+                    }
+                  }
+                }
+              ],
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
+      },
+      "value": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "number"
+          }
+        },
+        "required": false,
+        "description": "The value of the input"
+      },
+      "allowCross": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "allowCross could be set as true to allow those handles to cross."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Additional CSS class for the root DOM node"
+      },
+      "count": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Determine how many ranges to render, and multiple handles\nwill be rendered (number + 1)."
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the handles can't be moved."
+      },
+      "dots": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots."
+      },
+      "included": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
+      },
+      "min": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Minimum allowed value of the slider"
+      },
+      "max": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Maximum allowed value of the slider"
+      },
+      "pushable": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "bool"
+            },
+            {
+              "name": "number"
+            }
+          ]
+        },
+        "required": false,
+        "description": "pushable could be set as true to allow pushing of\nsurrounding handles when moving an handle.\nWhen set to a number, the number will be the\nminimum ensured distance between handles."
+      },
+      "step": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Value by which increments or decrements are made"
+      },
+      "vertical": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the slider will be vertical"
+      },
+      "updatemode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'mouseup'",
+              "computed": false
+            },
+            {
+              "value": "'drag'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Determines when the component should update\nits value. If `mouseup`, then the slider\nwill only trigger its value when the user has\nfinished dragging the slider. If `drag`, then\nthe slider will update its value continuously\nas it is being dragged.\nOnly use `drag` if your updates are fast.",
+        "defaultValue": {
+          "value": "'mouseup'",
+          "computed": false
+        }
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the checkbox item gets selected."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Slider.react.js": {
+    "description": "A slider component with a single handle.",
+    "displayName": "Slider",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "marks": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "number": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "shape",
+                  "value": {
+                    "style": {
+                      "name": "object",
+                      "required": false
+                    },
+                    "label": {
+                      "name": "string",
+                      "required": false
+                    }
+                  }
+                }
+              ],
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
+      },
+      "value": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The value of the input"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Additional CSS class for the root DOM node"
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the handles can't be moved."
+      },
+      "dots": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "When the step value is greater than 1,\nyou can set the dots to true if you want to\nrender the slider with dots."
+      },
+      "included": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If the value is true, it means a continuous\nvalue is included. Otherwise, it is an independent value."
+      },
+      "min": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Minimum allowed value of the slider"
+      },
+      "max": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Maximum allowed value of the slider"
+      },
+      "step": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Value by which increments or decrements are made"
+      },
+      "vertical": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "If true, the slider will be vertical"
+      },
+      "updatemode": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'mouseup'",
+              "computed": false
+            },
+            {
+              "value": "'drag'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Determines when the component should update\nits value. If `mouseup`, then the slider\nwill only trigger its value when the user has\nfinished dragging the slider. If `drag`, then\nthe slider will update its value continuously\nas it is being dragged.\nOnly use `drag` if your updates are fast.",
+        "defaultValue": {
+          "value": "'mouseup'",
+          "computed": false
+        }
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the checkbox item gets selected."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Store.react.js": {
+    "description": "Easily keep data on the client side with this component.\nThe data is not inserted in the DOM.\nData can be in memory, localStorage or sessionStorage.\nThe data will be kept with the id as key.",
+    "displayName": "Store",
+    "methods": [
+      {
+        "name": "onStorageChange",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "e",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": true,
+        "description": "The key of the storage."
+      },
+      "storage_type": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'local'",
+              "computed": false
+            },
+            {
+              "value": "'session'",
+              "computed": false
+            },
+            {
+              "value": "'memory'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "The type of the web storage.\n\nmemory: only kept in memory, reset on page refresh.\nlocal: window.localStorage, data is kept after the browser quit.\nsession: window.sessionStorage, data is cleared once the browser quit.",
+        "defaultValue": {
+          "value": "'memory'",
+          "computed": false
+        }
+      },
+      "data": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "object"
+            },
+            {
+              "name": "array"
+            },
+            {
+              "name": "number"
+            },
+            {
+              "name": "string"
+            },
+            {
+              "name": "bool"
+            }
+          ]
+        },
+        "required": false,
+        "description": "The stored data for the id."
+      },
+      "clear_data": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Set to true to remove the data contained in `data_key`.",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "modified_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "The last time the storage was modified.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      }
+    }
+  },
+  "src/components/SyntaxHighlighter.react.js": {
+    "description": "A component for pretty printing code.",
+    "displayName": "SyntaxHighlighter",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "children": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The text to display and highlight"
+      },
+      "language": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "the language to highlight code in."
+      },
+      "theme": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'light'",
+              "computed": false
+            },
+            {
+              "value": "'dark'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "theme: light or dark"
+      },
+      "customStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "prop that will be combined with the top level style on the pre tag, styles here will overwrite earlier styles."
+      },
+      "codeTagProps": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "props that will be spread into the <code> tag that is the direct parent of the highlighted code elements. Useful for styling/assigning classNames."
+      },
+      "useInlineStyles": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "if this prop is passed in as false, react syntax highlighter will not add style objects to elements, and will instead append classNames. You can then style the code block by using one of the CSS files provided by highlight.js."
+      },
+      "showLineNumbers": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "if this is enabled line numbers will be shown next to the code block."
+      },
+      "startingLineNumber": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "if showLineNumbers is enabled the line numbering will start from here."
+      },
+      "lineNumberContainerStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "the line numbers container default to appearing to the left with 10px of right padding. You can use this to override those styles."
+      },
+      "lineNumberStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "inline style to be passed to the span wrapping each number. Can be either an object or a function that recieves current line number as argument and returns style object."
+      },
+      "wrapLines": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "a boolean value that determines whether or not each line of code should be wrapped in a parent element. defaults to false, when false one can not take action on an element on the line level. You can see an example of what this enables here"
+      },
+      "lineStyle": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "inline style to be passed to the span wrapping each line if wrapLines is true. Can be either an object or a function that recieves current line number as argument and returns style object."
+      }
+    }
+  },
+  "src/components/Tab.react.js": {
+    "description": "",
+    "displayName": "Tab",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+      },
+      "label": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The tab's label"
+      },
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": "The content of the tab - will only be displayed if this tab is selected"
+      },
+      "value": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Value for determining which Tab is currently selected"
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Determines if tab is disabled or not - defaults to false",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "disabled_style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Overrides the default (inline) styles when disabled",
+        "defaultValue": {
+          "value": "{\n    color: '#d6d6d6',\n}",
+          "computed": false
+        }
+      },
+      "disabled_className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Appends a class to the Tab component when it is disabled."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Appends a class to the Tab component."
+      },
+      "selected_className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Appends a class to the Tab component when it is selected."
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Overrides the default (inline) styles for the Tab component."
+      },
+      "selected_style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Overrides the default (inline) styles for the Tab component when it is selected."
+      }
+    }
+  },
+  "src/components/Tabs.react.js": {
+    "description": "A Dash component that lets you render pages with tabs - the Tabs component's children\ncan be dcc.Tab components, which can hold a label that will be displayed as a tab, and can in turn hold\nchildren components that will be that tab's content.",
+    "displayName": "Tabs",
+    "methods": [
+      {
+        "name": "parseChildrenToArray",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "selectHandler",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "value",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+      },
+      "value": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The value of the currently selected Tab"
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Appends a class to the Tabs container holding the individual Tab components."
+      },
+      "content_className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Appends a class to the Tab content container holding the children of the Tab that is selected."
+      },
+      "parent_className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Appends a class to the top-level parent container holding both the Tabs container and the content container."
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Appends (inline) styles to the Tabs container holding the individual Tab components."
+      },
+      "parent_style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Appends (inline) styles to the top-level parent container holding both the Tabs container and the content container."
+      },
+      "content_style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Appends (inline) styles to the tab content container holding the children of the Tab that is selected."
+      },
+      "vertical": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Renders the tabs vertically (on the side)",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "mobile_breakpoint": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Breakpoint at which tabs are rendered full width (can be 0 if you don't want full width tabs on mobile)",
+        "defaultValue": {
+          "value": "800",
+          "computed": false
+        }
+      },
+      "children": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "node"
+              }
+            },
+            {
+              "name": "node"
+            }
+          ]
+        },
+        "required": false,
+        "description": "Array that holds Tab components"
+      },
+      "colors": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "border": {
+              "name": "string",
+              "required": false
+            },
+            "primary": {
+              "name": "string",
+              "required": false
+            },
+            "background": {
+              "name": "string",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:\ncolors: {\n   border: '#d6d6d6',\n   primary: '#1975FA',\n   background: '#f9f9f9'\n }",
+        "defaultValue": {
+          "value": "{\n    border: '#d6d6d6',\n    primary: '#1975FA',\n    background: '#f9f9f9',\n}",
+          "computed": false
+        }
+      }
+    }
+  },
+  "src/components/Textarea.react.js": {
+    "description": "A basic HTML textarea for entering multiline text.",
+    "displayName": "Textarea",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
+      },
+      "value": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The value of the textarea"
+      },
+      "autoFocus": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The element should be automatically focused after the page loaded."
+      },
+      "cols": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the number of columns in a textarea."
+      },
+      "disabled": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether the user can interact with the element."
+      },
+      "form": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates the form that is the owner of the element."
+      },
+      "maxLength": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the maximum number of characters allowed in the element."
+      },
+      "minLength": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the minimum number of characters allowed in the element."
+      },
+      "name": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Name of the element. For example used by the server to identify the fields in form submits."
+      },
+      "placeholder": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Provides a hint to the user of what can be entered in the field."
+      },
+      "readOnly": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether the element can be edited."
+      },
+      "required": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether this element is required to fill out or not."
+      },
+      "rows": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the number of rows in a text area."
+      },
+      "wrap": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether the text should be wrapped."
+      },
+      "accessKey": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines a keyboard shortcut to activate or add focus to the element."
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Often used with CSS to style elements with common properties."
+      },
+      "contentEditable": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether the element's content is editable."
+      },
+      "contextMenu": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
+      },
+      "dir": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)"
+      },
+      "draggable": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines whether the element can be dragged."
+      },
+      "hidden": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
+      },
+      "lang": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Defines the language used in the element."
+      },
+      "spellCheck": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Indicates whether spell checking is allowed for the element."
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Defines CSS styles which will override styles previously set."
+      },
+      "tabIndex": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Overrides the browser's default tab order and follows the one specified instead."
+      },
+      "title": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Text to be displayed in a tooltip when hovering over the element."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that gets fired when the value changes."
+      },
+      "fireEvent": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "A callback for firing events to dash."
+      },
+      "dashEvents": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'click'",
+              "computed": false
+            },
+            {
+              "value": "'blur'",
+              "computed": false
+            },
+            {
+              "value": "'change'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": ""
+      }
+    }
+  },
+  "src/components/Upload.react.js": {
+    "description": "",
+    "displayName": "Upload",
+    "methods": [
+      {
+        "name": "onDrop",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "files",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "ID of the component. Used to identify component\nin Dash callback functions."
+      },
+      "contents": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The contents of the uploaded file as a binary string"
+      },
+      "filename": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The name of the file(s) that was(were) uploaded.\nNote that this does not include the path of the file\n(for security reasons)."
+      },
+      "last_modified": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "number"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "number"
+              }
+            }
+          ]
+        },
+        "required": false,
+        "description": "The last modified date of the file that was uploaded in unix time\n(seconds since 1970)."
+      },
+      "children": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "node"
+            },
+            {
+              "name": "string"
+            }
+          ]
+        },
+        "required": false,
+        "description": "Contents of the upload component"
+      },
+      "accept": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Allow specific types of files.\nSee https://github.com/okonet/attr-accept for more information.\nKeep in mind that mime type determination is not reliable across\nplatforms. CSV files, for example, are reported as text/plain\nunder macOS but as application/vnd.ms-excel under Windows.\nIn some cases there might not be a mime type set at all.\nSee: https://github.com/react-dropzone/react-dropzone/issues/276"
+      },
+      "disabled": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Enable/disable the upload component entirely",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "disable_click": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Disallow clicking on the component to open the file dialog",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "max_size": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Maximum file size. If `-1`, then infinite",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "min_size": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Minimum file size",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "multiple": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Allow dropping multiple files",
+        "defaultValue": {
+          "value": "false",
+          "computed": false
+        }
+      },
+      "className": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "HTML class name of the component"
+      },
+      "className_active": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "HTML class name of the component while active"
+      },
+      "className_reject": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "HTML class name of the component if rejected"
+      },
+      "className_disabled": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "HTML class name of the component if disabled"
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "CSS styles to apply",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "style_active": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "CSS styles to apply while active",
+        "defaultValue": {
+          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#6c6',\n    backgroundColor: '#eee',\n}",
+          "computed": false
+        }
+      },
+      "style_reject": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "CSS styles if rejected",
+        "defaultValue": {
+          "value": "{\n    borderStyle: 'solid',\n    borderColor: '#c66',\n    backgroundColor: '#eee',\n}",
+          "computed": false
+        }
+      },
+      "style_disabled": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "CSS styles if disabled",
+        "defaultValue": {
+          "value": "{\n    opacity: 0.5,\n}",
+          "computed": false
+        }
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-supplied function for updating props"
+      }
+    }
+  }
+}
