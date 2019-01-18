@@ -35203,7 +35203,7 @@ function updateOutput(outputComponentId, outputProp, getState, requestUid, dispa
                             uid: requestUid,
                             requestTime: Date.now()
                         }, getState().requestQueue)));
-                        updateOutput(idAndProp.split('.')[0], idAndProp.split('.')[1], null, getState, requestUid, dispatch);
+                        updateOutput(idAndProp.split('.')[0], idAndProp.split('.')[1], getState, requestUid, dispatch);
                     });
                 }
             }
