@@ -159,11 +159,11 @@ def generate_class_string(name, props, project_shortname, prefix):
         default_wildcards = 'c({})'.format(default_wildcards)
 
     # Filter props to remove those we don't want to expose
-    for p in prop_keys:
-        if p.endswith("-*") \
-                or p in r_keywords \
-                or p in ['setProps', 'dashEvents', 'fireEvent']:
-            prop_keys.remove(p)
+    for item in prop_keys[:]:
+        if item.endswith('-*') \
+                or item in r_keywords \
+                or item in ['setProps']:
+                    prop_keys.remove(item)
 
     default_argtext += ", ".join(
         '{}=NULL'.format(p)
