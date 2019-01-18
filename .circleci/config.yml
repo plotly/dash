@@ -49,7 +49,7 @@ jobs:
           command: |
               . venv/bin/activate
               python --version
-              python -m unittest tests.development.test_base_component tests.development.test_component_loader tests.test_integration tests.test_resources tests.test_configs
+              ./test.sh
 
   "python-3.6":
     <<: *test-template
