@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import json
 import sys
 import subprocess
 import shlex
@@ -64,7 +65,7 @@ def generate_components(components_source, project_shortname,
             file=sys.stderr)
         sys.exit(1)
 
-    metadata = _get_metadata(os.path.join(project_shortname, 'metadata.json'))
+    metadata = json.loads(out.decode(), object_pairs_hook=OrderedDict) 
     generator_methods = [generate_class_file]
 
     if rprefix:
@@ -81,9 +82,15 @@ def generate_components(components_source, project_shortname,
         *generator_methods
     )
 
+    with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
+        json.dump(metadata, f, sort_keys=True)
+
     generate_imports(project_shortname, components)
 
     if rprefix:
+        with open('package.json', 'r') as f:
+            pkg_data = json.load(f, object_pairs_hook=OrderedDict)
+        
         pkg_data = metadata
 
         generate_exports(
