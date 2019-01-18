@@ -91,8 +91,6 @@ def generate_components(components_source, project_shortname,
         with open('package.json', 'r') as f:
             pkg_data = json.load(f, object_pairs_hook=OrderedDict)
 
-        pkg_data = metadata
-
         generate_exports(
             project_shortname, components, metadata, pkg_data, prefix
         )
