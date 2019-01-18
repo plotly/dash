@@ -701,7 +701,6 @@ function updateOutput(
                         updateOutput(
                             idAndProp.split('.')[0],
                             idAndProp.split('.')[1],
-                            null,
                             getState,
                             requestUid,
                             dispatch
