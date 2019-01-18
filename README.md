@@ -8,7 +8,10 @@ Build on top of Plotly.js, React, and Flask, Dash ties modern UI elements like d
 
 [ONLINE DOCUMENTATION](https://dash.plot.ly/getting-started)
 
-[OFFLINE (PDF) DOCUMENTATION](https://github.com/plotly/dash-docs/blob/pdf-docs/pdf-docs/Dash_User_Guide_and_Documentation.pdf)
+[OFFLINE (PDF) DOCUMENTATION](https://github.com/plotly/dash-docs/blob/master/pdf-docs/Dash_User_Guide_and_Documentation.pdf)
+
+[DASH DOCS ON HEROKU](http://dash-docs.herokuapp.com/) (for corporate networks that cannot access plot.ly)
+
 
 Here’s a 43-line example of a Dash App that ties a Dropdown to a D3.js Plotly Graph.
 As the user selects a value in the Dropdown, the application code dynamically
