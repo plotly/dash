@@ -104,9 +104,9 @@ lib/
 # demo folder has special meaning in R
 # this should hopefully make it still
 # allow for the possibility to make R demos
-demo/*.js
-demo/*.html
-demo/*.css
+demo/.*\.js
+demo/.*\.html
+demo/.*\.css
 
 # ignore python files/folders
 setup.py
