@@ -51,8 +51,7 @@ jobs:
           command: |
               . venv/bin/activate
               python --version
-              python -m unittest tests.test_render.Tests
-              python -m unittest tests.test_race_conditions.Tests
+              npm run test:py
 
   "python-3.6":
     <<: *test-template
