@@ -18,6 +18,7 @@ from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
 from .component_loader import _get_metadata
 
+
 class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
                          argparse.RawDescriptionHelpFormatter):
     pass
