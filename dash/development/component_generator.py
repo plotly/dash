@@ -64,7 +64,7 @@ def generate_components(components_source, project_shortname,
             file=sys.stderr)
         sys.exit(1)
 
-    metadata = _get_metadata(out.decode())
+    metadata = _get_metadata(os.path.join(project_shortname, 'metadata.json') 
     generator_methods = [generate_class_file]
 
     if rprefix:
