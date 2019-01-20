@@ -18,8 +18,8 @@ class WaitForTimeout(Exception):
     pass
 
 
-def wait_for(condition_function, expected_value=None, timeout=TIMEOUT,
-             get_message=None, *args, **kwargs):
+def wait_for(condition_function, get_message=None, expected_value=None,
+             timeout=TIMEOUT, *args, **kwargs):
     """
     Waits for condition_function to return truthy or raises WaitForTimeout.
     :param (function) condition_function: Should return truthy or
