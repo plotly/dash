@@ -1626,13 +1626,13 @@ class Tests(IntegrationTests):
                       [Input('outer-controls', 'value')])
         def display_tab1_output(value):
             call_counts['tab1'].value += 1
-            return 'You have selected "{}"'.format(value)
+            return 'Selected "{}" in tab 1'.format(value)
 
         @app.callback(Output('tab-2-output', 'children'),
                       [Input('outer-controls', 'value')])
         def display_tab2_output(value):
             call_counts['tab2'].value += 1
-            return 'You have selected "{}"'.format(value)
+            return 'Selected "{}" in tab 2'.format(value)
 
         self.startServer(app)
         self.wait_for_element_by_css_selector('#tab-output')
@@ -1640,16 +1640,16 @@ class Tests(IntegrationTests):
 
         self.assertEqual(call_counts['tab1'].value, 1)
         self.assertEqual(call_counts['tab2'].value, 0)
-        self.wait_for_text_to_equal('#tab-output', 'You have selected "a"')
-        self.wait_for_text_to_equal('#tab-1-output', 'You have selected "a"')
+        self.wait_for_text_to_equal('#tab-output', 'Selected "a" in tab 1')
+        self.wait_for_text_to_equal('#tab-1-output', 'Selected "a" in tab 1')
 
         (self.driver.find_elements_by_css_selector(
             'input[type="radio"]'
         )[1]).click()
         time.sleep(2)
 
-        self.wait_for_text_to_equal('#tab-output', 'You have selected "a"')
-        self.wait_for_text_to_equal('#tab-2-output', 'You have selected "a"')
+        self.wait_for_text_to_equal('#tab-output', 'Selected "a" in tab 2')
+        self.wait_for_text_to_equal('#tab-2-output', 'Selected "a" in tab 2')
         self.assertEqual(call_counts['tab1'].value, 1)
         self.assertEqual(call_counts['tab2'].value, 1)
 
