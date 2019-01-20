@@ -710,7 +710,7 @@ class Dash(object):
                             component.available_properties).replace(
                                 '    ', ''))
 
-                    if (hasattr(arg, 'component_event')):
+                    if hasattr(arg, 'component_event'):
                         raise exceptions.NonExistentEventException('''
                             Events have been removed.
                             Use the associated property instead.
