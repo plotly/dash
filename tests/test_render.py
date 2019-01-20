@@ -1352,6 +1352,10 @@ class Tests(IntegrationTests):
             Output('button-output', 'children'),
             [Input('button', 'n_clicks')])
         def this_callback_takes_forever(n_clicks):
+            if not n_clicks:
+                # initial value is quick, only new value is slow
+                # also don't let the initial value increment call_counts
+                return 'Initial Value'
             time.sleep(5)
             call_counts['button-output'].value += 1
             return 'New value!'
@@ -1414,6 +1418,7 @@ class Tests(IntegrationTests):
             'input[type="radio"]'
         )[1]).click()
         chapter2_assertions()
+        self.assertEqual(call_counts['button-output'].value, 0)
         time.sleep(5)
         wait_for(lambda: call_counts['button-output'].value == 1)
         time.sleep(2)  # liberally wait for the front-end to process request
