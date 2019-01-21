@@ -142,7 +142,7 @@ def generate_class_string(name, props, project_shortname, prefix):
         '\'{}\''.format(p)
         for p in prop_keys
         if '*' not in p and
-        p not in ['setProps', 'dashEvents', 'fireEvent']
+        p != 'setProps' + ['**kwargs']
     )
 
     # in R, we set parameters with no defaults to NULL
@@ -162,7 +162,7 @@ def generate_class_string(name, props, project_shortname, prefix):
     for item in prop_keys[:]:
         if item.endswith('-*') \
                 or item in r_keywords \
-                or item in ['setProps']:
+                or item == 'setProps':
             prop_keys.remove(item)
 
     default_argtext += ", ".join(
@@ -279,11 +279,11 @@ def write_help_file(name, props, description, prefix):
     props = reorder_props(props=props)
 
     # Filter props to remove those we don't want to expose
-    for p in prop_keys:
-        if p.endswith("-*") \
-                or p in r_keywords \
-                or p in ['setProps', 'dashEvents', 'fireEvent']:
-            prop_keys.remove(p)
+    for item in prop_keys[:]:
+        if item.endswith('-*') \
+                or item in r_keywords \
+                or item == 'setProps':
+            prop_keys.remove(item)
 
     default_argtext += ", ".join(
         '{}=NULL'.format(p)
@@ -460,7 +460,7 @@ def generate_rpkg(pkg_data,
     )
 
     # generate the internal (not exported to the user) functions which
-    # supply the JavaScript dependencies to the htmlDependency package,
+    # supply the JavaScript dependencies to the htmltools package,
     # which is required by DashR (this avoids having to generate an
     # RData file from within Python, given the current package generation
     # workflow)
