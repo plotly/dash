@@ -79,7 +79,6 @@ class Dash(object):
             assets_folder='assets',
             assets_url_path='/assets',
             assets_ignore='',
-            assets_blueprint_name='assets',
             include_assets_files=True,
             url_base_pathname=None,
             assets_external_path=None,
@@ -144,7 +143,7 @@ class Dash(object):
 
         assets_blueprint_name = '{}{}'.format(
             self.config.routes_pathname_prefix.replace('/', '_'),
-            assets_blueprint_name
+            'dash_assets'
         )
 
         self.server.register_blueprint(
