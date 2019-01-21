@@ -150,7 +150,7 @@ class Dash(object):
         self.server.register_blueprint(
             flask.Blueprint(
                 assets_blueprint_name, name,
-                static_folder='assets',
+                static_folder=self._assets_folder,
                 static_url_path='{}{}'.format(
                     self.config.routes_pathname_prefix,
                     assets_url_path.lstrip('/')
