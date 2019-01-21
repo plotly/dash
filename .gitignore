@@ -20,4 +20,3 @@ dist
 npm-debug*
 /.tox
 .idea
-package-lock.json
