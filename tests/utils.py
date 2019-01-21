@@ -1,4 +1,3 @@
-import json
 import time
 
 
@@ -14,16 +13,21 @@ def invincible(func):
     return wrap
 
 
-
 class WaitForTimeout(Exception):
     """This should only be raised inside the `wait_for` function."""
     pass
 
 
-def wait_for(condition_function, get_message=lambda: '', *args, **kwargs):
+def wait_for(condition_function, get_message=None, expected_value=None,
+             timeout=TIMEOUT, *args, **kwargs):
     """
-    Waits for condition_function to return True or raises WaitForTimeout.
-    :param (function) condition_function: Should return True on success.
+    Waits for condition_function to return truthy or raises WaitForTimeout.
+    :param (function) condition_function: Should return truthy or
+        expected_value on success.
+    :param (function) get_message: Optional failure message function
+    :param expected_value: Optional return value to wait for. If omitted,
+        success is any truthy value.
+    :param (float) timeout: max seconds to wait. Defaults to 5
     :param args: Optional args to pass to condition_function.
     :param kwargs: Optional kwargs to pass to condition_function.
         if `timeout` is in kwargs, it will be used to override TIMEOUT
@@ -48,19 +52,24 @@ def wait_for(condition_function, get_message=lambda: '', *args, **kwargs):
             return condition_function(**kwargs)
         return condition_function()
 
-    if 'timeout' in kwargs:
-        timeout = kwargs['timeout']
-        del kwargs['timeout']
-    else:
-        timeout = TIMEOUT
-
     start_time = time.time()
     while time.time() < start_time + timeout:
-        if wrapped_condition_function():
+        condition_val = wrapped_condition_function()
+        if expected_value is None:
+            if condition_val:
+                return True
+        elif condition_val == expected_value:
             return True
         time.sleep(0.5)
 
-    raise WaitForTimeout(get_message())
+    if get_message:
+        message = get_message()
+    elif expected_value:
+        message = 'Final value: {}'.format(condition_val)
+    else:
+        message = ''
+
+    raise WaitForTimeout(message)
 
 
 def assert_clean_console(TestClass):

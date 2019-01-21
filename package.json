@@ -13,7 +13,8 @@
     "start": "webpack-serve ./webpack.serve.config.js",
     "format": "prettier --config .prettierrc --write src/**/*.js",
     "format:test": "prettier --config .prettierrc src/**/*.js --list-different",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "test:py": "python -m unittest tests.test_render tests.test_race_conditions"
   },
   "author": "chriddyp",
   "license": "MIT",
