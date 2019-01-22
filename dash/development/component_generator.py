@@ -139,6 +139,9 @@ def cli():
 # pylint: disable=undefined-variable
 def byteify(input_object):
     if isinstance(input_object, dict):
+        if sys.version_info[0] >= 3:
+            return {byteify(key): byteify(value)
+                    for key, value in input_object.items()}
         return {byteify(key): byteify(value)
                 for key, value in input_object.iteritems()}
     elif isinstance(input_object, list):
