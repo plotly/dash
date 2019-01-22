@@ -131,7 +131,7 @@ def generate_class_string(name, props, project_shortname, prefix):
     # Ensure props are ordered with children first
     props = reorder_props(props=props)
 
-    prop_keys = props.keys()
+    prop_keys = list(props.keys())
 
     default_paramtext = ''
     default_argtext = ''
@@ -270,13 +270,14 @@ def write_help_file(name, props, description, prefix):
 
     """
     file_name = '{}{}.Rd'.format(prefix, name)
-    prop_keys = props.keys()
 
     default_argtext = ''
     item_text = ''
 
     # Ensure props are ordered with children first
     props = reorder_props(props=props)
+
+    prop_keys = list(props.keys())
 
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
