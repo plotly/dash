@@ -66,7 +66,11 @@ def generate_components(components_source, project_shortname,
         sys.exit(1)
 
     jsondata_unicode = json.loads(out.decode(), object_pairs_hook=OrderedDict)
-    metadata = byteify(jsondata_unicode)
+
+    if sys.version_info[0] >= 3:
+        metadata = jsondata_unicode
+    else:
+        metadata = byteify(jsondata_unicode)
 
     generator_methods = [generate_class_file]
 
@@ -92,7 +96,10 @@ def generate_components(components_source, project_shortname,
     if rprefix:
         with open('package.json', 'r') as f:
             jsondata_unicode = json.load(f, object_pairs_hook=OrderedDict)
-            pkg_data = byteify(jsondata_unicode)
+            if sys.version_info[0] >= 3:
+                pkg_data = jsondata_unicode
+            else:
+                pkg_data = byteify(jsondata_unicode)
 
         generate_exports(
             project_shortname, components, metadata, pkg_data, prefix
@@ -139,16 +146,10 @@ def cli():
 # pylint: disable=undefined-variable
 def byteify(input_object):
     if isinstance(input_object, dict):
-        if sys.version_info[0] >= 3:
-            return {byteify(key): byteify(value)
-                    for key, value in input_object.items()}
         return {byteify(key): byteify(value)
                 for key, value in input_object.iteritems()}
     elif isinstance(input_object, list):
         return [byteify(element) for element in input_object]
-    elif sys.version_info[0] >= 3:
-        if isinstance(input_object, str):
-            return input_object.encode('utf-8')
     elif isinstance(input_object, unicode): # noqa:F821
         return input_object.encode('utf-8')
     return input_object
