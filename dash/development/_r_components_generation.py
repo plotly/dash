@@ -161,7 +161,8 @@ def generate_class_string(name, props, project_shortname, prefix):
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
         if item.endswith('-*') \
-                or item in r_keywords + ['setProps']:
+                or item in r_keywords \
+                or item == 'setProps':
             prop_keys.remove(item)
 
     default_argtext += ", ".join(
