@@ -65,7 +65,9 @@ def generate_components(components_source, project_shortname,
             file=sys.stderr)
         sys.exit(1)
 
-    metadata = json.loads(out.decode(), object_pairs_hook=OrderedDict)
+    jsondata_unicode = json.loads(out.decode(), object_pairs_hook=OrderedDict)
+    metadata = byteify(jsondata_unicode)
+
     generator_methods = [generate_class_file]
 
     if rprefix:
@@ -89,7 +91,8 @@ def generate_components(components_source, project_shortname,
 
     if rprefix:
         with open('package.json', 'r') as f:
-            pkg_data = json.load(f, object_pairs_hook=OrderedDict)
+            jsondata_unicode = json.load(f, object_pairs_hook=OrderedDict)
+            pkg_data = byteify(jsondata_unicode)
 
         generate_exports(
             project_shortname, components, metadata, pkg_data, prefix
@@ -131,6 +134,17 @@ def cli():
         package_info_filename=args.package_info_filename,
         ignore=args.ignore,
         rprefix=args.r_prefix)
+
+
+def byteify(input_object):
+    if isinstance(input_object, dict):
+        return {byteify(key): byteify(value)
+                for key, value in input_object.iteritems()}
+    elif isinstance(input_object, list):
+        return [byteify(element) for element in input_object]
+    elif isinstance(input_object, unicode):
+        return input_object.encode('utf-8')
+    return input_object
 
 
 if __name__ == '__main__':

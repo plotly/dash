@@ -142,7 +142,7 @@ def generate_class_string(name, props, project_shortname, prefix):
         '\'{}\''.format(p)
         for p in prop_keys
         if '*' not in p and
-        p != 'setProps' + ['**kwargs']
+        p not in ['setProps']
     )
 
     # in R, we set parameters with no defaults to NULL
@@ -161,8 +161,7 @@ def generate_class_string(name, props, project_shortname, prefix):
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
         if item.endswith('-*') \
-                or item in r_keywords \
-                or item == 'setProps':
+                or item in r_keywords + ['setProps']:
             prop_keys.remove(item)
 
     default_argtext += ", ".join(
