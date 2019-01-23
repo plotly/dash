@@ -8,9 +8,6 @@ const styles = {
   overlay: {
     position: 'relative',
     padding: '2px',
-    backgroundColor: 'rgb(0, 0, 255, .5)',
-    border: '1px solid black',
-    borderRadius: '2px',
     display: 'inline-block'
   },
   childWrapper: {

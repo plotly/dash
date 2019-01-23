@@ -1757,29 +1757,29 @@ class Tests(IntegrationTests):
             dash_renderer._js_dist_dependencies,
             [{
                 'external_url': [
-                    'https://unpkg.com/react@16.2.0/umd/react.production.min.js',
-                    'https://unpkg.com/react-dom@16.2.0/umd/react-dom.production.min.js'
+                    'https://unpkg.com/react@16.6.3/umd/react.production.min.js',
+                    'https://unpkg.com/react-dom@16.6.3/umd/react-dom.production.min.js'
                 ],
                 'relative_package_path': [
-                    'react@16.2.0.production.min.js',
-                    'react-dom@16.2.0.production.min.js',
+                    'react@16.6.3.production.min.js',
+                    'react-dom@16.6.3.production.min.js',
                 ],
                 'namespace': 'dash_renderer',
             }])
 
-        dash_renderer._set_react_version('16.2.0')
+        dash_renderer._set_react_version('16.6.3')
 
         # Check that the _js_dist_dependencies updated
         self.assertEqual(
             dash_renderer._js_dist_dependencies,
             [{
                 'external_url': [
-                    'https://unpkg.com/react@16.2.0/umd/react.production.min.js',
-                    'https://unpkg.com/react-dom@16.2.0/umd/react-dom.production.min.js',
+                    'https://unpkg.com/react@16.6.3/umd/react.production.min.js',
+                    'https://unpkg.com/react-dom@16.6.3/umd/react-dom.production.min.js',
                 ],
                 'relative_package_path': [
-                    'react@16.2.0.production.min.js',
-                    'react-dom@16.2.0.production.min.js'
+                    'react@16.6.3.production.min.js',
+                    'react-dom@16.6.3.production.min.js'
                 ],
                 'namespace': 'dash_renderer',
             }])

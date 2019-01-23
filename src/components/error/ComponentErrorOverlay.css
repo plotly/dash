@@ -1,0 +1,25 @@
+.dash-error-overlay {
+    padding: 1rem;
+    background-color: #FF0000;
+    color: white;
+    display: inline-block;
+    animation: dash-error-overlay-animation 0.5s;
+    margin: 1rem;
+}
+
+@keyframes dash-error-overlay-animation {
+    from {
+        opacity: 0;
+        -webkit-transform: scale(1.2);
+        -moz-transform: scale(1.2);
+        -ms-transform: scale(1.2);
+        transform: scale(1.2);
+    }
+    to {
+        opacity: 1;
+        -webkit-transform: scale(1);
+        -moz-transform: scale(1);
+        -ms-transform: scale(1);
+        transform: scale(1);
+    }
+}

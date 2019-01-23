@@ -1,0 +1,59 @@
+.dash-fe-errors {
+}
+
+.dash-fe-error-top {
+    display: flex;
+    align-items: center;
+}
+.dash-fe-error__icon-error {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    margin-right: 16px;
+}
+.dash-fe-error__icon-close {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    display: inline-block;
+}
+.dash-fe-error__icon-close:hover {
+    cursor: pointer;
+}
+.dash-fe-error__icon-arrow {
+    width: 8px;
+    height: 28px;
+    margin: 0px 8px;
+}
+.dash-fe-error__icon-arrow:hover {
+    cursor: pointer;
+}
+.dash-fe-error__title {
+    text-align: left;
+    margin: 0px;
+    font-size: 18px;
+}
+.dash-fe-error__collapse {
+    width: 14px;
+    position: absolute;
+    right: 22px;
+}
+.dash-fe-error__collapse:hover {
+    cursor: pointer;
+}
+.dash-fe-error__collapse--flipped {
+    -webkit-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.dash-fe-error__st {
+    background-color: #fdf3f4;
+    width: 386px;
+    height: 200px;
+    overflow: scroll;
+    padding: 1rem;
+    margin-top: 8px;
+}

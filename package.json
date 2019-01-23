@@ -9,6 +9,7 @@
     "publish-all": "npm publish && echo \"twine!!!\"",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "build:dev": "webpack --mode development",
+    "build:dev.watch": "webpack --mode development --watch",
     "build:prod": "webpack --mode production",
     "start": "webpack-serve ./webpack.serve.config.js",
     "format": "prettier --config .prettierrc --write src/**/*.js",
@@ -19,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
+    "@svgr/webpack": "^4.1.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.23.0",

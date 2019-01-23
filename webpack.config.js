@@ -56,6 +56,10 @@ module.exports = (env, argv) => {
                         },
                     ],
                 },
+                {
+                    test: /\.svg$/,
+                    use: ['@svgr/webpack']
+                }
             ],
         },
         devtool: mode === 'development' ? 'eval-source-map' : 'none',
