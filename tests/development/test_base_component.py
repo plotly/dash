@@ -689,7 +689,7 @@ class TestGenerateClass(unittest.TestCase):
     def test_docstring(self):
         assert_docstring(self.assertEqual, self.ComponentClass.__doc__)
 
-    def test_events(self):
+    def test_no_events(self):
         self.assertEqual(
             hasattr(self.ComponentClass(), 'available_events'),
             False
