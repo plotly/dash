@@ -22,6 +22,8 @@ import Tab from './components/Tab.react';
 import Store from './components/Store.react';
 import LogoutButton from './components/LogoutButton.react';
 
+import './components/css/react-dates@12.3.0.css';
+
 export {
     Checklist,
     ConfirmDialog,
