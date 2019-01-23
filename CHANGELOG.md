@@ -2,6 +2,7 @@
 ## Fixed
 - Asset blueprint takes routes prefix into it's static path. [#547](https://github.com/plotly/dash/pull/547)
 - Asset url path no longer strip routes from requests. [#547](https://github.com/plotly/dash/pull/547)
+- Remove print statement from PreventUpdate error handler. [#548](https://github.com/plotly/dash/pull/548)
 
 ## Changed
 - `assets_folder` argument now default to 'assets' [#547](https://github.com/plotly/dash/pull/547)
