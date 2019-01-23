@@ -76,7 +76,7 @@ class Dash(object):
             name='__main__',
             server=None,
             static_folder='static',
-            assets_folder=None,
+            assets_folder='assets',
             assets_url_path='/assets',
             assets_ignore='',
             include_assets_files=True,
@@ -102,20 +102,14 @@ class Dash(object):
                 See https://github.com/plotly/dash/issues/141 for details.
                 ''', DeprecationWarning)
 
-        name = name if server is None else server.name
-        self._assets_folder = assets_folder or os.path.join(
-            flask.helpers.get_root_path(name), 'assets'
+        self._assets_folder = os.path.join(
+            flask.helpers.get_root_path(name),
+            assets_folder,
         )
         self._assets_url_path = assets_url_path
 
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
-
-        if 'assets' not in self.server.blueprints:
-            self.server.register_blueprint(
-                flask.Blueprint('assets', 'assets',
-                                static_folder=self._assets_folder,
-                                static_url_path=assets_url_path))
 
         env_configs = _configs.env_configs()
 
@@ -145,6 +139,22 @@ class Dash(object):
                 'components_cache_max_age', components_cache_max_age,
                 env_configs, 2678400))
         })
+
+        assets_blueprint_name = '{}{}'.format(
+            self.config.routes_pathname_prefix.replace('/', '_'),
+            'dash_assets'
+        )
+
+        self.server.register_blueprint(
+            flask.Blueprint(
+                assets_blueprint_name, name,
+                static_folder=self._assets_folder,
+                static_url_path='{}{}'.format(
+                    self.config.routes_pathname_prefix,
+                    assets_url_path.lstrip('/')
+                )
+            )
+        )
 
         # list of dependencies
         self.callback_map = {}
@@ -1056,7 +1066,6 @@ class Dash(object):
     def get_asset_url(self, path):
         asset = _get_asset_path(
             self.config.requests_pathname_prefix,
-            self.config.routes_pathname_prefix,
             path,
             self._assets_url_path.lstrip('/')
         )

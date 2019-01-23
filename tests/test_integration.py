@@ -361,7 +361,6 @@ class Tests(IntegrationTests):
 
     def test_assets(self):
         app = dash.Dash(__name__,
-                        assets_folder='tests/assets',
                         assets_ignore='.*ignored.*')
         app.index_string = '''
         <!DOCTYPE html>

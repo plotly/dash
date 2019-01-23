@@ -1,3 +1,13 @@
+## [UNRELEASED] - 2019-01-23
+## Fixed
+- Asset blueprint takes routes prefix into it's static path. [#547](https://github.com/plotly/dash/pull/547)
+- Asset url path no longer strip routes from requests. [#547](https://github.com/plotly/dash/pull/547)
+
+## Changed
+- `assets_folder` argument now default to 'assets' [#547](https://github.com/plotly/dash/pull/547)
+- The assets folder is now always relative to the given root path of `name` argument, the default of `__main__` will get the `cwd`. [#547](https://github.com/plotly/dash/pull/547)
+- No longer coerce the name argument from the server if the server argument is provided. [#547](https://github.com/plotly/dash/pull/547)
+
 ## [0.35.2] - 2019-01-11
 ## Fixed
 - Fix typo in some exception names [#522](https://github.com/plotly/dash/pull/522)
