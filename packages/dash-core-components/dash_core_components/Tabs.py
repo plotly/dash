@@ -29,19 +29,16 @@ colors: {
    primary: '#1975FA',
    background: '#f9f9f9'
  }. colors has the following type: dict containing keys 'border', 'primary', 'background'.
-Those keys have the following types: 
+Those keys have the following types:
   - border (string; optional)
   - primary (string; optional)
-  - background (string; optional)
-
-Available events: """
+  - background (string; optional)"""
     @_explicitize_args
     def __init__(self, children=None, id=Component.UNDEFINED, value=Component.UNDEFINED, className=Component.UNDEFINED, content_className=Component.UNDEFINED, parent_className=Component.UNDEFINED, style=Component.UNDEFINED, parent_style=Component.UNDEFINED, content_style=Component.UNDEFINED, vertical=Component.UNDEFINED, mobile_breakpoint=Component.UNDEFINED, colors=Component.UNDEFINED, **kwargs):
         self._prop_names = ['children', 'id', 'value', 'className', 'content_className', 'parent_className', 'style', 'parent_style', 'content_style', 'vertical', 'mobile_breakpoint', 'colors']
         self._type = 'Tabs'
         self._namespace = 'dash_core_components'
         self._valid_wildcard_attributes =            []
-        self.available_events = []
         self.available_properties = ['children', 'id', 'value', 'className', 'content_className', 'parent_className', 'style', 'parent_style', 'content_style', 'vertical', 'mobile_breakpoint', 'colors']
         self.available_wildcard_properties =            []
 

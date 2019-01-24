@@ -18,7 +18,7 @@ export default class RangeSlider extends Component {
     }
 
     render() {
-        const {fireEvent, setProps, updatemode} = this.props;
+        const {setProps, updatemode} = this.props;
         const {value} = this.state;
         return (
             <Range
@@ -28,9 +28,6 @@ export default class RangeSlider extends Component {
                         if (setProps) {
                             setProps({value});
                         }
-                        if (fireEvent) {
-                            fireEvent('change');
-                        }
                     }
                 }}
                 onAfterChange={value => {
@@ -38,16 +35,10 @@ export default class RangeSlider extends Component {
                         if (setProps) {
                             setProps({value});
                         }
-                        if (fireEvent) {
-                            fireEvent('change');
-                        }
                     }
                 }}
                 value={value}
-                {...omit(
-                    ['value', 'fireEvent', 'setProps', 'updatemode'],
-                    this.props
-                )}
+                {...omit(['value', 'setProps', 'updatemode'], this.props)}
             />
         );
     }
@@ -160,16 +151,9 @@ RangeSlider.propTypes = {
     updatemode: PropTypes.oneOf(['mouseup', 'drag']),
 
     /**
-     * Dash-assigned callback that gets fired when the checkbox item gets selected.
-     */
-    fireEvent: PropTypes.func,
-
-    /**
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    dashEvents: PropTypes.oneOf(['change']),
 };
 
 RangeSlider.defaultProps = {

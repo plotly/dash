@@ -55,7 +55,7 @@ export default class Dropdown extends Component {
     }
 
     render() {
-        const {id, fireEvent, multi, options, setProps, style} = this.props;
+        const {id, multi, options, setProps, style} = this.props;
         const {filterOptions, value} = this.state;
         let selectedValue;
         if (R.type(value) === 'array') {
@@ -93,11 +93,8 @@ export default class Dropdown extends Component {
                                 setProps({value});
                             }
                         }
-                        if (fireEvent) {
-                            fireEvent('change');
-                        }
                     }}
-                    {...omit(['fireEvent', 'setProps', 'value'], this.props)}
+                    {...omit(['setProps', 'value'], this.props)}
                 />
             </div>
         );
@@ -182,10 +179,6 @@ Dropdown.propTypes = {
     setProps: PropTypes.func,
 
     style: PropTypes.object,
-
-    dashEvents: PropTypes.oneOf(['change']),
-
-    fireEvent: PropTypes.func,
 };
 
 Dropdown.defaultProps = {

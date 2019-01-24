@@ -21,16 +21,13 @@ Keyword arguments:
 - labelStyle (dict; optional): The style of the <label> that wraps the radio input
  and the option's label
 - labelClassName (string; optional): The class of the <label> that wraps the radio input
- and the option's label
-
-Available events: 'change'"""
+ and the option's label"""
     @_explicitize_args
     def __init__(self, id=Component.UNDEFINED, options=Component.UNDEFINED, value=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, inputStyle=Component.UNDEFINED, inputClassName=Component.UNDEFINED, labelStyle=Component.UNDEFINED, labelClassName=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'options', 'value', 'style', 'className', 'inputStyle', 'inputClassName', 'labelStyle', 'labelClassName']
         self._type = 'RadioItems'
         self._namespace = 'dash_core_components'
         self._valid_wildcard_attributes =            []
-        self.available_events = ['change']
         self.available_properties = ['id', 'options', 'value', 'style', 'className', 'inputStyle', 'inputClassName', 'labelStyle', 'labelClassName']
         self.available_wildcard_properties =            []
 

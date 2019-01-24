@@ -29,7 +29,7 @@ export default class Input extends Component {
     }
 
     render() {
-        const {fireEvent, setProps, type, min, max, debounce} = this.props;
+        const {setProps, type, min, max, debounce} = this.props;
         const {value} = setProps
             ? debounce
                 ? this.state
@@ -45,9 +45,6 @@ export default class Input extends Component {
                     ) {
                         return;
                     }
-                    if (fireEvent) {
-                        fireEvent({event: 'change'});
-                    }
                     if (!debounce && setProps) {
                         const castValue =
                             type === 'number' ? Number(newValue) : newValue;
@@ -59,9 +56,6 @@ export default class Input extends Component {
                     }
                 }}
                 onBlur={() => {
-                    if (fireEvent) {
-                        fireEvent({event: 'blur'});
-                    }
                     if (setProps) {
                         const payload = {
                             n_blur: this.props.n_blur + 1,
@@ -91,7 +85,6 @@ export default class Input extends Component {
                 {...omit(
                     [
                         'debounce',
-                        'fireEvent',
                         'value',
                         'n_blur',
                         'n_blur_timestamp',
@@ -343,14 +336,7 @@ Input.propTypes = {
     n_blur_timestamp: PropTypes.number,
 
     /**
-     * Dash-assigned callback that gets fired when the input changes.
-     */
-    fireEvent: PropTypes.func,
-
-    /**
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    dashEvents: PropTypes.oneOf(['blur', 'change']),
 };

@@ -73,8 +73,10 @@ const SetTimeoutExample = `class Controller extends Component {
     render() {
         return (
             <div>
-                <Interval interval={1000} fireEvent={() => {
-                    this.setState({random: Math.random()})
+                <Interval interval={1000} setProps={({n_intervals}) => {
+                    if (n_intervals) {
+                        this.setState({random: Math.random()})
+                    }
                 }}/>
                 <div>
                 	{this.state.random}
@@ -165,9 +167,6 @@ class Controller extends Component {
                 setProps={(props) => {
                     this.setState({props});
                 }}
-                fireEvent={event => {
-                    this.setState({event})
-                }}
                 figure={newFigure}
                 {...properties}
             />
@@ -228,7 +227,6 @@ class Controller extends Component {
             setProps={(props) => {
                 this.setState(props);
             }}
-            fireEvent={event => console.warn(event)}
             value={this.state.value}
             {...properties}
         />);
@@ -289,7 +287,6 @@ class Controller extends Component {
             setProps={(props) => {
                 this.setState(props);
             }}
-            fireEvent={event => console.warn(event)}
             values={this.state.values}
             {...properties}
         />);

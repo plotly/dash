@@ -3,9 +3,15 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
+### Added
+- Added event props `n_blur` and `n_clicks` - along with `n_blur_timestamp` and `n_clicks_timestamp` - in `Textarea` components, to maintain the functionality lost by removing the `click` and `blur` events. All other events were already covered by existing props. [#444](https://github.com/plotly/dash-core-components/pull/444)
+
 ### Fixed
 - Fix dynamically disabling and enabling `Interval` components [#436](https://github.com/plotly/dash-core-components/pull/436)
 - Clear date in DatePickerSingle and DatePickerRange [#434](https://github.com/plotly/dash-core-components/issues/434)
+
+### Removed
+- Removed `Event` system - see https://github.com/plotly/dash/issues/531 for details. [#444](https://github.com/plotly/dash-core-components/pull/444)
 
 ## [0.42.1] - 2019-01-07
 ### Fixed

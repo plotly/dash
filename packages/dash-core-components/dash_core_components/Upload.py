@@ -36,16 +36,13 @@ See: https://github.com/react-dropzone/react-dropzone/issues/276
 - style (dict; optional): CSS styles to apply
 - style_active (dict; optional): CSS styles to apply while active
 - style_reject (dict; optional): CSS styles if rejected
-- style_disabled (dict; optional): CSS styles if disabled
-
-Available events: """
+- style_disabled (dict; optional): CSS styles if disabled"""
     @_explicitize_args
     def __init__(self, children=None, id=Component.UNDEFINED, contents=Component.UNDEFINED, filename=Component.UNDEFINED, last_modified=Component.UNDEFINED, accept=Component.UNDEFINED, disabled=Component.UNDEFINED, disable_click=Component.UNDEFINED, max_size=Component.UNDEFINED, min_size=Component.UNDEFINED, multiple=Component.UNDEFINED, className=Component.UNDEFINED, className_active=Component.UNDEFINED, className_reject=Component.UNDEFINED, className_disabled=Component.UNDEFINED, style=Component.UNDEFINED, style_active=Component.UNDEFINED, style_reject=Component.UNDEFINED, style_disabled=Component.UNDEFINED, **kwargs):
         self._prop_names = ['children', 'id', 'contents', 'filename', 'last_modified', 'accept', 'disabled', 'disable_click', 'max_size', 'min_size', 'multiple', 'className', 'className_active', 'className_reject', 'className_disabled', 'style', 'style_active', 'style_reject', 'style_disabled']
         self._type = 'Upload'
         self._namespace = 'dash_core_components'
         self._valid_wildcard_attributes =            []
-        self.available_events = []
         self.available_properties = ['children', 'id', 'contents', 'filename', 'last_modified', 'accept', 'disabled', 'disable_click', 'max_size', 'min_size', 'multiple', 'className', 'className_active', 'className_reject', 'className_disabled', 'style', 'style_active', 'style_reject', 'style_disabled']
         self.available_wildcard_properties =            []
 

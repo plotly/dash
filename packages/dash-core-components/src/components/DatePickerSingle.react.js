@@ -66,14 +66,11 @@ export default class DatePickerSingle extends Component {
     }
 
     onDateChange(date) {
-        const {setProps, fireEvent} = this.props;
+        const {setProps} = this.props;
         if (setProps && date !== null) {
             setProps({date: date.format('YYYY-MM-DD')});
         } else {
             this.setState({date});
-        }
-        if (fireEvent) {
-            fireEvent('change');
         }
     }
 
@@ -261,13 +258,6 @@ DatePickerSingle.propTypes = {
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    /**
-     * Dash-assigned callback that gets fired when the value changes.
-     */
-    dashEvents: PropTypes.oneOf(['change']),
-
-    fireEvent: PropTypes.func,
 };
 
 DatePickerSingle.defaultProps = {

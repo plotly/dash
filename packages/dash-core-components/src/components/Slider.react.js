@@ -18,7 +18,7 @@ export default class Slider extends Component {
     }
 
     render() {
-        const {setProps, fireEvent, updatemode} = this.props;
+        const {setProps, updatemode} = this.props;
         const {value} = this.state;
         return (
             <ReactSlider
@@ -28,9 +28,6 @@ export default class Slider extends Component {
                         if (setProps) {
                             setProps({value});
                         }
-                        if (fireEvent) {
-                            fireEvent('change');
-                        }
                     }
                 }}
                 onAfterChange={value => {
@@ -38,16 +35,10 @@ export default class Slider extends Component {
                         if (setProps) {
                             setProps({value});
                         }
-                        if (fireEvent) {
-                            fireEvent('change');
-                        }
                     }
                 }}
                 value={value}
-                {...omit(
-                    ['fireEvent', 'setProps', 'updatemode', 'value'],
-                    this.props
-                )}
+                {...omit(['setProps', 'updatemode', 'value'], this.props)}
             />
         );
     }
@@ -141,16 +132,9 @@ Slider.propTypes = {
     updatemode: PropTypes.oneOf(['mouseup', 'drag']),
 
     /**
-     * Dash-assigned callback that gets fired when the checkbox item gets selected.
-     */
-    fireEvent: PropTypes.func,
-
-    /**
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    dashEvents: PropTypes.oneOf(['change']),
 };
 
 Slider.defaultProps = {

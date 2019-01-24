@@ -50,16 +50,13 @@ hidden, checkbox, radio, file, or a button type.
 - n_submit (number; optional): Number of times the `Enter` key was pressed while the input had focus.
 - n_submit_timestamp (number; optional): Last time that `Enter` was pressed.
 - n_blur (number; optional): Number of times the input lost focus.
-- n_blur_timestamp (number; optional): Last time the input lost focus.
-
-Available events: 'blur', 'change'"""
+- n_blur_timestamp (number; optional): Last time the input lost focus."""
     @_explicitize_args
     def __init__(self, id=Component.UNDEFINED, value=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, debounce=Component.UNDEFINED, type=Component.UNDEFINED, autocomplete=Component.UNDEFINED, autofocus=Component.UNDEFINED, disabled=Component.UNDEFINED, inputmode=Component.UNDEFINED, list=Component.UNDEFINED, max=Component.UNDEFINED, maxlength=Component.UNDEFINED, min=Component.UNDEFINED, minlength=Component.UNDEFINED, multiple=Component.UNDEFINED, name=Component.UNDEFINED, pattern=Component.UNDEFINED, placeholder=Component.UNDEFINED, readOnly=Component.UNDEFINED, required=Component.UNDEFINED, selectionDirection=Component.UNDEFINED, selectionEnd=Component.UNDEFINED, selectionStart=Component.UNDEFINED, size=Component.UNDEFINED, spellCheck=Component.UNDEFINED, step=Component.UNDEFINED, n_submit=Component.UNDEFINED, n_submit_timestamp=Component.UNDEFINED, n_blur=Component.UNDEFINED, n_blur_timestamp=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'value', 'style', 'className', 'debounce', 'type', 'autocomplete', 'autofocus', 'disabled', 'inputmode', 'list', 'max', 'maxlength', 'min', 'minlength', 'multiple', 'name', 'pattern', 'placeholder', 'readOnly', 'required', 'selectionDirection', 'selectionEnd', 'selectionStart', 'size', 'spellCheck', 'step', 'n_submit', 'n_submit_timestamp', 'n_blur', 'n_blur_timestamp']
         self._type = 'Input'
         self._namespace = 'dash_core_components'
         self._valid_wildcard_attributes =            []
-        self.available_events = ['blur', 'change']
         self.available_properties = ['id', 'value', 'style', 'className', 'debounce', 'type', 'autocomplete', 'autofocus', 'disabled', 'inputmode', 'list', 'max', 'maxlength', 'min', 'minlength', 'multiple', 'name', 'pattern', 'placeholder', 'readOnly', 'required', 'selectionDirection', 'selectionEnd', 'selectionStart', 'size', 'spellCheck', 'step', 'n_submit', 'n_submit_timestamp', 'n_blur', 'n_blur_timestamp']
         self.available_wildcard_properties =            []
 

@@ -1,7 +1,8 @@
 import Interval from '../../src/components/Interval.react.js';
 import React, {cloneElement, Component} from 'react';
+import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
-import {mount, shallow, render} from 'enzyme';
+import {mount, render} from 'enzyme';
 
 test('Interval render', () => {
     const interval = render(<Interval />);
@@ -31,10 +32,6 @@ class IntervalWrapper extends Component {
         );
     }
 
-    fireEvent({event}) {
-        this.props.fireEvent({event});
-    }
-
     render() {
         return cloneElement(this.props.children, {
             ...omit(this.props, ['children']),
@@ -44,24 +41,22 @@ class IntervalWrapper extends Component {
     }
 }
 
+IntervalWrapper.propTypes = {
+    children: PropTypes.node,
+    setProps: PropTypes.func,
+};
+
 const intervalLength = 50;
 
 // The following number should be large enough for any
 // outstanding timeout events to have settled, but still
 // small enough to be unnoticeable by our implementation.
-const intervalNegligibleMargin = intervalLength * 0.2;
+const intervalNegligibleMargin = intervalLength / 5;
 
 describe('Basic interval usage', () => {
     const makeSut = () => {
         const results = {
-            fireEventCalls: 0,
             nIntervals: 0,
-        };
-
-        const fireEvent = ({event}) => {
-            if (event === 'interval') {
-                results.fireEventCalls += 1;
-            }
         };
 
         const setProps = props => {
@@ -76,7 +71,7 @@ describe('Basic interval usage', () => {
         };
 
         const wrapper = mount(
-            <IntervalWrapper fireEvent={fireEvent} setProps={setProps}>
+            <IntervalWrapper setProps={setProps}>
                 <Interval {...defaultProps} />
             </IntervalWrapper>
         );
@@ -103,7 +98,7 @@ describe('Basic interval usage', () => {
             setTimeout(() => {
                 expect(results.nIntervals).toEqual(1);
                 done();
-            }, intervalLength * 1 + intervalNegligibleMargin);
+            }, intervalLength + intervalNegligibleMargin);
         });
     });
 
@@ -138,21 +133,19 @@ describe('Delayed setProps provisioning', () => {
                 ...omit(this.props, ['children']),
                 setProps: this.state.setPropsProvided
                     ? this.props.setProps
-                    : undefined,
+                    : null,
             });
         }
     }
 
+    DelayedSetPropsWrapper.propTypes = {
+        children: PropTypes.node,
+        setProps: PropTypes.func,
+    };
+
     const makeSut = () => {
         const results = {
-            fireEventCalls: 0,
             nIntervals: 0,
-        };
-
-        const fireEvent = ({event}) => {
-            if (event === 'interval') {
-                results.fireEventCalls += 1;
-            }
         };
 
         const setProps = props => {
@@ -167,7 +160,7 @@ describe('Delayed setProps provisioning', () => {
         };
 
         const wrapper = mount(
-            <DelayedSetPropsWrapper fireEvent={fireEvent} setProps={setProps}>
+            <DelayedSetPropsWrapper setProps={setProps}>
                 <IntervalWrapper>
                     <Interval {...defaultProps} />
                 </IntervalWrapper>
@@ -196,7 +189,7 @@ describe('Delayed setProps provisioning', () => {
             setTimeout(() => {
                 expect(results.nIntervals).toEqual(1);
                 done();
-            }, intervalLength * 1 + intervalNegligibleMargin);
+            }, intervalLength + intervalNegligibleMargin);
         });
     });
 
@@ -240,16 +233,15 @@ describe('Usage of disabled = true', () => {
         }
     }
 
+    DisabledTestingIntervalWrapper.propTypes = {
+        children: PropTypes.node,
+        setProps: PropTypes.func,
+        handleInterval: PropTypes.func,
+    };
+
     const makeSut = handleInterval => {
         const results = {
-            fireEventCalls: 0,
             nIntervals: 0,
-        };
-
-        const fireEvent = ({event}) => {
-            if (event === 'interval') {
-                results.fireEventCalls += 1;
-            }
         };
 
         const setProps = props => {
@@ -267,7 +259,6 @@ describe('Usage of disabled = true', () => {
             <DisabledTestingIntervalWrapper
                 handleInterval={handleInterval}
                 setProps={setProps}
-                fireEvent={fireEvent}
             >
                 <IntervalWrapper>
                     <Interval {...defaultProps} />
@@ -302,7 +293,7 @@ describe('Usage of disabled = true', () => {
                 setTimeout(() => {
                     expect(results.nIntervals).toEqual(1);
                     done();
-                }, intervalLength * 1 + intervalNegligibleMargin);
+                }, intervalLength + intervalNegligibleMargin);
             });
         });
 
@@ -362,7 +353,7 @@ describe('Usage of disabled = true', () => {
                 setTimeout(() => {
                     expect(results.nIntervals).toEqual(1);
                     done();
-                }, intervalLength * 1 + intervalNegligibleMargin);
+                }, intervalLength + intervalNegligibleMargin);
             });
         });
 

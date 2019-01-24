@@ -31,16 +31,13 @@ the selected value.
 - multi (boolean; optional): If true, the user can select multiple values
 - placeholder (string; optional): The grey, default text shown when no option is selected
 - searchable (boolean; optional): Whether to enable the searching feature or not
-- style (dict; optional)
-
-Available events: 'change'"""
+- style (dict; optional)"""
     @_explicitize_args
     def __init__(self, id=Component.UNDEFINED, options=Component.UNDEFINED, value=Component.UNDEFINED, className=Component.UNDEFINED, clearable=Component.UNDEFINED, disabled=Component.UNDEFINED, multi=Component.UNDEFINED, placeholder=Component.UNDEFINED, searchable=Component.UNDEFINED, style=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'options', 'value', 'className', 'clearable', 'disabled', 'multi', 'placeholder', 'searchable', 'style']
         self._type = 'Dropdown'
         self._namespace = 'dash_core_components'
         self._valid_wildcard_attributes =            []
-        self.available_events = ['change']
         self.available_properties = ['id', 'options', 'value', 'className', 'clearable', 'disabled', 'multi', 'placeholder', 'searchable', 'style']
         self.available_wildcard_properties =            []
 

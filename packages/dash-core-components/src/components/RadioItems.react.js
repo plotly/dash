@@ -21,7 +21,6 @@ export default class RadioItems extends Component {
 
     render() {
         const {
-            fireEvent,
             id,
             className,
             style,
@@ -56,9 +55,6 @@ export default class RadioItems extends Component {
                                 this.setState({value: option.value});
                                 if (setProps) {
                                     setProps({value: option.value});
-                                }
-                                if (fireEvent) {
-                                    fireEvent({event: 'change'});
                                 }
                             }}
                         />
@@ -135,16 +131,9 @@ RadioItems.propTypes = {
     labelClassName: PropTypes.string,
 
     /**
-     * Dash-assigned callback that gets fired when the radio item gets selected.
-     */
-    fireEvent: PropTypes.func,
-
-    /**
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    dashEvents: PropTypes.oneOf(['change']),
 };
 
 RadioItems.defaultProps = {

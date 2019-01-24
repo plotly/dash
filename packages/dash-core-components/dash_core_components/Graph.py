@@ -32,12 +32,12 @@ Only applies if `animate` is `true`
 - config (optional): Plotly.js config options.
 See https://plot.ly/javascript/configuration-options/
 for more info.. config has the following type: dict containing keys 'staticPlot', 'editable', 'edits', 'autosizable', 'queueLength', 'fillFrame', 'frameMargins', 'scrollZoom', 'doubleClick', 'showTips', 'showAxisDragHandles', 'showAxisRangeEntryBoxes', 'showLink', 'sendData', 'linkText', 'displayModeBar', 'modeBarButtonsToRemove', 'modeBarButtonsToAdd', 'modeBarButtons', 'displaylogo', 'plotGlPixelRatio', 'topojsonURL', 'mapboxAccessToken'.
-Those keys have the following types: 
+Those keys have the following types:
   - staticPlot (boolean; optional): no interactivity, for export or image generation
   - editable (boolean; optional): we can edit titles, move annotations, etc - sets all pieces of `edits`
 unless a separate `edits` config item overrides individual parts
   - edits (optional): a set of editable properties. edits has the following type: dict containing keys 'annotationPosition', 'annotationTail', 'annotationText', 'axisTitleText', 'colorbarPosition', 'colorbarTitleText', 'legendPosition', 'legendText', 'shapePosition', 'titleText'.
-Those keys have the following types: 
+Those keys have the following types:
   - annotationPosition (boolean; optional): annotationPosition: the main anchor of the annotation, which is the
 text (if no arrow) or the arrow (which drags the whole thing leaving
 the arrow length & direction unchanged)
@@ -83,16 +83,13 @@ the inner arrays have buttons config objects or names of default buttons
   - topojsonURL (string; optional): URL to topojson files used in geo charts
   - mapboxAccessToken (boolean | number | string | dict | list; optional): Mapbox access token (required to plot mapbox trace types)
 If using an Mapbox Atlas server, set this option to '',
-so that plotly.js won't attempt to authenticate to the public Mapbox server.
-
-Available events: 'click', 'clickannotation', 'hover', 'selected', 'relayout', 'unhover'"""
+so that plotly.js won't attempt to authenticate to the public Mapbox server."""
     @_explicitize_args
     def __init__(self, id=Component.UNDEFINED, clickData=Component.UNDEFINED, clickAnnotationData=Component.UNDEFINED, hoverData=Component.UNDEFINED, clear_on_unhover=Component.UNDEFINED, selectedData=Component.UNDEFINED, relayoutData=Component.UNDEFINED, figure=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, animate=Component.UNDEFINED, animation_options=Component.UNDEFINED, config=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'clickData', 'clickAnnotationData', 'hoverData', 'clear_on_unhover', 'selectedData', 'relayoutData', 'figure', 'style', 'className', 'animate', 'animation_options', 'config']
         self._type = 'Graph'
         self._namespace = 'dash_core_components'
         self._valid_wildcard_attributes =            []
-        self.available_events = ['click', 'clickannotation', 'hover', 'selected', 'relayout', 'unhover']
         self.available_properties = ['id', 'clickData', 'clickAnnotationData', 'hoverData', 'clear_on_unhover', 'selectedData', 'relayoutData', 'figure', 'style', 'className', 'animate', 'animation_options', 'config']
         self.available_wildcard_properties =            []
 

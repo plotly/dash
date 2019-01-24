@@ -16,9 +16,9 @@ and the value determines what will show.
 If you want to set the style of a specific mark point,
 the value should be an object which
 contains style and label properties.. marks has the following type: dict containing keys 'number'.
-Those keys have the following types: 
+Those keys have the following types:
   - number (optional): . number has the following type: string | dict containing keys 'style', 'label'.
-Those keys have the following types: 
+Those keys have the following types:
   - style (dict; optional)
   - label (string; optional)
 - value (list; optional): The value of the input
@@ -46,16 +46,13 @@ will only trigger its value when the user has
 finished dragging the slider. If `drag`, then
 the slider will update its value continuously
 as it is being dragged.
-Only use `drag` if your updates are fast.
-
-Available events: 'change'"""
+Only use `drag` if your updates are fast."""
     @_explicitize_args
     def __init__(self, id=Component.UNDEFINED, marks=Component.UNDEFINED, value=Component.UNDEFINED, allowCross=Component.UNDEFINED, className=Component.UNDEFINED, count=Component.UNDEFINED, disabled=Component.UNDEFINED, dots=Component.UNDEFINED, included=Component.UNDEFINED, min=Component.UNDEFINED, max=Component.UNDEFINED, pushable=Component.UNDEFINED, step=Component.UNDEFINED, vertical=Component.UNDEFINED, updatemode=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'marks', 'value', 'allowCross', 'className', 'count', 'disabled', 'dots', 'included', 'min', 'max', 'pushable', 'step', 'vertical', 'updatemode']
         self._type = 'RangeSlider'
         self._namespace = 'dash_core_components'
         self._valid_wildcard_attributes =            []
-        self.available_events = ['change']
         self.available_properties = ['id', 'marks', 'value', 'allowCross', 'className', 'count', 'disabled', 'dots', 'included', 'min', 'max', 'pushable', 'step', 'vertical', 'updatemode']
         self.available_wildcard_properties =            []
 

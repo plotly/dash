@@ -110,7 +110,7 @@ class PlotlyGraph extends Component {
     }
 
     bindEvents() {
-        const {fireEvent, id, setProps, clear_on_unhover} = this.props;
+        const {id, setProps, clear_on_unhover} = this.props;
 
         const gd = document.getElementById(id);
 
@@ -119,9 +119,6 @@ class PlotlyGraph extends Component {
             if (!isNil(clickData)) {
                 if (setProps) {
                     setProps({clickData});
-                }
-                if (fireEvent) {
-                    fireEvent({event: 'click'});
                 }
             }
         });
@@ -133,18 +130,12 @@ class PlotlyGraph extends Component {
             if (setProps) {
                 setProps({clickAnnotationData});
             }
-            if (fireEvent) {
-                fireEvent({event: 'clickannotation'});
-            }
         });
         gd.on('plotly_hover', eventData => {
             const hoverData = filterEventData(gd, eventData, 'hover');
             if (!isNil(hoverData)) {
                 if (setProps) {
                     setProps({hoverData});
-                }
-                if (fireEvent) {
-                    fireEvent({event: 'hover'});
                 }
             }
         });
@@ -154,17 +145,11 @@ class PlotlyGraph extends Component {
                 if (setProps) {
                     setProps({selectedData});
                 }
-                if (fireEvent) {
-                    fireEvent({event: 'selected'});
-                }
             }
         });
         gd.on('plotly_deselect', () => {
             if (setProps) {
                 setProps({selectedData: null});
-            }
-            if (fireEvent) {
-                fireEvent({event: 'selected'});
             }
         });
         gd.on('plotly_relayout', eventData => {
@@ -173,18 +158,12 @@ class PlotlyGraph extends Component {
                 if (setProps) {
                     setProps({relayoutData});
                 }
-                if (fireEvent) {
-                    fireEvent({event: 'relayout'});
-                }
             }
         });
         gd.on('plotly_unhover', () => {
             if (clear_on_unhover) {
                 if (setProps) {
                     setProps({hoverData: null});
-                }
-                if (fireEvent) {
-                    fireEvent({event: 'unhover'});
                 }
             }
         });
@@ -487,26 +466,9 @@ const graphPropTypes = {
     }),
 
     /**
-     *
-     */
-    dashEvents: PropTypes.oneOf([
-        'click',
-        'clickannotation',
-        'hover',
-        'selected',
-        'relayout',
-        'unhover',
-    ]),
-
-    /**
      * Function that updates the state tree.
      */
     setProps: PropTypes.func,
-
-    /**
-     * Function that fires events
-     */
-    fireEvent: PropTypes.func,
 };
 
 const graphDefaultProps = {

@@ -50,7 +50,7 @@ export default class DatePickerRange extends Component {
         this.propsToState(this.props);
     }
     onDatesChange({startDate: start_date, endDate: end_date}) {
-        const {setProps, fireEvent, updatemode} = this.props;
+        const {setProps, updatemode} = this.props;
         const old_start_date = this.state.start_date;
         const old_end_date = this.state.end_date;
         const newState = {};
@@ -73,10 +73,6 @@ export default class DatePickerRange extends Component {
             }
         }
         newState.end_date = end_date;
-
-        if (fireEvent) {
-            fireEvent('change');
-        }
 
         this.setState(newState);
     }
@@ -318,11 +314,6 @@ DatePickerRange.propTypes = {
     setProps: PropTypes.func,
 
     /**
-     * Dash-assigned callback that gets fired when the value changes.
-     */
-    dashEvents: PropTypes.oneOf(['change']),
-
-    /**
      * Determines when the component should update
      * its value. If `bothdates`, then the DatePicker
      * will only trigger its value when the user has
@@ -331,8 +322,6 @@ DatePickerRange.propTypes = {
      * as one date is picked.
      */
     updatemode: PropTypes.oneOf(['singledate', 'bothdates']),
-
-    fireEvent: PropTypes.func,
 };
 
 DatePickerRange.defaultProps = {

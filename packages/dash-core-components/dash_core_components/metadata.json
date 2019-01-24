@@ -110,32 +110,12 @@
           "computed": false
         }
       },
-      "fireEvent": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Dash-assigned callback that gets fired when the checkbox item gets selected."
-      },
       "setProps": {
         "type": {
           "name": "func"
         },
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
-      },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'change'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": ""
       }
     }
   },
@@ -625,19 +605,6 @@
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
       },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'change'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "Dash-assigned callback that gets fired when the value changes."
-      },
       "updatemode": {
         "type": {
           "name": "enum",
@@ -658,13 +625,6 @@
           "value": "'singledate'",
           "computed": false
         }
-      },
-      "fireEvent": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": ""
       }
     }
   },
@@ -944,26 +904,6 @@
         },
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
-      },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'change'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "Dash-assigned callback that gets fired when the value changes."
-      },
-      "fireEvent": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": ""
       }
     }
   },
@@ -1092,26 +1032,6 @@
       "style": {
         "type": {
           "name": "object"
-        },
-        "required": false,
-        "description": ""
-      },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'change'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": ""
-      },
-      "fireEvent": {
-        "type": {
-          "name": "func"
         },
         "required": false,
         "description": ""
@@ -1449,52 +1369,12 @@
           "computed": false
         }
       },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'clickannotation'",
-              "computed": false
-            },
-            {
-              "value": "'hover'",
-              "computed": false
-            },
-            {
-              "value": "'selected'",
-              "computed": false
-            },
-            {
-              "value": "'relayout'",
-              "computed": false
-            },
-            {
-              "value": "'unhover'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": ""
-      },
       "setProps": {
         "type": {
           "name": "func"
         },
         "required": false,
         "description": "Function that updates the state tree."
-      },
-      "fireEvent": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Function that fires events"
       }
     }
   },
@@ -1856,41 +1736,17 @@
           "computed": false
         }
       },
-      "fireEvent": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Dash-assigned callback that gets fired when the input changes."
-      },
       "setProps": {
         "type": {
           "name": "func"
         },
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
-      },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'blur'",
-              "computed": false
-            },
-            {
-              "value": "'change'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": ""
       }
     }
   },
   "src/components/Interval.react.js": {
-    "description": "A component that repeatedly fires an event (\"interval\")\nwith a fixed time delay between each event.\nInterval is good for triggering a component on a recurring basis.\nThe time delay is set with the property \"interval\" in milliseconds.",
+    "description": "A component that repeatedly increments a counter `n_intervals`\nwith a fixed time delay between each increment.\nInterval is good for triggering a component on a recurring basis.\nThe time delay is set with the property \"interval\" in milliseconds.",
     "displayName": "Interval",
     "methods": [
       {
@@ -1957,7 +1813,7 @@
           "name": "number"
         },
         "required": false,
-        "description": "This component will fire an event every `interval`\nmilliseconds with the event name `setInterval`",
+        "description": "This component will increment the counter `n_intervals` every\n`interval` milliseconds",
         "defaultValue": {
           "value": "1000",
           "computed": false
@@ -1968,7 +1824,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, the interval will no longer trigger\nan event."
+        "description": "If True, the counter will no longer update"
       },
       "n_intervals": {
         "type": {
@@ -1986,18 +1842,11 @@
           "name": "number"
         },
         "required": false,
-        "description": "Number of times the interval will be fired. If -1, then the interval has no limit (the default) and if 0 then the interval stops running.",
+        "description": "Number of times the interval will be fired.\nIf -1, then the interval has no limit (the default)\nand if 0 then the interval stops running.",
         "defaultValue": {
           "value": "-1",
           "computed": false
         }
-      },
-      "fireEvent": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Dash assigned callback"
       },
       "setProps": {
         "type": {
@@ -2005,19 +1854,6 @@
         },
         "required": false,
         "description": "Dash assigned callback"
-      },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'interval'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": ""
       }
     }
   },
@@ -2389,32 +2225,12 @@
           "computed": false
         }
       },
-      "fireEvent": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Dash-assigned callback that gets fired when the radio item gets selected."
-      },
       "setProps": {
         "type": {
           "name": "func"
         },
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
-      },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'change'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": ""
       }
     }
   },
@@ -2577,32 +2393,12 @@
           "computed": false
         }
       },
-      "fireEvent": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Dash-assigned callback that gets fired when the checkbox item gets selected."
-      },
       "setProps": {
         "type": {
           "name": "func"
         },
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
-      },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'change'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": ""
       }
     }
   },
@@ -2733,32 +2529,12 @@
           "computed": false
         }
       },
-      "fireEvent": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Dash-assigned callback that gets fired when the checkbox item gets selected."
-      },
       "setProps": {
         "type": {
           "name": "func"
         },
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
-      },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'change'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": ""
       }
     }
   },
@@ -3413,6 +3189,50 @@
         "required": false,
         "description": "Text to be displayed in a tooltip when hovering over the element."
       },
+      "n_blur": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the textarea lost focus.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "n_blur_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Last time the textarea lost focus.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
+      "n_clicks": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Number of times the textarea has been clicked.",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "n_clicks_timestamp": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Last time the textarea was clicked.",
+        "defaultValue": {
+          "value": "-1",
+          "computed": false
+        }
+      },
       "setProps": {
         "type": {
           "name": "func"
@@ -3420,33 +3240,12 @@
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
       },
-      "fireEvent": {
-        "type": {
-          "name": "func"
+      "debounce": {
+        "defaultValue": {
+          "value": "false",
+          "computed": false
         },
-        "required": false,
-        "description": "A callback for firing events to dash."
-      },
-      "dashEvents": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'click'",
-              "computed": false
-            },
-            {
-              "value": "'blur'",
-              "computed": false
-            },
-            {
-              "value": "'change'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": ""
+        "required": false
       }
     }
   },

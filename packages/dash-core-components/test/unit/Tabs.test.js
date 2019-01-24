@@ -1,7 +1,7 @@
 import Tabs from '../../src/components/Tabs.react.js';
 import Tab from '../../src/components/Tab.react.js';
 import React from 'react';
-import {mount, shallow, render} from 'enzyme';
+import {mount, render} from 'enzyme';
 
 test('Tabs render', () => {
     const tabs = render(

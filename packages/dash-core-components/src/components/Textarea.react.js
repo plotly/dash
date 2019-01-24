@@ -17,7 +17,7 @@ export default class Textarea extends Component {
     }
 
     render() {
-        const {fireEvent, setProps} = this.props;
+        const {setProps} = this.props;
         const {value} = this.state;
 
         return (
@@ -28,25 +28,36 @@ export default class Textarea extends Component {
                     if (setProps) {
                         setProps({value: e.target.value});
                     }
-                    if (fireEvent) {
-                        fireEvent({event: 'change'});
-                    }
                 }}
                 onBlur={() => {
-                    if (fireEvent) {
-                        fireEvent({event: 'blur'});
+                    if (setProps) {
+                        setProps({
+                            n_blur: this.props.n_blur + 1,
+                            n_blur_timestamp: new Date(),
+                        });
                     }
                 }}
                 onClick={() => {
-                    if (fireEvent) {
-                        fireEvent({event: 'click'});
+                    if (setProps) {
+                        setProps({
+                            n_clicks: this.props.n_clicks + 1,
+                            n_clicks_timestamp: new Date(),
+                        });
                     }
                 }}
-                {...omit(['fireEvent', 'setProps', 'value'], this.props)}
+                {...omit(['setProps', 'value'], this.props)}
             />
         );
     }
 }
+
+Textarea.defaultProps = {
+    n_blur: 0,
+    n_blur_timestamp: -1,
+    n_clicks: 0,
+    n_clicks_timestamp: -1,
+    debounce: false,
+};
 
 Textarea.propTypes = {
     /**
@@ -182,14 +193,25 @@ Textarea.propTypes = {
     title: PropTypes.string,
 
     /**
+     * Number of times the textarea lost focus.
+     */
+    n_blur: PropTypes.number,
+    /**
+     * Last time the textarea lost focus.
+     */
+    n_blur_timestamp: PropTypes.number,
+
+    /**
+     * Number of times the textarea has been clicked.
+     */
+    n_clicks: PropTypes.number,
+    /**
+     * Last time the textarea was clicked.
+     */
+    n_clicks_timestamp: PropTypes.number,
+
+    /**
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    /**
-     * A callback for firing events to dash.
-     */
-    fireEvent: PropTypes.func,
-
-    dashEvents: PropTypes.oneOf(['click', 'blur', 'change']),
 };
