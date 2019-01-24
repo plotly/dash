@@ -14,39 +14,14 @@
     "packageRules": [
         {
             "packageNames": [
-                "rc-slider"
-            ],
-            "allowedVersions": "<9.0.0"
-        },
-        {
-            "packageNames": [
-                "react-dates"
-            ],
-            "allowedVersions": "<13.0.0"
-        },
-        {
-            "packageNames": [
-                "react-dropzone"
-            ],
-            "allowedVersions": "<5.0.0"
-        },
-        {
-            "packageNames": [
-                "react-markdown"
-            ],
-            "allowedVersions": "<3.0.0"
-        },
-        {
-            "packageNames": [
-                "react-syntax-highlighter"
-            ],
-            "allowedVersions": "<6.0.0"
-        },
-        {
-            "packageNames": [
+                "rc-slider",
+                "react-dates",
+                "react-dropzone",
+                "react-markdown",
+                "react-syntax-highlighter",
                 "react-virtualized-select"
             ],
-            "allowedVersions": "<4.0.0"
+            "updateTypes": "pin"
         },
         {
             "packagePatterns": [
