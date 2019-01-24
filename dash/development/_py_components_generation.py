@@ -3,6 +3,7 @@ import copy
 import os
 
 from dash.development.base_component import _explicitize_args
+from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from .base_component import Component
 
@@ -285,7 +286,9 @@ def prohibit_events(props):
     ?
     """
     if 'dashEvents' in props or 'fireEvents' in props:
-        raise AttributeError('Events are no longer supported by dash')
+        raise NonExistentEventException(
+            'Events are no longer supported by dash. Use properties instead, '
+            'eg `n_clicks` instead of a `click` event.')
 
 
 def parse_wildcards(props):
