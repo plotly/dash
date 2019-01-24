@@ -15,11 +15,12 @@ import logging
 
 from functools import wraps
 
-import plotly
-import dash_renderer
 import flask
 from flask import Flask, Response
 from flask_compress import Compress
+
+import plotly
+import dash_renderer
 
 from .dependencies import Input, Output, State
 from .resources import Scripts, Css
