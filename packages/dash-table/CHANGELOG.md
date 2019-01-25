@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [3.2.0] - 2019-01-25
 ### Added
 [#297](https://github.com/plotly/dash-core/issues/297)
 - Added column.validation nested prop to tweak coercion and validation behavior
