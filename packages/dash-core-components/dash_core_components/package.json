@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "0.42.1",
+"version": "0.43.0",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
     "prepare": "npm run build:all",
     "publish-all": "node scripts/publish.js",
     "start": "webpack-serve ./webpack.serve.config.js --open",
-    "lint": "eslint src",
+    "lint": "eslint src test",
     "lint:py": "flake8 --ignore=E501,F401,F841,F811 test",
     "test": "run-s -c test-unit test:py test:pyimport lint format:test lint:py",
     "test:py": "python -m unittest test.test_integration",
