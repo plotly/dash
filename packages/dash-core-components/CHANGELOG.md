@@ -13,6 +13,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 - Removed `Event` system - see https://github.com/plotly/dash/issues/531 for details. [#444](https://github.com/plotly/dash-core-components/pull/444)
 
+### Updated
+- Upgraded plotly.js to 1.44.1 [#445](https://github.com/plotly/dash-core-components/pull/445)
+  - [Feature release 1.44.0](https://github.com/plotly/plotly.js/releases/tag/v1.44.0) which contains:
+    - A new `isosurface` gl3d trace type
+    - Animated transitions via `Plotly.react` using `layout.transitions`
+    - `hovertemplate` support in many more trace types
+    - And many other features and bug fixes
+  - Patch releases [1.44.1](https://github.com/plotly/plotly.js/releases/tag/v1.44.1) and [1.43.2](https://github.com/plotly/plotly.js/releases/tag/v1.43.2) containing numerous bug fixes
+
 ## [0.42.1] - 2019-01-07
 ### Fixed
 - Fix `dcc.Store` type changes [#427](https://github.com/plotly/dash-core-components/pull/427)

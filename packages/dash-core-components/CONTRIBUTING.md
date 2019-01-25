@@ -78,7 +78,7 @@ respectively. TODO:
 
 ## Updating Plotly.js
 
-1. Download the latest plotly.js from the cdn: `$ wget https://cdn.plot.ly/plotly-1.43.1.min.js`
+1. Download the latest plotly.js from the cdn: `$ wget https://cdn.plot.ly/plotly-1.44.1.min.js`
 2. Update `dash_core_components/__init__.py` plotly.js `external_url`
 3. Update `MANIFEST.in`
 4. Update `CHANGELOG.md` with links to the releases and a description of the changes. The message should state (see the existing `CHANGELOG.md` for examples):
