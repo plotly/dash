@@ -234,27 +234,6 @@
       },
       "required": false,
       "description": ""
-    },
-    "dashEvents": {
-      "type": {
-        "name": "enum",
-        "value": [
-          {
-            "value": "'restyle'",
-            "computed": false
-          },
-          {
-            "value": "'relayout'",
-            "computed": false
-          },
-          {
-            "value": "'click'",
-            "computed": false
-          }
-        ]
-      },
-      "required": false,
-      "description": ""
     }
   }
 }

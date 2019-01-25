@@ -22,11 +22,11 @@ Keyword arguments:
 - optionalArrayOf (list; optional)
 - optionalObjectOf (dict with strings as keys and values of type number; optional)
 - optionalObjectWithShapeAndNestedDescription (optional): . optionalObjectWithShapeAndNestedDescription has the following type: dict containing keys 'color', 'fontSize', 'figure'.
-Those keys have the following types: 
+Those keys have the following types:
   - color (string; optional)
   - fontSize (number; optional)
   - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.
-Those keys have the following types: 
+Those keys have the following types:
   - data (list; optional): data is a collection of traces
   - layout (dict; optional): layout describes the rest of the figure
 - optionalAny (boolean | number | string | dict | list; optional)
@@ -35,16 +35,13 @@ Those keys have the following types:
 - data-* (string; optional)
 - aria-* (string; optional)
 - in (string; optional)
-- id (string; optional)
-
-Available events: 'restyle', 'relayout', 'click'"""
+- id (string; optional)"""
     @_explicitize_args
     def __init__(self, children=None, optionalArray=Component.UNDEFINED, optionalBool=Component.UNDEFINED, optionalFunc=Component.UNDEFINED, optionalNumber=Component.UNDEFINED, optionalObject=Component.UNDEFINED, optionalString=Component.UNDEFINED, optionalSymbol=Component.UNDEFINED, optionalNode=Component.UNDEFINED, optionalElement=Component.UNDEFINED, optionalMessage=Component.UNDEFINED, optionalEnum=Component.UNDEFINED, optionalUnion=Component.UNDEFINED, optionalArrayOf=Component.UNDEFINED, optionalObjectOf=Component.UNDEFINED, optionalObjectWithShapeAndNestedDescription=Component.UNDEFINED, optionalAny=Component.UNDEFINED, customProp=Component.UNDEFINED, customArrayProp=Component.UNDEFINED, id=Component.UNDEFINED, **kwargs):
         self._prop_names = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
         self._type = 'Table'
         self._namespace = 'TableComponents'
         self._valid_wildcard_attributes =            ['data-', 'aria-']
-        self.available_events = ['restyle', 'relayout', 'click']
         self.available_properties = ['children', 'optionalArray', 'optionalBool', 'optionalNumber', 'optionalObject', 'optionalString', 'optionalNode', 'optionalElement', 'optionalEnum', 'optionalUnion', 'optionalArrayOf', 'optionalObjectOf', 'optionalObjectWithShapeAndNestedDescription', 'optionalAny', 'customProp', 'customArrayProp', 'data-*', 'aria-*', 'in', 'id']
         self.available_wildcard_properties =            ['data-', 'aria-']
 
