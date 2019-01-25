@@ -1,4 +1,4 @@
-## Unreleased
+## [0.36.0] - 2019-01-25
 ## Removed
 - Removed support for `Event` system. Use event properties instead, for example the `n_clicks` property instead of the `click` event, see [#531](https://github.com/plotly/dash/issues/531) for details. `dash_renderer` MUST be upgraded to >=0.17.0 together with this, and it is recommended to update `dash_core_components` to >=0.43.0 and `dash_html_components` to >=0.14.0. [#550](https://github.com/plotly/dash/pull/550)
 
