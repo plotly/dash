@@ -13,17 +13,6 @@
     },
     "packageRules": [
         {
-            "packageNames": [
-                "rc-slider",
-                "react-dates",
-                "react-dropzone",
-                "react-markdown",
-                "react-syntax-highlighter",
-                "react-virtualized-select"
-            ],
-            "updateTypes": "pin"
-        },
-        {
             "packagePatterns": [
                 "*"
             ],
@@ -34,6 +23,17 @@
             "groupName": "all dependencies",
             "groupSlug": "all"
         },
+        {
+            "packagePatterns": [
+                "rc-slider",
+                "react-dates",
+                "react-dropzone",
+                "react-markdown",
+                "react-syntax-highlighter",
+                "react-virtualized-select"
+            ],
+            "enabled": false
+        },        
         {
             "depTypeList": [
                 "peerDependencies",
