@@ -1,3 +1,19 @@
+## [0.36.0] - 2019-01-25
+## Removed
+- Removed support for `Event` system. Use event properties instead, for example the `n_clicks` property instead of the `click` event, see [#531](https://github.com/plotly/dash/issues/531) for details. `dash_renderer` MUST be upgraded to >=0.17.0 together with this, and it is recommended to update `dash_core_components` to >=0.43.0 and `dash_html_components` to >=0.14.0. [#550](https://github.com/plotly/dash/pull/550)
+
+## [0.35.3] - 2019-01-23
+## Fixed
+- Asset blueprint takes routes prefix into it's static path. [#547](https://github.com/plotly/dash/pull/547)
+- Asset url path no longer strip routes from requests. [#547](https://github.com/plotly/dash/pull/547)
+- Remove print statement from PreventUpdate error handler. [#548](https://github.com/plotly/dash/pull/548)
+- Removed ComponentRegistry dist cache [#524](https://github.com/plotly/dash/pull/524)
+
+## Changed
+- `assets_folder` argument now default to 'assets' [#547](https://github.com/plotly/dash/pull/547)
+- The assets folder is now always relative to the given root path of `name` argument, the default of `__main__` will get the `cwd`. [#547](https://github.com/plotly/dash/pull/547)
+- No longer coerce the name argument from the server if the server argument is provided. [#547](https://github.com/plotly/dash/pull/547)
+
 ## [0.35.2] - 2019-01-11
 ## Fixed
 - Fix typo in some exception names [#522](https://github.com/plotly/dash/pull/522)

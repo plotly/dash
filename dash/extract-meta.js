@@ -8,7 +8,7 @@ const componentPaths = process.argv.slice(3);
 const ignorePattern = new RegExp(process.argv[2]);
 
 const excludedDocProps = [
-    'setProps', 'id', 'className', 'style', 'dashEvents', 'fireEvent'
+    'setProps', 'id', 'className', 'style'
 ];
 
 if (!componentPaths.length) {

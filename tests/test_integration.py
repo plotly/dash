@@ -11,7 +11,7 @@ import dash_flow_example
 
 import dash
 
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
@@ -105,7 +105,7 @@ class Tests(IntegrationTests):
             return data
 
         self.startServer(app)
-        output1 = self.wait_for_text_to_equal('#output-1', 'initial value')
+        self.wait_for_text_to_equal('#output-1', 'initial value')
         self.percy_snapshot(name='wildcard-callback-1')
 
         input1 = self.wait_for_element_by_id('input')
@@ -113,7 +113,7 @@ class Tests(IntegrationTests):
 
         input1.send_keys('hello world')
 
-        output1 = self.wait_for_text_to_equal('#output-1', 'hello world')
+        self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='wildcard-callback-2')
 
         self.assertEqual(
@@ -361,7 +361,6 @@ class Tests(IntegrationTests):
 
     def test_assets(self):
         app = dash.Dash(__name__,
-                        assets_folder='tests/assets',
                         assets_ignore='.*ignored.*')
         app.index_string = '''
         <!DOCTYPE html>
