@@ -15,13 +15,14 @@ import logging
 
 from functools import wraps
 
-import plotly
-import dash_renderer
 import flask
 from flask import Flask, Response
 from flask_compress import Compress
 
-from .dependencies import Event, Input, Output, State
+import plotly
+import dash_renderer
+
+from .dependencies import Input, Output, State
 from .resources import Scripts, Css
 from .development.base_component import Component
 from . import exceptions
@@ -76,7 +77,7 @@ class Dash(object):
             name='__main__',
             server=None,
             static_folder='static',
-            assets_folder=None,
+            assets_folder='assets',
             assets_url_path='/assets',
             assets_ignore='',
             include_assets_files=True,
@@ -102,20 +103,14 @@ class Dash(object):
                 See https://github.com/plotly/dash/issues/141 for details.
                 ''', DeprecationWarning)
 
-        name = name if server is None else server.name
-        self._assets_folder = assets_folder or os.path.join(
-            flask.helpers.get_root_path(name), 'assets'
+        self._assets_folder = os.path.join(
+            flask.helpers.get_root_path(name),
+            assets_folder,
         )
         self._assets_url_path = assets_url_path
 
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
-
-        if 'assets' not in self.server.blueprints:
-            self.server.register_blueprint(
-                flask.Blueprint('assets', 'assets',
-                                static_folder=self._assets_folder,
-                                static_url_path=assets_url_path))
 
         env_configs = _configs.env_configs()
 
@@ -146,6 +141,22 @@ class Dash(object):
                 env_configs, 2678400))
         })
 
+        assets_blueprint_name = '{}{}'.format(
+            self.config.routes_pathname_prefix.replace('/', '_'),
+            'dash_assets'
+        )
+
+        self.server.register_blueprint(
+            flask.Blueprint(
+                assets_blueprint_name, name,
+                static_folder=self._assets_folder,
+                static_url_path='{}{}'.format(
+                    self.config.routes_pathname_prefix,
+                    assets_url_path.lstrip('/')
+                )
+            )
+        )
+
         # list of dependencies
         self.callback_map = {}
 
@@ -159,10 +170,9 @@ class Dash(object):
             Compress(self.server)
 
         @self.server.errorhandler(exceptions.PreventUpdate)
-        def _handle_error(error):
+        def _handle_error(_):
             """Handle a halted callback and return an empty 204 response"""
-            print(error, file=sys.stderr)
-            return ('', 204)
+            return '', 204
 
         # static files from the packages
         self.css = Css()
@@ -613,7 +623,6 @@ class Dash(object):
                 },
                 'inputs': v['inputs'],
                 'state': v['state'],
-                'events': v['events']
             } for k, v in self.callback_map.items()
         ])
 
@@ -624,7 +633,7 @@ class Dash(object):
             'Use `callback` instead. `callback` has a new syntax too, '
             'so make sure to call `help(app.callback)` to learn more.')
 
-    def _validate_callback(self, output, inputs, state, events):
+    def _validate_callback(self, output, inputs, state):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
 
@@ -643,8 +652,7 @@ class Dash(object):
 
         for args, obj, name in [([output], Output, 'Output'),
                                 (inputs, Input, 'Input'),
-                                (state, State, 'State'),
-                                (events, Event, 'Event')]:
+                                (state, State, 'State')]:
 
             if not isinstance(args, list):
                 raise exceptions.IncorrectTypeException(
@@ -712,32 +720,20 @@ class Dash(object):
                             component.available_properties).replace(
                                 '    ', ''))
 
-                    if (hasattr(arg, 'component_event') and
-                            arg.component_event not in
-                            component.available_events):
+                    if hasattr(arg, 'component_event'):
                         raise exceptions.NonExistentEventException('''
-                            Attempting to assign a callback with
-                            the event "{}" but the component
-                            "{}" doesn't have "{}" as an event.\n
-                            Here is a list of the available events in "{}":
-                            {}
-                        '''.format(
-                            arg.component_event,
-                            arg.component_id,
-                            arg.component_event,
-                            arg.component_id,
-                            component.available_events).replace('    ', ''))
+                            Events have been removed.
+                            Use the associated property instead.
+                        ''')
 
-        if state and not events and not inputs:
-            raise exceptions.MissingEventsException('''
+        if state and not inputs:
+            raise exceptions.MissingInputsException('''
                 This callback has {} `State` {}
-                but no `Input` elements or `Event` elements.\n
-                Without `Input` or `Event` elements, this callback
+                but no `Input` elements.\n
+                Without `Input` elements, this callback
                 will never get called.\n
                 (Subscribing to input components will cause the
-                callback to be called whenever their values
-                change and subscribing to an event will cause the
-                callback to be called whenever the event is fired.)
+                callback to be called whenever their values change.)
             '''.format(
                 len(state),
                 'elements' if len(state) > 1 else 'element'
@@ -879,8 +875,8 @@ class Dash(object):
     # TODO - Check this map for recursive or other ill-defined non-tree
     # relationships
     # pylint: disable=dangerous-default-value
-    def callback(self, output, inputs=[], state=[], events=[]):
-        self._validate_callback(output, inputs, state, events)
+    def callback(self, output, inputs=[], state=[]):
+        self._validate_callback(output, inputs, state)
 
         callback_id = '{}.{}'.format(
             output.component_id, output.component_property
@@ -893,10 +889,6 @@ class Dash(object):
             'state': [
                 {'id': c.component_id, 'property': c.component_property}
                 for c in state
-            ],
-            'events': [
-                {'id': c.component_id, 'event': c.component_event}
-                for c in events
             ]
         }
 
@@ -1056,7 +1048,6 @@ class Dash(object):
     def get_asset_url(self, path):
         asset = _get_asset_path(
             self.config.requests_pathname_prefix,
-            self.config.routes_pathname_prefix,
             path,
             self._assets_url_path.lstrip('/')
         )
