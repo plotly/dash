@@ -14,15 +14,13 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-r_component_string = '''{prefix}{name} <- function({default_argtext}, ...) {{
-
-    wildcard_names = names(list(...))
-    
+r_component_string = '''{prefix}{name} <- function({default_argtext}{wildcards}) {{
+    {wildcard_declaration}
     component <- list(
-        props = list({default_paramtext}, ...),
+        props = list({default_paramtext}{wildcards}),
         type = '{name}',
         namespace = '{project_shortname}',
-        propNames = c({prop_names}, wildcard_names),
+        propNames = c({prop_names}{wildcard_names}),
         package = '{package_name}'
         )
 
@@ -133,6 +131,16 @@ def generate_class_string(name, props, project_shortname, prefix):
 
     prop_keys = list(props.keys())
 
+    wildcards = ''
+    wildcard_declaration = ''
+    wildcard_names = ''
+
+    if any('-*' in key for key in prop_keys):
+        wildcards = ', ...'
+        wildcard_declaration =\
+            '\n    wildcard_names = names(assert_valid_wildcards(...))\n'
+        wildcard_names = ', wildcard_names'
+
     default_paramtext = ''
     default_argtext = ''
     default_wildcards = ''
@@ -182,9 +190,12 @@ def generate_class_string(name, props, project_shortname, prefix):
     return r_component_string.format(prefix=prefix,
                                      name=name,
                                      default_argtext=default_argtext,
+                                     wildcards=wildcards,
+                                     wildcard_declaration=wildcard_declaration,
                                      default_paramtext=default_paramtext,
                                      project_shortname=project_shortname,
                                      prop_names=prop_names,
+                                     wildcard_names=wildcard_names,
                                      package_name=package_name)
 
 
@@ -279,6 +290,8 @@ def write_help_file(name, props, description, prefix):
 
     prop_keys = list(props.keys())
 
+    has_wildcards = any('-*' in key for key in prop_keys)
+
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
         if item.endswith('-*') \
@@ -296,7 +309,8 @@ def write_help_file(name, props, description, prefix):
         for p in prop_keys
     )
 
-    item_text += '\n\n\\item{...}{wildcards of the form: `data-*` or `aria-*`}'
+    if has_wildcards:
+        item_text += '\n\n\\item{...}{wildcards: `data-*` or `aria-*`}'
 
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
