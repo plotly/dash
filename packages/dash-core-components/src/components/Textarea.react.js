@@ -56,7 +56,6 @@ Textarea.defaultProps = {
     n_blur_timestamp: -1,
     n_clicks: 0,
     n_clicks_timestamp: -1,
-    debounce: false,
 };
 
 Textarea.propTypes = {
