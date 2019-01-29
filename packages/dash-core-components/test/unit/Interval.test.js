@@ -1,7 +1,7 @@
 import Interval from '../../src/components/Interval.react.js';
 import React, {cloneElement, Component} from 'react';
 import PropTypes from 'prop-types';
-import omit from 'lodash/omit';
+import {omit} from 'ramda';
 import {mount, render} from 'enzyme';
 
 test('Interval render', () => {
@@ -34,7 +34,7 @@ class IntervalWrapper extends Component {
 
     render() {
         return cloneElement(this.props.children, {
-            ...omit(this.props, ['children']),
+            ...omit(['children'], this.props),
             n_intervals: this.state.n_intervals,
             setProps: this.setProps,
         });
@@ -130,7 +130,7 @@ describe('Delayed setProps provisioning', () => {
 
         render() {
             return cloneElement(this.props.children, {
-                ...omit(this.props, ['children']),
+                ...omit(['children'], this.props),
                 setProps: this.state.setPropsProvided
                     ? this.props.setProps
                     : null,
@@ -226,7 +226,7 @@ describe('Usage of disabled = true', () => {
 
         render() {
             return cloneElement(this.props.children, {
-                ...omit(this.props, ['children']),
+                ...omit(['children'], this.props),
                 disabled: this.state.disabled,
                 setProps: this.setProps,
             });
