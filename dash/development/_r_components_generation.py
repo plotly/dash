@@ -120,6 +120,26 @@ LICENSE.txt
 ^\.Rproj\.user$
 '''
 
+pkghelp_stub = '''% Auto-generated: do not edit by hand
+\\docType{{package}}
+\\name{{{package_name}-package}}
+\\alias{{{package_name}}}
+\\title{{{pkg_help_header}}}
+\\description{{
+{pkg_help_desc}
+}}
+\\seealso{{
+Useful links:
+\\itemize{{
+  \\item \\url{{https://github.com/plotly/{library_name}}}
+  \\item Report bugs at \\url{{https://github.com/plotly/{library_name}/issues}}
+}}
+}}
+\\author{{
+\\strong{{Maintainer}}: {package_author}
+}}
+'''
+
 
 # pylint: disable=R0914
 def generate_class_string(name, props, project_shortname, prefix):
@@ -426,6 +446,7 @@ def generate_rpkg(pkg_data,
     # does not exist in package.json
 
     package_name = snake_case_to_camel_case(project_shortname)
+    library_name = pkg_data.get('name')
     package_description = pkg_data.get('description', '')
     package_version = pkg_data.get('version', '0.0.1')
 
@@ -463,16 +484,7 @@ def generate_rpkg(pkg_data,
     import_string =\
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
 
-    description_string = description_template.format(
-        package_name=package_name,
-        package_description=package_description,
-        package_version=package_version,
-        package_author=package_author,
-        package_license=package_license,
-        package_url=package_url,
-        package_issues=package_issues,
-        package_author_no_email=package_author_no_email
-    )
+    pkghelp_stub_path = os.path.join('man', package_name + '-package.Rd')
 
     # generate the internal (not exported to the user) functions which
     # supply the JavaScript dependencies to the htmltools package,
@@ -487,11 +499,53 @@ def generate_rpkg(pkg_data,
         f.write(import_string)
         f.write(export_string)
 
-    with open('DESCRIPTION', 'w') as f2:
-        f2.write(description_string)
+    with open('.Rbuildignore', 'w') as f2:
+        f2.write(rbuild_ignore_string)
 
-    with open('.Rbuildignore', 'w') as f3:
-        f3.write(rbuild_ignore_string)
+    # Write package stub files for R online help, generate if
+    # dashHtmlComponents or dashCoreComponents; makes it easy
+    # for R users to bring up main package help page
+    pkg_help_header = ""
+
+    if package_name in ['dashHtmlComponents']:
+        pkg_help_header = "Vanilla HTML Components for Dash"
+        pkg_help_desc = "Dash is a web application framework that\n\
+provides pure Python abstraction around HTML, CSS, and\n\
+JavaScript. Instead of writing HTML or using an HTML\n\
+templating engine, you compose your layout using R\n\
+functions within the dashHtmlComponents package. The\n\
+source for this package is on GitHub:\n\
+plotly/dash-html-components."
+    if package_name in ['dashCoreComponents']:
+        pkg_help_header = "Core Interactive UI Components for Dash"
+        pkg_help_desc = "Dash ships with supercharged components for\n\
+interactive user interfaces. A core set of components,\n\
+written and maintained by the Dash team, is available in\n\
+the dashCoreComponents package. The source for this package\n\
+is on GitHub: plotly/dash-core-components."
+
+    description_string = description_template.format(
+        package_name=package_name,
+        package_description=package_description,
+        package_version=package_version,
+        package_author=package_author,
+        package_license=package_license,
+        package_url=package_url,
+        package_issues=package_issues,
+        package_author_no_email=package_author_no_email
+    )
+
+    with open('DESCRIPTION', 'w') as f3:
+        f3.write(description_string)
+
+    if pkg_help_header != "":
+        pkghelp = pkghelp_stub.format(package_name=package_name,
+                                      pkg_help_header=pkg_help_header,
+                                      pkg_help_desc=pkg_help_desc,
+                                      library_name=library_name,
+                                      package_author=package_author)
+        with open(pkghelp_stub_path, 'w') as f4:
+            f4.write(pkghelp)
 
 
 # This converts a string from snake case to camel case
