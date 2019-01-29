@@ -220,7 +220,7 @@ def generate_class_string(name, props, project_shortname, prefix):
 
 
 # pylint: disable=R0914
-def generate_js_metadata(project_shortname):
+def generate_js_metadata(pkg_data, project_shortname):
     """
     Dynamically generate R function to supply JavaScript
     dependency information required by htmltools package,
@@ -240,7 +240,7 @@ def generate_js_metadata(project_shortname):
     mod = sys.modules[project_shortname]
 
     jsdist = getattr(mod, '_js_dist', [])
-    project_ver = getattr(mod, '__version__', [])
+    project_ver = pkg_data.get('version') 
 
     rpkgname = snake_case_to_camel_case(project_shortname)
 
@@ -380,7 +380,7 @@ def write_class_file(name,
     print('Generated {}'.format(file_name))
 
 
-def write_js_metadata(project_shortname):
+def write_js_metadata(pkg_data, project_shortname):
     """
     Write an internal (not exported) R function to return all JS
     dependencies as required by htmltools package given a
@@ -395,7 +395,8 @@ def write_js_metadata(project_shortname):
 
     """
     function_string = generate_js_metadata(
-        project_shortname
+        pkg_data=pkg_data,    
+        project_shortname=project_shortname
     )
     file_name = "internal.R"
 
@@ -492,7 +493,8 @@ def generate_rpkg(pkg_data,
     # RData file from within Python, given the current package generation
     # workflow)
     write_js_metadata(
-        project_shortname
+        pkg_data=pkg_data,
+        project_shortname=project_shortname
     )
 
     with open('NAMESPACE', 'w') as f:
