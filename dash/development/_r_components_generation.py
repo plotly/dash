@@ -131,8 +131,8 @@ pkghelp_stub = '''% Auto-generated: do not edit by hand
 \\seealso{{
 Useful links:
 \\itemize{{
-  \\item \\url{{https://github.com/plotly/{library_name}}}
-  \\item Report bugs at \\url{{https://github.com/plotly/{library_name}/issues}}
+  \\item \\url{{https://github.com/plotly/{lib_name}}}
+  \\item Report bugs at \\url{{https://github.com/plotly/{lib_name}/issues}}
 }}
 }}
 \\author{{
@@ -446,7 +446,7 @@ def generate_rpkg(pkg_data,
     # does not exist in package.json
 
     package_name = snake_case_to_camel_case(project_shortname)
-    library_name = pkg_data.get('name')
+    lib_name = pkg_data.get('name')
     package_description = pkg_data.get('description', '')
     package_version = pkg_data.get('version', '0.0.1')
 
@@ -542,7 +542,7 @@ is on GitHub: plotly/dash-core-components."
         pkghelp = pkghelp_stub.format(package_name=package_name,
                                       pkg_help_header=pkg_help_header,
                                       pkg_help_desc=pkg_help_desc,
-                                      library_name=library_name,
+                                      lib_name=lib_name,
                                       package_author=package_author)
         with open(pkghelp_stub_path, 'w') as f4:
             f4.write(pkghelp)
