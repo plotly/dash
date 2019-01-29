@@ -1,0 +1,14 @@
+Package: dashHtmlComponents
+Title: Vanilla HTML components for Dash
+Version: 0.13.5
+Authors @R: as.person(c(Chris Parmer <chris@plot.ly>))
+Description: Vanilla HTML components for Dash
+Depends: R (>= 3.5.0)
+Suggests: testthat, roxygen2
+License: MIT + file LICENSE
+URL: https://github.com/plotly/dash-html-components
+BugReports: https://github.com/plotly/dash-html-components/issues
+Encoding: UTF-8
+LazyData: true
+Author: Chris Parmer [aut]
+Maintainer: Chris Parmer <chris@plot.ly>
