@@ -512,7 +512,7 @@ def generate_rpkg(pkg_data,
     if package_name in ['dashHtmlComponents']:
         pkg_help_header = "Vanilla HTML Components for Dash"
         pkg_help_desc = "Dash is a web application framework that\n\
-provides pure Python abstraction around HTML, CSS, and\n\
+provides pure Python and R abstraction around HTML, CSS, and\n\
 JavaScript. Instead of writing HTML or using an HTML\n\
 templating engine, you compose your layout using R\n\
 functions within the dashHtmlComponents package. The\n\
