@@ -240,7 +240,7 @@ def generate_js_metadata(pkg_data, project_shortname):
     mod = sys.modules[project_shortname]
 
     jsdist = getattr(mod, '_js_dist', [])
-    project_ver = pkg_data.get('version') 
+    project_ver = pkg_data.get('version')
 
     rpkgname = snake_case_to_camel_case(project_shortname)
 
@@ -395,7 +395,7 @@ def write_js_metadata(pkg_data, project_shortname):
 
     """
     function_string = generate_js_metadata(
-        pkg_data=pkg_data,    
+        pkg_data=pkg_data,
         project_shortname=project_shortname
     )
     file_name = "internal.R"
