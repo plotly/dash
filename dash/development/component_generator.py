@@ -1,4 +1,5 @@
 from __future__ import print_function
+from collections import OrderedDict
 
 import json
 import sys
@@ -64,7 +65,13 @@ def generate_components(components_source, project_shortname,
             file=sys.stderr)
         sys.exit(1)
 
-    metadata = json.loads(out.decode())
+    jsondata_unicode = json.loads(out.decode(), object_pairs_hook=OrderedDict)
+
+    if sys.version_info[0] >= 3:
+        metadata = jsondata_unicode
+    else:
+        metadata = byteify(jsondata_unicode)
+
     generator_methods = [generate_class_file]
 
     if rprefix:
@@ -88,7 +95,11 @@ def generate_components(components_source, project_shortname,
 
     if rprefix:
         with open('package.json', 'r') as f:
-            pkg_data = json.load(f)
+            jsondata_unicode = json.load(f, object_pairs_hook=OrderedDict)
+            if sys.version_info[0] >= 3:
+                pkg_data = jsondata_unicode
+            else:
+                pkg_data = byteify(jsondata_unicode)
 
         generate_exports(
             project_shortname, components, metadata, pkg_data, prefix
@@ -130,6 +141,18 @@ def cli():
         package_info_filename=args.package_info_filename,
         ignore=args.ignore,
         rprefix=args.r_prefix)
+
+
+# pylint: disable=undefined-variable
+def byteify(input_object):
+    if isinstance(input_object, dict):
+        return {byteify(key): byteify(value)
+                for key, value in input_object.iteritems()}
+    elif isinstance(input_object, list):
+        return [byteify(element) for element in input_object]
+    elif isinstance(input_object, unicode): # noqa:F821
+        return input_object.encode('utf-8')
+    return input_object
 
 
 if __name__ == '__main__':

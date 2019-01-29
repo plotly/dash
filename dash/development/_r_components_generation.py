@@ -14,20 +14,19 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-r_component_string = '''{prefix}{name} <- function(..., {default_argtext}) {{
-
+r_component_string = '''{prefix}{name} <- function({default_argtext}{wildcards}) {{
+    {wildcard_declaration}
     component <- list(
-        props = list({default_paramtext}),
+        props = list({default_paramtext}{wildcards}),
         type = '{name}',
         namespace = '{project_shortname}',
-        propNames = c({prop_names}),
+        propNames = c({prop_names}{wildcard_names}),
         package = '{package_name}'
         )
 
     component$props <- filter_null(component$props)
-    component <- append_wildcard_props(component, wildcards = {default_wildcards}, ...)
-
-    structure(component, class = c('dash_component', 'list'))
+    
+    structure(component, class = c('dash_component', 'list'))    
 }}'''  # noqa:E501
 
 # the following strings represent all the elements in an object
@@ -38,14 +37,14 @@ deps_metadata <- list('''
 
 frame_element_template = '''`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
-file = "lib/"), meta = NULL,
+file = "deps/"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''
 
 frame_body_template = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
-file = "lib/"), meta = NULL,
+file = "deps/"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''  # noqa:E501
@@ -56,14 +55,19 @@ return(deps_metadata)
 
 help_string = '''% Auto-generated: do not edit by hand
 \\name{{{prefix}{name}}}
+
 \\alias{{{prefix}{name}}}
+
 \\title{{{name} component}}
+
 \\description{{
 {description}
 }}
+
 \\usage{{
-{prefix}{name}(..., {default_argtext})
+{prefix}{name}({default_argtext}, ...)
 }}
+
 \\arguments{{
 {item_text}
 }}
@@ -74,6 +78,7 @@ Title: {package_description}
 Version: {package_version}
 Authors @R: as.person(c({package_author}))
 Description: {package_description}
+Depends: R (>= 3.5.0)
 Suggests: testthat, roxygen2
 License: {package_license}
 URL: {package_url}
@@ -97,9 +102,9 @@ lib/
 # demo folder has special meaning in R
 # this should hopefully make it still
 # allow for the possibility to make R demos
-demo/*.js
-demo/*.html
-demo/*.css
+demo/.*\.js
+demo/.*\.html
+demo/.*\.css
 
 # ignore python files/folders
 setup.py
@@ -115,36 +120,25 @@ LICENSE.txt
 ^\.Rproj\.user$
 '''
 
-
-# This is an initial attempt at resolving type inconsistencies
-# between R and JSON.
-def props_to_r_type(current_prop):
-    object_type = current_prop['type']['name']
-    if 'defaultValue' in current_prop and object_type == 'string':
-        if "\"" in current_prop['defaultValue']['value']:
-            argument = current_prop['defaultValue']['value']
-        else:
-            argument = "{}".format(current_prop['defaultValue']['value'])
-    elif object_type == 'custom' and 'raw' in current_prop['type']:
-        argument = current_prop['defaultValue'].get('value', 'numeric()')
-    elif object_type == 'enum':
-        argument = current_prop.get('defaultValue', {}).get('value', 'NULL')
-    elif 'defaultValue' in current_prop and object_type == 'object':
-        argument = 'list()'
-    elif 'defaultValue' in current_prop and \
-            current_prop['defaultValue']['value'] == '[]':
-        argument = 'list()'
-    elif object_type == 'number':
-        argument = current_prop['defaultValue'].get('value', 'NULL')
-    elif object_type == 'bool':
-        argument = current_prop['defaultValue'].get('value')
-        if argument:
-            argument = 'TRUE'
-        else:
-            argument = 'logical()'
-    else:
-        argument = 'NULL'
-    return argument
+pkghelp_stub = '''% Auto-generated: do not edit by hand
+\\docType{{package}}
+\\name{{{package_name}-package}}
+\\alias{{{package_name}}}
+\\title{{{pkg_help_header}}}
+\\description{{
+{pkg_help_desc}
+}}
+\\seealso{{
+Useful links:
+\\itemize{{
+  \\item \\url{{https://github.com/plotly/{lib_name}}}
+  \\item Report bugs at \\url{{https://github.com/plotly/{lib_name}/issues}}
+}}
+}}
+\\author{{
+\\strong{{Maintainer}}: {package_author}
+}}
+'''
 
 
 # pylint: disable=R0914
@@ -152,7 +146,20 @@ def generate_class_string(name, props, project_shortname, prefix):
     # Here we convert from snake case to camel case
     package_name = snake_case_to_camel_case(project_shortname)
 
-    prop_keys = props.keys()
+    # Ensure props are ordered with children first
+    props = reorder_props(props=props)
+
+    prop_keys = list(props.keys())
+
+    wildcards = ''
+    wildcard_declaration = ''
+    wildcard_names = ''
+
+    if any('-*' in key for key in prop_keys):
+        wildcards = ', ...'
+        wildcard_declaration =\
+            '\n    wildcard_names = names(assert_valid_wildcards(...))\n'
+        wildcard_names = ', wildcard_names'
 
     default_paramtext = ''
     default_argtext = ''
@@ -163,7 +170,7 @@ def generate_class_string(name, props, project_shortname, prefix):
         '\'{}\''.format(p)
         for p in prop_keys
         if '*' not in p and
-        p not in ['setProps', 'dashEvents', 'fireEvent']
+        p not in ['setProps']
     )
 
     # in R, we set parameters with no defaults to NULL
@@ -180,15 +187,13 @@ def generate_class_string(name, props, project_shortname, prefix):
         default_wildcards = 'c({})'.format(default_wildcards)
 
     # Filter props to remove those we don't want to expose
-    for p in prop_keys:
-        if p.endswith("-*") \
-                or p in r_keywords \
-                or p in ['setProps', 'dashEvents', 'fireEvent']:
-            prop_keys.remove(p)
+    for item in prop_keys[:]:
+        if item.endswith('-*') \
+                or item in r_keywords \
+                or item == 'setProps':
+            prop_keys.remove(item)
 
     default_argtext += ", ".join(
-        '{}={}'.format(p, props_to_r_type(props[p]))
-        if 'defaultValue' in props[p] else
         '{}=NULL'.format(p)
         for p in prop_keys
     )
@@ -197,22 +202,25 @@ def generate_class_string(name, props, project_shortname, prefix):
     default_paramtext += ", ".join(
         '{}={}'.format(p, p)
         if p != "children" else
-        '{}=c(children, assert_valid_children(..., wildcards = {}))'
-        .format(p, default_wildcards)
+        '{}=children'
+        .format(p)
         for p in prop_keys
     )
+
     return r_component_string.format(prefix=prefix,
                                      name=name,
                                      default_argtext=default_argtext,
+                                     wildcards=wildcards,
+                                     wildcard_declaration=wildcard_declaration,
                                      default_paramtext=default_paramtext,
                                      project_shortname=project_shortname,
                                      prop_names=prop_names,
-                                     package_name=package_name,
-                                     default_wildcards=default_wildcards)
+                                     wildcard_names=wildcard_names,
+                                     package_name=package_name)
 
 
 # pylint: disable=R0914
-def generate_js_metadata(project_shortname):
+def generate_js_metadata(pkg_data, project_shortname):
     """
     Dynamically generate R function to supply JavaScript
     dependency information required by htmltools package,
@@ -232,7 +240,7 @@ def generate_js_metadata(project_shortname):
     mod = sys.modules[project_shortname]
 
     jsdist = getattr(mod, '_js_dist', [])
-    project_ver = getattr(mod, '__version__', [])
+    project_ver = pkg_data.get('version')
 
     rpkgname = snake_case_to_camel_case(project_shortname)
 
@@ -293,7 +301,6 @@ def write_help_file(name, props, description, prefix):
 
     """
     file_name = '{}{}.Rd'.format(prefix, name)
-    prop_keys = props.keys()
 
     default_argtext = ''
     item_text = ''
@@ -301,16 +308,18 @@ def write_help_file(name, props, description, prefix):
     # Ensure props are ordered with children first
     props = reorder_props(props=props)
 
+    prop_keys = list(props.keys())
+
+    has_wildcards = any('-*' in key for key in prop_keys)
+
     # Filter props to remove those we don't want to expose
-    for p in prop_keys:
-        if p.endswith("-*") \
-                or p in r_keywords \
-                or p in ['setProps', 'dashEvents', 'fireEvent']:
-            prop_keys.remove(p)
+    for item in prop_keys[:]:
+        if item.endswith('-*') \
+                or item in r_keywords \
+                or item == 'setProps':
+            prop_keys.remove(item)
 
     default_argtext += ", ".join(
-        '{}={}'.format(p, props_to_r_type(props[p]))
-        if 'defaultValue' in props[p] else
         '{}=NULL'.format(p)
         for p in prop_keys
     )
@@ -319,6 +328,9 @@ def write_help_file(name, props, description, prefix):
         '\\item{{{}}}{{{}}}'.format(p, props[p]['description'])
         for p in prop_keys
     )
+
+    if has_wildcards:
+        item_text += '\n\n\\item{...}{wildcards: `data-*` or `aria-*`}'
 
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
@@ -336,6 +348,8 @@ def write_class_file(name,
                      description,
                      project_shortname,
                      prefix=None):
+    props = reorder_props(props=props)
+
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string(
@@ -366,7 +380,7 @@ def write_class_file(name,
     print('Generated {}'.format(file_name))
 
 
-def write_js_metadata(project_shortname):
+def write_js_metadata(pkg_data, project_shortname):
     """
     Write an internal (not exported) R function to return all JS
     dependencies as required by htmltools package given a
@@ -381,7 +395,8 @@ def write_js_metadata(project_shortname):
 
     """
     function_string = generate_js_metadata(
-        project_shortname
+        pkg_data=pkg_data,
+        project_shortname=project_shortname
     )
     file_name = "internal.R"
 
@@ -397,14 +412,17 @@ def write_js_metadata(project_shortname):
     # now copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
     # create this directory if it is missing
-    if not os.path.exists('inst/lib'):
-        os.makedirs('inst/lib')
+    if not os.path.exists('inst/deps'):
+        os.makedirs('inst/deps')
 
     for javascript in glob.glob('{}/*.js'.format(project_shortname)):
-        shutil.copy(javascript, 'inst/lib/')
+        shutil.copy(javascript, 'inst/deps/')
 
     for css in glob.glob('{}/*.css'.format(project_shortname)):
-        shutil.copy(css, 'inst/lib/')
+        shutil.copy(css, 'inst/deps/')
+
+    for sourcemap in glob.glob('{}/*.map'.format(project_shortname)):
+        shutil.copy(sourcemap, 'inst/deps/')
 
 
 # pylint: disable=R0914
@@ -429,6 +447,7 @@ def generate_rpkg(pkg_data,
     # does not exist in package.json
 
     package_name = snake_case_to_camel_case(project_shortname)
+    lib_name = pkg_data.get('name')
     package_description = pkg_data.get('description', '')
     package_version = pkg_data.get('version', '0.0.1')
 
@@ -466,6 +485,47 @@ def generate_rpkg(pkg_data,
     import_string =\
         '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
 
+    pkghelp_stub_path = os.path.join('man', package_name + '-package.Rd')
+
+    # generate the internal (not exported to the user) functions which
+    # supply the JavaScript dependencies to the htmltools package,
+    # which is required by DashR (this avoids having to generate an
+    # RData file from within Python, given the current package generation
+    # workflow)
+    write_js_metadata(
+        pkg_data=pkg_data,
+        project_shortname=project_shortname
+    )
+
+    with open('NAMESPACE', 'w') as f:
+        f.write(import_string)
+        f.write(export_string)
+
+    with open('.Rbuildignore', 'w') as f2:
+        f2.write(rbuild_ignore_string)
+
+    # Write package stub files for R online help, generate if
+    # dashHtmlComponents or dashCoreComponents; makes it easy
+    # for R users to bring up main package help page
+    pkg_help_header = ""
+
+    if package_name in ['dashHtmlComponents']:
+        pkg_help_header = "Vanilla HTML Components for Dash"
+        pkg_help_desc = "Dash is a web application framework that\n\
+provides pure Python and R abstraction around HTML, CSS, and\n\
+JavaScript. Instead of writing HTML or using an HTML\n\
+templating engine, you compose your layout using R\n\
+functions within the dashHtmlComponents package. The\n\
+source for this package is on GitHub:\n\
+plotly/dash-html-components."
+    if package_name in ['dashCoreComponents']:
+        pkg_help_header = "Core Interactive UI Components for Dash"
+        pkg_help_desc = "Dash ships with supercharged components for\n\
+interactive user interfaces. A core set of components,\n\
+written and maintained by the Dash team, is available in\n\
+the dashCoreComponents package. The source for this package\n\
+is on GitHub: plotly/dash-core-components."
+
     description_string = description_template.format(
         package_name=package_name,
         package_description=package_description,
@@ -477,24 +537,17 @@ def generate_rpkg(pkg_data,
         package_author_no_email=package_author_no_email
     )
 
-    # generate the internal (not exported to the user) functions which
-    # supply the JavaScript dependencies to the htmlDependency package,
-    # which is required by DashR (this avoids having to generate an
-    # RData file from within Python, given the current package generation
-    # workflow)
-    write_js_metadata(
-        project_shortname
-    )
+    with open('DESCRIPTION', 'w') as f3:
+        f3.write(description_string)
 
-    with open('NAMESPACE', 'w') as f:
-        f.write(import_string)
-        f.write(export_string)
-
-    with open('DESCRIPTION', 'w') as f2:
-        f2.write(description_string)
-
-    with open('.Rbuildignore', 'w') as f3:
-        f3.write(rbuild_ignore_string)
+    if pkg_help_header != "":
+        pkghelp = pkghelp_stub.format(package_name=package_name,
+                                      pkg_help_header=pkg_help_header,
+                                      pkg_help_desc=pkg_help_desc,
+                                      lib_name=lib_name,
+                                      package_author=package_author)
+        with open(pkghelp_stub_path, 'w') as f4:
+            f4.write(pkghelp)
 
 
 # This converts a string from snake case to camel case
