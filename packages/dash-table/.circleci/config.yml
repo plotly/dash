@@ -3,7 +3,7 @@ version: 2
 jobs:
     "test-v0":
         docker:
-            - image: circleci/python:3.6-node-browsers
+            - image: circleci/python:3.6.7-node-browsers
             - image: cypress/base:10
 
         steps:
@@ -55,7 +55,7 @@ jobs:
 
     "test-v1":
         docker:
-            - image: circleci/python:3.6-node-browsers
+            - image: circleci/python:3.6.7-node-browsers
             - image: cypress/base:10
 
         steps:
@@ -160,7 +160,7 @@ jobs:
 
     "python-3.6-v0":
         docker:
-            - image: circleci/python:3.6-stretch-browsers
+            - image: circleci/python:3.6.7-stretch-browsers
 
         environment:
             PERCY_ENABLED: True
@@ -195,7 +195,7 @@ jobs:
 
     "python-3.6-v1":
         docker:
-            - image: circleci/python:3.6-stretch-browsers
+            - image: circleci/python:3.6.7-stretch-browsers
 
         environment:
             PERCY_ENABLED: True
