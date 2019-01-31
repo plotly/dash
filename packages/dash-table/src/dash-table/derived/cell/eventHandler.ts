@@ -1,11 +1,9 @@
 
-import { memoizeOneFactory } from 'core/memoizer';
-import memoizerCache from 'core/memoizerCache';
+import valueCache from 'core/cache/value';
 import { ICellFactoryProps } from 'dash-table/components/Table/props';
 import { handleChange, handleClick, handleDoubleClick, handleOnMouseUp, handlePaste } from 'dash-table/handlers/cellEvents';
 
 type CacheArgs = [Handler, number, number];
-type GetterArgs = [HandlerFn, number, number];
 
 export enum Handler {
     Change = 'change',
@@ -18,34 +16,36 @@ export enum Handler {
 export type CacheFn = (...args: CacheArgs) => Function;
 export type HandlerFn = (...args: any[]) => any;
 
-const getter = (propsFn: () => ICellFactoryProps): CacheFn => {
-    const cache = memoizerCache<CacheArgs, GetterArgs, Function>((...args: GetterArgs) => {
-        let [
-            handler,
-            rowIndex,
-            columnIndex
-        ] = args;
+export default (propsFn: () => ICellFactoryProps) => new EventHandler(propsFn).get;
 
-        return handler && handler.bind(undefined, rowIndex, columnIndex);
-    });
+class EventHandler {
+    constructor(private readonly propsFn: () => ICellFactoryProps) {
 
-    const handlers = new Map<Handler, HandlerFn>([
-        [Handler.Change, handleChange.bind(undefined, propsFn)],
-        [Handler.Click, handleClick.bind(undefined, propsFn)],
-        [Handler.DoubleClick, handleDoubleClick.bind(undefined, propsFn)],
-        [Handler.MouseUp, handleOnMouseUp.bind(undefined, propsFn)],
-        [Handler.Paste, handlePaste.bind(undefined, propsFn)]
+    }
+
+    private readonly handlers = new Map<Handler, HandlerFn>([
+        [Handler.Change, handleChange.bind(undefined, this.propsFn)],
+        [Handler.Click, handleClick.bind(undefined, this.propsFn)],
+        [Handler.DoubleClick, handleDoubleClick.bind(undefined, this.propsFn)],
+        [Handler.MouseUp, handleOnMouseUp.bind(undefined, this.propsFn)],
+        [Handler.Paste, handlePaste.bind(undefined, this.propsFn)]
     ]);
 
-    return (...args: CacheArgs) => {
-        let [
-            handler,
-            rowIndex,
-            columnIndex
-        ] = args;
+    private readonly cache = valueCache<[Handler, number, number]>()((
+        handler: Handler,
+        columnIndex: number,
+        rowIndex: number
+    ) => {
+        let handlerFn = this.handlers.get(handler);
 
-        return cache(args, handlers.get(handler) as HandlerFn, rowIndex, columnIndex);
-    };
-};
+        return handlerFn && handlerFn.bind(undefined, rowIndex, columnIndex);
+    });
 
-export default memoizeOneFactory(getter);
+    get = (
+        handler: Handler,
+        columnIndex: number,
+        rowIndex: number
+    ) => {
+        return this.cache.get(handler, columnIndex, rowIndex);
+    }
+}

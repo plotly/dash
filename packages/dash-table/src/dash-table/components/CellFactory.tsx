@@ -23,7 +23,7 @@ export default class CellFactory {
         private readonly cellDropdowns = derivedDropdowns(),
         private readonly cellOperations = derivedCellOperations(),
         private readonly cellStyles = derivedCellStyles(),
-        private readonly cellWrappers = derivedCellWrappers(propsFn().id),
+        private readonly cellWrappers = derivedCellWrappers(),
         private readonly relevantStyles = derivedRelevantCellStyles()
     ) { }
 
@@ -36,7 +36,6 @@ export default class CellFactory {
             data,
             dropdown_properties, // legacy
             editable,
-            id,
             is_focused,
             row_deletable,
             row_selectable,
@@ -75,7 +74,7 @@ export default class CellFactory {
             virtualized.offset
         );
 
-        const dropdowns = this.cellDropdowns(id)(
+        const dropdowns = this.cellDropdowns(
             columns,
             virtualized.data,
             virtualized.indices,

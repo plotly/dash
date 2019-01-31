@@ -21,7 +21,7 @@ export type CacheFn = (...args: CacheArgs) => {
 export type HandlerFn = (...args: any[]) => any;
 
 const getter = (propsFn: () => ICellFactoryProps): CacheFn => {
-    const derivedHandlers = cellEventHandler()(propsFn);
+    const derivedHandlers = cellEventHandler(propsFn);
 
     return (...args: CacheArgs) => {
         const [
@@ -30,11 +30,11 @@ const getter = (propsFn: () => ICellFactoryProps): CacheFn => {
         ] = args;
 
         return {
-            onChange: derivedHandlers(Handler.Change, rowIndex, columnIndex),
-            onClick: derivedHandlers(Handler.Click, rowIndex, columnIndex),
-            onDoubleClick: derivedHandlers(Handler.DoubleClick, rowIndex, columnIndex),
-            onMouseUp: derivedHandlers(Handler.MouseUp, rowIndex, columnIndex),
-            onPaste: derivedHandlers(Handler.Paste, rowIndex, columnIndex)
+            onChange: derivedHandlers(Handler.Change, columnIndex, rowIndex),
+            onClick: derivedHandlers(Handler.Click, columnIndex, rowIndex),
+            onDoubleClick: derivedHandlers(Handler.DoubleClick, columnIndex, rowIndex),
+            onMouseUp: derivedHandlers(Handler.MouseUp, columnIndex, rowIndex),
+            onPaste: derivedHandlers(Handler.Paste, columnIndex, rowIndex)
         } as any;
     };
 };

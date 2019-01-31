@@ -1,31 +1,26 @@
 import * as R from 'ramda';
 import React from 'react';
 
-import { memoizeAll, memoizeOne } from 'core/memoizer';
+import { memoizeOne } from 'core/memoizer';
+import memoizerCache from 'core/cache/memoizer';
 import { Data, IVisibleColumn, VisibleColumns, ActiveCell, SelectedCells, Datum, ColumnId, IViewportOffset, Presentation } from 'dash-table/components/Table/props';
 import Cell from 'dash-table/components/Cell';
 import isActiveCell from 'dash-table/derived/cell/isActive';
 import isSelectedCell from 'dash-table/derived/cell/isSelected';
-import memoizerCache from 'core/memoizerCache';
 
-type Key = [number, number];
-type ElementCacheFn = (
-    key: Key,
-    active: boolean,
-    classes: string,
-    columnIndex: number,
-    columnId: ColumnId
-) => JSX.Element;
+export default () => new Wrappers().get;
 
-function getter(
-    elementCache: ElementCacheFn,
-    activeCell: ActiveCell,
-    columns: VisibleColumns,
-    data: Data,
-    offset: IViewportOffset,
-    selectedCells: SelectedCells
-): JSX.Element[][] {
-    return R.addIndex<Datum, JSX.Element[]>(R.map)(
+class Wrappers {
+    /**
+     * Returns the wrapper for each cell in the table.
+     */
+    get = memoizeOne((
+        activeCell: ActiveCell,
+        columns: VisibleColumns,
+        data: Data,
+        offset: IViewportOffset,
+        selectedCells: SelectedCells
+    ) => R.addIndex<Datum, JSX.Element[]>(R.map)(
         (_, rowIndex) => R.addIndex<IVisibleColumn, JSX.Element>(R.map)(
             (column, columnIndex) => {
                 const active = isActiveCell(activeCell, rowIndex + offset.rows, columnIndex + offset.columns);
@@ -38,33 +33,29 @@ function getter(
                     ` column-${columnIndex}` +
                     (active ? ' focused' : '') +
                     (selected ? ' cell--selected' : '') +
-                    (isDropdown  ? ' dropdown' : '');
+                    (isDropdown ? ' dropdown' : '');
 
-                return elementCache([rowIndex, columnIndex], active, classes, columnIndex, column.id);
-            },
-            columns
-        ),
-        data
-    );
+                return this.wrapper.get(rowIndex, columnIndex)(
+                    active,
+                    classes,
+                    columnIndex,
+                    column.id
+                );
+            }, columns
+        ), data));
+
+    /**
+     * Returns the wrapper for a cell.
+     */
+    private wrapper = memoizerCache<[number, number]>()((
+        active: boolean,
+        classes: string,
+        columnIndex: number,
+        columnId: ColumnId
+    ) => (<Cell
+        active={active}
+        classes={classes}
+        key={`column-${columnIndex}`}
+        property={columnId}
+    />));
 }
-
-function decorator(_id: string): ((
-    activeCell: ActiveCell,
-    columns: VisibleColumns,
-    data: Data,
-    offset: IViewportOffset,
-    selectedCells: SelectedCells
-) => JSX.Element[][]) {
-    const elementCache = memoizerCache<Key, [boolean, string, number, ColumnId], JSX.Element>(
-        (active: boolean, classes: string, columnIndex: number, columnId: ColumnId) => (<Cell
-            active={active}
-            classes={classes}
-            key={`column-${columnIndex}`}
-            property={columnId}
-        />)
-    );
-
-    return memoizeOne(getter).bind(undefined, elementCache);
-}
-
-export default memoizeAll(decorator);
