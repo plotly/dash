@@ -42,6 +42,7 @@ def get_asset_path(
     ])
 
 
+# pylint: disable=no-member
 def patch_collections_abc(member):
     if six.PY2:
         return getattr(collections, member)
