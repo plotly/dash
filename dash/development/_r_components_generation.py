@@ -25,8 +25,8 @@ r_component_string = '''{prefix}{name} <- function({default_argtext}{wildcards})
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }}'''  # noqa:E501
 
 # the following strings represent all the elements in an object
