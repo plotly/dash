@@ -280,7 +280,7 @@ class TestComponent(unittest.TestCase):
 
         c3b = Component(id='3')
         self.assertEqual(c5['3'], c3)
-        self.assertTrue(c5['3'] is not '3')
+        self.assertTrue(c5['3'] != '3')
         self.assertTrue(c5['3'] is not c3b)
 
         c5['3'] = c3b

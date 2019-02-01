@@ -146,11 +146,13 @@ def cli():
 # pylint: disable=undefined-variable
 def byteify(input_object):
     if isinstance(input_object, dict):
-        return {byteify(key): byteify(value)
-                for key, value in input_object.iteritems()}
+        return OrderedDict([
+            (byteify(key), byteify(value))
+            for key, value in input_object.iteritems()
+        ])
     elif isinstance(input_object, list):
         return [byteify(element) for element in input_object]
-    elif isinstance(input_object, unicode): # noqa:F821
+    elif isinstance(input_object, unicode):  # noqa:F821
         return input_object.encode('utf-8')
     return input_object
 
