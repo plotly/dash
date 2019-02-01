@@ -33,8 +33,8 @@ const DEFAULT_STYLE = {
 };
 
 export default class ControlledTable extends PureComponent<ControlledTableProps> {
-    private readonly stylesheet: Stylesheet;
-    private readonly tableFn: () => JSX.Element[][];
+    private readonly stylesheet: Stylesheet = new Stylesheet(`#${this.props.id}`);
+    private readonly tableFn = derivedTable(() => this.props);
     private readonly tableStyle = derivedTableStyle();
 
     private calculateTableStyle = memoizeOne((style: Partial<IStyle>) => R.mergeAll(
@@ -44,8 +44,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     constructor(props: ControlledTableProps) {
         super(props);
 
-        this.stylesheet = new Stylesheet(`#${props.id}`);
-        this.tableFn = derivedTable(() => this.props);
         this.updateStylesheet();
     }
 

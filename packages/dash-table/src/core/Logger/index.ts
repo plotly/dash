@@ -25,12 +25,14 @@ __highlightPrefix = __isChrome;
 __highlightPrefix = false;
 /*#endif*/
 
-function logFn(level: LogLevel | DebugLevel, currentLevel: LogLevel | DebugLevel): (...args: any[]) => void {
+type LoggerFn = (...args: any[]) => void;
+
+function logFn(level: LogLevel | DebugLevel, currentLevel: LogLevel | DebugLevel): LoggerFn {
     if (level < currentLevel) {
         return () => { };
     }
 
-    let fn: any;
+    let fn: LoggerFn;
     let fnStyle: string = '';
 
     switch (level) {
@@ -49,6 +51,8 @@ function logFn(level: LogLevel | DebugLevel, currentLevel: LogLevel | DebugLevel
             fn = window.console.error;
             fnStyle = 'color: white; background-color: #FF0000;';
             break;
+        default:
+            throw new Error(`Unknown log ${level}`);
     }
 
     let prefix = `${fnStyle && __highlightPrefix ? '%c' : ''}[${LogString[level].toUpperCase()}]`;
@@ -60,12 +64,12 @@ function logFn(level: LogLevel | DebugLevel, currentLevel: LogLevel | DebugLevel
 }
 
 interface ILogger {
-    trace: (...args: any[]) => void;
-    info: (...args: any[]) => void;
-    warning: (...args: any[]) => void;
-    error: (...args: any[]) => void;
-    fatal: (...args: any[]) => void;
-    debug: (...args: any[]) => void;
+    trace: LoggerFn;
+    info: LoggerFn;
+    warning: LoggerFn;
+    error: LoggerFn;
+    fatal: LoggerFn;
+    debug: LoggerFn;
 
     setDebugLevel(level: DebugLevel): void;
     setLogLevel(level: LogLevel): void;

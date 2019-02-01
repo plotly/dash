@@ -58,7 +58,7 @@ function getter(
     return cells;
 }
 
-export default (propsFn: () => ControlledTableProps): (() => JSX.Element[][]) => {
+export default (propsFn: () => ControlledTableProps) => {
     const cellFactory = new CellFactory(propsFn);
     const filterFactory = new FilterFactory(() => filterPropsFn(propsFn));
     const headerFactory = new HeaderFactory(propsFn);

@@ -38,7 +38,7 @@ class StylesheetFacade {
             { rule: rules[index], index };
     }
 
-    private __stylesheet: HTMLStyleElement;
+    private __stylesheet: HTMLStyleElement | undefined;
 
     private get sheet() {
         return (this.__stylesheet = this.__stylesheet || (() => {

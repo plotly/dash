@@ -32,8 +32,6 @@ import Logger from 'core/Logger';
 const DERIVED_REGEX = /^derived_/;
 
 export default class Table extends Component<PropsWithDefaultsAndDerived, StandaloneState> {
-    private controlled: ControlledTableProps;
-
     constructor(props: PropsWithDefaultsAndDerived) {
         super(props);
 
@@ -54,10 +52,10 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
     }
 
     render() {
-        this.controlled = this.getControlledProps();
-        this.updateDerivedProps();
+        let controlled = this.getControlledProps();
+        this.updateDerivedProps(controlled);
 
-        return (<ControlledTable {...this.controlled} />);
+        return (<ControlledTable {...controlled} />);
     }
 
     private getControlledProps(): ControlledTableProps {
@@ -143,7 +141,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
         ]);
     }
 
-    private updateDerivedProps() {
+    private updateDerivedProps(controlled: ControlledTableProps) {
         const {
             filtering,
             filtering_settings,
@@ -155,7 +153,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
             viewport_selected_rows,
             virtual,
             virtual_selected_rows
-        } = this.controlled;
+        } = controlled;
 
         const viewportCached = this.viewportCache(viewport).cached;
         const virtualCached = this.virtualCache(virtual).cached;

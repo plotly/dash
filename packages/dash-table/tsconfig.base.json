@@ -13,8 +13,9 @@
         "noUnusedParameters": true,
         "sourceMap": false,
         "strict": true,
+        "strictBindCallApply": true,
         "strictNullChecks": true,
-        "strictPropertyInitialization": false,
+        "strictPropertyInitialization": true,
         "target": "esnext",
         "traceResolution": false
     }

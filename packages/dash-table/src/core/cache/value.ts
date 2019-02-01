@@ -4,7 +4,7 @@ export default <TKey extends CacheKeyFragment[]>() =>
     <TEntry>(fn: (...a: TKey) => TEntry) => {
         const cache = new Map<CacheKeyFragment, any>();
 
-        function get(...key: TKey) {
+        function get(...key: TKey): TEntry {
             const lastKey = key.slice(-1)[0];
 
             const nestedCache = getCache(cache, ...key);
