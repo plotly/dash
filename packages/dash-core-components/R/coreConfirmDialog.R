@@ -11,6 +11,6 @@ coreConfirmDialog <- function(id=NULL, message=NULL, submit_n_clicks=NULL, submi
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

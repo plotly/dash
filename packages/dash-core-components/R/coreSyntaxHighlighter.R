@@ -11,6 +11,6 @@ coreSyntaxHighlighter <- function(children=NULL, id=NULL, language=NULL, theme=N
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

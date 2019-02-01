@@ -11,6 +11,6 @@ coreChecklist <- function(id=NULL, options=NULL, values=NULL, className=NULL, st
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

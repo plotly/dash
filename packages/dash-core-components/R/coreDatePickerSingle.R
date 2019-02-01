@@ -11,6 +11,6 @@ coreDatePickerSingle <- function(id=NULL, date=NULL, min_date_allowed=NULL, max_
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

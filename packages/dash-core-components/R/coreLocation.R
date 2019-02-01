@@ -11,6 +11,6 @@ coreLocation <- function(id=NULL, pathname=NULL, search=NULL, hash=NULL, href=NU
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

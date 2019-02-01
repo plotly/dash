@@ -11,6 +11,6 @@ coreLink <- function(children=NULL, href=NULL, refresh=NULL, className=NULL, sty
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

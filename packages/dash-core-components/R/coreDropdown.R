@@ -11,6 +11,6 @@ coreDropdown <- function(id=NULL, options=NULL, value=NULL, className=NULL, clea
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

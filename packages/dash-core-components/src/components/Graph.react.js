@@ -264,6 +264,9 @@ const graphPropTypes = {
     /**
      * Plotly `figure` object. See schema:
      * https://plot.ly/javascript/reference
+     * Only supports `data` array and `layout` object.
+     * `config` is set separately by the `config` property,
+     * and `frames` is not supported.
      */
     figure: PropTypes.object,
 

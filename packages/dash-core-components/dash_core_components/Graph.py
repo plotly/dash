@@ -23,6 +23,9 @@ data from the last point that was hovered over.
 when the user zooms or pans on the plot
 - figure (dict; optional): Plotly `figure` object. See schema:
 https://plot.ly/javascript/reference
+Only supports `data` array and `layout` object.
+`config` is set separately by the `config` property,
+and `frames` is not supported.
 - style (dict; optional): Generic style overrides on the plot div
 - className (string; optional): className of the parent div
 - animate (boolean; optional): Beta: If true, animate between updates using

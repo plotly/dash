@@ -11,6 +11,6 @@ coreUpload <- function(children=NULL, id=NULL, contents=NULL, filename=NULL, las
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

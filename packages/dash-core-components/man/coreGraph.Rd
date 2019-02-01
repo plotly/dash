@@ -35,7 +35,10 @@ data from the last point that was hovered over.}
 when the user zooms or pans on the plot}
 
 \item{figure}{Plotly `figure` object. See schema:
-https://plot.ly/javascript/reference}
+https://plot.ly/javascript/reference
+Only supports `data` array and `layout` object.
+`config` is set separately by the `config` property,
+and `frames` is not supported.}
 
 \item{style}{Generic style overrides on the plot div}
 

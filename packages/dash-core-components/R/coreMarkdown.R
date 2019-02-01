@@ -11,6 +11,6 @@ coreMarkdown <- function(children=NULL, id=NULL, className=NULL, containerProps=
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

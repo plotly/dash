@@ -11,6 +11,6 @@ coreRadioItems <- function(id=NULL, options=NULL, value=NULL, style=NULL, classN
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

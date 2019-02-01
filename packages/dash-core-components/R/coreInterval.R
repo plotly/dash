@@ -11,6 +11,6 @@ coreInterval <- function(id=NULL, interval=NULL, disabled=NULL, n_intervals=NULL
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

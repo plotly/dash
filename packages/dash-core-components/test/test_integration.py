@@ -1555,9 +1555,8 @@ class Tests(IntegrationTests):
         self.assertEqual(
             call_count.value,
             # an initial call to retrieve the first value
-            1 +
-            # one for each hello world character  # noqa: W504
-            len('hello world')
+            # plus one for each hello world character
+            1 + len('hello world')
         )
 
     def test_store_type_updates(self):

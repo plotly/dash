@@ -11,6 +11,6 @@ coreTextarea <- function(id=NULL, value=NULL, autoFocus=NULL, cols=NULL, disable
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

@@ -11,6 +11,6 @@ coreStore <- function(id=NULL, storage_type=NULL, data=NULL, clear_data=NULL, mo
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

@@ -11,6 +11,6 @@ coreInput <- function(id=NULL, value=NULL, style=NULL, className=NULL, debounce=
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

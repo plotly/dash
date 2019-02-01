@@ -11,6 +11,6 @@ coreTab <- function(children=NULL, id=NULL, label=NULL, value=NULL, disabled=NUL
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }

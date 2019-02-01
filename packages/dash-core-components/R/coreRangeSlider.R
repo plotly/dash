@@ -11,6 +11,6 @@ coreRangeSlider <- function(id=NULL, marks=NULL, value=NULL, allowCross=NULL, cl
         )
 
     component$props <- filter_null(component$props)
-    
-    structure(component, class = c('dash_component', 'list'))    
+
+    structure(component, class = c('dash_component', 'list'))
 }
