@@ -21,6 +21,9 @@ setup(
         'flask-compress',
         'plotly',
         'dash_renderer',
+        'dash-core-components==0.43.0',
+        'dash-html-components==0.13.5',
+        'dash-table==3.2.0'
     ],
     entry_points={
         'console_scripts': [
