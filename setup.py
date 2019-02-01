@@ -21,6 +21,8 @@ setup(
         'flask-compress',
         'plotly',
         'dash_renderer',
+        'stringcase',
+        'typing'
     ],
     entry_points={
         'console_scripts': [

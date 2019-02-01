@@ -1,6 +1,7 @@
 from __future__ import print_function
 from collections import OrderedDict
 
+import collections
 import json
 import sys
 import subprocess
@@ -17,6 +18,7 @@ from ._r_components_generation import generate_exports
 from ._py_components_generation import generate_class_file
 from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
+from .dash_component import generate_component
 
 
 class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
@@ -81,6 +83,11 @@ def generate_components(components_source, project_shortname,
             os.makedirs('R')
         generator_methods.append(
             functools.partial(write_class_file, prefix=prefix))
+    metadata = json.loads(out.decode(),
+                          object_pairs_hook=collections.OrderedDict)
+
+    with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
+        json.dump(metadata, f, indent=2)
 
     components = generate_classes_files(
         project_shortname,

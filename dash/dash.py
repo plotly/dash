@@ -634,6 +634,7 @@ class Dash(object):
             'Use `callback` instead. `callback` has a new syntax too, '
             'so make sure to call `help(app.callback)` to learn more.')
 
+    # noinspection PyProtectedMember
     def _validate_callback(self, output, inputs, state):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
@@ -702,11 +703,9 @@ class Dash(object):
                     else:
                         component = layout[arg.component_id]
 
-                    if (hasattr(arg, 'component_property') and
-                            arg.component_property not in
-                            component.available_properties and not
-                            any(arg.component_property.startswith(w) for w in
-                                component.available_wildcard_properties)):
+                    if hasattr(arg, 'component_property') and \
+                            arg.component_property \
+                            not in component._prop_names:
                         raise exceptions.NonExistentPropException('''
                             Attempting to assign a callback with
                             the property "{}" but the component
@@ -718,7 +717,7 @@ class Dash(object):
                             arg.component_id,
                             arg.component_property,
                             arg.component_id,
-                            component.available_properties).replace(
+                            component._prop_names).replace(
                                 '    ', ''))
 
                     if hasattr(arg, 'component_event'):
