@@ -5,6 +5,8 @@ import sys
 
 import six
 
+from .._utils import patch_collections_abc
+
 
 # pylint: disable=no-init,too-few-public-methods
 class ComponentRegistry:
@@ -58,7 +60,7 @@ def _check_if_has_indexable_children(item):
 
 
 @six.add_metaclass(ComponentMeta)
-class Component(collections.MutableMapping):
+class Component(patch_collections_abc('MutableMapping')):
     class _UNDEFINED(object):
         def __repr__(self):
             return 'undefined'

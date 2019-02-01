@@ -1,4 +1,6 @@
 import uuid
+import collections
+import six
 
 
 def interpolate_str(template, **data):
@@ -38,6 +40,12 @@ def get_asset_path(
         asset_url_path,
         asset_path
     ])
+
+
+def patch_collections_abc(member):
+    if six.PY2:
+        return getattr(collections, member)
+    return getattr(collections.abc, member)
 
 
 class AttributeDict(dict):
