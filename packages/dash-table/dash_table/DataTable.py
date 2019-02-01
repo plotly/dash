@@ -171,6 +171,101 @@ dropdown.
 NOTE: The naming and the behavior of this option may change
 in the future.
 Tune in to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
+- column_static_tooltip (optional): `column_static_tooltip` represents the tooltip shown
+for different columns.
+The `property` name refers to the column ID.
+The `type` refers to the type of tooltip syntax used
+for the tooltip generation. Can either be `markdown`
+or `text`. Defaults to `text`.
+The `value` refers to the syntax-based content of
+the tooltip. This value is required.
+The `delay` represents the delay in milliseconds before
+the tooltip is shown when hovering a cell. This overrides
+the table's `tooltip_delay` property. If set to `null`,
+the tooltip will be shown immediately.
+The `duration` represents the duration in milliseconds
+during which the tooltip is shown when hovering a cell.
+This overrides the table's `tooltip_duration` property.
+If set to `null`, the tooltip will not disappear.
+
+Alternatively, the value of the property can also be
+a plain string. The `text` syntax will be used in
+that case.. column_static_tooltip has the following type: dict with strings as keys and values of type dict containing keys 'delay', 'duration', 'type', 'value'.
+Those keys have the following types:
+  - delay (number; optional)
+  - duration (number; optional)
+  - type (a value equal to: 'text', 'markdown'; optional)
+  - value (string; required) | string
+- column_conditional_tooltips (list; optional): `column_conditional_tooltips` represents the tooltip shown
+for different columns and cells.
+
+This property allows you to specify different tooltips for
+depending on certain conditions. For example, you may have
+different tooltips in the same column based on the value
+of a certain data property.
+
+Priority is from first to last defined conditional tooltip
+in the list. Higher priority (more specific) conditional
+tooltips should be put at the beginning of the list.
+
+The `if` refers to the condtion that needs to be fulfilled
+in order for the associated tooltip configuration to be
+used. If multiple conditions are defined, all conditions
+must be met for the tooltip to be used by a cell.
+
+The `if` nested property `column_id` refers to the column
+ID that must be matched.
+The `if` nested property `row_index` refers to the index
+of the row in the source `data`.
+The `if` nested property `filter` refers to the query that
+must evaluate to True.
+
+The `type` refers to the type of tooltip syntax used
+for the tooltip generation. Can either be `markdown`
+or `text`. Defaults to `text`.
+The `value` refers to the syntax-based content of
+the tooltip. This value is required.
+The `delay` represents the delay in milliseconds before
+the tooltip is shown when hovering a cell. This overrides
+the table's `tooltip_delay` property. If set to `null`,
+the tooltip will be shown immediately.
+The `duration` represents the duration in milliseconds
+during which the tooltip is shown when hovering a cell.
+This overrides the table's `tooltip_duration` property.
+If set to `null`, the tooltip will not disappear.
+- tooltips (dict with strings as keys and values of type list; optional): `tooltips` represents the tooltip shown
+for different columns and cells.
+The `property` name refers to the column ID. Each property
+contains a list of tooltips mapped to the source `data`
+row index.
+
+The `type` refers to the type of tooltip syntax used
+for the tooltip generation. Can either be `markdown`
+or `text`. Defaults to `text`.
+The `value` refers to the syntax-based content of
+the tooltip. This value is required.
+The `delay` represents the delay in milliseconds before
+the tooltip is shown when hovering a cell. This overrides
+the table's `tooltip_delay` property. If set to `null`,
+the tooltip will be shown immediately.
+The `duration` represents the duration in milliseconds
+during which the tooltip is shown when hovering a cell.
+This overrides the table's `tooltip_duration` property.
+If set to `null`, the tooltip will not disappear.
+
+Alternatively, the value of the property can also be
+a plain string. The `text` syntax will be used in
+that case.
+- tooltip_delay (number; optional): `tooltip_delay` represents the table-wide delay in milliseconds before
+the tooltip is shown when hovering a cell. If set to `null`, the tooltip
+will be shown immediately.
+
+Defaults to 350.
+- tooltip_duration (number; optional): `tooltip_duration` represents the table-wide duration in milliseconds
+during which the tooltip will be displayed when hovering a cell. If
+set to `null`, the tooltip will not disappear.
+
+Defaults to 2000.
 - filtering (a value equal to: 'fe', 'be', true, false; optional): The `filtering` property controls the behavior of the `filtering` UI.
 If `False`, then the filtering UI is not displayed
 If `fe` or True, then the filtering UI is displayed and the filtering
@@ -292,12 +387,12 @@ while `derived_virtual_indices` contains indices for across all pages.
 Subscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
 for updates on the dropdown API."""
     @_explicitize_args
-    def __init__(self, active_cell=Component.UNDEFINED, columns=Component.UNDEFINED, content_style=Component.UNDEFINED, css=Component.UNDEFINED, data=Component.UNDEFINED, data_previous=Component.UNDEFINED, data_timestamp=Component.UNDEFINED, editable=Component.UNDEFINED, end_cell=Component.UNDEFINED, id=Component.UNDEFINED, is_focused=Component.UNDEFINED, merge_duplicate_headers=Component.UNDEFINED, n_fixed_columns=Component.UNDEFINED, n_fixed_rows=Component.UNDEFINED, row_deletable=Component.UNDEFINED, row_selectable=Component.UNDEFINED, selected_cells=Component.UNDEFINED, selected_rows=Component.UNDEFINED, start_cell=Component.UNDEFINED, style_as_list_view=Component.UNDEFINED, pagination_mode=Component.UNDEFINED, pagination_settings=Component.UNDEFINED, navigation=Component.UNDEFINED, column_conditional_dropdowns=Component.UNDEFINED, column_static_dropdown=Component.UNDEFINED, filtering=Component.UNDEFINED, filtering_settings=Component.UNDEFINED, filtering_type=Component.UNDEFINED, filtering_types=Component.UNDEFINED, sorting=Component.UNDEFINED, sorting_type=Component.UNDEFINED, sorting_settings=Component.UNDEFINED, sorting_treat_empty_string_as_none=Component.UNDEFINED, style_table=Component.UNDEFINED, style_cell=Component.UNDEFINED, style_data=Component.UNDEFINED, style_filter=Component.UNDEFINED, style_header=Component.UNDEFINED, style_cell_conditional=Component.UNDEFINED, style_data_conditional=Component.UNDEFINED, style_filter_conditional=Component.UNDEFINED, style_header_conditional=Component.UNDEFINED, virtualization=Component.UNDEFINED, derived_viewport_data=Component.UNDEFINED, derived_viewport_indices=Component.UNDEFINED, derived_viewport_selected_rows=Component.UNDEFINED, derived_virtual_data=Component.UNDEFINED, derived_virtual_indices=Component.UNDEFINED, derived_virtual_selected_rows=Component.UNDEFINED, dropdown_properties=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['active_cell', 'columns', 'content_style', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'id', 'is_focused', 'merge_duplicate_headers', 'n_fixed_columns', 'n_fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'start_cell', 'style_as_list_view', 'pagination_mode', 'pagination_settings', 'navigation', 'column_conditional_dropdowns', 'column_static_dropdown', 'filtering', 'filtering_settings', 'filtering_type', 'filtering_types', 'sorting', 'sorting_type', 'sorting_settings', 'sorting_treat_empty_string_as_none', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_selected_rows', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_selected_rows', 'dropdown_properties']
+    def __init__(self, active_cell=Component.UNDEFINED, columns=Component.UNDEFINED, content_style=Component.UNDEFINED, css=Component.UNDEFINED, data=Component.UNDEFINED, data_previous=Component.UNDEFINED, data_timestamp=Component.UNDEFINED, editable=Component.UNDEFINED, end_cell=Component.UNDEFINED, id=Component.UNDEFINED, is_focused=Component.UNDEFINED, merge_duplicate_headers=Component.UNDEFINED, n_fixed_columns=Component.UNDEFINED, n_fixed_rows=Component.UNDEFINED, row_deletable=Component.UNDEFINED, row_selectable=Component.UNDEFINED, selected_cells=Component.UNDEFINED, selected_rows=Component.UNDEFINED, start_cell=Component.UNDEFINED, style_as_list_view=Component.UNDEFINED, pagination_mode=Component.UNDEFINED, pagination_settings=Component.UNDEFINED, navigation=Component.UNDEFINED, column_conditional_dropdowns=Component.UNDEFINED, column_static_dropdown=Component.UNDEFINED, column_static_tooltip=Component.UNDEFINED, column_conditional_tooltips=Component.UNDEFINED, tooltips=Component.UNDEFINED, tooltip_delay=Component.UNDEFINED, tooltip_duration=Component.UNDEFINED, filtering=Component.UNDEFINED, filtering_settings=Component.UNDEFINED, filtering_type=Component.UNDEFINED, filtering_types=Component.UNDEFINED, sorting=Component.UNDEFINED, sorting_type=Component.UNDEFINED, sorting_settings=Component.UNDEFINED, sorting_treat_empty_string_as_none=Component.UNDEFINED, style_table=Component.UNDEFINED, style_cell=Component.UNDEFINED, style_data=Component.UNDEFINED, style_filter=Component.UNDEFINED, style_header=Component.UNDEFINED, style_cell_conditional=Component.UNDEFINED, style_data_conditional=Component.UNDEFINED, style_filter_conditional=Component.UNDEFINED, style_header_conditional=Component.UNDEFINED, virtualization=Component.UNDEFINED, derived_viewport_data=Component.UNDEFINED, derived_viewport_indices=Component.UNDEFINED, derived_viewport_selected_rows=Component.UNDEFINED, derived_virtual_data=Component.UNDEFINED, derived_virtual_indices=Component.UNDEFINED, derived_virtual_selected_rows=Component.UNDEFINED, dropdown_properties=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['active_cell', 'columns', 'content_style', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'id', 'is_focused', 'merge_duplicate_headers', 'n_fixed_columns', 'n_fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'start_cell', 'style_as_list_view', 'pagination_mode', 'pagination_settings', 'navigation', 'column_conditional_dropdowns', 'column_static_dropdown', 'column_static_tooltip', 'column_conditional_tooltips', 'tooltips', 'tooltip_delay', 'tooltip_duration', 'filtering', 'filtering_settings', 'filtering_type', 'filtering_types', 'sorting', 'sorting_type', 'sorting_settings', 'sorting_treat_empty_string_as_none', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_selected_rows', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_selected_rows', 'dropdown_properties']
         self._type = 'DataTable'
         self._namespace = 'dash_table'
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['active_cell', 'columns', 'content_style', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'id', 'is_focused', 'merge_duplicate_headers', 'n_fixed_columns', 'n_fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'start_cell', 'style_as_list_view', 'pagination_mode', 'pagination_settings', 'navigation', 'column_conditional_dropdowns', 'column_static_dropdown', 'filtering', 'filtering_settings', 'filtering_type', 'filtering_types', 'sorting', 'sorting_type', 'sorting_settings', 'sorting_treat_empty_string_as_none', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_selected_rows', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_selected_rows', 'dropdown_properties']
+        self.available_properties = ['active_cell', 'columns', 'content_style', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'id', 'is_focused', 'merge_duplicate_headers', 'n_fixed_columns', 'n_fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'start_cell', 'style_as_list_view', 'pagination_mode', 'pagination_settings', 'navigation', 'column_conditional_dropdowns', 'column_static_dropdown', 'column_static_tooltip', 'column_conditional_tooltips', 'tooltips', 'tooltip_delay', 'tooltip_duration', 'filtering', 'filtering_settings', 'filtering_type', 'filtering_types', 'sorting', 'sorting_type', 'sorting_settings', 'sorting_treat_empty_string_as_none', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_selected_rows', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_selected_rows', 'dropdown_properties']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')

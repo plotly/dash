@@ -1,13 +1,16 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, MouseEvent } from 'react';
 
-import {
-    ColumnId
-} from 'dash-table/components/Table/props';
+interface IAttributes {
+    [key: string]: string | number | boolean;
+}
 
 export interface ICellProps {
     active: boolean;
+    attributes: IAttributes;
     classes: string;
-    property: ColumnId;
+    onMouseEnter: (e: MouseEvent) => void;
+    onMouseLeave: (e: MouseEvent) => void;
+    onMouseMove: (e: MouseEvent) => void;
     style?: CSSProperties;
 }
 

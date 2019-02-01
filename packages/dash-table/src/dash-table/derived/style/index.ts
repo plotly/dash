@@ -11,14 +11,18 @@ import {
     DataCells,
     BasicFilters,
     Headers,
-    IConditionalElement,
-    IIndexedHeaderElement,
-    IIndexedRowElement,
-    INamedElement,
     Style,
     Table
 } from './props';
 import converter, { StyleProperty } from './py2jsCssProperties';
+
+import {
+    IConditionalElement,
+    IIndexedHeaderElement,
+    IIndexedRowElement,
+    INamedElement,
+    ifColumnId
+ } from 'dash-table/conditional';
 
 export interface IConvertedStyle {
     style: CSSProperties;
@@ -35,10 +39,7 @@ function convertElement(style: GenericStyle) {
     let ast: SyntaxTree;
 
     return {
-        matchesColumn: (column: IVisibleColumn) =>
-            !style.if ||
-            !style.if.column_id ||
-            style.if.column_id === column.id,
+        matchesColumn: (column: IVisibleColumn) => ifColumnId(style.if, column.id),
         matchesRow: (index: number) =>
             indexFilter === undefined ?
                 true :

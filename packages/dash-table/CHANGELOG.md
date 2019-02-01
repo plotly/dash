@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+[#307](https://github.com/plotly/dash-core/issues/307)
+- Added tooltip_delay and tooltip_duration props to tweak table's tooltips display behavior
+- Added tooltips, column_static_tooltip, column_conditional_tooltips to define the tooltip
+applicable to a certain cell in the table with nested props delay and duration to override
+table's default behavior
+
 ## [3.2.0] - 2019-01-25
 ### Added
 [#297](https://github.com/plotly/dash-core/issues/297)

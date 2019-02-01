@@ -70,6 +70,7 @@
     "react-docgen": "^2.21.0",
     "react-dom": "16.7.0",
     "react-select": "^1.3.0",
+    "remarkable": "^1.7.1",
     "sheetclip": "^0.3.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",

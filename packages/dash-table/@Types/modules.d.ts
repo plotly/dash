@@ -14,3 +14,12 @@ declare module 'fast-isnumeric' {
 
     export default value;
 }
+
+declare class Remarkable {
+    constructor();
+    render(value: string): any;
+}
+
+declare module 'remarkable' {
+    export default Remarkable;
+}

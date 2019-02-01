@@ -20,15 +20,26 @@ export default class Cell extends Component<ICellProps> {
     }
 
     render() {
-        const { classes, property, style } = this.propsWithDefaults;
+        const {
+            attributes,
+            classes,
+            onMouseEnter,
+            onMouseLeave,
+            onMouseMove,
+            style
+        } = this.propsWithDefaults;
 
         return (<td
             ref='td'
             children={(this as any).props.children}
             tabIndex={-1}
             className={classes}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onMouseMove={onMouseMove}
+            onMouseOver={onMouseMove}
             style={style}
-            data-dash-column={property}
+            {...attributes}
         />);
     }
 

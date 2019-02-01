@@ -88,7 +88,8 @@ export default class CellFactory {
             columns,
             virtualized.data,
             virtualized.offset,
-            selected_cells
+            selected_cells,
+            this.propsFn
         );
 
         const contents = this.cellContents(

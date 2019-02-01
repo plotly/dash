@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+
 import * as R from 'ramda';
 import Stylesheet from 'core/Stylesheet';
 import {
@@ -22,9 +23,11 @@ import dropdownHelper from 'dash-table/components/dropdownHelper';
 import derivedTable from 'dash-table/derived/table';
 import derivedTableFragments from 'dash-table/derived/table/fragments';
 import derivedTableFragmentStyles from 'dash-table/derived/table/fragmentStyles';
+import derivedTooltips from 'dash-table/derived/table/tooltip';
 import isEditable from 'dash-table/derived/cell/isEditable';
 import { derivedTableStyle } from 'dash-table/derived/style';
 import { IStyle } from 'dash-table/derived/style/props';
+import TableTooltip from './fragments/TableTooltip';
 
 const sortNumerical = R.sort<number>((a, b) => a - b);
 
@@ -135,6 +138,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         this.applyStyle();
         this.handleResize();
         this.handleDropdown();
+        this.adjustTooltipPosition();
 
         const {
             setState,
@@ -656,17 +660,24 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         this.updateUiViewport();
         this.handleDropdown();
+        this.adjustTooltipPosition();
     }
 
     render() {
         const {
             id,
+            column_conditional_tooltips,
+            column_static_tooltip,
             content_style,
             n_fixed_columns,
             n_fixed_rows,
             scrollbarWidth,
             style_as_list_view,
             style_table,
+            tooltip,
+            tooltip_delay,
+            tooltip_duration,
+            tooltips,
             uiCell,
             uiHeaders,
             uiViewport,
@@ -725,12 +736,30 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             scrollbarWidth
         );
 
+    /* Tooltip */
+        let tableTooltip = derivedTooltips(
+            tooltip,
+            tooltips,
+            column_conditional_tooltips,
+            column_static_tooltip,
+            virtualized,
+            tooltip_delay,
+            tooltip_duration
+        );
+
         return (<div
             id={id}
             onCopy={this.onCopy}
             onKeyDown={this.handleKeyDown}
             onPaste={this.onPaste}
+            style={{ position: 'relative' }}
         >
+            <TableTooltip
+                key='tooltip'
+                ref='tooltip'
+                className='dash-table-tooltip'
+                tooltip={tableTooltip}
+            />
             <div className={containerClasses.join(' ')} style={tableStyle}>
                 <div className={classes.join(' ')} style={tableStyle}>
                     {grid.map((row, rowIndex) => (<div
@@ -757,5 +786,24 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 </div>
             )}
         </div>);
+    }
+
+    private adjustTooltipPosition() {
+        const { tooltip, virtualized } = this.props;
+
+        if (!tooltip) {
+            return;
+        }
+
+        const id = tooltip.id;
+        const row = tooltip.row - virtualized.offset.rows;
+
+        const { r1c1, tooltip: t } = this.refs as { [key: string]: any };
+
+        if (t) {
+            const cell = r1c1.querySelector(`td[data-dash-column="${id}"][data-dash-row="${row}"]`);
+
+            (this.refs.tooltip as TableTooltip).updateBounds(cell);
+        }
     }
 }

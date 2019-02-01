@@ -8,6 +8,10 @@ import {
     Headers,
     Style
 } from 'dash-table/derived/style/props';
+import {
+    ConditionalTooltip,
+    Tooltip
+} from 'dash-table/tooltips/props';
 
 export enum ColumnType {
     Any = 'any',
@@ -159,6 +163,14 @@ export interface IDropdownProperties {
     [key: string]: { options: IDropdownValue[] }[];
 }
 
+export interface ITableTooltips {
+    [key: string]: Tooltip[];
+}
+
+export interface ITableStaticTooltips {
+    [key: string]: Tooltip;
+}
+
 interface IStylesheetRule {
     selector: string;
     rule: string;
@@ -180,9 +192,17 @@ export interface IUserInterfaceViewport {
     width: number;
 }
 
+export interface IUSerInterfaceTooltip {
+    delay?: number;
+    duration?: number;
+    id: ColumnId;
+    row: number;
+}
+
 export interface IState {
     forcedResizeOnly: boolean;
     scrollbarWidth: number;
+    tooltip?: IUSerInterfaceTooltip;
     uiViewport?: IUserInterfaceViewport;
     uiCell?: IUserInterfaceCell;
     uiHeaders?: IUserInterfaceCell[];
@@ -198,6 +218,12 @@ interface IProps {
     start_cell?: [number, number];
 
     id: string;
+
+    tooltips?: ITableTooltips;
+    tooltip_delay: number | null;
+    tooltip_duration: number | null;
+    column_static_tooltip: ITableStaticTooltips;
+    column_conditional_tooltips: ConditionalTooltip[];
 
     active_cell?: ActiveCell;
     columns?: Columns;
@@ -303,6 +329,7 @@ export type ControlledTableProps = PropsWithDefaults & IState & {
 
     columns: VisibleColumns;
     paginator: IPaginator;
+    tooltip: IUSerInterfaceTooltip;
     viewport: IDerivedData;
     viewport_selected_rows: Indices;
     virtual: IDerivedData;
@@ -314,7 +341,9 @@ export interface ICellFactoryProps {
     active_cell: ActiveCell;
     columns: VisibleColumns;
     column_conditional_dropdowns: IConditionalColumnDropdown[];
+    column_conditional_tooltips: ConditionalTooltip[];
     column_static_dropdown: IColumnDropdown[];
+    column_static_tooltip: ITableStaticTooltips;
     data: Data;
     dropdown_properties: any; // legacy
     editable: boolean;
@@ -328,6 +357,7 @@ export interface ICellFactoryProps {
     selected_cells: SelectedCells;
     selected_rows: number[];
     setProps: SetProps;
+    setState: SetState;
     style_cell: Style;
     style_data: Style;
     style_filter: Style;
@@ -337,6 +367,8 @@ export interface ICellFactoryProps {
     style_filter_conditional: BasicFilters;
     style_header_conditional: Headers;
     style_table: Table;
+    tooltip: IUSerInterfaceTooltip;
+    tooltips?: ITableTooltips;
     uiCell?: IUserInterfaceCell;
     uiViewport?: IUserInterfaceViewport;
     viewport: IDerivedData;

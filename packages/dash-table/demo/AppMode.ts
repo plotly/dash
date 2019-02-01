@@ -10,11 +10,13 @@ import {
     ChangeFailure,
     IVisibleColumn
 } from 'dash-table/components/Table/props';
+import { TooltipSyntax } from 'dash-table/tooltips/props';
 
 export enum AppMode {
     Default = 'default',
     FixedVirtualized = 'fixed,virtualized',
     ReadOnly = 'readonly',
+    Tooltips = 'tooltips',
     Typed = 'typed',
     Virtualized = 'virtualized'
 }
@@ -35,7 +37,6 @@ function getBaseTableProps(mock: IDataMock) {
             },
             editable_name: true,
             deletable: true
-            //     type: 'dropdown'
         })),
         column_static_dropdown: [
             {
@@ -93,6 +94,51 @@ function getReadonlyState() {
     R.forEach(column => {
         column.editable = false;
     }, state.tableProps.columns || []);
+
+    return state;
+}
+
+function getTooltipsState() {
+    const state = getDefaultState();
+
+    state.tableProps.tooltips = {
+        ccc: [
+            { type: TooltipSyntax.Markdown, value: `### Go Proverb\nThe enemy's key point is yours` },
+            { type: TooltipSyntax.Markdown, value: `### Go Proverb\nPlay on the point of symmetry` },
+            { type: TooltipSyntax.Markdown, value: `### Go Proverb\nSente gains nothing` },
+            { type: TooltipSyntax.Text, value: `Beware of going back to patch up` },
+            { type: TooltipSyntax.Text, value: `When in doubt, Tenuki` },
+            `People in glass houses shouldn't throw stones`
+        ]
+    };
+    state.tableProps.column_static_tooltip = {
+        ccc: { type: TooltipSyntax.Text, value: `There is death in the hane`, delay: 1000, duration: 5000 },
+        ddd: { type: TooltipSyntax.Markdown, value: `Hane, Cut, Placement` },
+        rows: `Learn the eyestealing tesuji`
+    };
+    state.tableProps.column_conditional_tooltips = [{
+        if: {
+            column_id: 'aaa-readonly',
+            filter: `aaa is prime`
+        },
+        type: TooltipSyntax.Markdown,
+        value: `### Go Proverbs\nCapture three to get an eye`
+    }, {
+        if: {
+            column_id: 'bbb-readonly',
+            row_index: 'odd'
+        },
+        type: TooltipSyntax.Markdown,
+        value: `### Go Proverbs\nSix die but eight live`
+    }, {
+        if: {
+            column_id: 'bbb-readonly'
+        },
+        delay: 1000,
+        duration: 5000,
+        type: TooltipSyntax.Markdown,
+        value: `### Go Proverbs\nUrgent points before big points\n![Sensei](https://senseis.xmp.net/images/stone-hello.png)`
+    }];
 
     return state;
 }
@@ -156,6 +202,8 @@ function getState() {
             return getFixedVirtualizedState();
         case AppMode.ReadOnly:
             return getReadonlyState();
+        case AppMode.Tooltips:
+            return getTooltipsState();
         case AppMode.Virtualized:
             return getVirtualizedState();
         case AppMode.Typed:

@@ -606,6 +606,205 @@
           "computed": false
         }
       },
+      "column_static_tooltip": {
+        "type": {
+          "name": "objectOf",
+          "value": {
+            "name": "union",
+            "value": [
+              {
+                "name": "shape",
+                "value": {
+                  "delay": {
+                    "name": "number",
+                    "required": false
+                  },
+                  "duration": {
+                    "name": "number",
+                    "required": false
+                  },
+                  "type": {
+                    "name": "enum",
+                    "value": [
+                      {
+                        "value": "'text'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'markdown'",
+                        "computed": false
+                      }
+                    ],
+                    "required": false
+                  },
+                  "value": {
+                    "name": "string",
+                    "required": true
+                  }
+                }
+              },
+              {
+                "name": "string"
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "`column_static_tooltip` represents the tooltip shown\nfor different columns.\nThe `property` name refers to the column ID.\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\n\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "column_conditional_tooltips": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "if": {
+                "name": "shape",
+                "value": {
+                  "filter": {
+                    "name": "string",
+                    "required": false
+                  },
+                  "row_index": {
+                    "name": "union",
+                    "value": [
+                      {
+                        "name": "number"
+                      },
+                      {
+                        "name": "enum",
+                        "value": [
+                          {
+                            "value": "'odd'",
+                            "computed": false
+                          },
+                          {
+                            "value": "'even'",
+                            "computed": false
+                          }
+                        ]
+                      }
+                    ],
+                    "required": false
+                  },
+                  "column_id": {
+                    "name": "string",
+                    "required": false
+                  }
+                },
+                "required": true
+              },
+              "delay": {
+                "name": "number",
+                "required": false
+              },
+              "duration": {
+                "name": "number",
+                "required": false
+              },
+              "type": {
+                "name": "enum",
+                "value": [
+                  {
+                    "value": "'text'",
+                    "computed": false
+                  },
+                  {
+                    "value": "'markdown'",
+                    "computed": false
+                  }
+                ],
+                "required": false
+              },
+              "value": {
+                "name": "string",
+                "required": true
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "`column_conditional_tooltips` represents the tooltip shown\nfor different columns and cells.\n\nThis property allows you to specify different tooltips for\ndepending on certain conditions. For example, you may have\ndifferent tooltips in the same column based on the value\nof a certain data property.\n\nPriority is from first to last defined conditional tooltip\nin the list. Higher priority (more specific) conditional\ntooltips should be put at the beginning of the list.\n\nThe `if` refers to the condtion that needs to be fulfilled\nin order for the associated tooltip configuration to be\nused. If multiple conditions are defined, all conditions\nmust be met for the tooltip to be used by a cell.\n\nThe `if` nested property `column_id` refers to the column\nID that must be matched.\nThe `if` nested property `row_index` refers to the index\nof the row in the source `data`.\nThe `if` nested property `filter` refers to the query that\nmust evaluate to True.\n\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "tooltips": {
+        "type": {
+          "name": "objectOf",
+          "value": {
+            "name": "arrayOf",
+            "value": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "shape",
+                  "value": {
+                    "delay": {
+                      "name": "number",
+                      "required": false
+                    },
+                    "duration": {
+                      "name": "number",
+                      "required": false
+                    },
+                    "type": {
+                      "name": "enum",
+                      "value": [
+                        {
+                          "value": "'text'",
+                          "computed": false
+                        },
+                        {
+                          "value": "'markdown'",
+                          "computed": false
+                        }
+                      ],
+                      "required": false
+                    },
+                    "value": {
+                      "name": "string",
+                      "required": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "required": false,
+        "description": "`tooltips` represents the tooltip shown\nfor different columns and cells.\nThe `property` name refers to the column ID. Each property\ncontains a list of tooltips mapped to the source `data`\nrow index.\n\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\n\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case."
+      },
+      "tooltip_delay": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "`tooltip_delay` represents the table-wide delay in milliseconds before\nthe tooltip is shown when hovering a cell. If set to `null`, the tooltip\nwill be shown immediately.\n\nDefaults to 350.",
+        "defaultValue": {
+          "value": "350",
+          "computed": false
+        }
+      },
+      "tooltip_duration": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "`tooltip_duration` represents the table-wide duration in milliseconds\nduring which the tooltip will be displayed when hovering a cell. If\nset to `null`, the tooltip will not disappear.\n\nDefaults to 2000.",
+        "defaultValue": {
+          "value": "2000",
+          "computed": false
+        }
+      },
       "filtering": {
         "type": {
           "name": "enum",

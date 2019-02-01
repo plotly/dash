@@ -1,10 +1,11 @@
 import * as R from 'ramda';
-import React from 'react';
+import React, { MouseEvent } from 'react';
 
 import { memoizeOne } from 'core/memoizer';
 import memoizerCache from 'core/cache/memoizer';
-import { Data, IVisibleColumn, VisibleColumns, ActiveCell, SelectedCells, Datum, ColumnId, IViewportOffset, Presentation } from 'dash-table/components/Table/props';
+import { Data, IVisibleColumn, VisibleColumns, ActiveCell, SelectedCells, Datum, ColumnId, IViewportOffset, Presentation, ICellFactoryProps } from 'dash-table/components/Table/props';
 import Cell from 'dash-table/components/Cell';
+import derivedCellEventHandlerProps from 'dash-table/derived/cell/eventHandlerProps';
 import isActiveCell from 'dash-table/derived/cell/isActive';
 import isSelectedCell from 'dash-table/derived/cell/isSelected';
 
@@ -19,7 +20,8 @@ class Wrappers {
         columns: VisibleColumns,
         data: Data,
         offset: IViewportOffset,
-        selectedCells: SelectedCells
+        selectedCells: SelectedCells,
+        propsFn: () => ICellFactoryProps
     ) => R.addIndex<Datum, JSX.Element[]>(R.map)(
         (_, rowIndex) => R.addIndex<IVisibleColumn, JSX.Element>(R.map)(
             (column, columnIndex) => {
@@ -27,6 +29,8 @@ class Wrappers {
                 const selected = isSelectedCell(selectedCells, rowIndex + offset.rows, columnIndex + offset.columns);
 
                 const isDropdown = column.presentation === Presentation.Dropdown;
+
+                const handlers = this.cellEventHandlerProps(propsFn)(rowIndex, columnIndex);
 
                 const classes =
                     'dash-cell' +
@@ -39,7 +43,11 @@ class Wrappers {
                     active,
                     classes,
                     columnIndex,
-                    column.id
+                    column.id,
+                    rowIndex,
+                    handlers.onEnter,
+                    handlers.onLeave,
+                    handlers.onMove
                 );
             }, columns
         ), data));
@@ -51,11 +59,23 @@ class Wrappers {
         active: boolean,
         classes: string,
         columnIndex: number,
-        columnId: ColumnId
+        columnId: ColumnId,
+        rowIndex: number,
+        onEnter: (e: MouseEvent) => void,
+        onLeave: (e: MouseEvent) => void,
+        onMove: (e: MouseEvent) => void
     ) => (<Cell
         active={active}
+        attributes={{
+            'data-dash-column': columnId,
+            'data-dash-row': rowIndex
+        }}
         classes={classes}
         key={`column-${columnIndex}`}
-        property={columnId}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
+        onMouseMove={onMove}
     />));
+
+    private readonly cellEventHandlerProps = derivedCellEventHandlerProps();
 }

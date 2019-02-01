@@ -1,26 +1,11 @@
-import { ColumnId } from 'dash-table/components/Table/props';
+import {
+    ConditionalBasicFilter,
+    ConditionalDataCell,
+    ConditionalCell,
+    ConditionalHeader
+} from 'dash-table/conditional';
+
 import IStyle from './IStyle';
-
-export interface IConditionalElement {
-    filter?: string;
-}
-
-export interface IIndexedHeaderElement {
-    header_index?: number | 'odd' | 'even';
-}
-
-export interface IIndexedRowElement {
-    row_index?: number | 'odd' | 'even';
-}
-
-export interface INamedElement {
-    column_id?: ColumnId;
-}
-
-type ConditionalBasicFilter = INamedElement;
-type ConditionalDataCell = IConditionalElement & IIndexedRowElement & INamedElement;
-type ConditionalCell = INamedElement;
-type ConditionalHeader = IIndexedHeaderElement & INamedElement;
 
 export { IStyle };
 
@@ -35,4 +20,5 @@ export type BasicFilters = BasicFilter[];
 export type DataCells = DataCell[];
 export type Cells = Cell[];
 export type Headers = Header[];
+
 export type Table = Style;
