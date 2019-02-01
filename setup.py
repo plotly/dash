@@ -23,7 +23,7 @@ setup(
         'dash_renderer==0.17.0',
         'dash-core-components==0.43.0',
         'dash-html-components==0.13.5',
-        'dash-table==3.2.0'
+        'dash-table==3.3.0'
     ],
     entry_points={
         'console_scripts': [
