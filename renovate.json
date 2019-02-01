@@ -1,0 +1,21 @@
+{
+    "baseBranches": [
+        "renovate-test"
+    ],
+    "pipenv": {
+        "enabled": true
+    },
+    "packageRules": {
+        "packagePatterns": [
+            "*"
+        ],
+        "excludePackageNames": [
+            "dash",
+            "dash-core-components",
+            "dash-html-components",
+            "dash-renderer",
+            "dash-table"
+        ],
+        "enabled": false
+    }
+}
