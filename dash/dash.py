@@ -30,8 +30,9 @@ from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
 from ._utils import generate_hash as _generate_hash
-from . import _watch
 from ._utils import get_asset_path as _get_asset_path
+from ._utils import patch_collections_abc as _patch_collections_abc
+from . import _watch
 from . import _configs
 
 
@@ -275,7 +276,7 @@ class Dash(object):
         return self._layout
 
     def _layout_value(self):
-        if isinstance(self._layout, collections.Callable):
+        if isinstance(self._layout, _patch_collections_abc('Callable')):
             self._cached_layout = self._layout()
         else:
             self._cached_layout = self._layout
@@ -284,7 +285,7 @@ class Dash(object):
     @layout.setter
     def layout(self, value):
         if (not isinstance(value, Component) and
-                not isinstance(value, collections.Callable)):
+                not isinstance(value, _patch_collections_abc('Callable'))):
             raise exceptions.NoLayoutException(
                 ''
                 'Layout must be a dash component '
