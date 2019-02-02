@@ -5,7 +5,7 @@
     "pipenv": {
         "enabled": true
     },
-    "packageRules": {
+    "packageRules": [{
         "packagePatterns": [
             "*"
         ],
@@ -17,5 +17,5 @@
             "dash-table"
         ],
         "enabled": false
-    }
+    }]
 }
