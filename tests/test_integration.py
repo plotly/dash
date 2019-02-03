@@ -564,6 +564,7 @@ class Tests(IntegrationTests):
             return '<div id="content">Flask app</div>'
 
         app1 = dash.Dash(
+            __name__,
             server=server,
             requests_pathname_prefix='/app1/',
             routes_pathname_prefix='/app1/',
@@ -571,6 +572,7 @@ class Tests(IntegrationTests):
         app1.layout = html.Div("Dash app 1", id="content")
 
         app2 = dash.Dash(
+            __name__,
             server=server,
             requests_pathname_prefix='/app2/',
             routes_pathname_prefix='/app2/',
@@ -595,6 +597,10 @@ class Tests(IntegrationTests):
         content = self.wait_for_element_by_id('content')
         self.assertEqual('Dash app 2', content.text)
 
+        # check that the assets were loaded for one of the apps
+        content_padding = content.value_of_css_property('padding')
+        self.assertEqual('8px', content_padding)
+        
     def test_wsgi_integration(self):
         flask_app = Flask(__name__)
 
@@ -602,10 +608,16 @@ class Tests(IntegrationTests):
         def index():
             return '<div id="content">Flask app</div>'
 
-        app1 = dash.Dash(requests_pathname_prefix='/app1/')
+        app1 = dash.Dash(
+            __name__,
+            requests_pathname_prefix='/app1/'
+        )
         app1.layout = html.Div("Dash app 1", id="content")
 
-        app2 = dash.Dash(requests_pathname_prefix='/app2/')
+        app2 = dash.Dash(
+            __name__,
+            requests_pathname_prefix='/app2/'
+        )
         app2.layout = html.Div("Dash app 2", id="content")
 
         app1.scripts.config.serve_locally = True
