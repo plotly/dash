@@ -36,11 +36,11 @@ class Tests(IntegrationTests):
             time.sleep(0.25)
         raise exception
 
-    def wait_for_text_to_equal(self, selector, assertion_text):
+    def wait_for_text_to_equal(self, selector, assertion_text, timeout=20):
         start_time = time.time()
         exception = Exception('Time ran out, {} on {} not found'.format(
             assertion_text, selector))
-        while time.time() < start_time + 20:
+        while time.time() < start_time + timeout:
             el = self.wait_for_element_by_css_selector(selector)
             try:
                 return self.assertEqual(str(el.text), assertion_text)
@@ -2155,3 +2155,29 @@ class Tests(IntegrationTests):
         )
 
         self.assertEqual(call_count.value, 7)
+
+    def test_multi_output_circular_dependencies(self):
+        app = dash.Dash(__name__)
+        app.config['suppress_callback_exceptions'] = True
+
+        app.layout = html.Div([
+            dcc.Input(id='a'),
+            dcc.Input(id='b'),
+            html.P(id='c')
+        ])
+
+        @app.callback(Output('a', 'value'), [Input('b', 'value')])
+        def set_a(b):
+            return ((b or '') + 'X')[:100]
+
+        @app.callback([Output('b', 'value'), Output('c', 'children')],
+                      [Input('a', 'value')])
+        def set_bc(a):
+            return [a, a]
+
+        self.startServer(app)
+
+        # Front-end failed to render.
+        self.wait_for_text_to_equal(
+            'body', 'Error loading dependencies', timeout=2
+        )
