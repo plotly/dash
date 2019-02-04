@@ -1,5 +1,5 @@
 dash_html_components
-dash>=0.31.0
+dash>=0.36.0
 percy
 selenium
 pandas

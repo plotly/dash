@@ -12,5 +12,5 @@ setup(
     include_package_data=True,
     license='MIT',
     description='Dash UI core component suite',
-    install_requires=['dash']
+    install_requires=['dash>=0.36.0']
 )
