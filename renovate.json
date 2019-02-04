@@ -4,5 +4,8 @@
   ],
   "pipenv": {
     "enabled": true
+  },
+  "pip_requirements": {
+    "fileMatch": ["^([a-zA-Z0-9]+-)?requirements(-[a-zA-Z0-9]+)?[.]txt$"] 
   }
 }
