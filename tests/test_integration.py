@@ -566,16 +566,14 @@ class Tests(IntegrationTests):
         app1 = dash.Dash(
             __name__,
             server=server,
-            requests_pathname_prefix='/app1/',
-            routes_pathname_prefix='/app1/',
+            routes_pathname_prefix='/app1/'
         )
         app1.layout = html.Div("Dash app 1", id="content")
 
         app2 = dash.Dash(
             __name__,
             server=server,
-            requests_pathname_prefix='/app2/',
-            routes_pathname_prefix='/app2/',
+            routes_pathname_prefix='/app2/'
         )
         app2.layout = html.Div("Dash app 2", id="content")
 
