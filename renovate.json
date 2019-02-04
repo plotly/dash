@@ -2,6 +2,10 @@
   "extends": [
     "config:base"
   ],
+  "baseBranches": [
+    "master",
+    "renovate-test"
+  ],
   "pipenv": {
     "enabled": true
   },
