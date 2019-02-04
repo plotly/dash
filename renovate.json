@@ -6,6 +6,6 @@
     "enabled": true
   },
   "pip_requirements": {
-    "fileMatch": ["^([a-zA-Z0-9]+-)?requirements(-[a-zA-Z0-9]+)?[.]txt$"] 
+    "fileMatch": ["requirements.txt", "dev-requirements.txt", "dev-requirements-py37.txt"] 
   }
 }
