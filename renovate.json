@@ -1,21 +1,18 @@
 {
-    "baseBranches": [
-        "renovate-test"
-    ],
-    "pipenv": {
-        "enabled": true
-    },
-    "packageRules": [{
-        "packagePatterns": [
-            "*"
-        ],
-        "excludePackageNames": [
-            "dash",
-            "dash-core-components",
-            "dash-html-components",
-            "dash-renderer",
-            "dash-table"
-        ],
-        "enabled": false
-    }]
+  "extends": [
+    "config:base"
+  ],
+  "baseBranches": [
+    "master",
+    "renovate-test"
+  ],
+  "pipenv": {
+    "enabled": true
+  },
+  "pip_requirements": {
+    "fileMatch": ["requirements.txt", "dev-requirements.txt", "dev-requirements-py37.txt"] 
+  },
+  "pip_setup": {
+    "enabled": true 
+  }
 }
