@@ -598,7 +598,7 @@ class Tests(IntegrationTests):
         # check that the assets were loaded for one of the apps
         content_padding = content.value_of_css_property('padding')
         self.assertEqual('8px', content_padding)
-        
+
     def test_wsgi_integration(self):
         flask_app = Flask(__name__)
 
