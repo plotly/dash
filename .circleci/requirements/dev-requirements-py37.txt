@@ -13,4 +13,4 @@ plotly>=2.0.8
 requests[security]
 flake8
 pylint==2.1.1
-astroid==2.0.4
+astroid==2.1.0
