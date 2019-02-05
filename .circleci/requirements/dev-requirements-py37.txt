@@ -1,4 +1,4 @@
-dash_core_components>=0.40.2
+dash_core_components==0.43.0
 dash_html_components==0.12.0rc3
 dash-flow-example==0.0.5
 dash-dangerously-set-inner-html
@@ -9,7 +9,7 @@ mock
 tox
 tox-pyenv
 six
-plotly>=2.0.8
+plotly==3.6.0
 requests[security]
 flake8
 pylint==2.1.1
