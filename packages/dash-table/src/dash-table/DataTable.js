@@ -71,7 +71,7 @@ export const defaultProps = {
     column_conditional_dropdowns: [],
     column_static_dropdown: [],
 
-    column_static_tooltip: [],
+    column_static_tooltip: {},
     column_conditional_tooltips: [],
     tooltip_delay: 350,
     tooltip_duration: 2000,

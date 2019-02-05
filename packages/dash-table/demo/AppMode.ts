@@ -2,7 +2,7 @@ import * as R from 'ramda';
 
 import Environment from 'core/environment';
 
-import { generateMockData, IDataMock } from './data';
+import { generateMockData, IDataMock, generateSpaceMockData } from './data';
 import {
     ContentStyle,
     PropsWithDefaults,
@@ -16,6 +16,7 @@ export enum AppMode {
     Default = 'default',
     FixedVirtualized = 'fixed,virtualized',
     ReadOnly = 'readonly',
+    ColumnsInSpace = 'columnsInSpace',
     Tooltips = 'tooltips',
     Typed = 'typed',
     Virtualized = 'virtualized'
@@ -63,11 +64,13 @@ function getBaseTableProps(mock: IDataMock) {
     };
 }
 
-function getDefaultState(): {
+function getDefaultState(
+    generateData: Function = generateMockData
+): {
     filter: string,
     tableProps: Partial<PropsWithDefaults>
 } {
-    const mock = generateMockData(5000);
+    const mock = generateData(5000);
 
     return {
         filter: '',
@@ -94,6 +97,13 @@ function getReadonlyState() {
     R.forEach(column => {
         column.editable = false;
     }, state.tableProps.columns || []);
+
+    return state;
+}
+
+function getSpaceInColumn() {
+    const state = getDefaultState(generateSpaceMockData);
+    state.tableProps.filtering = true;
 
     return state;
 }
@@ -202,6 +212,8 @@ function getState() {
             return getFixedVirtualizedState();
         case AppMode.ReadOnly:
             return getReadonlyState();
+        case AppMode.ColumnsInSpace:
+            return getSpaceInColumn();
         case AppMode.Tooltips:
             return getTooltipsState();
         case AppMode.Virtualized:

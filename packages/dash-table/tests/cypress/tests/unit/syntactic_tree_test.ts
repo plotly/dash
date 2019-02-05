@@ -1,10 +1,126 @@
 import SyntaxTree from 'core/syntax-tree';
 
 describe('Syntax Tree', () => {
-    const data0 = { a: '0', b: '0', c: 0, d: null };
-    const data1 = { a: '1', b: '0', c: 1, d: 0 };
-    const data2 = { a: '2', b: '1', c: 2, d: '' };
-    const data3 = { a: '3', b: '1', c: 3, d: false };
+    const data0 = { a: '0', b: '0', c: 0, d: null, 'a.dot': '0.dot', 'a-dot': '0-dot', a_dot: '0_dot', 'a+dot': '0+dot', 'a dot': '0 dot', 'a:dot': '0:dot', '_-6.:+** *@$': '0*dot', '\'""\'': '0\'"dot' };
+    const data1 = { a: '1', b: '0', c: 1, d: 0, 'a.dot': '1.dot', 'a-dot': '1-dot', a_dot: '1_dot', 'a+dot': '1+dot', 'a dot': '1 dot', 'a:dot': '1:dot', '_-6.:+** *@$': '1*dot', '\'""\'': '1\'"dot' };
+    const data2 = { a: '2', b: '1', c: 2, d: '', 'a.dot': '2.dot', 'a-dot': '2-dot', a_dot: '2_dot', 'a+dot': '2+dot', 'a dot': '2 dot', 'a:dot': '2:dot', '_-6.:+** *@$': '2*dot', '\'""\'': '2\'"dot' };
+    const data3 = { a: '3', b: '1', c: 3, d: false, 'a.dot': '3.dot', 'a-dot': '3-dot', a_dot: '3_dot', 'a+dot': '3+dot', 'a dot': '3 dot', 'a:dot': '3:dot', '_-6.:+** *@$': '3*dot', '\'""\'': '3\'"dot' };
+
+    describe('operands', () => {
+        it('does not support badly formed operands', () => {
+            expect(new SyntaxTree(`'myField' eq num(0)`).isValid).to.equal(true);
+            expect(new SyntaxTree(`"myField" eq num(0)`).isValid).to.equal(true);
+            expect(new SyntaxTree('`myField` eq num(0)').isValid).to.equal(true);
+            expect(new SyntaxTree(`'myField\\' eq num(0)`).isValid).to.equal(false);
+            expect(new SyntaxTree(`"myField\\" eq num(0)`).isValid).to.equal(false);
+            expect(new SyntaxTree('`myField\\` eq num(0)').isValid).to.equal(false);
+            expect(new SyntaxTree(`\\'myField' eq num(0)`).isValid).to.equal(false);
+            expect(new SyntaxTree(`\\"myField" eq num(0)`).isValid).to.equal(false);
+            expect(new SyntaxTree('\\`myField` eq num(0)').isValid).to.equal(false);
+        });
+
+        it('does not support badly formed expression', () => {
+            expect(new SyntaxTree(`myField eq 'value'`).isValid).to.equal(true);
+            expect(new SyntaxTree(`myField eq "value"`).isValid).to.equal(true);
+            expect(new SyntaxTree('myField eq `value`').isValid).to.equal(true);
+            expect(new SyntaxTree(`myField eq 'value\\'`).isValid).to.equal(false);
+            expect(new SyntaxTree(`myField eq "value\\"`).isValid).to.equal(false);
+            expect(new SyntaxTree('myField eq `value\\`').isValid).to.equal(false);
+            expect(new SyntaxTree(`myField eq \\'value'`).isValid).to.equal(false);
+            expect(new SyntaxTree(`myField eq \\"value"`).isValid).to.equal(false);
+            expect(new SyntaxTree('myField eq \\`value`').isValid).to.equal(false);
+        });
+
+        it('support arbitrary quoted column name', () => {
+            const tree = new SyntaxTree(`'_-6.:+** *@$' eq "1*dot" || '_-6.:+** *@$' eq "2*dot"`);
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+
+        it('support column name with "."', () => {
+            const tree = new SyntaxTree('a.dot eq "1.dot" || a.dot eq "2.dot"');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+
+        it('support column name with "-"', () => {
+            const tree = new SyntaxTree('a-dot eq "1-dot" || a-dot eq "2-dot"');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+
+        it('support column name with "_"', () => {
+            const tree = new SyntaxTree('a_dot eq "1_dot" || a_dot eq "2_dot"');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+
+        it('support column name with "+"', () => {
+            const tree = new SyntaxTree('a+dot eq "1+dot" || a+dot eq "2+dot"');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+
+        it('support column name with ":"', () => {
+            const tree = new SyntaxTree('a:dot eq "1:dot" || a:dot eq "2:dot"');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+
+        it('support double quoted column name with " " (space)', () => {
+            const tree = new SyntaxTree('"a dot" eq "1 dot" || "a dot" eq "2 dot"');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+
+        it('support single quoted column name with " " (space)', () => {
+            const tree = new SyntaxTree('\'a dot\' eq "1 dot" || \'a dot\' eq "2 dot"');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+
+        it('support nesting in quotes', () => {
+            const tree = new SyntaxTree(`\`'""'\` eq \`1'"dot\` || \`'""'\` eq \`2'"dot\``);
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+    });
 
     describe('&& and ||', () => {
         it('can || two conditions', () => {

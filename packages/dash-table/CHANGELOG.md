@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Changed
+[#224](https://github.com/plotly/dash-table/issues/224)
+- Added support for unquoted column id with
+  - letters, numbers, [-+:.]
+- Added support for single and double quoted column id with arbitrary name
+
+### Fixed
+- Incorrect default value for `column_static_tooltip` changed from [] to {}
+
 ## [3.3.0] - 2019-02-01
 ### Added
 [#307](https://github.com/plotly/dash-core/issues/307)

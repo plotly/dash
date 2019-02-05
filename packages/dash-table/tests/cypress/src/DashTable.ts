@@ -7,6 +7,14 @@ export default class DashTable {
         return cy.get(`#table tbody tr td[data-dash-column="${column}"]`).eq(row);
     }
 
+    static getFilter(column: number) {
+        return cy.get(`#table tbody tr th.dash-filter.column-${column}`);
+    }
+
+    static getFilterById(column: number | string) {
+        return cy.get(`#table tbody tr th.dash-filter[data-dash-column="${column}"]`);
+    }
+
     static getDelete(row: number) {
         return cy.get(`#table tbody tr td.dash-delete-cell`).eq(row);
     }

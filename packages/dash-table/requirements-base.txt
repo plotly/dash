@@ -28,7 +28,7 @@ MarkupSafe==1.0
 mccabe==0.6.1
 nbformat==4.4.0
 numpy==1.15.1
-pandas==0.23.4
+pandas==0.24.1
 parso==0.3.1
 percy==2.0.0
 pexpect==4.6.0

@@ -31,13 +31,24 @@ const isPrime = (c: number) => {
     return true;
 };
 
-const baseOperand = {
+const operand = {
     resolve: (target: any, tree: ISyntaxTree) => {
-        Logger.trace('resolve -> exp', target, tree);
+        if (/^(('([^'\\]|\\.)+')|("([^"\\]|\\.")+")|(`([^`\\]|\\.)+`))$/.test(tree.value)) {
+            return target[
+                tree.value.slice(1, tree.value.length - 1)
+            ];
+        } else if (/^(\w|[:.\-+])+$/.test(tree.value)) {
+            return target[tree.value];
+        }
+    },
+    regexp: /^(('([^'\\]|\\.)+')|("([^"\\]|\\.)+")|(`([^`\\]|\\.)+`)|(\w|[:.\-+])+)/
+};
 
-        if (/^('.*')|(".*")$/.test(tree.value)) {
+const expression = {
+    resolve: (target: any, tree: ISyntaxTree) => {
+        if (/^(('([^'\\]|\\.)+')|("([^"\\]|\\.)+")|(`([^`\\]|\\.)+`))$/.test(tree.value)) {
             return tree.value.slice(1, tree.value.length - 1);
-        } else if (/^\w+\(.*\)$/.test(tree.value)) {
+        } else if (/^(num|str)\(.*\)$/.test(tree.value)) {
             const res = tree.value.match(/^(\w+)\((.*)\)$/);
             if (res) {
                 const [, op, value] = res;
@@ -56,7 +67,7 @@ const baseOperand = {
             return target[tree.value];
         }
     },
-    regexp: /^(((num|str)\([^()]*\))|'([^()']|\\')+'|"([^()"]|\\")+"|\w+)/
+    regexp: /^(((num|str)\([^()]*\))|('([^'\\]|\\.)+')|("([^"\\]|\\.)+")|(`([^`\\]|\\.)+`)|(\w|[:.\-+])+)/
 };
 
 const lexicon: ILexeme[] = [
@@ -122,9 +133,10 @@ const lexicon: ILexeme[] = [
         },
         when: [LexemeType.UnaryNot]
     },
-    Object.assign({
+    {
+        ...operand,
         name: LexemeType.Operand
-    }, baseOperand),
+    },
     {
         evaluate: (target, tree) => {
             Logger.trace('evaluate -> binary', target, tree);
@@ -224,10 +236,11 @@ const lexicon: ILexeme[] = [
         },
         when: [LexemeType.UnaryNot]
     },
-    Object.assign({
+    {
+        ...expression,
         name: LexemeType.Expression,
         when: [LexemeType.BinaryOperator]
-    }, baseOperand)
+    }
 ];
 
 export default lexicon;

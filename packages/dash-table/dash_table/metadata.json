@@ -652,7 +652,7 @@
         "required": false,
         "description": "`column_static_tooltip` represents the tooltip shown\nfor different columns.\nThe `property` name refers to the column ID.\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\n\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case.",
         "defaultValue": {
-          "value": "[]",
+          "value": "{}",
           "computed": false
         }
       },

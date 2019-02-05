@@ -55,7 +55,7 @@ export default class FilterFactory {
         }
 
         setFilter(R.map(
-            ([cId, filter]) => `${cId} ${filter}`,
+            ([cId, filter]) => `"${cId}" ${filter}`,
             R.filter(
                 ([cId]) => this.isFragmentValid(cId),
                 Array.from(ops.entries())
@@ -159,7 +159,7 @@ export default class FilterFactory {
     private isFragmentValid(columnId: ColumnId) {
         const op = this.ops.get(columnId.toString());
 
-        const lexerResult = lexer(`${columnId} ${op}`);
+        const lexerResult = lexer(`"${columnId}" ${op}`);
         const syntaxerResult = syntaxer(lexerResult);
 
         return syntaxerResult.valid && this.isBasicFilter(lexerResult, syntaxerResult, false);

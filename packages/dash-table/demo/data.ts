@@ -92,6 +92,63 @@ export const generateMockData = (rows: number) => unpackIntoColumnsAndData([
     }
 ]);
 
+export const generateSpaceMockData = (rows: number) => unpackIntoColumnsAndData([
+    {
+        id: 'rows',
+        type: ColumnType.Numeric,
+        editable: false,
+        data: gendata(i => i, rows)
+    },
+
+    {
+        id: 'c cc',
+        name: ['City', 'Canada', 'Toronto'],
+        type: ColumnType.Numeric,
+        data: gendata(i => i, rows)
+    },
+
+    {
+        id: 'd:dd',
+        name: ['City', 'Canada', 'Montréal'],
+        type: ColumnType.Numeric,
+        data: gendata(i => i * 100, rows)
+    },
+
+    {
+        id: 'e-ee',
+        name: ['City', 'America', 'New York City'],
+        type: ColumnType.Numeric,
+        data: gendata(i => i, rows)
+    },
+
+    {
+        id: 'f_ff',
+        name: ['City', 'America', 'Boston'],
+        type: ColumnType.Numeric,
+        data: gendata(i => i + 1, rows)
+    },
+
+    {
+        id: 'g.gg',
+        name: ['City', 'France', 'Paris'],
+        type: ColumnType.Numeric,
+        editable: true,
+        data: gendata(i => i * 10, rows)
+    },
+
+    {
+        id: 'b+bb',
+        name: ['', 'Weather', 'Climate'],
+        type: ColumnType.Text,
+        presentation: 'dropdown',
+        clearable: true,
+        data: gendata(
+            i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4],
+            rows
+        )
+    }
+]);
+
 export const mockDataSimple = (rows: number) => unpackIntoColumnsAndData([
     {
         id: 'aaa',
