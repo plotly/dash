@@ -33,6 +33,7 @@ jobs:
                 name: Install requirements
                 command: |
                     . venv/bin/activate
+                    pip install -e .
                     pip install -r requirements-base.txt --quiet
                     pip install -r requirements-v0.txt --quiet
 
@@ -85,6 +86,7 @@ jobs:
                 name: Install requirements
                 command: |
                     . venv/bin/activate
+                    pip install -e .
                     pip install -r requirements-base.txt --quiet
                     pip install -r requirements-v1.txt --quiet
 
