@@ -3,13 +3,7 @@
 import {createStore, applyMiddleware} from 'redux';
 import thunk from 'redux-thunk';
 import reducer from './reducers/reducer';
-import createLogger from 'redux-logger';
 
-let logger;
-// only set up logger in non-production mode
-if (process.env.NODE_ENV !== 'production') {
-    logger = createLogger();
-}
 let store;
 
 /**
@@ -31,7 +25,7 @@ const initializeStore = () => {
                   reducer,
                   window.__REDUX_DEVTOOLS_EXTENSION__ &&
                       window.__REDUX_DEVTOOLS_EXTENSION__(),
-                  applyMiddleware(thunk, logger)
+                  applyMiddleware(thunk)
               );
 
     // TODO - Protect this under a debug mode?
