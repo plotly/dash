@@ -4,8 +4,7 @@
     "group:all"
   ],
   "baseBranches": [
-    "master",
-    "renovate-test"
+    "master"
   ],
   "pipenv": {
     "enabled": true
