@@ -3,9 +3,6 @@
     "config:base",
     "group:all"
   ],
-  "baseBranches": [
-    "master"
-  ],
   "pipenv": {
     "enabled": true
   },
