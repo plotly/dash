@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## UNRELEASED
+### Removed
+- Removed redux logger for the dev. [#118](https://github.com/plotly/dash-renderer/pull/118)
+
 ## [0.17.0] - 2019-01-25
 ### Removed
 - Obsolete Event system [#114](https://github.com/plotly/dash-renderer/pull/114)
