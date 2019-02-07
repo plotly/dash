@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added support for single and double quoted column id with arbitrary name
 
 ### Fixed
+[#365](https://github.com/plotly/dash-table/issues/365)
+- Incorrect tooltip behavior if cell is in a fixed row or column
+
 - Incorrect default value for `column_static_tooltip` changed from [] to {}
 
 ## [3.3.0] - 2019-02-01

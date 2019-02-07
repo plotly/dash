@@ -761,7 +761,11 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 tooltip={tableTooltip}
             />
             <div className={containerClasses.join(' ')} style={tableStyle}>
-                <div className={classes.join(' ')} style={tableStyle}>
+                <div
+                    ref='table'
+                    className={classes.join(' ')}
+                    style={tableStyle}
+                >
                     {grid.map((row, rowIndex) => (<div
                         key={`r${rowIndex}`}
                         ref={`r${rowIndex}`}
@@ -798,10 +802,10 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         const id = tooltip.id;
         const row = tooltip.row - virtualized.offset.rows;
 
-        const { r1c1, tooltip: t } = this.refs as { [key: string]: any };
+        const { table, tooltip: t } = this.refs as { [key: string]: any };
 
         if (t) {
-            const cell = r1c1.querySelector(`td[data-dash-column="${id}"][data-dash-row="${row}"]`);
+            const cell = table.querySelector(`td[data-dash-column="${id}"][data-dash-row="${row}"]`);
 
             (this.refs.tooltip as TableTooltip).updateBounds(cell);
         }
