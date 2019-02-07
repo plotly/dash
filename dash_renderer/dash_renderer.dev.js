@@ -33919,7 +33919,14 @@ function notifyObservers(payload) {
         }, outputObservers);
         var queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
-            var outputComponentId = outputIdAndProp.split('.')[0];
+            var outputIds = void 0;
+            if (outputIdAndProp.startsWith('..')) {
+                outputIds = outputIdAndProp.slice(1, outputIdAndProp.length - 2).split('...').map(function (e) {
+                    return e.split('.')[0];
+                });
+            } else {
+                outputIds = [outputIdAndProp.split('.')[0]];
+            }
 
             /*
              * before we make the POST to update the output, check
@@ -33981,7 +33988,10 @@ function notifyObservers(payload) {
              * of a controller change.
              * for example, perhaps the user has hidden one of the observers
              */
-            if (controllersInFutureQueue.length === 0 && (0, _ramda.has)(outputComponentId, getState().paths) && !controllerIsInExistingQueue) {
+
+            if (controllersInFutureQueue.length === 0 && (0, _ramda.any)(function (e) {
+                return (0, _ramda.has)(e, getState().paths);
+            })(outputIds) && !controllerIsInExistingQueue) {
                 queuedObservers.push(outputIdAndProp);
             }
         });
@@ -34004,15 +34014,9 @@ function notifyObservers(payload) {
         var promises = [];
         for (var i = 0; i < queuedObservers.length; i++) {
             var outputIdAndProp = queuedObservers[i];
-
-            var _outputIdAndProp$spli = outputIdAndProp.split('.'),
-                _outputIdAndProp$spli2 = _slicedToArray(_outputIdAndProp$spli, 2),
-                outputComponentId = _outputIdAndProp$spli2[0],
-                outputProp = _outputIdAndProp$spli2[1];
-
             var requestUid = newRequestQueue[i].uid;
 
-            promises.push(updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch));
+            promises.push(updateOutput(outputIdAndProp, getState, requestUid, dispatch));
         }
 
         /* eslint-disable consistent-return */
@@ -34021,12 +34025,11 @@ function notifyObservers(payload) {
     };
 }
 
-function updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch) {
+function updateOutput(outputIdAndProp, getState, requestUid, dispatch) {
     var _getState3 = getState(),
         config = _getState3.config,
         layout = _getState3.layout,
         graphs = _getState3.graphs,
-        paths = _getState3.paths,
         dependenciesRequest = _getState3.dependenciesRequest;
 
     var InputGraph = graphs.InputGraph;
@@ -34040,38 +34043,48 @@ function updateOutput(outputComponentId, outputProp, getState, requestUid, dispa
      * }
      */
 
+    var _outputIdAndProp$spli = outputIdAndProp.split('.'),
+        _outputIdAndProp$spli2 = _slicedToArray(_outputIdAndProp$spli, 2),
+        outputComponentId = _outputIdAndProp$spli2[0],
+        outputProp = _outputIdAndProp$spli2[1];
+
     var payload = {
-        output: { id: outputComponentId, property: outputProp }
+        output: config.multi_output ? outputIdAndProp : {
+            id: outputComponentId,
+            property: outputProp
+        }
     };
 
     var _dependenciesRequest$ = dependenciesRequest.content.find(function (dependency) {
+        if (config.multi_output) {
+            return dependency.output === outputIdAndProp;
+        }
         return dependency.output.id === outputComponentId && dependency.output.property === outputProp;
     }),
         inputs = _dependenciesRequest$.inputs,
         state = _dependenciesRequest$.state;
 
-    var validKeys = (0, _ramda.keys)(paths);
+    var validKeys = (0, _ramda.keys)(getState().paths);
 
     payload.inputs = inputs.map(function (inputObject) {
         // Make sure the component id exists in the layout
         if (!(0, _ramda.contains)(inputObject.id, validKeys)) {
             throw new ReferenceError('An invalid input object was used in an ' + '`Input` of a Dash callback. ' + 'The id of this object is `' + inputObject.id + '` and the property is `' + inputObject.property + '`. The list of ids in the current layout is ' + '`[' + validKeys.join(', ') + ']`');
         }
-        var propLens = (0, _ramda.lensPath)((0, _ramda.concat)(paths[inputObject.id], ['props', inputObject.property]));
+        var propLens = (0, _ramda.lensPath)((0, _ramda.concat)(getState().paths[inputObject.id], ['props', inputObject.property]));
         return {
             id: inputObject.id,
             property: inputObject.property,
             value: (0, _ramda.view)(propLens, layout)
         };
     });
-
     if (state.length > 0) {
         payload.state = state.map(function (stateObject) {
             // Make sure the component id exists in the layout
             if (!(0, _ramda.contains)(stateObject.id, validKeys)) {
                 throw new ReferenceError('An invalid input object was used in a ' + '`State` object of a Dash callback. ' + 'The id of this object is `' + stateObject.id + '` and the property is `' + stateObject.property + '`. The list of ids in the current layout is ' + '`[' + validKeys.join(', ') + ']`');
             }
-            var propLens = (0, _ramda.lensPath)((0, _ramda.concat)(paths[stateObject.id], ['props', stateObject.property]));
+            var propLens = (0, _ramda.lensPath)((0, _ramda.concat)(getState().paths[stateObject.id], ['props', stateObject.property]));
             return {
                 id: stateObject.id,
                 property: stateObject.property,
@@ -34117,9 +34130,7 @@ function updateOutput(outputComponentId, outputProp, getState, requestUid, dispa
         };
 
         var isRejected = function isRejected() {
-            var latestRequestIndex = (0, _ramda.findLastIndex)(
-            // newRequestQueue[i].controllerId),
-            (0, _ramda.propEq)('controllerId', outputComponentId + '.' + outputProp), getState().requestQueue);
+            var latestRequestIndex = (0, _ramda.findLastIndex)((0, _ramda.propEq)('controllerId', outputIdAndProp), getState().requestQueue);
             /*
              * Note that if the latest request is still `loading`
              * or even if the latest request failed,
@@ -34168,129 +34179,142 @@ function updateOutput(outputComponentId, outputProp, getState, requestUid, dispa
              * if it's not visible, then ignore the rest of the updates
              * to the store
              */
-            if (!(0, _ramda.has)(outputComponentId, getState().paths)) {
-                return;
-            }
 
-            // and update the props of the component
-            var observerUpdatePayload = {
-                itempath: getState().paths[outputComponentId],
-                // new prop from the server
-                props: data.response.props,
-                source: 'response'
-            };
-            dispatch(updateProps(observerUpdatePayload));
+            var multi = data.multi;
 
-            dispatch(notifyObservers({
-                id: outputComponentId,
-                props: data.response.props
-            }));
+            var handleResponse = function handleResponse(_ref) {
+                var _ref2 = _slicedToArray(_ref, 2),
+                    outputIdAndProp = _ref2[0],
+                    props = _ref2[1];
 
-            /*
-             * If the response includes children, then we need to update our
-             * paths store.
-             * TODO - Do we need to wait for updateProps to finish?
-             */
-            if ((0, _ramda.has)('children', observerUpdatePayload.props)) {
-                dispatch(computePaths({
-                    subTree: observerUpdatePayload.props.children,
-                    startingPath: (0, _ramda.concat)(getState().paths[outputComponentId], ['props', 'children'])
+                // Backward compatibility
+                var pathKey = multi ? outputIdAndProp : outputComponentId;
+                var observerUpdatePayload = {
+                    itempath: getState().paths[pathKey],
+                    props: props,
+                    source: 'response'
+                };
+                if (!observerUpdatePayload.itempath) {
+                    return;
+                }
+                dispatch(updateProps(observerUpdatePayload));
+
+                dispatch(notifyObservers({
+                    id: pathKey,
+                    props: props
                 }));
 
                 /*
-                 * if children contains objects with IDs, then we
-                 * need to dispatch a propChange for all of these
-                 * new children components
+                 * If the response includes children, then we need to update our
+                 * paths store.
+                 * TODO - Do we need to wait for updateProps to finish?
                  */
-                if ((0, _ramda.contains)((0, _ramda.type)(observerUpdatePayload.props.children), ['Array', 'Object']) && !(0, _ramda.isEmpty)(observerUpdatePayload.props.children)) {
-                    /*
-                     * TODO: We're just naively crawling
-                     * the _entire_ layout to recompute the
-                     * the dependency graphs.
-                     * We don't need to do this - just need
-                     * to compute the subtree
-                     */
-                    var newProps = {};
-                    (0, _utils.crawlLayout)(observerUpdatePayload.props.children, function appendIds(child) {
-                        if ((0, _utils.hasId)(child)) {
-                            (0, _ramda.keys)(child.props).forEach(function (childProp) {
-                                var componentIdAndProp = child.props.id + '.' + childProp;
-                                if ((0, _ramda.has)(componentIdAndProp, InputGraph.nodes)) {
-                                    newProps[componentIdAndProp] = {
-                                        id: child.props.id,
-                                        props: _defineProperty({}, childProp, child.props[childProp])
-                                    };
-                                }
-                            });
-                        }
-                    });
+                if ((0, _ramda.has)('children', observerUpdatePayload.props)) {
+                    dispatch(computePaths({
+                        subTree: observerUpdatePayload.props.children,
+                        startingPath: (0, _ramda.concat)(getState().paths[pathKey], ['props', 'children'])
+                    }));
 
                     /*
-                     * Organize props by shared outputs so that we
-                     * only make one request per output component
-                     * (even if there are multiple inputs).
-                     *
-                     * For example, we might render 10 inputs that control
-                     * a single output. If that is the case, we only want
-                     * to make a single call, not 10 calls.
-                     */
-
-                    /*
-                     * In some cases, the new item will be an output
-                     * with its inputs already rendered (not rendered)
-                     * as part of this update.
-                     * For example, a tab with global controls that
-                     * renders different content containers without any
-                     * additional inputs.
-                     *
-                     * In that case, we'll call `updateOutput` with that output
-                     * and just "pretend" that one if its inputs changed.
-                     *
-                     * If we ever add logic that informs the user on
-                     * "which input changed", we'll have to account for this
-                     * special case (no input changed?)
-                     */
-
-                    var outputIds = [];
-                    (0, _ramda.keys)(newProps).forEach(function (idAndProp) {
-                        if (
-                        // It's an output
-                        InputGraph.dependenciesOf(idAndProp).length === 0 &&
+                    * if children contains objects with IDs, then we
+                    * need to dispatch a propChange for all of these
+                    * new children components
+                    */
+                    if ((0, _ramda.contains)((0, _ramda.type)(observerUpdatePayload.props.children), ['Array', 'Object']) && !(0, _ramda.isEmpty)(observerUpdatePayload.props.children)) {
                         /*
-                         * And none of its inputs are generated in this
-                         * request
+                         * TODO: We're just naively crawling
+                         * the _entire_ layout to recompute the
+                         * the dependency graphs.
+                         * We don't need to do this - just need
+                         * to compute the subtree
                          */
-                        (0, _ramda.intersection)(InputGraph.dependantsOf(idAndProp), (0, _ramda.keys)(newProps)).length === 0) {
-                            outputIds.push(idAndProp);
-                            delete newProps[idAndProp];
-                        }
-                    });
+                        var newProps = {};
+                        (0, _utils.crawlLayout)(observerUpdatePayload.props.children, function appendIds(child) {
+                            if ((0, _utils.hasId)(child)) {
+                                (0, _ramda.keys)(child.props).forEach(function (childProp) {
+                                    var componentIdAndProp = child.props.id + '.' + childProp;
+                                    if ((0, _ramda.has)(componentIdAndProp, InputGraph.nodes)) {
+                                        newProps[componentIdAndProp] = {
+                                            id: child.props.id,
+                                            props: _defineProperty({}, childProp, child.props[childProp])
+                                        };
+                                    }
+                                });
+                            }
+                        });
 
-                    // Dispatch updates to inputs
-                    var reducedNodeIds = reduceInputIds((0, _ramda.keys)(newProps), InputGraph);
-                    var depOrder = InputGraph.overallOrder();
-                    var sortedNewProps = (0, _ramda.sort)(function (a, b) {
-                        return depOrder.indexOf(a.input) - depOrder.indexOf(b.input);
-                    }, reducedNodeIds);
-                    sortedNewProps.forEach(function (inputOutput) {
-                        var payload = newProps[inputOutput.input];
-                        payload.excludedOutputs = inputOutput.excludedOutputs;
-                        dispatch(notifyObservers(payload));
-                    });
+                        /*
+                         * Organize props by shared outputs so that we
+                         * only make one request per output component
+                         * (even if there are multiple inputs).
+                         *
+                         * For example, we might render 10 inputs that control
+                         * a single output. If that is the case, we only want
+                         * to make a single call, not 10 calls.
+                         */
 
-                    // Dispatch updates to lone outputs
-                    outputIds.forEach(function (idAndProp) {
-                        var requestUid = (0, _utils2.uid)();
-                        dispatch(setRequestQueue((0, _ramda.append)({
-                            // TODO - Are there any implications of doing this??
-                            controllerId: null,
-                            status: 'loading',
-                            uid: requestUid,
-                            requestTime: Date.now()
-                        }, getState().requestQueue)));
-                        updateOutput(idAndProp.split('.')[0], idAndProp.split('.')[1], getState, requestUid, dispatch);
-                    });
+                        /*
+                         * In some cases, the new item will be an output
+                         * with its inputs already rendered (not rendered)
+                         * as part of this update.
+                         * For example, a tab with global controls that
+                         * renders different content containers without any
+                         * additional inputs.
+                         *
+                         * In that case, we'll call `updateOutput` with that output
+                         * and just "pretend" that one if its inputs changed.
+                         *
+                         * If we ever add logic that informs the user on
+                         * "which input changed", we'll have to account for this
+                         * special case (no input changed?)
+                         */
+
+                        var outputIds = [];
+                        (0, _ramda.keys)(newProps).forEach(function (idAndProp) {
+                            if (
+                            // It's an output
+                            InputGraph.dependenciesOf(idAndProp).length === 0 &&
+                            /*
+                             * And none of its inputs are generated in this
+                             * request
+                             */
+                            (0, _ramda.intersection)(InputGraph.dependantsOf(idAndProp), (0, _ramda.keys)(newProps)).length === 0) {
+                                outputIds.push(idAndProp);
+                                delete newProps[idAndProp];
+                            }
+                        });
+
+                        // Dispatch updates to inputs
+                        var reducedNodeIds = reduceInputIds((0, _ramda.keys)(newProps), InputGraph);
+                        var depOrder = InputGraph.overallOrder();
+                        var sortedNewProps = (0, _ramda.sort)(function (a, b) {
+                            return depOrder.indexOf(a.input) - depOrder.indexOf(b.input);
+                        }, reducedNodeIds);
+                        sortedNewProps.forEach(function (inputOutput) {
+                            var payload = newProps[inputOutput.input];
+                            payload.excludedOutputs = inputOutput.excludedOutputs;
+                            dispatch(notifyObservers(payload));
+                        });
+
+                        // Dispatch updates to lone outputs
+                        outputIds.forEach(function (idAndProp) {
+                            var requestUid = (0, _utils2.uid)();
+                            dispatch(setRequestQueue((0, _ramda.append)({
+                                // TODO - Are there any implications of doing this??
+                                controllerId: null,
+                                status: 'loading',
+                                uid: requestUid,
+                                requestTime: Date.now()
+                            }, getState().requestQueue)));
+                            updateOutput(idAndProp, getState, requestUid, dispatch);
+                        });
+                    }
                 }
+            };
+            if (multi) {
+                Object.entries(data.response).forEach(handleResponse);
+            } else {
+                handleResponse([outputIdAndProp, data.response.props]);
             }
         });
     });
@@ -35174,6 +35198,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
+
 var _dependencyGraph = __webpack_require__(/*! dependency-graph */ "./node_modules/dependency-graph/lib/dep_graph.js");
 
 var initialGraph = {};
@@ -35192,7 +35218,10 @@ var graphs = function graphs() {
                     var output = dependency.output,
                         inputs = dependency.inputs;
 
-                    var outputId = output.id + '.' + output.property;
+                    // Multi output supported will be a string already
+                    // Backward compatibility by detecting object.
+
+                    var outputId = (0, _ramda.type)(output) === 'Object' ? output.id + '.' + output.property : output;
                     inputs.forEach(function (inputObject) {
                         var inputId = inputObject.id + '.' + inputObject.property;
                         inputGraph.addNode(outputId);
