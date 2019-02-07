@@ -11,7 +11,7 @@ import dash_flow_example
 
 import dash
 
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate, DuplicateCallbackOutput, CallbackException
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
