@@ -31,7 +31,6 @@ from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
 from ._utils import generate_hash as _generate_hash
-from ._utils import get_asset_path as _get_asset_path
 from ._utils import patch_collections_abc as _patch_collections_abc
 from . import _watch
 from ._utils import get_asset_path as _get_asset_path
