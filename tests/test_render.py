@@ -377,6 +377,9 @@ class Tests(IntegrationTests):
                 "nodes": {},
                 "outgoingEdges": {},
                 "incomingEdges": {}
+              },
+              'MultiGraph': {
+                  'incomingEdges': {}, 'nodes': {}, 'outgoingEdges': {}
               }
             }
         )
