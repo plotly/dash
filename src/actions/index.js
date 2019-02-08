@@ -50,8 +50,10 @@ export function hydrateInitialOutputs() {
 
 function triggerDefaultState(dispatch, getState) {
     const {graphs} = getState();
-    const {InputGraph} = graphs;
+    const {InputGraph, MultiGraph} = graphs;
     const allNodes = InputGraph.overallOrder();
+    // overallOrder will assert circular dependencies for multi output.
+    MultiGraph.overallOrder();
     const inputNodeIds = [];
     allNodes.reverse();
     allNodes.forEach(nodeId => {

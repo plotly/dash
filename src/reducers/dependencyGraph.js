@@ -8,23 +8,58 @@ const graphs = (state = initialGraph, action) => {
         case 'COMPUTE_GRAPHS': {
             const dependencies = action.payload;
             const inputGraph = new DepGraph();
+            const multiGraph = new DepGraph();
 
             dependencies.forEach(function registerDependency(dependency) {
                 const {output, inputs} = dependency;
 
                 // Multi output supported will be a string already
                 // Backward compatibility by detecting object.
-                const outputId = type(output) === 'Object' ?
-                    `${output.id}.${output.property}` : output;
+                let outputId;
+                if (type(output) === 'Object') {
+                    outputId= `${output.id}.${output.property}`;
+                } else {
+                    outputId = output;
+                    if (output.startsWith('.')) {
+                        output.slice(2, output.length - 2).split('...').forEach(
+                            out => {
+                                multiGraph.addNode(out);
+                                inputs.forEach(
+                                    i => {
+                                        const inputId = `${i.id}.${i.property}`;
+                                        if (!multiGraph.hasNode(inputId)) {
+                                            multiGraph.addNode(inputId);
+                                        }
+                                        multiGraph.addDependency(inputId, out);
+                                    }
+                                );
+                            }
+                        )
+                    } else {
+                        multiGraph.addNode(output);
+                        inputs.forEach(
+                            i => {
+                                const inputId = `${i.id}.${i.property}`;
+                                if (!multiGraph.hasNode(inputId)) {
+                                    multiGraph.addNode(inputId);
+                                }
+                                multiGraph.addDependency(inputId, output);
+                            }
+                        )
+                    }
+                }
+
                 inputs.forEach(inputObject => {
                     const inputId = `${inputObject.id}.${inputObject.property}`;
                     inputGraph.addNode(outputId);
-                    inputGraph.addNode(inputId);
+                    if (!inputGraph.hasNode(inputId)) {
+                        inputGraph.addNode(inputId);
+                    }
                     inputGraph.addDependency(inputId, outputId);
                 });
             });
 
-            return {InputGraph: inputGraph};
+            return {InputGraph: inputGraph, MultiGraph: multiGraph};
         }
 
         default:
