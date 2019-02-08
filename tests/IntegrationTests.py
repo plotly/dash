@@ -52,6 +52,7 @@ class IntegrationTests(unittest.TestCase):
     def startServer(s, dash, **kwargs):
         def run():
             dash.scripts.config.serve_locally = True
+            dash.css.config.serve_locally = True
             kws = dict(
                 port=8050,
                 debug=False,
