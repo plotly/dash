@@ -33741,9 +33741,11 @@ function triggerDefaultState(dispatch, getState) {
     var _getState = getState(),
         graphs = _getState.graphs;
 
-    var InputGraph = graphs.InputGraph;
+    var InputGraph = graphs.InputGraph,
+        MultiGraph = graphs.MultiGraph;
 
     var allNodes = InputGraph.overallOrder();
+    MultiGraph.overallOrder();
     var inputNodeIds = [];
     allNodes.reverse();
     allNodes.forEach(function (nodeId) {
@@ -35213,6 +35215,7 @@ var graphs = function graphs() {
             {
                 var dependencies = action.payload;
                 var inputGraph = new _dependencyGraph.DepGraph();
+                var multiGraph = new _dependencyGraph.DepGraph();
 
                 dependencies.forEach(function registerDependency(dependency) {
                     var output = dependency.output,
@@ -35221,16 +35224,45 @@ var graphs = function graphs() {
                     // Multi output supported will be a string already
                     // Backward compatibility by detecting object.
 
-                    var outputId = (0, _ramda.type)(output) === 'Object' ? output.id + '.' + output.property : output;
+                    var outputId = void 0;
+                    if ((0, _ramda.type)(output) === 'Object') {
+                        outputId = output.id + '.' + output.property;
+                    } else {
+                        outputId = output;
+                        if (output.startsWith('.')) {
+                            output.slice(2, output.length - 2).split('...').forEach(function (out) {
+                                multiGraph.addNode(out);
+                                inputs.forEach(function (i) {
+                                    var inputId = i.id + '.' + i.property;
+                                    if (!multiGraph.hasNode(inputId)) {
+                                        multiGraph.addNode(inputId);
+                                    }
+                                    multiGraph.addDependency(inputId, out);
+                                });
+                            });
+                        } else {
+                            multiGraph.addNode(output);
+                            inputs.forEach(function (i) {
+                                var inputId = i.id + '.' + i.property;
+                                if (!multiGraph.hasNode(inputId)) {
+                                    multiGraph.addNode(inputId);
+                                }
+                                multiGraph.addDependency(inputId, output);
+                            });
+                        }
+                    }
+
                     inputs.forEach(function (inputObject) {
                         var inputId = inputObject.id + '.' + inputObject.property;
                         inputGraph.addNode(outputId);
-                        inputGraph.addNode(inputId);
+                        if (!inputGraph.hasNode(inputId)) {
+                            inputGraph.addNode(inputId);
+                        }
                         inputGraph.addDependency(inputId, outputId);
                     });
                 });
 
-                return { InputGraph: inputGraph };
+                return { InputGraph: inputGraph, MultiGraph: multiGraph };
             }
 
         default:
