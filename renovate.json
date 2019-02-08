@@ -11,5 +11,14 @@
   },
   "pip_setup": {
     "enabled": true 
-  }
+  },
+  "packageRules": [{
+    "packageNames": [
+      "pylint"
+    ],
+    "paths": [
+      "dev-requirements.txt" 
+    ],
+    "allowedVersions": "<2.0.0"
+  }]
 }
