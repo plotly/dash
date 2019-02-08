@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [3.4.0] - 2019-02-08
 ### Added
 [#364](https://github.com/plotly/dash-table/pull/364)
 - Added the `datetime` data type
