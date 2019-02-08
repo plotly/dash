@@ -10,6 +10,9 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.exceptions import PreventUpdate
 
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, wait_for
 from multiprocessing import Value
@@ -17,8 +20,7 @@ import time
 import re
 import itertools
 import json
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver import ActionChains
+
 
 class Tests(IntegrationTests):
     def setUp(self):
@@ -68,6 +70,17 @@ class Tests(IntegrationTests):
             time.sleep(0.25)
 
         raise exception
+
+    def clear_input(self, input_element):
+        (
+            ActionChains(self.driver)
+            .click(input_element)
+            .send_keys(Keys.HOME)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.END)
+            .key_up(Keys.SHIFT)
+            .send_keys(Keys.DELETE)
+        ).perform()
 
     def request_queue_assertions(
             self, check_rejected=True, expected_length=None):
@@ -492,23 +505,17 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='simple-callback-1')
 
         input1 = self.wait_for_element_by_css_selector('#input')
-        initialValue = input1.get_attribute('value')
+        self.clear_input(input1)
 
-        action = ActionChains(self.driver)
-        action.click(input1)
-        action = action.send_keys(Keys.BACKSPACE * len(initialValue))
-
-        action.send_keys('hello world').perform()
+        input1.send_keys('hello world')
 
         self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='simple-callback-2')
 
         self.assertEqual(
             call_count.value,
-            # an initial call to retrieve the first value
-            1 +
-            # delete the initial value
-            len(initialValue) +
+            # an initial call to retrieve the first value + clear is now one
+            2 +
             # one for each hello world character
             len('hello world')
         )
@@ -624,7 +631,6 @@ class Tests(IntegrationTests):
     def test_radio_buttons_callbacks_generating_children(self):
         self.maxDiff = 100 * 1000
         app = Dash(__name__)
-
         app.layout = html.Div([
             dcc.RadioItems(
                 options=[
