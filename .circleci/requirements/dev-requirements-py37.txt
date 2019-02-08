@@ -12,5 +12,5 @@ six
 plotly==3.6.0
 requests[security]
 flake8
-pylint==2.2.2
+pylint==2.1.1
 astroid==2.1.0
