@@ -219,10 +219,15 @@ export const propTypes = {
          * The `validation` options.
          * 'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)
          * 'default': The default value to apply with on_change.failure = 'default' (default: null)
+         * 'allow_YY': `datetime` columns only, allow 2-digit years (default: false).
+         *   If true, we interpret years as ranging from now-70 to now+29 - in 2019
+         *   this is 1949 to 2048 but in 2020 it will be different. If used with
+         *   `action: 'coerce'`, will convert user input to a 4-digit year.
          */
         validation: PropTypes.shape({
             allow_null: PropTypes.bool,
-            default: PropTypes.any
+            default: PropTypes.any,
+            allow_YY: PropTypes.bool
         }),
 
         /**
@@ -247,6 +252,17 @@ export const propTypes = {
          * The data-type of the column's data.
          * 'numeric': represents both floats and ints
          * 'text': represents a string
+         * 'datetime': a string representing a date or date-time, in the form:
+         *   'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must
+         *   have 4 digits, unless you use `validation.allow_YY: true`. Also
+         *   accepts 'T' or 't' between date and time, and allows timezone info
+         *   at the end. To convert these strings to Python `datetime` objects,
+         *   use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the
+         *   `parsedate` library.
+         *   WARNING: these parsers do not work with 2-digit years, if you use
+         *   `validation.allow_YY: true` and do not coerce to 4-digit years.
+         *   And parsers that do work with 2-digit years may make a different
+         *   guess about the century than we make on the front end.
          * 'any': represents any type of data
          *
          * Defaults to 'any' if undefined.
@@ -258,7 +274,7 @@ export const propTypes = {
          * behavior.
          * Stay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)
          */
-        type: PropTypes.oneOf(['any', 'numeric', 'text'])
+        type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime'])
 
     })),
 

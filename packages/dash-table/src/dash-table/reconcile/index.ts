@@ -8,6 +8,7 @@ import {
 import reconcileAny from './any';
 import { coerce as coerceNumber, validate as validateNumber } from './number';
 import { coerce as coerceText, validate as validateText } from './text';
+import { coerce as coerceDate, validate as validateDate } from './date';
 
 export interface IReconciliation {
     action?: ChangeAction;
@@ -22,6 +23,8 @@ function getCoercer(c: IColumnType): (value: any, c?: any) => IReconciliation {
             return coerceNumber;
         case ColumnType.Text:
             return coerceText;
+        case ColumnType.Datetime:
+            return coerceDate;
         case ColumnType.Any:
         default:
             return reconcileAny;
@@ -34,6 +37,8 @@ function getValidator(c: IColumnType): (value: any, c?: any) => IReconciliation 
             return validateNumber;
         case ColumnType.Text:
             return validateText;
+        case ColumnType.Datetime:
+            return validateDate;
         case ColumnType.Any:
         default:
             return reconcileAny;

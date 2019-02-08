@@ -3,8 +3,18 @@ export default class DashTable {
         return cy.get(`#table tbody tr td.column-${column}`).eq(row);
     }
 
+    static focusCell(row: number, column: number) {
+        // somehow we need to scrollIntoView AFTER click, or it doesn't
+        // work right. Why?
+        return this.getCell(row, column).click().scrollIntoView();
+    }
+
     static getCellById(row: number, column: number | string) {
         return cy.get(`#table tbody tr td[data-dash-column="${column}"]`).eq(row);
+    }
+
+    static focusCellById(row: number, column: number | string) {
+        return this.getCellById(row, column).click().scrollIntoView();
     }
 
     static getFilter(column: number) {

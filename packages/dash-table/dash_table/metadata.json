@@ -151,9 +151,13 @@
                   "default": {
                     "name": "any",
                     "required": false
+                  },
+                  "allow_YY": {
+                    "name": "bool",
+                    "required": false
                   }
                 },
-                "description": "The `validation` options.\n'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)\n'default': The default value to apply with on_change.failure = 'default' (default: null)",
+                "description": "The `validation` options.\n'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)\n'default': The default value to apply with on_change.failure = 'default' (default: null)\n'allow_YY': `datetime` columns only, allow 2-digit years (default: false).\n  If true, we interpret years as ranging from now-70 to now+29 - in 2019\n  this is 1949 to 2048 but in 2020 it will be different. If used with\n  `action: 'coerce'`, will convert user input to a 4-digit year.",
                 "required": false
               },
               "options": {
@@ -204,9 +208,13 @@
                   {
                     "value": "'text'",
                     "computed": false
+                  },
+                  {
+                    "value": "'datetime'",
+                    "computed": false
                   }
                 ],
-                "description": "The data-type of the column's data.\n'numeric': represents both floats and ints\n'text': represents a string\n'any': represents any type of data\n\nDefaults to 'any' if undefined.\n\nNOTE: This feature has not been fully implemented.\nIn the future, it's data types will impact things like\ntext formatting options in the cell (e.g. display 2 decimals\nfor a number), filtering options and behavior, and editing\nbehavior.\nStay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)",
+                "description": "The data-type of the column's data.\n'numeric': represents both floats and ints\n'text': represents a string\n'datetime': a string representing a date or date-time, in the form:\n  'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must\n  have 4 digits, unless you use `validation.allow_YY: true`. Also\n  accepts 'T' or 't' between date and time, and allows timezone info\n  at the end. To convert these strings to Python `datetime` objects,\n  use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the\n  `parsedate` library.\n  WARNING: these parsers do not work with 2-digit years, if you use\n  `validation.allow_YY: true` and do not coerce to 4-digit years.\n  And parsers that do work with 2-digit years may make a different\n  guess about the century than we make on the front end.\n'any': represents any type of data\n\nDefaults to 'any' if undefined.\n\nNOTE: This feature has not been fully implemented.\nIn the future, it's data types will impact things like\ntext formatting options in the cell (e.g. display 2 decimals\nfor a number), filtering options and behavior, and editing\nbehavior.\nStay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)",
                 "required": false
               }
             }

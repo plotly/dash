@@ -29,7 +29,7 @@ describe('dash basic', () => {
 
     // https://github.com/plotly/dash-table/issues/50
     it('can edit last and update data on "enter"', () => {
-        DashTable.getCell(249, 0).click();
+        DashTable.focusCell(249, 0);
         DOM.focused.then($input => {
             const initialValue = $input.val();
 
@@ -43,7 +43,7 @@ describe('dash basic', () => {
 
     // https://github.com/plotly/dash-table/issues/107
     it('can edit last and update data on "tab"', () => {
-        DashTable.getCell(249, 0).click();
+        DashTable.focusCell(249, 0);
         DOM.focused.then($input => {
             const initialValue = $input.val();
 
@@ -62,7 +62,7 @@ describe('dash basic', () => {
             it('can edit last, update data on "arrowleft", and move one cell to the left', () => {
                 const startingCell = [249, 1];
                 const targetCell = [249, 0];
-                DashTable.getCell(startingCell[0], startingCell[1]).click();
+                DashTable.focusCell(startingCell[0], startingCell[1]);
                 DOM.focused.then($input => {
                     const initialValue = $input.val();
 
@@ -79,7 +79,7 @@ describe('dash basic', () => {
             it('can edit last, update data on "arrowup", and move one cell up', () => {
                 const startingCell = [249, 0];
                 const targetCell = [248, 0];
-                DashTable.getCell(startingCell[0], startingCell[1]).click();
+                DashTable.focusCell(startingCell[0], startingCell[1]);
                 DOM.focused.then($input => {
                     const initialValue = $input.val();
 
@@ -96,7 +96,7 @@ describe('dash basic', () => {
             it('can edit last, update data on "arrowright", and move one cell to the right', () => {
                 const startingCell = [249, 0];
                 const targetCell = [249, 1];
-                DashTable.getCell(startingCell[0], startingCell[1]).click();
+                DashTable.focusCell(startingCell[0], startingCell[1]);
                 DOM.focused.then($input => {
                     const initialValue = $input.val();
 
@@ -113,7 +113,7 @@ describe('dash basic', () => {
             it('can edit last, update data on "arrowdown", and move one cell down', () => {
                 const startingCell = [249, 0];
                 const targetCell = [249, 1];
-                DashTable.getCell(startingCell[0], startingCell[1]).click();
+                DashTable.focusCell(startingCell[0], startingCell[1]);
                 DOM.focused.then($input => {
                     const initialValue = $input.val();
 
@@ -129,7 +129,7 @@ describe('dash basic', () => {
     });
 
     it('can edit last and update data when clicking outside of cell', () => {
-        DashTable.getCell(249, 0).click();
+        DashTable.focusCell(249, 0);
         DOM.focused.then($input => {
             const initialValue = $input.val();
 
