@@ -1,6 +1,4 @@
-dash_core_components==0.33.0
-dash_html_components==0.11.0rc5
-dash==0.32.0
+git+git://github.com/plotly/dash@master#egg=dash
 percy
 selenium
 mock

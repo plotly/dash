@@ -15,7 +15,8 @@ import time
 import re
 import itertools
 import json
-
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver import ActionChains
 
 class Tests(IntegrationTests):
     def setUp(self):
@@ -486,9 +487,13 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='simple-callback-1')
 
         input1 = self.wait_for_element_by_css_selector('#input')
-        input1.clear()
+        initialValue = input1.get_attribute('value')
 
-        input1.send_keys('hello world')
+        action = ActionChains(self.driver)
+        action.click(input1)
+        action = action.send_keys(Keys.BACKSPACE * len(initialValue))
+
+        action.send_keys('hello world').perform()
 
         self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='simple-callback-2')
@@ -497,6 +502,8 @@ class Tests(IntegrationTests):
             call_count.value,
             # an initial call to retrieve the first value
             1 +
+            # delete the initial value
+            len(initialValue) +
             # one for each hello world character
             len('hello world')
         )
@@ -612,6 +619,7 @@ class Tests(IntegrationTests):
     def test_radio_buttons_callbacks_generating_children(self):
         self.maxDiff = 100 * 1000
         app = Dash(__name__)
+
         app.layout = html.Div([
             dcc.RadioItems(
                 options=[
@@ -757,7 +765,7 @@ class Tests(IntegrationTests):
                     self.driver.execute_script(
                         'return document.'
                         'getElementById("{}-graph").'.format(chapter) +
-                        'layout.title'
+                        'layout.title.text'
                     ) == value
                 )
             )
@@ -1986,7 +1994,7 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#graph2_info', json.dumps(graph_2_expected_clickdata))
 
     def test_hot_reload(self):
-        app = dash.Dash(__name__, assets_folder='tests/test_assets')
+        app = dash.Dash(__name__, assets_folder='test_assets')
 
         app.layout = html.Div([
             html.H3('Hot reload')
