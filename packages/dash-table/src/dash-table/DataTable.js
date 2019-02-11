@@ -861,7 +861,8 @@ export const propTypes = {
     style_cell_conditional: PropTypes.arrayOf(PropTypes.shape({
         // .exact
         if: PropTypes.shape({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            column_type: PropTypes.oneOf(['any', 'numeric', 'text'])
         })
     })),
 
@@ -874,6 +875,8 @@ export const propTypes = {
         // .exact
         if: PropTypes.shape({
             column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            column_type: PropTypes.oneOf(['any', 'numeric', 'text']),
+            filter: PropTypes.string,
             row_index: PropTypes.oneOfType([
                 PropTypes.number,
                 PropTypes.oneOf(['odd', 'even'])
@@ -889,7 +892,8 @@ export const propTypes = {
     style_filter_conditional: PropTypes.arrayOf(PropTypes.shape({
         // .exact
         if: PropTypes.shape({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            column_type: PropTypes.oneOf(['any', 'numeric', 'text'])
         })
     })),
 
@@ -902,6 +906,7 @@ export const propTypes = {
         // .exact
         if: PropTypes.shape({
             column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            column_type: PropTypes.oneOf(['any', 'numeric', 'text']),
             header_index: PropTypes.oneOfType([
                 PropTypes.number,
                 PropTypes.oneOf(['odd', 'even'])

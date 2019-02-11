@@ -21,7 +21,9 @@ import {
     IIndexedHeaderElement,
     IIndexedRowElement,
     INamedElement,
-    ifColumnId
+    ITypedElement,
+    ifColumnId,
+    ifColumnType
  } from 'dash-table/conditional';
 
 export interface IConvertedStyle {
@@ -31,7 +33,7 @@ export interface IConvertedStyle {
     matchesFilter: (datum: Datum) => boolean;
 }
 
-type GenericIf = Partial<IConditionalElement & IIndexedHeaderElement & IIndexedRowElement & INamedElement>;
+type GenericIf = Partial<IConditionalElement & IIndexedHeaderElement & IIndexedRowElement & INamedElement & ITypedElement>;
 type GenericStyle = Style & Partial<{ if: GenericIf }>;
 
 function convertElement(style: GenericStyle) {
@@ -39,7 +41,11 @@ function convertElement(style: GenericStyle) {
     let ast: SyntaxTree;
 
     return {
-        matchesColumn: (column: IVisibleColumn) => ifColumnId(style.if, column.id),
+        matchesColumn: (column: IVisibleColumn) =>
+            !style.if || (
+                ifColumnId(style.if, column.id) &&
+                ifColumnType(style.if, column.type)
+            ),
         matchesRow: (index: number) =>
             indexFilter === undefined ?
                 true :

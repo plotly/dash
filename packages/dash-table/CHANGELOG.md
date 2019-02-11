@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+[#342](https://github.com/plotly/dash-core/issues/342)
+- Added `column_type` condition to style `if`; allows applying styles based on the type of the column for props
+    - `style_cell_conditional`
+    - `style_data_conditional`
+    - `style_filter_conditional`
+    - `style_header_conditional`
+
+### Fixed
+[#342](https://github.com/plotly/dash-core/issues/342)
+- Added already supported `filter` nested prop / condition to `style_data_conditional` props definition
+
 ## [3.4.0] - 2019-02-08
 ### Added
 [#364](https://github.com/plotly/dash-table/pull/364)

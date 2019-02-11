@@ -1,4 +1,4 @@
-import { ColumnId, Datum } from 'dash-table/components/Table/props';
+import { ColumnId, Datum, ColumnType } from 'dash-table/components/Table/props';
 import SyntaxTree from 'core/syntax-tree';
 
 export interface IConditionalElement {
@@ -17,10 +17,14 @@ export interface INamedElement {
     column_id?: ColumnId;
 }
 
-export type ConditionalBasicFilter = INamedElement;
-export type ConditionalDataCell = IConditionalElement & IIndexedRowElement & INamedElement;
-export type ConditionalCell = INamedElement;
-export type ConditionalHeader = IIndexedHeaderElement & INamedElement;
+export interface ITypedElement {
+    column_type?: ColumnType;
+}
+
+export type ConditionalBasicFilter = INamedElement & ITypedElement;
+export type ConditionalDataCell = IConditionalElement & IIndexedRowElement & INamedElement & ITypedElement;
+export type ConditionalCell = INamedElement & ITypedElement;
+export type ConditionalHeader = IIndexedHeaderElement & INamedElement & ITypedElement;
 
 function ifAstFilter(ast: SyntaxTree, datum: Datum) {
     return ast.isValid && ast.evaluate(datum);
@@ -30,6 +34,12 @@ export function ifColumnId(condition: INamedElement | undefined, columnId: Colum
     return !condition ||
         condition.column_id === undefined ||
         condition.column_id === columnId;
+}
+
+export function ifColumnType(condition: ITypedElement | undefined, columnType?: ColumnType) {
+    return !condition ||
+        condition.column_type === undefined ||
+        condition.column_type === (columnType || ColumnType.Any);
 }
 
 export function ifRowIndex(condition: IIndexedRowElement | undefined, rowIndex: number) {

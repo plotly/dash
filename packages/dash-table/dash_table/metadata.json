@@ -1048,6 +1048,24 @@
                       }
                     ],
                     "required": false
+                  },
+                  "column_type": {
+                    "name": "enum",
+                    "value": [
+                      {
+                        "value": "'any'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'numeric'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'text'",
+                        "computed": false
+                      }
+                    ],
+                    "required": false
                   }
                 },
                 "required": false
@@ -1081,6 +1099,28 @@
                         "name": "number"
                       }
                     ],
+                    "required": false
+                  },
+                  "column_type": {
+                    "name": "enum",
+                    "value": [
+                      {
+                        "value": "'any'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'numeric'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'text'",
+                        "computed": false
+                      }
+                    ],
+                    "required": false
+                  },
+                  "filter": {
+                    "name": "string",
                     "required": false
                   },
                   "row_index": {
@@ -1138,6 +1178,24 @@
                       }
                     ],
                     "required": false
+                  },
+                  "column_type": {
+                    "name": "enum",
+                    "value": [
+                      {
+                        "value": "'any'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'numeric'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'text'",
+                        "computed": false
+                      }
+                    ],
+                    "required": false
                   }
                 },
                 "required": false
@@ -1165,6 +1223,24 @@
                       },
                       {
                         "name": "number"
+                      }
+                    ],
+                    "required": false
+                  },
+                  "column_type": {
+                    "name": "enum",
+                    "value": [
+                      {
+                        "value": "'any'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'numeric'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'text'",
+                        "computed": false
                       }
                     ],
                     "required": false
