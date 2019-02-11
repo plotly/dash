@@ -42,7 +42,7 @@ function writeError(msg, filePath) {
 }
 
 function checkWarn(name, value) {
-    if (value.length < 1 && !excludedDocProps.includes(name.split('.').pop())) {
+    if (!value || (value.length < 1 && !excludedDocProps.includes(name.split('.').pop()))) {
         process.stderr.write(`\nDescription for ${name} is missing!\n`)
     }
 }
