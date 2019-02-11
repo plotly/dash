@@ -42,7 +42,7 @@ Pygments==2.2.0
 pylint==2.1.1
 python-dateutil==2.7.3
 pytz==2018.5
-requests==2.19.1
+requests==2.20.0
 retrying==1.3.3
 selenium==3.14.0
 simplegeneric==0.8.1
