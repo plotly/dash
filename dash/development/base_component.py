@@ -272,6 +272,35 @@ class Component(patch_collections_abc('MutableMapping')):
             length = 1
         return length
 
+    def __repr__(self):
+        # pylint: disable=no-member
+        props_with_values = [
+            c for c in self._prop_names
+            if getattr(self, c, None) is not None
+        ] + [
+            c for c in self.__dict__
+            if any(
+                c.startswith(wc_attr)
+                for wc_attr in self._valid_wildcard_attributes
+            )
+        ]
+        if any(
+                p != 'children'
+                for p in props_with_values
+        ):
+            props_string = ", ".join(
+                '{prop}={value}'.format(
+                    prop=p,
+                    value=repr(getattr(self, p))
+                ) for p in props_with_values
+            )
+        else:
+            props_string = repr(getattr(self, 'children', None))
+        return "{type}({props_string})".format(
+            type=self._type,
+            props_string=props_string
+        )
+
 
 def _explicitize_args(func):
     # Python 2
