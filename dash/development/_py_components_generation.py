@@ -3,7 +3,8 @@ import copy
 import os
 
 from dash.development.base_component import _explicitize_args
-from ._all_keywords import kwlist
+from dash.exceptions import NonExistentEventException
+from ._all_keywords import python_keywords
 from .base_component import Component
 
 
@@ -27,8 +28,7 @@ def generate_class_string(typename, props, description, namespace):
     string
 
     """
-    # TODO _prop_names, _type, _namespace, available_events,
-    # and available_properties
+    # TODO _prop_names, _type, _namespace, and available_properties
     # can be modified by a Dash JS developer via setattr
     # TODO - Tab out the repr for the repr of these components to make it
     # look more like a hierarchical tree
@@ -52,7 +52,6 @@ def generate_class_string(typename, props, description, namespace):
         self._namespace = '{namespace}'
         self._valid_wildcard_attributes =\
             {list_of_valid_wildcard_attr_prefixes}
-        self.available_events = {events}
         self.available_properties = {list_of_valid_keys}
         self.available_wildcard_properties =\
             {list_of_valid_wildcard_attr_prefixes}
@@ -75,9 +74,11 @@ def generate_class_string(typename, props, description, namespace):
     docstring = create_docstring(
         component_name=typename,
         props=filtered_props,
-        events=parse_events(props),
         description=description).replace('\r\n', '\n')
-    events = '[' + ', '.join(parse_events(props)) + ']'
+
+    prohibit_events(props)
+
+    # pylint: disable=unused-variable
     prop_keys = list(props.keys())
     if 'children' in props:
         prop_keys.remove('children')
@@ -92,8 +93,8 @@ def generate_class_string(typename, props, description, namespace):
           '{:s}=Component.UNDEFINED'.format(p))
          for p in prop_keys
          if not p.endswith("-*") and
-         p not in kwlist and
-         p not in ['dashEvents', 'fireEvent', 'setProps']] + ["**kwargs"]
+         p not in python_keywords and
+         p != 'setProps'] + ["**kwargs"]
     )
     required_args = required_props(props)
     return c.format(
@@ -103,7 +104,6 @@ def generate_class_string(typename, props, description, namespace):
         list_of_valid_wildcard_attr_prefixes=wildcard_prefixes,
         list_of_valid_keys=list_of_valid_keys,
         docstring=docstring,
-        events=events,
         default_argtext=default_argtext,
         argtext=argtext,
         required_props=required_args
@@ -214,7 +214,7 @@ def required_props(props):
             if prop['required']]
 
 
-def create_docstring(component_name, props, events, description):
+def create_docstring(component_name, props, description):
     """
     Create the Dash component docstring
 
@@ -224,8 +224,6 @@ def create_docstring(component_name, props, events, description):
         Component name
     props: dict
         Dictionary with {propName: propMetadata} structure
-    events: list
-        List of Dash events
     description: str
         Component description
 
@@ -240,9 +238,7 @@ def create_docstring(component_name, props, events, description):
     return (
         """A {name} component.\n{description}
 
-Keyword arguments:\n{args}
-
-Available events: {events}"""
+Keyword arguments:\n{args}"""
     ).format(
         name=component_name,
         description=description,
@@ -255,30 +251,26 @@ Available events: {events}"""
                 description=prop['description'],
                 indent_num=0,
                 is_flow_type='flowType' in prop and 'type' not in prop)
-            for p, prop in list(filter_props(props).items())),
-        events=', '.join(events))
+            for p, prop in list(filter_props(props).items())))
 
 
-def parse_events(props):
+def prohibit_events(props):
     """
-    Pull out the dashEvents from the Component props
+    Events have been removed. Raise an error if we see dashEvents or fireEvents
 
     Parameters
     ----------
     props: dict
         Dictionary with {propName: propMetadata} structure
 
-    Returns
+    Raises
     -------
-    list
-        List of Dash event strings
+    ?
     """
-    if 'dashEvents' in props and props['dashEvents']['type']['name'] == 'enum':
-        events = [v['value'] for v in props['dashEvents']['type']['value']]
-    else:
-        events = []
-
-    return events
+    if 'dashEvents' in props or 'fireEvents' in props:
+        raise NonExistentEventException(
+            'Events are no longer supported by dash. Use properties instead, '
+            'eg `n_clicks` instead of a `click` event.')
 
 
 def parse_wildcards(props):
@@ -330,7 +322,6 @@ def filter_props(props):
     Filter props from the Component arguments to exclude:
         - Those without a "type" or a "flowType" field
         - Those with arg.type.name in {'func', 'symbol', 'instanceOf'}
-        - dashEvents as a name
 
     Parameters
     ----------
@@ -396,10 +387,6 @@ def filter_props(props):
         else:
             raise ValueError
 
-        # dashEvents are a special oneOf property that is used for subscribing
-        # to events but it's never set as a property
-        if arg_name in ['dashEvents']:
-            filtered_props.pop(arg_name)
     return filtered_props
 
 
@@ -499,7 +486,7 @@ def map_js_to_py_types_prop_types(type_object):
             ', '.join(
                 "'{}'".format(t)
                 for t in list(type_object['value'].keys())),
-            'Those keys have the following types: \n{}'.format(
+            'Those keys have the following types:\n{}'.format(
                 '\n'.join(create_prop_docstring(
                     prop_name=prop_name,
                     type_object=prop,
@@ -542,7 +529,7 @@ def map_js_to_py_types_flow_types(type_object):
         signature=lambda indent_num: 'dict containing keys {}.\n{}'.format(
             ', '.join("'{}'".format(d['key'])
                       for d in type_object['signature']['properties']),
-            '{}Those keys have the following types: \n{}'.format(
+            '{}Those keys have the following types:\n{}'.format(
                 '  ' * indent_num,
                 '\n'.join(
                     create_prop_docstring(

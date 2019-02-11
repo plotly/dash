@@ -91,19 +91,9 @@ ReactComponent.propTypes = {
         }
     }),
 
-    // special dash events
-
     children: React.PropTypes.node,
 
     id: React.PropTypes.string,
-
-
-    // dashEvents is a special prop that is used to events validation
-    dashEvents: React.PropTypes.oneOf([
-        'restyle',
-        'relayout',
-        'click'
-    ])
 };
 
 ReactComponent.defaultProps = {

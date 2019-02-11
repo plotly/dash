@@ -5,22 +5,18 @@ import sys
 
 import six
 
+from .._utils import patch_collections_abc
+
 
 # pylint: disable=no-init,too-few-public-methods
 class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
     registry = set()
-    __dist_cache = {}
 
     @classmethod
     def get_resources(cls, resource_name):
-        cached = cls.__dist_cache.get(resource_name)
-
-        if cached:
-            return cached
-
-        cls.__dist_cache[resource_name] = resources = []
+        resources = []
 
         for module_name in cls.registry:
             module = sys.modules[module_name]
@@ -64,7 +60,7 @@ def _check_if_has_indexable_children(item):
 
 
 @six.add_metaclass(ComponentMeta)
-class Component(collections.MutableMapping):
+class Component(patch_collections_abc('MutableMapping')):
     class _UNDEFINED(object):
         def __repr__(self):
             return 'undefined'

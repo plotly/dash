@@ -2,7 +2,20 @@
 
 ## Getting Started
 
-Refer to the [readme](README.md) for installation and development instructions.
+Fork and clone the dash [repo](https://github.com/plotly/dash).
+
+To set up your development environment, run the following commands:
+```bash
+# Move into the clone
+$ cd dash
+# Create a virtualenv
+$ python3 -m venv venv
+# Activate the virtualenv
+$ . venv/bin/activate
+# (On Windows, the above would be: venv\scripts\activate)
+# Install the dev dependencies
+$ pip install -r .circleci/requirements/dev-requirements.txt
+```
 
 ## Coding Style
 
@@ -14,12 +27,13 @@ Use the [GitHub flow][] when proposing contributions to this repository (i.e. cr
 
 ## Running the Tests
 
-**Warning:** _Tests do not currently run on windows. Track our progress: [#409](https://github.com/plotly/dash/issues/409)._
+**Warning:** _Tests do not currently run on Windows. Track our progress: [#409](https://github.com/plotly/dash/issues/409)._
 
 To run the tests, you can use Python's `unittest` module, or a test runner like `nose2`.
+For example, `python -m unittest tests.test_integration` will run the integration tests.
 
 To run all of the tests:
-`python -m unittest tests`
+`python -m unittest discover tests`
 
 Or:
 `nose2 -v`
