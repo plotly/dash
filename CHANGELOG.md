@@ -1,3 +1,8 @@
+## UNRELEASED
+## Fixed
+- Fix missing indentation for generated metadata.json [#600](https://github.com/plotly/dash/issues/600)
+- Fix missing component prop docstring error [#598](https://github.com/plotly/dash/issues/598)
+
 ## [0.37.0] - 2019-02-11
 ## Fixed
 - Fixed collections.abc deprecation warning for python 3.8 [#563](https://github.com/plotly/dash/pull/563)
