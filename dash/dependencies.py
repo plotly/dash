@@ -1,3 +1,4 @@
+# pylint: disable=old-style-class
 class DashDependency:
     def __init__(self, component_id, component_property):
         self.component_id = component_id
@@ -18,16 +19,17 @@ class DashDependency:
     def __hash__(self):
         return hash(str(self))
 
-# pylint: disable=old-style-class, too-few-public-methods
+
+# pylint: disable=too-few-public-methods
 class Output(DashDependency):
     """Output of a callback."""
 
 
-# pylint: disable=old-style-class, too-few-public-methods
+# pylint: disable=too-few-public-methods
 class Input(DashDependency):
     """Input of callback trigger an update when it is updated."""
 
 
-# pylint: disable=old-style-class, too-few-public-methods
+# pylint: disable=too-few-public-methods
 class State(DashDependency):
     """Use the value of a state in a callback but don't trigger updates."""
