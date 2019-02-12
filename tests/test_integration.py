@@ -566,3 +566,8 @@ class Tests(IntegrationTests):
                         [Input('input-output', 'children')])
             def failure(children):
                 pass
+
+        self.assertEqual(
+            'Same output and input: input-output.children',
+            context.exception.args[0]
+        )
