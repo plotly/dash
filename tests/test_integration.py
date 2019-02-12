@@ -563,7 +563,7 @@ class Tests(IntegrationTests):
 
         with self.assertRaises(CallbackException) as context:
             @app.callback(Output('input-output', 'children'),
-                        [Input('input-output', 'children')])
+                          [Input('input-output', 'children')])
             def failure(children):
                 pass
 
