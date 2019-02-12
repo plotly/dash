@@ -19,11 +19,11 @@ export default class CellFactory {
 
     constructor(
         private readonly propsFn: () => ICellFactoryProps,
-        private readonly cellContents = derivedCellContents(),
+        private readonly cellContents = derivedCellContents(propsFn),
         private readonly cellDropdowns = derivedDropdowns(),
         private readonly cellOperations = derivedCellOperations(),
         private readonly cellStyles = derivedCellStyles(),
-        private readonly cellWrappers = derivedCellWrappers(),
+        private readonly cellWrappers = derivedCellWrappers(propsFn),
         private readonly relevantStyles = derivedRelevantCellStyles()
     ) { }
 
@@ -88,8 +88,7 @@ export default class CellFactory {
             columns,
             virtualized.data,
             virtualized.offset,
-            selected_cells,
-            this.propsFn
+            selected_cells
         );
 
         const contents = this.cellContents(
@@ -99,8 +98,7 @@ export default class CellFactory {
             virtualized.offset,
             editable,
             !!is_focused,
-            dropdowns,
-            this.propsFn
+            dropdowns
         );
 
         const cells = matrixMap3(

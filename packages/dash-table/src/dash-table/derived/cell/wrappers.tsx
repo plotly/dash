@@ -5,13 +5,20 @@ import { memoizeOne } from 'core/memoizer';
 import memoizerCache from 'core/cache/memoizer';
 import { Data, IVisibleColumn, VisibleColumns, ActiveCell, SelectedCells, Datum, ColumnId, IViewportOffset, Presentation, ICellFactoryProps } from 'dash-table/components/Table/props';
 import Cell from 'dash-table/components/Cell';
-import derivedCellEventHandlerProps from 'dash-table/derived/cell/eventHandlerProps';
+import derivedCellEventHandlerProps, { Handler } from 'dash-table/derived/cell/eventHandlerProps';
 import isActiveCell from 'dash-table/derived/cell/isActive';
 import isSelectedCell from 'dash-table/derived/cell/isSelected';
 
-export default () => new Wrappers().get;
+export default (propsFn: () => ICellFactoryProps) => new Wrappers(propsFn).get;
 
 class Wrappers {
+    constructor(
+        propsFn: () => ICellFactoryProps,
+        private readonly handlers = derivedCellEventHandlerProps(propsFn)
+    ) {
+
+    }
+
     /**
      * Returns the wrapper for each cell in the table.
      */
@@ -20,8 +27,7 @@ class Wrappers {
         columns: VisibleColumns,
         data: Data,
         offset: IViewportOffset,
-        selectedCells: SelectedCells,
-        propsFn: () => ICellFactoryProps
+        selectedCells: SelectedCells
     ) => R.addIndex<Datum, JSX.Element[]>(R.map)(
         (_, rowIndex) => R.addIndex<IVisibleColumn, JSX.Element>(R.map)(
             (column, columnIndex) => {
@@ -29,8 +35,6 @@ class Wrappers {
                 const selected = isSelectedCell(selectedCells, rowIndex + offset.rows, columnIndex + offset.columns);
 
                 const isDropdown = column.presentation === Presentation.Dropdown;
-
-                const handlers = this.cellEventHandlerProps(propsFn)(rowIndex, columnIndex);
 
                 const classes =
                     'dash-cell' +
@@ -45,9 +49,9 @@ class Wrappers {
                     columnIndex,
                     column.id,
                     rowIndex,
-                    handlers.onEnter,
-                    handlers.onLeave,
-                    handlers.onMove
+                    this.handlers(Handler.Enter, rowIndex, columnIndex),
+                    this.handlers(Handler.Leave, rowIndex, columnIndex),
+                    this.handlers(Handler.Move, rowIndex, columnIndex)
                 );
             }, columns
         ), data));
@@ -76,6 +80,4 @@ class Wrappers {
         onMouseLeave={onLeave}
         onMouseMove={onMove}
     />));
-
-    private readonly cellEventHandlerProps = derivedCellEventHandlerProps();
 }
