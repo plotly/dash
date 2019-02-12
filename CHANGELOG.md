@@ -3,6 +3,7 @@
 - Fix missing indentation for generated metadata.json [#600](https://github.com/plotly/dash/issues/600)
 - Fix missing component prop docstring error [#598](https://github.com/plotly/dash/issues/598)
 - Moved `__repr__` to base component instead of being generated. [#492](https://github.com/plotly/dash/pull/492)
+- Raise exception when same input & output are used in a callback [#605](https://github.com/plotly/dash/pull/605)
 
 ## [0.37.0] - 2019-02-11
 ## Fixed
