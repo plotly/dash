@@ -638,6 +638,12 @@ class Dash(object):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
 
+        for i in inputs:
+            if output == i:
+                raise exceptions.SameInputOutputException(
+                    'Same output and input: {}'.format(output)
+                )
+
         if (layout is None and
                 not self.config.first('suppress_callback_exceptions',
                                       'supress_callback_exceptions')):
