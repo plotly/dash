@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - `style_header_conditional`
 
 ### Fixed
+[#322](https://github.com/plotly/dash-core/issues/322)
+- Added LICENSE file to Python distributable
+
 [#342](https://github.com/plotly/dash-core/issues/342)
 - Added already supported `filter` nested prop / condition to `style_data_conditional` props definition
 
