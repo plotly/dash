@@ -20,9 +20,9 @@ setup(
         'Flask>=0.12',
         'flask-compress',
         'plotly',
-        'dash_renderer==0.18.0',
-        'dash-core-components==0.43.1',
-        'dash-html-components==0.13.5',
+        'dash_renderer==0.18.0rc4',
+        'dash-core-components==0.44.0rc2',
+        'dash-html-components==0.14.0rc20',
         'dash-table==3.4.0'
     ],
     entry_points={
