@@ -14,7 +14,7 @@ class DashDependency:
         return '<{} `{}`>'.format(self.__class__.__name__, self)
 
     def __eq__(self, other):
-        return str(self) == str(other)
+        return isinstance(other, DashDependency) and str(self) == str(other)
 
     def __hash__(self):
         return hash(str(self))
