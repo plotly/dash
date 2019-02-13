@@ -1,4 +1,3 @@
-# pylint: disable=old-style-class
 class DashDependency:
     def __init__(self, component_id, component_property):
         self.component_id = component_id
