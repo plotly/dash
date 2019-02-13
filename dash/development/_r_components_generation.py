@@ -200,7 +200,7 @@ def generate_class_string(name, props, project_shortname, prefix):
 
     # pylint: disable=C0301
     default_paramtext += ", ".join(
-        '{}={}'.format(p, p)
+        '{0}={0}'.format(p)
         if p != "children" else
         '{}=children'
         .format(p)

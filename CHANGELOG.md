@@ -5,6 +5,9 @@
 - Moved `__repr__` to base component instead of being generated. [#492](https://github.com/plotly/dash/pull/492)
 - Raise exception when same input & output are used in a callback [#605](https://github.com/plotly/dash/pull/605)
 
+## Added
+- Added components libraries js/css distribution to hot reload watch. [#603](https://github.com/plotly/dash/pull/603)
+
 ## [0.37.0] - 2019-02-11
 ## Fixed
 - Fixed collections.abc deprecation warning for python 3.8 [#563](https://github.com/plotly/dash/pull/563)
