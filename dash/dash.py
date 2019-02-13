@@ -1155,9 +1155,15 @@ class Dash(object):
 
         if self._dev_tools.hot_reload:
             self._reload_hash = _generate_hash()
+
             component_packages_dist = [
-                os.path.dirname(pkgutil.find_loader(package).path)
-                for package in ComponentRegistry.registry
+                os.path.dirname(package.path)
+                if hasattr(package, 'path')
+                else package.filename
+                for package in (
+                    pkgutil.find_loader(x) for x in
+                    list(ComponentRegistry.registry) + ['dash_renderer']
+                )
             ]
 
             self._watch_thread = threading.Thread(
