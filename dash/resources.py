@@ -6,7 +6,6 @@ from .development.base_component import ComponentRegistry
 from . import exceptions
 
 
-# pylint: disable=old-style-class
 class Resources:
     def __init__(self, resource_name, layout):
         self._resources = []
@@ -67,7 +66,7 @@ class Resources:
         return self._filter_resources(all_resources, dev_bundles)
 
 
-class Css:  # pylint: disable=old-style-class
+class Css:
     def __init__(self, layout=None):
         self._resources = Resources('_css_dist', layout)
         self._resources.config = self.config
@@ -81,13 +80,13 @@ class Css:  # pylint: disable=old-style-class
     def get_all_css(self):
         return self._resources.get_all_resources()
 
-    # pylint: disable=old-style-class, no-init, too-few-public-methods
+    # pylint: disable=no-init, too-few-public-methods
     class config:
         infer_from_layout = True
         serve_locally = False
 
 
-class Scripts:  # pylint: disable=old-style-class
+class Scripts:
     def __init__(self, layout=None):
         self._resources = Resources('_js_dist', layout)
         self._resources.config = self.config
@@ -101,7 +100,7 @@ class Scripts:  # pylint: disable=old-style-class
     def get_all_scripts(self, dev_bundles=False):
         return self._resources.get_all_resources(dev_bundles)
 
-    # pylint: disable=old-style-class, no-init, too-few-public-methods
+    # pylint: disable=no-init, too-few-public-methods
     class config:
         infer_from_layout = True
         serve_locally = False
