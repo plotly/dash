@@ -1,9 +1,21 @@
 ## UNRELEASED
 ## Fixed
+- Fix missing indentation for generated metadata.json [#600](https://github.com/plotly/dash/issues/600)
+- Fix missing component prop docstring error [#598](https://github.com/plotly/dash/issues/598)
+- Moved `__repr__` to base component instead of being generated. [#492](https://github.com/plotly/dash/pull/492)
+
+## Added
+- Added components libraries js/css distribution to hot reload watch. [#603](https://github.com/plotly/dash/pull/603)
+
+## [0.37.0] - 2019-02-11
+## Fixed
 - Fixed collections.abc deprecation warning for python 3.8 [#563](https://github.com/plotly/dash/pull/563)
 
 ## Changed
 - Added core libraries as version locked dependencies [#565](https://github.com/plotly/dash/pull/565)
+- Bumped dash-table version from 3.3.0 to [3.4.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#340---2019-02-08)
+- Bumped dash-renderer version from 0.17.0 to [0.18.0](https://github.com/plotly/dash-renderer/blob/master/CHANGELOG.md#0180---2019-02-11)
+- Bumped dash-core-components version from 0.43.0 to [0.43.1](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0431---2019-02-11)
 
 ## [0.36.0] - 2019-01-25
 ## Removed

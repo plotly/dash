@@ -61,42 +61,16 @@ def generate_class_string(typename, props, description, namespace):
         _locals.update(kwargs)  # For wildcard attrs
         args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
 
-        for k in {required_args}:
+        for k in {required_props}:
             if k not in args:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
         super({typename}, self).__init__({argtext})
-
-    def __repr__(self):
-        if(any(getattr(self, c, None) is not None
-               for c in self._prop_names
-               if c is not self._prop_names[0])
-           or any(getattr(self, c, None) is not None
-                  for c in self.__dict__.keys()
-                  if any(c.startswith(wc_attr)
-                  for wc_attr in self._valid_wildcard_attributes))):
-            props_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self._prop_names
-                                      if getattr(self, c, None) is not None])
-            wilds_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self.__dict__.keys()
-                                      if any([c.startswith(wc_attr)
-                                      for wc_attr in
-                                      self._valid_wildcard_attributes])])
-            return ('{typename}(' + props_string +
-                   (', ' + wilds_string if wilds_string != '' else '') + ')')
-        else:
-            return (
-                '{typename}(' +
-                repr(getattr(self, self._prop_names[0], None)) + ')')
 '''
 
     filtered_props = reorder_props(filter_props(props))
-    # pylint: disable=unused-variable
-    list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
-    # pylint: disable=unused-variable
+    wildcard_prefixes = repr(parse_wildcards(props))
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
-    # pylint: disable=unused-variable
     docstring = create_docstring(
         component_name=typename,
         props=filtered_props,
@@ -109,7 +83,6 @@ def generate_class_string(typename, props, description, namespace):
     if 'children' in props:
         prop_keys.remove('children')
         default_argtext = "children=None, "
-        # pylint: disable=unused-variable
         argtext = 'children=children, **args'
     else:
         default_argtext = ""
@@ -121,11 +94,20 @@ def generate_class_string(typename, props, description, namespace):
          for p in prop_keys
          if not p.endswith("-*") and
          p not in python_keywords and
-         p != 'setProps'] + ['**kwargs']
+         p != 'setProps'] + ["**kwargs"]
     )
-
     required_args = required_props(props)
-    return c.format(**locals())
+    return c.format(
+        typename=typename,
+        namespace=namespace,
+        filtered_props=filtered_props,
+        list_of_valid_wildcard_attr_prefixes=wildcard_prefixes,
+        list_of_valid_keys=list_of_valid_keys,
+        docstring=docstring,
+        default_argtext=default_argtext,
+        argtext=argtext,
+        required_props=required_args
+    )
 
 
 def generate_class_file(typename, props, description, namespace):

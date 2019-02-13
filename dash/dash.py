@@ -24,7 +24,7 @@ import dash_renderer
 
 from .dependencies import Input, Output, State
 from .resources import Scripts, Css
-from .development.base_component import Component
+from .development.base_component import Component, ComponentRegistry
 from . import exceptions
 from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
@@ -1155,9 +1155,20 @@ class Dash(object):
 
         if self._dev_tools.hot_reload:
             self._reload_hash = _generate_hash()
+
+            component_packages_dist = [
+                os.path.dirname(package.path)
+                if hasattr(package, 'path')
+                else package.filename
+                for package in (
+                    pkgutil.find_loader(x) for x in
+                    list(ComponentRegistry.registry) + ['dash_renderer']
+                )
+            ]
+
             self._watch_thread = threading.Thread(
                 target=lambda: _watch.watch(
-                    [self._assets_folder],
+                    [self._assets_folder] + component_packages_dist,
                     self._on_assets_change,
                     sleep_time=self._dev_tools.hot_reload_watch_interval)
             )
