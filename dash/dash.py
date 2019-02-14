@@ -958,7 +958,7 @@ class Dash(object):
             '{}.{}'.format(x['id'], x['property']): x.get('value')
             for x in state
         }
-        flask.g.triggered_inputs = body.get('changedProps')
+        flask.g.triggered_inputs = body.get('changedPropIds')
 
         for component_registration in self.callback_map[target_id]['inputs']:
             args.append([

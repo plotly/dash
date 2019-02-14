@@ -589,11 +589,10 @@ class Tests(IntegrationTests):
         @app.callback(Output('output', 'children'),
                       [Input(x, 'n_clicks') for x in btns])
         def on_click(*args):
-            print('wtf')
-            if not dash.callback.triggered:
+            if not dash.callback_context.triggered:
                 raise PreventUpdate
-            trigger = dash.callback.triggered[0]
-            input_value = dash.callback.inputs.get(trigger)
+            trigger = dash.callback_context.triggered[0]
+            input_value = dash.callback_context.inputs.get(trigger)
             return 'Just clicked {} for the {} time!'.format(
                 trigger.split('.')[0], input_value
             )
@@ -616,4 +615,4 @@ class Tests(IntegrationTests):
 
     def test_no_callback_context(self):
         with self.assertRaises(MissingCallbackContextException):
-            no_context = dash.callback.inputs
+            no_context = dash.callback_context.inputs
