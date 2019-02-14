@@ -17,6 +17,7 @@ def has_context(func):
     return assert_context
 
 
+# pylint: disable=no-init
 class CallbackContext:
     @property
     @has_context

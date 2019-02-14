@@ -617,4 +617,3 @@ class Tests(IntegrationTests):
     def test_no_callback_context(self):
         with self.assertRaises(MissingCallbackContextException):
             no_context = dash.callback.inputs
-
