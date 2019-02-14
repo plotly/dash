@@ -1,8 +1,8 @@
-dash_core_components==0.43.0
-dash_html_components==0.13.5
+git+git://github.com/plotly/dash-core-components@master#egg=dash_core_components
+git+git://github.com/plotly/dash-html-components@master#egg=dash_html_components
+git+git://github.com/plotly/dash-renderer@master#egg=dash_renderer
 dash_flow_example==0.0.5
 dash-dangerously-set-inner-html
-dash_renderer==0.17.0
 percy
 selenium
 mock
