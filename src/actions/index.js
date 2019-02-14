@@ -340,7 +340,8 @@ export function notifyObservers(payload) {
                     outputProp,
                     getState,
                     requestUid,
-                    dispatch
+                    dispatch,
+                    changedProps.map(prop => `${id}.${prop}`)
                 )
             );
         }
@@ -356,7 +357,8 @@ function updateOutput(
     outputProp,
     getState,
     requestUid,
-    dispatch
+    dispatch,
+    changedProps,
 ) {
     const {config, layout, graphs, paths, dependenciesRequest} = getState();
     const {InputGraph} = graphs;
@@ -371,6 +373,7 @@ function updateOutput(
      */
     const payload = {
         output: {id: outputComponentId, property: outputProp},
+        changedProps
     };
 
     const {inputs, state} = dependenciesRequest.content.find(
