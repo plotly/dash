@@ -358,7 +358,7 @@ function updateOutput(
     getState,
     requestUid,
     dispatch,
-    changedProps,
+    changedPropIds,
 ) {
     const {config, layout, graphs, paths, dependenciesRequest} = getState();
     const {InputGraph} = graphs;
@@ -373,7 +373,7 @@ function updateOutput(
      */
     const payload = {
         output: {id: outputComponentId, property: outputProp},
-        changedProps
+        changedPropIds
     };
 
     const {inputs, state} = dependenciesRequest.content.find(
@@ -408,6 +408,12 @@ function updateOutput(
             value: view(propLens, layout),
         };
     });
+
+    const inputsPropIds = inputs.map(p => `${p.id}.${p.property}`);
+
+    payload.changedPropIds = changedPropIds.filter(
+        p => contains(p, inputsPropIds)
+    );
 
     if (state.length > 0) {
         payload.state = state.map(stateObject => {
@@ -706,7 +712,8 @@ function updateOutput(
                             idAndProp.split('.')[1],
                             getState,
                             requestUid,
-                            dispatch
+                            dispatch,
+                            changedPropIds
                         );
                     });
                 }

@@ -34023,7 +34023,7 @@ function notifyObservers(payload) {
     };
 }
 
-function updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch, changedProps) {
+function updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch, changedPropIds) {
     var _getState3 = getState(),
         config = _getState3.config,
         layout = _getState3.layout,
@@ -34044,7 +34044,7 @@ function updateOutput(outputComponentId, outputProp, getState, requestUid, dispa
 
     var payload = {
         output: { id: outputComponentId, property: outputProp },
-        changedProps: changedProps
+        changedPropIds: changedPropIds
     };
 
     var _dependenciesRequest$ = dependenciesRequest.content.find(function (dependency) {
@@ -34066,6 +34066,14 @@ function updateOutput(outputComponentId, outputProp, getState, requestUid, dispa
             property: inputObject.property,
             value: (0, _ramda.view)(propLens, layout)
         };
+    });
+
+    var inputsPropIds = inputs.map(function (p) {
+        return p.id + '.' + p.property;
+    });
+
+    payload.changedPropIds = changedPropIds.filter(function (p) {
+        return (0, _ramda.contains)(p, inputsPropIds);
     });
 
     if (state.length > 0) {
@@ -34291,7 +34299,7 @@ function updateOutput(outputComponentId, outputProp, getState, requestUid, dispa
                             uid: requestUid,
                             requestTime: Date.now()
                         }, getState().requestQueue)));
-                        updateOutput(idAndProp.split('.')[0], idAndProp.split('.')[1], getState, requestUid, dispatch);
+                        updateOutput(idAndProp.split('.')[0], idAndProp.split('.')[1], getState, requestUid, dispatch, changedPropIds);
                     });
                 }
             }
