@@ -34012,7 +34012,9 @@ function notifyObservers(payload) {
 
             var requestUid = newRequestQueue[i].uid;
 
-            promises.push(updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch));
+            promises.push(updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch, changedProps.map(function (prop) {
+                return id + '.' + prop;
+            })));
         }
 
         /* eslint-disable consistent-return */
@@ -34021,7 +34023,7 @@ function notifyObservers(payload) {
     };
 }
 
-function updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch) {
+function updateOutput(outputComponentId, outputProp, getState, requestUid, dispatch, changedProps) {
     var _getState3 = getState(),
         config = _getState3.config,
         layout = _getState3.layout,
@@ -34041,7 +34043,8 @@ function updateOutput(outputComponentId, outputProp, getState, requestUid, dispa
      */
 
     var payload = {
-        output: { id: outputComponentId, property: outputProp }
+        output: { id: outputComponentId, property: outputProp },
+        changedProps: changedProps
     };
 
     var _dependenciesRequest$ = dependenciesRequest.content.find(function (dependency) {
