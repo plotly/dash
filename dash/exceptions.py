@@ -76,3 +76,7 @@ class DependencyException(DashException):
 
 class ResourceException(DashException):
     pass
+
+
+class SameInputOutputException(CallbackException):
+    pass

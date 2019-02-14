@@ -12,7 +12,7 @@ import dash_flow_example
 import dash
 
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
+from dash.exceptions import PreventUpdate, CallbackException
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -553,3 +553,21 @@ class Tests(IntegrationTests):
         time.sleep(1)
 
         self.wait_for_element_by_css_selector('#inserted-input')
+
+    def test_output_input_invalid_callback(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Div('child', id='input-output'),
+            html.Div(id='out')
+        ])
+
+        with self.assertRaises(CallbackException) as context:
+            @app.callback(Output('input-output', 'children'),
+                          [Input('input-output', 'children')])
+            def failure(children):
+                pass
+
+        self.assertEqual(
+            'Same output and input: input-output.children',
+            context.exception.args[0]
+        )
