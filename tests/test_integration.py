@@ -592,9 +592,8 @@ class Tests(IntegrationTests):
             if not dash.callback_context.triggered:
                 raise PreventUpdate
             trigger = dash.callback_context.triggered[0]
-            input_value = dash.callback_context.inputs.get(trigger)
             return 'Just clicked {} for the {} time!'.format(
-                trigger.split('.')[0], input_value
+                trigger['prop_id'].split('.')[0], trigger['value']
             )
 
         self.startServer(app)
@@ -603,7 +602,7 @@ class Tests(IntegrationTests):
             self.wait_for_element_by_id(x) for x in btns
         ]
 
-        for i in range(1, 10):
+        for i in range(1, 5):
             for j, btn in enumerate(btns):
                 btn_elements[j].click()
                 self.wait_for_text_to_equal(
