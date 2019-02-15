@@ -2,7 +2,7 @@ appnope==0.1.0
 backports.shutil-get-terminal-size==1.0.0
 click==6.7
 dash-core-components==0.3.3
-dash_renderer-0.13.1.tar.gz
+git+git://github.com/plotly/dash-renderer@custom_hooks#egg=dash-renderer
 dash-html-components==0.12.0
 dash.ly==0.14.0
 decorator==4.0.11
