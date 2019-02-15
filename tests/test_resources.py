@@ -1,164 +1,94 @@
 import unittest
-import warnings
-from dash.resources import Scripts, Css
-from dash.development.base_component import generate_class
+import mock
+import dash_core_components as dcc
+
+import dash
+
+_monkey_patched_js_dist = [
+    {
+        'external_url': 'https://external_javascript.js',
+        'relative_package_path': 'external_javascript.js',
+        'namespace': 'dash_core_components'
+    },
+    {
+        'external_url': 'https://external_css.css',
+        'relative_package_path': 'external_css.css',
+        'namespace': 'dash_core_components'
+    },
+    {
+        'relative_package_path': 'fake_dcc.js',
+        'dev_package_path': 'fake_dcc.dev.js',
+        'external_url': 'https://component_library.bundle.js',
+        'namespace': 'dash_core_components'
+    },
+    {
+        'relative_package_path': 'fake_dcc.min.js.map',
+        'dev_package_path': 'fake_dcc.dev.js.map',
+        'external_url': 'https://component_library.bundle.js.map',
+        'namespace': 'dash_core_components',
+        'dynamic': True
+    }
+]
+
+dcc._js_dist = _monkey_patched_js_dist
+dcc.__version__ = 1
 
 
-def generate_components():
-    Div = generate_class('Div', ('children', 'id',), 'dash_html_components')
-    Span = generate_class('Span', ('children', 'id',), 'dash_html_components')
-    Input = generate_class(
-        'Input', ('children', 'id',),
-        'dash_core_components')
-    return Div, Span, Input
+class StatMock(object):
+    st_mtime = 1
 
 
-def external_url(package_name):
-    return (
-        '//unpkg.com/{}@0.2.9'
-        '/{}/bundle.js'.format(
-            package_name.replace('_', '-'),
-            package_name
+class Tests(unittest.TestCase):
+
+    def test_external(self):
+        app = dash.Dash(
+            __name__,
+            assets_folder='tests/assets',
+            assets_ignore='load_after.+.js'
         )
-    )
+        app.layout = dcc.Markdown()
+        app.scripts.config.serve_locally = False
 
-
-def rel_path(package_name):
-    return '{}/bundle.js'.format(package_name)
-
-
-def abs_path(package_name):
-    return '/Users/chriddyp/{}/bundle.js'.format(package_name)
-
-
-class TestResources(unittest.TestCase):
-
-    def resource_test(self, css_or_js):
-        Div, Span, Input = generate_components()
-
-        if css_or_js == 'css':
-            # The CSS URLs and paths will look a little bit differently
-            # than the JS urls but that doesn't matter for the purposes
-            # of the test
-            Div._css_dist = Span._css_dist = [{
-                'external_url': external_url('dash_html_components'),
-                'relative_package_path': rel_path('dash_html_components')
-            }]
-
-            Input._css_dist = [{
-                'external_url': external_url('dash_core_components'),
-                'relative_package_path': rel_path('dash_core_components')
-            }]
-
-        else:
-            Div._js_dist = Span._js_dist = [{
-                'external_url': external_url('dash_html_components'),
-                'relative_package_path': rel_path('dash_html_components')
-            }]
-
-            Input._js_dist = [{
-                'external_url': external_url('dash_core_components'),
-                'relative_package_path': rel_path('dash_core_components')
-            }]
-
-        layout = Div([None, 'string', Span(), Div(Input())])
-
-        if css_or_js == 'css':
-            resources = Css(layout)
-        else:
-            resources = Scripts(layout)
-
-        resources._update_layout(layout)
-
-        expected_filtered_external_resources = [
-            {
-                'external_url': external_url('dash_html_components'),
-                'namespace': 'dash_html_components'
-            },
-            {
-                'external_url': external_url('dash_core_components'),
-                'namespace': 'dash_core_components'
-            }
-        ]
-        expected_filtered_relative_resources = [
-            {
-                'relative_package_path': rel_path('dash_html_components'),
-                'namespace': 'dash_html_components'
-            },
-            {
-                'relative_package_path': rel_path('dash_core_components'),
-                'namespace': 'dash_core_components'
-            }
-        ]
-
-        if css_or_js == 'css':
-            self.assertEqual(
-                resources.get_all_css(),
-                expected_filtered_external_resources
-            )
-        else:
-            self.assertEqual(
-                resources.get_all_scripts(),
-                expected_filtered_external_resources
+        with mock.patch('dash.dash.os.stat', return_value=StatMock()):
+            resource = app._collect_and_register_resources(
+                app.scripts.get_all_scripts()
             )
 
-        resources.config.serve_locally = True
-        if css_or_js == 'css':
-            self.assertEqual(
-                resources.get_all_css(),
-                expected_filtered_relative_resources
-            )
-        else:
-            self.assertEqual(
-                resources.get_all_scripts(),
-                expected_filtered_relative_resources
-            )
+        self.assertEqual(resource, [
+            'https://external_javascript.js',
+            'https://external_css.css',
+            'https://component_library.bundle.js'
+        ])
 
-        resources.config.serve_locally = False
-        extra_resource = {'external_url': '//cdn.bootstrap.com/min.css'}
-        expected_resources = expected_filtered_external_resources + [
-            extra_resource
-        ]
-        if css_or_js == 'css':
-            resources.append_css(extra_resource)
-            self.assertEqual(
-                resources.get_all_css(),
-                expected_resources
-            )
-        else:
-            resources.append_script(extra_resource)
-            self.assertEqual(
-                resources.get_all_scripts(),
-                expected_resources
-            )
+    def test_internal(self):
+        app = dash.Dash(
+            __name__,
+            assets_folder='tests/assets',
+            assets_ignore='load_after.+.js'
+        )
+        app.layout = dcc.Markdown()
+        app.scripts.config.serve_locally = True
 
-        resources.config.serve_locally = True
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-            if css_or_js == 'css':
-                self.assertEqual(
-                    resources.get_all_css(),
-                    expected_filtered_relative_resources
+        with mock.patch('dash.dash.os.stat', return_value=StatMock()):
+            with mock.patch('dash.dash.importlib.import_module',
+                            return_value=dcc):
+                resource = app._collect_and_register_resources(
+                    app.scripts.get_all_scripts()
                 )
-                assert len(w) == 1
-                assert 'A local version of {} is not available'.format(
-                    extra_resource['external_url']
-                ) in str(w[-1].message)
 
-            else:
-                self.assertEqual(
-                    resources.get_all_scripts(),
-                    expected_filtered_relative_resources
-                )
-                assert len(w) == 1
-                assert 'A local version of {} is not available'.format(
-                    extra_resource['external_url']
-                ) in str(w[-1].message)
+        self.assertEqual(resource, [
+            '/_dash-component-suites/'
+            'dash_core_components/external_javascript.js?v=1&m=1',
+            '/_dash-component-suites/'
+            'dash_core_components/external_css.css?v=1&m=1',
+            '/_dash-component-suites/'
+            'dash_core_components/fake_dcc.js?v=1&m=1',
+        ])
 
-    def test_js_resources(self):
-        # self.resource_test('js')
-        pass
-
-    def test_css_resources(self):
-        # self.resource_test('css')
-        pass
+        self.assertTrue(
+            'fake_dcc.min.js.map'
+            in app.registered_paths['dash_core_components'],
+            'Dynamic resource not available in registered path {}'.format(
+                app.registered_paths['dash_core_components']
+            )
+        )

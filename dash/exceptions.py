@@ -10,15 +10,15 @@ class CallbackException(DashException):
     pass
 
 
-class NonExistantIdException(CallbackException):
+class NonExistentIdException(CallbackException):
     pass
 
 
-class NonExistantPropException(CallbackException):
+class NonExistentPropException(CallbackException):
     pass
 
 
-class NonExistantEventException(CallbackException):
+class NonExistentEventException(CallbackException):
     pass
 
 
@@ -30,7 +30,7 @@ class IncorrectTypeException(CallbackException):
     pass
 
 
-class MissingEventsException(CallbackException):
+class MissingInputsException(CallbackException):
     pass
 
 
@@ -59,4 +59,24 @@ class InvalidCallbackReturnValue(CallbackException):
 
 
 class InvalidConfig(DashException):
+    pass
+
+
+class InvalidResourceError(DashException):
+    pass
+
+
+class InvalidIndexException(DashException):
+    pass
+
+
+class DependencyException(DashException):
+    pass
+
+
+class ResourceException(DashException):
+    pass
+
+
+class SameInputOutputException(CallbackException):
     pass

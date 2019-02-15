@@ -1,9 +1,9 @@
+import os
 import unittest
 # noinspection PyProtectedMember
 from dash import _configs
 from dash import exceptions as _exc
 from dash._utils import get_asset_path
-import os
 
 
 class MyTestCase(unittest.TestCase):
@@ -91,18 +91,16 @@ class MyTestCase(unittest.TestCase):
 
     def test_pathname_prefix_assets(self):
         req = '/'
-        routes = '/'
-        path = get_asset_path(req, routes, 'reset.css')
+        path = get_asset_path(req, 'reset.css', 'assets')
         self.assertEqual('/assets/reset.css', path)
 
         req = '/requests/'
-        path = get_asset_path(req, routes, 'reset.css')
+        path = get_asset_path(req, 'reset.css', 'assets')
         self.assertEqual('/requests/assets/reset.css', path)
 
         req = '/requests/routes/'
-        routes = '/routes/'
-        path = get_asset_path(req, routes, 'reset.css')
-        self.assertEqual('/requests/assets/reset.css', path)
+        path = get_asset_path(req, 'reset.css', 'assets')
+        self.assertEqual('/requests/routes/assets/reset.css', path)
 
 
 if __name__ == '__main__':

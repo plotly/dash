@@ -1,0 +1,16 @@
+dash_core_components==0.43.0
+dash_html_components==0.13.5
+dash-flow-example==0.0.5
+dash-dangerously-set-inner-html
+dash_renderer==0.17.0
+percy
+selenium
+mock
+tox
+tox-pyenv
+six
+plotly==3.6.0
+requests[security]
+flake8
+pylint==2.2.2
+astroid==2.1.0

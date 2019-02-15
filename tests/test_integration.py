@@ -3,16 +3,16 @@ from multiprocessing import Value
 import datetime
 import itertools
 import re
+import time
 import dash_html_components as html
+import dash_dangerously_set_inner_html
 import dash_core_components as dcc
 import dash_flow_example
-import dash_dangerously_set_inner_html
 
 import dash
-import time
 
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
+from dash.exceptions import PreventUpdate, CallbackException
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -87,8 +87,7 @@ class Tests(IntegrationTests):
 
         input1.send_keys('hello world')
 
-        output1 = lambda: self.wait_for_element_by_id('output-1')
-        wait_for(lambda: output1().text == 'hello world')
+        output1 = self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='simple-callback-2')
 
         self.assertEqual(
@@ -132,8 +131,7 @@ class Tests(IntegrationTests):
             return data
 
         self.startServer(app)
-        output1 = self.wait_for_element_by_id('output-1')
-        wait_for(lambda: output1.text == 'initial value')
+        self.wait_for_text_to_equal('#output-1', 'initial value')
         self.percy_snapshot(name='wildcard-callback-1')
 
         input1 = self.wait_for_element_by_id('input')
@@ -141,8 +139,7 @@ class Tests(IntegrationTests):
 
         input1.send_keys('hello world')
 
-        output1 = lambda: self.wait_for_element_by_id('output-1')
-        wait_for(lambda: output1().text == 'hello world')
+        self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='wildcard-callback-2')
 
         self.assertEqual(
@@ -228,7 +225,7 @@ class Tests(IntegrationTests):
 
         # React wraps text and numbers with e.g. <!-- react-text: 20 -->
         # Remove those
-        comment_regex = '<!--[^\[](.*?)-->'
+        comment_regex = '<!--[^\[](.*?)-->'  # noqa: W605
 
         # Somehow the html attributes are unordered.
         # Try different combinations (they're all valid html)
@@ -390,7 +387,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot('custom-index')
 
     def test_assets(self):
-        app = dash.Dash(assets_folder='tests/assets',
+        app = dash.Dash(__name__,
                         assets_ignore='.*ignored.*')
         app.index_string = '''
         <!DOCTYPE html>
@@ -413,7 +410,7 @@ class Tests(IntegrationTests):
         '''
 
         app.layout = html.Div([
-            html.Div(id='content'),
+            html.Div('Content', id='content'),
             dcc.Input(id='test')
         ], id='layout')
 
@@ -481,13 +478,13 @@ class Tests(IntegrationTests):
             'https://www.google-analytics.com/analytics.js',
             {'src': 'https://cdn.polyfill.io/v2/polyfill.min.js'},
             {
-                'src': 'https://cdnjs.cloudflare.com/ajax/libs/ramda/0.25.0/ramda.min.js',
-                'integrity': 'sha256-YN22NHB7zs5+LjcHWgk3zL0s+CRnzCQzDOFnndmUamY=',
+                'src': 'https://cdnjs.cloudflare.com/ajax/libs/ramda/0.26.1/ramda.min.js',
+                'integrity': 'sha256-43x9r7YRdZpZqTjDT5E0Vfrxn1ajIZLyYWtfAXsargA=',
                 'crossorigin': 'anonymous'
             },
             {
-                'src': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js',
-                'integrity': 'sha256-VKITM616rVzV+MI3kZMNUDoY5uTsuSl1ZvEeZhNoJVk=',
+                'src': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js',
+                'integrity': 'sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=',
                 'crossorigin': 'anonymous'
             }
         ]
@@ -705,3 +702,44 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
 
         self.percy_snapshot(name='request-hooks interpolated')
+    def test_late_component_register(self):
+        app = dash.Dash()
+
+        app.layout = html.Div([
+            html.Button('Click me to put a dcc ', id='btn-insert'),
+            html.Div(id='output')
+        ])
+
+        @app.callback(Output('output', 'children'),
+                      [Input('btn-insert', 'n_clicks')])
+        def update_output(value):
+            if value is None:
+                raise PreventUpdate
+
+            return dcc.Input(id='inserted-input')
+
+        self.startServer(app)
+
+        btn = self.wait_for_element_by_css_selector('#btn-insert')
+        btn.click()
+        time.sleep(1)
+
+        self.wait_for_element_by_css_selector('#inserted-input')
+
+    def test_output_input_invalid_callback(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Div('child', id='input-output'),
+            html.Div(id='out')
+        ])
+
+        with self.assertRaises(CallbackException) as context:
+            @app.callback(Output('input-output', 'children'),
+                          [Input('input-output', 'children')])
+            def failure(children):
+                pass
+
+        self.assertEqual(
+            'Same output and input: input-output.children',
+            context.exception.args[0]
+        )

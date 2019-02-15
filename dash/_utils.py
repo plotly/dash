@@ -1,3 +1,8 @@
+import uuid
+import collections
+import six
+
+
 def interpolate_str(template, **data):
     s = template
     for k, v in data.items():
@@ -20,16 +25,28 @@ def format_tag(tag_name, attributes, inner='', closed=False, opened=False):
             '{}="{}"'.format(k, v) for k, v in attributes.items()]))
 
 
-def get_asset_path(requests_pathname, routes_pathname, asset_path):
-    i = requests_pathname.rfind(routes_pathname)
-    req = requests_pathname[:i]
+def generate_hash():
+    return str(uuid.uuid4().hex).strip('-')
+
+
+def get_asset_path(
+        requests_pathname,
+        asset_path,
+        asset_url_path):
 
     return '/'.join([
         # Only take the first part of the pathname
-        req,
-        'assets',
+        requests_pathname.rstrip('/'),
+        asset_url_path,
         asset_path
     ])
+
+
+# pylint: disable=no-member
+def patch_collections_abc(member):
+    if six.PY2:
+        return getattr(collections, member)
+    return getattr(collections.abc, member)
 
 
 class AttributeDict(dict):

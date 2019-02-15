@@ -10,6 +10,7 @@ setup(
     author='chris p',
     author_email='chris@plot.ly',
     packages=find_packages(exclude=['tests*']),
+    include_package_data=True,
     license='MIT',
     description=('A Python framework for building reactive web-apps. '
                  'Developed by Plotly.'),
@@ -19,8 +20,17 @@ setup(
         'Flask>=0.12',
         'flask-compress',
         'plotly',
-        'dash_renderer',
+        'dash_renderer==0.18.0',
+        'dash-core-components==0.43.1',
+        'dash-html-components==0.13.5',
+        'dash-table==3.4.0'
     ],
+    entry_points={
+        'console_scripts': [
+            'dash-generate-components ='
+            ' dash.development.component_generator:cli'
+        ]
+    },
     url='https://plot.ly/dash',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -33,11 +43,15 @@ setup(
         'Intended Audience :: Manufacturing',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Database :: Front-Ends',
         'Topic :: Office/Business :: Financial :: Spreadsheet',
         'Topic :: Scientific/Engineering :: Visualization',

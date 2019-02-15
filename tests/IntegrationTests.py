@@ -2,8 +2,14 @@ import multiprocessing
 import sys
 import time
 import unittest
-from selenium import webdriver
 import percy
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+TIMEOUT = 20
 
 
 class IntegrationTests(unittest.TestCase):
@@ -15,13 +21,26 @@ class IntegrationTests(unittest.TestCase):
             name=snapshot_name
         )
 
+    def wait_for_element_by_css_selector(self, selector):
+        return WebDriverWait(self.driver, TIMEOUT).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+        )
+
+    def wait_for_text_to_equal(self, selector, assertion_text):
+        return WebDriverWait(self.driver, TIMEOUT).until(
+            EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector),
+                                             assertion_text)
+        )
+
     @classmethod
     def setUpClass(cls):
         super(IntegrationTests, cls).setUpClass()
         cls.driver = webdriver.Chrome()
 
         loader = percy.ResourceLoader(
-            webdriver=cls.driver
+            webdriver=cls.driver,
+            base_url='/assets',
+            root_dir='tests/assets'
         )
         cls.percy_runner = percy.Runner(loader=loader)
 
@@ -37,9 +56,10 @@ class IntegrationTests(unittest.TestCase):
         pass
 
     def tearDown(s):
-        time.sleep(2)
-        s.server_process.terminate()
-        time.sleep(2)
+        if hasattr(s, 'server_process'):
+            time.sleep(2)
+            s.server_process.terminate()
+            time.sleep(2)
 
     def startServer(s, dash):
         def run():
