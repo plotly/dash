@@ -14,27 +14,13 @@ interface IColumnFilterProps {
     value?: string;
 }
 
-interface IColumnFilterState {
-    value?: string;
-}
-
-export default class ColumnFilter extends PureComponent<IColumnFilterProps, IColumnFilterState> {
+export default class ColumnFilter extends PureComponent<IColumnFilterProps> {
     constructor(props: IColumnFilterProps) {
         super(props);
 
         this.state = {
             value: props.value
         };
-    }
-
-    componentWillReceiveProps(nextProps: IColumnFilterProps) {
-        const { value: nextValue } = nextProps;
-
-        if (this.state.value !== nextValue) {
-            this.setState({
-                value: nextValue
-            });
-        }
     }
 
     private submit = (value: string | undefined) => {

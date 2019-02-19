@@ -18,18 +18,16 @@ export default class SyntaxTree {
     }
 
     evaluate = (target: any) => {
-        if (!this.isValid || !this.tree) {
+        if (!this.isValid) {
             const msg = `unable to evaluate target: syntax tree is invalid for query=${this.query}`;
 
             Logger.error(msg);
             throw new Error(msg);
         }
 
-        const evaluate = this.tree.lexeme.evaluate;
-
-        return evaluate ?
-            evaluate(target, this.tree) :
-            false;
+        return this.tree && this.tree.lexeme && this.tree.lexeme.evaluate ?
+            this.tree.lexeme.evaluate(target, this.tree) :
+            true;
     }
 
     filter = (targets: any[]) => {

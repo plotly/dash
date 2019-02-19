@@ -38,6 +38,16 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
         return this.props as PropsWithDefaults;
     }
 
+    componentWillReceiveProps(nextProps: IProps) {
+        const { value: nextValue } = nextProps;
+
+        if (this.state.value !== nextValue) {
+            this.setState({
+                value: nextValue
+            });
+        }
+    }
+
     constructor(props: PropsWithDefaults) {
         super(props);
 

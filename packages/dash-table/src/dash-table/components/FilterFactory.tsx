@@ -130,8 +130,12 @@ export default class FilterFactory {
         }
 
         const { tree } = syntaxerResult;
-        const toCheck: (ISyntaxTree | undefined)[] = [tree];
+        if (!tree) {
+            this.ops.clear();
+            return;
+        }
 
+        const toCheck: (ISyntaxTree | undefined)[] = [tree];
         while (toCheck.length) {
             const item = toCheck.pop();
             if (!item) {

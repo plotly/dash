@@ -64,6 +64,10 @@ export default (lexerResult: ILexerResult): ISyntaxerResult => {
         return { valid: false, error: `lexer -- ${lexerResult.error}` };
     }
 
+    if (lexerResult.lexemes.length === 0) {
+        return { valid: true };
+    }
+
     try {
         return { tree: parser(lexemes), valid: true };
     } catch (error) {

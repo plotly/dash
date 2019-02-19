@@ -16,6 +16,7 @@ import { TooltipSyntax } from 'dash-table/tooltips/props';
 export enum AppMode {
     Date = 'date',
     Default = 'default',
+    Filtering = 'filtering',
     FixedTooltips = 'fixed,tooltips',
     FixedVirtualized = 'fixed,virtualized',
     ReadOnly = 'readonly',
@@ -29,6 +30,11 @@ export const ReadWriteModes = [
     AppMode.Default,
     AppMode.FixedVirtualized,
     AppMode.Virtualized
+];
+
+export const BasicModes = [
+    ...ReadWriteModes,
+    AppMode.ReadOnly
 ];
 
 function getBaseTableProps(mock: IDataMock) {
@@ -209,6 +215,13 @@ function getDateState() {
     return state;
 }
 
+function getFilteringState() {
+    const state = getDefaultState();
+    state.tableProps.filtering = true;
+
+    return state;
+}
+
 function getVirtualizedState() {
     const mock = generateMockData(5000);
 
@@ -253,6 +266,8 @@ function getState() {
     switch (mode) {
         case AppMode.Date:
             return getDateState();
+        case AppMode.Filtering:
+            return getFilteringState();
         case AppMode.FixedTooltips:
             return getFixedTooltipsState();
         case AppMode.FixedVirtualized:
