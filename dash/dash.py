@@ -653,6 +653,19 @@ class Dash(object):
                     'Same output and input: {}'.format(bad)
                 )
 
+        if is_multi:
+            if len(set(output)) != len(output):
+                raise exceptions.DuplicateCallbackOutput(
+                    'Same output was used in a'
+                    ' multi output callback!\n Duplicates:\n {}'.format(
+                        ',\n'.join(
+                            k for k, v in
+                            ((str(x), output.count(x)) for x in output)
+                            if v > 1
+                        )
+                    )
+                )
+
         if (layout is None and
                 not self.config.first('suppress_callback_exceptions',
                                       'supress_callback_exceptions')):
@@ -781,7 +794,7 @@ class Dash(object):
         if is_multi:
             def duplicate_check():
                 ns['duplicates'] = callbacks.intersection(
-                    _create_callback_id(y) for y in output
+                    str(y) for y in output
                 )
                 return ns['duplicates']
         else:
