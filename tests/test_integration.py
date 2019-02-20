@@ -549,7 +549,8 @@ class Tests(IntegrationTests):
             ]),
 
             html.Div(id='output3'),
-            html.Div(id='output4')
+            html.Div(id='output4'),
+            html.Div(id='output5')
         ])
 
         @app.callback([Output('output1', 'children'), Output('output2', 'children')],
@@ -594,6 +595,15 @@ class Tests(IntegrationTests):
                 return 'something else'
 
         self.assertTrue('output3' in context.exception.args[0])
+
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback([Output('output5', 'children'),
+                           Output('output5', 'children')],
+                          [Input('output-btn', 'n_clicks')])
+            def on_click_same_output(n_clicks):
+                return n_clicks
+
+        self.assertTrue('output5' in context.exception.args[0])
 
         self.startServer(app)
 
