@@ -33745,6 +33745,7 @@ function triggerDefaultState(dispatch, getState) {
         MultiGraph = graphs.MultiGraph;
 
     var allNodes = InputGraph.overallOrder();
+    // overallOrder will assert circular dependencies for multi output.
     MultiGraph.overallOrder();
     var inputNodeIds = [];
     allNodes.reverse();
