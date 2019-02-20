@@ -659,3 +659,16 @@ class Tests(IntegrationTests):
             'Same output and input: input-output.children',
             context.exception.args[0]
         )
+
+        # Multi output version.
+        with self.assertRaises(CallbackException) as context:
+            @app.callback([Output('out', 'children'),
+                           Output('input-output', 'children')],
+                          [Input('input-output', 'children')])
+            def failure(children):
+                pass
+
+        self.assertEqual(
+            'Same output and input: input-output.children',
+            context.exception.args[0]
+        )
