@@ -605,6 +605,18 @@ class Tests(IntegrationTests):
 
         self.assertTrue('output5' in context.exception.args[0])
 
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback([Output('output1', 'children'),
+                           Output('output5', 'children')],
+                          [Input('output-btn', 'n_clicks')])
+            def overlapping_multi_output(n_clicks):
+                return n_clicks
+
+        self.assertTrue(
+            '{\'output1.children\'}' in context.exception.args[0]
+            or "set(['output1.children'])" in context.exception.args[0]
+        )
+
         self.startServer(app)
 
         t = time.time()
