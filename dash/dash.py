@@ -333,7 +333,6 @@ class Dash(object):
 
     def _config(self):
         config = {
-            'multi_output': True,
             'url_base_pathname': self.url_base_pathname,
             'requests_pathname_prefix': self.config['requests_pathname_prefix']
         }
