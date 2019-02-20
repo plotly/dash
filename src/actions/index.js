@@ -377,23 +377,14 @@ function updateOutput(
      * }
      */
 
-    const [outputComponentId, outputProp] = outputIdAndProp.split('.');
+    // eslint-disable-next-line no-unused-vars
+    const [outputComponentId, _] = outputIdAndProp.split('.');
     const payload = {
-        output: config.multi_output ? outputIdAndProp :
-            {
-                id: outputComponentId,
-                property: outputProp
-            }
+        output: outputIdAndProp
     };
 
     const {inputs, state} = dependenciesRequest.content.find(
-        dependency => {
-            if (config.multi_output) {
-                return dependency.output === outputIdAndProp
-            }
-            return dependency.output.id === outputComponentId &&
-                dependency.output.property === outputProp
-        }
+        dependency => dependency.output === outputIdAndProp
     );
     const validKeys = keys(getState().paths);
 

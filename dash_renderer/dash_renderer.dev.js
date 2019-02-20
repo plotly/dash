@@ -34046,23 +34046,19 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch) {
      * }
      */
 
+    // eslint-disable-next-line no-unused-vars
+
     var _outputIdAndProp$spli = outputIdAndProp.split('.'),
         _outputIdAndProp$spli2 = _slicedToArray(_outputIdAndProp$spli, 2),
         outputComponentId = _outputIdAndProp$spli2[0],
-        outputProp = _outputIdAndProp$spli2[1];
+        _ = _outputIdAndProp$spli2[1];
 
     var payload = {
-        output: config.multi_output ? outputIdAndProp : {
-            id: outputComponentId,
-            property: outputProp
-        }
+        output: outputIdAndProp
     };
 
     var _dependenciesRequest$ = dependenciesRequest.content.find(function (dependency) {
-        if (config.multi_output) {
-            return dependency.output === outputIdAndProp;
-        }
-        return dependency.output.id === outputComponentId && dependency.output.property === outputProp;
+        return dependency.output === outputIdAndProp;
     }),
         inputs = _dependenciesRequest$.inputs,
         state = _dependenciesRequest$.state;
