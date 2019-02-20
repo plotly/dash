@@ -637,11 +637,20 @@ class Dash(object):
     def _validate_callback(self, output, inputs, state):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
+        is_multi = isinstance(output, (list, tuple))
 
         for i in inputs:
-            if output == i:
+            bad = None
+            if is_multi:
+                for o in output:
+                    if o == i:
+                        bad = o
+            else:
+                if output == i:
+                    bad = output
+            if bad:
                 raise exceptions.SameInputOutputException(
-                    'Same output and input: {}'.format(output)
+                    'Same output and input: {}'.format(bad)
                 )
 
         if (layout is None and
@@ -759,7 +768,7 @@ class Dash(object):
             ).replace('    ', ''))
 
         callback_id = _create_callback_id(output)
-        is_multi = isinstance(output, (list, tuple))
+
         callbacks = set(itertools.chain(*(
             x[2:-2].split('...')
             if x.startswith('..')
