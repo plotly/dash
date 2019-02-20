@@ -665,7 +665,7 @@ class Tests(IntegrationTests):
             @app.callback([Output('out', 'children'),
                            Output('input-output', 'children')],
                           [Input('input-output', 'children')])
-            def failure(children):
+            def failure2(children):
                 pass
 
         self.assertEqual(
