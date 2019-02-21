@@ -6,7 +6,8 @@ from dash.development.base_component import (
     _explicitize_args,
     generate_property_schema
 )
-from ._all_keywords import kwlist
+from dash.exceptions import NonExistentEventException
+from ._all_keywords import python_keywords
 from .base_component import Component
 
 
@@ -30,8 +31,7 @@ def generate_class_string(typename, props, description, namespace):
     string
 
     """
-    # TODO _prop_names, _type, _namespace, available_events,
-    # and available_properties
+    # TODO _prop_names, _type, _namespace, and available_properties
     # can be modified by a Dash JS developer via setattr
     # TODO - Tab out the repr for the repr of these components to make it
     # look more like a hierarchical tree
@@ -59,77 +59,61 @@ class {typename}(Component):
         self._namespace = '{namespace}'
         self._valid_wildcard_attributes =\
             {list_of_valid_wildcard_attr_prefixes}
-        self.available_events = {events}
         self.available_properties = {list_of_valid_keys}
         self.available_wildcard_properties =\
             {list_of_valid_wildcard_attr_prefixes}
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {{k: _locals[k] for k in _explicit_args}}
-        args.pop('children', None)
+        args = {{k: _locals[k] for k in _explicit_args if k != 'children'}}
+
+        for k in {required_props}:
+            if k not in args:
+                raise TypeError(
+                    'Required argument `' + k + '` was not specified.')
         super({typename}, self).__init__({argtext})
-    def __repr__(self):
-        if(any(getattr(self, c, None) is not None
-               for c in self._prop_names
-               if c is not self._prop_names[0])
-           or any(getattr(self, c, None) is not None
-                  for c in self.__dict__.keys()
-                  if any(c.startswith(wc_attr)
-                  for wc_attr in self._valid_wildcard_attributes))):
-            props_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self._prop_names
-                                      if getattr(self, c, None) is not None])
-            wilds_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self.__dict__.keys()
-                                      if any([c.startswith(wc_attr)
-                                      for wc_attr in
-                                      self._valid_wildcard_attributes])])
-            return ('{typename}(' + props_string +
-                   (', ' + wilds_string if wilds_string != '' else '') + ')')
-        else:
-            return (
-                '{typename}(' +
-                repr(getattr(self, self._prop_names[0], None)) + ')')
 '''
 
     filtered_props = reorder_props(filter_props(props))
-    # pylint: disable=unused-variable
-    list_of_valid_wildcard_attr_prefixes = repr(parse_wildcards(props))
-    # pylint: disable=unused-variable
+    wildcard_prefixes = repr(parse_wildcards(props))
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
-    # pylint: disable=unused-variable
     docstring = create_docstring(
         component_name=typename,
         props=filtered_props,
-        events=parse_events(props),
         description=description).replace('\r\n', '\n')
 
+    prohibit_events(props)
+
     # pylint: disable=unused-variable
-    events = '[' + ', '.join(parse_events(props)) + ']'
     prop_keys = list(props.keys())
     if 'children' in props:
-        default_argtext = 'children=None, '
-        argtext = 'children=children, **args'  # Children will be popped before
+        prop_keys.remove('children')
+        default_argtext = "children=None, "
+        argtext = 'children=children, **args'
     else:
         default_argtext = ''
         argtext = '**args'
-    for p in props.keys():
-        if (
-                not p.endswith("-*") and  # Not a wildcard attribute
-                p not in kwlist and  # Not a protected keyword
-                p not in ['dashEvents', 'fireEvent', 'setProps'] and
-                p != 'children'  # Already accounted for
-        ):
-            default_argtext += ('{:s}=Component.REQUIRED, '.format(p)
-                                if props[p]['required'] else
-                                '{:s}=Component.UNDEFINED, '.format(p))
-    default_argtext += '**kwargs'
-    schema = {
-        k: generate_property_schema(v)
-        for k, v in props.items() if not k.endswith("-*")
-    }
-    return c.format(**locals())
+    default_argtext += ", ".join(
+        [('{:s}=Component.REQUIRED'.format(p)
+          if props[p]['required'] else
+          '{:s}=Component.UNDEFINED'.format(p))
+         for p in prop_keys
+         if not p.endswith("-*") and
+         p not in python_keywords and
+         p != 'setProps'] + ["**kwargs"]
+    )
+    required_args = required_props(props)
+    return c.format(
+        typename=typename,
+        namespace=namespace,
+        filtered_props=filtered_props,
+        list_of_valid_wildcard_attr_prefixes=wildcard_prefixes,
+        list_of_valid_keys=list_of_valid_keys,
+        docstring=docstring,
+        default_argtext=default_argtext,
+        argtext=argtext,
+        required_props=required_args
+    )
 
 
 def generate_class_file(typename, props, description, namespace):
@@ -219,7 +203,24 @@ def generate_class(typename, props, description, namespace):
     return result
 
 
-def create_docstring(component_name, props, events, description):
+def required_props(props):
+    """
+    Pull names of required props from the props object
+
+    Parameters
+    ----------
+    props: dict
+
+    Returns
+    -------
+    list
+        List of prop names (str) that are required for the Component
+    """
+    return [prop_name for prop_name, prop in list(props.items())
+            if prop['required']]
+
+
+def create_docstring(component_name, props, description):
     """
     Create the Dash component docstring
 
@@ -229,8 +230,6 @@ def create_docstring(component_name, props, events, description):
         Component name
     props: dict
         Dictionary with {propName: propMetadata} structure
-    events: list
-        List of Dash events
     description: str
         Component description
 
@@ -245,9 +244,7 @@ def create_docstring(component_name, props, events, description):
     return (
         """A {name} component.\n{description}
 
-Keyword arguments:\n{args}
-
-Available events: {events}"""
+Keyword arguments:\n{args}"""
     ).format(
         name=component_name,
         description=description,
@@ -260,30 +257,26 @@ Available events: {events}"""
                 description=prop['description'],
                 indent_num=0,
                 is_flow_type='flowType' in prop and 'type' not in prop)
-            for p, prop in list(filter_props(props).items())),
-        events=', '.join(events))
+            for p, prop in list(filter_props(props).items())))
 
 
-def parse_events(props):
+def prohibit_events(props):
     """
-    Pull out the dashEvents from the Component props
+    Events have been removed. Raise an error if we see dashEvents or fireEvents
 
     Parameters
     ----------
     props: dict
         Dictionary with {propName: propMetadata} structure
 
-    Returns
+    Raises
     -------
-    list
-        List of Dash event strings
+    ?
     """
-    if 'dashEvents' in props and props['dashEvents']['type']['name'] == 'enum':
-        events = [v['value'] for v in props['dashEvents']['type']['value']]
-    else:
-        events = []
-
-    return events
+    if 'dashEvents' in props or 'fireEvents' in props:
+        raise NonExistentEventException(
+            'Events are no longer supported by dash. Use properties instead, '
+            'eg `n_clicks` instead of a `click` event.')
 
 
 def parse_wildcards(props):
@@ -335,7 +328,6 @@ def filter_props(props):
     Filter props from the Component arguments to exclude:
         - Those without a "type" or a "flowType" field
         - Those with arg.type.name in {'func', 'symbol', 'instanceOf'}
-        - dashEvents as a name
 
     Parameters
     ----------
@@ -401,10 +393,6 @@ def filter_props(props):
         else:
             raise ValueError
 
-        # dashEvents are a special oneOf property that is used for subscribing
-        # to events but it's never set as a property
-        if arg_name in ['dashEvents']:
-            filtered_props.pop(arg_name)
     return filtered_props
 
 
@@ -504,7 +492,7 @@ def map_js_to_py_types_prop_types(type_object):
             ', '.join(
                 "'{}'".format(t)
                 for t in list(type_object['value'].keys())),
-            'Those keys have the following types: \n{}'.format(
+            'Those keys have the following types:\n{}'.format(
                 '\n'.join(create_prop_docstring(
                     prop_name=prop_name,
                     type_object=prop,
@@ -547,7 +535,7 @@ def map_js_to_py_types_flow_types(type_object):
         signature=lambda indent_num: 'dict containing keys {}.\n{}'.format(
             ', '.join("'{}'".format(d['key'])
                       for d in type_object['signature']['properties']),
-            '{}Those keys have the following types: \n{}'.format(
+            '{}Those keys have the following types:\n{}'.format(
                 '  ' * indent_num,
                 '\n'.join(
                     create_prop_docstring(

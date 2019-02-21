@@ -95,8 +95,6 @@ ReactComponent.propTypes = {
         }
     }),
 
-    // special dash events
-
     children: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number,
@@ -117,13 +115,6 @@ ReactComponent.propTypes = {
     in: PropTypes.string,
     id: PropTypes.string,
 
-
-    // dashEvents is a special prop that is used to events validation
-    dashEvents: PropTypes.oneOf([
-        'restyle',
-        'relayout',
-        'click'
-    ])
 };
 
 ReactComponent.defaultProps = {

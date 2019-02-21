@@ -7,7 +7,7 @@ import pprint
 import six
 
 from ..exceptions import ComponentInitializationValidationError
-from .._utils import _merge
+from .._utils import _merge, patch_collections_abc
 from .validator import DashValidator, generate_validation_error_message
 
 _initialization_validation_error_callback = """
@@ -68,16 +68,10 @@ class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
     registry = set()
-    __dist_cache = {}
 
     @classmethod
     def get_resources(cls, resource_name):
-        cached = cls.__dist_cache.get(resource_name)
-
-        if cached:
-            return cached
-
-        cls.__dist_cache[resource_name] = resources = []
+        resources = []
 
         for module_name in cls.registry:
             module = sys.modules[module_name]
@@ -121,7 +115,7 @@ def _check_if_has_indexable_children(item):
 
 
 @six.add_metaclass(ComponentMeta)
-class Component(collections.MutableMapping):
+class Component(patch_collections_abc('MutableMapping')):
     class _UNDEFINED(object):
         def __repr__(self):
             return 'undefined'
@@ -364,6 +358,35 @@ class Component(collections.MutableMapping):
             # string or number
             length = 1
         return length
+
+    def __repr__(self):
+        # pylint: disable=no-member
+        props_with_values = [
+            c for c in self._prop_names
+            if getattr(self, c, None) is not None
+        ] + [
+            c for c in self.__dict__
+            if any(
+                c.startswith(wc_attr)
+                for wc_attr in self._valid_wildcard_attributes
+            )
+        ]
+        if any(
+                p != 'children'
+                for p in props_with_values
+        ):
+            props_string = ", ".join(
+                '{prop}={value}'.format(
+                    prop=p,
+                    value=repr(getattr(self, p))
+                ) for p in props_with_values
+            )
+        else:
+            props_string = repr(getattr(self, 'children', None))
+        return "{type}({props_string})".format(
+            type=self._type,
+            props_string=props_string
+        )
 
 
 def schema_is_nullable(type_object):

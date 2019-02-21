@@ -1,3 +1,54 @@
+## UNRELEASED
+## Fixed
+- Fix missing indentation for generated metadata.json [#600](https://github.com/plotly/dash/issues/600)
+- Fix missing component prop docstring error [#598](https://github.com/plotly/dash/issues/598)
+- Moved `__repr__` to base component instead of being generated. [#492](https://github.com/plotly/dash/pull/492)
+- Raise exception when same input & output are used in a callback [#605](https://github.com/plotly/dash/pull/605)
+
+## Added
+- Added components libraries js/css distribution to hot reload watch. [#603](https://github.com/plotly/dash/pull/603)
+- Callback context [#608](https://github.com/plotly/dash/pull/608)
+  - Know which inputs fired in a callback `dash.callback.triggered`
+  - Input/State values by name `dash.callback.states.get('btn.n_clicks')`
+
+## [0.37.0] - 2019-02-11
+## Fixed
+- Fixed collections.abc deprecation warning for python 3.8 [#563](https://github.com/plotly/dash/pull/563)
+
+## Changed
+- Added core libraries as version locked dependencies [#565](https://github.com/plotly/dash/pull/565)
+- Bumped dash-table version from 3.3.0 to [3.4.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#340---2019-02-08)
+- Bumped dash-renderer version from 0.17.0 to [0.18.0](https://github.com/plotly/dash-renderer/blob/master/CHANGELOG.md#0180---2019-02-11)
+- Bumped dash-core-components version from 0.43.0 to [0.43.1](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0431---2019-02-11)
+
+## [0.36.0] - 2019-01-25
+## Removed
+- Removed support for `Event` system. Use event properties instead, for example the `n_clicks` property instead of the `click` event, see [#531](https://github.com/plotly/dash/issues/531) for details. `dash_renderer` MUST be upgraded to >=0.17.0 together with this, and it is recommended to update `dash_core_components` to >=0.43.0 and `dash_html_components` to >=0.14.0. [#550](https://github.com/plotly/dash/pull/550)
+
+## [0.35.3] - 2019-01-23
+## Fixed
+- Asset blueprint takes routes prefix into it's static path. [#547](https://github.com/plotly/dash/pull/547)
+- Asset url path no longer strip routes from requests. [#547](https://github.com/plotly/dash/pull/547)
+- Remove print statement from PreventUpdate error handler. [#548](https://github.com/plotly/dash/pull/548)
+- Removed ComponentRegistry dist cache [#524](https://github.com/plotly/dash/pull/524)
+
+## Changed
+- `assets_folder` argument now default to 'assets' [#547](https://github.com/plotly/dash/pull/547)
+- The assets folder is now always relative to the given root path of `name` argument, the default of `__main__` will get the `cwd`. [#547](https://github.com/plotly/dash/pull/547)
+- No longer coerce the name argument from the server if the server argument is provided. [#547](https://github.com/plotly/dash/pull/547)
+
+## [0.35.2] - 2019-01-11
+## Fixed
+- Fix typo in some exception names [#522](https://github.com/plotly/dash/pull/522)
+
+## 0.35.1 - 2018-12-27
+### Fixed
+- Always skip `dynamic` resources from index resources collection. [#518](https://github.com/plotly/dash/pull/518)
+
+## 0.35.0 - 2018-12-18
+## Added
+- Experimental `--r-prefix` option to `dash-generate-components`, optionally generates R version of components and corresponding R package.  [#483](https://github.com/plotly/dash/pull/483)
+
 ## 0.34.0 - 2018-12-17
 ## Added
 - `--ignore` option to `dash-generate-components`, default to `^_`. [#490](https://github.com/plotly/dash/pull/490)

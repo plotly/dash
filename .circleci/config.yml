@@ -36,25 +36,11 @@ jobs:
               - "venv"
 
       - run:
-          name: Run lint
-          command: |
-              . venv/bin/activate
-              pylint dash setup.py --rcfile=$PYLINTRC
-              flake8 dash setup.py
-              flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
-
-
-      - run:
           name: Run tests
           command: |
               . venv/bin/activate
               python --version
-              python -m unittest tests.development.test_base_component
-              python -m unittest tests.development.test_component_loader
-              python -m unittest tests.development.test_component_validation
-              python -m unittest tests.test_integration
-              python -m unittest tests.test_resources
-              python -m unittest tests.test_configs
+              ./test.sh
 
   "python-3.6":
     <<: *test-template

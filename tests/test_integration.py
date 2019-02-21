@@ -11,8 +11,10 @@ import dash_flow_example
 
 import dash
 
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
+from dash.dependencies import Input, Output
+from dash.exceptions import (
+    PreventUpdate, CallbackException, MissingCallbackContextException
+)
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -105,7 +107,7 @@ class Tests(IntegrationTests):
             return data
 
         self.startServer(app)
-        output1 = self.wait_for_text_to_equal('#output-1', 'initial value')
+        self.wait_for_text_to_equal('#output-1', 'initial value')
         self.percy_snapshot(name='wildcard-callback-1')
 
         input1 = self.wait_for_element_by_id('input')
@@ -113,7 +115,7 @@ class Tests(IntegrationTests):
 
         input1.send_keys('hello world')
 
-        output1 = self.wait_for_text_to_equal('#output-1', 'hello world')
+        self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='wildcard-callback-2')
 
         self.assertEqual(
@@ -361,7 +363,6 @@ class Tests(IntegrationTests):
 
     def test_assets(self):
         app = dash.Dash(__name__,
-                        assets_folder='tests/assets',
                         assets_ignore='.*ignored.*')
         app.index_string = '''
         <!DOCTYPE html>
@@ -451,13 +452,13 @@ class Tests(IntegrationTests):
             'https://www.google-analytics.com/analytics.js',
             {'src': 'https://cdn.polyfill.io/v2/polyfill.min.js'},
             {
-                'src': 'https://cdnjs.cloudflare.com/ajax/libs/ramda/0.25.0/ramda.min.js',
-                'integrity': 'sha256-YN22NHB7zs5+LjcHWgk3zL0s+CRnzCQzDOFnndmUamY=',
+                'src': 'https://cdnjs.cloudflare.com/ajax/libs/ramda/0.26.1/ramda.min.js',
+                'integrity': 'sha256-43x9r7YRdZpZqTjDT5E0Vfrxn1ajIZLyYWtfAXsargA=',
                 'crossorigin': 'anonymous'
             },
             {
-                'src': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.min.js',
-                'integrity': 'sha256-VKITM616rVzV+MI3kZMNUDoY5uTsuSl1ZvEeZhNoJVk=',
+                'src': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js',
+                'integrity': 'sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=',
                 'crossorigin': 'anonymous'
             }
         ]
@@ -554,3 +555,63 @@ class Tests(IntegrationTests):
         time.sleep(1)
 
         self.wait_for_element_by_css_selector('#inserted-input')
+
+    def test_output_input_invalid_callback(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Div('child', id='input-output'),
+            html.Div(id='out')
+        ])
+
+        with self.assertRaises(CallbackException) as context:
+            @app.callback(Output('input-output', 'children'),
+                          [Input('input-output', 'children')])
+            def failure(children):
+                pass
+
+        self.assertEqual(
+            'Same output and input: input-output.children',
+            context.exception.args[0]
+        )
+
+    def test_callback_context(self):
+        app = dash.Dash(__name__)
+
+        btns = ['btn-{}'.format(x) for x in range(1, 6)]
+
+        app.layout = html.Div([
+            html.Div([
+                html.Button(x, id=x) for x in btns
+            ]),
+            html.Div(id='output'),
+        ])
+
+        @app.callback(Output('output', 'children'),
+                      [Input(x, 'n_clicks') for x in btns])
+        def on_click(*args):
+            if not dash.callback_context.triggered:
+                raise PreventUpdate
+            trigger = dash.callback_context.triggered[0]
+            return 'Just clicked {} for the {} time!'.format(
+                trigger['prop_id'].split('.')[0], trigger['value']
+            )
+
+        self.startServer(app)
+
+        btn_elements = [
+            self.wait_for_element_by_id(x) for x in btns
+        ]
+
+        for i in range(1, 5):
+            for j, btn in enumerate(btns):
+                btn_elements[j].click()
+                self.wait_for_text_to_equal(
+                    '#output',
+                    'Just clicked {} for the {} time!'.format(
+                        btn, i
+                    )
+                )
+
+    def test_no_callback_context(self):
+        with self.assertRaises(MissingCallbackContextException):
+            no_context = dash.callback_context.inputs

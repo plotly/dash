@@ -56,9 +56,10 @@ class IntegrationTests(unittest.TestCase):
         pass
 
     def tearDown(s):
-        time.sleep(2)
-        s.server_process.terminate()
-        time.sleep(2)
+        if hasattr(s, 'server_process'):
+            time.sleep(2)
+            s.server_process.terminate()
+            time.sleep(2)
 
     def startServer(s, dash):
         def run():
