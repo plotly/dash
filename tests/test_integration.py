@@ -681,8 +681,6 @@ class Tests(IntegrationTests):
         '''
         class CustomDash(dash.Dash):
             def interpolate_index(self, **kwargs):
-                # Inspect the arguments by printing them
-                print(kwargs)
                 return '''
                 <!DOCTYPE html>
                 <html>
