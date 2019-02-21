@@ -12,7 +12,9 @@ import dash_flow_example
 import dash
 
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate, CallbackException
+from dash.exceptions import (
+    PreventUpdate, CallbackException, MissingCallbackContextException
+)
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -571,3 +573,45 @@ class Tests(IntegrationTests):
             'Same output and input: input-output.children',
             context.exception.args[0]
         )
+
+    def test_callback_context(self):
+        app = dash.Dash(__name__)
+
+        btns = ['btn-{}'.format(x) for x in range(1, 6)]
+
+        app.layout = html.Div([
+            html.Div([
+                html.Button(x, id=x) for x in btns
+            ]),
+            html.Div(id='output'),
+        ])
+
+        @app.callback(Output('output', 'children'),
+                      [Input(x, 'n_clicks') for x in btns])
+        def on_click(*args):
+            if not dash.callback_context.triggered:
+                raise PreventUpdate
+            trigger = dash.callback_context.triggered[0]
+            return 'Just clicked {} for the {} time!'.format(
+                trigger['prop_id'].split('.')[0], trigger['value']
+            )
+
+        self.startServer(app)
+
+        btn_elements = [
+            self.wait_for_element_by_id(x) for x in btns
+        ]
+
+        for i in range(1, 5):
+            for j, btn in enumerate(btns):
+                btn_elements[j].click()
+                self.wait_for_text_to_equal(
+                    '#output',
+                    'Just clicked {} for the {} time!'.format(
+                        btn, i
+                    )
+                )
+
+    def test_no_callback_context(self):
+        with self.assertRaises(MissingCallbackContextException):
+            no_context = dash.callback_context.inputs

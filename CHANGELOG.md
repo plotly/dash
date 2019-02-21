@@ -7,6 +7,9 @@
 
 ## Added
 - Added components libraries js/css distribution to hot reload watch. [#603](https://github.com/plotly/dash/pull/603)
+- Callback context [#608](https://github.com/plotly/dash/pull/608)
+  - Know which inputs fired in a callback `dash.callback.triggered`
+  - Input/State values by name `dash.callback.states.get('btn.n_clicks')`
 
 ## [0.37.0] - 2019-02-11
 ## Fixed
