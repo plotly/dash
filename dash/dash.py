@@ -1193,42 +1193,43 @@ class Dash(object):
         self._hard_reload = True
         self._reload_hash = _generate_hash()
 
-        asset_path = os.path.relpath(
-            filename, os.path.commonprefix([self._assets_folder, filename]))\
-            .replace('\\', '/').lstrip('/')
+        if self._assets_folder in filename:
+            asset_path = os.path.relpath(
+                filename, os.path.commonprefix([self._assets_folder, filename])
+            ).replace('\\', '/').lstrip('/')
 
-        self._changed_assets.append({
-            'url': self.get_asset_url(asset_path),
-            'modified': int(modified),
-            'is_css': filename.endswith('css')
-        })
+            self._changed_assets.append({
+                'url': self.get_asset_url(asset_path),
+                'modified': int(modified),
+                'is_css': filename.endswith('css')
+            })
 
-        if filename not in self._assets_files and not deleted:
-            res = self._add_assets_resource(asset_path, filename)
-            if filename.endswith('js'):
-                self.scripts.append_script(res)
-            elif filename.endswith('css'):
-                self.css.append_css(res)
+            if filename not in self._assets_files and not deleted:
+                res = self._add_assets_resource(asset_path, filename)
+                if filename.endswith('js'):
+                    self.scripts.append_script(res)
+                elif filename.endswith('css'):
+                    self.css.append_css(res)
 
-        if deleted:
-            if filename in self._assets_files:
-                self._assets_files.remove(filename)
+            if deleted:
+                if filename in self._assets_files:
+                    self._assets_files.remove(filename)
 
-            def delete_resource(resources):
-                to_delete = None
-                for r in resources:
-                    if r.get('asset_path') == asset_path:
-                        to_delete = r
-                        break
-                if to_delete:
-                    resources.remove(to_delete)
+                def delete_resource(resources):
+                    to_delete = None
+                    for r in resources:
+                        if r.get('asset_path') == asset_path:
+                            to_delete = r
+                            break
+                    if to_delete:
+                        resources.remove(to_delete)
 
-            if filename.endswith('js'):
-                # pylint: disable=protected-access
-                delete_resource(self.scripts._resources._resources)
-            elif filename.endswith('css'):
-                # pylint: disable=protected-access
-                delete_resource(self.css._resources._resources)
+                if filename.endswith('js'):
+                    # pylint: disable=protected-access
+                    delete_resource(self.scripts._resources._resources)
+                elif filename.endswith('css'):
+                    # pylint: disable=protected-access
+                    delete_resource(self.css._resources._resources)
 
         self._lock.release()
 
