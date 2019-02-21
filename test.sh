@@ -2,6 +2,7 @@ EXIT_STATE=0
 
 python -m unittest tests.development.test_base_component || EXIT_STATE=$?
 python -m unittest tests.development.test_component_loader || EXIT_STATE=$?
+python -m unittest tests.development.test_component_validation || EXIT_STATE=$?
 python -m unittest tests.test_integration || EXIT_STATE=$?
 python -m unittest tests.test_resources || EXIT_STATE=$?
 python -m unittest tests.test_configs || EXIT_STATE=$?
