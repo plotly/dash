@@ -9,6 +9,9 @@ import dash_dangerously_set_inner_html
 import dash_core_components as dcc
 import dash_flow_example
 
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 import dash
 
 from dash.dependencies import Input, Output
@@ -83,7 +86,15 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='simple-callback-1')
 
         input1 = self.wait_for_element_by_id('input')
-        input1.clear()
+
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
 
         input1.send_keys('hello world')
 
@@ -93,7 +104,8 @@ class Tests(IntegrationTests):
         self.assertEqual(
             call_count.value,
             # an initial call to retrieve the first value
-            1 +
+            # and one for clearing the input
+            2 +
             # one for each hello world character
             len('hello world')
         )
@@ -621,7 +633,14 @@ class Tests(IntegrationTests):
         self.startServer(app)
 
         input1 = self.wait_for_element_by_id('input')
-        input1.clear()
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
 
         input1.send_keys('fire request hooks')
 
@@ -693,7 +712,14 @@ class Tests(IntegrationTests):
         self.startServer(app)
 
         input1 = self.wait_for_element_by_id('input')
-        input1.clear()
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
 
         input1.send_keys('fire request hooks')
 
