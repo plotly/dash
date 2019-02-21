@@ -723,44 +723,6 @@ class Tests(IntegrationTests):
         def update_output(value):
             return value
 
-        # scripts = app._generate_scripts_html()
-        # css = app._generate_css_dist_html()
-        # config = app._generate_config_html()
-        # metas = app._generate_meta_html()
-        # title = getattr(self, 'title', 'Dash')
-        # favicon = ''
-        # _app_entry = '''
-        # <div id="react-entry-point">
-        #     <div class="_dash-loading">
-        #         Loading...
-        #     </div>
-        # </div>
-        # '''
-        # renderer = '''
-        # <script id="_dash-renderer" type="application/javascript">
-        #     console.log('firing up a custom renderer!')
-        #     const renderer = new DashRenderer({
-        #         request_pre: () => {
-        #             var output = document.getElementById('output-pre')
-        #             if(output) {
-        #                 output.innerHTML = 'request_pre changed this text!';
-        #             }
-        #         },
-        #         request_post: () => {
-        #             var output = document.getElementById('output-post')
-        #             if(output) {
-        #                 output.innerHTML = 'request_post changed this text!';
-        #             }
-        #         }
-        #     })
-        # </script>
-        # '''
-
-        # app.index_string = app.interpolate_index(
-        #     metas=metas, title=title, css=css, config=config,
-        #     scripts=scripts, app_entry=_app_entry, favicon=favicon,
-        #     renderer=renderer)
-
         self.startServer(app)
 
         input1 = self.wait_for_element_by_id('input')
