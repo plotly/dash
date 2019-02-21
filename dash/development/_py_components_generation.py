@@ -103,6 +103,10 @@ class {typename}(Component):
          p != 'setProps'] + ["**kwargs"]
     )
     required_args = required_props(props)
+    schema = {
+        k: generate_property_schema(v)
+        for k, v in props.items() if not k.endswith("-*")
+    }
     return c.format(
         typename=typename,
         namespace=namespace,
@@ -112,7 +116,8 @@ class {typename}(Component):
         docstring=docstring,
         default_argtext=default_argtext,
         argtext=argtext,
-        required_props=required_args
+        required_props=required_args,
+        schema=schema
     )
 
 
