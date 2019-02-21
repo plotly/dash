@@ -29,7 +29,6 @@ class Tests(IntegrationTests):
             return self.driver.find_element_by_id(id)
         self.wait_for_element_by_id = wait_for_element_by_id
 
-
     def wait_for_element_by_css_selector(self, selector):
         start_time = time.time()
         error = None
@@ -680,6 +679,7 @@ class Tests(IntegrationTests):
             </script>
         '''
         class CustomDash(dash.Dash):
+
             def interpolate_index(self, **kwargs):
                 return '''
                 <!DOCTYPE html>
@@ -704,7 +704,6 @@ class Tests(IntegrationTests):
                     renderer=renderer)
 
         app = CustomDash()
-
 
         app.layout = html.Div([
             dcc.Input(
@@ -781,6 +780,7 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
 
         self.percy_snapshot(name='request-hooks interpolated')
+
     def test_late_component_register(self):
         app = dash.Dash()
 
