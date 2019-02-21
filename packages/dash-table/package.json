@@ -52,7 +52,7 @@
     "@storybook/cli": "^4.1.12",
     "@storybook/react": "^4.1.12",
     "@types/ramda": "^0.25.50",
-    "@types/react": "^16.8.3",
+    "@types/react": "^16.8.4",
     "@types/react-dom": "^16.8.2",
     "@types/react-select": "^1.3.4",
     "babel-loader": "^8.0.5",
@@ -80,7 +80,7 @@
     "wait-on": "^3.2.0",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.1.14",
+    "webpack-dev-server": "^3.2.0",
     "webpack-preprocessor": "^0.1.12"
   },
   "files": [
