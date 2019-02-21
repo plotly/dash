@@ -15,3 +15,5 @@ requests[security]
 flake8
 pylint==1.9.4
 Cerberus
+numpy
+pandas

@@ -15,3 +15,5 @@ flake8
 pylint==2.2.2
 astroid==2.1.0
 Cerberus
+numpy
+pandas
