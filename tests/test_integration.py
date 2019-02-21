@@ -147,7 +147,14 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='wildcard-callback-1')
 
         input1 = self.wait_for_element_by_id('input')
-        input1.clear()
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
 
         input1.send_keys('hello world')
 
@@ -157,7 +164,8 @@ class Tests(IntegrationTests):
         self.assertEqual(
             input_call_count.value,
             # an initial call
-            1 +
+            # and a call for clearing the input
+            2 +
             # one for each hello world character
             len('hello world')
         )
@@ -651,7 +659,54 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='request-hooks')
 
     def test_with_custom_renderer_interpolated(self):
-        app = dash.Dash(__name__)
+
+        renderer = '''
+            <script id="_dash-renderer" type="application/javascript">
+                console.log('firing up a custom renderer!')
+                const renderer = new DashRenderer({
+                    request_pre: () => {
+                        var output = document.getElementById('output-pre')
+                        if(output) {
+                            output.innerHTML = 'request_pre changed this text!';
+                        }
+                    },
+                    request_post: () => {
+                        var output = document.getElementById('output-post')
+                        if(output) {
+                            output.innerHTML = 'request_post changed this text!';
+                        }
+                    }
+                })
+            </script>
+        '''
+        class CustomDash(dash.Dash):
+            def interpolate_index(self, **kwargs):
+                # Inspect the arguments by printing them
+                print(kwargs)
+                return '''
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <title>My App</title>
+                    </head>
+                    <body>
+
+                        <div id="custom-header">My custom header</div>
+                        {app_entry}
+                        {config}
+                        {scripts}
+                        {renderer}
+                        <div id="custom-footer">My custom footer</div>
+                    </body>
+                </html>
+                '''.format(
+                    app_entry=kwargs['app_entry'],
+                    config=kwargs['config'],
+                    scripts=kwargs['scripts'],
+                    renderer=renderer)
+
+        app = CustomDash()
+
 
         app.layout = html.Div([
             dcc.Input(
@@ -671,43 +726,43 @@ class Tests(IntegrationTests):
         def update_output(value):
             return value
 
-        scripts = app._generate_scripts_html()
-        css = app._generate_css_dist_html()
-        config = app._generate_config_html()
-        metas = app._generate_meta_html()
-        title = "test custom renderer on interpolated_index"
-        favicon = ''
-        _app_entry = '''
-        <div id="react-entry-point">
-            <div class="_dash-loading">
-                Loading...
-            </div>
-        </div>
-        '''
-        renderer = '''
-        <script id="_dash-renderer" type="application/javascript">
-            console.log('firing up a custom renderer!')
-            const renderer = new DashRenderer({
-                request_pre: () => {
-                    var output = document.getElementById('output-pre')
-                    if(output) {
-                        output.innerHTML = 'request_pre changed this text!';
-                    }
-                },
-                request_post: () => {
-                    var output = document.getElementById('output-post')
-                    if(output) {
-                        output.innerHTML = 'request_post changed this text!';
-                    }
-                }
-            })
-        </script>
-        '''
+        # scripts = app._generate_scripts_html()
+        # css = app._generate_css_dist_html()
+        # config = app._generate_config_html()
+        # metas = app._generate_meta_html()
+        # title = getattr(self, 'title', 'Dash')
+        # favicon = ''
+        # _app_entry = '''
+        # <div id="react-entry-point">
+        #     <div class="_dash-loading">
+        #         Loading...
+        #     </div>
+        # </div>
+        # '''
+        # renderer = '''
+        # <script id="_dash-renderer" type="application/javascript">
+        #     console.log('firing up a custom renderer!')
+        #     const renderer = new DashRenderer({
+        #         request_pre: () => {
+        #             var output = document.getElementById('output-pre')
+        #             if(output) {
+        #                 output.innerHTML = 'request_pre changed this text!';
+        #             }
+        #         },
+        #         request_post: () => {
+        #             var output = document.getElementById('output-post')
+        #             if(output) {
+        #                 output.innerHTML = 'request_post changed this text!';
+        #             }
+        #         }
+        #     })
+        # </script>
+        # '''
 
-        index = app.interpolate_index(
-            metas=metas, title=title, css=css, config=config,
-            scripts=scripts, app_entry=_app_entry, favicon=favicon,
-            renderer=renderer)
+        # app.index_string = app.interpolate_index(
+        #     metas=metas, title=title, css=css, config=config,
+        #     scripts=scripts, app_entry=_app_entry, favicon=favicon,
+        #     renderer=renderer)
 
         self.startServer(app)
 
