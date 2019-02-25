@@ -75,12 +75,12 @@
     "sheetclip": "^0.3.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",
-    "tslint": "^5.12.1",
+    "tslint": "^5.13.0",
     "typescript": "^3.3.3333",
     "wait-on": "^3.2.0",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.2.0",
+    "webpack-dev-server": "^3.2.1",
     "webpack-preprocessor": "^0.1.12"
   },
   "files": [
