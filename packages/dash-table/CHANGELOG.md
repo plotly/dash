@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [3.5.0] - 2019-02-25
 ### Added
 [#342](https://github.com/plotly/dash-core/issues/342)
 - Added `column_type` condition to style `if`; allows applying styles based on the type of the column for props
