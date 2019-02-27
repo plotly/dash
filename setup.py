@@ -1,10 +1,11 @@
 from setuptools import setup
 
-exec (open('dash_renderer/version.py').read())
+version = {}
+exec(open('dash_renderer/version.py').read(), version)  # pylint: disable=exec-used
 
 setup(
     name='dash_renderer',
-    version=__version__,
+    version=version['__version__'],
     author='Chris Parmer',
     author_email='chris@plot.ly',
     packages=['dash_renderer'],
