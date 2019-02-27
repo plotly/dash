@@ -474,7 +474,7 @@ class Dash(object):
         return (
             '<script id="_dash-renderer" type="application/javascript">'
             '{}'
-            '</script'
+            '</script>'
         ).format(self.renderer)
 
     def _generate_meta_html(self):
