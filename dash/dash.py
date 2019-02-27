@@ -64,10 +64,12 @@ _app_entry = '''
 _re_index_entry = re.compile(r'{%app_entry%}')
 _re_index_config = re.compile(r'{%config%}')
 _re_index_scripts = re.compile(r'{%scripts%}')
+_re_renderer_scripts = re.compile(r'{%renderer%}')
 
 _re_index_entry_id = re.compile(r'id="react-entry-point"')
 _re_index_config_id = re.compile(r'id="_dash-config"')
 _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
+_re_renderer_scripts_id = re.compile(r'id="_dash-renderer')
 
 
 # pylint: disable=too-many-instance-attributes
@@ -312,6 +314,7 @@ class Dash(object):
             (_re_index_entry.search(value), 'app_entry'),
             (_re_index_config.search(value), 'config',),
             (_re_index_scripts.search(value), 'scripts'),
+            (_re_renderer_scripts.search(value), 'renderer'),
         )
         missing = [missing for check, missing in checks if not check]
         if missing:
@@ -565,6 +568,7 @@ class Dash(object):
             (_re_index_entry_id.search(index), '#react-entry-point'),
             (_re_index_config_id.search(index), '#_dash-configs'),
             (_re_index_scripts_id.search(index), 'dash-renderer'),
+            (_re_renderer_scripts_id.search(index), 'new DashRenderer'),
         )
         missing = [missing for check, missing in checks if not check]
 
