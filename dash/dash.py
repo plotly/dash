@@ -274,7 +274,7 @@ class Dash(object):
         self.routes.append(name)
 
         # default renderer string
-        self.renderer = 'const renderer = new DashRenderer();'
+        self.renderer = 'var renderer = new DashRenderer();'
 
     @property
     def layout(self):
