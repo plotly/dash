@@ -314,7 +314,6 @@ class Dash(object):
             (_re_index_entry.search(value), 'app_entry'),
             (_re_index_config.search(value), 'config',),
             (_re_index_scripts.search(value), 'scripts'),
-            (_re_renderer_scripts.search(value), 'renderer'),
         )
         missing = [missing for check, missing in checks if not check]
         if missing:
