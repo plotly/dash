@@ -616,7 +616,7 @@ class Dash(object):
         :param css: Collected & formatted css dependencies as <link> tags.
         :param config: Configs needed by dash-renderer.
         :param scripts: Collected & formatted scripts tags.
-        :param renderer: The DashRenderer instance.
+        :param renderer: A script tag that instantiates the DashRenderer.
         :param app_entry: Where the app will render.
         :param favicon: A favicon <link> tag if found in assets folder.
         :return: The interpolated HTML string for the index.
