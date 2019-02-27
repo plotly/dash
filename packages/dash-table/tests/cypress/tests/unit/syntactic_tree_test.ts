@@ -195,6 +195,18 @@ describe('Syntax Tree', () => {
             expect(tree.evaluate(data3)).to.equal(false);
         });
 
+        it('can compare floats', () => {
+            const tree = new SyntaxTree('field ge num(1.5)');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate({ field: -1.501 })).to.equal(false);
+            expect(tree.evaluate({ field: 1 })).to.equal(false);
+            expect(tree.evaluate({ field: 1.499 })).to.equal(false);
+            expect(tree.evaluate({ field: 1.5 })).to.equal(true);
+            expect(tree.evaluate({ field: 1.501 })).to.equal(true);
+            expect(tree.evaluate({ field: 2 })).to.equal(true);
+        });
+
         it('can compare string to number and return false', () => {
             const tree = new SyntaxTree('a eq num(1)');
 

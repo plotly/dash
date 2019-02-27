@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixed
+[#387](https://github.com/plotly/dash-core/issues/387)
+- Fix filtering conditions using floats
+
 ## [3.5.0] - 2019-02-25
 ### Added
 [#342](https://github.com/plotly/dash-core/issues/342)

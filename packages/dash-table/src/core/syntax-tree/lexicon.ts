@@ -55,7 +55,7 @@ const expression = {
 
                 switch (op) {
                     case 'num':
-                        return parseInt(value, 10);
+                        return parseFloat(value);
                     case 'str':
                     default:
                         return value;
