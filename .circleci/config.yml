@@ -45,8 +45,10 @@ jobs:
               - "node_modules"
 
       - run:
-          name: Npm lint
-          command:  npm run lint
+          name: Lint & format
+          command: |
+              npm run lint:test
+              npm run format:test
 
       - run:
           name: Run tests

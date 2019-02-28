@@ -1,4 +1,4 @@
-git+git://github.com/plotly/dash@master#egg=dash
+git+git://github.com/plotly/dash@standalone_dash-renderer#egg=dash
 percy
 selenium
 mock
