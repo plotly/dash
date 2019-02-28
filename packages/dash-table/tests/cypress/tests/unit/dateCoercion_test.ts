@@ -1,6 +1,6 @@
 import { ColumnType, IDatetimeColumn } from 'dash-table/components/Table/props';
-import { isNully } from 'dash-table/reconcile/null';
-import { coerce } from 'dash-table/reconcile/date';
+import { isNully } from 'dash-table/type/null';
+import { coerce } from 'dash-table/type/date';
 
 const DEFAULT_COERCE_SUCCESS = [
     { input: ' 2000 ', output: '2000', name: 'year only' },

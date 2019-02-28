@@ -1,6 +1,6 @@
 import { IDatetimeColumn } from 'dash-table/components/Table/props';
 import { reconcileNull } from './null';
-import { IReconciliation } from '.';
+import { IReconciliation } from './reconcile';
 
 // pattern and convertToMs pulled from plotly.js
 // (simplified - no international calendars for now)

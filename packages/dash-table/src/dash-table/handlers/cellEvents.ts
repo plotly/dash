@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import { SelectedCells, ICellFactoryProps } from 'dash-table/components/Table/props';
 import isActive from 'dash-table/derived/cell/isActive';
-import reconcile from 'dash-table/reconcile';
+import reconcile from 'dash-table/type/reconcile';
 
 function isCellSelected(selectedCells: SelectedCells, idx: number, i: number) {
     return selectedCells && R.contains([idx, i], selectedCells);

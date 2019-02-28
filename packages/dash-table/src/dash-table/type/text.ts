@@ -1,6 +1,6 @@
 import { ITextColumn } from 'dash-table/components/Table/props';
 import { isNully, reconcileNull } from './null';
-import { IReconciliation } from '.';
+import { IReconciliation } from './reconcile';
 
 export function coerce(value: any, options: ITextColumn | undefined): IReconciliation {
     return isNully(value) ?

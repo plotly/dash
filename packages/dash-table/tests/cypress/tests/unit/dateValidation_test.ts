@@ -1,6 +1,6 @@
 import { ColumnType, IDatetimeColumn } from 'dash-table/components/Table/props';
-import { isNully } from 'dash-table/reconcile/null';
-import { validate } from 'dash-table/reconcile/date';
+import { isNully } from 'dash-table/type/null';
+import { validate } from 'dash-table/type/date';
 
 const DEFAULT_VALIDATE_SUCCESS = [
     { input: ' 2000 ', output: '2000', name: 'year only' },

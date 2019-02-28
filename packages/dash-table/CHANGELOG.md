@@ -9,6 +9,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [3.5.0] - 2019-02-25
 ### Added
+[#189](https://github.com/plotly/dash-table/issues/189)
+- Added `format` nested prop to columns
+    - Applied to columns with `type=numeric` (more to come)
+    - Uses [d3-format](https://github.com/d3/d3-format) under the hood
+    - `format.locale` for localization configuration
+    - `format.prefix` for SI prefix configuration
+    - `format.specifier` for formatting configuration
+    - `format.separate_4digits` to configure grouping behavior for numbers with 4 digits or less
+    - Python helpers (dash_table.FormatTemplate)
+- Added `locale_format` prop to table (default localization configuration, merged with column.format.locale)
+
 [#342](https://github.com/plotly/dash-core/issues/342)
 - Added `column_type` condition to style `if`; allows applying styles based on the type of the column for props
     - `style_cell_conditional`

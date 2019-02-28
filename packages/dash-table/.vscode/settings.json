@@ -1,3 +1,41 @@
 {
-    "tslint.jsEnable": true
+    "tslint.jsEnable": true,
+    "cSpell.allowCompoundWords": true,
+    "cSpell.ignorePaths": [
+        "**/package.json",
+        "**/package-lock.json",
+        "**/node_modules/**",
+        "**/vscode-extension/**",
+        "**/.git/**",
+        ".vscode",
+        "typings"
+    ],
+    "cSpell.ignoreRegExpList": [
+        "'"
+    ],
+    "cSpell.language": "en",
+    "cSpell.diagnosticLevel": "Error",
+    "cSpell.languageSettings": [
+        { "languageId": "*", "dictionaries": ["fonts", "css", "html", "npm", "typescript", "python"]}
+    ],
+    "cSpell.words": [
+        "atto",
+        "deletable",
+        "femto",
+        "giga",
+        "ints",
+        "milli",
+        "nully",
+        "peta",
+        "pico",
+        "plotly",
+        "selectable",
+        "tera",
+        "tooltips",
+        "uneditable",
+        "yocto",
+        "yotta",
+        "zepto",
+        "zetta"
+    ]
 }

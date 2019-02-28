@@ -109,7 +109,25 @@ export interface ITypeColumn {
     validation?: ITypeValidation;
 }
 
+export interface INumberLocale {
+    symbol: [string, string];
+    decimal: string;
+    group: string;
+    grouping: number[];
+    numerals?: string[];
+    percent: string;
+    separate_4digits?: boolean;
+}
+
+export type NumberFormat = ({
+    locale: INumberLocale;
+    nully: any;
+    prefix?: number;
+    specifier: string;
+}) | undefined;
+
 export interface INumberColumn extends ITypeColumn {
+    format?: NumberFormat;
     presentation?: Presentation.Input | Presentation.Dropdown;
     type: ColumnType.Numeric;
 }
@@ -251,6 +269,7 @@ interface IProps {
     filtering_settings?: string;
     filtering_type?: FilteringType;
     filtering_types?: FilteringType[];
+    locale_format: INumberLocale;
     merge_duplicate_headers?: boolean;
     navigation?: Navigation;
     n_fixed_columns?: number;

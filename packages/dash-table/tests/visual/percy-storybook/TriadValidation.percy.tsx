@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import DataTable from 'dash-table/DataTable';
+import DataTable from 'dash-table/dash/DataTable';
 
 const filteringValues = ['fe', 'be'];
 const sortingValues = ['fe', 'be'];

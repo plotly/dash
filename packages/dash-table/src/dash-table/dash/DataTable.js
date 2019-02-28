@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
@@ -5,15 +6,9 @@ import RealTable from 'dash-table/components/Table';
 
 import Logger from 'core/Logger';
 
-import genRandomId from './utils/generate';
-
-function isFrontEnd(value) {
-    return ['fe', true, false].indexOf(value) !== -1;
-}
-
-function isBackEnd(value) {
-    return ['be', false].indexOf(value) !== -1;
-}
+import genRandomId from 'dash-table/utils/generate';
+import isValidProps from './validate';
+import sanitizeProps from './sanitize';
 
 export default class DataTable extends Component {
     constructor(props) {
@@ -24,21 +19,14 @@ export default class DataTable extends Component {
     }
 
     render() {
-        const {
-            filtering,
-            sorting,
-            pagination_mode
-        } = this.props;
-
-        const isValid = isFrontEnd(pagination_mode) ||
-            (isBackEnd(filtering) && isBackEnd(sorting));
-
-        if (!isValid) {
-            Logger.error(`Invalid combination of filtering / sorting / pagination`, filtering, sorting, pagination_mode);
+        if (!isValidProps(this.props)) {
             return (<div>Invalid props combination</div>);
         }
 
-        return this.props.id ? (<RealTable {...this.props} />) : (<RealTable {...this.props} id={this.getId()} />);
+        const sanitizedProps = sanitizeProps(this.props);
+        return this.props.id ?
+            (<RealTable {...sanitizedProps} />) :
+            (<RealTable {...sanitizedProps} id={this.getId()} />);
     }
 }
 
@@ -158,6 +146,50 @@ export const propTypes = {
         ]),
 
         /**
+         * The formatting applied to the column's data.
+         *
+         * This prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from
+         * being structured slightly differently (under a single prop), the usage
+         * is the same.
+         *
+         * 'locale': represents localization specific formatting information
+         *   When left unspecified, will use the default value provided by d3-format.
+         *
+         *   'symbol': (default: ['$', '']) a list of two strings representing the
+         *   prefix and suffix symbols. Typically used for currency, and implemented using d3's
+         *   currency format, but you can use this for other symbols such as measurement units.
+         *   'decimal': (default: '.') the string used for the decimal separator
+         *   'group': (default: ',') the string used for the groups separator
+         *   'grouping': (default: [3]) a list of integers representing the grouping pattern
+         *   'numerals': a list of ten strings used as replacements for numbers 0-9
+         *   'percent': (default: '%') the string used for the percentage symbol
+         *   'separate_4digits': (default: True) separate integers with 4-digits or less
+         *
+         * 'nully': a value that will be used in place of the nully value during formatting
+         *   If the value type matches the column type, it will be formatted normally
+         * 'prefix': a number representing the SI unit to use during formatting
+         *   See `dash_table.Format.Prefix` enumeration for the list of valid values
+         * 'specifier': (default: '') represents the rules to apply when formatting the number
+         *
+         * dash_table.FormatTemplate contains helper functions to rapidly use certain
+         * typical number formats.
+         */
+        format: PropTypes.shape({
+            locale: PropTypes.shape({
+                symbol: PropTypes.arrayOf(PropTypes.string),
+                decimal: PropTypes.string,
+                group: PropTypes.string,
+                grouping: PropTypes.arrayOf(PropTypes.number),
+                numerals: PropTypes.arrayOf(PropTypes.string),
+                percent: PropTypes.string,
+                separate_4digits: PropTypes.bool
+            }),
+            nully: PropTypes.any,
+            prefix: PropTypes.number,
+            specifier: PropTypes.string
+        }),
+
+        /**
          * If True, then the column and its data is hidden.
          * This can be useful if you want to transport extra
          * meta data (like a data index) to and from callbacks
@@ -233,7 +265,7 @@ export const propTypes = {
         /**
          * DEPRECATED
          * Please use `column_static_dropdown` instead.
-         * NOTE - Dropdown behaviour will likely change in the future,
+         * NOTE - Dropdown behavior will likely change in the future,
          * subscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
          * for more information.
          */
@@ -275,8 +307,34 @@ export const propTypes = {
          * Stay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)
          */
         type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime'])
-
     })),
+
+    /**
+     * The localization specific formatting information applied to all columns in the table.
+     *
+     * This prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.
+     *
+     * When left unspecified, each individual nested prop will default to a pre-determined value.
+     *
+     *   'symbol': (default: ['$', '']) a list of two strings representing the
+     *   prefix and suffix symbols. Typically used for currency, and implemented using d3's
+     *   currency format, but you can use this for other symbols such as measurement units.
+     *   'decimal': (default: '.') the string used for the decimal separator
+     *   'group': (default: ',') the string used for the groups separator
+     *   'grouping': (default: [3]) a list of integers representing the grouping pattern
+     *   'numerals': a list of ten strings used as replacements for numbers 0-9
+     *   'percent': (default: '%') the string used for the percentage symbol
+     *   'separate_4digits': (default: True) separate integers with 4-digits or less
+     */
+    locale_format: PropTypes.shape({
+        symbol: PropTypes.arrayOf(PropTypes.string),
+        decimal: PropTypes.string,
+        group: PropTypes.string,
+        grouping: PropTypes.arrayOf(PropTypes.number),
+        numerals: PropTypes.arrayOf(PropTypes.string),
+        percent: PropTypes.string,
+        separate_4digits: PropTypes.bool
+    }),
 
     /**
      * `content_style` toggles between a set of CSS styles for
@@ -608,7 +666,7 @@ export const propTypes = {
      * in the list. Higher priority (more specific) conditional
      * tooltips should be put at the beginning of the list.
      *
-     * The `if` refers to the condtion that needs to be fulfilled
+     * The `if` refers to the condition that needs to be fulfilled
      * in order for the associated tooltip configuration to be
      * used. If multiple conditions are defined, all conditions
      * must be met for the tooltip to be used by a cell.

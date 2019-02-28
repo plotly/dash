@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import DataTable from 'dash-table/DataTable';
+import DataTable from 'dash-table/dash/DataTable';
 import fixtures from './fixtures';
 import { ColumnType } from 'dash-table/components/Table/props';
 

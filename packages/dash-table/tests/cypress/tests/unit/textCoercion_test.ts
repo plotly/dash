@@ -1,5 +1,5 @@
 import { ColumnType, ITextColumn } from 'dash-table/components/Table/props';
-import { coerce } from 'dash-table/reconcile/text';
+import { coerce } from 'dash-table/type/text';
 
 const DEFAULT_COERCE_SUCCESS = [
     { input: 42, output: '42', name: 'from number' },

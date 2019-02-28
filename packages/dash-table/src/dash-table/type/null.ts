@@ -1,5 +1,5 @@
 import { ITypeColumn } from 'dash-table/components/Table/props';
-import { IReconciliation } from '.';
+import { IReconciliation } from './reconcile';
 
 export const reconcileNull = (
     value: any,

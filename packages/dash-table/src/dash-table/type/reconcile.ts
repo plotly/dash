@@ -63,15 +63,13 @@ function doFailureRecovery(result: IReconciliation, c: IColumnType) {
     const failure = (c && c.on_change && c.on_change.failure) || ChangeFailure.Reject;
     result.failure = failure;
 
-    // If Skip/Prevent
-    if (failure !== ChangeFailure.Default) {
-        return result;
+    if (failure === ChangeFailure.Default) {
+        const defaultValue = (c && c.validation && c.validation.default) || null;
+        result.success = true;
+        result.value = defaultValue;
+    } else if (failure === ChangeFailure.Accept) {
+        result.success = true;
     }
-
-    // If Default, apply default
-    const defaultValue = (c && c.validation && c.validation.default) || null;
-    result.success = true;
-    result.value = defaultValue;
 
     return result;
 }

@@ -142,10 +142,14 @@ jobs:
 
     "node":
         docker:
-            - image: circleci/node:8.11.3
+            - image: circleci/python:3.6.7-node
 
         steps:
             - checkout
+
+            - run:
+                  name: Create virtual env
+                  command: python -m venv || virtualenv venv
 
             - restore_cache:
                 key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
@@ -160,8 +164,16 @@ jobs:
                     - node_modules
 
             - run:
+                name: Install requirements
+                command: |
+                    . venv/bin/activate
+                    pip install -r requirements-base.txt --quiet
+
+            - run:
                 name: Run eslint
-                command: npm run lint
+                command: |
+                    . venv/bin/activate
+                    npm run lint
                 when: always
 
 

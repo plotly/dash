@@ -3,11 +3,11 @@ import * as R from 'ramda';
 import Logger from 'core/Logger';
 
 import { ActiveCell, Columns, Data, ColumnType } from 'dash-table/components/Table/props';
-import reconcile from 'dash-table/reconcile';
+import reconcile from 'dash-table/type/reconcile';
 import isEditable from 'dash-table/derived/cell/isEditable';
 
 export default (
-    values: string[][],
+    values: any[][],
     activeCell: ActiveCell,
     derived_viewport_indices: number[],
     columns: Columns,

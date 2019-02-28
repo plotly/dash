@@ -1,6 +1,6 @@
 import { ColumnType, INumberColumn } from 'dash-table/components/Table/props';
-import { isNully } from 'dash-table/reconcile/null';
-import { validate } from 'dash-table/reconcile/number';
+import { isNully } from 'dash-table/type/null';
+import { validate } from 'dash-table/type/number';
 
 const DEFAULT_VALIDATE_SUCCESS = [
     { input: 42, output: 42, name: 'from number' }

@@ -47,6 +47,11 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
             value
         } = this.props;
 
+        // input does not handle `null` correct (causes console error)
+        const sanitizedValue = this.state.value === null ?
+            undefined :
+            this.state.value;
+
         return (<div className='dash-input-cell-value-container dash-cell-value-container'>
             <div className='input-cell-value-shadow cell-value-shadow'>
                 {value}
@@ -62,7 +67,7 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
                 onKeyDown={this.handleKeyDown}
                 onMouseUp={onMouseUp}
                 onPaste={onPaste}
-                value={this.state.value}
+                value={sanitizedValue}
             />
         </div>);
     }

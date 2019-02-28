@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import random from 'core/math/random';
-import DataTable from 'dash-table/DataTable';
+import DataTable from 'dash-table/dash/DataTable';
 import fixtures from './fixtures';
 
 const setProps = () => { };
