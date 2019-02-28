@@ -20,3 +20,4 @@ simple*
 *.csv
 .idea/
 .vscode
+.mypy_cache/
