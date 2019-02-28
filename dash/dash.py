@@ -37,7 +37,6 @@ from ._utils import get_asset_path as _get_asset_path
 from ._utils import create_callback_id as _create_callback_id
 from . import _configs
 
-
 _default_index = '''<!DOCTYPE html>
 <html>
     <head>
@@ -51,6 +50,7 @@ _default_index = '''<!DOCTYPE html>
         <footer>
             {%config%}
             {%scripts%}
+            {%renderer%}
         </footer>
     </body>
 </html>'''
@@ -66,10 +66,12 @@ _app_entry = '''
 _re_index_entry = re.compile(r'{%app_entry%}')
 _re_index_config = re.compile(r'{%config%}')
 _re_index_scripts = re.compile(r'{%scripts%}')
+_re_renderer_scripts = re.compile(r'{%renderer%}')
 
 _re_index_entry_id = re.compile(r'id="react-entry-point"')
 _re_index_config_id = re.compile(r'id="_dash-config"')
 _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
+_re_renderer_scripts_id = re.compile(r'id="_dash-renderer')
 
 
 # pylint: disable=too-many-instance-attributes
@@ -273,6 +275,9 @@ class Dash(object):
         # e.g. for adding authentication with flask_login
         self.routes.append(name)
 
+        # default renderer string
+        self.renderer = 'var renderer = new DashRenderer();'
+
     @property
     def layout(self):
         return self._layout
@@ -466,6 +471,13 @@ class Dash(object):
             '</script>'
         ).format(json.dumps(self._config()))
 
+    def _generate_renderer(self):
+        return (
+            '<script id="_dash-renderer" type="application/javascript">'
+            '{}'
+            '</script>'
+        ).format(self.renderer)
+
     def _generate_meta_html(self):
         has_ie_compat = any(
             x.get('http-equiv', '') == 'X-UA-Compatible'
@@ -529,6 +541,7 @@ class Dash(object):
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
         metas = self._generate_meta_html()
+        renderer = self._generate_renderer()
         title = getattr(self, 'title', 'Dash')
 
         if self._favicon:
@@ -549,12 +562,14 @@ class Dash(object):
 
         index = self.interpolate_index(
             metas=metas, title=title, css=css, config=config,
-            scripts=scripts, app_entry=_app_entry, favicon=favicon)
+            scripts=scripts, app_entry=_app_entry, favicon=favicon,
+            renderer=renderer)
 
         checks = (
             (_re_index_entry_id.search(index), '#react-entry-point'),
             (_re_index_config_id.search(index), '#_dash-configs'),
             (_re_index_scripts_id.search(index), 'dash-renderer'),
+            (_re_renderer_scripts_id.search(index), 'new DashRenderer'),
         )
         missing = [missing for check, missing in checks if not check]
 
@@ -571,7 +586,7 @@ class Dash(object):
 
     def interpolate_index(self,
                           metas='', title='', css='', config='',
-                          scripts='', app_entry='', favicon=''):
+                          scripts='', app_entry='', favicon='', renderer=''):
         """
         Called to create the initial HTML string that is loaded on page.
         Override this method to provide you own custom HTML.
@@ -591,19 +606,22 @@ class Dash(object):
                             {app_entry}
                             {config}
                             {scripts}
+                            {renderer}
                             <div id="custom-footer">My custom footer</div>
                         </body>
                     </html>
                     '''.format(
                         app_entry=kwargs.get('app_entry'),
                         config=kwargs.get('config'),
-                        scripts=kwargs.get('scripts'))
+                        scripts=kwargs.get('scripts'),
+                        renderer=kwargs.get('renderer'))
 
         :param metas: Collected & formatted meta tags.
         :param title: The title of the app.
         :param css: Collected & formatted css dependencies as <link> tags.
         :param config: Configs needed by dash-renderer.
         :param scripts: Collected & formatted scripts tags.
+        :param renderer: A script tag that instantiates the DashRenderer.
         :param app_entry: Where the app will render.
         :param favicon: A favicon <link> tag if found in assets folder.
         :return: The interpolated HTML string for the index.
@@ -615,6 +633,7 @@ class Dash(object):
                             config=config,
                             scripts=scripts,
                             favicon=favicon,
+                            renderer=renderer,
                             app_entry=app_entry)
 
     def dependencies(self):
@@ -1034,6 +1053,21 @@ class Dash(object):
         output = body['output']
 
         args = []
+
+        flask.g.input_values = input_values = {
+            '{}.{}'.format(x['id'], x['property']): x.get('value')
+            for x in inputs
+        }
+        flask.g.state_values = {
+            '{}.{}'.format(x['id'], x['property']): x.get('value')
+            for x in state
+        }
+        changed_props = body.get('changedPropIds')
+        flask.g.triggered_inputs = [
+            {'prop_id': x, 'value': input_values[x]}
+            for x in changed_props
+        ] if changed_props else []
+
         for component_registration in self.callback_map[output]['inputs']:
             args.append([
                 c.get('value', None) for c in inputs if

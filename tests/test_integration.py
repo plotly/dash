@@ -9,10 +9,16 @@ import dash_dangerously_set_inner_html
 import dash_core_components as dcc
 import dash_flow_example
 
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 import dash
 
 from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate, DuplicateCallbackOutput, CallbackException
+from dash.exceptions import (
+    PreventUpdate, DuplicateCallbackOutput, CallbackException,
+    MissingCallbackContextException
+)
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
 
@@ -56,7 +62,15 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='simple-callback-1')
 
         input1 = self.wait_for_element_by_id('input')
-        input1.clear()
+
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
 
         input1.send_keys('hello world')
 
@@ -66,7 +80,8 @@ class Tests(IntegrationTests):
         self.assertEqual(
             call_count.value,
             # an initial call to retrieve the first value
-            1 +
+            # and one for clearing the input
+            2 +
             # one for each hello world character
             len('hello world')
         )
@@ -108,7 +123,14 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='wildcard-callback-1')
 
         input1 = self.wait_for_element_by_css_selector('#input')
-        input1.clear()
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
 
         input1.send_keys('hello world')
 
@@ -118,7 +140,8 @@ class Tests(IntegrationTests):
         self.assertEqual(
             input_call_count.value,
             # an initial call
-            1 +
+            # and a call for clearing the input
+            2 +
             # one for each hello world character
             len('hello world')
         )
@@ -323,6 +346,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
+                    {%renderer%}
                 </footer>
                 <div id="custom-footer">My custom footer</div>
                 <script>
@@ -375,6 +399,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
+                    {%renderer%}
                 </footer>
             </body>
         </html>
@@ -490,6 +515,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
+                    {%renderer%}
                 </footer>
             </body>
         </html>
@@ -630,6 +656,171 @@ class Tests(IntegrationTests):
 
         self.assertGreater(int(output2.text), t)
 
+    def test_with_custom_renderer(self):
+        app = dash.Dash(__name__)
+
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {%metas%}
+                <title>{%title%}</title>
+                {%favicon%}
+                {%css%}
+            </head>
+            <body>
+                <div>Testing custom DashRenderer</div>
+                {%app_entry%}
+                <footer>
+                    {%config%}
+                    {%scripts%}
+                    <script id="_dash-renderer" type="application/javascript">
+                        console.log('firing up a custom renderer!')
+                        const renderer = new DashRenderer({
+                            request_pre: () => {
+                                var output = document.getElementById('output-pre')
+                                if(output) {
+                                    output.innerHTML = 'request_pre changed this text!';
+                                }
+                            },
+                            request_post: () => {
+                                var output = document.getElementById('output-post')
+                                if(output) {
+                                    output.innerHTML = 'request_post changed this text!';
+                                }
+                            }
+                        })
+                    </script>
+                </footer>
+                <div>With request hooks</div>
+            </body>
+        </html>
+        '''
+
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+                value='initial value'
+            ),
+            html.Div(
+                html.Div([
+                    html.Div(id='output-1'),
+                    html.Div(id='output-pre'),
+                    html.Div(id='output-post')
+                ])
+            )
+        ])
+
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            return value
+
+        self.startServer(app)
+
+        input1 = self.wait_for_element_by_id('input')
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
+
+        input1.send_keys('fire request hooks')
+
+        self.wait_for_text_to_equal('#output-1', 'fire request hooks')
+        self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
+        self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
+
+        self.percy_snapshot(name='request-hooks')
+
+    def test_with_custom_renderer_interpolated(self):
+
+        renderer = '''
+            <script id="_dash-renderer" type="application/javascript">
+                console.log('firing up a custom renderer!')
+                const renderer = new DashRenderer({
+                    request_pre: () => {
+                        var output = document.getElementById('output-pre')
+                        if(output) {
+                            output.innerHTML = 'request_pre changed this text!';
+                        }
+                    },
+                    request_post: () => {
+                        var output = document.getElementById('output-post')
+                        if(output) {
+                            output.innerHTML = 'request_post changed this text!';
+                        }
+                    }
+                })
+            </script>
+        '''
+        class CustomDash(dash.Dash):
+
+            def interpolate_index(self, **kwargs):
+                return '''
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <title>My App</title>
+                    </head>
+                    <body>
+
+                        <div id="custom-header">My custom header</div>
+                        {app_entry}
+                        {config}
+                        {scripts}
+                        {renderer}
+                        <div id="custom-footer">My custom footer</div>
+                    </body>
+                </html>
+                '''.format(
+                    app_entry=kwargs['app_entry'],
+                    config=kwargs['config'],
+                    scripts=kwargs['scripts'],
+                    renderer=renderer)
+
+        app = CustomDash()
+
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+                value='initial value'
+            ),
+            html.Div(
+                html.Div([
+                    html.Div(id='output-1'),
+                    html.Div(id='output-pre'),
+                    html.Div(id='output-post')
+                ])
+            )
+        ])
+
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            return value
+
+        self.startServer(app)
+
+        input1 = self.wait_for_element_by_id('input')
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
+
+        input1.send_keys('fire request hooks')
+
+        self.wait_for_text_to_equal('#output-1', 'fire request hooks')
+        self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
+        self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
+
+        self.percy_snapshot(name='request-hooks interpolated')
+
     def test_late_component_register(self):
         app = dash.Dash()
 
@@ -684,3 +875,45 @@ class Tests(IntegrationTests):
             'Same output and input: input-output.children',
             context.exception.args[0]
         )
+
+    def test_callback_context(self):
+        app = dash.Dash(__name__)
+
+        btns = ['btn-{}'.format(x) for x in range(1, 6)]
+
+        app.layout = html.Div([
+            html.Div([
+                html.Button(x, id=x) for x in btns
+            ]),
+            html.Div(id='output'),
+        ])
+
+        @app.callback(Output('output', 'children'),
+                      [Input(x, 'n_clicks') for x in btns])
+        def on_click(*args):
+            if not dash.callback_context.triggered:
+                raise PreventUpdate
+            trigger = dash.callback_context.triggered[0]
+            return 'Just clicked {} for the {} time!'.format(
+                trigger['prop_id'].split('.')[0], trigger['value']
+            )
+
+        self.startServer(app)
+
+        btn_elements = [
+            self.wait_for_element_by_id(x) for x in btns
+        ]
+
+        for i in range(1, 5):
+            for j, btn in enumerate(btns):
+                btn_elements[j].click()
+                self.wait_for_text_to_equal(
+                    '#output',
+                    'Just clicked {} for the {} time!'.format(
+                        btn, i
+                    )
+                )
+
+    def test_no_callback_context(self):
+        with self.assertRaises(MissingCallbackContextException):
+            no_context = dash.callback_context.inputs

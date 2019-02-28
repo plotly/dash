@@ -90,3 +90,7 @@ class ResourceException(DashException):
 
 class SameInputOutputException(CallbackException):
     pass
+
+
+class MissingCallbackContextException(CallbackException):
+    pass
