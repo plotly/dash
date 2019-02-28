@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [UNRELEASED]
+### Added
+- Loading states API [#267](https://github.com/plotly/dash/issues/267)
 ## [0.19.0] - 2019-02-25
 ## Added
 - Added which properties fired to update prop request. [#124](https://github.com/plotly/dash-renderer/pull/124)

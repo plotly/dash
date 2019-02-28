@@ -1,8 +1,8 @@
 import {connect} from 'react-redux';
-import {isEmpty} from 'ramda';
 import {notifyObservers, updateProps} from '../../actions';
 import React from 'react';
 import PropTypes from 'prop-types';
+import {isEmpty} from 'ramda';
 
 /*
  * NotifyObservers passes a connected `setProps` handler down to
@@ -27,6 +27,8 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
         children: ownProps.children,
         dependencies: stateProps.dependencies,
         paths: stateProps.paths,
+        loading_state: ownProps.loading_state,
+        requestQueue: stateProps.requestQueue,
 
         setProps: function setProps(newProps) {
             const payload = {
@@ -48,10 +50,9 @@ function NotifyObserversComponent({
     children,
     id,
     paths,
-
     dependencies,
-
     setProps,
+    loading_state,
 }) {
     const thisComponentSharesState =
         dependencies &&
@@ -86,6 +87,10 @@ function NotifyObserversComponent({
         extraProps.setProps = setProps;
     }
 
+    if (children.props && !children.props.loading_state) {
+        extraProps.loading_state = loading_state;
+    }
+
     if (!isEmpty(extraProps)) {
         return React.cloneElement(children, extraProps);
     }
@@ -96,6 +101,7 @@ NotifyObserversComponent.propTypes = {
     id: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
     path: PropTypes.array.isRequired,
+    loading_state: PropTypes.object,
 };
 
 export default connect(
