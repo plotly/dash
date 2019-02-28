@@ -48,7 +48,7 @@ export default class Link extends Component {
     }
 
     render() {
-        const {className, style, id, href} = this.props;
+        const {className, style, id, href, loading_state} = this.props;
         /*
          * ideally, we would use cloneElement however
          * that doesn't work with dash's recursive
@@ -56,6 +56,7 @@ export default class Link extends Component {
          */
         return (
             <a
+                data-dash-is-loading={loading_state && loading_state.is_loading}
                 id={id}
                 className={className}
                 style={style}
@@ -75,6 +76,23 @@ Link.propTypes = {
     style: PropTypes.object,
     id: PropTypes.string,
     children: PropTypes.node,
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
 
 Link.defaultProps = {

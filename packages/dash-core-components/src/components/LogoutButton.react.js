@@ -28,7 +28,15 @@ import './css/logout.css';
  */
 export default class LogoutButton extends React.Component {
     render() {
-        const {id, logout_url, label, className, style, method} = this.props;
+        const {
+            id,
+            logout_url,
+            label,
+            className,
+            style,
+            method,
+            loading_state,
+        } = this.props;
 
         let url, submitMethod;
         if (!logout_url) {
@@ -43,6 +51,7 @@ export default class LogoutButton extends React.Component {
 
         return (
             <form
+                data-dash-is-loading={loading_state && loading_state.is_loading}
                 action={url}
                 method={submitMethod}
                 className="dash-logout-frame"
@@ -92,4 +101,22 @@ LogoutButton.propTypes = {
      */
     className: PropTypes.string,
     setProps: PropTypes.func,
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };

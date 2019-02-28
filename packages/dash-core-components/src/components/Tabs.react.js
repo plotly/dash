@@ -22,6 +22,7 @@ const EnhancedTab = ({
     amountOfTabs,
     colors,
     vertical,
+    loading_state,
 }) => {
     let tabStyle = style;
     if (disabled) {
@@ -47,6 +48,7 @@ const EnhancedTab = ({
     }
     return (
         <div
+            data-dash-is-loading={loading_state && loading_state.is_loading}
             className={tabClassName}
             id={id}
             style={tabStyle}
@@ -107,6 +109,14 @@ const EnhancedTab = ({
             `}</style>
         </div>
     );
+};
+
+EnhancedTab.defaultProps = {
+    loading_state: {
+        is_loading: false,
+        component_name: '',
+        prop_name: '',
+    },
 };
 
 /**
@@ -229,6 +239,7 @@ export default class Tabs extends Component {
                         vertical={this.props.vertical}
                         amountOfTabs={amountOfTabs}
                         colors={this.props.colors}
+                        loading_state={childProps.loading_state}
                     />
                 );
             });
@@ -252,6 +263,10 @@ export default class Tabs extends Component {
 
         return (
             <div
+                data-dash-is-loading={
+                    this.props.loading_state &&
+                    this.props.loading_state.is_loading
+                }
                 className={`${tabParentClass} ${this.props.parent_className ||
                     ''}`}
                 style={this.props.parent_style}
@@ -403,5 +418,23 @@ Tabs.propTypes = {
         border: PropTypes.string,
         primary: PropTypes.string,
         background: PropTypes.string,
+    }),
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
     }),
 };

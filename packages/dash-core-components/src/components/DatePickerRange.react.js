@@ -117,46 +117,67 @@ export default class DatePickerRange extends Component {
             stay_open_on_select,
             with_full_screen_portal,
             with_portal,
+            loading_state,
+            id,
+            style,
+            className,
         } = this.props;
 
         const verticalFlag = calendar_orientation !== 'vertical';
 
+        const DatePickerWrapperStyles = {
+            position: 'relative',
+            display: 'inline-block',
+            ...style,
+        };
+
         return (
-            <DateRangePicker
-                daySize={day_size}
-                disabled={disabled}
-                displayFormat={display_format}
-                enableOutsideDays={show_outside_days}
-                endDate={end_date}
-                endDatePlaceholderText={end_date_placeholder_text}
-                firstDayOfWeek={first_day_of_week}
-                focusedInput={focusedInput}
-                initialVisibleMonth={() => {
-                    if (initial_visible_month) {
-                        return initial_visible_month;
-                    } else if (end_date && focusedInput === 'endDate') {
-                        return end_date;
-                    } else if (start_date && focusedInput === 'startDate') {
+            <div
+                id={id}
+                style={DatePickerWrapperStyles}
+                className={className}
+                data-dash-is-loading={loading_state && loading_state.is_loading}
+            >
+                <DateRangePicker
+                    daySize={day_size}
+                    disabled={disabled}
+                    displayFormat={display_format}
+                    enableOutsideDays={show_outside_days}
+                    endDate={end_date}
+                    endDatePlaceholderText={end_date_placeholder_text}
+                    firstDayOfWeek={first_day_of_week}
+                    focusedInput={focusedInput}
+                    initialVisibleMonth={() => {
+                        if (initial_visible_month) {
+                            return initial_visible_month;
+                        } else if (end_date && focusedInput === 'endDate') {
+                            return end_date;
+                        } else if (start_date && focusedInput === 'startDate') {
+                            return start_date;
+                        }
                         return start_date;
+                    }}
+                    isOutsideRange={this.isOutsideRange}
+                    isRTL={is_RTL}
+                    keepOpenOnDateSelect={stay_open_on_select}
+                    minimumNights={minimum_nights}
+                    monthFormat={month_format}
+                    numberOfMonths={number_of_months_shown}
+                    onDatesChange={this.onDatesChange}
+                    onFocusChange={focusedInput =>
+                        this.setState({focusedInput})
                     }
-                    return start_date;
-                }}
-                isOutsideRange={this.isOutsideRange}
-                isRTL={is_RTL}
-                keepOpenOnDateSelect={stay_open_on_select}
-                minimumNights={minimum_nights}
-                monthFormat={month_format}
-                numberOfMonths={number_of_months_shown}
-                onDatesChange={this.onDatesChange}
-                onFocusChange={focusedInput => this.setState({focusedInput})}
-                orientation={calendar_orientation}
-                reopenPickerOnClearDates={reopen_calendar_on_clear}
-                showClearDates={clearable}
-                startDate={start_date}
-                startDatePlaceholderText={start_date_placeholder_text}
-                withFullScreenPortal={with_full_screen_portal && verticalFlag}
-                withPortal={with_portal && verticalFlag}
-            />
+                    orientation={calendar_orientation}
+                    reopenPickerOnClearDates={reopen_calendar_on_clear}
+                    showClearDates={clearable}
+                    startDate={start_date}
+                    startDatePlaceholderText={start_date_placeholder_text}
+                    withFullScreenPortal={
+                        with_full_screen_portal && verticalFlag
+                    }
+                    withPortal={with_portal && verticalFlag}
+                />
+            </div>
         );
     }
 }
@@ -314,6 +335,16 @@ DatePickerRange.propTypes = {
     setProps: PropTypes.func,
 
     /**
+     * CSS styles appended to wrapper div
+     */
+    style: PropTypes.object,
+
+    /**
+     * Appends a CSS class to the wrapper div component.
+     */
+    className: PropTypes.string,
+
+    /**
      * Determines when the component should update
      * its value. If `bothdates`, then the DatePicker
      * will only trigger its value when the user has
@@ -322,6 +353,24 @@ DatePickerRange.propTypes = {
      * as one date is picked.
      */
     updatemode: PropTypes.oneOf(['singledate', 'bothdates']),
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
 
 DatePickerRange.defaultProps = {

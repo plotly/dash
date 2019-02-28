@@ -29,11 +29,17 @@ export default class Checklist extends Component {
             options,
             setProps,
             style,
+            loading_state,
         } = this.props;
         const {values} = this.state;
 
         return (
-            <div id={id} style={style} className={className}>
+            <div
+                data-dash-is-loading={loading_state && loading_state.is_loading}
+                id={id}
+                style={style}
+                className={className}
+            >
                 {options.map(option => (
                     <label
                         key={option.value}
@@ -135,6 +141,24 @@ Checklist.propTypes = {
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
 
 Checklist.defaultProps = {

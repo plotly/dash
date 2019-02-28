@@ -30,6 +30,7 @@ export default class RadioItems extends Component {
             labelStyle,
             options,
             setProps,
+            loading_state,
         } = this.props;
         const {value} = this.state;
 
@@ -38,7 +39,12 @@ export default class RadioItems extends Component {
             ids = {id, key: id};
         }
         return (
-            <div {...ids} className={className} style={style}>
+            <div
+                data-dash-is-loading={loading_state && loading_state.is_loading}
+                {...ids}
+                className={className}
+                style={style}
+            >
                 {options.map(option => (
                     <label
                         style={labelStyle}
@@ -134,6 +140,24 @@ RadioItems.propTypes = {
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
 
 RadioItems.defaultProps = {

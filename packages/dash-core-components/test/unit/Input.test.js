@@ -41,6 +41,11 @@ describe('Props can be set properly', () => {
         n_blur_timestamp: -1,
         n_submit: 0,
         n_submit_timestamp: -1,
+        loading_state: {
+            is_loading: false,
+            component_name: '',
+            prop_name: '',
+        },
     };
     const input = mount(<Input {...defaultProps} />);
 

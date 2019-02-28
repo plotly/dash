@@ -14,11 +14,18 @@ function DashMarkdown(props) {
     }
 
     return (
-        <Markdown
-            source={props.children}
-            escapeHtml={!props.dangerously_allow_html}
-            {...props}
-        />
+        <div
+            id={props.id}
+            data-dash-is-loading={
+                props.loading_state && props.loading_state.is_loading
+            }
+        >
+            <Markdown
+                source={props.children}
+                escapeHtml={!props.dangerously_allow_html}
+                {...props}
+            />
+        </div>
     );
 }
 
@@ -50,6 +57,24 @@ DashMarkdown.propTypes = {
         PropTypes.string,
         PropTypes.arrayOf(PropTypes.string),
     ]),
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
 
 DashMarkdown.defaultProps = {

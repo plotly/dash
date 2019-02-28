@@ -47,6 +47,7 @@ export default class Upload extends Component {
 
     render() {
         const {
+            id,
             children,
             accept,
             disabled,
@@ -62,27 +63,33 @@ export default class Upload extends Component {
             style_active,
             style_reject,
             style_disabled,
+            loading_state,
         } = this.props;
         return (
-            <Dropzone
-                onDrop={this.onDrop}
-                accept={accept}
-                disabled={disabled}
-                disableClick={disable_click}
-                maxSize={max_size === -1 ? Infinity : max_size}
-                minSize={min_size}
-                multiple={multiple}
-                className={className}
-                activeClassName={className_active}
-                rejectClassName={className_reject}
-                disabledClassName={className_disabled}
-                style={style}
-                activeStyle={style_active}
-                rejectStyle={style_reject}
-                disabledStyle={style_disabled}
+            <div
+                id={id}
+                data-dash-is-loading={loading_state && loading_state.is_loading}
             >
-                {children}
-            </Dropzone>
+                <Dropzone
+                    onDrop={this.onDrop}
+                    accept={accept}
+                    disabled={disabled}
+                    disableClick={disable_click}
+                    maxSize={max_size === -1 ? Infinity : max_size}
+                    minSize={min_size}
+                    multiple={multiple}
+                    className={className}
+                    activeClassName={className_active}
+                    rejectClassName={className_reject}
+                    disabledClassName={className_disabled}
+                    style={style}
+                    activeStyle={style_active}
+                    rejectStyle={style_reject}
+                    disabledStyle={style_disabled}
+                >
+                    {children}
+                </Dropzone>
+            </div>
         );
     }
 }
@@ -227,6 +234,24 @@ Upload.propTypes = {
      * Dash-supplied function for updating props
      */
     setProps: PropTypes.func,
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
 
 Upload.defaultProps = {

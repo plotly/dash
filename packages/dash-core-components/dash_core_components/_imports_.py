@@ -8,6 +8,7 @@ from .Graph import Graph
 from .Input import Input
 from .Interval import Interval
 from .Link import Link
+from .Loading import Loading
 from .Location import Location
 from .LogoutButton import LogoutButton
 from .Markdown import Markdown
@@ -32,6 +33,7 @@ __all__ = [
     "Input",
     "Interval",
     "Link",
+    "Loading",
     "Location",
     "LogoutButton",
     "Markdown",

@@ -18,10 +18,11 @@ export default class RangeSlider extends Component {
     }
 
     render() {
-        const {setProps, updatemode} = this.props;
+        const {setProps, updatemode, loading_state} = this.props;
         const {value} = this.state;
         return (
             <Range
+                data-dash-is-loading={loading_state && loading_state.is_loading}
                 onChange={value => {
                     this.setState({value});
                     if (updatemode === 'drag') {
@@ -154,6 +155,24 @@ RangeSlider.propTypes = {
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
 
 RangeSlider.defaultProps = {

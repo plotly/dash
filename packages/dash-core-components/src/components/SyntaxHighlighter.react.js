@@ -9,7 +9,7 @@ import ReactSyntaxHighlighter from 'react-syntax-highlighter';
  * A component for pretty printing code.
  */
 export default function SyntaxHighlighter(props) {
-    const {theme} = props;
+    const {id, theme, loading_state} = props;
     let style;
     if (theme === 'dark') {
         style = monokai;
@@ -24,7 +24,14 @@ export default function SyntaxHighlighter(props) {
     if (type(props.children) === 'Null') {
         props.children = '';
     }
-    return <ReactSyntaxHighlighter style={style} {...omit(['theme'], props)} />;
+    return (
+        <div
+            id={id}
+            data-dash-is-loading={loading_state && loading_state.is_loading}
+        >
+            <ReactSyntaxHighlighter style={style} {...omit(['theme'], props)} />
+        </div>
+    );
 }
 
 SyntaxHighlighter.propTypes = {
@@ -82,4 +89,23 @@ SyntaxHighlighter.propTypes = {
      * inline style to be passed to the span wrapping each line if wrapLines is true. Can be either an object or a function that recieves current line number as argument and returns style object.
      */
     lineStyle: PropTypes.object,
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
+
+SyntaxHighlighter.defaultProps = {};

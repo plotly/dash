@@ -39,7 +39,7 @@ function parseFile(filepath) {
     const urlpath = filepath.split(path.sep).join('/');
     let src;
 
-    if (!['.jsx', '.js'].includes(path.extname(filepath))) {
+    if (!['.js'].includes(path.extname(filepath))) {
         return;
     }
 

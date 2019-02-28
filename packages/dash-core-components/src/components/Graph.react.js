@@ -214,9 +214,17 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id, style} = this.props;
+        const {className, id, style, loading_state} = this.props;
 
-        return <div key={id} id={id} style={style} className={className} />;
+        return (
+            <div
+                key={id}
+                id={id}
+                data-dash-is-loading={loading_state && loading_state.is_loading}
+                style={style}
+                className={className}
+            />
+        );
     }
 }
 
@@ -472,6 +480,24 @@ const graphPropTypes = {
      * Function that updates the state tree.
      */
     setProps: PropTypes.func,
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
 
 const graphDefaultProps = {

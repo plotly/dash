@@ -26,7 +26,7 @@ export default class ConfirmDialogProvider extends React.Component {
     }
 
     render() {
-        const {id, setProps, children} = this.props;
+        const {id, setProps, children, loading_state} = this.props;
 
         const displayed = this.state.displayed;
 
@@ -47,7 +47,10 @@ export default class ConfirmDialogProvider extends React.Component {
             : children.map(e => e.props.children);
 
         return (
-            <div id={id}>
+            <div
+                id={id}
+                data-dash-is-loading={loading_state && loading_state.is_loading}
+            >
                 {realChild && realChild.length
                     ? realChild.map(wrapClick)
                     : wrapClick(realChild)}
@@ -100,4 +103,22 @@ ConfirmDialogProvider.propTypes = {
      * The children to hijack clicks from and display the popup.
      */
     children: PropTypes.any,
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state: PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 };
