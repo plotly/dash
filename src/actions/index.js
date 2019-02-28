@@ -40,6 +40,7 @@ export const computePaths = createAction(getAction('COMPUTE_PATHS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
 export const readConfig = createAction(getAction('READ_CONFIG'));
+export const setHooks = createAction(getAction('SET_HOOKS'));
 
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
@@ -348,7 +349,8 @@ export function notifyObservers(payload) {
                     outputIdAndProp,
                     getState,
                     requestUid,
-                    dispatch
+                    dispatch,
+                    changedProps.map(prop => `${id}.${prop}`)
                 )
             );
         }
@@ -363,9 +365,10 @@ function updateOutput(
     outputIdAndProp,
     getState,
     requestUid,
-    dispatch
+    dispatch,
+    changedPropIds
 ) {
-    const {config, layout, graphs, dependenciesRequest} = getState();
+    const {config, layout, graphs, dependenciesRequest, hooks} = getState();
     const {InputGraph} = graphs;
 
     /*
@@ -380,7 +383,8 @@ function updateOutput(
     // eslint-disable-next-line no-unused-vars
     const [outputComponentId, _] = outputIdAndProp.split('.');
     const payload = {
-        output: outputIdAndProp
+        output: outputIdAndProp,
+        changedPropIds,
     };
 
     const {inputs, state} = dependenciesRequest.content.find(
@@ -405,7 +409,10 @@ function updateOutput(
             );
         }
         const propLens = lensPath(
-            concat(getState().paths[inputObject.id], ['props', inputObject.property])
+            concat(getState().paths[inputObject.id], [
+                'props',
+                inputObject.property,
+            ])
         );
         return {
             id: inputObject.id,
@@ -413,6 +420,13 @@ function updateOutput(
             value: view(propLens, layout),
         };
     });
+
+    const inputsPropIds = inputs.map(p => `${p.id}.${p.property}`);
+
+    payload.changedPropIds = changedPropIds.filter(p =>
+        contains(p, inputsPropIds)
+    );
+
     if (state.length > 0) {
         payload.state = state.map(stateObject => {
             // Make sure the component id exists in the layout
@@ -431,7 +445,10 @@ function updateOutput(
                 );
             }
             const propLens = lensPath(
-                concat(getState().paths[stateObject.id], ['props', stateObject.property])
+                concat(getState().paths[stateObject.id], [
+                    'props',
+                    stateObject.property,
+                ])
             );
             return {
                 id: stateObject.id,
@@ -441,6 +458,9 @@ function updateOutput(
         });
     }
 
+    if (hooks.request_pre !== null) {
+        hooks.request_pre(payload);
+    }
     return fetch(`${urlBase(config)}_dash-update-component`, {
         method: 'POST',
         headers: {
@@ -533,6 +553,11 @@ function updateOutput(
 
             updateRequestQueue(false);
 
+            // Fire custom request_post hook if any
+            if (hooks.request_post !== null) {
+                hooks.request_post(payload, data.response);
+            }
+
             /*
              * it's possible that this output item is no longer visible.
              * for example, the could still be request running when
@@ -550,7 +575,7 @@ function updateOutput(
                 const observerUpdatePayload = {
                     itempath: getState().paths[pathKey],
                     props,
-                    source: 'response'
+                    source: 'response',
                 };
                 if (!observerUpdatePayload.itempath) {
                     return;
@@ -573,10 +598,10 @@ function updateOutput(
                     dispatch(
                         computePaths({
                             subTree: observerUpdatePayload.props.children,
-                            startingPath: concat(
-                                getState().paths[pathKey],
-                                ['props', 'children']
-                            ),
+                            startingPath: concat(getState().paths[pathKey], [
+                                'props',
+                                'children',
+                            ]),
                         })
                     );
 
@@ -657,7 +682,8 @@ function updateOutput(
                         keys(newProps).forEach(idAndProp => {
                             if (
                                 // It's an output
-                                InputGraph.dependenciesOf(idAndProp).length === 0 &&
+                                InputGraph.dependenciesOf(idAndProp).length ===
+                                    0 &&
                                 /*
                                  * And none of its inputs are generated in this
                                  * request
@@ -686,7 +712,8 @@ function updateOutput(
                         );
                         sortedNewProps.forEach(function(inputOutput) {
                             const payload = newProps[inputOutput.input];
-                            payload.excludedOutputs = inputOutput.excludedOutputs;
+                            payload.excludedOutputs =
+                                inputOutput.excludedOutputs;
                             dispatch(notifyObservers(payload));
                         });
 
@@ -712,19 +739,17 @@ function updateOutput(
 
                                 getState,
                                 requestUid,
-                                dispatch
+                                dispatch,
+                                changedPropIds
                             );
                         });
                     }
                 }
             };
             if (multi) {
-                Object.entries(data.response).forEach(handleResponse)
+                Object.entries(data.response).forEach(handleResponse);
             } else {
-                handleResponse([
-                    outputIdAndProp,
-                    data.response.props
-                ])
+                handleResponse([outputIdAndProp, data.response.props]);
             }
         });
     });

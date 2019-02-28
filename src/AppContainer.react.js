@@ -6,15 +6,23 @@ import DocumentTitle from './components/core/DocumentTitle.react';
 import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
 import Reloader from './components/core/Reloader.react';
-import {readConfig} from './actions';
+import {setHooks, readConfig} from './actions/index';
 import {type} from 'ramda';
 
-
 class UnconnectedAppContainer extends React.Component {
+    constructor(props) {
+        super(props);
+        if (
+            props.hooks.request_pre !== null ||
+            props.hooks.request_post !== null
+        ) {
+            props.dispatch(setHooks(props.hooks));
+        }
+    }
 
     componentWillMount() {
         const {dispatch} = this.props;
-        dispatch(readConfig())
+        dispatch(readConfig());
     }
 
     render() {
@@ -35,6 +43,7 @@ class UnconnectedAppContainer extends React.Component {
 }
 
 UnconnectedAppContainer.propTypes = {
+    hooks: PropTypes.object,
     dispatch: PropTypes.func,
     config: PropTypes.object,
 };

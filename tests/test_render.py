@@ -1947,6 +1947,98 @@ class Tests(IntegrationTests):
         self.assertEqual(call_count.value, 4)
         self.percy_snapshot('button-2 click again')
 
+    def test_request_hooks(self):
+        app = Dash(__name__)
+
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {%metas%}
+                <title>{%title%}</title>
+                {%favicon%}
+                {%css%}
+            </head>
+            <body>
+                <div>Testing custom DashRenderer</div>
+                {%app_entry%}
+                <footer>
+                    {%config%}
+                    {%scripts%}
+                    <script id="_dash-renderer" type"application/json">
+                        const renderer = new DashRenderer({
+                            request_pre: (payload) => {
+                                var output = document.getElementById('output-pre')
+                                var outputPayload = document.getElementById('output-pre-payload')
+                                if(output) {
+                                    output.innerHTML = 'request_pre changed this text!';
+                                }
+                                if(outputPayload) {
+                                    outputPayload.innerHTML = JSON.stringify(payload);
+                                }
+                            },
+                            request_post: (payload, response) => {
+                                var output = document.getElementById('output-post')
+                                var outputPayload = document.getElementById('output-post-payload')
+                                var outputResponse = document.getElementById('output-post-response')
+                                if(output) {
+                                    output.innerHTML = 'request_post changed this text!';
+                                }
+                                if(outputPayload) {
+                                    outputPayload.innerHTML = JSON.stringify(payload);
+                                }
+                                if(outputResponse) {
+                                    outputResponse.innerHTML = JSON.stringify(response);
+                                }
+                            }
+                        })
+                    </script>
+                </footer>
+                <div>With request hooks</div>
+            </body>
+        </html>
+        '''
+
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+                value='initial value'
+            ),
+            html.Div(
+                html.Div([
+                    html.Div(id='output-1'),
+                    html.Div(id='output-pre'),
+                    html.Div(id='output-pre-payload'),
+                    html.Div(id='output-post'),
+                    html.Div(id='output-post-payload'),
+                    html.Div(id='output-post-response')
+                ])
+            )
+        ])
+
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            return value
+
+        self.startServer(app)
+
+        input1 = self.wait_for_element_by_css_selector('#input')
+        initialValue = input1.get_attribute('value')
+
+        action = ActionChains(self.driver)
+        action.click(input1)
+        action = action.send_keys(Keys.BACKSPACE * len(initialValue))
+
+        action.send_keys('fire request hooks').perform()
+
+        self.wait_for_text_to_equal('#output-1', 'fire request hooks')
+        self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
+        self.wait_for_text_to_equal('#output-pre-payload', '{"output":{"id":"output-1","property":"children"},"changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
+        self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
+        self.wait_for_text_to_equal('#output-post-payload', '{"output":{"id":"output-1","property":"children"},"changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
+        self.wait_for_text_to_equal('#output-post-response', '{"props":{"children":"fire request hooks"}}')
+        self.percy_snapshot(name='request-hooks')
+
     def test_graphs_in_tabs_do_not_share_state(self):
         app = dash.Dash()
 

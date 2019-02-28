@@ -7,6 +7,7 @@ export const getAction = action => {
         SET_LAYOUT: 'SET_LAYOUT',
         SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
         READ_CONFIG: 'READ_CONFIG',
+        SET_HOOKS: 'SET_HOOKS',
     };
     if (actionList[action]) {
         return actionList[action];

@@ -33281,7 +33281,7 @@ var _Reloader = __webpack_require__(/*! ./components/core/Reloader.react */ "./s
 
 var _Reloader2 = _interopRequireDefault(_Reloader);
 
-var _actions = __webpack_require__(/*! ./actions */ "./src/actions/index.js");
+var _index = __webpack_require__(/*! ./actions/index */ "./src/actions/index.js");
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
@@ -33296,10 +33296,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var UnconnectedAppContainer = function (_React$Component) {
     _inherits(UnconnectedAppContainer, _React$Component);
 
-    function UnconnectedAppContainer() {
+    function UnconnectedAppContainer(props) {
         _classCallCheck(this, UnconnectedAppContainer);
 
-        return _possibleConstructorReturn(this, (UnconnectedAppContainer.__proto__ || Object.getPrototypeOf(UnconnectedAppContainer)).apply(this, arguments));
+        var _this = _possibleConstructorReturn(this, (UnconnectedAppContainer.__proto__ || Object.getPrototypeOf(UnconnectedAppContainer)).call(this, props));
+
+        if (props.hooks.request_pre !== null || props.hooks.request_post !== null) {
+            props.dispatch((0, _index.setHooks)(props.hooks));
+        }
+        return _this;
     }
 
     _createClass(UnconnectedAppContainer, [{
@@ -33307,7 +33312,7 @@ var UnconnectedAppContainer = function (_React$Component) {
         value: function componentWillMount() {
             var dispatch = this.props.dispatch;
 
-            dispatch((0, _actions.readConfig)());
+            dispatch((0, _index.readConfig)());
         }
     }, {
         key: 'render',
@@ -33337,6 +33342,7 @@ var UnconnectedAppContainer = function (_React$Component) {
 }(_react2.default.Component);
 
 UnconnectedAppContainer.propTypes = {
+    hooks: _propTypes2.default.object,
     dispatch: _propTypes2.default.func,
     config: _propTypes2.default.object
 };
@@ -33382,19 +33388,83 @@ var _AppContainer = __webpack_require__(/*! ./AppContainer.react */ "./src/AppCo
 
 var _AppContainer2 = _interopRequireDefault(_AppContainer);
 
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var store = (0, _store2.default)();
 
-var AppProvider = function AppProvider() {
+var AppProvider = function AppProvider(_ref) {
+    var hooks = _ref.hooks;
+
     return _react2.default.createElement(
         _reactRedux.Provider,
         { store: store },
-        _react2.default.createElement(_AppContainer2.default, null)
+        _react2.default.createElement(_AppContainer2.default, { hooks: hooks })
     );
 };
 
+AppProvider.propTypes = {
+    hooks: _propTypes2.default.shape({
+        request_pre: _propTypes2.default.func,
+        request_post: _propTypes2.default.func
+    })
+};
+
+AppProvider.defaultProps = {
+    hooks: {
+        request_pre: null,
+        request_post: null
+    }
+};
+
 exports.default = AppProvider;
+
+/***/ }),
+
+/***/ "./src/DashRenderer.js":
+/*!*****************************!*\
+  !*** ./src/DashRenderer.js ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* eslint-env browser */
+
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.DashRenderer = undefined;
+
+var _react = __webpack_require__(/*! react */ "react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(/*! react-dom */ "react-dom");
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _AppProvider = __webpack_require__(/*! ./AppProvider.react */ "./src/AppProvider.react.js");
+
+var _AppProvider2 = _interopRequireDefault(_AppProvider);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var DashRenderer = function DashRenderer(hooks) {
+    _classCallCheck(this, DashRenderer);
+
+    // render Dash Renderer upon initialising!
+    _reactDom2.default.render(_react2.default.createElement(_AppProvider2.default, { hooks: hooks }), document.getElementById('react-entry-point'));
+};
+
+exports.DashRenderer = DashRenderer;
 
 /***/ }),
 
@@ -33412,11 +33482,9 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
-
-var _ramda2 = _interopRequireDefault(_ramda);
 
 var _react = __webpack_require__(/*! react */ "react");
 
@@ -33433,6 +33501,12 @@ var _registry2 = _interopRequireDefault(_registry);
 var _NotifyObservers = __webpack_require__(/*! ./components/core/NotifyObservers.react */ "./src/components/core/NotifyObservers.react.js");
 
 var _NotifyObservers2 = _interopRequireDefault(_NotifyObservers);
+
+var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/lib/index.js");
+
+var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
+
+var _constants = __webpack_require__(/*! ./constants/constants */ "./src/constants/constants.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33461,68 +33535,120 @@ var TreeContainer = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
-            return _render(this.props.layout);
+            return recursivelyRender(this.props.layout, this.props.requestQueue);
         }
     }]);
 
     return TreeContainer;
 }(_react.Component);
 
-exports.default = TreeContainer;
-
-
 TreeContainer.propTypes = {
-    layout: _propTypes2.default.object
+    layout: _propTypes2.default.object,
+    requestQueue: _propTypes2.default.object
 };
 
-function _render(component) {
-    if (_ramda2.default.contains(_ramda2.default.type(component), ['String', 'Number', 'Null', 'Boolean'])) {
+function recursivelyRender(component, requestQueue) {
+    if ((0, _ramda.contains)((0, _ramda.type)(component), ['String', 'Number', 'Null', 'Boolean'])) {
         return component;
+    }
+
+    if ((0, _ramda.isEmpty)(component)) {
+        return null;
     }
 
     // Create list of child elements
     var children = void 0;
 
-    var componentProps = _ramda2.default.propOr({}, 'props', component);
+    var componentProps = (0, _ramda.propOr)({}, 'props', component);
 
-    if (!_ramda2.default.has('props', component) || !_ramda2.default.has('children', component.props) || typeof component.props.children === 'undefined') {
+    if (!(0, _ramda.has)('props', component) || !(0, _ramda.has)('children', component.props) || typeof component.props.children === 'undefined') {
         // No children
         children = [];
-    } else if (_ramda2.default.contains(_ramda2.default.type(component.props.children), ['String', 'Number', 'Null', 'Boolean'])) {
+    } else if ((0, _ramda.contains)((0, _ramda.type)(component.props.children), ['String', 'Number', 'Null', 'Boolean'])) {
         children = [component.props.children];
     } else {
         // One or multiple objects
         // Recursively render the tree
         // TODO - I think we should pass in `key` here.
-        children = (Array.isArray(componentProps.children) ? componentProps.children : [componentProps.children]).map(_render);
+        children = (Array.isArray(componentProps.children) ? componentProps.children : [componentProps.children]).map(function (child) {
+            return recursivelyRender(child, requestQueue);
+        });
     }
 
     if (!component.type) {
         /* eslint-disable no-console */
-        console.error(_ramda2.default.type(component), component);
+        console.error((0, _ramda.type)(component), component);
         /* eslint-enable no-console */
         throw new Error('component.type is undefined');
     }
     if (!component.namespace) {
         /* eslint-disable no-console */
-        console.error(_ramda2.default.type(component), component);
+        console.error((0, _ramda.type)(component), component);
         /* eslint-enable no-console */
         throw new Error('component.namespace is undefined');
     }
     var element = _registry2.default.resolve(component.type, component.namespace);
 
-    var parent = _react2.default.createElement.apply(_react2.default, [element, _ramda2.default.omit(['children'], component.props)].concat(_toConsumableArray(children)));
+    var parent = _react2.default.createElement.apply(_react2.default, [element, (0, _ramda.omit)(['children'], component.props)].concat(_toConsumableArray(children)));
+
+    // loading prop coming from TreeContainer
+    var isLoading = false;
+    var loadingProp = void 0;
+    var loadingComponent = void 0;
+
+    var id = componentProps.id;
+
+    if (requestQueue && requestQueue.filter) {
+        (0, _ramda.forEach)(function (r) {
+            var controllerId = (0, _ramda.isNil)(r.controllerId) ? '' : r.controllerId;
+            if (r.status === 'loading' && (0, _ramda.contains)(id, controllerId)) {
+                isLoading = true;
+
+                var _r$controllerId$split = r.controllerId.split('.');
+
+                var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
+
+                loadingComponent = _r$controllerId$split2[0];
+                loadingProp = _r$controllerId$split2[1];
+            }
+        }, requestQueue);
+
+        var thisRequest = requestQueue.filter(function (r) {
+            var controllerId = (0, _ramda.isNil)(r.controllerId) ? '' : r.controllerId;
+            return (0, _ramda.contains)(id, controllerId);
+        });
+        if (thisRequest.status === _constants.STATUS.OK) {
+            isLoading = false;
+        }
+    }
+
+    // Set loading state
+    var loading_state = {
+        is_loading: isLoading,
+        prop_name: loadingProp,
+        component_name: loadingComponent
+    };
 
     return _react2.default.createElement(
         _NotifyObservers2.default,
-        { key: componentProps.id, id: componentProps.id },
+        {
+            key: componentProps.id,
+            id: componentProps.id,
+            loading_state: loading_state
+        },
         parent
     );
 }
 
-_render.propTypes = {
-    children: _propTypes2.default.object
-};
+function mapStateToProps(state, ownProps) {
+    return {
+        layout: ownProps.layout,
+        loading: ownProps.loading,
+        requestQueue: state.requestQueue
+    };
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps)(TreeContainer);
 
 /***/ }),
 
@@ -33666,7 +33792,8 @@ var getAction = exports.getAction = function getAction(action) {
         COMPUTE_PATHS: 'COMPUTE_PATHS',
         SET_LAYOUT: 'SET_LAYOUT',
         SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
-        READ_CONFIG: 'READ_CONFIG'
+        READ_CONFIG: 'READ_CONFIG',
+        SET_HOOKS: 'SET_HOOKS'
     };
     if (actionList[action]) {
         return actionList[action];
@@ -33689,7 +33816,7 @@ var getAction = exports.getAction = function getAction(action) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.readConfig = exports.setAppLifecycle = exports.setLayout = exports.computePaths = exports.computeGraphs = exports.setRequestQueue = exports.updateProps = undefined;
+exports.setHooks = exports.readConfig = exports.setAppLifecycle = exports.setLayout = exports.computePaths = exports.computeGraphs = exports.setRequestQueue = exports.updateProps = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /* global fetch:true, Promise:true, document:true */
 
@@ -33729,6 +33856,7 @@ var computePaths = exports.computePaths = (0, _reduxActions.createAction)((0, _c
 var setLayout = exports.setLayout = (0, _reduxActions.createAction)((0, _constants2.getAction)('SET_LAYOUT'));
 var setAppLifecycle = exports.setAppLifecycle = (0, _reduxActions.createAction)((0, _constants2.getAction)('SET_APP_LIFECYCLE'));
 var readConfig = exports.readConfig = (0, _reduxActions.createAction)((0, _constants2.getAction)('READ_CONFIG'));
+var setHooks = exports.setHooks = (0, _reduxActions.createAction)((0, _constants2.getAction)('SET_HOOKS'));
 
 function hydrateInitialOutputs() {
     return function (dispatch, getState) {
@@ -34019,7 +34147,9 @@ function notifyObservers(payload) {
             var outputIdAndProp = queuedObservers[i];
             var requestUid = newRequestQueue[i].uid;
 
-            promises.push(updateOutput(outputIdAndProp, getState, requestUid, dispatch));
+            promises.push(updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedProps.map(function (prop) {
+                return id + '.' + prop;
+            })));
         }
 
         /* eslint-disable consistent-return */
@@ -34028,12 +34158,13 @@ function notifyObservers(payload) {
     };
 }
 
-function updateOutput(outputIdAndProp, getState, requestUid, dispatch) {
+function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPropIds) {
     var _getState3 = getState(),
         config = _getState3.config,
         layout = _getState3.layout,
         graphs = _getState3.graphs,
-        dependenciesRequest = _getState3.dependenciesRequest;
+        dependenciesRequest = _getState3.dependenciesRequest,
+        hooks = _getState3.hooks;
 
     var InputGraph = graphs.InputGraph;
 
@@ -34054,7 +34185,8 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch) {
         _ = _outputIdAndProp$spli2[1];
 
     var payload = {
-        output: outputIdAndProp
+        output: outputIdAndProp,
+        changedPropIds: changedPropIds
     };
 
     var _dependenciesRequest$ = dependenciesRequest.content.find(function (dependency) {
@@ -34077,6 +34209,15 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch) {
             value: (0, _ramda.view)(propLens, layout)
         };
     });
+
+    var inputsPropIds = inputs.map(function (p) {
+        return p.id + '.' + p.property;
+    });
+
+    payload.changedPropIds = changedPropIds.filter(function (p) {
+        return (0, _ramda.contains)(p, inputsPropIds);
+    });
+
     if (state.length > 0) {
         payload.state = state.map(function (stateObject) {
             // Make sure the component id exists in the layout
@@ -34092,6 +34233,9 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch) {
         });
     }
 
+    if (hooks.request_pre !== null) {
+        hooks.request_pre(payload);
+    }
     return fetch((0, _utils2.urlBase)(config) + '_dash-update-component', {
         method: 'POST',
         headers: {
@@ -34169,6 +34313,11 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch) {
             }
 
             updateRequestQueue(false);
+
+            // Fire custom request_post hook if any
+            if (hooks.request_post !== null) {
+                hooks.request_post(payload, data.response);
+            }
 
             /*
              * it's possible that this output item is no longer visible.
@@ -34305,7 +34454,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch) {
                                 uid: requestUid,
                                 requestTime: Date.now()
                             }, getState().requestQueue)));
-                            updateOutput(idAndProp, getState, requestUid, dispatch);
+                            updateOutput(idAndProp, getState, requestUid, dispatch, changedPropIds);
                         });
                     }
                 }
@@ -34503,8 +34652,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/lib/index.js");
 
-var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
-
 var _actions = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
 
 var _react = __webpack_require__(/*! react */ "react");
@@ -34514,6 +34661,8 @@ var _react2 = _interopRequireDefault(_react);
 var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34541,6 +34690,8 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
         children: ownProps.children,
         dependencies: stateProps.dependencies,
         paths: stateProps.paths,
+        loading_state: ownProps.loading_state,
+        requestQueue: stateProps.requestQueue,
 
         setProps: function setProps(newProps) {
             var payload = {
@@ -34563,7 +34714,8 @@ function NotifyObserversComponent(_ref) {
         id = _ref.id,
         paths = _ref.paths,
         dependencies = _ref.dependencies,
-        setProps = _ref.setProps;
+        setProps = _ref.setProps,
+        loading_state = _ref.loading_state;
 
     var thisComponentSharesState = dependencies && dependencies.find(function (dependency) {
         return dependency.inputs.find(function (input) {
@@ -34596,6 +34748,10 @@ function NotifyObserversComponent(_ref) {
         extraProps.setProps = setProps;
     }
 
+    if (children.props && !children.props.loading_state) {
+        extraProps.loading_state = loading_state;
+    }
+
     if (!(0, _ramda.isEmpty)(extraProps)) {
         return _react2.default.cloneElement(children, extraProps);
     }
@@ -34605,7 +34761,8 @@ function NotifyObserversComponent(_ref) {
 NotifyObserversComponent.propTypes = {
     id: _propTypes2.default.string.isRequired,
     children: _propTypes2.default.node.isRequired,
-    path: _propTypes2.default.array.isRequired
+    path: _propTypes2.default.array.isRequired,
+    loading_state: _propTypes2.default.object
 };
 
 exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps, mergeProps)(NotifyObserversComponent);
@@ -35022,21 +35179,10 @@ var STATUS = exports.STATUS = {
 
 
 
-var _react = __webpack_require__(/*! react */ "react");
+var _DashRenderer = __webpack_require__(/*! ./DashRenderer */ "./src/DashRenderer.js");
 
-var _react2 = _interopRequireDefault(_react);
-
-var _reactDom = __webpack_require__(/*! react-dom */ "react-dom");
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
-var _AppProvider = __webpack_require__(/*! ./AppProvider.react */ "./src/AppProvider.react.js");
-
-var _AppProvider2 = _interopRequireDefault(_AppProvider);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-_reactDom2.default.render(_react2.default.createElement(_AppProvider2.default, null), document.getElementById('react-entry-point'));
+// make DashRenderer globally available
+window.DashRenderer = _DashRenderer.DashRenderer;
 
 /***/ }),
 
@@ -35339,6 +35485,35 @@ exports.default = history;
 
 /***/ }),
 
+/***/ "./src/reducers/hooks.js":
+/*!*******************************!*\
+  !*** ./src/reducers/hooks.js ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var customHooks = function customHooks() {
+    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { request_pre: null, request_post: null, bear: false };
+    var action = arguments[1];
+
+    switch (action.type) {
+        case 'SET_HOOKS':
+            return action.payload;
+        default:
+            return state;
+    }
+};
+
+exports.default = customHooks;
+
+/***/ }),
+
 /***/ "./src/reducers/layout.js":
 /*!********************************!*\
   !*** ./src/reducers/layout.js ***!
@@ -35494,6 +35669,10 @@ var _history2 = __webpack_require__(/*! ./history */ "./src/reducers/history.js"
 
 var _history3 = _interopRequireDefault(_history2);
 
+var _hooks = __webpack_require__(/*! ./hooks */ "./src/reducers/hooks.js");
+
+var _hooks2 = _interopRequireDefault(_hooks);
+
 var _api = __webpack_require__(/*! ./api */ "./src/reducers/api.js");
 
 var API = _interopRequireWildcard(_api);
@@ -35517,8 +35696,10 @@ var reducer = (0, _redux.combineReducers)({
     config: _config3.default,
     dependenciesRequest: API.dependenciesRequest,
     layoutRequest: API.layoutRequest,
-    reloadRequest: API.reloadRequest,
-    history: _history3.default
+    loginRequest: API.loginRequest,
+    history: _history3.default,
+    hooks: _hooks2.default,
+    reloadRequest: API.reloadRequest
 });
 
 function getInputHistoryState(itempath, props, state) {
@@ -35769,7 +35950,8 @@ var initializeStore = function initializeStore() {
     }
 
     // only attach logger to middleware in non-production mode
-    store =  false ? undefined : (0, _redux.createStore)(_reducer2.default, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), (0, _redux.applyMiddleware)(_reduxThunk2.default));
+    store =  false // eslint-disable-line no-process-env
+    ? undefined : (0, _redux.createStore)(_reducer2.default, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), (0, _redux.applyMiddleware)(_reduxThunk2.default));
 
     // TODO - Protect this under a debug mode?
     window.store = store; /* global window:true */

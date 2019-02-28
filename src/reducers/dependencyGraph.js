@@ -17,35 +17,32 @@ const graphs = (state = initialGraph, action) => {
                 // Backward compatibility by detecting object.
                 let outputId;
                 if (type(output) === 'Object') {
-                    outputId= `${output.id}.${output.property}`;
+                    outputId = `${output.id}.${output.property}`;
                 } else {
                     outputId = output;
                     if (output.startsWith('.')) {
-                        output.slice(2, output.length - 2).split('...').forEach(
-                            out => {
+                        output
+                            .slice(2, output.length - 2)
+                            .split('...')
+                            .forEach(out => {
                                 multiGraph.addNode(out);
-                                inputs.forEach(
-                                    i => {
-                                        const inputId = `${i.id}.${i.property}`;
-                                        if (!multiGraph.hasNode(inputId)) {
-                                            multiGraph.addNode(inputId);
-                                        }
-                                        multiGraph.addDependency(inputId, out);
+                                inputs.forEach(i => {
+                                    const inputId = `${i.id}.${i.property}`;
+                                    if (!multiGraph.hasNode(inputId)) {
+                                        multiGraph.addNode(inputId);
                                     }
-                                );
-                            }
-                        )
+                                    multiGraph.addDependency(inputId, out);
+                                });
+                            });
                     } else {
                         multiGraph.addNode(output);
-                        inputs.forEach(
-                            i => {
-                                const inputId = `${i.id}.${i.property}`;
-                                if (!multiGraph.hasNode(inputId)) {
-                                    multiGraph.addNode(inputId);
-                                }
-                                multiGraph.addDependency(inputId, output);
+                        inputs.forEach(i => {
+                            const inputId = `${i.id}.${i.property}`;
+                            if (!multiGraph.hasNode(inputId)) {
+                                multiGraph.addNode(inputId);
                             }
-                        )
+                            multiGraph.addDependency(inputId, output);
+                        });
                     }
                 }
 

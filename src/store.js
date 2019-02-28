@@ -19,7 +19,7 @@ const initializeStore = () => {
 
     // only attach logger to middleware in non-production mode
     store =
-        process.env.NODE_ENV === 'production'
+        process.env.NODE_ENV === 'production' // eslint-disable-line no-process-env
             ? createStore(reducer, applyMiddleware(thunk))
             : createStore(
                   reducer,
