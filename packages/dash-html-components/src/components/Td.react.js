@@ -6,6 +6,7 @@ import {omit} from 'ramda';
 const Td = (props) => {
     return (
         <td
+            data-dash-is-loading={props.loading_state && props.loading_state.is_loading}
             onClick={() => {
                 if (props.setProps) {
                     props.setProps({
@@ -14,7 +15,7 @@ const Td = (props) => {
                     })
                 }
             }}
-            {...omit(['n_clicks', 'n_clicks_timestamp'], props)}
+            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state'], props)}
         >
             {props.children}
         </td>
@@ -23,7 +24,7 @@ const Td = (props) => {
 
 Td.defaultProps = {
     n_clicks: 0,
-    n_clicks_timestamp: -1
+    n_clicks_timestamp: -1,
 };
 
 Td.propTypes = {
@@ -148,6 +149,24 @@ Td.propTypes = {
      * Text to be displayed in a tooltip when hovering over the element.
      */
     'title': PropTypes.string,
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    'loading_state': PropTypes.shape({
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading: PropTypes.bool,
+        /**
+         * Holds which property is loading
+         */
+        prop_name: PropTypes.string,
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name: PropTypes.string,
+    }),
 
     'setProps': PropTypes.func
 };

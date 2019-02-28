@@ -14,7 +14,6 @@
   "homepage": "https://github.com/plotly/dash-html-components",
   "scripts": {
     "clean": "rm -rf src/* && mkdir -p src/components",
-    "generate-python-classes": "python -c 'import dash; dash.development.component_loader.generate_classes(\"dash_html_components\", \"dash_html_components/metadata.json\")'",
     "generate-components": "cd scripts && sh generate-all.sh && cd -",
     "install-local": "python setup.py install",
     "uninstall-local": "pip uninstall dash-html-components -y",
@@ -24,7 +23,8 @@
     "lint": "eslint src scripts",
     "build:js": "webpack --mode production",
     "build:js-dev": "webpack --mode development",
-    "build:py": "node ./extract-meta src/components > dash_html_components/metadata.json && cp package.json dash_html_components && npm run generate-python-classes",
+    "build:py": "node ./extract-meta src/components > dash_html_components/metadata.json && cp package.json dash_html_components && dash-generate-components ./src/components dash_html_components",
+    "build:r": "node ./extract-meta src/components > dash_html_components/metadata.json && cp package.json dash_html_components && dash-generate-components ./src/components dash_html_components --r-prefix 'html'",
     "build:all": "npm run build:js && npm run build:js-dev && npm run build:py",
     "build:watch": "watch 'npm run build:all' src",
     "test:import": "python -m unittest tests.test_dash_import",
