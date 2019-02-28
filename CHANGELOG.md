@@ -1,12 +1,19 @@
-## UNRELEASED
+## [0.38.0] - 2019-02-25
 ## Fixed
 - Fix missing indentation for generated metadata.json [#600](https://github.com/plotly/dash/issues/600)
 - Fix missing component prop docstring error [#598](https://github.com/plotly/dash/issues/598)
 - Moved `__repr__` to base component instead of being generated. [#492](https://github.com/plotly/dash/pull/492)
 - Raise exception when same input & output are used in a callback [#605](https://github.com/plotly/dash/pull/605)
 
+## Changed
+- Bumped dash-table version from 3.4.0 to [3.5.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#350---2019-02-25)
+- Bumped dash-renderer version from 0.18.0 to [0.19.0](https://github.com/plotly/dash-renderer/blob/master/CHANGELOG.md#0190---2019-02-25)
+
 ## Added
 - Added components libraries js/css distribution to hot reload watch. [#603](https://github.com/plotly/dash/pull/603)
+- Callback context [#608](https://github.com/plotly/dash/pull/608)
+  - Know which inputs fired in a callback `dash.callback_context.triggered`
+  - Input/State values by name `dash.callback_context.states.get('btn.n_clicks')`
 
 ## [0.37.0] - 2019-02-11
 ## Fixed

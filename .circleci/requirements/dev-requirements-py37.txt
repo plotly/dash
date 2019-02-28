@@ -1,15 +1,15 @@
-dash_core_components==0.43.0
+dash_core_components==0.43.1
 dash_html_components==0.13.5
 dash-flow-example==0.0.5
 dash-dangerously-set-inner-html
-git+git://github.com/plotly/dash-renderer@custom_hooks#egg=dash-renderer
+-e git://github.com/plotly/dash-renderer.git@master#egg=dash_renderer
 percy
 selenium
 mock
 tox
 tox-pyenv
 six
-plotly==3.6.0
+plotly==3.6.1
 requests[security]
 flake8
 pylint==2.2.2
