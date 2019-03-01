@@ -8,6 +8,11 @@ import dash
 from dash.development.base_component import Component
 import dash_html_components as html
 import dash_core_components as dcc
+from dash.exceptions import PreventUpdate
+
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, wait_for
 from multiprocessing import Value
@@ -15,8 +20,7 @@ import time
 import re
 import itertools
 import json
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver import ActionChains
+
 
 class Tests(IntegrationTests):
     def setUp(self):
@@ -34,11 +38,11 @@ class Tests(IntegrationTests):
             time.sleep(0.25)
         raise exception
 
-    def wait_for_text_to_equal(self, selector, assertion_text):
+    def wait_for_text_to_equal(self, selector, assertion_text, timeout=20):
         start_time = time.time()
         exception = Exception('Time ran out, {} on {} not found'.format(
             assertion_text, selector))
-        while time.time() < start_time + 20:
+        while time.time() < start_time + timeout:
             el = self.wait_for_element_by_css_selector(selector)
             try:
                 return self.assertEqual(str(el.text), assertion_text)
@@ -66,6 +70,17 @@ class Tests(IntegrationTests):
             time.sleep(0.25)
 
         raise exception
+
+    def clear_input(self, input_element):
+        (
+            ActionChains(self.driver)
+            .click(input_element)
+            .send_keys(Keys.HOME)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.END)
+            .key_up(Keys.SHIFT)
+            .send_keys(Keys.DELETE)
+        ).perform()
 
     def request_queue_assertions(
             self, check_rejected=True, expected_length=None):
@@ -375,6 +390,9 @@ class Tests(IntegrationTests):
                 "nodes": {},
                 "outgoingEdges": {},
                 "incomingEdges": {}
+              },
+              'MultiGraph': {
+                  'incomingEdges': {}, 'nodes': {}, 'outgoingEdges': {}
               }
             }
         )
@@ -487,23 +505,17 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='simple-callback-1')
 
         input1 = self.wait_for_element_by_css_selector('#input')
-        initialValue = input1.get_attribute('value')
+        self.clear_input(input1)
 
-        action = ActionChains(self.driver)
-        action.click(input1)
-        action = action.send_keys(Keys.BACKSPACE * len(initialValue))
-
-        action.send_keys('hello world').perform()
+        input1.send_keys('hello world')
 
         self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='simple-callback-2')
 
         self.assertEqual(
             call_count.value,
-            # an initial call to retrieve the first value
-            1 +
-            # delete the initial value
-            len(initialValue) +
+            # an initial call to retrieve the first value + clear is now one
+            2 +
             # one for each hello world character
             len('hello world')
         )
@@ -619,7 +631,6 @@ class Tests(IntegrationTests):
     def test_radio_buttons_callbacks_generating_children(self):
         self.maxDiff = 100 * 1000
         app = Dash(__name__)
-
         app.layout = html.Div([
             dcc.RadioItems(
                 options=[
@@ -1555,6 +1566,44 @@ class Tests(IntegrationTests):
         self.assertFalse(request_queue[0]['rejected'])
         self.assertEqual(len(request_queue), 1)
 
+    def test_callbacks_called_multiple_times_and_out_of_order_multi_output(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            html.Button(id='input', n_clicks=0),
+            html.Div(id='output1'),
+            html.Div(id='output2')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(
+            [Output('output1', 'children'),
+             Output('output2', 'children')],
+            [Input('input', 'n_clicks')]
+        )
+        def update_output(n_clicks):
+            call_count.value = call_count.value + 1
+            if n_clicks == 1:
+                time.sleep(4)
+            return n_clicks, n_clicks + 1
+
+        self.startServer(app)
+        button = self.wait_for_element_by_css_selector('#input')
+        button.click()
+        button.click()
+        time.sleep(8)
+        self.percy_snapshot(
+            name='test_callbacks_called_multiple_times'
+                 '_and_out_of_order_multi_output'
+        )
+        self.assertEqual(call_count.value, 3)
+        self.wait_for_text_to_equal('#output1', '2')
+        self.wait_for_text_to_equal('#output2', '3')
+        request_queue = self.driver.execute_script(
+            'return window.store.getState().requestQueue'
+        )
+        self.assertFalse(request_queue[0]['rejected'])
+        self.assertEqual(len(request_queue), 1)
 
     def test_callbacks_with_shared_grandparent(self):
         app = dash.Dash()
@@ -1984,9 +2033,9 @@ class Tests(IntegrationTests):
 
         self.wait_for_text_to_equal('#output-1', 'fire request hooks')
         self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
-        self.wait_for_text_to_equal('#output-pre-payload', '{"output":{"id":"output-1","property":"children"},"changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
+        self.wait_for_text_to_equal('#output-pre-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
         self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
-        self.wait_for_text_to_equal('#output-post-payload', '{"output":{"id":"output-1","property":"children"},"changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
+        self.wait_for_text_to_equal('#output-post-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
         self.wait_for_text_to_equal('#output-post-response', '{"props":{"children":"fire request hooks"}}')
         self.percy_snapshot(name='request-hooks')
 
@@ -2122,3 +2171,114 @@ class Tests(IntegrationTests):
         finally:
             with open(hot_reload_file, 'w') as f:
                 f.write(old_content)
+
+    def test_single_input_multi_outputs_on_multiple_components(self):
+        call_count = Value('i')
+
+        app = dash.Dash(__name__)
+
+        N_OUTPUTS = 50
+
+        app.layout = html.Div([
+            html.Button('click me', id='btn'),
+        ] + [html.Div(id='output-{}'.format(i)) for i in range(N_OUTPUTS)])
+
+        @app.callback([Output('output-{}'.format(i), 'children') for i in range(N_OUTPUTS)],
+                      [Input('btn', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            call_count.value += 1
+            return ['{}={}'.format(i, i+n_clicks) for i in range(N_OUTPUTS)]
+
+        self.startServer(app)
+
+        btn = self.wait_for_element_by_css_selector('#btn')
+
+        for click in range(1, 20):
+            btn.click()
+
+            for i in range(N_OUTPUTS):
+                self.wait_for_text_to_equal(
+                    '#output-{}'.format(i), '{}={}'.format(i, i+click))
+
+            self.assertEqual(call_count.value, click)
+
+    def test_multi_outputs_on_single_component(self):
+        call_count = Value('i')
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.Input(id='input', value='dash'),
+            html.Div(html.Div(id='output'), id='output-container'),
+        ])
+
+        @app.callback(
+            [Output('output', 'children'),
+             Output('output', 'style'),
+             Output('output', 'className')],
+
+            [Input('input', 'value')])
+        def update_output(value):
+            call_count.value += 1
+            return [
+                value,
+                {'fontFamily': value},
+                value
+            ]
+
+        self.startServer(app)
+
+        def html_equal(selector, inner_html):
+            return self.driver.find_element_by_css_selector(selector)\
+                       .get_property('innerHTML') == inner_html
+
+        wait_for(
+            lambda: html_equal(
+                '#output-container',
+                '<div id="output" class="dash" style="font-family: dash;">dash</div>'
+            ),
+            get_message=lambda: self.driver.find_element_by_css_selector('#output-container').get_property('innerHTML')
+        )
+
+        self.assertEqual(call_count.value, 1)
+
+        el = self.wait_for_element_by_css_selector('#input')
+        el.send_keys(' hello')
+
+        wait_for(
+            lambda: html_equal(
+                '#output-container',
+                '<div id="output" class="dash hello" style="font-family: &quot;dash hello&quot;;">dash hello</div>'
+            ),
+            get_message=lambda: self.driver.find_element_by_css_selector('#output-container').get_property('innerHTML')
+        )
+
+        self.assertEqual(call_count.value, 7)
+
+    def test_multi_output_circular_dependencies(self):
+        app = dash.Dash(__name__)
+        app.config['suppress_callback_exceptions'] = True
+
+        app.layout = html.Div([
+            dcc.Input(id='a'),
+            dcc.Input(id='b'),
+            html.P(id='c')
+        ])
+
+        @app.callback(Output('a', 'value'), [Input('b', 'value')])
+        def set_a(b):
+            return ((b or '') + 'X')[:100]
+
+        @app.callback([Output('b', 'value'), Output('c', 'children')],
+                      [Input('a', 'value')])
+        def set_bc(a):
+            return [a, a]
+
+        self.startServer(app)
+
+        # Front-end failed to render.
+        self.wait_for_text_to_equal(
+            'body', 'Error loading dependencies', timeout=2
+        )
