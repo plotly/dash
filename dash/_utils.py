@@ -84,3 +84,15 @@ class AttributeDict(dict):
             value = self.get(name)
             if value:
                 return value
+
+
+def create_callback_id(output):
+    if isinstance(output, (list, tuple)):
+        return '..{}..'.format('...'.join(
+            '{}.{}'.format(x.component_id, x.component_property)
+            for x in output
+        ))
+
+    return '{}.{}'.format(
+        output.component_id, output.component_property
+    )

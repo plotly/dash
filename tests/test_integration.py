@@ -4,19 +4,21 @@ import datetime
 import itertools
 import re
 import time
-import dash_html_components as html
-import dash_dangerously_set_inner_html
-import dash_core_components as dcc
-import dash_flow_example
-
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
+import dash_dangerously_set_inner_html
+import dash_flow_example
+
+import dash_html_components as html
+import dash_core_components as dcc
+
 import dash
 
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import (
-    PreventUpdate, CallbackException, MissingCallbackContextException
+    PreventUpdate, DuplicateCallbackOutput, CallbackException,
+    MissingCallbackContextException
 )
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
@@ -57,8 +59,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        output1 = self.wait_for_element_by_id('output-1')
-        wait_for(lambda: output1.text == 'initial value')
+        self.wait_for_text_to_equal('#output-1', 'initial value')
         self.percy_snapshot(name='simple-callback-1')
 
         input1 = self.wait_for_element_by_id('input')
@@ -74,7 +75,7 @@ class Tests(IntegrationTests):
 
         input1.send_keys('hello world')
 
-        output1 = self.wait_for_text_to_equal('#output-1', 'hello world')
+        self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='simple-callback-2')
 
         self.assertEqual(
@@ -122,7 +123,7 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#output-1', 'initial value')
         self.percy_snapshot(name='wildcard-callback-1')
 
-        input1 = self.wait_for_element_by_id('input')
+        input1 = self.wait_for_element_by_css_selector('#input')
         chain = (ActionChains(self.driver)
                  .click(input1)
                  .send_keys(Keys.HOME)
@@ -555,6 +556,107 @@ class Tests(IntegrationTests):
         self.startServer(app)
         time.sleep(0.5)
 
+    def test_multi_output(self):
+        app = dash.Dash(__name__)
+        app.scripts.config.serve_locally = True
+
+        app.layout = html.Div([
+            html.Button('OUTPUT', id='output-btn'),
+
+            html.Table([
+                html.Thead([
+                    html.Tr([
+                        html.Th('Output 1'),
+                        html.Th('Output 2')
+                    ])
+                ]),
+                html.Tbody([
+                    html.Tr([html.Td(id='output1'), html.Td(id='output2')]),
+                ])
+            ]),
+
+            html.Div(id='output3'),
+            html.Div(id='output4'),
+            html.Div(id='output5')
+        ])
+
+        @app.callback([Output('output1', 'children'), Output('output2', 'children')],
+                      [Input('output-btn', 'n_clicks')],
+                      [State('output-btn', 'n_clicks_timestamp')])
+        def on_click(n_clicks, n_clicks_timestamp):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            return n_clicks, n_clicks_timestamp
+
+        # Dummy callback for DuplicateCallbackOutput test.
+        @app.callback(Output('output3', 'children'),
+                      [Input('output-btn', 'n_clicks')])
+        def dummy_callback(n_clicks):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            return 'Output 3: {}'.format(n_clicks)
+
+        # Test that a multi output can't be included in a single output
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback(Output('output1', 'children'),
+                          [Input('output-btn', 'n_clicks')])
+            def on_click_duplicate(n_clicks):
+                if n_clicks is None:
+                    raise PreventUpdate
+
+                return 'something else'
+
+        self.assertTrue('output1' in context.exception.args[0])
+
+        # Test a multi output cannot contain a used single output
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback([Output('output3', 'children'),
+                           Output('output4', 'children')],
+                          [Input('output-btn', 'n_clicks')])
+            def on_click_duplicate_multi(n_clicks):
+                if n_clicks is None:
+                    raise PreventUpdate
+
+                return 'something else'
+
+        self.assertTrue('output3' in context.exception.args[0])
+
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback([Output('output5', 'children'),
+                           Output('output5', 'children')],
+                          [Input('output-btn', 'n_clicks')])
+            def on_click_same_output(n_clicks):
+                return n_clicks
+
+        self.assertTrue('output5' in context.exception.args[0])
+
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback([Output('output1', 'children'),
+                           Output('output5', 'children')],
+                          [Input('output-btn', 'n_clicks')])
+            def overlapping_multi_output(n_clicks):
+                return n_clicks
+
+        self.assertTrue(
+            '{\'output1.children\'}' in context.exception.args[0]
+            or "set(['output1.children'])" in context.exception.args[0]
+        )
+
+        self.startServer(app)
+
+        t = time.time()
+
+        btn = self.wait_for_element_by_id('output-btn')
+        btn.click()
+        time.sleep(1)
+
+        self.wait_for_text_to_equal('#output1', '1')
+        output2 = self.wait_for_element_by_css_selector('#output2')
+
+        self.assertGreater(int(output2.text), t)
+
     def test_with_custom_renderer(self):
         app = dash.Dash(__name__)
 
@@ -655,6 +757,7 @@ class Tests(IntegrationTests):
                 })
             </script>
         '''
+
         class CustomDash(dash.Dash):
 
             def interpolate_index(self, **kwargs):
@@ -755,6 +858,19 @@ class Tests(IntegrationTests):
             @app.callback(Output('input-output', 'children'),
                           [Input('input-output', 'children')])
             def failure(children):
+                pass
+
+        self.assertEqual(
+            'Same output and input: input-output.children',
+            context.exception.args[0]
+        )
+
+        # Multi output version.
+        with self.assertRaises(CallbackException) as context:
+            @app.callback([Output('out', 'children'),
+                           Output('input-output', 'children')],
+                          [Input('input-output', 'children')])
+            def failure2(children):
                 pass
 
         self.assertEqual(

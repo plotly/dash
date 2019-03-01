@@ -12,6 +12,7 @@ import threading
 import warnings
 import re
 import logging
+import pprint
 
 from functools import wraps
 
@@ -30,9 +31,10 @@ from ._utils import AttributeDict as _AttributeDict
 from ._utils import interpolate_str as _interpolate
 from ._utils import format_tag as _format_tag
 from ._utils import generate_hash as _generate_hash
-from ._utils import get_asset_path as _get_asset_path
 from ._utils import patch_collections_abc as _patch_collections_abc
 from . import _watch
+from ._utils import get_asset_path as _get_asset_path
+from ._utils import create_callback_id as _create_callback_id
 from . import _configs
 
 _default_index = '''<!DOCTYPE html>
@@ -168,6 +170,9 @@ class Dash(object):
         self._meta_tags = meta_tags or []
         self._favicon = None
 
+        # default renderer string
+        self.renderer = 'var renderer = new DashRenderer();'
+
         if compress:
             # gzip
             Compress(self.server)
@@ -191,47 +196,36 @@ class Dash(object):
         # urls
         self.routes = []
 
-        self._add_url(
-            '{}_dash-layout'.format(self.config['routes_pathname_prefix']),
-            self.serve_layout)
+        prefix = self.config['routes_pathname_prefix']
+
+        self._add_url('{}_dash-layout'.format(prefix), self.serve_layout)
+
+        self._add_url('{}_dash-dependencies'.format(prefix), self.dependencies)
 
         self._add_url(
-            '{}_dash-dependencies'.format(
-                self.config['routes_pathname_prefix']),
-            self.dependencies)
-
-        self._add_url(
-            '{}_dash-update-component'.format(
-                self.config['routes_pathname_prefix']),
+            '{}_dash-update-component'.format(prefix),
             self.dispatch,
             ['POST'])
 
-        self._add_url((
-            '{}_dash-component-suites'
-            '/<string:package_name>'
-            '/<path:path_in_package_dist>').format(
-                self.config['routes_pathname_prefix']),
-                      self.serve_component_suites)
-
         self._add_url(
-            '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
-            self.serve_routes)
+            (
+                '{}_dash-component-suites'
+                '/<string:package_name>'
+                '/<path:path_in_package_dist>'
+            ).format(prefix),
+            self.serve_component_suites)
 
-        self._add_url(
-            self.config['routes_pathname_prefix'],
-            self.index)
+        self._add_url('{}_dash-routes'.format(prefix), self.serve_routes)
 
-        self._add_url(
-            '{}_reload-hash'.format(self.config['routes_pathname_prefix']),
-            self.serve_reload_hash)
+        self._add_url(prefix, self.index)
+
+        self._add_url('{}_reload-hash'.format(prefix), self.serve_reload_hash)
 
         # catch-all for front-end routes, used by dcc.Location
-        self._add_url(
-            '{}<path:path>'.format(self.config['routes_pathname_prefix']),
-            self.index)
+        self._add_url('{}<path:path>'.format(prefix), self.index)
 
         self._add_url(
-            '{}_favicon.ico'.format(self.config['routes_pathname_prefix']),
+            '{}_favicon.ico'.format(prefix),
             self._serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
@@ -272,9 +266,6 @@ class Dash(object):
         # record the url in Dash.routes so that it can be accessed later
         # e.g. for adding authentication with flask_login
         self.routes.append(name)
-
-        # default renderer string
-        self.renderer = 'var renderer = new DashRenderer();'
 
     @property
     def layout(self):
@@ -637,10 +628,7 @@ class Dash(object):
     def dependencies(self):
         return flask.jsonify([
             {
-                'output': {
-                    'id': k.split('.')[0],
-                    'property': k.split('.')[1]
-                },
+                'output': k,
                 'inputs': v['inputs'],
                 'state': v['state'],
             } for k, v in self.callback_map.items()
@@ -656,11 +644,33 @@ class Dash(object):
     def _validate_callback(self, output, inputs, state):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
+        is_multi = isinstance(output, (list, tuple))
 
         for i in inputs:
-            if output == i:
+            bad = None
+            if is_multi:
+                for o in output:
+                    if o == i:
+                        bad = o
+            else:
+                if output == i:
+                    bad = output
+            if bad:
                 raise exceptions.SameInputOutputException(
-                    'Same output and input: {}'.format(output)
+                    'Same output and input: {}'.format(bad)
+                )
+
+        if is_multi:
+            if len(set(output)) != len(output):
+                raise exceptions.DuplicateCallbackOutput(
+                    'Same output was used in a'
+                    ' multi output callback!\n Duplicates:\n {}'.format(
+                        ',\n'.join(
+                            k for k, v in
+                            ((str(x), output.count(x)) for x in output)
+                            if v > 1
+                        )
+                    )
                 )
 
         if (layout is None and
@@ -676,7 +686,10 @@ class Dash(object):
                 `app.config['suppress_callback_exceptions']=True`
             '''.replace('    ', ''))
 
-        for args, obj, name in [([output], Output, 'Output'),
+        for args, obj, name in [(output if isinstance(output, (list, tuple))
+                                 else [output],
+                                 (Output, list, tuple),
+                                 'Output'),
                                 (inputs, Input, 'Input'),
                                 (state, State, 'State')]:
 
@@ -694,6 +707,15 @@ class Dash(object):
                         'not of type `dash.{}`.'.format(
                             name.lower(), str(arg), name
                         ))
+
+                invalid_characters = ['.']
+                if any(x in arg.component_id for x in invalid_characters):
+                    raise exceptions.InvalidComponentIdError('''The element
+                    `{}` contains {} in its ID.
+                    Periods are not allowed in IDs right now.'''.format(
+                        arg.component_id,
+                        invalid_characters
+                    ))
 
                 if (not self.config.first('suppress_callback_exceptions',
                                           'supress_callback_exceptions') and
@@ -765,24 +787,48 @@ class Dash(object):
                 'elements' if len(state) > 1 else 'element'
             ).replace('    ', ''))
 
-        if '.' in output.component_id:
-            raise exceptions.IDsCantContainPeriods('''The Output element
-            `{}` contains a period in its ID.
-            Periods are not allowed in IDs right now.'''.format(
-                output.component_id
-            ))
+        callback_id = _create_callback_id(output)
 
-        callback_id = '{}.{}'.format(
-            output.component_id, output.component_property)
-        if callback_id in self.callback_map:
-            raise exceptions.CantHaveMultipleOutputs('''
+        callbacks = set(itertools.chain(*(
+            x[2:-2].split('...')
+            if x.startswith('..')
+            else [x]
+            for x in self.callback_map
+        )))
+        ns = {
+            'duplicates': set()
+        }
+        if is_multi:
+            def duplicate_check():
+                ns['duplicates'] = callbacks.intersection(
+                    str(y) for y in output
+                )
+                return ns['duplicates']
+        else:
+            def duplicate_check():
+                return callback_id in callbacks
+        if duplicate_check():
+            if is_multi:
+                msg = '''
+                Multi output {} contains an `Output` object
+                that was already assigned.
+                Duplicates:
+                {}
+                '''.format(
+                    callback_id,
+                    pprint.pformat(ns['duplicates'])
+                )
+            else:
+                msg = '''
                 You have already assigned a callback to the output
                 with ID "{}" and property "{}". An output can only have
                 a single callback function. Try combining your inputs and
                 callback functions together into one function.
-            '''.format(
-                output.component_id,
-                output.component_property).replace('    ', ''))
+                '''.format(
+                    output.component_id,
+                    output.component_property
+                ).replace('    ', '')
+            raise exceptions.DuplicateCallbackOutput(msg)
 
     def _validate_callback_output(self, output_value, output):
         valid = [str, dict, int, float, type(None), Component]
@@ -904,9 +950,9 @@ class Dash(object):
     def callback(self, output, inputs=[], state=[]):
         self._validate_callback(output, inputs, state)
 
-        callback_id = '{}.{}'.format(
-            output.component_id, output.component_property
-        )
+        callback_id = _create_callback_id(output)
+        multi = isinstance(output, (list, tuple))
+
         self.callback_map[callback_id] = {
             'inputs': [
                 {'id': c.component_id, 'property': c.component_property}
@@ -921,15 +967,44 @@ class Dash(object):
         def wrap_func(func):
             @wraps(func)
             def add_context(*args, **kwargs):
-
                 output_value = func(*args, **kwargs)
-                response = {
-                    'response': {
-                        'props': {
-                            output.component_property: output_value
+                if multi:
+                    if not isinstance(output_value, (list, tuple)):
+                        raise exceptions.InvalidCallbackReturnValue(
+                            'The callback {} is a multi-output.\n'
+                            'Expected the output type to be a list'
+                            ' or tuple but got {}.'.format(
+                                callback_id, repr(output_value)
+                            )
+                        )
+
+                    if not len(output_value) == len(output):
+                        raise exceptions.InvalidCallbackReturnValue(
+                            'Invalid number of output values for {}.\n'
+                            ' Expected {} got {}'.format(
+                                callback_id,
+                                len(output),
+                                len(output_value)
+                            )
+                        )
+
+                    component_ids = collections.defaultdict(dict)
+                    for i, o in enumerate(output):
+                        component_ids[o.component_id][o.component_property] =\
+                            output_value[i]
+
+                    response = {
+                        'response': component_ids,
+                        'multi': True
+                    }
+                else:
+                    response = {
+                        'response': {
+                            'props': {
+                                output.component_property: output_value
+                            }
                         }
                     }
-                }
 
                 try:
                     jsonResponse = json.dumps(
@@ -966,7 +1041,6 @@ class Dash(object):
         state = body.get('state', [])
         output = body['output']
 
-        target_id = '{}.{}'.format(output['id'], output['property'])
         args = []
 
         flask.g.input_values = input_values = {
@@ -983,21 +1057,21 @@ class Dash(object):
             for x in changed_props
         ] if changed_props else []
 
-        for component_registration in self.callback_map[target_id]['inputs']:
+        for component_registration in self.callback_map[output]['inputs']:
             args.append([
                 c.get('value', None) for c in inputs if
                 c['property'] == component_registration['property'] and
                 c['id'] == component_registration['id']
             ][0])
 
-        for component_registration in self.callback_map[target_id]['state']:
+        for component_registration in self.callback_map[output]['state']:
             args.append([
                 c.get('value', None) for c in state if
                 c['property'] == component_registration['property'] and
                 c['id'] == component_registration['id']
             ][0])
 
-        return self.callback_map[target_id]['callback'](*args)
+        return self.callback_map[output]['callback'](*args)
 
     def _validate_layout(self):
         if self.layout is None:
