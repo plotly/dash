@@ -193,47 +193,36 @@ class Dash(object):
         # urls
         self.routes = []
 
-        self._add_url(
-            '{}_dash-layout'.format(self.config['routes_pathname_prefix']),
-            self.serve_layout)
+        prefix = self.config['routes_pathname_prefix']
+
+        self._add_url('{}_dash-layout'.format(prefix), self.serve_layout)
+
+        self._add_url('{}_dash-dependencies'.format(prefix), self.dependencies)
 
         self._add_url(
-            '{}_dash-dependencies'.format(
-                self.config['routes_pathname_prefix']),
-            self.dependencies)
-
-        self._add_url(
-            '{}_dash-update-component'.format(
-                self.config['routes_pathname_prefix']),
+            '{}_dash-update-component'.format(prefix),
             self.dispatch,
             ['POST'])
 
-        self._add_url((
-            '{}_dash-component-suites'
-            '/<string:package_name>'
-            '/<path:path_in_package_dist>').format(
-                self.config['routes_pathname_prefix']),
-                      self.serve_component_suites)
-
         self._add_url(
-            '{}_dash-routes'.format(self.config['routes_pathname_prefix']),
-            self.serve_routes)
+            (
+                '{}_dash-component-suites'
+                '/<string:package_name>'
+                '/<path:path_in_package_dist>'
+            ).format(prefix),
+            self.serve_component_suites)
 
-        self._add_url(
-            self.config['routes_pathname_prefix'],
-            self.index)
+        self._add_url('{}_dash-routes'.format(prefix), self.serve_routes)
 
-        self._add_url(
-            '{}_reload-hash'.format(self.config['routes_pathname_prefix']),
-            self.serve_reload_hash)
+        self._add_url(prefix, self.index)
+
+        self._add_url('{}_reload-hash'.format(prefix), self.serve_reload_hash)
 
         # catch-all for front-end routes, used by dcc.Location
-        self._add_url(
-            '{}<path:path>'.format(self.config['routes_pathname_prefix']),
-            self.index)
+        self._add_url('{}<path:path>'.format(prefix), self.index)
 
         self._add_url(
-            '{}_favicon.ico'.format(self.config['routes_pathname_prefix']),
+            '{}_favicon.ico'.format(prefix),
             self._serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
