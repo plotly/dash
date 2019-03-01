@@ -170,6 +170,9 @@ class Dash(object):
         self._meta_tags = meta_tags or []
         self._favicon = None
 
+        # default renderer string
+        self.renderer = 'var renderer = new DashRenderer();'
+
         if compress:
             # gzip
             Compress(self.server)
@@ -263,9 +266,6 @@ class Dash(object):
         # record the url in Dash.routes so that it can be accessed later
         # e.g. for adding authentication with flask_login
         self.routes.append(name)
-
-        # default renderer string
-        self.renderer = 'var renderer = new DashRenderer();'
 
     @property
     def layout(self):
