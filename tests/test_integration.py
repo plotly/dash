@@ -823,6 +823,32 @@ class Tests(IntegrationTests):
 
         self.percy_snapshot(name='request-hooks interpolated')
 
+    def test_modified_response(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(id='input', value='ab'),
+            html.Div(id='output')
+        ])
+
+        @app.callback(Output('output', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            dash.callback_context.response.set_cookie(
+                'dash cookie', value + ' - cookie')
+            return value + ' - output'
+
+        self.startServer(app)
+        self.wait_for_text_to_equal('#output', 'ab - output')
+        input1 = self.wait_for_element_by_id('input')
+
+        input1.send_keys('cd')
+
+        self.wait_for_text_to_equal('#output', 'abcd - output')
+        cookie = self.driver.get_cookie('dash cookie')
+        # cookie gets json encoded
+        self.assertEqual(cookie['value'], '"abcd - cookie"')
+
+        assert_clean_console(self)
+
     def test_late_component_register(self):
         app = dash.Dash()
 
@@ -954,5 +980,6 @@ class Tests(IntegrationTests):
                 )
 
     def test_no_callback_context(self):
-        with self.assertRaises(MissingCallbackContextException):
-            no_context = dash.callback_context.inputs
+        for attr in ['inputs', 'states', 'triggered', 'response']:
+            with self.assertRaises(MissingCallbackContextException):
+                getattr(dash.callback_context, attr)
