@@ -18,7 +18,7 @@ import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import (
     PreventUpdate, DuplicateCallbackOutput, CallbackException,
-    MissingCallbackContextException
+    MissingCallbackContextException, InvalidCallbackReturnValue
 )
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
@@ -877,6 +877,43 @@ class Tests(IntegrationTests):
             'Same output and input: input-output.children',
             context.exception.args[0]
         )
+
+    def test_callback_return_validation(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Div(id='a'),
+            html.Div(id='b'),
+            html.Div(id='c'),
+            html.Div(id='d'),
+            html.Div(id='e'),
+            html.Div(id='f')
+        ])
+
+        @app.callback(Output('b', 'children'), [Input('a', 'children')])
+        def single(a):
+            # anything non-serializable, really
+            return set([1])
+
+        with self.assertRaises(InvalidCallbackReturnValue):
+            single('aaa')
+
+        @app.callback([Output('c', 'children'), Output('d', 'children')],
+                      [Input('a', 'children')])
+        def multi(a):
+            # non-serializable inside a list
+            return [1, set([2])]
+
+        with self.assertRaises(InvalidCallbackReturnValue):
+            multi('aaa')
+
+        @app.callback([Output('e', 'children'), Output('f', 'children')],
+                      [Input('a', 'children')])
+        def multi2(a):
+            # wrong-length list
+            return ['abc']
+
+        with self.assertRaises(InvalidCallbackReturnValue):
+            multi2('aaa')
 
     def test_callback_context(self):
         app = dash.Dash(__name__)
