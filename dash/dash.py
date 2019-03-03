@@ -57,9 +57,6 @@ _default_index = '''<!DOCTYPE html>
 
 _app_entry = '''
 <div id="react-entry-point">
-    <div class="_dash-loading">
-        Loading...
-    </div>
 </div>
 '''
 
