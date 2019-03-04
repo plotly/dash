@@ -4,9 +4,13 @@ import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
 const Big = (props) => {
+    const dataAttributes = {};
+    if(props.loading_state && props.loading_state.is_loading) {
+        dataAttributes['data-dash-is-loading'] = true;
+    }
+
     return (
         <big
-            data-dash-is-loading={props.loading_state && props.loading_state.is_loading}
             onClick={() => {
                 if (props.setProps) {
                     props.setProps({
@@ -16,6 +20,7 @@ const Big = (props) => {
                 }
             }}
             {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state'], props)}
+            {...dataAttributes}
         >
             {props.children}
         </big>
