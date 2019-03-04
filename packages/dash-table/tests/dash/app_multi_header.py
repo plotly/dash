@@ -1,11 +1,12 @@
 import dash_table
 import pandas as pd
 
+sanitized_name = __name__.replace(".", "-")
 
 def layout():
     df = pd.read_csv("datasets/gapminder.csv")
     return dash_table.DataTable(
-        id=__name__,
+        id=sanitized_name,
         columns=[
             {"name": ["Year", ""], "id": "year"},
             {"name": ["City", "Montreal"], "id": "montreal"},

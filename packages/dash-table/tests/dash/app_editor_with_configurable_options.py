@@ -8,6 +8,7 @@ import pprint
 import dash_table
 from index import app
 
+sanitized_name = __name__.replace(".", "-")
 
 df = pd.read_csv("./datasets/gapminder.csv")
 df_small = pd.read_csv("./datasets/gapminder-small.csv")
@@ -112,7 +113,7 @@ def update_table(*args):
     else:
         rows = df_small.to_dict("rows")
     return dash_table.DataTable(
-        id=__name__,
+        id=sanitized_name,
         columns=[{"name": i, "id": i} for i in df.columns],
         data=rows,
         editable=args[0],
@@ -131,7 +132,7 @@ AVAILABLE_PROPERTIES = dash_table.DataTable(id="req").available_properties
 
 @app.callback(
     Output("output", "children"),
-    [Input(__name__, prop) for prop in AVAILABLE_PROPERTIES],
+    [Input(sanitized_name, prop) for prop in AVAILABLE_PROPERTIES],
 )
 def display_propeties(*args):
     return html.Div(
