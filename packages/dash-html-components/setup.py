@@ -16,5 +16,5 @@ setup(
     description='Dash UI HTML component suite',
     long_description=io.open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
-    install_requires=['dash>=0.36.0']
+    install_requires=[]
 )

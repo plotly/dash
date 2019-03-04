@@ -80,7 +80,7 @@ See the [contributing guide](CONTRIBUTING.md) for guidelines on contributing to 
 
 1. Build your code:
     ```
-    $ npm run build:all
+    $ npm run build
     ```
 2. Create a Python tarball
     ```
