@@ -17,7 +17,7 @@ $ npm i
 2. Build the code:
 
 ```
-$ npm run build:all
+$ npm run build
 ```
 
 3. Install the library
@@ -48,7 +48,7 @@ You can start up a demo development server to see a demo of the rendered
 components:
 
 ```sh
-$ npm start 
+$ npm start
 ```
 
 You have to maintain the list of components in `demo/Demo.react.js`.
@@ -56,7 +56,7 @@ You have to maintain the list of components in `demo/Demo.react.js`.
 ### Code quality and tests
 
 ### To run integration tests (test_integration.py)
-You can run the Selenium integration tests with the 
+You can run the Selenium integration tests with the
 ```sh
 npm test
 ```
@@ -76,7 +76,7 @@ npm run test-unit
 
 ## Installing python package locally
 
-You can run 
+You can run
         $ python setup.py install
 to install the package locally, so you can test it out in your current environment.
 
@@ -91,7 +91,7 @@ $ npm run uninstall-local
 There's an npm script that will handle publish, provided you have the right credentials. You can run it by running
 
 ```sh
-$ npm run publish-all 
+$ npm run publish-all
 ```
 
 See the [Publishing New Components/Features](CONTRIBUTING.md#publishing-new-componentsfeatures) section of the Contributing guide for step-by-step instructions on publishing new components.
