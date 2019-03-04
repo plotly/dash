@@ -6,11 +6,11 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint --quiet --fix .",
     "lint:test": "./node_modules/.bin/eslint .",
-    "prepublish": "npm test && npm run build:prod && npm run build:dev",
+    "prepublish": "npm test && npm run build && npm run build:dev",
     "publish-all": "npm publish && echo \"twine!!!\"",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "build:dev": "webpack --mode development",
-    "build:prod": "webpack --mode production",
+    "build": "webpack --mode production",
     "start": "webpack-serve ./webpack.serve.config.js",
     "format": "prettier --config .prettierrc --write src/**/*.js src/**/*.react.js",
     "format:test": "prettier --config .prettierrc src/**/*.js src/**/*.react.js --list-different",
