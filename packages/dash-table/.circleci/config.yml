@@ -25,32 +25,33 @@ jobs:
                     - /home/circleci/.cache/Cypress
 
             - run:
-                name: Create virtualenv
-                command: |
-                    python3 -m venv venv
-
-            - run:
                 name: Install requirements
                 command: |
+                    sudo pip install --upgrade virtualenv
+                    python -m venv venv || virtualenv venv
                     . venv/bin/activate
                     pip install -r requirements-base.txt --quiet
-                    pip install -r requirements-v0.txt --quiet
 
             - run:
-                name: Run build:js
-                command: npm run private::build:js-test
+                name: Install dependencies (dash)
+                command: |
+                    git clone git@github.com:plotly/dash.git
+                    git clone git@github.com:plotly/dash-renderer.git
+                    git clone git@github.com:plotly/dash-core-components.git
+                    git clone git@github.com:plotly/dash-html-components.git
+                    . venv/bin/activate
+                    pip install -e ./dash --quiet
+                    cd dash-renderer && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+                    cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+                    cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
 
             - run:
-                name: Install test requirements
+                name: Build
                 command: |
                     . venv/bin/activate
-                    pip install -e .
-
-            - run:
-                name: Run build:py
-                command: |
-                    . venv/bin/activate
+                    npm run private::build:js-test
                     npm run private::build:py
+                    pip install -e .
 
             - run:
                 name: Run tests
@@ -83,27 +84,21 @@ jobs:
                     - /home/circleci/.cache/Cypress
 
             - run:
-                name: Create virtualenv
-                command: |
-                    python3 -m venv venv
-
-            - run:
                 name: Install requirements
                 command: |
+                    sudo pip install --upgrade virtualenv
+                    python -m venv venv || virtualenv venv
                     . venv/bin/activate
-                    pip install -e .
                     pip install -r requirements-base.txt --quiet
                     pip install -r requirements-v1.txt --quiet
 
             - run:
-                name: Run build:js
-                command: npm run private::build:js-test
-
-            - run:
-                name: Run build:py
+                name: Build
                 command: |
                     . venv/bin/activate
+                    npm run private::build:js-test
                     npm run private::build:py
+                    pip install -e .
 
             - run:
                 name: Run tests
@@ -179,7 +174,7 @@ jobs:
 
     "python-3.6-v0":
         docker:
-            - image: circleci/python:3.6.7-stretch-browsers
+            - image: circleci/python:3.6.7-stretch-node-browsers
 
         environment:
             PERCY_ENABLED: True
@@ -194,16 +189,33 @@ jobs:
                   echo 'export PERCY_TOKEN="$PERCY_PYTHON_TOKEN_V0"' >> $BASH_ENV
 
             - run:
-                name: Create virtualenv
-                command: |
-                    python3 -m venv venv
-
-            - run:
                 name: Install requirements
                 command: |
+                    sudo pip install --upgrade virtualenv
+                    python -m venv venv || virtualenv venv
                     . venv/bin/activate
                     pip install -r requirements-base.txt --quiet
-                    pip install -r requirements-v0.txt --quiet
+                    npm install
+
+            - run:
+                name: Install dependencies (dash)
+                command: |
+                    git clone git@github.com:plotly/dash.git
+                    git clone git@github.com:plotly/dash-renderer.git
+                    git clone git@github.com:plotly/dash-core-components.git
+                    git clone git@github.com:plotly/dash-html-components.git
+                    . venv/bin/activate
+                    pip install -e ./dash --quiet
+                    cd dash-renderer && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+                    cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+                    cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+
+            - run:
+                name: Install test requirements
+                command: |
+                    . venv/bin/activate
+                    npm run build
+                    pip install -e .
 
             - run:
                 name: Run integration tests
@@ -214,7 +226,7 @@ jobs:
 
     "python-3.6-v1":
         docker:
-            - image: circleci/python:3.6.7-stretch-browsers
+            - image: circleci/python:3.6.7-stretch-node-browsers
 
         environment:
             PERCY_ENABLED: True
@@ -229,16 +241,21 @@ jobs:
                   echo 'export PERCY_TOKEN="$PERCY_PYTHON_TOKEN_V1"' >> $BASH_ENV
 
             - run:
-                name: Create virtualenv
-                command: |
-                    python3 -m venv venv
-
-            - run:
                 name: Install requirements
                 command: |
+                    sudo pip install --upgrade virtualenv
+                    python -m venv venv || virtualenv venv
                     . venv/bin/activate
                     pip install -r requirements-base.txt --quiet
                     pip install -r requirements-v1.txt --quiet
+                    npm install
+
+            - run:
+                name: Install test requirements
+                command: |
+                    . venv/bin/activate
+                    npm run build
+                    pip install -e .
 
             - run:
                 name: Run integration tests
