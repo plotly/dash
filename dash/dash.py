@@ -839,7 +839,7 @@ class Dash(object):
                 if getattr(outer_val, 'id', False) else ''
             outer_type = type(outer_val).__name__
             raise exceptions.InvalidCallbackReturnValue('''
-            The callback for property `{property:s}` of component `{id:s}`
+            The callback for `{output:s}`
             returned a {object:s} having type `{type:s}`
             which is not JSON serializable.
 
@@ -851,8 +851,7 @@ class Dash(object):
             dash components, strings, dictionaries, numbers, None,
             or lists of those.
             '''.format(
-                property=output.component_property,
-                id=output.component_id,
+                output=repr(output),
                 object='tree with one value' if not toplevel else 'value',
                 type=bad_type,
                 location_header=(
