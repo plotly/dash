@@ -1023,10 +1023,7 @@ class Dash(object):
                     '''.format(property=output.component_property,
                                id=output.component_id))
 
-                return flask.Response(
-                    jsonResponse,
-                    mimetype='application/json'
-                )
+                return jsonResponse
 
             self.callback_map[callback_id]['callback'] = add_context
 
@@ -1056,6 +1053,9 @@ class Dash(object):
             for x in changed_props
         ] if changed_props else []
 
+        response = flask.g.dash_response = flask.Response(
+            mimetype='application/json')
+
         for component_registration in self.callback_map[output]['inputs']:
             args.append([
                 c.get('value', None) for c in inputs if
@@ -1070,7 +1070,8 @@ class Dash(object):
                 c['id'] == component_registration['id']
             ][0])
 
-        return self.callback_map[output]['callback'](*args)
+        response.set_data(self.callback_map[output]['callback'](*args))
+        return response
 
     def _validate_layout(self):
         if self.layout is None:
