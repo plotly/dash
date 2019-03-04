@@ -19,9 +19,6 @@ jobs:
           name: Write job name
           command: echo $CIRCLE_JOB > circlejob.txt
 
-      - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
-
       - run:
           name: Install dependencies
           command: |
@@ -30,10 +27,18 @@ jobs:
               . venv/bin/activate
               pip install -r $REQUIREMENTS_FILE --force-reinstall
 
-      - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
-          paths:
-              - "venv"
+      - run:
+          name: Install dependencies (dash)
+          command: |
+              git clone git@github.com:plotly/dash-renderer.git
+              git clone git@github.com:plotly/dash-core-components.git
+              git clone git@github.com:plotly/dash-html-components.git
+              git clone git@github.com:plotly/dash-table.git
+              . venv/bin/activate
+              cd dash-renderer && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
 
       - run:
           name: Run tests
