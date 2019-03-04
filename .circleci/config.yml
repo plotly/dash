@@ -3,7 +3,7 @@ version: 2
 jobs:
   "python-2.7": &test-template
     docker:
-      - image: circleci/python:2.7-stretch-browsers
+      - image: circleci/python:2.7-stretch-node-browsers
         environment:
           REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
           PYLINTRC: .pylintrc
@@ -50,7 +50,7 @@ jobs:
   "python-3.6":
     <<: *test-template
     docker:
-      - image: circleci/python:3.6-stretch-browsers
+      - image: circleci/python:3.6-stretch-node-browsers
         environment:
           REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
           PYLINTRC: .pylintrc
@@ -59,7 +59,7 @@ jobs:
   "python-3.7":
     <<: *test-template
     docker:
-      - image: circleci/python:3.7-stretch-browsers
+      - image: circleci/python:3.7-stretch-node-browsers
         environment:
           REQUIREMENTS_FILE: .circleci/requirements/dev-requirements-py37.txt
           PYLINTRC: .pylintrc37
