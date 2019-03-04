@@ -1,5 +1,3 @@
--e git+git://github.com/plotly/dash.git@master#egg=dash
--e git+git://github.com/plotly/dash-core-components@fix-select-css#egg=dash-core-components
 percy
 selenium
 mock

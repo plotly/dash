@@ -20,35 +20,41 @@ jobs:
           name: Write Job name
           command: echo $CIRCLE_JOB > circlejob.txt
 
-      - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "dev-requirements.txt" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
-
       - run:
           name: Install dependencies
           command: |
-              sudo pip install virtualenv --upgrade
+              sudo pip install --upgrade virtualenv
               python -m venv venv || virtualenv venv
               . venv/bin/activate
-              pip install -e .
               pip install -r dev-requirements.txt --quiet
-              pip list | grep dash
               npm install --ignore-scripts
-
-      - run:
-          name: Build
-          command: npm run build
-
-      - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "dev-requirements.txt" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}-{{ checksum "circlejob.txt" }}
-          paths:
-              - "venv"
-              - "node_modules"
 
       - run:
           name: Lint & format
           command: |
               npm run lint:test
               npm run format:test
+
+      - run:
+          name: Install dependencies (dash)
+          command: |
+              git clone git@github.com:plotly/dash.git
+              git clone git@github.com:plotly/dash-core-components.git
+              git clone git@github.com:plotly/dash-html-components.git
+              git clone git@github.com:plotly/dash-table.git
+              . venv/bin/activate
+              pip install -e ./dash --quiet
+              cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+
+      - run:
+          name: Build
+          command: |
+              . venv/bin/activate
+              npm run build
+              pip install -e . --quiet
+              pip list | grep dash
 
       - run:
           name: Run tests
