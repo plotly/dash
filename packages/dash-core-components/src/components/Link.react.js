@@ -56,7 +56,9 @@ export default class Link extends Component {
          */
         return (
             <a
-                data-dash-is-loading={loading_state && loading_state.is_loading}
+                data-dash-is-loading={
+                    (loading_state && loading_state.is_loading) || undefined
+                }
                 id={id}
                 className={className}
                 style={style}

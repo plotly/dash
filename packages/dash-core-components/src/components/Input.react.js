@@ -37,7 +37,9 @@ export default class Input extends Component {
             : this.state;
         return (
             <input
-                data-dash-is-loading={loading_state && loading_state.is_loading}
+                data-dash-is-loading={
+                    (loading_state && loading_state.is_loading) || undefined
+                }
                 onChange={e => {
                     const newValue = e.target.value;
                     if (

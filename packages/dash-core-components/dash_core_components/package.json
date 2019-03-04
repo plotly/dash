@@ -12,7 +12,7 @@
   "homepage": "https://github.com/plotly/dash-core-components",
   "main": "src/index.js",
   "scripts": {
-    "prepare": "npm run build:all",
+    "prepare": "npm run build",
     "publish-all": "node scripts/publish.js",
     "start": "webpack-serve ./webpack.serve.config.js --open",
     "lint": "eslint src test",
@@ -28,9 +28,9 @@
     "build:js-dev": "webpack --mode development",
     "build:py": "node ./extract-meta src/components > dash_core_components/metadata.json && cp package.json dash_core_components && dash-generate-components ./src/components dash_core_components",
     "build:r": "node ./extract-meta src/components > dash_core_components/metadata.json && cp package.json dash_core_components && dash-generate-components ./src/components dash_core_components --r-prefix 'core'",
-    "build:all": "npm run build:js && npm run build:js-dev && npm run build:py",
-    "build:all-dev": "npm run build:js-dev && npm run build:py",
-    "build:watch": "watch 'npm run build:all' src"
+    "build": "npm run build:js && npm run build:js-dev && npm run build:py",
+    "build-dev": "npm run build:js-dev && npm run build:py",
+    "build:watch": "watch 'npm run build' src"
   },
   "author": "Chris Parmer <chris@plot.ly>",
   "license": "MIT",

@@ -17,7 +17,8 @@ function DashMarkdown(props) {
         <div
             id={props.id}
             data-dash-is-loading={
-                props.loading_state && props.loading_state.is_loading
+                (props.loading_state && props.loading_state.is_loading) ||
+                undefined
             }
         >
             <Markdown

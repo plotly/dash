@@ -35,7 +35,9 @@ export default class Checklist extends Component {
 
         return (
             <div
-                data-dash-is-loading={loading_state && loading_state.is_loading}
+                data-dash-is-loading={
+                    (loading_state && loading_state.is_loading) || undefined
+                }
                 id={id}
                 style={style}
                 className={className}

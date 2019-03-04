@@ -27,7 +27,9 @@ export default function SyntaxHighlighter(props) {
     return (
         <div
             id={id}
-            data-dash-is-loading={loading_state && loading_state.is_loading}
+            data-dash-is-loading={
+                (loading_state && loading_state.is_loading) || undefined
+            }
         >
             <ReactSyntaxHighlighter style={style} {...omit(['theme'], props)} />
         </div>

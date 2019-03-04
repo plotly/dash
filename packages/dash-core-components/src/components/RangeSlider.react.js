@@ -22,7 +22,9 @@ export default class RangeSlider extends Component {
         const {value} = this.state;
         return (
             <Range
-                data-dash-is-loading={loading_state && loading_state.is_loading}
+                data-dash-is-loading={
+                    (loading_state && loading_state.is_loading) || undefined
+                }
                 onChange={value => {
                     this.setState({value});
                     if (updatemode === 'drag') {

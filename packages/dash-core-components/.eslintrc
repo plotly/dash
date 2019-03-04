@@ -87,7 +87,6 @@
     "no-sequences": ["error"],
     "no-shadow": ["off"],
     "no-throw-literal": ["error"],
-    "no-undefined": ["error"],
     "no-unused-expressions": ["error"],
     "no-use-before-define": ["error", "nofunc"],
     "no-useless-call": ["error"],
