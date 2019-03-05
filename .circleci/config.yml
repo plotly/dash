@@ -51,7 +51,7 @@ jobs:
   "python-3.6":
     <<: *test-template
     docker:
-      - image: circleci/python:3.6-stretch-node-browsers
+      - image: circleci/python:3.7-stretch-node-browsers
         environment:
           REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
           PYLINTRC: .pylintrc
