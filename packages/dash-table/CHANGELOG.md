@@ -2,13 +2,8 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [3.6.0] - 2019-03-04
 ### Fixed
-[#387](https://github.com/plotly/dash-core/issues/387)
-- Fix filtering conditions using floats
-
-## [3.5.0] - 2019-02-25
-### Added
 [#189](https://github.com/plotly/dash-table/issues/189)
 - Added `format` nested prop to columns
     - Applied to columns with `type=numeric` (more to come)
@@ -20,6 +15,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - Python helpers (dash_table.FormatTemplate)
 - Added `locale_format` prop to table (default localization configuration, merged with column.format.locale)
 
+[#387](https://github.com/plotly/dash-core/issues/387)
+- Fix filtering conditions using floats
+
+## [3.5.0] - 2019-02-25
+### Added
 [#342](https://github.com/plotly/dash-core/issues/342)
 - Added `column_type` condition to style `if`; allows applying styles based on the type of the column for props
     - `style_cell_conditional`
