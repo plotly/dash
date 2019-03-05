@@ -35696,7 +35696,6 @@ var reducer = (0, _redux.combineReducers)({
     config: _config3.default,
     dependenciesRequest: API.dependenciesRequest,
     layoutRequest: API.layoutRequest,
-    loginRequest: API.loginRequest,
     history: _history3.default,
     hooks: _hooks2.default,
     reloadRequest: API.reloadRequest
