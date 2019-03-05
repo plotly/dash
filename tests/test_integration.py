@@ -4,16 +4,21 @@ import datetime
 import itertools
 import re
 import time
-import dash_html_components as html
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 import dash_dangerously_set_inner_html
-import dash_core_components as dcc
 import dash_flow_example
+
+import dash_html_components as html
+import dash_core_components as dcc
 
 import dash
 
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import (
-    PreventUpdate, CallbackException, MissingCallbackContextException
+    PreventUpdate, DuplicateCallbackOutput, CallbackException,
+    MissingCallbackContextException, InvalidCallbackReturnValue
 )
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, invincible, wait_for
@@ -54,22 +59,30 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        output1 = self.wait_for_element_by_id('output-1')
-        wait_for(lambda: output1.text == 'initial value')
+        self.wait_for_text_to_equal('#output-1', 'initial value')
         self.percy_snapshot(name='simple-callback-1')
 
         input1 = self.wait_for_element_by_id('input')
-        input1.clear()
+
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
 
         input1.send_keys('hello world')
 
-        output1 = self.wait_for_text_to_equal('#output-1', 'hello world')
+        self.wait_for_text_to_equal('#output-1', 'hello world')
         self.percy_snapshot(name='simple-callback-2')
 
         self.assertEqual(
             call_count.value,
             # an initial call to retrieve the first value
-            1 +
+            # and one for clearing the input
+            2 +
             # one for each hello world character
             len('hello world')
         )
@@ -110,8 +123,15 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#output-1', 'initial value')
         self.percy_snapshot(name='wildcard-callback-1')
 
-        input1 = self.wait_for_element_by_id('input')
-        input1.clear()
+        input1 = self.wait_for_element_by_css_selector('#input')
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
 
         input1.send_keys('hello world')
 
@@ -121,7 +141,8 @@ class Tests(IntegrationTests):
         self.assertEqual(
             input_call_count.value,
             # an initial call
-            1 +
+            # and a call for clearing the input
+            2 +
             # one for each hello world character
             len('hello world')
         )
@@ -326,6 +347,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
+                    {%renderer%}
                 </footer>
                 <div id="custom-footer">My custom footer</div>
                 <script>
@@ -378,6 +400,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
+                    {%renderer%}
                 </footer>
             </body>
         </html>
@@ -493,6 +516,7 @@ class Tests(IntegrationTests):
                 <footer>
                     {%config%}
                     {%scripts%}
+                    {%renderer%}
                 </footer>
             </body>
         </html>
@@ -531,6 +555,299 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
         time.sleep(0.5)
+
+    def test_multi_output(self):
+        app = dash.Dash(__name__)
+        app.scripts.config.serve_locally = True
+
+        app.layout = html.Div([
+            html.Button('OUTPUT', id='output-btn'),
+
+            html.Table([
+                html.Thead([
+                    html.Tr([
+                        html.Th('Output 1'),
+                        html.Th('Output 2')
+                    ])
+                ]),
+                html.Tbody([
+                    html.Tr([html.Td(id='output1'), html.Td(id='output2')]),
+                ])
+            ]),
+
+            html.Div(id='output3'),
+            html.Div(id='output4'),
+            html.Div(id='output5')
+        ])
+
+        @app.callback([Output('output1', 'children'), Output('output2', 'children')],
+                      [Input('output-btn', 'n_clicks')],
+                      [State('output-btn', 'n_clicks_timestamp')])
+        def on_click(n_clicks, n_clicks_timestamp):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            return n_clicks, n_clicks_timestamp
+
+        # Dummy callback for DuplicateCallbackOutput test.
+        @app.callback(Output('output3', 'children'),
+                      [Input('output-btn', 'n_clicks')])
+        def dummy_callback(n_clicks):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            return 'Output 3: {}'.format(n_clicks)
+
+        # Test that a multi output can't be included in a single output
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback(Output('output1', 'children'),
+                          [Input('output-btn', 'n_clicks')])
+            def on_click_duplicate(n_clicks):
+                if n_clicks is None:
+                    raise PreventUpdate
+
+                return 'something else'
+
+        self.assertTrue('output1' in context.exception.args[0])
+
+        # Test a multi output cannot contain a used single output
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback([Output('output3', 'children'),
+                           Output('output4', 'children')],
+                          [Input('output-btn', 'n_clicks')])
+            def on_click_duplicate_multi(n_clicks):
+                if n_clicks is None:
+                    raise PreventUpdate
+
+                return 'something else'
+
+        self.assertTrue('output3' in context.exception.args[0])
+
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback([Output('output5', 'children'),
+                           Output('output5', 'children')],
+                          [Input('output-btn', 'n_clicks')])
+            def on_click_same_output(n_clicks):
+                return n_clicks
+
+        self.assertTrue('output5' in context.exception.args[0])
+
+        with self.assertRaises(DuplicateCallbackOutput) as context:
+            @app.callback([Output('output1', 'children'),
+                           Output('output5', 'children')],
+                          [Input('output-btn', 'n_clicks')])
+            def overlapping_multi_output(n_clicks):
+                return n_clicks
+
+        self.assertTrue(
+            '{\'output1.children\'}' in context.exception.args[0]
+            or "set(['output1.children'])" in context.exception.args[0]
+        )
+
+        self.startServer(app)
+
+        t = time.time()
+
+        btn = self.wait_for_element_by_id('output-btn')
+        btn.click()
+        time.sleep(1)
+
+        self.wait_for_text_to_equal('#output1', '1')
+        output2 = self.wait_for_element_by_css_selector('#output2')
+
+        self.assertGreater(int(output2.text), t)
+
+    def test_with_custom_renderer(self):
+        app = dash.Dash(__name__)
+
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {%metas%}
+                <title>{%title%}</title>
+                {%favicon%}
+                {%css%}
+            </head>
+            <body>
+                <div>Testing custom DashRenderer</div>
+                {%app_entry%}
+                <footer>
+                    {%config%}
+                    {%scripts%}
+                    <script id="_dash-renderer" type="application/javascript">
+                        console.log('firing up a custom renderer!')
+                        const renderer = new DashRenderer({
+                            request_pre: () => {
+                                var output = document.getElementById('output-pre')
+                                if(output) {
+                                    output.innerHTML = 'request_pre changed this text!';
+                                }
+                            },
+                            request_post: () => {
+                                var output = document.getElementById('output-post')
+                                if(output) {
+                                    output.innerHTML = 'request_post changed this text!';
+                                }
+                            }
+                        })
+                    </script>
+                </footer>
+                <div>With request hooks</div>
+            </body>
+        </html>
+        '''
+
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+                value='initial value'
+            ),
+            html.Div(
+                html.Div([
+                    html.Div(id='output-1'),
+                    html.Div(id='output-pre'),
+                    html.Div(id='output-post')
+                ])
+            )
+        ])
+
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            return value
+
+        self.startServer(app)
+
+        input1 = self.wait_for_element_by_id('input')
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
+
+        input1.send_keys('fire request hooks')
+
+        self.wait_for_text_to_equal('#output-1', 'fire request hooks')
+        self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
+        self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
+
+        self.percy_snapshot(name='request-hooks')
+
+    def test_with_custom_renderer_interpolated(self):
+
+        renderer = '''
+            <script id="_dash-renderer" type="application/javascript">
+                console.log('firing up a custom renderer!')
+                const renderer = new DashRenderer({
+                    request_pre: () => {
+                        var output = document.getElementById('output-pre')
+                        if(output) {
+                            output.innerHTML = 'request_pre changed this text!';
+                        }
+                    },
+                    request_post: () => {
+                        var output = document.getElementById('output-post')
+                        if(output) {
+                            output.innerHTML = 'request_post changed this text!';
+                        }
+                    }
+                })
+            </script>
+        '''
+
+        class CustomDash(dash.Dash):
+
+            def interpolate_index(self, **kwargs):
+                return '''
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <title>My App</title>
+                    </head>
+                    <body>
+
+                        <div id="custom-header">My custom header</div>
+                        {app_entry}
+                        {config}
+                        {scripts}
+                        {renderer}
+                        <div id="custom-footer">My custom footer</div>
+                    </body>
+                </html>
+                '''.format(
+                    app_entry=kwargs['app_entry'],
+                    config=kwargs['config'],
+                    scripts=kwargs['scripts'],
+                    renderer=renderer)
+
+        app = CustomDash()
+
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+                value='initial value'
+            ),
+            html.Div(
+                html.Div([
+                    html.Div(id='output-1'),
+                    html.Div(id='output-pre'),
+                    html.Div(id='output-post')
+                ])
+            )
+        ])
+
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            return value
+
+        self.startServer(app)
+
+        input1 = self.wait_for_element_by_id('input')
+        chain = (ActionChains(self.driver)
+                 .click(input1)
+                 .send_keys(Keys.HOME)
+                 .key_down(Keys.SHIFT)
+                 .send_keys(Keys.END)
+                 .key_up(Keys.SHIFT)
+                 .send_keys(Keys.DELETE))
+        chain.perform()
+
+        input1.send_keys('fire request hooks')
+
+        self.wait_for_text_to_equal('#output-1', 'fire request hooks')
+        self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
+        self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
+
+        self.percy_snapshot(name='request-hooks interpolated')
+
+    def test_modified_response(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            dcc.Input(id='input', value='ab'),
+            html.Div(id='output')
+        ])
+
+        @app.callback(Output('output', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            dash.callback_context.response.set_cookie(
+                'dash cookie', value + ' - cookie')
+            return value + ' - output'
+
+        self.startServer(app)
+        self.wait_for_text_to_equal('#output', 'ab - output')
+        input1 = self.wait_for_element_by_id('input')
+
+        input1.send_keys('cd')
+
+        self.wait_for_text_to_equal('#output', 'abcd - output')
+        cookie = self.driver.get_cookie('dash cookie')
+        # cookie gets json encoded
+        self.assertEqual(cookie['value'], '"abcd - cookie"')
+
+        assert_clean_console(self)
 
     def test_late_component_register(self):
         app = dash.Dash()
@@ -574,6 +891,56 @@ class Tests(IntegrationTests):
             context.exception.args[0]
         )
 
+        # Multi output version.
+        with self.assertRaises(CallbackException) as context:
+            @app.callback([Output('out', 'children'),
+                           Output('input-output', 'children')],
+                          [Input('input-output', 'children')])
+            def failure2(children):
+                pass
+
+        self.assertEqual(
+            'Same output and input: input-output.children',
+            context.exception.args[0]
+        )
+
+    def test_callback_return_validation(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Div(id='a'),
+            html.Div(id='b'),
+            html.Div(id='c'),
+            html.Div(id='d'),
+            html.Div(id='e'),
+            html.Div(id='f')
+        ])
+
+        @app.callback(Output('b', 'children'), [Input('a', 'children')])
+        def single(a):
+            # anything non-serializable, really
+            return set([1])
+
+        with self.assertRaises(InvalidCallbackReturnValue):
+            single('aaa')
+
+        @app.callback([Output('c', 'children'), Output('d', 'children')],
+                      [Input('a', 'children')])
+        def multi(a):
+            # non-serializable inside a list
+            return [1, set([2])]
+
+        with self.assertRaises(InvalidCallbackReturnValue):
+            multi('aaa')
+
+        @app.callback([Output('e', 'children'), Output('f', 'children')],
+                      [Input('a', 'children')])
+        def multi2(a):
+            # wrong-length list
+            return ['abc']
+
+        with self.assertRaises(InvalidCallbackReturnValue):
+            multi2('aaa')
+
     def test_callback_context(self):
         app = dash.Dash(__name__)
 
@@ -613,5 +980,6 @@ class Tests(IntegrationTests):
                 )
 
     def test_no_callback_context(self):
-        with self.assertRaises(MissingCallbackContextException):
-            no_context = dash.callback_context.inputs
+        for attr in ['inputs', 'states', 'triggered', 'response']:
+            with self.assertRaises(MissingCallbackContextException):
+                getattr(dash.callback_context, attr)

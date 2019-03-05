@@ -1,3 +1,15 @@
+## [0.39.0] - 2019-03-04
+## Added
+- Allow multiple outputs from a single callback. [#436](https://github.com/plotly/dash/pull/436)
+- Support for custom javascript hooks to modify callback payloads and responses. [#367](https://github.com/plotly/dash/pull/367)
+- Modify the flask response with custom cookies or headers, using `dash.callback_context.response`. [#623](https://github.com/plotly/dash/pull/623)
+
+## Changed
+- Bumped dash-core-components version from 0.43.1 to [0.44.0](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0440---2019-03-04)
+- Bumped dash-html-components version from 0.13.5 to [0.14.0](https://github.com/plotly/dash-html-components/blob/master/CHANGELOG.md#0140---2019-03-04)
+- Bumped dash-renderer version from 0.19.0 to [0.20.0](https://github.com/plotly/dash-renderer/blob/master/CHANGELOG.md#0200---2019-03-04)
+- Bumped dash-table version from 3.5.0 to [3.6.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#360---2019-03-04)
+
 ## [0.38.0] - 2019-02-25
 ## Fixed
 - Fix missing indentation for generated metadata.json [#600](https://github.com/plotly/dash/issues/600)

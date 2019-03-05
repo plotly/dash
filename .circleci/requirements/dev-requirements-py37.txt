@@ -1,8 +1,5 @@
-dash_core_components==0.43.1
-dash_html_components==0.13.5
 dash-flow-example==0.0.5
 dash-dangerously-set-inner-html
-dash_renderer-0.20.0rc1.tar.gz
 percy
 selenium
 mock

@@ -42,7 +42,17 @@ class IDsCantContainPeriods(CallbackException):
     pass
 
 
+# Better error name now that more than periods are not permitted.
+class InvalidComponentIdError(IDsCantContainPeriods):
+    pass
+
+
 class CantHaveMultipleOutputs(CallbackException):
+    pass
+
+
+# Renamed for less confusion with multi output.
+class DuplicateCallbackOutput(CantHaveMultipleOutputs):
     pass
 
 

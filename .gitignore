@@ -20,3 +20,4 @@ dist
 npm-debug*
 /.tox
 .idea
+.mypy_cache/
