@@ -37,14 +37,14 @@ deps_metadata <- list('''
 
 frame_element_template = '''`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
-file = "deps/"), meta = NULL,
+file = "deps"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''
 
 frame_body_template = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
-file = "deps/"), meta = NULL,
+file = "deps"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''  # noqa:E501
