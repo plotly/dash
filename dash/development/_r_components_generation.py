@@ -79,7 +79,7 @@ Version: {package_version}
 Authors @R: as.person(c({package_author}))
 Description: {package_description}
 Depends: R (>= 3.0.2)
-Imports: dashR 
+Imports: dashR
 Suggests: testthat, roxygen2
 License: {package_license}
 URL: {package_url}
