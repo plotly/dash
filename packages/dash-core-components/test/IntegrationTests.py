@@ -11,6 +11,7 @@ import requests
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 class IntegrationTests(unittest.TestCase):
@@ -20,11 +21,13 @@ class IntegrationTests(unittest.TestCase):
         super(IntegrationTests, cls).setUpClass()
 
         options = Options()
+        capabilities = DesiredCapabilities.CHROME
+        capabilities['loggingPrefs'] = {'browser': 'SEVERE'}
 
         if 'DASH_TEST_CHROMEPATH' in os.environ:
             options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
 
-        cls.driver = webdriver.Chrome(chrome_options=options)
+        cls.driver = webdriver.Chrome(options=options, desired_capabilities=capabilities)
         loader = percy.ResourceLoader(
             webdriver=cls.driver,
             base_url='/assets',
@@ -47,7 +50,8 @@ class IntegrationTests(unittest.TestCase):
             requests.get('http://localhost:8050/stop')
         else:
             self.server_process.terminate()
-        self.driver.back()
+
+        self.clear_log()
         time.sleep(1)
 
     def startServer(self, app):
@@ -103,28 +107,15 @@ class IntegrationTests(unittest.TestCase):
         # Visit the dash page
         self.driver.get('http://localhost:8050')
 
-        # Inject an error and warning logger
-        logger = '''
-        window.tests = {};
-        window.tests.console = {error: [], warn: [], log: []};
+    def clear_log(self):
+        entries = self.driver.get_log("browser")
 
-        var _log = console.log;
-        var _warn = console.warn;
-        var _error = console.error;
+        if entries:
+            self.last_timestamp = entries[-1]["timestamp"]
 
-        console.log = function() {
-            window.tests.console.log.push({method: 'log', arguments: arguments});
-            return _log.apply(console, arguments);
-        };
+    def get_log(self):
+        entries = self.driver.get_log("browser")
 
-        console.warn = function() {
-            window.tests.console.warn.push({method: 'warn', arguments: arguments});
-            return _warn.apply(console, arguments);
-        };
+        return [entry for entry in entries if entry["timestamp"] > self.last_timestamp]
 
-        console.error = function() {
-            window.tests.console.error.push({method: 'error', arguments: arguments});
-            return _error.apply(console, arguments);
-        };
-        '''
-        self.driver.execute_script(logger)
+    last_timestamp = 0

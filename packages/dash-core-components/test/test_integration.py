@@ -217,6 +217,34 @@ class Tests(IntegrationTests):
 
         self.snapshot('test_upload_gallery')
 
+    def test_vertical_slider(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Label('Vertical Slider'),
+            dcc.Slider(
+                id='vertical-slider',
+                min=0,
+                max=9,
+                marks={i: 'Label {}'.format(i) if i == 1 else str(i)
+                       for i in range(1, 6)},
+                value=5,
+                vertical=True,
+            ),
+        ], style={'height': '500px'})
+        self.startServer(app)
+
+        self.wait_for_element_by_css_selector('#vertical-slider')
+        self.snapshot('vertical slider')
+
+        v_slider = self.driver.find_element_by_css_selector(
+            '#vertical-slider div[role="slider"]'
+        )
+        v_slider.click()
+
+        for entry in self.get_log():
+            raise Exception('browser error logged during test', entry)
+
     def test_gallery(self):
         app = dash.Dash(__name__)
 
