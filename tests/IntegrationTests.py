@@ -15,7 +15,7 @@ TIMEOUT = 20
 class IntegrationTests(unittest.TestCase):
 
     def percy_snapshot(cls, name=''):
-        snapshot_name = '{} - {}.{}'.format(name, sys.version_info.major, sys.version_info.minor)
+        snapshot_name = '{} - py{}.{}'.format(name, sys.version_info.major, sys.version_info.minor)
         print(snapshot_name)
         cls.percy_runner.snapshot(
             name=snapshot_name
