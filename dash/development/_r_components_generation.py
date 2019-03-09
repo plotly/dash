@@ -65,7 +65,7 @@ help_string = '''% Auto-generated: do not edit by hand
 }}
 
 \\usage{{
-{prefix}{name}({default_argtext}, ...)
+{prefix}{name}({default_argtext})
 }}
 
 \\arguments{{
@@ -331,6 +331,7 @@ def write_help_file(name, props, description, prefix):
 
     if has_wildcards:
         item_text += '\n\n\\item{...}{wildcards: `data-*` or `aria-*`}'
+        default_argtext += ', ...'
 
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
