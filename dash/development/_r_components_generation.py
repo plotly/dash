@@ -305,9 +305,6 @@ def write_help_file(name, props, description, prefix):
     default_argtext = ''
     item_text = ''
 
-    # Ensure props are ordered with children first
-    props = reorder_props(props=props)
-
     prop_keys = list(props.keys())
 
     has_wildcards = any('-*' in key for key in prop_keys)
