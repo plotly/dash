@@ -326,13 +326,6 @@
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
       },
-      "children": {
-        "type": {
-          "name": "any"
-        },
-        "required": false,
-        "description": "The children to hijack clicks from and display the popup."
-      },
       "loading_state": {
         "type": {
           "name": "shape",
@@ -2110,13 +2103,6 @@
         "required": false,
         "description": ""
       },
-      "children": {
-        "type": {
-          "name": "node"
-        },
-        "required": false,
-        "description": ""
-      },
       "loading_state": {
         "type": {
           "name": "shape",
@@ -2154,24 +2140,6 @@
         },
         "required": false,
         "description": ""
-      },
-      "children": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "arrayOf",
-              "value": {
-                "name": "node"
-              }
-            },
-            {
-              "name": "node"
-            }
-          ]
-        },
-        "required": false,
-        "description": "Array that holds components to render"
       },
       "type": {
         "type": {
@@ -2468,24 +2436,6 @@
           "value": "false",
           "computed": false
         }
-      },
-      "children": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "string"
-            },
-            {
-              "name": "arrayOf",
-              "value": {
-                "name": "string"
-              }
-            }
-          ]
-        },
-        "required": false,
-        "description": "A markdown string (or array of strings) that adhreres to the CommonMark spec"
       },
       "loading_state": {
         "type": {
@@ -3123,24 +3073,6 @@
         "required": false,
         "description": ""
       },
-      "children": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "string"
-            },
-            {
-              "name": "arrayOf",
-              "value": {
-                "name": "string"
-              }
-            }
-          ]
-        },
-        "required": false,
-        "description": "The text to display and highlight"
-      },
       "language": {
         "type": {
           "name": "string"
@@ -3272,13 +3204,6 @@
         },
         "required": false,
         "description": "The tab's label"
-      },
-      "children": {
-        "type": {
-          "name": "node"
-        },
-        "required": false,
-        "description": "The content of the tab - will only be displayed if this tab is selected"
       },
       "value": {
         "type": {
@@ -3472,24 +3397,6 @@
           "value": "800",
           "computed": false
         }
-      },
-      "children": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "arrayOf",
-              "value": {
-                "name": "node"
-              }
-            },
-            {
-              "name": "node"
-            }
-          ]
-        },
-        "required": false,
-        "description": "Array that holds Tab components"
       },
       "colors": {
         "type": {
@@ -3884,21 +3791,6 @@
         },
         "required": false,
         "description": "The last modified date of the file that was uploaded in unix time\n(seconds since 1970)."
-      },
-      "children": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "node"
-            },
-            {
-              "name": "string"
-            }
-          ]
-        },
-        "required": false,
-        "description": "Contents of the upload component"
       },
       "accept": {
         "type": {
