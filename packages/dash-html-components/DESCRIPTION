@@ -1,9 +1,10 @@
 Package: dashHtmlComponents
 Title: Vanilla HTML components for Dash
-Version: 0.13.5
+Version: 0.14.0
 Authors @R: as.person(c(Chris Parmer <chris@plot.ly>))
 Description: Vanilla HTML components for Dash
-Depends: R (>= 3.5.0)
+Depends: R (>= 3.0.2)
+Imports: dashR
 Suggests: testthat, roxygen2
 License: MIT + file LICENSE
 URL: https://github.com/plotly/dash-html-components
