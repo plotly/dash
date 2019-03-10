@@ -348,6 +348,18 @@ def write_class_file(name,
                      prefix=None):
     props = reorder_props(props=props)
 
+    # generate the R help pages for each of the Dash components that we
+    # are transpiling -- this is done to avoid using Roxygen2 syntax,
+    # we may eventually be able to generate similar documentation using
+    # doxygen and an R plugin, but for now we'll just do it on our own
+    # from within Python
+    write_help_file(
+        name,
+        props,
+        description,
+        prefix
+    )
+
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string(
@@ -362,18 +374,6 @@ def write_class_file(name,
     with open(file_path, 'w') as f:
         f.write(import_string)
         f.write(class_string)
-
-    # generate the R help pages for each of the Dash components that we
-    # are transpiling -- this is done to avoid using Roxygen2 syntax,
-    # we may eventually be able to generate similar documentation using
-    # doxygen and an R plugin, but for now we'll just do it on our own
-    # from within Python
-    write_help_file(
-        name,
-        props,
-        description,
-        prefix
-    )
 
     print('Generated {}'.format(file_name))
 
