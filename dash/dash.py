@@ -12,7 +12,6 @@ import threading
 import warnings
 import re
 import logging
-import pprint
 
 from functools import wraps
 
@@ -164,6 +163,9 @@ class Dash(object):
 
         # list of dependencies
         self.callback_map = {}
+
+        # for delayed callback validation
+        self._callback_list = []
 
         self._index_string = ''
         self.index_string = index_string
@@ -641,6 +643,73 @@ class Dash(object):
             'Use `callback` instead. `callback` has a new syntax too, '
             'so make sure to call `help(app.callback)` to learn more.')
 
+    def _validate_callbacks(self):
+        # Maps all registered Output components (including individual Outputs
+        # within multi-output callbacks) onto their associated callback
+        # function names)
+        output_map = collections.defaultdict(list)
+
+        for output, inputs, state, func_name in self._callback_list:
+            self._validate_callback(output, inputs, state)
+
+            outputs = output if isinstance(output, (list, tuple)) else [output]
+            for out in outputs:
+                output_map[out].append(func_name)
+
+        # Each Output should only have one callback function associated with it
+        duplicates = [(output, funcs) for output, funcs in output_map.items()
+                      if len(funcs) > 1]
+        if not duplicates:
+            return
+
+        msg1 = ""
+        msg2 = ""
+        diff_callback = []
+        same_callback = []
+
+        def get_error_lines(dupes):
+            err_str = '{} in callback function{}: {}'
+            lines = []
+            for output, funcs in dupes:
+                func_names = ', '.join("'{}'".format(f) for f in funcs)
+                plural = 's' if len(funcs) > 1 else ''
+                lines.append(err_str.format(repr(output), plural, func_names))
+            return '\n'.join(lines)
+
+        for output, funcs in duplicates:
+            if len(set(funcs)) < len(funcs):
+                # Single Output used multiple times in multi output callback
+                fs = set(f for f in funcs if funcs.count(f) > 1)
+                same_callback.append((output, sorted(fs)))
+            if not all(funcs[0] == f for f in funcs):
+                # Output used across multiple callbacks
+                diff_callback.append((output, sorted(set(funcs))))
+
+        if diff_callback:
+            errors = get_error_lines(diff_callback)
+            msg1 = '''
+            The following outputs have been assigned to multiple callbacks.
+
+            {}
+
+            An output can only be associated with a single callback function.
+            Try combining your inputs and callback functions together into one
+            function.'''.format(errors).replace('    ', '')
+
+        if same_callback:
+            errors = get_error_lines(same_callback)
+            msg2 = '''
+            The following outputs occur multiple times in a single multi-output
+            callback:
+
+            {}
+
+            Multi-output callbacks cannot target the same output more than
+            once.'''.format(errors).replace('    ', '')
+
+        sep = '\n' if msg1 and msg2 else ''
+        raise exceptions.DuplicateCallbackOutput(msg1 + sep + msg2)
+
     def _validate_callback(self, output, inputs, state):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
@@ -658,19 +727,6 @@ class Dash(object):
             if bad:
                 raise exceptions.SameInputOutputException(
                     'Same output and input: {}'.format(bad)
-                )
-
-        if is_multi:
-            if len(set(output)) != len(output):
-                raise exceptions.DuplicateCallbackOutput(
-                    'Same output was used in a'
-                    ' multi output callback!\n Duplicates:\n {}'.format(
-                        ',\n'.join(
-                            k for k, v in
-                            ((str(x), output.count(x)) for x in output)
-                            if v > 1
-                        )
-                    )
                 )
 
         if (layout is None and
@@ -786,49 +842,6 @@ class Dash(object):
                 len(state),
                 'elements' if len(state) > 1 else 'element'
             ).replace('    ', ''))
-
-        callback_id = _create_callback_id(output)
-
-        callbacks = set(itertools.chain(*(
-            x[2:-2].split('...')
-            if x.startswith('..')
-            else [x]
-            for x in self.callback_map
-        )))
-        ns = {
-            'duplicates': set()
-        }
-        if is_multi:
-            def duplicate_check():
-                ns['duplicates'] = callbacks.intersection(
-                    str(y) for y in output
-                )
-                return ns['duplicates']
-        else:
-            def duplicate_check():
-                return callback_id in callbacks
-        if duplicate_check():
-            if is_multi:
-                msg = '''
-                Multi output {} contains an `Output` object
-                that was already assigned.
-                Duplicates:
-                {}
-                '''.format(
-                    callback_id,
-                    pprint.pformat(ns['duplicates'])
-                )
-            else:
-                msg = '''
-                You have already assigned a callback to the output
-                with ID "{}" and property "{}". An output can only have
-                a single callback function. Try combining your inputs and
-                callback functions together into one function.
-                '''.format(
-                    output.component_id,
-                    output.component_property
-                ).replace('    ', '')
-            raise exceptions.DuplicateCallbackOutput(msg)
 
     def _validate_callback_output(self, output_value, output):
         valid = [str, dict, int, float, type(None), Component]
@@ -947,8 +960,6 @@ class Dash(object):
     # relationships
     # pylint: disable=dangerous-default-value
     def callback(self, output, inputs=[], state=[]):
-        self._validate_callback(output, inputs, state)
-
         callback_id = _create_callback_id(output)
         multi = isinstance(output, (list, tuple))
 
@@ -1026,7 +1037,7 @@ class Dash(object):
                 return jsonResponse
 
             self.callback_map[callback_id]['callback'] = add_context
-
+            self._callback_list.append((output, inputs, state, func.__name__))
             return add_context
 
         return wrap_func
@@ -1375,6 +1386,7 @@ class Dash(object):
         :param flask_run_options: Given to `Flask.run`
         :return:
         """
+        self._setup()
         debug = self.enable_dev_tools(
             debug,
             dev_tools_serve_dev_bundles,
@@ -1409,3 +1421,12 @@ class Dash(object):
 
         self.server.run(port=port, debug=debug,
                         **flask_run_options)
+
+    def _setup(self):
+        """Do setup required for both dev server and production WSGI server"""
+        self._validate_callbacks()
+
+    def get_wsgi_application(self, debug=False):
+        self._setup()
+        self.enable_dev_tools(debug)
+        return self.server
