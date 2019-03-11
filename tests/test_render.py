@@ -1390,49 +1390,22 @@ class Tests(IntegrationTests):
         # hiding the `button-output` tag
         def chapter2_assertions():
             wait_for(lambda: body().text == 'Chapter 2')
-            self.assertEqual(
-                self.driver.execute_script(
-                    'return JSON.parse(JSON.stringify('
-                    'window.store.getState().layout'
-                    '))'
-                ),
-                {
-                    "namespace": "dash_html_components",
-                    "type": "Div",
-                    "props": {
-                        "children": [
-                            {
-                                "namespace": "dash_core_components",
-                                "type": "RadioItems",
-                                "props": {
-                                    "value": "2",
-                                    "options": app.layout['toc'].options,
-                                    "id": app.layout['toc'].id,
-                                }
-                            },
-                            {
-                                "namespace": "dash_html_components",
-                                "type": "Div",
-                                "props": {
-                                    "id": "body",
-                                    "children": "Chapter 2"
-                                }
-                            }
-                        ]
-                    }
-                }
+
+            layout = self.driver.execute_script(
+                'return JSON.parse(JSON.stringify('
+                'window.store.getState().layout'
+                '))'
             )
-            self.assertEqual(
-                self.driver.execute_script(
-                    'return JSON.parse(JSON.stringify('
-                    'window.store.getState().paths'
-                    '))'
-                ),
-                {
-                    "toc": ["props", "children", 0],
-                    "body": ["props", "children", 1]
-                }
-            )
+
+            dcc_radio = layout['props']['children'][0]
+            html_body = layout['props']['children'][1]
+
+            self.assertEqual(dcc_radio['props']['id'], 'toc')
+            self.assertEqual(dcc_radio['props']['value'], '2')
+
+            self.assertEqual(html_body['props']['id'], 'body')
+            self.assertEqual(html_body['props']['children'], 'Chapter 2')
+
         (self.driver.find_elements_by_css_selector(
             'input[type="radio"]'
         )[1]).click()

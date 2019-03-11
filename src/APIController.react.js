@@ -99,7 +99,7 @@ class UnconnectedContainer extends Component {
         } else if (appLifecycle === getAppState('HYDRATED')) {
             return (
                 <div id="_dash-app-content">
-                    <TreeContainer layout={layout} />
+                    <TreeContainer _dashprivate_layout={layout} />
                 </div>
             );
         }
