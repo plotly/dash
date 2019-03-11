@@ -19,7 +19,7 @@ const Address = (props) => {
                     })
                 }
             }}
-            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state'], props)}
+            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps'], props)}
             {...dataAttributes}
         >
             {props.children}
