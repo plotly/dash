@@ -13,7 +13,6 @@ export default class ConfirmDialog extends Component {
         this.state = {
             displayed: props.displayed,
         };
-        this._update();
     }
 
     _setStateAndProps(value) {
@@ -55,6 +54,10 @@ export default class ConfirmDialog extends Component {
     }
 
     componentDidUpdate() {
+        this._update();
+    }
+
+    componentDidMount() {
         this._update();
     }
 

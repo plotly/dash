@@ -204,11 +204,11 @@ export default class Tabs extends Component {
                     // props we want are lying a bit deeper - which means they
                     // are coming from Dash
                     R.isNil(child.props.disabled) &&
-                    child.props.children &&
-                    child.props.children.props
+                    child.props._dashprivate_layout &&
+                    child.props._dashprivate_layout.props
                 ) {
                     // props are coming from Dash
-                    childProps = child.props.children.props;
+                    childProps = child.props._dashprivate_layout.props;
                 } else {
                     // else props are coming from React (Demo.react.js, or Tabs.test.js)
                     childProps = child.props;
@@ -222,6 +222,7 @@ export default class Tabs extends Component {
                 if (childProps.value === this.state.selected) {
                     selectedTab = child;
                 }
+
                 return (
                     <EnhancedTab
                         key={index}
@@ -247,9 +248,7 @@ export default class Tabs extends Component {
             });
         }
 
-        const selectedTabContent = !R.isNil(selectedTab)
-            ? selectedTab.props.children
-            : '';
+        const selectedTabContent = !R.isNil(selectedTab) ? selectedTab : '';
 
         const tabContainerClass = this.props.vertical
             ? 'tab-container tab-container--vert'

@@ -177,12 +177,7 @@ describe('Tabs handle Tab selection logic', () => {
     });
     test('Tab can be clicked and will display its content', () => {
         tabs.find('[value="tab-2"]').simulate('click');
-        const renderedContent = tabs.find('.tab-content > div').html();
-        expect(renderedContent).toEqual('<div>Tab 2 child</div>');
-    });
-    test('Tab without value will still be clickable', () => {
-        tabs.find('[value="tab-2"]').simulate('click');
-        const renderedContent = tabs.find('.tab-content > div').html();
+        const renderedContent = tabs.find(Tab).html();
         expect(renderedContent).toEqual('<div>Tab 2 child</div>');
     });
 });

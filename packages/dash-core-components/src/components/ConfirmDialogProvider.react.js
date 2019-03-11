@@ -1,3 +1,4 @@
+import {clone} from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -31,20 +32,18 @@ export default class ConfirmDialogProvider extends React.Component {
         const displayed = this.state.displayed;
 
         // Will lose the previous onClick of the child
-        const wrapClick = child =>
-            React.cloneElement(child, {
-                onClick: () => {
-                    const update = {displayed: true};
-                    this.setState(update);
-                    if (setProps) {
-                        setProps(update);
-                    }
-                },
-            });
+        const wrapClick = child => {
+            const props = clone(child.props);
+            props._dashprivate_layout.props.onClick = () => {
+                const update = {displayed: true};
+                this.setState(update);
+                if (setProps) {
+                    setProps(update);
+                }
+            };
 
-        const realChild = children.props
-            ? children.props.children
-            : children.map(e => e.props.children);
+            return React.cloneElement(child, props);
+        };
 
         return (
             <div
@@ -53,9 +52,9 @@ export default class ConfirmDialogProvider extends React.Component {
                     (loading_state && loading_state.is_loading) || undefined
                 }
             >
-                {realChild && realChild.length
-                    ? realChild.map(wrapClick)
-                    : wrapClick(realChild)}
+                {Array.isArray(children)
+                    ? children.map(wrapClick)
+                    : wrapClick(children)}
                 <ConfirmDialog {...this.props} displayed={displayed} />
             </div>
         );

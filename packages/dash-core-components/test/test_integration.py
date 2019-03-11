@@ -1264,8 +1264,6 @@ class Tests(IntegrationTests):
         time.sleep(2)
 
         self.driver.switch_to.alert.accept()
-        time.sleep(2)
-        self.driver.switch_to.alert.accept()
 
     def test_empty_graph(self):
         app = dash.Dash(__name__)
