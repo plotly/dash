@@ -23,6 +23,8 @@ from flask_compress import Compress
 import plotly
 import dash_renderer
 
+from dash_component_system import DashComponent
+
 from .dependencies import Input, Output, State
 from .resources import Scripts, Css
 from .development.base_component import Component, ComponentRegistry
@@ -281,7 +283,7 @@ class Dash(object):
 
     @layout.setter
     def layout(self, value):
-        if (not isinstance(value, Component) and
+        if (not isinstance(value, (Component, DashComponent)) and
                 not isinstance(value, _patch_collections_abc('Callable'))):
             raise exceptions.NoLayoutException(
                 ''
@@ -880,7 +882,7 @@ class Dash(object):
 
         def _validate_value(val, index=None):
             # val is a Component
-            if isinstance(val, Component):
+            if isinstance(val, (Component, DashComponent)):
                 for p, j in val.traverse_with_paths():
                     # check each component value in the tree
                     if not _value_is_valid(j):
