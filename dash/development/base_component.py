@@ -3,6 +3,8 @@ import inspect
 import sys
 import six
 
+from dash_component_system import ComponentHooks
+
 from .._utils import patch_collections_abc
 
 MutableSequence = patch_collections_abc('MutableSequence')
@@ -18,7 +20,7 @@ class ComponentRegistry:
     def get_resources(cls, resource_name):
         resources = []
 
-        for module_name in cls.registry:
+        for module_name in cls.registry.union(ComponentHooks.registry):
             module = sys.modules[module_name]
             resources.extend(getattr(module, resource_name, []))
 
