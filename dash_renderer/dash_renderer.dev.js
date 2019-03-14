@@ -33190,7 +33190,7 @@ var UnconnectedContainer = function (_Component) {
                 return _react2.default.createElement(
                     'div',
                     { id: '_dash-app-content' },
-                    _react2.default.createElement(_TreeContainer2.default, { layout: layout })
+                    _react2.default.createElement(_TreeContainer2.default, { _dashprivate_layout: layout })
                 );
             }
 
@@ -33481,6 +33481,7 @@ exports.DashRenderer = DashRenderer;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.AugmentedTreeContainer = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -33498,15 +33499,13 @@ var _registry = __webpack_require__(/*! ./registry */ "./src/registry.js");
 
 var _registry2 = _interopRequireDefault(_registry);
 
-var _NotifyObservers = __webpack_require__(/*! ./components/core/NotifyObservers.react */ "./src/components/core/NotifyObservers.react.js");
-
-var _NotifyObservers2 = _interopRequireDefault(_NotifyObservers);
-
 var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/lib/index.js");
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
 var _constants = __webpack_require__(/*! ./constants/constants */ "./src/constants/constants.js");
+
+var _actions = __webpack_require__(/*! ./actions */ "./src/actions/index.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33518,6 +33517,18 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
+var isSimpleComponent = function isSimpleComponent(component) {
+    return (0, _ramda.contains)((0, _ramda.type)(component), SIMPLE_COMPONENT_TYPES);
+};
+
+var createContainer = function createContainer(component) {
+    return isSimpleComponent(component) ? component : _react2.default.createElement(AugmentedTreeContainer, {
+        key: component && component.props && component.props.id,
+        _dashprivate_layout: component
+    });
+};
+
 var TreeContainer = function (_Component) {
     _inherits(TreeContainer, _Component);
 
@@ -33528,14 +33539,147 @@ var TreeContainer = function (_Component) {
     }
 
     _createClass(TreeContainer, [{
+        key: 'getChildren',
+        value: function getChildren(components) {
+            if (!components) {
+                return null;
+            }
+
+            return Array.isArray(components) ? (0, _ramda.map)(createContainer, components) : createContainer(components);
+        }
+    }, {
+        key: 'getComponent',
+        value: function getComponent(_dashprivate_layout, children, loading_state, setProps) {
+            if ((0, _ramda.isEmpty)(_dashprivate_layout)) {
+                return null;
+            }
+
+            if (isSimpleComponent(_dashprivate_layout)) {
+                return _dashprivate_layout;
+            }
+
+            if (!_dashprivate_layout.type) {
+                /* eslint-disable no-console */
+                console.error((0, _ramda.type)(_dashprivate_layout), _dashprivate_layout);
+                /* eslint-enable no-console */
+                throw new Error('component.type is undefined');
+            }
+            if (!_dashprivate_layout.namespace) {
+                /* eslint-disable no-console */
+                console.error((0, _ramda.type)(_dashprivate_layout), _dashprivate_layout);
+                /* eslint-enable no-console */
+                throw new Error('component.namespace is undefined');
+            }
+            var element = _registry2.default.resolve(_dashprivate_layout.type, _dashprivate_layout.namespace);
+
+            return _react2.default.createElement.apply(_react2.default, [element, (0, _ramda.mergeAll)([(0, _ramda.omit)(['children'], _dashprivate_layout.props), { loading_state: loading_state, setProps: setProps }])].concat(_toConsumableArray(Array.isArray(children) ? children : [children])));
+        }
+    }, {
+        key: 'getLoadingState',
+        value: function getLoadingState(id, requestQueue) {
+            // loading prop coming from TreeContainer
+            var isLoading = false;
+            var loadingProp = void 0;
+            var loadingComponent = void 0;
+
+            if (requestQueue && requestQueue.filter) {
+                (0, _ramda.forEach)(function (r) {
+                    var controllerId = (0, _ramda.isNil)(r.controllerId) ? '' : r.controllerId;
+                    if (r.status === 'loading' && (0, _ramda.contains)(id, controllerId)) {
+                        isLoading = true;
+
+                        var _r$controllerId$split = r.controllerId.split('.');
+
+                        var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
+
+                        loadingComponent = _r$controllerId$split2[0];
+                        loadingProp = _r$controllerId$split2[1];
+                    }
+                }, requestQueue);
+
+                var thisRequest = requestQueue.filter(function (r) {
+                    var controllerId = (0, _ramda.isNil)(r.controllerId) ? '' : r.controllerId;
+                    return (0, _ramda.contains)(id, controllerId);
+                });
+                if (thisRequest.status === _constants.STATUS.OK) {
+                    isLoading = false;
+                }
+            }
+
+            // Set loading state
+            return {
+                is_loading: isLoading,
+                prop_name: loadingProp,
+                component_name: loadingComponent
+            };
+        }
+    }, {
+        key: 'getSetProps',
+        value: function getSetProps() {
+            var _this2 = this;
+
+            return function (newProps) {
+                var _props = _this2.props,
+                    _dashprivate_dependencies = _props._dashprivate_dependencies,
+                    _dashprivate_dispatch = _props._dashprivate_dispatch,
+                    _dashprivate_paths = _props._dashprivate_paths;
+
+
+                var id = _this2.getLayoutProps().id;
+
+                // Identify the modified props that are required for callbacks
+                var watchedKeys = (0, _ramda.filter)(function (key) {
+                    return _dashprivate_dependencies && _dashprivate_dependencies.find(function (dependency) {
+                        return dependency.inputs.find(function (input) {
+                            return input.id === id && input.property === key;
+                        }) || dependency.state.find(function (state) {
+                            return state.id === id && state.property === key;
+                        });
+                    });
+                })((0, _ramda.keysIn)(newProps));
+
+                // Always update this component's props
+                _dashprivate_dispatch((0, _actions.updateProps)({
+                    props: newProps,
+                    id: id,
+                    itempath: _dashprivate_paths[id]
+                }));
+
+                // Only dispatch changes to Dash if a watched prop changed
+                if (watchedKeys.length) {
+                    _dashprivate_dispatch((0, _actions.notifyObservers)({
+                        id: id,
+                        props: (0, _ramda.pick)(watchedKeys)(newProps)
+                    }));
+                }
+            };
+        }
+    }, {
         key: 'shouldComponentUpdate',
         value: function shouldComponentUpdate(nextProps) {
-            return nextProps.layout !== this.props.layout;
+            return nextProps._dashprivate_layout !== this.props._dashprivate_layout;
+        }
+    }, {
+        key: 'getLayoutProps',
+        value: function getLayoutProps() {
+            return (0, _ramda.propOr)({}, 'props', this.props._dashprivate_layout);
         }
     }, {
         key: 'render',
         value: function render() {
-            return recursivelyRender(this.props.layout, this.props.requestQueue);
+            var _props2 = this.props,
+                _dashprivate_dispatch = _props2._dashprivate_dispatch,
+                _dashprivate_layout = _props2._dashprivate_layout,
+                _dashprivate_requestQueue = _props2._dashprivate_requestQueue;
+
+
+            var layoutProps = this.getLayoutProps();
+
+            var children = this.getChildren(layoutProps.children);
+            var loadingState = this.getLoadingState(layoutProps.id, _dashprivate_requestQueue);
+            var setProps = this.getSetProps(_dashprivate_dispatch);
+
+            return this.getComponent(_dashprivate_layout, children, loadingState, setProps);
         }
     }]);
 
@@ -33543,112 +33687,39 @@ var TreeContainer = function (_Component) {
 }(_react.Component);
 
 TreeContainer.propTypes = {
-    layout: _propTypes2.default.object,
-    requestQueue: _propTypes2.default.object
+    _dashprivate_dependencies: _propTypes2.default.any,
+    _dashprivate_dispatch: _propTypes2.default.func,
+    _dashprivate_layout: _propTypes2.default.object,
+    _dashprivate_paths: _propTypes2.default.any,
+    _dashprivate_requestQueue: _propTypes2.default.object
 };
 
-function recursivelyRender(component, requestQueue) {
-    if ((0, _ramda.contains)((0, _ramda.type)(component), ['String', 'Number', 'Null', 'Boolean'])) {
-        return component;
-    }
-
-    if ((0, _ramda.isEmpty)(component)) {
-        return null;
-    }
-
-    // Create list of child elements
-    var children = void 0;
-
-    var componentProps = (0, _ramda.propOr)({}, 'props', component);
-
-    if (!(0, _ramda.has)('props', component) || !(0, _ramda.has)('children', component.props) || typeof component.props.children === 'undefined') {
-        // No children
-        children = [];
-    } else if ((0, _ramda.contains)((0, _ramda.type)(component.props.children), ['String', 'Number', 'Null', 'Boolean'])) {
-        children = [component.props.children];
-    } else {
-        // One or multiple objects
-        // Recursively render the tree
-        // TODO - I think we should pass in `key` here.
-        children = (Array.isArray(componentProps.children) ? componentProps.children : [componentProps.children]).map(function (child) {
-            return recursivelyRender(child, requestQueue);
-        });
-    }
-
-    if (!component.type) {
-        /* eslint-disable no-console */
-        console.error((0, _ramda.type)(component), component);
-        /* eslint-enable no-console */
-        throw new Error('component.type is undefined');
-    }
-    if (!component.namespace) {
-        /* eslint-disable no-console */
-        console.error((0, _ramda.type)(component), component);
-        /* eslint-enable no-console */
-        throw new Error('component.namespace is undefined');
-    }
-    var element = _registry2.default.resolve(component.type, component.namespace);
-
-    var parent = _react2.default.createElement.apply(_react2.default, [element, (0, _ramda.omit)(['children'], component.props)].concat(_toConsumableArray(children)));
-
-    // loading prop coming from TreeContainer
-    var isLoading = false;
-    var loadingProp = void 0;
-    var loadingComponent = void 0;
-
-    var id = componentProps.id;
-
-    if (requestQueue && requestQueue.filter) {
-        (0, _ramda.forEach)(function (r) {
-            var controllerId = (0, _ramda.isNil)(r.controllerId) ? '' : r.controllerId;
-            if (r.status === 'loading' && (0, _ramda.contains)(id, controllerId)) {
-                isLoading = true;
-
-                var _r$controllerId$split = r.controllerId.split('.');
-
-                var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
-
-                loadingComponent = _r$controllerId$split2[0];
-                loadingProp = _r$controllerId$split2[1];
-            }
-        }, requestQueue);
-
-        var thisRequest = requestQueue.filter(function (r) {
-            var controllerId = (0, _ramda.isNil)(r.controllerId) ? '' : r.controllerId;
-            return (0, _ramda.contains)(id, controllerId);
-        });
-        if (thisRequest.status === _constants.STATUS.OK) {
-            isLoading = false;
-        }
-    }
-
-    // Set loading state
-    var loading_state = {
-        is_loading: isLoading,
-        prop_name: loadingProp,
-        component_name: loadingComponent
-    };
-
-    return _react2.default.createElement(
-        _NotifyObservers2.default,
-        {
-            key: componentProps.id,
-            id: componentProps.id,
-            loading_state: loading_state
-        },
-        parent
-    );
+function mapDispatchToProps(dispatch) {
+    return { dispatch: dispatch };
 }
 
-function mapStateToProps(state, ownProps) {
+function mapStateToProps(state) {
     return {
-        layout: ownProps.layout,
-        loading: ownProps.loading,
+        dependencies: state.dependenciesRequest.content,
+        paths: state.paths,
         requestQueue: state.requestQueue
     };
 }
 
-exports.default = (0, _reactRedux.connect)(mapStateToProps)(TreeContainer);
+function mergeProps(stateProps, dispatchProps, ownProps) {
+    return {
+        _dashprivate_dependencies: stateProps.dependencies,
+        _dashprivate_dispatch: dispatchProps.dispatch,
+        _dashprivate_layout: ownProps._dashprivate_layout,
+        _dashprivate_loading: ownProps._dashprivate_loading,
+        _dashprivate_paths: stateProps.paths,
+        _dashprivate_requestQueue: stateProps.requestQueue
+    };
+}
+
+var AugmentedTreeContainer = exports.AugmentedTreeContainer = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps, mergeProps)(TreeContainer);
+
+exports.default = AugmentedTreeContainer;
 
 /***/ }),
 
@@ -34052,7 +34123,7 @@ function notifyObservers(payload) {
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
             var outputIds = void 0;
             if (outputIdAndProp.startsWith('..')) {
-                outputIds = outputIdAndProp.slice(1, outputIdAndProp.length - 2).split('...').map(function (e) {
+                outputIds = outputIdAndProp.slice(2, outputIdAndProp.length - 2).split('...').map(function (e) {
                     return e.split('.')[0];
                 });
             } else {
@@ -34633,139 +34704,6 @@ exports.default = (0, _reactRedux.connect)(function (state) {
         requestQueue: state.requestQueue
     };
 })(Loading);
-
-/***/ }),
-
-/***/ "./src/components/core/NotifyObservers.react.js":
-/*!******************************************************!*\
-  !*** ./src/components/core/NotifyObservers.react.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/lib/index.js");
-
-var _actions = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
-
-var _react = __webpack_require__(/*! react */ "react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/*
- * NotifyObservers passes a connected `setProps` handler down to
- * its child as a prop
- */
-
-function mapStateToProps(state) {
-    return {
-        dependencies: state.dependenciesRequest.content,
-        paths: state.paths
-    };
-}
-
-function mapDispatchToProps(dispatch) {
-    return { dispatch: dispatch };
-}
-
-function mergeProps(stateProps, dispatchProps, ownProps) {
-    var dispatch = dispatchProps.dispatch;
-
-    return {
-        id: ownProps.id,
-        children: ownProps.children,
-        dependencies: stateProps.dependencies,
-        paths: stateProps.paths,
-        loading_state: ownProps.loading_state,
-        requestQueue: stateProps.requestQueue,
-
-        setProps: function setProps(newProps) {
-            var payload = {
-                props: newProps,
-                id: ownProps.id,
-                itempath: stateProps.paths[ownProps.id]
-            };
-
-            // Update this component's props
-            dispatch((0, _actions.updateProps)(payload));
-
-            // Update output components that depend on this input
-            dispatch((0, _actions.notifyObservers)({ id: ownProps.id, props: newProps }));
-        }
-    };
-}
-
-function NotifyObserversComponent(_ref) {
-    var children = _ref.children,
-        id = _ref.id,
-        paths = _ref.paths,
-        dependencies = _ref.dependencies,
-        setProps = _ref.setProps,
-        loading_state = _ref.loading_state;
-
-    var thisComponentSharesState = dependencies && dependencies.find(function (dependency) {
-        return dependency.inputs.find(function (input) {
-            return input.id === id;
-        }) || dependency.state.find(function (state) {
-            return state.id === id;
-        });
-    });
-    /*
-     * Only pass in `setProps` if necessary.
-     * This allows component authors to skip computing unneeded data
-     * for `setProps`, which can be expensive.
-     * For example, consider `hoverData` for graphs. If it isn't
-     * actually used, then the component author can skip binding
-     * the events for the component.
-     *
-     * TODO - A nice enhancement would be to pass in the actual
-     * properties that are used into the component so that the
-     * component author can check for something like
-     * `subscribed_properties` instead of just `setProps`.
-     */
-    var extraProps = {};
-    if (thisComponentSharesState &&
-    // there is a bug with graphs right now where
-    // the restyle listener gets assigned with a
-    // setProps function that was created before
-    // the item was added. only pass in setProps
-    // if the item's path exists for now.
-    paths[id]) {
-        extraProps.setProps = setProps;
-    }
-
-    if (children.props && !children.props.loading_state) {
-        extraProps.loading_state = loading_state;
-    }
-
-    if (!(0, _ramda.isEmpty)(extraProps)) {
-        return _react2.default.cloneElement(children, extraProps);
-    }
-    return children;
-}
-
-NotifyObserversComponent.propTypes = {
-    id: _propTypes2.default.string.isRequired,
-    children: _propTypes2.default.node.isRequired,
-    path: _propTypes2.default.array.isRequired,
-    loading_state: _propTypes2.default.object
-};
-
-exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps, mergeProps)(NotifyObserversComponent);
 
 /***/ }),
 
