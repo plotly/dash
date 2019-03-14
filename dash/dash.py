@@ -20,10 +20,10 @@ import flask
 from flask import Flask, Response
 from flask_compress import Compress
 
+from dash_component_system import DashComponent
+
 import plotly
 import dash_renderer
-
-from dash_component_system import DashComponent
 
 from .dependencies import Input, Output, State
 from .resources import Scripts, Css
