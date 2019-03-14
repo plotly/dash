@@ -2230,6 +2230,26 @@ class Tests(IntegrationTests):
 
         self.assertEqual(call_count.value, 7)
 
+    def test_single_output_as_multi(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.Input(id='input', value=''),
+            html.Div(html.Div(id='output'), id='output-container'),
+        ])
+
+        @app.callback(
+            [Output('output', 'children')],
+            [Input('input', 'value')])
+        def update_output(value):
+            return ['out' + value]
+
+        self.startServer(app)
+
+        input = self.wait_for_element_by_css_selector('#input')
+        input.send_keys('house')
+        self.wait_for_text_to_equal('#output', 'outhouse')
+
     def test_multi_output_circular_dependencies(self):
         app = dash.Dash(__name__)
         app.config['suppress_callback_exceptions'] = True

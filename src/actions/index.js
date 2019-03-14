@@ -243,7 +243,7 @@ export function notifyObservers(payload) {
             let outputIds;
             if (outputIdAndProp.startsWith('..')) {
                 outputIds = outputIdAndProp
-                    .slice(1, outputIdAndProp.length - 2)
+                    .slice(2, outputIdAndProp.length - 2)
                     .split('...')
                     .map(e => e.split('.')[0]);
             } else {
