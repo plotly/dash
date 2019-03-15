@@ -3,7 +3,7 @@ import inspect
 import sys
 import six
 
-from dash_component_system import ComponentHooks
+from dash_component_system import ComponentHooks, DashComponent
 
 from .._utils import patch_collections_abc
 
@@ -127,7 +127,7 @@ class Component(patch_collections_abc('MutableMapping')):
 
         # pylint: disable=access-member-before-definition,
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(self.children, Component):
+        if isinstance(self.children, (Component, DashComponent)):
             if getattr(self.children, 'id', None) is not None:
                 # Woohoo! It's the item that we're looking for
                 if self.children.id == id:
@@ -169,7 +169,7 @@ class Component(patch_collections_abc('MutableMapping')):
 
                 # Otherwise, recursively dig into that item's subtree
                 # Make sure it's not like a string
-                elif isinstance(item, Component):
+                elif isinstance(item, (Component, DashComponent)):
                     try:
                         if operation == 'get':
                             return item.__getitem__(id)
@@ -239,14 +239,14 @@ class Component(patch_collections_abc('MutableMapping')):
                 )
                 yield list_path, i
 
-                if isinstance(i, Component):
+                if isinstance(i, (Component, DashComponent)):
                     for p, t in i.traverse_with_paths():
                         yield "\n".join([list_path, p]), t
 
     def __iter__(self):
         """Yield IDs in the tree of children."""
         for t in self.traverse():
-            if (isinstance(t, Component) and
+            if (isinstance(t, (Component, DashComponent)) and
                     getattr(t, 'id', None) is not None):
 
                 yield t.id
@@ -260,13 +260,13 @@ class Component(patch_collections_abc('MutableMapping')):
         length = 0
         if getattr(self, 'children', None) is None:
             length = 0
-        elif isinstance(self.children, Component):
+        elif isinstance(self.children, (Component, DashComponent)):
             length = 1
             length += len(self.children)
         elif isinstance(self.children, (tuple, MutableSequence)):
             for c in self.children:
                 length += 1
-                if isinstance(c, Component):
+                if isinstance(c, (Component, DashComponent)):
                     length += len(c)
         else:
             # string or number
