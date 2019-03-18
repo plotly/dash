@@ -18,31 +18,47 @@ export default class RangeSlider extends Component {
     }
 
     render() {
-        const {setProps, updatemode, loading_state} = this.props;
+        const {
+            className,
+            id,
+            loading_state,
+            setProps,
+            updatemode,
+            vertical,
+        } = this.props;
         const {value} = this.state;
         return (
-            <Range
+            <div
+                id={id}
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
-                onChange={value => {
-                    this.setState({value});
-                    if (updatemode === 'drag') {
-                        if (setProps) {
-                            setProps({value});
+                className={className}
+                style={vertical ? {height: '100%'} : {}}
+            >
+                <Range
+                    onChange={value => {
+                        this.setState({value});
+                        if (updatemode === 'drag') {
+                            if (setProps) {
+                                setProps({value});
+                            }
                         }
-                    }
-                }}
-                onAfterChange={value => {
-                    if (updatemode === 'mouseup') {
-                        if (setProps) {
-                            setProps({value});
+                    }}
+                    onAfterChange={value => {
+                        if (updatemode === 'mouseup') {
+                            if (setProps) {
+                                setProps({value});
+                            }
                         }
-                    }
-                }}
-                value={value}
-                {...omit(['value', 'setProps', 'updatemode'], this.props)}
-            />
+                    }}
+                    value={value}
+                    {...omit(
+                        ['className', 'value', 'setProps', 'updatemode'],
+                        this.props
+                    )}
+                />
+            </div>
         );
     }
 }
