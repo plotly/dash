@@ -10,7 +10,7 @@ Update and track the current window.location object through the window.history s
 }
 
 \usage{
-dccLocation(id=NULL, pathname=NULL, search=NULL, hash=NULL, href=NULL, refresh=NULL)
+dccLocation(id=NULL, pathname=NULL, search=NULL, hash=NULL, href=NULL, refresh=NULL, ...)
 }
 
 \arguments{

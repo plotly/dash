@@ -10,7 +10,7 @@ ConfirmDialog is used to display the browser's native "confirm" modal, with an o
 }
 
 \usage{
-dccConfirmDialog(id=NULL, message=NULL, submit_n_clicks=NULL, submit_n_clicks_timestamp=NULL, cancel_n_clicks=NULL, cancel_n_clicks_timestamp=NULL, displayed=NULL, key=NULL)
+dccConfirmDialog(id=NULL, message=NULL, submit_n_clicks=NULL, submit_n_clicks_timestamp=NULL, cancel_n_clicks=NULL, cancel_n_clicks_timestamp=NULL, displayed=NULL, key=NULL, ...)
 }
 
 \arguments{

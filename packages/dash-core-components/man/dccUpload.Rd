@@ -10,7 +10,7 @@
 }
 
 \usage{
-dccUpload(children=NULL, id=NULL, contents=NULL, filename=NULL, last_modified=NULL, accept=NULL, disabled=NULL, disable_click=NULL, max_size=NULL, min_size=NULL, multiple=NULL, className=NULL, className_active=NULL, className_reject=NULL, className_disabled=NULL, style=NULL, style_active=NULL, style_reject=NULL, style_disabled=NULL, loading_state=NULL)
+dccUpload(children=NULL, id=NULL, contents=NULL, filename=NULL, last_modified=NULL, accept=NULL, disabled=NULL, disable_click=NULL, max_size=NULL, min_size=NULL, multiple=NULL, className=NULL, className_active=NULL, className_reject=NULL, className_disabled=NULL, style=NULL, style_active=NULL, style_reject=NULL, style_disabled=NULL, loading_state=NULL, ...)
 }
 
 \arguments{

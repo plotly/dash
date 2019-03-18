@@ -10,7 +10,7 @@ A component that repeatedly increments a counter `n_intervals` with a fixed time
 }
 
 \usage{
-dccInterval(id=NULL, interval=NULL, disabled=NULL, n_intervals=NULL, max_intervals=NULL)
+dccInterval(id=NULL, interval=NULL, disabled=NULL, n_intervals=NULL, max_intervals=NULL, ...)
 }
 
 \arguments{

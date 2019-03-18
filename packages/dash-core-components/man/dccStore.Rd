@@ -10,7 +10,7 @@ Easily keep data on the client side with this component. The data is not inserte
 }
 
 \usage{
-dccStore(id=NULL, storage_type=NULL, data=NULL, clear_data=NULL, modified_timestamp=NULL)
+dccStore(id=NULL, storage_type=NULL, data=NULL, clear_data=NULL, modified_timestamp=NULL, ...)
 }
 
 \arguments{

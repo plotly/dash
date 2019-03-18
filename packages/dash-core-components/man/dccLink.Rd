@@ -10,7 +10,7 @@
 }
 
 \usage{
-dccLink(children=NULL, href=NULL, refresh=NULL, className=NULL, style=NULL, id=NULL, loading_state=NULL)
+dccLink(children=NULL, href=NULL, refresh=NULL, className=NULL, style=NULL, id=NULL, loading_state=NULL, ...)
 }
 
 \arguments{

@@ -10,7 +10,7 @@ A component that renders Markdown text as specified by the CommonMark spec.
 }
 
 \usage{
-dccMarkdown(children=NULL, id=NULL, className=NULL, containerProps=NULL, dangerously_allow_html=NULL, loading_state=NULL)
+dccMarkdown(children=NULL, id=NULL, className=NULL, containerProps=NULL, dangerously_allow_html=NULL, loading_state=NULL, ...)
 }
 
 \arguments{

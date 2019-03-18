@@ -17,13 +17,11 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_table_experiments as dt
 from dash.exceptions import PreventUpdate
-from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import InvalidElementStateException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 from textwrap import dedent
 try:
@@ -642,7 +640,11 @@ class Tests(IntegrationTests):
                             'x': [1, 2, 3, 4],
                             'y': [4, 3, 2, 1]
                         }
-                    ]
+                    ],
+                    'layout': {
+                        'width': 700,
+                        'height': 450
+                    }
                 }
 
         self.startServer(app=app)
@@ -1018,12 +1020,37 @@ class Tests(IntegrationTests):
                     }
                 }
             ),
-
+            html.Div(id='restyle-data'),
+            html.Div(id='relayout-data')
         ])
+
+        @app.callback(Output('restyle-data', 'children'), [Input('example-graph', 'restyleData')])
+        def show_restyle_data(data):
+            if data is None:  # ignore initial
+                return ''
+            return json.dumps(data)
+
+        @app.callback(Output('relayout-data', 'children'), [Input('example-graph', 'relayoutData')])
+        def show_relayout_data(data):
+            if data is None or 'autosize' in data:  # ignore initial & auto width
+                return ''
+            return json.dumps(data)
 
         self.startServer(app=app)
 
         self.snapshot('2 graphs with different figures')
+
+        # use this opportunity to test restyleData, since there are multiple
+        # traces on this graph
+        legendToggle = self.driver.find_element_by_css_selector('#example-graph .traces:first-child .legendtoggle')
+        legendToggle.click()
+        self.wait_for_text_to_equal('#restyle-data', '[{"visible": ["legendonly"]}, [0]]')
+
+        # and test relayoutData while we're at it
+        autoscale = self.driver.find_element_by_css_selector('#example-graph .ewdrag')
+        autoscale.click()
+        autoscale.click()
+        self.wait_for_text_to_equal('#relayout-data', '{"xaxis.autorange": true}')
 
     def test_graphs_without_ids(self):
         app = dash.Dash(__name__)
@@ -1173,8 +1200,8 @@ class Tests(IntegrationTests):
                     return 'canceled'
 
         self.startServer(app)
-        self.snapshot(test_name + ' -> initial')
         button = self.wait_for_element_by_css_selector('#button')
+        self.snapshot(test_name + ' -> initial')
 
         button.click()
         time.sleep(1)
