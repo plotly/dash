@@ -37,3 +37,4 @@ function createApiReducer(store) {
 export const dependenciesRequest = createApiReducer('dependenciesRequest');
 export const layoutRequest = createApiReducer('layoutRequest');
 export const reloadRequest = createApiReducer('reloadRequest');
+export const loginRequest = createApiReducer('loginRequest');

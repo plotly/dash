@@ -19,13 +19,13 @@ const reducer = combineReducers({
     paths,
     requestQueue,
     config,
-    dependenciesRequest: API.dependenciesRequest,
-    layoutRequest: API.layoutRequest,
-    loginRequest: API.loginRequest,
     history,
     error,
     hooks,
+    dependenciesRequest: API.dependenciesRequest,
+    layoutRequest: API.layoutRequest,
     reloadRequest: API.reloadRequest,
+    loginRequest: API.loginRequest,
 });
 
 function getInputHistoryState(itempath, props, state) {

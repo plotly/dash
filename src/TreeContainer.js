@@ -171,7 +171,7 @@ class TreeContainer extends Component {
                 componentType={_dashprivate_layout.type}
                 componentId={_dashprivate_layout.props.id}
             >
-                this.getComponent(_dashprivate_layout, children, loadingState, setProps);
+                {this.getComponent(_dashprivate_layout, children, loadingState, setProps)}
             </ComponentErrorBoundary>
         )
     }
