@@ -496,7 +496,7 @@ class Dash(object):
                 'Registered libraries are: {}'
                 .format(package_name, list(self.registered_paths.keys())))
 
-        elif path_in_package_dist not in self.registered_paths[package_name]:
+        if path_in_package_dist not in self.registered_paths[package_name]:
             raise exceptions.DependencyException(
                 '"{}" is registered but the path requested is not valid.\n'
                 'The path requested: "{}"\n'
