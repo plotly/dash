@@ -20,7 +20,7 @@ import flask
 from flask import Flask, Response
 from flask_compress import Compress
 
-from dash_component_system import DashComponent
+from dash_component_system import DashComponent, UNDEFINED
 
 import plotly
 import dash_renderer
@@ -1092,8 +1092,8 @@ class Dash(object):
 
         component_ids = {layout_id} if layout_id else set()
         for component in to_validate.traverse():
-            component_id = getattr(component, 'id', None)
-            if component_id and component_id in component_ids:
+            component_id = getattr(component, 'id', UNDEFINED)
+            if component_id is not UNDEFINED and component_id in component_ids:
                 raise exceptions.DuplicateIdError(
                     'Duplicate component id found'
                     ' in the initial layout: `{}`'.format(component_id))
