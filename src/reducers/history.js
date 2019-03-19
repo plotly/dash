@@ -35,7 +35,7 @@ function history(state = initialHistory, action) {
             return {
                 past: newPast,
                 present: previous,
-                future: [ ...future ]
+                future: [...future],
             };
         }
 

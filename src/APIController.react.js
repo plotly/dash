@@ -100,7 +100,7 @@ class UnconnectedContainer extends Component {
         } else if (appLifecycle === getAppState('HYDRATED')) {
             return (
                 <GlobalErrorContainer>
-                    <TreeContainer _dashprivate_layout={layout}/>
+                    <TreeContainer _dashprivate_layout={layout} />
                 </GlobalErrorContainer>
             );
         }
@@ -119,8 +119,8 @@ UnconnectedContainer.propTypes = {
     layout: PropTypes.object,
     paths: PropTypes.object,
     history: PropTypes.array,
-    error: PropTypes.object
-}
+    error: PropTypes.object,
+};
 
 const Container = connect(
     // map state to props
@@ -132,7 +132,7 @@ const Container = connect(
         graphs: state.graphs,
         paths: state.paths,
         history: state.history,
-        error: state.error
+        error: state.error,
     }),
     dispatch => ({dispatch})
 )(UnconnectedContainer);

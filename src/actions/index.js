@@ -44,7 +44,6 @@ export const setHooks = createAction(getAction('SET_HOOKS'));
 export const onError = createAction(getAction('ON_ERROR'));
 export const resolveError = createAction(getAction('RESOLVE_ERROR'));
 
-
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
         triggerDefaultState(dispatch, getState);
@@ -142,27 +141,29 @@ export function undo() {
     };
 }
 
-
 export function revert() {
-    return function (dispatch, getState) {
+    return function(dispatch, getState) {
         const history = getState().history;
         dispatch(createAction('REVERT')());
         const previous = history.past[history.past.length - 1];
 
         // Update props
-        dispatch(createAction('UNDO_PROP_CHANGE')({
-            itempath: getState().paths[previous.id],
-            props: previous.props
-        }));
+        dispatch(
+            createAction('UNDO_PROP_CHANGE')({
+                itempath: getState().paths[previous.id],
+                props: previous.props,
+            })
+        );
 
         // Notify observers
-        dispatch(notifyObservers({
-            id: previous.id,
-            props: previous.props
-        }));
-    }
+        dispatch(
+            notifyObservers({
+                id: previous.id,
+                props: previous.props,
+            })
+        );
+    };
 }
-
 
 function reduceInputIds(nodeIds, InputGraph) {
     /*
@@ -494,101 +495,101 @@ function updateOutput(
         },
         credentials: 'same-origin',
         body: JSON.stringify(payload),
-    }).then(function handleResponse(res) {
-
-        if (!res.ok) {
-            throw res;
-        }
-
-        const getThisRequestIndex = () => {
-            const postRequestQueue = getState().requestQueue;
-            const thisRequestIndex = findIndex(
-                propEq('uid', requestUid),
-                postRequestQueue
-            );
-            return thisRequestIndex;
-        };
-
-        const updateRequestQueue = rejected => {
-            const postRequestQueue = getState().requestQueue;
-            const thisRequestIndex = getThisRequestIndex();
-            if (thisRequestIndex === -1) {
-                // It was already pruned away
-                return;
+    })
+        .then(function handleResponse(res) {
+            if (!res.ok) {
+                throw res;
             }
-            const updatedQueue = adjust(
-                merge(__, {
-                    status: res.status,
-                    responseTime: Date.now(),
-                    rejected,
-                }),
-                thisRequestIndex,
-                postRequestQueue
-            );
-            // We don't need to store any requests before this one
-            const thisControllerId =
-                postRequestQueue[thisRequestIndex].controllerId;
-            const prunedQueue = updatedQueue.filter((queueItem, index) => {
-                return (
-                    queueItem.controllerId !== thisControllerId ||
-                    index >= thisRequestIndex
+
+            const getThisRequestIndex = () => {
+                const postRequestQueue = getState().requestQueue;
+                const thisRequestIndex = findIndex(
+                    propEq('uid', requestUid),
+                    postRequestQueue
                 );
-            });
+                return thisRequestIndex;
+            };
 
-            dispatch(setRequestQueue(prunedQueue));
-        };
+            const updateRequestQueue = rejected => {
+                const postRequestQueue = getState().requestQueue;
+                const thisRequestIndex = getThisRequestIndex();
+                if (thisRequestIndex === -1) {
+                    // It was already pruned away
+                    return;
+                }
+                const updatedQueue = adjust(
+                    merge(__, {
+                        status: res.status,
+                        responseTime: Date.now(),
+                        rejected,
+                    }),
+                    thisRequestIndex,
+                    postRequestQueue
+                );
+                // We don't need to store any requests before this one
+                const thisControllerId =
+                    postRequestQueue[thisRequestIndex].controllerId;
+                const prunedQueue = updatedQueue.filter((queueItem, index) => {
+                    return (
+                        queueItem.controllerId !== thisControllerId ||
+                        index >= thisRequestIndex
+                    );
+                });
 
-        const isRejected = () => {
-            const latestRequestIndex = findLastIndex(
-                propEq('controllerId', outputIdAndProp),
-                getState().requestQueue
-            );
-            /*
+                dispatch(setRequestQueue(prunedQueue));
+            };
+
+            const isRejected = () => {
+                const latestRequestIndex = findLastIndex(
+                    propEq('controllerId', outputIdAndProp),
+                    getState().requestQueue
+                );
+                /*
              * Note that if the latest request is still `loading`
              * or even if the latest request failed,
              * we still reject this response in favor of waiting
              * for the latest request to finish.
              */
-            const rejected = latestRequestIndex > getThisRequestIndex();
-            return rejected;
-        };
+                const rejected = latestRequestIndex > getThisRequestIndex();
+                return rejected;
+            };
 
-        if (res.status !== STATUS.OK) {
-            // update the status of this request
-            updateRequestQueue(true);
-            return;
-        }
+            if (res.status !== STATUS.OK) {
+                // update the status of this request
+                updateRequestQueue(true);
+                return;
+            }
 
-        /*
+            /*
          * Check to see if another request has already come back
          * _after_ this one.
          * If so, ignore this request.
          */
-        if (isRejected()) {
-            updateRequestQueue(true);
-            return;
-        }
-
-        res.json().then(function handleJson(data) {
-            /*
-             * Even if the `res` was received in the correct order,
-             * the remainder of the response (res.json()) could happen
-             * at different rates causing the parsed responses to
-             * get out of order
-             */
             if (isRejected()) {
                 updateRequestQueue(true);
                 return;
             }
 
-            updateRequestQueue(false);
+            res.json().then(function handleJson(data) {
+                /*
+             * Even if the `res` was received in the correct order,
+             * the remainder of the response (res.json()) could happen
+             * at different rates causing the parsed responses to
+             * get out of order
+             */
+                if (isRejected()) {
+                    updateRequestQueue(true);
+                    return;
+                }
 
-            // Fire custom request_post hook if any
-            if (hooks.request_post !== null) {
-                hooks.request_post(payload, data.response);
-            }
+                updateRequestQueue(false);
 
-            /*
+                // Fire custom request_post hook if any
+                if (hooks.request_post !== null) {
+                    hooks.request_post(payload, data.response);
+                }
+
+                /*
              * it's possible that this output item is no longer visible.
              * for example, the could still be request running when
              * the user switched the chapter
@@ -597,92 +598,94 @@ function updateOutput(
              * to the store
              */
 
-            const multi = data.multi;
+                const multi = data.multi;
 
-            const handleResponse = ([outputIdAndProp, props]) => {
-                // Backward compatibility
-                const pathKey = multi ? outputIdAndProp : outputComponentId;
-                const observerUpdatePayload = {
-                    itempath: getState().paths[pathKey],
-                    props,
-                    source: 'response',
-                };
-                if (!observerUpdatePayload.itempath) {
-                    return;
-                }
-                dispatch(updateProps(observerUpdatePayload));
+                const handleResponse = ([outputIdAndProp, props]) => {
+                    // Backward compatibility
+                    const pathKey = multi ? outputIdAndProp : outputComponentId;
+                    const observerUpdatePayload = {
+                        itempath: getState().paths[pathKey],
+                        props,
+                        source: 'response',
+                    };
+                    if (!observerUpdatePayload.itempath) {
+                        return;
+                    }
+                    dispatch(updateProps(observerUpdatePayload));
 
-                dispatch(
-                    notifyObservers({
-                        id: pathKey,
-                        props: props,
-                    })
-                );
-
-                /*
-                 * If the response includes children, then we need to update our
-                 * paths store.
-                 * TODO - Do we need to wait for updateProps to finish?
-                 */
-                if (has('children', observerUpdatePayload.props)) {
                     dispatch(
-                        computePaths({
-                            subTree: observerUpdatePayload.props.children,
-                            startingPath: concat(getState().paths[pathKey], [
-                                'props',
-                                'children',
-                            ]),
+                        notifyObservers({
+                            id: pathKey,
+                            props: props,
                         })
                     );
 
                     /*
+                 * If the response includes children, then we need to update our
+                 * paths store.
+                 * TODO - Do we need to wait for updateProps to finish?
+                 */
+                    if (has('children', observerUpdatePayload.props)) {
+                        dispatch(
+                            computePaths({
+                                subTree: observerUpdatePayload.props.children,
+                                startingPath: concat(
+                                    getState().paths[pathKey],
+                                    ['props', 'children']
+                                ),
+                            })
+                        );
+
+                        /*
                     * if children contains objects with IDs, then we
                     * need to dispatch a propChange for all of these
                     * new children components
                     */
-                    if (
-                        contains(type(observerUpdatePayload.props.children), [
-                            'Array',
-                            'Object',
-                        ]) &&
-                        !isEmpty(observerUpdatePayload.props.children)
-                    ) {
-                        /*
+                        if (
+                            contains(
+                                type(observerUpdatePayload.props.children),
+                                ['Array', 'Object']
+                            ) &&
+                            !isEmpty(observerUpdatePayload.props.children)
+                        ) {
+                            /*
                          * TODO: We're just naively crawling
                          * the _entire_ layout to recompute the
                          * the dependency graphs.
                          * We don't need to do this - just need
                          * to compute the subtree
                          */
-                        const newProps = {};
-                        crawlLayout(
-                            observerUpdatePayload.props.children,
-                            function appendIds(child) {
-                                if (hasId(child)) {
-                                    keys(child.props).forEach(childProp => {
-                                        const componentIdAndProp = `${
-                                            child.props.id
-                                        }.${childProp}`;
-                                        if (
-                                            has(
-                                                componentIdAndProp,
-                                                InputGraph.nodes
-                                            )
-                                        ) {
-                                            newProps[componentIdAndProp] = {
-                                                id: child.props.id,
-                                                props: {
-                                                    [childProp]:
-                                                        child.props[childProp],
-                                                },
-                                            };
-                                        }
-                                    });
+                            const newProps = {};
+                            crawlLayout(
+                                observerUpdatePayload.props.children,
+                                function appendIds(child) {
+                                    if (hasId(child)) {
+                                        keys(child.props).forEach(childProp => {
+                                            const componentIdAndProp = `${
+                                                child.props.id
+                                            }.${childProp}`;
+                                            if (
+                                                has(
+                                                    componentIdAndProp,
+                                                    InputGraph.nodes
+                                                )
+                                            ) {
+                                                newProps[componentIdAndProp] = {
+                                                    id: child.props.id,
+                                                    props: {
+                                                        [childProp]:
+                                                            child.props[
+                                                                childProp
+                                                            ],
+                                                    },
+                                                };
+                                            }
+                                        });
+                                    }
                                 }
-                            }
-                        );
+                            );
 
-                        /*
+                            /*
                          * Organize props by shared outputs so that we
                          * only make one request per output component
                          * (even if there are multiple inputs).
@@ -692,7 +695,7 @@ function updateOutput(
                          * to make a single call, not 10 calls.
                          */
 
-                        /*
+                            /*
                          * In some cases, the new item will be an output
                          * with its inputs already rendered (not rendered)
                          * as part of this update.
@@ -708,88 +711,91 @@ function updateOutput(
                          * special case (no input changed?)
                          */
 
-                        const outputIds = [];
-                        keys(newProps).forEach(idAndProp => {
-                            if (
-                                // It's an output
-                                InputGraph.dependenciesOf(idAndProp).length ===
-                                    0 &&
-                                /*
+                            const outputIds = [];
+                            keys(newProps).forEach(idAndProp => {
+                                if (
+                                    // It's an output
+                                    InputGraph.dependenciesOf(idAndProp)
+                                        .length === 0 &&
+                                    /*
                                  * And none of its inputs are generated in this
                                  * request
                                  */
-                                intersection(
-                                    InputGraph.dependantsOf(idAndProp),
-                                    keys(newProps)
-                                ).length === 0
-                            ) {
-                                outputIds.push(idAndProp);
-                                delete newProps[idAndProp];
-                            }
-                        });
+                                    intersection(
+                                        InputGraph.dependantsOf(idAndProp),
+                                        keys(newProps)
+                                    ).length === 0
+                                ) {
+                                    outputIds.push(idAndProp);
+                                    delete newProps[idAndProp];
+                                }
+                            });
 
-                        // Dispatch updates to inputs
-                        const reducedNodeIds = reduceInputIds(
-                            keys(newProps),
-                            InputGraph
-                        );
-                        const depOrder = InputGraph.overallOrder();
-                        const sortedNewProps = sort(
-                            (a, b) =>
-                                depOrder.indexOf(a.input) -
-                                depOrder.indexOf(b.input),
-                            reducedNodeIds
-                        );
-                        sortedNewProps.forEach(function(inputOutput) {
-                            const payload = newProps[inputOutput.input];
-                            payload.excludedOutputs =
-                                inputOutput.excludedOutputs;
-                            dispatch(notifyObservers(payload));
-                        });
+                            // Dispatch updates to inputs
+                            const reducedNodeIds = reduceInputIds(
+                                keys(newProps),
+                                InputGraph
+                            );
+                            const depOrder = InputGraph.overallOrder();
+                            const sortedNewProps = sort(
+                                (a, b) =>
+                                    depOrder.indexOf(a.input) -
+                                    depOrder.indexOf(b.input),
+                                reducedNodeIds
+                            );
+                            sortedNewProps.forEach(function(inputOutput) {
+                                const payload = newProps[inputOutput.input];
+                                payload.excludedOutputs =
+                                    inputOutput.excludedOutputs;
+                                dispatch(notifyObservers(payload));
+                            });
 
-                        // Dispatch updates to lone outputs
-                        outputIds.forEach(idAndProp => {
-                            const requestUid = uid();
-                            dispatch(
-                                setRequestQueue(
-                                    append(
-                                        {
-                                            // TODO - Are there any implications of doing this??
-                                            controllerId: null,
-                                            status: 'loading',
-                                            uid: requestUid,
-                                            requestTime: Date.now(),
-                                        },
-                                        getState().requestQueue
+                            // Dispatch updates to lone outputs
+                            outputIds.forEach(idAndProp => {
+                                const requestUid = uid();
+                                dispatch(
+                                    setRequestQueue(
+                                        append(
+                                            {
+                                                // TODO - Are there any implications of doing this??
+                                                controllerId: null,
+                                                status: 'loading',
+                                                uid: requestUid,
+                                                requestTime: Date.now(),
+                                            },
+                                            getState().requestQueue
+                                        )
                                     )
-                                )
-                            );
-                            updateOutput(
-                                idAndProp,
+                                );
+                                updateOutput(
+                                    idAndProp,
 
-                                getState,
-                                requestUid,
-                                dispatch,
-                                changedPropIds
-                            );
-                        });
+                                    getState,
+                                    requestUid,
+                                    dispatch,
+                                    changedPropIds
+                                );
+                            });
+                        }
                     }
+                };
+                if (multi) {
+                    Object.entries(data.response).forEach(handleResponse);
+                } else {
+                    handleResponse([outputIdAndProp, data.response.props]);
                 }
-            };
-            if (multi) {
-                Object.entries(data.response).forEach(handleResponse);
-            } else {
-                handleResponse([outputIdAndProp, data.response.props]);
-            }
+            });
+        })
+        .catch(err => {
+            err.text().then(text => {
+                dispatch(
+                    onError({
+                        type: 'backEnd',
+                        errorPage: text,
+                    })
+                );
+            });
         });
-    }).catch(err => {
-      err.text().then(text => {
-        dispatch(onError({
-          type: 'backEnd',
-          errorPage: text
-        }))
-      });
-    });
 }
 
 export function serialize(state) {

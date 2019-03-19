@@ -4,19 +4,11 @@ import './ComponentErrorOverlay.css';
 
 export default class ComponentErrorOverlay extends Component {
     render() {
-        const {
-            componentId,
-            componentType,
-        } = this.props;
-        const errorLocationString =
-            `Error in <${componentType} id="${componentId}">`;
+        const {componentId, componentType} = this.props;
+        const errorLocationString = `Error in <${componentType} id="${componentId}">`;
 
         return (
-            <div
-                className={'dash-error-overlay'}
-            >
-                {errorLocationString}
-            </div>
+            <div className={'dash-error-overlay'}>{errorLocationString}</div>
         );
     }
 }

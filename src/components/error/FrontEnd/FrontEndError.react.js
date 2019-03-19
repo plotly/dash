@@ -35,9 +35,7 @@ class FrontEndError extends Component {
         }
         return collapsed ? (
             <div className="dash-error-card__list-item">
-                <ErrorIcon
-                    className="dash-fe-error__icon-error"
-                />
+                <ErrorIcon className="dash-fe-error__icon-error" />
                 <h6 className="dash-fe-error__title">
                     {e.error.message ||
                         'An error was thrown that was not an Error object, so info could not be gathered.'}
@@ -50,17 +48,19 @@ class FrontEndError extends Component {
         ) : (
             <div className={cardClasses}>
                 <div className="dash-fe-error-top">
-                    <ErrorIcon
-                        className="dash-fe-error__icon-error"
-                    />
+                    <ErrorIcon className="dash-fe-error__icon-error" />
                     <h6 className="dash-fe-error__title">
                         {e.error.message ||
                             'An error was thrown that was not an Error object, so info could not be gathered.'}
                     </h6>
-                    {this.props.isListItem ? <CollapseIcon
-                        className="dash-fe-error__collapse dash-fe-error__collapse--flipped"
-                        onClick={() => this.setState({collapsed: true})}
-                    /> : closeButton}
+                    {this.props.isListItem ? (
+                        <CollapseIcon
+                            className="dash-fe-error__collapse dash-fe-error__collapse--flipped"
+                            onClick={() => this.setState({collapsed: true})}
+                        />
+                    ) : (
+                        closeButton
+                    )}
                 </div>
                 <div className="dash-fe-error__st">
                     {e.error.stack &&

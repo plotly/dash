@@ -74,14 +74,16 @@ function apiThunk(endpoint, method, store, id, body, headers = {}) {
                 console.error(err);
                 /* eslint-enable no-console */
                 err.text().then(text => {
-                    dispatch(onError({
-                        type: 'backEnd',
-                        errorPage: text
-                    }));
+                    dispatch(
+                        onError({
+                            type: 'backEnd',
+                            errorPage: text,
+                        })
+                    );
                 });
             });
     };
-};
+}
 
 export function getLayout() {
     return apiThunk('_dash-layout', 'GET', 'layoutRequest');

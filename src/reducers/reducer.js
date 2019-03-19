@@ -81,10 +81,7 @@ function recordHistory(reducer) {
             );
             if (historyEntry && !R.isEmpty(historyEntry.props)) {
                 nextState.history = {
-                    past: [
-                        ...nextState.history.past, 
-                        state.history.present
-                    ],
+                    past: [...nextState.history.past, state.history.present],
                     present: historyEntry,
                     future: [],
                 };

@@ -38,9 +38,7 @@ class UnconnectedGlobalErrorContainer extends Component {
                     dispatch={dispatch}
                     resolveError={this.resolveError}
                 >
-                    <div id='_dash-app-content'>
-                        {this.props.children}
-                    </div>
+                    <div id="_dash-app-content">{this.props.children}</div>
                 </DebugMenu>
             </div>
         );
