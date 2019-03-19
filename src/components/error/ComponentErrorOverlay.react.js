@@ -9,7 +9,7 @@ export default class ComponentErrorOverlay extends Component {
             componentType,
         } = this.props;
         const errorLocationString =
-            `Error in ${componentType} (id=${componentId})`;
+            `Error in <${componentType} id="${componentId}">`;
 
         return (
             <div

@@ -173,7 +173,7 @@ class TreeContainer extends Component {
             >
                 {this.getComponent(_dashprivate_layout, children, loadingState, setProps)}
             </ComponentErrorBoundary>
-        )
+        );
     }
 }
 

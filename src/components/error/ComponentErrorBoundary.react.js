@@ -27,7 +27,7 @@ class UnconnectedComponentErrorBoundary extends Component {
       error,
       info
     }));
-    dispatch(revert());
+    dispatch(revert);
   }
 
   /* eslint-disable react/no-did-update-set-state */
@@ -109,7 +109,7 @@ class UnconnectedComponentErrorBoundary extends Component {
           resolve={() => this.resolveError(dispatch, myUID)}
         >
           {this.state.oldChildren}
-        </ ComponentErrorOverlay>
+        </ComponentErrorOverlay>
       )
     } else if ( disabled ) {
       return (
