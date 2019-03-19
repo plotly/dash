@@ -16,7 +16,7 @@ class Reloader extends React.Component {
                 disabled: false,
                 intervalId: null,
                 packages: null,
-                max_retry
+                max_retry,
             };
         } else {
             this.state = {

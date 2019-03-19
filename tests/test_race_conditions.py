@@ -3,8 +3,7 @@ import time
 import flask
 
 from dash import Dash
-from dash.dependencies import Input, Output, State, Event
-import dash
+from dash.dependencies import Input, Output
 import dash_html_components as html
 import dash_core_components as dcc
 
@@ -17,6 +16,7 @@ class Tests(IntegrationTests):
         pass
 
 DELAY_TIME = 1
+
 
 def create_race_conditions_test(endpoints):
     def test(self):

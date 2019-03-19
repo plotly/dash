@@ -1,20 +1,22 @@
 {
   "name": "dash-renderer",
-  "version": "0.15.0",
+  "version": "0.20.0",
   "description": "render dash components in react",
   "main": "src/index.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint --quiet --fix .",
-    "prepublish": "npm test && npm run build:prod && npm run build:dev",
+    "lint:test": "./node_modules/.bin/eslint .",
+    "prepublish": "npm test && npm run build && npm run build:dev",
     "publish-all": "npm publish && echo \"twine!!!\"",
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "build:dev": "webpack --mode development",
     "build:dev.watch": "webpack --mode development --watch",
     "build:prod": "webpack --mode production",
     "start": "webpack-serve ./webpack.serve.config.js",
-    "format": "prettier --config .prettierrc --write src/**/*.js",
-    "format:test": "prettier --config .prettierrc src/**/*.js --list-different",
-    "test": "npm run lint"
+    "format": "prettier --config .prettierrc --write src/**/*.js src/**/*.react.js",
+    "format:test": "prettier --config .prettierrc src/**/*.js src/**/*.react.js --list-different",
+    "test": "npm run lint",
+    "test:py": "python -m unittest tests.test_render tests.test_race_conditions"
   },
   "author": "chriddyp",
   "license": "MIT",
@@ -64,6 +66,6 @@
     "react-hot-loader": "^1.3.0",
     "redux-logger": "^2.8.0",
     "style-loader": "^0.23.1",
-    "webpack-dev-server": "^3.1.9"
+    "webpack-dev-server": "^3.1.11"
   }
 }

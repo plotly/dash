@@ -40,6 +40,7 @@ export const computePaths = createAction(getAction('COMPUTE_PATHS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
 export const readConfig = createAction(getAction('READ_CONFIG'));
+export const setHooks = createAction(getAction('SET_HOOKS'));
 export const onError = createAction(getAction('ON_ERROR'));
 export const resolveError = createAction(getAction('RESOLVE_ERROR'));
 
@@ -53,8 +54,10 @@ export function hydrateInitialOutputs() {
 
 function triggerDefaultState(dispatch, getState) {
     const {graphs} = getState();
-    const {InputGraph} = graphs;
+    const {InputGraph, MultiGraph} = graphs;
     const allNodes = InputGraph.overallOrder();
+    // overallOrder will assert circular dependencies for multi output.
+    MultiGraph.overallOrder();
     const inputNodeIds = [];
     allNodes.reverse();
     allNodes.forEach(nodeId => {
@@ -206,43 +209,38 @@ function reduceInputIds(nodeIds, InputGraph) {
 
 export function notifyObservers(payload) {
     return function(dispatch, getState) {
-        const {id, event, props, excludedOutputs} = payload;
+        const {id, props, excludedOutputs} = payload;
 
         const {graphs, requestQueue} = getState();
-        const {EventGraph, InputGraph} = graphs;
+        const {InputGraph} = graphs;
         /*
-         * Figure out all of the output id's that depend on this
-         * event or input.
+         * Figure out all of the output id's that depend on this input.
          * This includes id's that are direct children as well as
          * grandchildren.
          * grandchildren will get filtered out in a later stage.
          */
-        let outputObservers;
-        if (event) {
-            outputObservers = EventGraph.dependenciesOf(`${id}.${event}`);
-        } else {
-            const changedProps = keys(props);
-            outputObservers = [];
-            changedProps.forEach(propName => {
-                const node = `${id}.${propName}`;
-                if (!InputGraph.hasNode(node)) {
-                    return;
+        let outputObservers = [];
+
+        const changedProps = keys(props);
+        changedProps.forEach(propName => {
+            const node = `${id}.${propName}`;
+            if (!InputGraph.hasNode(node)) {
+                return;
+            }
+            InputGraph.dependenciesOf(node).forEach(outputId => {
+                /*
+                 * Multiple input properties that update the same
+                 * output can change at once.
+                 * For example, `n_clicks` and `n_clicks_previous`
+                 * on a button component.
+                 * We only need to update the output once for this
+                 * update, so keep outputObservers unique.
+                 */
+                if (!contains(outputId, outputObservers)) {
+                    outputObservers.push(outputId);
                 }
-                InputGraph.dependenciesOf(node).forEach(outputId => {
-                    /*
-                     * Multiple input properties that update the same
-                     * output can change at once.
-                     * For example, `n_clicks` and `n_clicks_previous`
-                     * on a button component.
-                     * We only need to update the output once for this
-                     * update, so keep outputObservers unique.
-                     */
-                    if (!contains(outputId, outputObservers)) {
-                        outputObservers.push(outputId);
-                    }
-                });
             });
-        }
+        });
 
         if (excludedOutputs) {
             outputObservers = reject(
@@ -267,7 +265,15 @@ export function notifyObservers(payload) {
         );
         const queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
-            const outputComponentId = outputIdAndProp.split('.')[0];
+            let outputIds;
+            if (outputIdAndProp.startsWith('..')) {
+                outputIds = outputIdAndProp
+                    .slice(2, outputIdAndProp.length - 2)
+                    .split('...')
+                    .map(e => e.split('.')[0]);
+            } else {
+                outputIds = [outputIdAndProp.split('.')[0]];
+            }
 
             /*
              * before we make the POST to update the output, check
@@ -288,13 +294,7 @@ export function notifyObservers(payload) {
              * this loop hits C because of the overallOrder sorting logic
              */
 
-            /*
-              * if the output just listens to events, then it won't be in
-              * the InputGraph
-              */
-            const controllers = InputGraph.hasNode(outputIdAndProp)
-                ? InputGraph.dependantsOf(outputIdAndProp)
-                : [];
+            const controllers = InputGraph.dependantsOf(outputIdAndProp);
 
             const controllersInFutureQueue = intersection(
                 queuedObservers,
@@ -341,9 +341,10 @@ export function notifyObservers(payload) {
              * of a controller change.
              * for example, perhaps the user has hidden one of the observers
              */
+
             if (
                 controllersInFutureQueue.length === 0 &&
-                has(outputComponentId, getState().paths) &&
+                any(e => has(e, getState().paths))(outputIds) &&
                 !controllerIsInExistingQueue
             ) {
                 queuedObservers.push(outputIdAndProp);
@@ -366,18 +367,15 @@ export function notifyObservers(payload) {
         const promises = [];
         for (let i = 0; i < queuedObservers.length; i++) {
             const outputIdAndProp = queuedObservers[i];
-            const [outputComponentId, outputProp] = outputIdAndProp.split('.');
-
             const requestUid = newRequestQueue[i].uid;
 
             promises.push(
                 updateOutput(
-                    outputComponentId,
-                    outputProp,
-                    event,
+                    outputIdAndProp,
                     getState,
                     requestUid,
-                    dispatch
+                    dispatch,
+                    changedProps.map(prop => `${id}.${prop}`)
                 )
             );
         }
@@ -389,83 +387,71 @@ export function notifyObservers(payload) {
 }
 
 function updateOutput(
-    outputComponentId,
-    outputProp,
-    event,
+    outputIdAndProp,
     getState,
     requestUid,
-    dispatch
+    dispatch,
+    changedPropIds
 ) {
-    const {config, layout, graphs, paths, dependenciesRequest} = getState();
+    const {config, layout, graphs, dependenciesRequest, hooks} = getState();
     const {InputGraph} = graphs;
 
     /*
-     * Construct a payload of the input, state, and event.
+     * Construct a payload of the input and state.
      * For example:
-     * If the input triggered this update, then:
      * {
      *      inputs: [{'id': 'input1', 'property': 'new value'}],
      *      state: [{'id': 'state1', 'property': 'existing value'}]
      * }
-     *
-     * If an event triggered this udpate, then:
-     * {
-     *      state: [{'id': 'state1', 'property': 'existing value'}],
-     *      event: {'id': 'graph', 'event': 'click'}
-     * }
-     *
      */
 
-     const { type: outputType, namespace: outputNamespace } = view(
-      lensPath(paths[outputComponentId]),
-      layout
-    )
-     const payload = {
-         output: {
-           id: outputComponentId,
-           property: outputProp,
-           type: outputType,
-           namespace: outputNamespace,
-         }
-     };
-
-    if (event) {
-        payload.event = event;
-    }
+    // eslint-disable-next-line no-unused-vars
+    const [outputComponentId, _] = outputIdAndProp.split('.');
+    const payload = {
+        output: outputIdAndProp,
+        changedPropIds,
+    };
 
     const {inputs, state} = dependenciesRequest.content.find(
-        dependency =>
-            dependency.output.id === outputComponentId &&
-            dependency.output.property === outputProp
+        dependency => dependency.output === outputIdAndProp
     );
-    const validKeys = keys(paths);
-    if (inputs.length > 0) {
-        payload.inputs = inputs.map(inputObject => {
-            // Make sure the component id exists in the layout
-            if (!contains(inputObject.id, validKeys)) {
-                throw new ReferenceError(
-                    'An invalid input object was used in an ' +
-                        '`Input` of a Dash callback. ' +
-                        'The id of this object is `' +
-                        inputObject.id +
-                        '` and the property is `' +
-                        inputObject.property +
-                        '`. The list of ids in the current layout is ' +
-                        '`[' +
-                        validKeys.join(', ') +
-                        ']`'
-                );
-            }
-            const propLens = lensPath(
-                concat(paths[inputObject.id], ['props', inputObject.property])
+    const validKeys = keys(getState().paths);
+
+    payload.inputs = inputs.map(inputObject => {
+        // Make sure the component id exists in the layout
+        if (!contains(inputObject.id, validKeys)) {
+            throw new ReferenceError(
+                'An invalid input object was used in an ' +
+                    '`Input` of a Dash callback. ' +
+                    'The id of this object is `' +
+                    inputObject.id +
+                    '` and the property is `' +
+                    inputObject.property +
+                    '`. The list of ids in the current layout is ' +
+                    '`[' +
+                    validKeys.join(', ') +
+                    ']`'
             );
-            return {
-                id: inputObject.id,
-                property: inputObject.property,
-                value: view(propLens, layout),
-            };
-        });
-    }
+        }
+        const propLens = lensPath(
+            concat(getState().paths[inputObject.id], [
+                'props',
+                inputObject.property,
+            ])
+        );
+        return {
+            id: inputObject.id,
+            property: inputObject.property,
+            value: view(propLens, layout),
+        };
+    });
+
+    const inputsPropIds = inputs.map(p => `${p.id}.${p.property}`);
+
+    payload.changedPropIds = changedPropIds.filter(p =>
+        contains(p, inputsPropIds)
+    );
+
     if (state.length > 0) {
         payload.state = state.map(stateObject => {
             // Make sure the component id exists in the layout
@@ -484,7 +470,10 @@ function updateOutput(
                 );
             }
             const propLens = lensPath(
-                concat(paths[stateObject.id], ['props', stateObject.property])
+                concat(getState().paths[stateObject.id], [
+                    'props',
+                    stateObject.property,
+                ])
             );
             return {
                 id: stateObject.id,
@@ -494,6 +483,9 @@ function updateOutput(
         });
     }
 
+    if (hooks.request_pre !== null) {
+        hooks.request_pre(payload);
+    }
     return fetch(`${urlBase(config)}_dash-update-component`, {
         method: 'POST',
         headers: {
@@ -548,8 +540,7 @@ function updateOutput(
 
         const isRejected = () => {
             const latestRequestIndex = findLastIndex(
-                // newRequestQueue[i].controllerId),
-                propEq('controllerId', `${outputComponentId}.${outputProp}`),
+                propEq('controllerId', outputIdAndProp),
                 getState().requestQueue
             );
             /*
@@ -592,6 +583,11 @@ function updateOutput(
 
             updateRequestQueue(false);
 
+            // Fire custom request_post hook if any
+            if (hooks.request_post !== null) {
+                hooks.request_post(payload, data.response);
+            }
+
             /*
              * it's possible that this output item is no longer visible.
              * for example, the could still be request running when
@@ -600,179 +596,190 @@ function updateOutput(
              * if it's not visible, then ignore the rest of the updates
              * to the store
              */
-            if (!has(outputComponentId, getState().paths)) {
-                return;
-            }
 
-            // and update the props of the component
-            const observerUpdatePayload = {
-                itempath: getState().paths[outputComponentId],
-                // new prop from the server
-                props: data.response.props,
-                source: 'response',
-            };
-            dispatch(updateProps(observerUpdatePayload));
+            const multi = data.multi;
 
-            dispatch(
-                notifyObservers({
-                    id: outputComponentId,
-                    props: data.response.props,
-                })
-            );
+            const handleResponse = ([outputIdAndProp, props]) => {
+                // Backward compatibility
+                const pathKey = multi ? outputIdAndProp : outputComponentId;
+                const observerUpdatePayload = {
+                    itempath: getState().paths[pathKey],
+                    props,
+                    source: 'response',
+                };
+                if (!observerUpdatePayload.itempath) {
+                    return;
+                }
+                dispatch(updateProps(observerUpdatePayload));
 
-            /*
-             * If the response includes children, then we need to update our
-             * paths store.
-             * TODO - Do we need to wait for updateProps to finish?
-             */
-            if (has('children', observerUpdatePayload.props)) {
                 dispatch(
-                    computePaths({
-                        subTree: observerUpdatePayload.props.children,
-                        startingPath: concat(
-                            getState().paths[outputComponentId],
-                            ['props', 'children']
-                        ),
+                    notifyObservers({
+                        id: pathKey,
+                        props: props,
                     })
                 );
 
                 /*
-                 * if children contains objects with IDs, then we
-                 * need to dispatch a propChange for all of these
-                 * new children components
+                 * If the response includes children, then we need to update our
+                 * paths store.
+                 * TODO - Do we need to wait for updateProps to finish?
                  */
-                if (
-                    contains(type(observerUpdatePayload.props.children), [
-                        'Array',
-                        'Object',
-                    ]) &&
-                    !isEmpty(observerUpdatePayload.props.children)
-                ) {
+                if (has('children', observerUpdatePayload.props)) {
+                    dispatch(
+                        computePaths({
+                            subTree: observerUpdatePayload.props.children,
+                            startingPath: concat(getState().paths[pathKey], [
+                                'props',
+                                'children',
+                            ]),
+                        })
+                    );
+
                     /*
-                     * TODO: We're just naively crawling
-                     * the _entire_ layout to recompute the
-                     * the dependency graphs.
-                     * We don't need to do this - just need
-                     * to compute the subtree
-                     */
-                    const newProps = {};
-                    crawlLayout(
-                        observerUpdatePayload.props.children,
-                        function appendIds(child) {
-                            if (hasId(child)) {
-                                keys(child.props).forEach(childProp => {
-                                    const componentIdAndProp = `${
-                                        child.props.id
-                                    }.${childProp}`;
-                                    if (
-                                        has(
-                                            componentIdAndProp,
-                                            InputGraph.nodes
-                                        )
-                                    ) {
-                                        newProps[componentIdAndProp] = {
-                                            id: child.props.id,
-                                            props: {
-                                                [childProp]:
-                                                    child.props[childProp],
-                                            },
-                                        };
-                                    }
-                                });
+                    * if children contains objects with IDs, then we
+                    * need to dispatch a propChange for all of these
+                    * new children components
+                    */
+                    if (
+                        contains(type(observerUpdatePayload.props.children), [
+                            'Array',
+                            'Object',
+                        ]) &&
+                        !isEmpty(observerUpdatePayload.props.children)
+                    ) {
+                        /*
+                         * TODO: We're just naively crawling
+                         * the _entire_ layout to recompute the
+                         * the dependency graphs.
+                         * We don't need to do this - just need
+                         * to compute the subtree
+                         */
+                        const newProps = {};
+                        crawlLayout(
+                            observerUpdatePayload.props.children,
+                            function appendIds(child) {
+                                if (hasId(child)) {
+                                    keys(child.props).forEach(childProp => {
+                                        const componentIdAndProp = `${
+                                            child.props.id
+                                        }.${childProp}`;
+                                        if (
+                                            has(
+                                                componentIdAndProp,
+                                                InputGraph.nodes
+                                            )
+                                        ) {
+                                            newProps[componentIdAndProp] = {
+                                                id: child.props.id,
+                                                props: {
+                                                    [childProp]:
+                                                        child.props[childProp],
+                                                },
+                                            };
+                                        }
+                                    });
+                                }
                             }
-                        }
-                    );
+                        );
 
-                    /*
-                     * Organize props by shared outputs so that we
-                     * only make one request per output component
-                     * (even if there are multiple inputs).
-                     *
-                     * For example, we might render 10 inputs that control
-                     * a single output. If that is the case, we only want
-                     * to make a single call, not 10 calls.
-                     */
+                        /*
+                         * Organize props by shared outputs so that we
+                         * only make one request per output component
+                         * (even if there are multiple inputs).
+                         *
+                         * For example, we might render 10 inputs that control
+                         * a single output. If that is the case, we only want
+                         * to make a single call, not 10 calls.
+                         */
 
-                    /*
-                     * In some cases, the new item will be an output
-                     * with its inputs already rendered (not rendered)
-                     * as part of this update.
-                     * For example, a tab with global controls that
-                     * renders different content containers without any
-                     * additional inputs.
-                     *
-                     * In that case, we'll call `updateOutput` with that output
-                     * and just "pretend" that one if its inputs changed.
-                     *
-                     * If we ever add logic that informs the user on
-                     * "which input changed", we'll have to account for this
-                     * special case (no input changed?)
-                     */
+                        /*
+                         * In some cases, the new item will be an output
+                         * with its inputs already rendered (not rendered)
+                         * as part of this update.
+                         * For example, a tab with global controls that
+                         * renders different content containers without any
+                         * additional inputs.
+                         *
+                         * In that case, we'll call `updateOutput` with that output
+                         * and just "pretend" that one if its inputs changed.
+                         *
+                         * If we ever add logic that informs the user on
+                         * "which input changed", we'll have to account for this
+                         * special case (no input changed?)
+                         */
 
-                    const outputIds = [];
-                    keys(newProps).forEach(idAndProp => {
-                        if (
-                            // It's an output
-                            InputGraph.dependenciesOf(idAndProp).length === 0 &&
-                            /*
-                             * And none of its inputs are generated in this
-                             * request
-                             */
-                            intersection(
-                                InputGraph.dependantsOf(idAndProp),
-                                keys(newProps)
-                            ).length === 0
-                        ) {
-                            outputIds.push(idAndProp);
-                            delete newProps[idAndProp];
-                        }
-                    });
+                        const outputIds = [];
+                        keys(newProps).forEach(idAndProp => {
+                            if (
+                                // It's an output
+                                InputGraph.dependenciesOf(idAndProp).length ===
+                                    0 &&
+                                /*
+                                 * And none of its inputs are generated in this
+                                 * request
+                                 */
+                                intersection(
+                                    InputGraph.dependantsOf(idAndProp),
+                                    keys(newProps)
+                                ).length === 0
+                            ) {
+                                outputIds.push(idAndProp);
+                                delete newProps[idAndProp];
+                            }
+                        });
 
-                    // Dispatch updates to inputs
-                    const reducedNodeIds = reduceInputIds(
-                        keys(newProps),
-                        InputGraph
-                    );
-                    const depOrder = InputGraph.overallOrder();
-                    const sortedNewProps = sort(
-                        (a, b) =>
-                            depOrder.indexOf(a.input) -
-                            depOrder.indexOf(b.input),
-                        reducedNodeIds
-                    );
-                    sortedNewProps.forEach(function(inputOutput) {
-                        const payload = newProps[inputOutput.input];
-                        payload.excludedOutputs = inputOutput.excludedOutputs;
-                        dispatch(notifyObservers(payload));
-                    });
+                        // Dispatch updates to inputs
+                        const reducedNodeIds = reduceInputIds(
+                            keys(newProps),
+                            InputGraph
+                        );
+                        const depOrder = InputGraph.overallOrder();
+                        const sortedNewProps = sort(
+                            (a, b) =>
+                                depOrder.indexOf(a.input) -
+                                depOrder.indexOf(b.input),
+                            reducedNodeIds
+                        );
+                        sortedNewProps.forEach(function(inputOutput) {
+                            const payload = newProps[inputOutput.input];
+                            payload.excludedOutputs =
+                                inputOutput.excludedOutputs;
+                            dispatch(notifyObservers(payload));
+                        });
 
-                    // Dispatch updates to lone outputs
-                    outputIds.forEach(idAndProp => {
-                        const requestUid = uid();
-                        dispatch(
-                            setRequestQueue(
-                                append(
-                                    {
-                                        // TODO - Are there any implications of doing this??
-                                        controllerId: null,
-                                        status: 'loading',
-                                        uid: requestUid,
-                                        requestTime: Date.now(),
-                                    },
-                                    getState().requestQueue
+                        // Dispatch updates to lone outputs
+                        outputIds.forEach(idAndProp => {
+                            const requestUid = uid();
+                            dispatch(
+                                setRequestQueue(
+                                    append(
+                                        {
+                                            // TODO - Are there any implications of doing this??
+                                            controllerId: null,
+                                            status: 'loading',
+                                            uid: requestUid,
+                                            requestTime: Date.now(),
+                                        },
+                                        getState().requestQueue
+                                    )
                                 )
-                            )
-                        );
-                        updateOutput(
-                            idAndProp.split('.')[0],
-                            idAndProp.split('.')[1],
-                            null,
-                            getState,
-                            requestUid,
-                            dispatch
-                        );
-                    });
+                            );
+                            updateOutput(
+                                idAndProp,
+
+                                getState,
+                                requestUid,
+                                dispatch,
+                                changedPropIds
+                            );
+                        });
+                    }
                 }
+            };
+            if (multi) {
+                Object.entries(data.response).forEach(handleResponse);
+            } else {
+                handleResponse([outputIdAndProp, data.response.props]);
             }
         });
     }).catch(err => {

@@ -8,6 +8,7 @@ import requestQueue from './requestQueue';
 import appLifecycle from './appLifecycle';
 import history from './history';
 import error from './error';
+import hooks from './hooks';
 import * as API from './api';
 import config from './config';
 
@@ -22,7 +23,9 @@ const reducer = combineReducers({
     layoutRequest: API.layoutRequest,
     loginRequest: API.loginRequest,
     history,
-    error
+    error,
+    hooks,
+    reloadRequest: API.reloadRequest,
 });
 
 function getInputHistoryState(itempath, props, state) {
@@ -79,7 +82,7 @@ function recordHistory(reducer) {
             if (historyEntry && !R.isEmpty(historyEntry.props)) {
                 nextState.history = {
                     past: [
-                        ...nextState.history.past,
+                        ...nextState.history.past, 
                         state.history.present
                     ],
                     present: historyEntry,
@@ -95,9 +98,9 @@ function recordHistory(reducer) {
 function reloaderReducer(reducer) {
     return function(state, action) {
         if (action.type === 'RELOAD') {
-            const {history} = state;
+            const {history, config} = state;
             // eslint-disable-next-line no-param-reassign
-            state = {history};
+            state = {history, config};
         }
         return reducer(state, action);
     };

@@ -3,13 +3,7 @@
 import {createStore, applyMiddleware} from 'redux';
 import thunk from 'redux-thunk';
 import reducer from './reducers/reducer';
-import createLogger from 'redux-logger';
 
-let logger;
-// only set up logger in non-production mode
-if (process.env.NODE_ENV !== 'production') {
-    logger = createLogger();
-}
 let store;
 
 /**
@@ -25,9 +19,14 @@ const initializeStore = () => {
 
     // only attach logger to middleware in non-production mode
     store =
-        process.env.NODE_ENV === 'production'
+        process.env.NODE_ENV === 'production' // eslint-disable-line no-process-env
             ? createStore(reducer, applyMiddleware(thunk))
-            : createStore(reducer, applyMiddleware(thunk, logger));
+            : createStore(
+                  reducer,
+                  window.__REDUX_DEVTOOLS_EXTENSION__ &&
+                      window.__REDUX_DEVTOOLS_EXTENSION__(),
+                  applyMiddleware(thunk)
+              );
 
     // TODO - Protect this under a debug mode?
     window.store = store; /* global window:true */

@@ -80,5 +80,15 @@ _js_dist = [
             '/dash_renderer/dash_renderer.min.js'
         ).format(__version__),
         'namespace': 'dash_renderer'
+    },
+    {
+        'relative_package_path': '{}.min.js.map'.format(__name__),
+        'dev_package_path': '{}.dev.js.map'.format(__name__),
+        "external_url": (
+            'https://unpkg.com/dash-renderer@{}'
+            '/dash_renderer/dash_renderer.min.js.map'
+        ).format(__version__),
+        'namespace': 'dash_renderer',
+        'dynamic': True
     }
 ]

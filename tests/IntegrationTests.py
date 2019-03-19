@@ -16,7 +16,7 @@ import sys
 class IntegrationTests(unittest.TestCase):
 
     def percy_snapshot(cls, name=''):
-        snapshot_name = '{} - {}'.format(name, sys.version_info)
+        snapshot_name = '{} - py{}.{}'.format(name, sys.version_info.major, sys.version_info.minor)
         print(snapshot_name)
         cls.percy_runner.snapshot(
             name=snapshot_name
@@ -49,15 +49,18 @@ class IntegrationTests(unittest.TestCase):
         s.server_process.terminate()
         time.sleep(2)
 
-    def startServer(s, dash):
+    def startServer(s, dash, **kwargs):
         def run():
             dash.scripts.config.serve_locally = True
-            dash.run_server(
+            dash.css.config.serve_locally = True
+            kws = dict(
                 port=8050,
                 debug=False,
                 processes=4,
                 threaded=False
             )
+            kws.update(kwargs)
+            dash.run_server(**kws)
 
         # Run on a separate process so that it doesn't block
         s.server_process = multiprocessing.Process(target=run)

@@ -1,9 +1,7 @@
 /* eslint-env browser */
 
 'use strict';
+import { DashRenderer } from './DashRenderer'
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import AppProvider from './AppProvider.react';
-
-ReactDOM.render(<AppProvider />, document.getElementById('react-entry-point'));
+// make DashRenderer globally available
+window.DashRenderer = DashRenderer;

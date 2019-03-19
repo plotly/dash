@@ -1,6 +1,3 @@
-dash_core_components>=0.40.2
-dash_html_components
-dash
 percy
 selenium
 mock

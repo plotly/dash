@@ -99,9 +99,9 @@ class UnconnectedContainer extends Component {
             );
         } else if (appLifecycle === getAppState('HYDRATED')) {
             return (
-              <GlobalErrorContainer>
-                <TreeContainer layout={layout}/>
-              </GlobalErrorContainer>
+                <GlobalErrorContainer>
+                    <TreeContainer _dashprivate_layout={layout}/>
+                </GlobalErrorContainer>
             );
         }
 

@@ -2,6 +2,48 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.20.0] - 2019-03-04
+### Added
+- Loading states API [#267](https://github.com/plotly/dash/issues/267)
+
+## [0.19.0] - 2019-02-25
+## Added
+- Added which properties fired to update prop request. [#124](https://github.com/plotly/dash-renderer/pull/124)
+
+## [0.18.0] - 2019-02-11
+### Removed
+- Removed redux logger for the dev. [#118](https://github.com/plotly/dash-renderer/pull/118)
+
+## [0.17.0] - 2019-01-25
+### Removed
+- Obsolete Event system [#114](https://github.com/plotly/dash-renderer/pull/114)
+
+## [0.16.2] - 2019-01-11
+### Fixed
+[#110](https://github.com/plotly/dash-renderer/pull/110)
+- Keep the config store state on soft reload.
+- AppProvider returns `Loading...` if no configs as before #108
+
+### Removed - 2018-12-17
+- Unused login api and Authentication component [#108](https://github.com/plotly/dash-renderer/pull/108)
+
+## [0.16.1] - 2018-12-14
+### Fixed
+- Added `key` to rendered components, fixing [#379](https://github.com/plotly/dash-core-components/issues/379)
+
+## [0.16.0] - 2018-12-07
+### Added
+- [Redux devtools](https://github.com/zalmoxisus/redux-devtools-extension) support [#107](https://github.com/plotly/dash-renderer/pull/107)
+
+## [0.15.2] - 2018-12-07
+### Added
+- Source map [#104](https://github.com/plotly/dash-renderer/issues/104)
+    Related Dash issue [#480](https://github.com/plotly/dash/issues/480)
+
+## [0.15.1] - 2018-11-17
+### Fixed
+- Fix a bug in the ON_PROP_CHANGE callback where history was not correctly set when acting on more than one component. In particular, the 'undo' button should now work as expected. Fixes [#66](https://github.com/plotly/dash-renderer/issues/66).
+
 ## [0.15.0] - 2018-11-14
 ### Added
 - Hot reload [#73](https://github.com/plotly/dash-renderer/pull/73)
@@ -17,7 +59,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Prettier support
 - Better ESLint configs
-
 
 ## [0.14.1] - 2018-09-20
 ### Fixed

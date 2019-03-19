@@ -8,7 +8,8 @@ export const getAction = action => {
         SET_APP_LIFECYCLE: 'SET_APP_LIFECYCLE',
         READ_CONFIG: 'READ_CONFIG',
         ON_ERROR: 'ON_ERROR',
-        RESOLVE_ERROR: 'RESOLVE_ERROR'
+        RESOLVE_ERROR: 'RESOLVE_ERROR',
+        SET_HOOKS: 'SET_HOOKS',
     };
     if (actionList[action]) {
         return actionList[action];

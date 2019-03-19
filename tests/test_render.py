@@ -1,9 +1,18 @@
+import os
+import textwrap
+
 from dash import Dash
-from dash.dependencies import Input, Output, State, Event
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 import dash
 from dash.development.base_component import Component
 import dash_html_components as html
 import dash_core_components as dcc
+from dash.exceptions import PreventUpdate
+
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, wait_for
 from multiprocessing import Value
@@ -11,7 +20,6 @@ import time
 import re
 import itertools
 import json
-import unittest
 
 
 class Tests(IntegrationTests):
@@ -30,20 +38,49 @@ class Tests(IntegrationTests):
             time.sleep(0.25)
         raise exception
 
-    def wait_for_text_to_equal(self, selector, assertion_text):
+    def wait_for_text_to_equal(self, selector, assertion_text, timeout=20):
         start_time = time.time()
         exception = Exception('Time ran out, {} on {} not found'.format(
             assertion_text, selector))
-        while time.time() < start_time + 20:
+        while time.time() < start_time + timeout:
             el = self.wait_for_element_by_css_selector(selector)
             try:
-                return self.assertEqual(el.text, assertion_text)
+                return self.assertEqual(str(el.text), assertion_text)
             except Exception as e:
                 exception = e
                 pass
             time.sleep(0.25)
 
         raise exception
+
+    def wait_for_style_to_equal(self, selector, style, assertion_style,
+                                timeout=20):
+        start = time.time()
+        exception = Exception('Time ran out, {} on {} not found'.format(
+            assertion_style, selector))
+        while time.time() < start + timeout:
+            element = self.wait_for_element_by_css_selector(selector)
+            try:
+                self.assertEqual(assertion_style,
+                                 element.value_of_css_property(style))
+            except Exception as e:
+                exception = e
+            else:
+                return
+            time.sleep(0.25)
+
+        raise exception
+
+    def clear_input(self, input_element):
+        (
+            ActionChains(self.driver)
+            .click(input_element)
+            .send_keys(Keys.HOME)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.END)
+            .key_up(Keys.SHIFT)
+            .send_keys(Keys.DELETE)
+        ).perform()
 
     def request_queue_assertions(
             self, check_rejected=True, expected_length=None):
@@ -356,10 +393,8 @@ class Tests(IntegrationTests):
                 "outgoingEdges": {},
                 "incomingEdges": {}
               },
-              "EventGraph": {
-                "nodes": {},
-                "outgoingEdges": {},
-                "incomingEdges": {}
+              'MultiGraph': {
+                  'incomingEdges': {}, 'nodes': {}, 'outgoingEdges': {}
               }
             }
         )
@@ -472,7 +507,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='simple-callback-1')
 
         input1 = self.wait_for_element_by_css_selector('#input')
-        input1.clear()
+        self.clear_input(input1)
 
         input1.send_keys('hello world')
 
@@ -481,8 +516,8 @@ class Tests(IntegrationTests):
 
         self.assertEqual(
             call_count.value,
-            # an initial call to retrieve the first value
-            1 +
+            # an initial call to retrieve the first value + clear is now one
+            2 +
             # one for each hello world character
             len('hello world')
         )
@@ -744,7 +779,7 @@ class Tests(IntegrationTests):
                     self.driver.execute_script(
                         'return document.'
                         'getElementById("{}-graph").'.format(chapter) +
-                        'layout.title'
+                        'layout.title.text'
                     ) == value
                 )
             )
@@ -954,8 +989,7 @@ class Tests(IntegrationTests):
 
         assert_clean_console(self)
 
-    @unittest.skip("button events are temporarily broken")
-    def test_events(self):
+    def test_event_properties(self):
         app = Dash(__name__)
         app.layout = html.Div([
             html.Button('Click Me', id='button'),
@@ -965,8 +999,10 @@ class Tests(IntegrationTests):
         call_count = Value('i', 0)
 
         @app.callback(Output('output', 'children'),
-                      events=[Event('button', 'click')])
-        def update_output():
+                      [Input('button', 'n_clicks')])
+        def update_output(n_clicks):
+            if(not n_clicks):
+                raise PreventUpdate
             call_count.value += 1
             return 'Click'
 
@@ -980,8 +1016,7 @@ class Tests(IntegrationTests):
         wait_for(lambda: output().text == 'Click')
         self.assertEqual(call_count.value, 1)
 
-    @unittest.skip("button events are temporarily broken")
-    def test_events_and_state(self):
+    def test_event_properties_and_state(self):
         app = Dash(__name__)
         app.layout = html.Div([
             html.Button('Click Me', id='button'),
@@ -992,9 +1027,11 @@ class Tests(IntegrationTests):
         call_count = Value('i', 0)
 
         @app.callback(Output('output', 'children'),
-                      state=[State('state', 'value')],
-                      events=[Event('button', 'click')])
-        def update_output(value):
+                      [Input('button', 'n_clicks')],
+                      [State('state', 'value')])
+        def update_output(n_clicks, value):
+            if(not n_clicks):
+                raise PreventUpdate
             call_count.value += 1
             return value
 
@@ -1020,8 +1057,7 @@ class Tests(IntegrationTests):
         wait_for(lambda: output().text == 'Initial Statex')
         self.assertEqual(call_count.value, 2)
 
-    @unittest.skip("button events are temporarily broken")
-    def test_events_state_and_inputs(self):
+    def test_event_properties_state_and_inputs(self):
         app = Dash(__name__)
         app.layout = html.Div([
             html.Button('Click Me', id='button'),
@@ -1033,10 +1069,9 @@ class Tests(IntegrationTests):
         call_count = Value('i', 0)
 
         @app.callback(Output('output', 'children'),
-                      inputs=[Input('input', 'value')],
-                      state=[State('state', 'value')],
-                      events=[Event('button', 'click')])
-        def update_output(input, state):
+                      [Input('input', 'value'), Input('button', 'n_clicks')],
+                      [State('state', 'value')])
+        def update_output(input, n_clicks, state):
             call_count.value += 1
             return 'input="{}", state="{}"'.format(input, state)
 
@@ -1126,7 +1161,7 @@ class Tests(IntegrationTests):
             output().text,
             'input="Initial Inputxy", state="Initial Statex"')
 
-    def test_event_creating_inputs(self):
+    def test_event_properties_creating_inputs(self):
         app = Dash(__name__)
 
         ids = {
@@ -1148,8 +1183,10 @@ class Tests(IntegrationTests):
 
         @app.callback(
             Output(ids['button-output'], 'children'),
-            events=[Event(ids['button'], 'click')])
-        def display():
+            [Input(ids['button'], 'n_clicks')])
+        def display(n_clicks):
+            if(not n_clicks):
+                raise PreventUpdate
             call_counts['button-output'].value += 1
             return html.Div([
                 dcc.Input(id=ids['input'], value='initial state'),
@@ -1335,8 +1372,12 @@ class Tests(IntegrationTests):
 
         @app.callback(
             Output('button-output', 'children'),
-            events=[Event('button', 'click')])
-        def this_callback_takes_forever():
+            [Input('button', 'n_clicks')])
+        def this_callback_takes_forever(n_clicks):
+            if not n_clicks:
+                # initial value is quick, only new value is slow
+                # also don't let the initial value increment call_counts
+                return 'Initial Value'
             time.sleep(5)
             call_counts['button-output'].value += 1
             return 'New value!'
@@ -1352,55 +1393,29 @@ class Tests(IntegrationTests):
         # hiding the `button-output` tag
         def chapter2_assertions():
             wait_for(lambda: body().text == 'Chapter 2')
-            self.assertEqual(
-                self.driver.execute_script(
-                    'return JSON.parse(JSON.stringify('
-                    'window.store.getState().layout'
-                    '))'
-                ),
-                {
-                    "namespace": "dash_html_components",
-                    "type": "Div",
-                    "props": {
-                        "children": [
-                            {
-                                "namespace": "dash_core_components",
-                                "type": "RadioItems",
-                                "props": {
-                                    "value": "2",
-                                    "options": app.layout['toc'].options,
-                                    "id": app.layout['toc'].id,
-                                }
-                            },
-                            {
-                                "namespace": "dash_html_components",
-                                "type": "Div",
-                                "props": {
-                                    "id": "body",
-                                    "children": "Chapter 2"
-                                }
-                            }
-                        ]
-                    }
-                }
+
+            layout = self.driver.execute_script(
+                'return JSON.parse(JSON.stringify('
+                'window.store.getState().layout'
+                '))'
             )
-            self.assertEqual(
-                self.driver.execute_script(
-                    'return JSON.parse(JSON.stringify('
-                    'window.store.getState().paths'
-                    '))'
-                ),
-                {
-                    "toc": ["props", "children", 0],
-                    "body": ["props", "children", 1]
-                }
-            )
+
+            dcc_radio = layout['props']['children'][0]
+            html_body = layout['props']['children'][1]
+
+            self.assertEqual(dcc_radio['props']['id'], 'toc')
+            self.assertEqual(dcc_radio['props']['value'], '2')
+
+            self.assertEqual(html_body['props']['id'], 'body')
+            self.assertEqual(html_body['props']['children'], 'Chapter 2')
+
         (self.driver.find_elements_by_css_selector(
             'input[type="radio"]'
         )[1]).click()
         chapter2_assertions()
+        self.assertEqual(call_counts['button-output'].value, 0)
         time.sleep(5)
-        wait_for(lambda: call_counts['button-output'].value == 1)
+        wait_for(lambda: call_counts['button-output'].value, expected_value=1)
         time.sleep(2)  # liberally wait for the front-end to process request
         chapter2_assertions()
         assert_clean_console(self)
@@ -1527,6 +1542,44 @@ class Tests(IntegrationTests):
         self.assertFalse(request_queue[0]['rejected'])
         self.assertEqual(len(request_queue), 1)
 
+    def test_callbacks_called_multiple_times_and_out_of_order_multi_output(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            html.Button(id='input', n_clicks=0),
+            html.Div(id='output1'),
+            html.Div(id='output2')
+        ])
+
+        call_count = Value('i', 0)
+
+        @app.callback(
+            [Output('output1', 'children'),
+             Output('output2', 'children')],
+            [Input('input', 'n_clicks')]
+        )
+        def update_output(n_clicks):
+            call_count.value = call_count.value + 1
+            if n_clicks == 1:
+                time.sleep(4)
+            return n_clicks, n_clicks + 1
+
+        self.startServer(app)
+        button = self.wait_for_element_by_css_selector('#input')
+        button.click()
+        button.click()
+        time.sleep(8)
+        self.percy_snapshot(
+            name='test_callbacks_called_multiple_times'
+                 '_and_out_of_order_multi_output'
+        )
+        self.assertEqual(call_count.value, 3)
+        self.wait_for_text_to_equal('#output1', '2')
+        self.wait_for_text_to_equal('#output2', '3')
+        request_queue = self.driver.execute_script(
+            'return window.store.getState().requestQueue'
+        )
+        self.assertFalse(request_queue[0]['rejected'])
+        self.assertEqual(len(request_queue), 1)
 
     def test_callbacks_with_shared_grandparent(self):
         app = dash.Dash()
@@ -1606,13 +1659,13 @@ class Tests(IntegrationTests):
                       [Input('outer-controls', 'value')])
         def display_tab1_output(value):
             call_counts['tab1'].value += 1
-            return 'You have selected "{}"'.format(value)
+            return 'Selected "{}" in tab 1'.format(value)
 
         @app.callback(Output('tab-2-output', 'children'),
                       [Input('outer-controls', 'value')])
         def display_tab2_output(value):
             call_counts['tab2'].value += 1
-            return 'You have selected "{}"'.format(value)
+            return 'Selected "{}" in tab 2'.format(value)
 
         self.startServer(app)
         self.wait_for_element_by_css_selector('#tab-output')
@@ -1620,16 +1673,16 @@ class Tests(IntegrationTests):
 
         self.assertEqual(call_counts['tab1'].value, 1)
         self.assertEqual(call_counts['tab2'].value, 0)
-        self.wait_for_text_to_equal('#tab-output', 'You have selected "a"')
-        self.wait_for_text_to_equal('#tab-1-output', 'You have selected "a"')
+        self.wait_for_text_to_equal('#tab-output', 'Selected "a" in tab 1')
+        self.wait_for_text_to_equal('#tab-1-output', 'Selected "a" in tab 1')
 
         (self.driver.find_elements_by_css_selector(
             'input[type="radio"]'
         )[1]).click()
         time.sleep(2)
 
-        self.wait_for_text_to_equal('#tab-output', 'You have selected "a"')
-        self.wait_for_text_to_equal('#tab-2-output', 'You have selected "a"')
+        self.wait_for_text_to_equal('#tab-output', 'Selected "a" in tab 2')
+        self.wait_for_text_to_equal('#tab-2-output', 'Selected "a" in tab 2')
         self.assertEqual(call_counts['tab1'].value, 1)
         self.assertEqual(call_counts['tab2'].value, 1)
 
@@ -1869,3 +1922,359 @@ class Tests(IntegrationTests):
         self.assertTrue(timestamp_2.value > timestamp_1.value)
         self.assertEqual(call_count.value, 4)
         self.percy_snapshot('button-2 click again')
+
+    def test_request_hooks(self):
+        app = Dash(__name__)
+
+        app.index_string = '''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                {%metas%}
+                <title>{%title%}</title>
+                {%favicon%}
+                {%css%}
+            </head>
+            <body>
+                <div>Testing custom DashRenderer</div>
+                {%app_entry%}
+                <footer>
+                    {%config%}
+                    {%scripts%}
+                    <script id="_dash-renderer" type"application/json">
+                        const renderer = new DashRenderer({
+                            request_pre: (payload) => {
+                                var output = document.getElementById('output-pre')
+                                var outputPayload = document.getElementById('output-pre-payload')
+                                if(output) {
+                                    output.innerHTML = 'request_pre changed this text!';
+                                }
+                                if(outputPayload) {
+                                    outputPayload.innerHTML = JSON.stringify(payload);
+                                }
+                            },
+                            request_post: (payload, response) => {
+                                var output = document.getElementById('output-post')
+                                var outputPayload = document.getElementById('output-post-payload')
+                                var outputResponse = document.getElementById('output-post-response')
+                                if(output) {
+                                    output.innerHTML = 'request_post changed this text!';
+                                }
+                                if(outputPayload) {
+                                    outputPayload.innerHTML = JSON.stringify(payload);
+                                }
+                                if(outputResponse) {
+                                    outputResponse.innerHTML = JSON.stringify(response);
+                                }
+                            }
+                        })
+                    </script>
+                </footer>
+                <div>With request hooks</div>
+            </body>
+        </html>
+        '''
+
+        app.layout = html.Div([
+            dcc.Input(
+                id='input',
+                value='initial value'
+            ),
+            html.Div(
+                html.Div([
+                    html.Div(id='output-1'),
+                    html.Div(id='output-pre'),
+                    html.Div(id='output-pre-payload'),
+                    html.Div(id='output-post'),
+                    html.Div(id='output-post-payload'),
+                    html.Div(id='output-post-response')
+                ])
+            )
+        ])
+
+        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
+        def update_output(value):
+            return value
+
+        self.startServer(app)
+
+        input1 = self.wait_for_element_by_css_selector('#input')
+        initialValue = input1.get_attribute('value')
+
+        action = ActionChains(self.driver)
+        action.click(input1)
+        action = action.send_keys(Keys.BACKSPACE * len(initialValue))
+
+        action.send_keys('fire request hooks').perform()
+
+        self.wait_for_text_to_equal('#output-1', 'fire request hooks')
+        self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
+        self.wait_for_text_to_equal('#output-pre-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
+        self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
+        self.wait_for_text_to_equal('#output-post-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
+        self.wait_for_text_to_equal('#output-post-response', '{"props":{"children":"fire request hooks"}}')
+        self.percy_snapshot(name='request-hooks')
+
+    def test_graphs_in_tabs_do_not_share_state(self):
+        app = dash.Dash()
+
+        app.config.suppress_callback_exceptions = True
+
+        app.layout = html.Div([
+            dcc.Tabs(
+                id="tabs",
+                children=[
+                    dcc.Tab(label="Tab 1", value="tab1", id="tab1"),
+                    dcc.Tab(label="Tab 2", value="tab2", id="tab2"),
+                ],
+                value="tab1",
+            ),
+
+            # Tab content
+            html.Div(id="tab_content"),
+        ])
+        tab1_layout = [
+            html.Div([dcc.Graph(id='graph1',
+                                figure={
+                                    'data': [{
+                                        'x': [1, 2, 3],
+                                        'y': [5, 10, 6],
+                                        'type': 'bar'
+                                        }]
+                                })]),
+
+            html.Pre(id='graph1_info'),
+        ]
+
+
+        tab2_layout = [
+            html.Div([dcc.Graph(id='graph2',
+                                figure={
+                                    'data': [{
+                                        'x': [4, 3, 2],
+                                        'y': [5, 10, 6],
+                                        'type': 'bar'
+                                        }]
+                                })]),
+
+            html.Pre(id='graph2_info'),
+        ]
+
+        @app.callback(Output(component_id='graph1_info', component_property='children'),
+                    [Input(component_id='graph1', component_property='clickData')])
+        def display_hover_data(hover_data):
+            return json.dumps(hover_data)
+
+
+        @app.callback(Output(component_id='graph2_info', component_property='children'),
+                    [Input(component_id='graph2', component_property='clickData')])
+        def display_hover_data(hover_data):
+            return json.dumps(hover_data)
+
+        @app.callback(Output("tab_content", "children"), [Input("tabs", "value")])
+        def render_content(tab):
+            if tab == "tab1":
+                return tab1_layout
+            elif tab == "tab2":
+                return tab2_layout
+            else:
+                return tab1_layout
+
+        self.startServer(app)
+
+        self.wait_for_element_by_css_selector('#graph1')
+
+        self.driver.find_elements_by_css_selector(
+            '#graph1'
+        )[0].click()
+
+        graph_1_expected_clickdata = {
+            "points": [{"curveNumber": 0, "pointNumber": 1, "pointIndex": 1, "x": 2, "y": 10}]
+        }
+
+        graph_2_expected_clickdata = {
+            "points": [{"curveNumber": 0, "pointNumber": 1, "pointIndex": 1, "x": 3, "y": 10}]
+        }
+
+        self.wait_for_text_to_equal('#graph1_info', json.dumps(graph_1_expected_clickdata))
+
+        self.driver.find_elements_by_css_selector(
+            '#tab2'
+        )[0].click()
+
+        self.wait_for_element_by_css_selector('#graph2')
+
+        self.driver.find_elements_by_css_selector(
+            '#graph2'
+        )[0].click()
+
+        self.wait_for_text_to_equal('#graph2_info', json.dumps(graph_2_expected_clickdata))
+
+    def test_hot_reload(self):
+        app = dash.Dash(__name__, assets_folder='test_assets')
+
+        app.layout = html.Div([
+            html.H3('Hot reload')
+        ], id='hot-reload-content')
+
+        self.startServer(
+            app,
+            dev_tools_hot_reload=True,
+            dev_tools_hot_reload_interval=500,
+            dev_tools_hot_reload_max_retry=30,
+        )
+
+        hot_reload_file = os.path.join(
+            os.path.dirname(__file__), 'test_assets', 'hot_reload.css')
+
+        self.wait_for_style_to_equal(
+            '#hot-reload-content', 'background-color', 'rgba(0, 0, 255, 1)'
+        )
+
+        with open(hot_reload_file, 'r+') as f:
+            old_content = f.read()
+            f.truncate(0)
+            f.seek(0)
+            f.write(textwrap.dedent('''
+            #hot-reload-content {
+                background-color: red;
+            }
+            '''))
+        try:
+            self.wait_for_style_to_equal(
+                '#hot-reload-content', 'background-color', 'rgba(255, 0, 0, 1)'
+            )
+        finally:
+            with open(hot_reload_file, 'w') as f:
+                f.write(old_content)
+
+    def test_single_input_multi_outputs_on_multiple_components(self):
+        call_count = Value('i')
+
+        app = dash.Dash(__name__)
+
+        N_OUTPUTS = 50
+
+        app.layout = html.Div([
+            html.Button('click me', id='btn'),
+        ] + [html.Div(id='output-{}'.format(i)) for i in range(N_OUTPUTS)])
+
+        @app.callback([Output('output-{}'.format(i), 'children') for i in range(N_OUTPUTS)],
+                      [Input('btn', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks is None:
+                raise PreventUpdate
+
+            call_count.value += 1
+            return ['{}={}'.format(i, i+n_clicks) for i in range(N_OUTPUTS)]
+
+        self.startServer(app)
+
+        btn = self.wait_for_element_by_css_selector('#btn')
+
+        for click in range(1, 20):
+            btn.click()
+
+            for i in range(N_OUTPUTS):
+                self.wait_for_text_to_equal(
+                    '#output-{}'.format(i), '{}={}'.format(i, i+click))
+
+            self.assertEqual(call_count.value, click)
+
+    def test_multi_outputs_on_single_component(self):
+        call_count = Value('i')
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.Input(id='input', value='dash'),
+            html.Div(html.Div(id='output'), id='output-container'),
+        ])
+
+        @app.callback(
+            [Output('output', 'children'),
+             Output('output', 'style'),
+             Output('output', 'className')],
+
+            [Input('input', 'value')])
+        def update_output(value):
+            call_count.value += 1
+            return [
+                value,
+                {'fontFamily': value},
+                value
+            ]
+
+        self.startServer(app)
+
+        def html_equal(selector, inner_html):
+            return self.driver.find_element_by_css_selector(selector)\
+                       .get_property('innerHTML') == inner_html
+
+        wait_for(
+            lambda: html_equal(
+                '#output-container',
+                '<div id="output" class="dash" style="font-family: dash;">dash</div>'
+            ),
+            get_message=lambda: self.driver.find_element_by_css_selector('#output-container').get_property('innerHTML')
+        )
+
+        self.assertEqual(call_count.value, 1)
+
+        el = self.wait_for_element_by_css_selector('#input')
+        el.send_keys(' hello')
+
+        wait_for(
+            lambda: html_equal(
+                '#output-container',
+                '<div id="output" class="dash hello" style="font-family: &quot;dash hello&quot;;">dash hello</div>'
+            ),
+            get_message=lambda: self.driver.find_element_by_css_selector('#output-container').get_property('innerHTML')
+        )
+
+        self.assertEqual(call_count.value, 7)
+
+    def test_single_output_as_multi(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.Input(id='input', value=''),
+            html.Div(html.Div(id='output'), id='output-container'),
+        ])
+
+        @app.callback(
+            [Output('output', 'children')],
+            [Input('input', 'value')])
+        def update_output(value):
+            return ['out' + value]
+
+        self.startServer(app)
+
+        input = self.wait_for_element_by_css_selector('#input')
+        input.send_keys('house')
+        self.wait_for_text_to_equal('#output', 'outhouse')
+
+    def test_multi_output_circular_dependencies(self):
+        app = dash.Dash(__name__)
+        app.config['suppress_callback_exceptions'] = True
+
+        app.layout = html.Div([
+            dcc.Input(id='a'),
+            dcc.Input(id='b'),
+            html.P(id='c')
+        ])
+
+        @app.callback(Output('a', 'value'), [Input('b', 'value')])
+        def set_a(b):
+            return ((b or '') + 'X')[:100]
+
+        @app.callback([Output('b', 'value'), Output('c', 'children')],
+                      [Input('a', 'value')])
+        def set_bc(a):
+            return [a, a]
+
+        self.startServer(app)
+
+        # Front-end failed to render.
+        self.wait_for_text_to_equal(
+            'body', 'Error loading dependencies', timeout=2
+        )
