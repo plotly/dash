@@ -79,13 +79,15 @@ def pathname_configs(url_base_pathname=None,
                 '`requests_pathname_prefix`.'
             )
         )
-    elif url_base_pathname is not None and routes_pathname_prefix is not None:
+
+    if url_base_pathname is not None and routes_pathname_prefix is not None:
         raise exceptions.InvalidConfig(
             _pathname_config_error_message.format(
                 'You supplied `url_base_pathname` and '
                 '`routes_pathname_prefix`.')
         )
-    elif url_base_pathname is not None and routes_pathname_prefix is None:
+
+    if url_base_pathname is not None and routes_pathname_prefix is None:
         routes_pathname_prefix = url_base_pathname
     elif routes_pathname_prefix is None:
         routes_pathname_prefix = '/'

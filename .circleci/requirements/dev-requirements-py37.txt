@@ -6,8 +6,8 @@ mock
 tox
 tox-pyenv
 six
-plotly==3.6.1
+plotly==3.7.1
 requests[security]
 flake8
-pylint==2.2.2
-astroid==2.1.0
+pylint==2.3.1
+astroid==2.2.5
