@@ -6,6 +6,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - `restyleData` prop for `Graph` component [#483](https://github.com/plotly/dash-core-components/pull/483)
 
+### Updated
+- Upgraded `react-markdown` third party library from 2.4.5 to [4.0.6](https://github.com/rexxars/react-markdown/blob/master/CHANGELOG.md#406---2019-01-04)
+
 ### Fixed
 - Fix Vertical Slider regression [#479](https://github.com/plotly/dash/issues/479)
 - Fix Slider regression [#485](https://github.com/plotly/dash/issues/485)

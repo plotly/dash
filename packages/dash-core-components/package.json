@@ -44,7 +44,7 @@
     "react-dates": "^12.3.0",
     "react-docgen": "^2.21.0",
     "react-dropzone": "^4.1.2",
-    "react-markdown": "^2.4.5",
+    "react-markdown": "^4.0.6",
     "react-select-fast-filter-options": "^0.2.3",
     "react-syntax-highlighter": "^5.0.0",
     "react-virtualized-select": "^3.1.3"

@@ -1203,7 +1203,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "Data from latest click event",
+        "description": "Data from latest click event. Read-only.",
         "defaultValue": {
           "value": "null",
           "computed": false
@@ -1214,7 +1214,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "Data from latest click annotation event",
+        "description": "Data from latest click annotation event. Read-only.",
         "defaultValue": {
           "value": "null",
           "computed": false
@@ -1225,7 +1225,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "Data from latest hover event",
+        "description": "Data from latest hover event. Read-only.",
         "defaultValue": {
           "value": "null",
           "computed": false
@@ -1247,7 +1247,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "Data from latest select event",
+        "description": "Data from latest select event. Read-only.",
         "defaultValue": {
           "value": "null",
           "computed": false
@@ -1258,7 +1258,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "Data from latest relayout event which occurs\nwhen the user zooms or pans on the plot",
+        "description": "Data from latest relayout event which occurs\nwhen the user zooms or pans on the plot or other\nlayout-level edits. Has the form `{<attr string>: <value>}`\ndescribing the changes made. Read-only.",
         "defaultValue": {
           "value": "null",
           "computed": false
@@ -1266,10 +1266,10 @@
       },
       "restyleData": {
         "type": {
-          "name": "object"
+          "name": "array"
         },
         "required": false,
-        "description": "Data from latest restyle event which occurs\nwhen the user toggles a legend item",
+        "description": "Data from latest restyle event which occurs\nwhen the user toggles a legend item, changes\nparcoords selections, or other trace-level edits.\nHas the form `[edits, indices]`, where `edits` is an object\n`{<attr string>: <value>}` describing the changes made,\nand `indices` is an array of trace indices that were edited.\nRead-only.",
         "defaultValue": {
           "value": "null",
           "computed": false
