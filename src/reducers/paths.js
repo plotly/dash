@@ -1,4 +1,4 @@
-import {crawlLayout, hasId} from './utils';
+import {crawlLayout, hasPropsId} from './utils';
 import R from 'ramda';
 import {getAction} from '../actions/constants';
 
@@ -30,7 +30,7 @@ const paths = (state = initialPaths, action) => {
             }
 
             crawlLayout(subTree, function assignPath(child, itempath) {
-                if (hasId(child)) {
+                if (hasPropsId(child)) {
                     newState[child.props.id] = R.concat(startingPath, itempath);
                 }
             });

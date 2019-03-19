@@ -26,7 +26,7 @@ import {
     view,
 } from 'ramda';
 import {createAction} from 'redux-actions';
-import {crawlLayout, hasId} from '../reducers/utils';
+import {crawlLayout, hasPropsId} from '../reducers/utils';
 import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
 import cookie from 'cookie';
@@ -545,11 +545,11 @@ function updateOutput(
                     getState().requestQueue
                 );
                 /*
-             * Note that if the latest request is still `loading`
-             * or even if the latest request failed,
-             * we still reject this response in favor of waiting
-             * for the latest request to finish.
-             */
+                 * Note that if the latest request is still `loading`
+                 * or even if the latest request failed,
+                 * we still reject this response in favor of waiting
+                 * for the latest request to finish.
+                 */
                 const rejected = latestRequestIndex > getThisRequestIndex();
                 return rejected;
             };
@@ -561,10 +561,10 @@ function updateOutput(
             }
 
             /*
-         * Check to see if another request has already come back
-         * _after_ this one.
-         * If so, ignore this request.
-         */
+             * Check to see if another request has already come back
+             * _after_ this one.
+             * If so, ignore this request.
+             */
             if (isRejected()) {
                 updateRequestQueue(true);
                 return;
@@ -572,11 +572,11 @@ function updateOutput(
 
             res.json().then(function handleJson(data) {
                 /*
-             * Even if the `res` was received in the correct order,
-             * the remainder of the response (res.json()) could happen
-             * at different rates causing the parsed responses to
-             * get out of order
-             */
+                 * Even if the `res` was received in the correct order,
+                 * the remainder of the response (res.json()) could happen
+                 * at different rates causing the parsed responses to
+                 * get out of order
+                 */
                 if (isRejected()) {
                     updateRequestQueue(true);
                     return;
@@ -590,13 +590,13 @@ function updateOutput(
                 }
 
                 /*
-             * it's possible that this output item is no longer visible.
-             * for example, the could still be request running when
-             * the user switched the chapter
-             *
-             * if it's not visible, then ignore the rest of the updates
-             * to the store
-             */
+                 * it's possible that this output item is no longer visible.
+                 * for example, the could still be request running when
+                 * the user switched the chapter
+                 *
+                 * if it's not visible, then ignore the rest of the updates
+                 * to the store
+                 */
 
                 const multi = data.multi;
 
@@ -621,10 +621,10 @@ function updateOutput(
                     );
 
                     /*
-                 * If the response includes children, then we need to update our
-                 * paths store.
-                 * TODO - Do we need to wait for updateProps to finish?
-                 */
+                     * If the response includes children, then we need to update our
+                     * paths store.
+                     * TODO - Do we need to wait for updateProps to finish?
+                     */
                     if (has('children', observerUpdatePayload.props)) {
                         dispatch(
                             computePaths({
@@ -637,10 +637,10 @@ function updateOutput(
                         );
 
                         /*
-                    * if children contains objects with IDs, then we
-                    * need to dispatch a propChange for all of these
-                    * new children components
-                    */
+                         * if children contains objects with IDs, then we
+                         * need to dispatch a propChange for all of these
+                         * new children components
+                         */
                         if (
                             contains(
                                 type(observerUpdatePayload.props.children),
@@ -649,17 +649,17 @@ function updateOutput(
                             !isEmpty(observerUpdatePayload.props.children)
                         ) {
                             /*
-                         * TODO: We're just naively crawling
-                         * the _entire_ layout to recompute the
-                         * the dependency graphs.
-                         * We don't need to do this - just need
-                         * to compute the subtree
-                         */
+                             * TODO: We're just naively crawling
+                             * the _entire_ layout to recompute the
+                             * the dependency graphs.
+                             * We don't need to do this - just need
+                             * to compute the subtree
+                             */
                             const newProps = {};
                             crawlLayout(
                                 observerUpdatePayload.props.children,
                                 function appendIds(child) {
-                                    if (hasId(child)) {
+                                    if (hasPropsId(child)) {
                                         keys(child.props).forEach(childProp => {
                                             const componentIdAndProp = `${
                                                 child.props.id
@@ -686,30 +686,30 @@ function updateOutput(
                             );
 
                             /*
-                         * Organize props by shared outputs so that we
-                         * only make one request per output component
-                         * (even if there are multiple inputs).
-                         *
-                         * For example, we might render 10 inputs that control
-                         * a single output. If that is the case, we only want
-                         * to make a single call, not 10 calls.
-                         */
+                             * Organize props by shared outputs so that we
+                             * only make one request per output component
+                             * (even if there are multiple inputs).
+                             *
+                             * For example, we might render 10 inputs that control
+                             * a single output. If that is the case, we only want
+                             * to make a single call, not 10 calls.
+                             */
 
                             /*
-                         * In some cases, the new item will be an output
-                         * with its inputs already rendered (not rendered)
-                         * as part of this update.
-                         * For example, a tab with global controls that
-                         * renders different content containers without any
-                         * additional inputs.
-                         *
-                         * In that case, we'll call `updateOutput` with that output
-                         * and just "pretend" that one if its inputs changed.
-                         *
-                         * If we ever add logic that informs the user on
-                         * "which input changed", we'll have to account for this
-                         * special case (no input changed?)
-                         */
+                             * In some cases, the new item will be an output
+                             * with its inputs already rendered (not rendered)
+                             * as part of this update.
+                             * For example, a tab with global controls that
+                             * renders different content containers without any
+                             * additional inputs.
+                             *
+                             * In that case, we'll call `updateOutput` with that output
+                             * and just "pretend" that one if its inputs changed.
+                             *
+                             * If we ever add logic that informs the user on
+                             * "which input changed", we'll have to account for this
+                             * special case (no input changed?)
+                             */
 
                             const outputIds = [];
                             keys(newProps).forEach(idAndProp => {
@@ -718,9 +718,9 @@ function updateOutput(
                                     InputGraph.dependenciesOf(idAndProp)
                                         .length === 0 &&
                                     /*
-                                 * And none of its inputs are generated in this
-                                 * request
-                                 */
+                                     * And none of its inputs are generated in this
+                                     * request
+                                     */
                                     intersection(
                                         InputGraph.dependantsOf(idAndProp),
                                         keys(newProps)

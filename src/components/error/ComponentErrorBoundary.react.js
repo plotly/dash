@@ -137,7 +137,9 @@ const ComponentErrorBoundary = connect(
         error: state.error,
         graphs: state.graphs,
     }),
-    dispatch => ({dispatch})
+    dispatch => {
+        return {dispatch};
+    }
 )(Radium(UnconnectedComponentErrorBoundary));
 
 export default ComponentErrorBoundary;
