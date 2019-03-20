@@ -11,7 +11,7 @@
     "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "build:dev": "webpack --mode development",
     "build:dev.watch": "webpack --mode development --watch",
-    "build:prod": "webpack --mode production",
+    "build": "webpack --mode production",
     "start": "webpack-serve ./webpack.serve.config.js",
     "format": "prettier --config .prettierrc --write src/**/*.js src/**/*.react.js",
     "format:test": "prettier --config .prettierrc src/**/*.js src/**/*.react.js --list-different",
