@@ -11,3 +11,4 @@ requests[security]
 flake8
 pylint==2.3.1
 astroid==2.2.5
+dash-component-system==0.0.1rc1

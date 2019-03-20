@@ -23,6 +23,7 @@ setup(
         'dash_renderer==0.21.0',
         'dash-core-components==0.45.0',
         'dash-html-components==0.15.0',
+        'dash-component-system==0.0.1rc1',
         'dash-table==3.6.0'
     ],
     entry_points={
