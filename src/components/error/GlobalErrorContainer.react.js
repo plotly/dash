@@ -15,7 +15,7 @@ class UnconnectedGlobalErrorContainer extends Component {
     resolveError(dispatch, type, myId) {
         if (type === 'backEnd') {
             dispatch(resolveError({type}));
-            dispatch(revert());
+            // dispatch(revert);
         } else {
             dispatch(resolveError({myId, type}));
         }
@@ -25,11 +25,11 @@ class UnconnectedGlobalErrorContainer extends Component {
         const {error, dispatch} = this.props;
         if (!isEmpty(error.backEnd)) {
             return (
-                <div
-                    className="dash-backend-error"
-                    dangerouslySetInnerHTML={{__html: error.backEnd.errorPage}}
-                />
-            );
+                <div className="dash-backend-error">
+                    <h2> {error.backEnd.errorPage.message} </h2>
+                    <pre className="traceback"> {error.backEnd.errorPage.stack} </pre>
+                </div>
+            )
         }
         return (
             <div id="_dash-global-error-container">

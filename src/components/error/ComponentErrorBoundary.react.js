@@ -29,7 +29,7 @@ class UnconnectedComponentErrorBoundary extends Component {
                 info,
             })
         );
-        dispatch(revert);
+        // dispatch(revert);
     }
 
     /* eslint-disable react/no-did-update-set-state */

@@ -1,8 +1,8 @@
 /* global fetch: true, document: true */
 import cookie from 'cookie';
 import {merge} from 'ramda';
-import {urlBase} from '../utils';
 import {onError} from '../actions';
+import {urlBase} from '../utils';
 
 function GET(path) {
     return fetch(path, {
@@ -73,14 +73,14 @@ function apiThunk(endpoint, method, store, id, body, headers = {}) {
                 /* eslint-disable no-console */
                 console.error(err);
                 /* eslint-enable no-console */
-                err.text().then(text => {
+                if (err) {
                     dispatch(
                         onError({
                             type: 'backEnd',
-                            errorPage: text,
+                            errorPage: err,
                         })
-                    );
-                });
+                    )
+                }
             });
     };
 }

@@ -2276,5 +2276,5 @@ class Tests(IntegrationTests):
 
         # Front-end failed to render.
         self.wait_for_text_to_equal(
-            'body', 'Error loading dependencies', timeout=2
+            'body', 'Dependency Cycle Found', timeout=2
         )

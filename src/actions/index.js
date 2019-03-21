@@ -56,7 +56,14 @@ function triggerDefaultState(dispatch, getState) {
     const {InputGraph, MultiGraph} = graphs;
     const allNodes = InputGraph.overallOrder();
     // overallOrder will assert circular dependencies for multi output.
-    MultiGraph.overallOrder();
+    try{
+        MultiGraph.overallOrder();
+    }catch(err) {
+        dispatch(onError({
+            type: 'backEnd',
+            errorPage: err,
+        }))
+    }
     const inputNodeIds = [];
     allNodes.reverse();
     allNodes.forEach(nodeId => {
@@ -787,14 +794,12 @@ function updateOutput(
             });
         })
         .catch(err => {
-            err.text().then(text => {
-                dispatch(
-                    onError({
-                        type: 'backEnd',
-                        errorPage: text,
-                    })
-                );
-            });
+            dispatch(
+                onError({
+                    type: 'backEnd',
+                    errorPage: err,
+                })
+            )
         });
 }
 
