@@ -2275,6 +2275,8 @@ class Tests(IntegrationTests):
         self.startServer(app)
 
         # Front-end failed to render.
-        self.wait_for_text_to_equal(
-            'body', 'Dependency Cycle Found', timeout=2
+        self.assertIn(
+            'Dependency Cycle Found',
+            self.driver.find_element_by_tag_name('body').text,
+            "circular dependencies is not detected"
         )
