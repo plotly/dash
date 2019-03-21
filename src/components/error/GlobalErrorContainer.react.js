@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Radium from 'radium';
 import {isEmpty} from 'ramda';
-import {revert, resolveError} from '../../actions';
+import {resolveError} from '../../actions';
 import './werkzeug.css';
 import {DebugMenu} from './menu/DebugMenu.react';
 
