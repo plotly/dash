@@ -79,7 +79,7 @@ function apiThunk(endpoint, method, store, id, body, headers = {}) {
                             type: 'backEnd',
                             errorPage: err,
                         })
-                    )
+                    );
                 }
             });
     };

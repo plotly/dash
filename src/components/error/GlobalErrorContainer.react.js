@@ -27,9 +27,11 @@ class UnconnectedGlobalErrorContainer extends Component {
             return (
                 <div className="dash-backend-error">
                     <h2> {error.backEnd.errorPage.message} </h2>
-                    <pre className="traceback"> {error.backEnd.errorPage.stack} </pre>
+                    <pre className="traceback">
+                        {error.backEnd.errorPage.stack}
+                    </pre>
                 </div>
-            )
+            );
         }
         return (
             <div id="_dash-global-error-container">
