@@ -139,14 +139,10 @@ const ${Component} = (props) => {
 
     return (
         <${element}
-            onClick={() => {
-                if (props.setProps) {
-                    props.setProps({
-                        n_clicks: props.n_clicks + 1,
-                        n_clicks_timestamp: Date.now()
-                    })
-                }
-            }}
+            onClick={() => props.setProps({
+                n_clicks: props.n_clicks + 1,
+                n_clicks_timestamp: Date.now()
+            })}
             {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps'], props)}
             {...dataAttributes}
         >
