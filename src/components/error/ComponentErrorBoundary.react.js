@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Radium from 'radium';
 import * as R from 'ramda';
 import uniqid from 'uniqid';
-import {onError, resolveError} from '../../actions';
+import {onError, resolveError, revert} from '../../actions';
 import ComponentErrorOverlay from './ComponentErrorOverlay.react';
 import ComponentDisabledOverlay from './ComponentDisabledOverlay.react';
 
@@ -29,7 +29,7 @@ class UnconnectedComponentErrorBoundary extends Component {
                 info,
             })
         );
-        // dispatch(revert);
+        dispatch(revert);
     }
 
     /* eslint-disable react/no-did-update-set-state */

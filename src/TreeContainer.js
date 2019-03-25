@@ -209,8 +209,8 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
 }
 
 export const AugmentedTreeContainer = connect(
-    mapStateToProps, 
-    mapDispatchToProps, 
+    mapStateToProps,
+    mapDispatchToProps,
     mergeProps
 )(TreeContainer);
 
