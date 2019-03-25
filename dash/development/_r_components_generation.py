@@ -37,14 +37,14 @@ deps_metadata <- list('''
 
 frame_element_template = '''`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
-file = "deps/"), meta = NULL,
+file = "deps"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''
 
 frame_body_template = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
-file = "deps/"), meta = NULL,
+file = "deps"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")'''  # noqa:E501
@@ -65,7 +65,7 @@ help_string = '''% Auto-generated: do not edit by hand
 }}
 
 \\usage{{
-{prefix}{name}({default_argtext}, ...)
+{prefix}{name}({default_argtext})
 }}
 
 \\arguments{{
@@ -78,7 +78,8 @@ Title: {package_description}
 Version: {package_version}
 Authors @R: as.person(c({package_author}))
 Description: {package_description}
-Depends: R (>= 3.5.0)
+Depends: R (>= 3.0.2)
+Imports: dashR
 Suggests: testthat, roxygen2
 License: {package_license}
 URL: {package_url}
@@ -223,8 +224,7 @@ def generate_class_string(name, props, project_shortname, prefix):
 def generate_js_metadata(pkg_data, project_shortname):
     """
     Dynamically generate R function to supply JavaScript
-    dependency information required by htmltools package,
-    which is loaded by dashR.
+    and CSS dependency information required by dashR package.
 
     Parameters
     ----------
@@ -305,9 +305,6 @@ def write_help_file(name, props, description, prefix):
     default_argtext = ''
     item_text = ''
 
-    # Ensure props are ordered with children first
-    props = reorder_props(props=props)
-
     prop_keys = list(props.keys())
 
     has_wildcards = any('-*' in key for key in prop_keys)
@@ -331,6 +328,7 @@ def write_help_file(name, props, description, prefix):
 
     if has_wildcards:
         item_text += '\n\n\\item{...}{wildcards: `data-*` or `aria-*`}'
+        default_argtext += ', ...'
 
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
@@ -350,6 +348,18 @@ def write_class_file(name,
                      prefix=None):
     props = reorder_props(props=props)
 
+    # generate the R help pages for each of the Dash components that we
+    # are transpiling -- this is done to avoid using Roxygen2 syntax,
+    # we may eventually be able to generate similar documentation using
+    # doxygen and an R plugin, but for now we'll just do it on our own
+    # from within Python
+    write_help_file(
+        name,
+        props,
+        description,
+        prefix
+    )
+
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string(
@@ -365,26 +375,13 @@ def write_class_file(name,
         f.write(import_string)
         f.write(class_string)
 
-    # generate the R help pages for each of the Dash components that we
-    # are transpiling -- this is done to avoid using Roxygen2 syntax,
-    # we may eventually be able to generate similar documentation using
-    # doxygen and an R plugin, but for now we'll just do it on our own
-    # from within Python
-    write_help_file(
-        name,
-        props,
-        description,
-        prefix
-    )
-
     print('Generated {}'.format(file_name))
 
 
 def write_js_metadata(pkg_data, project_shortname):
     """
     Write an internal (not exported) R function to return all JS
-    dependencies as required by htmltools package given a
-    function string
+    dependencies as required by dashR.
 
     Parameters
     ----------
@@ -488,10 +485,8 @@ def generate_rpkg(pkg_data,
     pkghelp_stub_path = os.path.join('man', package_name + '-package.Rd')
 
     # generate the internal (not exported to the user) functions which
-    # supply the JavaScript dependencies to the htmltools package,
-    # which is required by DashR (this avoids having to generate an
-    # RData file from within Python, given the current package generation
-    # workflow)
+    # supply the JavaScript dependencies to the dashR package.
+    # this avoids having to generate an RData file from within Python.
     write_js_metadata(
         pkg_data=pkg_data,
         project_shortname=project_shortname
