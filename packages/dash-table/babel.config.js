@@ -9,7 +9,8 @@ const presets = [
                 'Explorer 11'
             ]
         },
-        useBuiltIns: 'usage'
+        useBuiltIns: 'usage',
+        corejs: 2
     }],
     '@babel/preset-react'
 ];

@@ -47,7 +47,7 @@ export const getLocale = (...locales: Partial<INumberLocale>[]): INumberLocale =
     R.mergeAll([
         D3_DEFAULT_LOCALE,
         ...locales
-    ]);
+    ]) as INumberLocale;
 
 export const getSpecifier = (specifier?: string) => specifier === undefined ?
     DEFAULT_SPECIFIER :

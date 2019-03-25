@@ -19,11 +19,14 @@
         { "languageId": "*", "dictionaries": ["fonts", "css", "html", "npm", "typescript", "python"]}
     ],
     "cSpell.words": [
+        "Paginator",
         "atto",
+        "corejs",
         "deletable",
         "femto",
         "giga",
         "ints",
+        "memoizer",
         "milli",
         "nully",
         "peta",

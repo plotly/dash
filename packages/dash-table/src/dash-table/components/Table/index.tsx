@@ -138,7 +138,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
                 virtual_selected_rows,
                 virtualized
             }
-        ]);
+        ]) as ControlledTableProps;
     }
 
     private updateDerivedProps(controlled: ControlledTableProps) {
