@@ -1,4 +1,4 @@
-import collections
+from collections import OrderedDict
 import copy
 import os
 
@@ -310,9 +310,10 @@ def reorder_props(props):
         Dictionary with {propName: propMetadata} structure
     """
     if 'children' in props:
-        props = collections.OrderedDict(
-            [('children', props.pop('children'),)] +
-            list(zip(list(props.keys()), list(props.values()))))
+        # Constructing an OrderedDict with duplicate keys, you get the order
+        # from the first one but the value from the last.
+        # Doing this to avoid mutating props, which can cause confusion.
+        props = OrderedDict([('children', '')] + list(props.items()))
 
     return props
 
