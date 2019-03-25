@@ -3,7 +3,7 @@ Title: Core component suite for Dash
 Version: 0.44.0
 Authors @R: as.person(c(Chris Parmer <chris@plot.ly>))
 Description: Core component suite for Dash
-Depends: R (>= 3.2.0)
+Depends: R (>= 3.0.2)
 Suggests: testthat, roxygen2
 License: MIT + file LICENSE
 URL: https://github.com/plotly/dash-core-components
