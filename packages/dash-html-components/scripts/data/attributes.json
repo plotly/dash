@@ -260,7 +260,7 @@
                 "object",
                 "video"
             ],
-            "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+            "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.\t\t\t\t\t\tNote: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
         },
         "hidden": {
             "elements": [
@@ -717,7 +717,7 @@
                 "object",
                 "video"
             ],
-            "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+            "description": "For the elements listed here, this establishes the element's width.\t\t\t\t\t\tNote: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
         },
         "wrap": {
             "elements": [
