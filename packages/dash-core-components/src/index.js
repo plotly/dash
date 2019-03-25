@@ -48,5 +48,5 @@ export {
     DatePickerRange,
     Upload,
     Store,
-    LogoutButton
+    LogoutButton,
 };

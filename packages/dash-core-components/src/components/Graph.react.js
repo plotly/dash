@@ -109,6 +109,29 @@ class PlotlyGraph extends Component {
         );
     }
 
+    extend(props) {
+        const {id, extendData} = props;
+        let updateData, traceIndices, maxPoints;
+        if (Array.isArray(extendData) && typeof extendData[0] === 'object') {
+            [updateData, traceIndices, maxPoints] = extendData;
+        } else {
+            updateData = extendData;
+        }
+
+        if (!traceIndices) {
+            function getFirstProp(data) {
+                return data[Object.keys(data)[0]];
+            }
+
+            function generateIndices(data) {
+                return Array.from(Array(getFirstProp(data).length).keys());
+            }
+            traceIndices = generateIndices(updateData);
+        }
+
+        return Plotly.extendTraces(id, updateData, traceIndices, maxPoints);
+    }
+
     bindEvents() {
         const {id, setProps, clear_on_unhover} = this.props;
 
@@ -211,6 +234,13 @@ class PlotlyGraph extends Component {
         if (figureChanged) {
             this.plot(nextProps);
         }
+
+        const extendDataChanged =
+            this.props.extendData !== nextProps.extendData;
+
+        if (extendDataChanged) {
+            this.extend(nextProps);
+        }
     }
 
     componentDidUpdate(prevProps) {
@@ -278,6 +308,18 @@ const graphPropTypes = {
      * describing the changes made. Read-only.
      */
     relayoutData: PropTypes.object,
+
+    /**
+     * Data that should be appended to existing traces. Has the form
+     * `[updateData, traceIndices, maxPoints]`, where `updateData` is an object
+     * containing the data to extend, `traceIndices` (optional) is an array of
+     * trace indices that should be extended, and `maxPoints` (optional) is
+     * either an integer defining the maximum number of points allowed or an
+     * object with key:value pairs matching `updateData`
+     * Reference the Plotly.extendTraces API for full usage:
+     * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
+     */
+    extendData: PropTypes.object,
 
     /**
      * Data from latest restyle event which occurs
@@ -527,6 +569,7 @@ const graphDefaultProps = {
     hoverData: null,
     selectedData: null,
     relayoutData: null,
+    extendData: null,
     restyleData: null,
     figure: {data: [], layout: {}},
     animate: false,

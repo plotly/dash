@@ -1812,6 +1812,141 @@ class Tests(IntegrationTests):
         time.sleep(2)  # Wait for graph to re-render
         self.snapshot('render-empty-graph')
 
+    def test_graph_extend_trace(self):
+        app = dash.Dash(__name__)
+
+        def generate_with_id(id, data=None):
+            if data is None:
+                data = [{'x': [0, 1, 2, 3, 4],
+                         'y': [0, .5, 1, .5, 0]
+                         }]
+
+            return html.Div([html.P(id),
+                             dcc.Graph(id=id,
+                                       figure=dict(data=data)),
+                             html.Div(id='output_{}'.format(id))])
+
+        figs = ['trace_will_extend',
+                'trace_will_extend_with_no_indices',
+                'trace_will_extend_with_max_points']
+
+        layout = [generate_with_id(id) for id in figs]
+
+        figs.append('trace_will_allow_repeated_extend')
+        data = [{'y': [0, 0, 0]}]
+        layout.append(generate_with_id(figs[-1], data))
+
+        figs.append('trace_will_extend_selectively')
+        data = [{'x': [0, 1, 2, 3, 4], 'y': [0, .5, 1, .5, 0]},
+                {'x': [0, 1, 2, 3, 4], 'y': [1, 1, 1, 1, 1]}]
+        layout.append(generate_with_id(figs[-1], data))
+
+        layout.append(dcc.Interval(
+            id='interval_extendablegraph_update',
+            interval=10,
+            n_intervals=0,
+            max_intervals=1))
+
+        layout.append(dcc.Interval(
+            id='interval_extendablegraph_extendtwice',
+            interval=500,
+            n_intervals=0,
+            max_intervals=2))
+
+        app.layout = html.Div(layout)
+
+        @app.callback(Output('trace_will_allow_repeated_extend', 'extendData'),
+                      [Input('interval_extendablegraph_extendtwice', 'n_intervals')])
+        def trace_will_allow_repeated_extend(n_intervals):
+            if n_intervals is None or n_intervals < 1:
+                raise PreventUpdate
+
+            return dict(y=[[.1, .2, .3, .4, .5]])
+
+        @app.callback(Output('trace_will_extend', 'extendData'),
+                      [Input('interval_extendablegraph_update', 'n_intervals')])
+        def trace_will_extend(n_intervals):
+            if n_intervals is None or n_intervals < 1:
+                raise PreventUpdate
+
+            x_new = [5, 6, 7, 8, 9]
+            y_new = [.1, .2, .3, .4, .5]
+            return dict(x=[x_new], y=[y_new]), [0]
+
+        @app.callback(Output('trace_will_extend_selectively', 'extendData'),
+                      [Input('interval_extendablegraph_update', 'n_intervals')])
+        def trace_will_extend_selectively(n_intervals):
+            if n_intervals is None or n_intervals < 1:
+                raise PreventUpdate
+
+            x_new = [5, 6, 7, 8, 9]
+            y_new = [.1, .2, .3, .4, .5]
+            return dict(x=[x_new], y=[y_new]), [1]
+
+        @app.callback(Output('trace_will_extend_with_no_indices', 'extendData'),
+                      [Input('interval_extendablegraph_update', 'n_intervals')])
+        def trace_will_extend_with_no_indices(n_intervals):
+            if n_intervals is None or n_intervals < 1:
+                raise PreventUpdate
+
+            x_new = [5, 6, 7, 8, 9]
+            y_new = [.1, .2, .3, .4, .5]
+            return dict(x=[x_new], y=[y_new])
+
+        @app.callback(Output('trace_will_extend_with_max_points', 'extendData'),
+                      [Input('interval_extendablegraph_update', 'n_intervals')])
+        def trace_will_extend_with_max_points(n_intervals):
+            if n_intervals is None or n_intervals < 1:
+                raise PreventUpdate
+
+            x_new = [5, 6, 7, 8, 9]
+            y_new = [.1, .2, .3, .4, .5]
+            return dict(x=[x_new], y=[y_new]), [0], 7
+
+        for id in figs:
+            @app.callback(Output('output_{}'.format(id), 'children'),
+                          [Input(id, 'extendData')],
+                          [State(id, 'figure')])
+            def display_data(trigger, fig):
+                return json.dumps(fig['data'])
+
+        self.startServer(app)
+
+        comparison = json.dumps([
+            dict(
+                x=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                y=[0, .5, 1, .5, 0, .1, .2, .3, .4, .5]
+            )
+        ])
+        self.wait_for_text_to_equal('#output_trace_will_extend', comparison)
+        self.wait_for_text_to_equal('#output_trace_will_extend_with_no_indices', comparison)
+        comparison = json.dumps([
+            dict(
+                x=[0, 1, 2, 3, 4],
+                y=[0, .5, 1, .5, 0]
+            ),
+            dict(
+                x=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                y=[1, 1, 1, 1, 1, .1, .2, .3, .4, .5]
+            )
+        ])
+        self.wait_for_text_to_equal('#output_trace_will_extend_selectively', comparison)
+
+        comparison = json.dumps([
+            dict(
+                x=[3, 4, 5, 6, 7, 8, 9],
+                y=[.5, 0, .1, .2, .3, .4, .5]
+            )
+        ])
+        self.wait_for_text_to_equal('#output_trace_will_extend_with_max_points', comparison)
+
+        comparison = json.dumps([
+            dict(
+                y=[0, 0, 0, .1, .2, .3, .4, .5, .1, .2, .3, .4, .5]
+            )
+        ])
+        self.wait_for_text_to_equal('#output_trace_will_allow_repeated_extend', comparison)
+
     def test_storage_component(self):
         app = dash.Dash(__name__)
 
