@@ -1,3 +1,9 @@
+## [0.40.0] - 2019-03-25
+### Changed
+- Bumped dash-core-components version from 0.44.0 to [0.45.0](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0450---2019-03-25)
+- Bumped dash-html-components version from 0.14.0 to [0.15.0](https://github.com/plotly/dash-html-components/blob/master/CHANGELOG.md#0150---2019-03-25)
+- Bumped dash-renderer version from 0.20.0 to [0.21.0](https://github.com/plotly/dash-renderer/blob/master/CHANGELOG.md#0210---2019-03-25)
+
 ## [0.39.0] - 2019-03-04
 ## Added
 - Allow multiple outputs from a single callback. [#436](https://github.com/plotly/dash/pull/436)
