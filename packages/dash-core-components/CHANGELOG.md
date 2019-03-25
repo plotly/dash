@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [unreleased]
+## [0.45.0] - 2019-03-25
 ### Added
 - `restyleData` prop for `Graph` component [#483](https://github.com/plotly/dash-core-components/pull/483)
 
