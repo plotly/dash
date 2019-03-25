@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.21.0] - 2019-03-25
 ### Changed
 [#140](https://github.com/plotly/dash-renderer/pull/140)
 [#126](https://github.com/plotly/dash-renderer/pull/126)

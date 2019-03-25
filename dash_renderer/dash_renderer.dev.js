@@ -33503,8 +33503,6 @@ var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-r
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
-var _constants = __webpack_require__(/*! ./constants/constants */ "./src/constants/constants.js");
-
 var _actions = __webpack_require__(/*! ./actions */ "./src/actions/index.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -33575,45 +33573,6 @@ var TreeContainer = function (_Component) {
             return _react2.default.createElement.apply(_react2.default, [element, (0, _ramda.mergeAll)([(0, _ramda.omit)(['children'], _dashprivate_layout.props), { loading_state: loading_state, setProps: setProps }])].concat(_toConsumableArray(Array.isArray(children) ? children : [children])));
         }
     }, {
-        key: 'getLoadingState',
-        value: function getLoadingState(id, requestQueue) {
-            // loading prop coming from TreeContainer
-            var isLoading = false;
-            var loadingProp = void 0;
-            var loadingComponent = void 0;
-
-            if (requestQueue && requestQueue.filter) {
-                (0, _ramda.forEach)(function (r) {
-                    var controllerId = (0, _ramda.isNil)(r.controllerId) ? '' : r.controllerId;
-                    if (r.status === 'loading' && (0, _ramda.contains)(id, controllerId)) {
-                        isLoading = true;
-
-                        var _r$controllerId$split = r.controllerId.split('.');
-
-                        var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
-
-                        loadingComponent = _r$controllerId$split2[0];
-                        loadingProp = _r$controllerId$split2[1];
-                    }
-                }, requestQueue);
-
-                var thisRequest = requestQueue.filter(function (r) {
-                    var controllerId = (0, _ramda.isNil)(r.controllerId) ? '' : r.controllerId;
-                    return (0, _ramda.contains)(id, controllerId);
-                });
-                if (thisRequest.status === _constants.STATUS.OK) {
-                    isLoading = false;
-                }
-            }
-
-            // Set loading state
-            return {
-                is_loading: isLoading,
-                prop_name: loadingProp,
-                component_name: loadingComponent
-            };
-        }
-    }, {
         key: 'getSetProps',
         value: function getSetProps() {
             var _this2 = this;
@@ -33657,7 +33616,11 @@ var TreeContainer = function (_Component) {
     }, {
         key: 'shouldComponentUpdate',
         value: function shouldComponentUpdate(nextProps) {
-            return nextProps._dashprivate_layout !== this.props._dashprivate_layout;
+            var _dashprivate_layout = nextProps._dashprivate_layout,
+                _dashprivate_loadingState = nextProps._dashprivate_loadingState;
+
+
+            return _dashprivate_layout !== this.props._dashprivate_layout || _dashprivate_loadingState.is_loading !== this.props._dashprivate_loadingState.is_loading;
         }
     }, {
         key: 'getLayoutProps',
@@ -33670,16 +33633,15 @@ var TreeContainer = function (_Component) {
             var _props2 = this.props,
                 _dashprivate_dispatch = _props2._dashprivate_dispatch,
                 _dashprivate_layout = _props2._dashprivate_layout,
-                _dashprivate_requestQueue = _props2._dashprivate_requestQueue;
+                _dashprivate_loadingState = _props2._dashprivate_loadingState;
 
 
             var layoutProps = this.getLayoutProps();
 
             var children = this.getChildren(layoutProps.children);
-            var loadingState = this.getLoadingState(layoutProps.id, _dashprivate_requestQueue);
             var setProps = this.getSetProps(_dashprivate_dispatch);
 
-            return this.getComponent(_dashprivate_layout, children, loadingState, setProps);
+            return this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps);
         }
     }]);
 
@@ -33690,6 +33652,7 @@ TreeContainer.propTypes = {
     _dashprivate_dependencies: _propTypes2.default.any,
     _dashprivate_dispatch: _propTypes2.default.func,
     _dashprivate_layout: _propTypes2.default.object,
+    _dashprivate_loadingState: _propTypes2.default.object,
     _dashprivate_paths: _propTypes2.default.any,
     _dashprivate_requestQueue: _propTypes2.default.object
 };
@@ -33711,10 +33674,80 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
         _dashprivate_dependencies: stateProps.dependencies,
         _dashprivate_dispatch: dispatchProps.dispatch,
         _dashprivate_layout: ownProps._dashprivate_layout,
-        _dashprivate_loading: ownProps._dashprivate_loading,
+        _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.requestQueue),
         _dashprivate_paths: stateProps.paths,
         _dashprivate_requestQueue: stateProps.requestQueue
     };
+}
+
+function getLoadingState(layout, requestQueue) {
+    var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id ? [layout.props.id] : [];
+
+    var isLoading = false;
+    var loadingProp = void 0;
+    var loadingComponent = void 0;
+
+    if (requestQueue) {
+        (0, _ramda.forEach)(function (r) {
+            var controllerId = (0, _ramda.isNil)(r.controllerId) ? '' : r.controllerId;
+            if (r.status === 'loading' && (0, _ramda.any)(function (id) {
+                return (0, _ramda.contains)(id, controllerId);
+            }, ids)) {
+                isLoading = true;
+
+                var _r$controllerId$split = r.controllerId.split('.');
+
+                var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
+
+                loadingComponent = _r$controllerId$split2[0];
+                loadingProp = _r$controllerId$split2[1];
+            }
+        }, requestQueue);
+    }
+
+    // Set loading state
+    return {
+        is_loading: isLoading,
+        prop_name: loadingProp,
+        component_name: loadingComponent
+    };
+}
+
+function getNestedIds(layout) {
+    var ids = [];
+    var queue = [layout];
+
+    while (queue.length) {
+        var elementLayout = queue.shift();
+
+        var props = elementLayout && elementLayout.props;
+
+        if (!props) {
+            continue;
+        }
+
+        var children = props.children,
+            id = props.id;
+
+
+        if (id) {
+            ids.push(id);
+        }
+
+        if (children) {
+            var filteredChildren = (0, _ramda.filter)(function (child) {
+                return !isSimpleComponent(child) && !isLoadingComponent(child);
+            }, Array.isArray(children) ? children : [children]);
+
+            queue.push.apply(queue, _toConsumableArray(filteredChildren));
+        }
+    }
+
+    return ids;
+}
+
+function isLoadingComponent(layout) {
+    return _registry2.default.resolve(layout.type, layout.namespace)._dashprivate_isLoadingComponent;
 }
 
 var AugmentedTreeContainer = exports.AugmentedTreeContainer = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps, mergeProps)(TreeContainer);
