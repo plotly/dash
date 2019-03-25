@@ -21,7 +21,7 @@ const DotSpinner = ({status, color, fullscreen, debug, className, style}) => {
     return (
         <div style={style ? style : {}} className={spinnerClass}>
             {debugTitle}
-            <div className="dash-dot-spinner">
+            <div className="dash-spinner dash-dot-spinner">
                 <div className="dash-dot-spinner-bounce1"></div>
                 <div className="dash-dot-spinner-bounce2"></div>
                 <div className="dash-dot-spinner-bounce3"></div>
@@ -48,38 +48,38 @@ const DotSpinner = ({status, color, fullscreen, debug, className, style}) => {
                     width: 70px;
                     text-align: center;
                 }
-                
+
                 .dash-dot-spinner > div {
                     width: 18px;
                     height: 18px;
                     background-color: ${color};
-                
+
                     border-radius: 100%;
                     display: inline-block;
                     -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
                     animation: sk-bouncedelay 1.4s infinite ease-in-out both;
                 }
-                
+
                 .dash-dot-spinner .dash-dot-spinner-bounce1 {
                     -webkit-animation-delay: -0.32s;
                     animation-delay: -0.32s;
                 }
-                
+
                 .dash-dot-spinner .dash-dot-spinner-bounce2 {
                     -webkit-animation-delay: -0.16s;
                     animation-delay: -0.16s;
                 }
-                
+
                 @-webkit-keyframes sk-bouncedelay {
                     0%, 80%, 100% { -webkit-transform: scale(0) }
                     40% { -webkit-transform: scale(1.0) }
                 }
-                
+
                 @keyframes sk-bouncedelay {
-                    0%, 80%, 100% { 
+                    0%, 80%, 100% {
                     -webkit-transform: scale(0);
                     transform: scale(0);
-                    } 40% { 
+                    } 40% {
                     -webkit-transform: scale(1.0);
                     transform: scale(1.0);
                     }

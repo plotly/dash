@@ -28,7 +28,7 @@ const DefaultSpinner = ({
     return (
         <div style={style ? style : {}} className={spinnerClass}>
             {debugTitle}
-            <div className="dash-default-spinner">
+            <div className="dash-spinner dash-default-spinner">
                 <div className="dash-default-spinner-rect1" />
                 <div className="dash-default-spinner-rect2" />
                 <div className="dash-default-spinner-rect3" />
@@ -59,48 +59,48 @@ const DefaultSpinner = ({
                         text-align: center;
                         font-size: 10px;
                     }
-                    
+
                     .dash-default-spinner > div {
                         background-color: ${color};
                         height: 100%;
                         width: 6px;
                         display: inline-block;
                         margin-right: 4px;
-                        
+
                         -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
                         animation: sk-stretchdelay 1.2s infinite ease-in-out;
                     }
-                    
+
                     .dash-default-spinner .dash-default-spinner-rect2 {
                         -webkit-animation-delay: -1.1s;
                         animation-delay: -1.1s;
                     }
-                    
+
                     .dash-default-spinner .dash-default-spinner-rect3 {
                         -webkit-animation-delay: -1.0s;
                         animation-delay: -1.0s;
                     }
-                    
+
                     .dash-default-spinner .dash-default-spinner-rect4 {
                         -webkit-animation-delay: -0.9s;
                         animation-delay: -0.9s;
                     }
-                    
+
                     .dash-default-spinner .dash-default-spinner-rect5 {
                         -webkit-animation-delay: -0.8s;
                         animation-delay: -0.8s;
                     }
-                    
+
                     @-webkit-keyframes sk-stretchdelay {
-                        0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+                        0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
                         20% { -webkit-transform: scaleY(1.0) }
                     }
-                    
+
                     @keyframes sk-stretchdelay {
-                        0%, 40%, 100% { 
+                        0%, 40%, 100% {
                         transform: scaleY(0.4);
                         -webkit-transform: scaleY(0.4);
-                        }  20% { 
+                        }  20% {
                         transform: scaleY(1.0);
                         -webkit-transform: scaleY(1.0);
                         }

@@ -37,9 +37,7 @@ export default class Loading extends Component {
             type,
         } = this.props;
 
-        const isLoading = getLoadingState(this);
-
-        if (isLoading) {
+        if (loading_state && loading_state.is_loading) {
             const Spinner = getSpinner(type);
             return (
                 <Spinner
@@ -52,6 +50,7 @@ export default class Loading extends Component {
                 />
             );
         }
+
         if (
             R.type(this.props.children) !== 'Object' ||
             R.type(this.props.children) !== 'Function'
@@ -61,6 +60,8 @@ export default class Loading extends Component {
         return this.props.children;
     }
 }
+
+Loading._dashprivate_isLoadingComponent = true;
 
 Loading.defaultProps = {
     type: 'default',
@@ -126,23 +127,3 @@ Loading.propTypes = {
         component_name: PropTypes.string,
     }),
 };
-
-function getLoadingState(element) {
-    if (
-        element.props &&
-        element.props.loading_state &&
-        element.props.loading_state.is_loading
-    ) {
-        return true;
-    }
-
-    const children = element.props && element.props.children;
-    if (!children) {
-        return false;
-    }
-
-    return R.any(
-        child => child.type !== Loading && getLoadingState(child),
-        Array.isArray(children) ? children : [children]
-    );
-}

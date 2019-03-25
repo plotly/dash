@@ -19,18 +19,18 @@ const GraphSpinner = ({status, fullscreen, debug, className, style}) => {
         <div style={style ? style : {}} className={spinnerClass}>
             <div>
                 {debugTitle}
-                <div className="dash-spinner">
-                    <div className="dash-spinner__bottom">
+                <div className="dash-spinner dash-graph-spinner">
+                    <div className="dash-graph-spinner__bottom">
                         <div className="dash-bar dash-bar__one" />
                         <div className="dash-bar dash-bar__two" />
                         <div className="dash-bar dash-bar__three" />
                     </div>
-                    <div className="dash-spinner__background">
+                    <div className="dash-graph-spinner__background">
                         <div className="dash-dot dash-dot__one" />
                         <div className="dash-dot dash-dot__two" />
                         <div className="dash-dot dash-dot__three" />
                         <div className="dash-dot dash-dot__four" />
-                        <div className="dash-spinner__bottom">
+                        <div className="dash-graph-spinner__bottom">
                             <div className="dash-vert dash-vert__one" />
                             <div className="dash-vert dash-vert__two" />
                             <div className="dash-vert dash-vert__three" />
@@ -56,7 +56,7 @@ const GraphSpinner = ({status, fullscreen, debug, className, style}) => {
                       .dash-loading-title {
                           text-align: center;
                       }
-                      .dash-spinner {
+                      .dash-graph-spinner {
                         display: flex;
                         margin: 0 auto;
                         width: 200px;
@@ -65,14 +65,14 @@ const GraphSpinner = ({status, fullscreen, debug, className, style}) => {
                         z-index: -2;
                         border-radius: 4px;
                       }
-                      .dash-spinner__bottom {
+                      .dash-graph-spinner__bottom {
                         display: flex;
                         margin-top: auto;
                         flex-direction: column;
                         height: 12px;
                         width: 100%;
                       }
-                      .dash-spinner__background {
+                      .dash-graph-spinner__background {
                         width: 100%;
                         height: 100%;
                         display: block;

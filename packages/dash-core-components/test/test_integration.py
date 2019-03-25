@@ -216,13 +216,311 @@ class Tests(IntegrationTests):
 
         self.snapshot('test_upload_gallery')
 
-    def test_loading_slider(self):
+    def test_loading_component_initialization(self):
         lock = Lock()
-        lock.acquire()
 
         app = dash.Dash(__name__)
 
         app.layout = html.Div([
+            dcc.Loading([
+                html.Div(id='div-1')
+            ], className='loading')
+        ], id='root')
+
+        @app.callback(
+            Output('div-1', 'children'),
+            [Input('root', 'n_clicks')]
+        )
+        def updateDiv(children):
+            with lock:
+                return 'content'
+
+        with lock:
+            self.startServer(app)
+            self.wait_for_element_by_css_selector(
+                '.loading .dash-spinner'
+            )
+
+        self.wait_for_element_by_css_selector(
+            '.loading #div-1'
+        )
+
+        for entry in self.get_log():
+            raise Exception('browser error logged during test', entry)
+
+    def test_loading_component_action(self):
+        lock = Lock()
+
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.Loading([
+                html.Div(id='div-1')
+            ], className='loading')
+        ], id='root')
+
+        @app.callback(
+            Output('div-1', 'children'),
+            [Input('root', 'n_clicks')]
+        )
+        def updateDiv(n_clicks):
+            if n_clicks is not None:
+                with lock:
+                    return
+
+            return 'content'
+
+        with lock:
+            self.startServer(app)
+            self.wait_for_element_by_css_selector(
+                '.loading #div-1'
+            )
+
+            self.driver.find_element_by_id('root').click()
+
+            self.wait_for_element_by_css_selector(
+                '.loading .dash-spinner'
+            )
+
+        self.wait_for_element_by_css_selector(
+            '.loading #div-1'
+        )
+
+        for entry in self.get_log():
+            raise Exception('browser error logged during test', entry)
+
+    def test_multiple_loading_components(self):
+        lock = Lock()
+
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.Loading([
+                html.Button(id='btn-1')
+            ], className='loading-1'),
+            dcc.Loading([
+                html.Button(id='btn-2')
+            ], className='loading-2')
+        ], id='root')
+
+        @app.callback(
+            Output('btn-1', 'value'),
+            [Input('btn-2', 'n_clicks')]
+        )
+        def updateDiv(n_clicks):
+            if n_clicks is not None:
+                with lock:
+                    return
+
+            return 'content'
+
+        @app.callback(
+            Output('btn-2', 'value'),
+            [Input('btn-1', 'n_clicks')]
+        )
+        def updateDiv(n_clicks):
+            if n_clicks is not None:
+                with lock:
+                    return
+
+            return 'content'
+
+        self.startServer(app)
+
+        self.wait_for_element_by_css_selector(
+            '.loading-1 #btn-1'
+        )
+        self.wait_for_element_by_css_selector(
+            '.loading-2 #btn-2'
+        )
+
+        with lock:
+            self.driver.find_element_by_id('btn-1').click()
+
+            self.wait_for_element_by_css_selector(
+                '.loading-2 .dash-spinner'
+            )
+            self.wait_for_element_by_css_selector(
+                '.loading-1 #btn-1'
+            )
+
+        self.wait_for_element_by_css_selector(
+            '.loading-2 #btn-2'
+        )
+
+        with lock:
+            self.driver.find_element_by_id('btn-2').click()
+
+            self.wait_for_element_by_css_selector(
+                '.loading-1 .dash-spinner'
+            )
+
+        self.wait_for_element_by_css_selector(
+            '.loading-1 #btn-1'
+        )
+        self.wait_for_element_by_css_selector(
+            '.loading-2 #btn-2'
+        )
+
+        for entry in self.get_log():
+            raise Exception('browser error logged during test', entry)
+
+    def test_nested_loading_components(self):
+        lock = Lock()
+
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            dcc.Loading([
+                html.Button(id='btn-1'),
+                dcc.Loading([
+                    html.Button(id='btn-2')
+                ], className='loading-2')
+            ], className='loading-1')
+        ], id='root')
+
+        @app.callback(
+            Output('btn-1', 'value'),
+            [Input('btn-2', 'n_clicks')]
+        )
+        def updateDiv(n_clicks):
+            if n_clicks is not None:
+                with lock:
+                    return
+
+            return 'content'
+
+        @app.callback(
+            Output('btn-2', 'value'),
+            [Input('btn-1', 'n_clicks')]
+        )
+        def updateDiv(n_clicks):
+            if n_clicks is not None:
+                with lock:
+                    return
+
+            return 'content'
+
+        self.startServer(app)
+
+        self.wait_for_element_by_css_selector(
+            '.loading-1 #btn-1'
+        )
+        self.wait_for_element_by_css_selector(
+            '.loading-2 #btn-2'
+        )
+
+        with lock:
+            self.driver.find_element_by_id('btn-1').click()
+
+            self.wait_for_element_by_css_selector(
+                '.loading-2 .dash-spinner'
+            )
+            self.wait_for_element_by_css_selector(
+                '.loading-1 #btn-1'
+            )
+
+        self.wait_for_element_by_css_selector(
+            '.loading-2 #btn-2'
+        )
+
+        with lock:
+            self.driver.find_element_by_id('btn-2').click()
+
+            self.wait_for_element_by_css_selector(
+                '.loading-1 .dash-spinner'
+            )
+
+        self.wait_for_element_by_css_selector(
+            '.loading-1 #btn-1'
+        )
+        self.wait_for_element_by_css_selector(
+            '.loading-2 #btn-2'
+        )
+
+        for entry in self.get_log():
+            raise Exception('browser error logged during test', entry)
+
+    def test_dynamic_loading_component(self):
+        lock = Lock()
+
+        app = dash.Dash(__name__)
+        app.config['suppress_callback_exceptions'] = True
+
+        app.layout = html.Div([
+            html.Button(id='btn-1'),
+            html.Div(id='div-1')
+        ])
+
+        @app.callback(
+            Output('div-1', 'children'),
+            [Input('btn-1', 'n_clicks')]
+        )
+        def updateDiv(n_clicks):
+            if n_clicks is None:
+                return
+
+            with lock:
+                return html.Div([
+                    html.Button(id='btn-2'),
+                    dcc.Loading([
+                        html.Button(id='btn-3')
+                    ], className='loading-1')
+                ])
+
+        @app.callback(
+            Output('btn-3', 'content'),
+            [Input('btn-2', 'n_clicks')]
+        )
+        def updateDynamic(n_clicks):
+            if n_clicks is None:
+                return
+
+            with lock:
+                return 'content'
+
+        self.startServer(app)
+
+        self.wait_for_element_by_css_selector(
+            '#btn-1'
+        )
+        self.wait_for_element_by_css_selector(
+            '#div-1'
+        )
+
+        self.driver.find_element_by_id('btn-1').click()
+
+        self.wait_for_element_by_css_selector(
+            '#div-1 #btn-2'
+        )
+        self.wait_for_element_by_css_selector(
+            '.loading-1 #btn-3'
+        )
+
+        with lock:
+            self.driver.find_element_by_id('btn-2').click()
+
+            self.wait_for_element_by_css_selector(
+                '.loading-1 .dash-spinner'
+            )
+
+        self.wait_for_element_by_css_selector(
+            '#div-1 #btn-2'
+        )
+        self.wait_for_element_by_css_selector(
+            '.loading-1 #btn-3'
+        )
+
+        for entry in self.get_log():
+            raise Exception('browser error logged during test', entry)
+
+    def test_loading_slider(self):
+        lock = Lock()
+
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Button(id='test-btn'),
             html.Label(id='test-div', children=['Horizontal Slider']),
             dcc.Slider(
                 id='horizontal-slider',
@@ -236,19 +534,29 @@ class Tests(IntegrationTests):
 
         @app.callback(
             Output('horizontal-slider', 'value'),
-            [Input('test-div', 'children')]
+            [Input('test-btn', 'n_clicks')]
         )
-        def delayed_value(children):
-            lock.acquire()
-            lock.release()
-            return 5
+        def user_delayed_value(n_clicks):
+            with lock:
+                return 5
 
-        self.startServer(app)
+        with lock:
+            self.startServer(app)
+
+            self.wait_for_element_by_css_selector(
+                '#horizontal-slider[data-dash-is-loading="true"]'
+            )
 
         self.wait_for_element_by_css_selector(
-            '#horizontal-slider[data-dash-is-loading="true"]'
+            '#horizontal-slider:not([data-dash-is-loading="true"])'
         )
-        lock.release()
+
+        with lock:
+            self.driver.find_element_by_id('test-btn').click()
+
+            self.wait_for_element_by_css_selector(
+                '#horizontal-slider[data-dash-is-loading="true"]'
+            )
 
         self.wait_for_element_by_css_selector(
             '#horizontal-slider:not([data-dash-is-loading="true"])'
@@ -314,11 +622,11 @@ class Tests(IntegrationTests):
 
     def test_loading_range_slider(self):
         lock = Lock()
-        lock.acquire()
 
         app = dash.Dash(__name__)
 
         app.layout = html.Div([
+            html.Button(id='test-btn'),
             html.Label(id='test-div', children=['Horizontal Range Slider']),
             dcc.RangeSlider(
                 id='horizontal-range-slider',
@@ -332,19 +640,29 @@ class Tests(IntegrationTests):
 
         @app.callback(
             Output('horizontal-range-slider', 'value'),
-            [Input('test-div', 'children')]
+            [Input('test-btn', 'n_clicks')]
         )
         def delayed_value(children):
-            lock.acquire()
-            lock.release()
-            return [4, 6]
+            with lock:
+                return [4, 6]
 
-        self.startServer(app)
+        with lock:
+            self.startServer(app)
+
+            self.wait_for_element_by_css_selector(
+                '#horizontal-range-slider[data-dash-is-loading="true"]'
+            )
 
         self.wait_for_element_by_css_selector(
-            '#horizontal-range-slider[data-dash-is-loading="true"]'
+            '#horizontal-range-slider:not([data-dash-is-loading="true"])'
         )
-        lock.release()
+
+        with lock:
+            self.driver.find_element_by_id('test-btn').click()
+
+            self.wait_for_element_by_css_selector(
+                '#horizontal-range-slider[data-dash-is-loading="true"]'
+            )
 
         self.wait_for_element_by_css_selector(
             '#horizontal-range-slider:not([data-dash-is-loading="true"])'

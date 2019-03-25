@@ -20,7 +20,7 @@ const CubeSpinner = ({status, color, fullscreen, debug, className, style}) => {
     return (
         <div style={style ? style : {}} className={spinnerClass}>
             {debugTitle}
-            <div className="dash-cube-container">
+            <div className="dash-spinner dash-cube-container">
                 <div className="dash-cube">
                     <div className="dash-cube-side dash-cube-side--front" />
                     <div className="dash-cube-side dash-cube-side--back" />
@@ -61,16 +61,16 @@ const CubeSpinner = ({status, color, fullscreen, debug, className, style}) => {
                         width: 80px;
                         margin: 7rem auto;
                       }
-                      
+
                       .dash-cube-side {
                         width: 100%;
                         height: 100%;
                         position: absolute;
                         display: inline-block;
                       }
-                      
+
                       .dash-cube-side--front {
-                        background-color: ${color};  
+                        background-color: ${color};
                         animation: blowout-front 4s infinite;
                         transform: rotateY(0deg) translateZ(40px);
                       }
@@ -79,31 +79,31 @@ const CubeSpinner = ({status, color, fullscreen, debug, className, style}) => {
                         transform: rotateX(180deg) translateZ(40px);
                         animation: blowout-back 4s infinite;
                       }
-                      
+
                       .dash-cube-side--left {
                         background-color: ${changeColor(color).darken(0.2)};
                         transform: rotateY(-90deg) translateZ(40px);
                         animation: blowout-left 4s infinite;
                       }
-                      
+
                       .dash-cube-side--right {
                         background-color: ${changeColor(color).darken(0.4)};
                         transform: rotateY(90deg) translateZ(40px);
                         animation: blowout-right 4s infinite;
                       }
-                      
+
                       .dash-cube-side--top {
                         background-color: ${changeColor(color).darken(0.2)};
                         transform: rotateX(90deg) translateZ(40px);
                         animation: blowout-top 4s infinite;
                       }
-                      
+
                       .dash-cube-side--bottom {
                         background-color: ${changeColor(color).darken(0.4)};
                         transform: rotateX(-90deg) translateZ(40px);
                         animation: blowout-bottom 4s infinite;
                       }
-                      
+
                       @keyframes rotate {
                           0% {
                             transform: rotateX(0deg) rotateY(0deg);
@@ -115,7 +115,7 @@ const CubeSpinner = ({status, color, fullscreen, debug, className, style}) => {
                             transform: rotateX(360deg) rotateY(360deg);
                         }
                       }
-                      
+
                       @keyframes blowout-bottom {
                         20% {
                             transform: rotateX(-90deg) translateZ(40px);

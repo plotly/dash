@@ -28,7 +28,7 @@ const CircleSpinner = ({
     return (
         <div style={style ? style : {}} className={spinnerClass}>
             {debugTitle}
-            <div className="dash-sk-circle">
+            <div className="dash-spinner dash-sk-circle">
                 <div className="dash-sk-circle1 dash-sk-child" />
                 <div className="dash-sk-circle2 dash-sk-child" />
                 <div className="dash-sk-circle3 dash-sk-child" />
@@ -160,7 +160,7 @@ const CircleSpinner = ({
                     .dash-spinner-container .sk-circle .sk-circle12:before {
                         -webkit-animation-delay: -0.1s;
                                 animation-delay: -0.1s; }
-                    
+
                     @-webkit-keyframes dash-sk-circleBounceDelay {
                         0%, 80%, 100% {
                         -webkit-transform: scale(0);
@@ -170,7 +170,7 @@ const CircleSpinner = ({
                                 transform: scale(1);
                         }
                     }
-                    
+
                     @keyframes dash-sk-circleBounceDelay {
                         0%, 80%, 100% {
                         -webkit-transform: scale(0);
