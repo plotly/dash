@@ -1531,13 +1531,14 @@ class Tests(IntegrationTests):
 
         self.startServer(app=app)
 
-        self.snapshot('2 graphs with different figures')
-
         # use this opportunity to test restyleData, since there are multiple
         # traces on this graph
         legendToggle = self.driver.find_element_by_css_selector('#example-graph .traces:first-child .legendtoggle')
         legendToggle.click()
         self.wait_for_text_to_equal('#restyle-data', '[{"visible": ["legendonly"]}, [0]]')
+
+        # move snapshot after click, so it's more stable with the wait
+        self.snapshot('2 graphs with different figures')
 
         # and test relayoutData while we're at it
         autoscale = self.driver.find_element_by_css_selector('#example-graph .ewdrag')
