@@ -105,6 +105,7 @@ class IntegrationTests(unittest.TestCase):
         time.sleep(2)
 
         # Visit the dash page
+        self.driver.implicitly_wait(2)
         self.driver.get('http://localhost:8050')
 
     def clear_log(self):
