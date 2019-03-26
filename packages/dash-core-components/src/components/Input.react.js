@@ -97,6 +97,7 @@ export default class Input extends Component {
                         'selectionEnd',
                         'selectionStart',
                         'setProps',
+                        'loading_state',
                     ],
                     this.props
                 )}
