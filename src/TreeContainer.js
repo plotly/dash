@@ -141,10 +141,9 @@ class TreeContainer extends Component {
                 componentType={_dashprivate_layout.type}
                 componentId={_dashprivate_layout.props.id}
             >
-                {this.getComponent(_dashprivate_layout, children, loadingState, setProps)}
+                {this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps)}
             </ComponentErrorBoundary>
-        );
-        return this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps);
+        );        
     }
 }
 
@@ -180,11 +179,6 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
     };
 }
 
-export const AugmentedTreeContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-    mergeProps
-)(TreeContainer);
 function getLoadingState(layout, requestQueue) {
     const ids = isLoadingComponent(layout) ?
         getNestedIds(layout) :
