@@ -65,6 +65,7 @@ function triggerDefaultState(dispatch, getState) {
                 errorPage: err,
             })
         );
+        return;
     }
     const inputNodeIds = [];
     allNodes.reverse();

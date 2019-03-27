@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.21.0] - 2019-03-25
+### Changed
+[#140](https://github.com/plotly/dash-renderer/pull/140)
+[#126](https://github.com/plotly/dash-renderer/pull/126)
+- Optimize rendering
+- Always assign `setProps` to components
+
 ## [0.20.0] - 2019-03-04
 ### Added
 - Loading states API [#267](https://github.com/plotly/dash/issues/267)
