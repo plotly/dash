@@ -39,7 +39,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info}
 
 \item{crossOrigin}{How the element handles cross-origin requests}
 
-\item{height}{Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.}
+\item{height}{Specifies the height of elements listed here. For all other elements, use the CSS height property.						Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.}
 
 \item{loop}{Indicates whether the media should start playing from the start when it's finished.}
 
@@ -51,7 +51,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info}
 
 \item{src}{The URL of the embeddable content.}
 
-\item{width}{For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.}
+\item{width}{For the elements listed here, this establishes the element's width.						Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.}
 
 \item{accessKey}{Defines a keyboard shortcut to activate or add focus to the element.}
 

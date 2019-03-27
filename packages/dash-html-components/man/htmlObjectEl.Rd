@@ -35,7 +35,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info}
 
 \item{form}{Indicates the form that is the owner of the element.}
 
-\item{height}{Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.}
+\item{height}{Specifies the height of elements listed here. For all other elements, use the CSS height property.						Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.}
 
 \item{name}{Name of the element. For example used by the server to identify the fields in form submits.}
 
@@ -43,7 +43,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info}
 
 \item{useMap}{}
 
-\item{width}{For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.}
+\item{width}{For the elements listed here, this establishes the element's width.						Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.}
 
 \item{accessKey}{Defines a keyboard shortcut to activate or add focus to the element.}
 
