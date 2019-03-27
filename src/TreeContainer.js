@@ -180,11 +180,6 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
     };
 }
 
-export const AugmentedTreeContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps,
-    mergeProps
-)(TreeContainer);
 function getLoadingState(layout, requestQueue) {
     const ids = isLoadingComponent(layout) ?
         getNestedIds(layout) :
