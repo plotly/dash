@@ -10,7 +10,7 @@ A wrapper component that will display a confirmation dialog when its child compo
 }
 
 \usage{
-dccConfirmDialogProvider(children=NULL, id=NULL, message=NULL, submit_n_clicks=NULL, submit_n_clicks_timestamp=NULL, cancel_n_clicks=NULL, cancel_n_clicks_timestamp=NULL, displayed=NULL, loading_state=NULL, ...)
+dccConfirmDialogProvider(children=NULL, id=NULL, message=NULL, submit_n_clicks=NULL, submit_n_clicks_timestamp=NULL, cancel_n_clicks=NULL, cancel_n_clicks_timestamp=NULL, displayed=NULL, loading_state=NULL)
 }
 
 \arguments{

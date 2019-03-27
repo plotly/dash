@@ -10,7 +10,7 @@
 }
 
 \usage{
-dccGraph(id=NULL, clickData=NULL, clickAnnotationData=NULL, hoverData=NULL, clear_on_unhover=NULL, selectedData=NULL, relayoutData=NULL, restyleData=NULL, figure=NULL, style=NULL, className=NULL, animate=NULL, animation_options=NULL, config=NULL, loading_state=NULL, ...)
+dccGraph(id=NULL, clickData=NULL, clickAnnotationData=NULL, hoverData=NULL, clear_on_unhover=NULL, selectedData=NULL, relayoutData=NULL, restyleData=NULL, figure=NULL, style=NULL, className=NULL, animate=NULL, animation_options=NULL, config=NULL, loading_state=NULL)
 }
 
 \arguments{
@@ -18,24 +18,31 @@ dccGraph(id=NULL, clickData=NULL, clickAnnotationData=NULL, hoverData=NULL, clea
 in callbacks. The ID needs to be unique across all of the
 components in an app.}
 
-\item{clickData}{Data from latest click event}
+\item{clickData}{Data from latest click event. Read-only.}
 
-\item{clickAnnotationData}{Data from latest click annotation event}
+\item{clickAnnotationData}{Data from latest click annotation event. Read-only.}
 
-\item{hoverData}{Data from latest hover event}
+\item{hoverData}{Data from latest hover event. Read-only.}
 
 \item{clear_on_unhover}{If True, `clear_on_unhover` will clear the `hoverData` property
 when the user "unhovers" from a point.
 If False, then the `hoverData` property will be equal to the
 data from the last point that was hovered over.}
 
-\item{selectedData}{Data from latest select event}
+\item{selectedData}{Data from latest select event. Read-only.}
 
 \item{relayoutData}{Data from latest relayout event which occurs
-when the user zooms or pans on the plot}
+when the user zooms or pans on the plot or other
+layout-level edits. Has the form `{<attr string>: <value>}`
+describing the changes made. Read-only.}
 
 \item{restyleData}{Data from latest restyle event which occurs
-when the user toggles a legend item}
+when the user toggles a legend item, changes
+parcoords selections, or other trace-level edits.
+Has the form `[edits, indices]`, where `edits` is an object
+`{<attr string>: <value>}` describing the changes made,
+and `indices` is an array of trace indices that were edited.
+Read-only.}
 
 \item{figure}{Plotly `figure` object. See schema:
 https://plot.ly/javascript/reference

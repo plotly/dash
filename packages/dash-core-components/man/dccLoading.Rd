@@ -10,7 +10,7 @@ A Loading component that wraps any other component and displays a spinner until 
 }
 
 \usage{
-dccLoading(children=NULL, id=NULL, type=NULL, fullscreen=NULL, debug=NULL, className=NULL, style=NULL, color=NULL, loading_state=NULL, ...)
+dccLoading(children=NULL, id=NULL, type=NULL, fullscreen=NULL, debug=NULL, className=NULL, style=NULL, color=NULL, loading_state=NULL)
 }
 
 \arguments{

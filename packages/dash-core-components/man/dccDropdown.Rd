@@ -10,7 +10,7 @@ Dropdown is an interactive dropdown element for selecting one or more items. The
 }
 
 \usage{
-dccDropdown(id=NULL, options=NULL, value=NULL, className=NULL, clearable=NULL, disabled=NULL, multi=NULL, placeholder=NULL, searchable=NULL, style=NULL, loading_state=NULL, ...)
+dccDropdown(id=NULL, options=NULL, value=NULL, className=NULL, clearable=NULL, disabled=NULL, multi=NULL, placeholder=NULL, searchable=NULL, style=NULL, loading_state=NULL)
 }
 
 \arguments{

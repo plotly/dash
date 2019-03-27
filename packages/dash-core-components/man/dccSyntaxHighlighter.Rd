@@ -10,7 +10,7 @@ A component for pretty printing code.
 }
 
 \usage{
-dccSyntaxHighlighter(children=NULL, id=NULL, language=NULL, theme=NULL, customStyle=NULL, codeTagProps=NULL, useInlineStyles=NULL, showLineNumbers=NULL, startingLineNumber=NULL, lineNumberContainerStyle=NULL, lineNumberStyle=NULL, wrapLines=NULL, lineStyle=NULL, loading_state=NULL, ...)
+dccSyntaxHighlighter(children=NULL, id=NULL, language=NULL, theme=NULL, customStyle=NULL, codeTagProps=NULL, useInlineStyles=NULL, showLineNumbers=NULL, startingLineNumber=NULL, lineNumberContainerStyle=NULL, lineNumberStyle=NULL, wrapLines=NULL, lineStyle=NULL, loading_state=NULL)
 }
 
 \arguments{

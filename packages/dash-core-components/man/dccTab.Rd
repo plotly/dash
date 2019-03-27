@@ -10,7 +10,7 @@
 }
 
 \usage{
-dccTab(children=NULL, id=NULL, label=NULL, value=NULL, disabled=NULL, disabled_style=NULL, disabled_className=NULL, className=NULL, selected_className=NULL, style=NULL, selected_style=NULL, loading_state=NULL, ...)
+dccTab(children=NULL, id=NULL, label=NULL, value=NULL, disabled=NULL, disabled_style=NULL, disabled_className=NULL, className=NULL, selected_className=NULL, style=NULL, selected_style=NULL, loading_state=NULL)
 }
 
 \arguments{
