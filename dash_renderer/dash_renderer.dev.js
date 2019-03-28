@@ -9401,7 +9401,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".dash-error-overlay {\n    padding: 1rem;\n    background-color: #FF0000;\n    color: white;\n    display: inline-block;\n    animation: dash-error-overlay-animation 0.5s;\n    margin: 1rem;\n}\n\n@keyframes dash-error-overlay-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.2);\n        -moz-transform: scale(1.2);\n        -ms-transform: scale(1.2);\n        transform: scale(1.2);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
+exports.push([module.i, ".dash-error-overlay {\n    padding: 1rem;\n    background-color: #ff4500;\n    color: white;\n    display: inline-block;\n    animation: dash-error-overlay-animation 0.5s;\n    margin: 1rem;\n    box-shadow: inset 0px -1px 2px 2px rgba(80, 103, 132, 0.165);\n    font-family: Fira Code;\n    font-size: 14px;\n}\n\n@keyframes dash-error-overlay-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.2);\n        -moz-transform: scale(1.2);\n        -ms-transform: scale(1.2);\n        transform: scale(1.2);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
 
 // exports
 
@@ -9420,7 +9420,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".dash-fe-errors {\n}\n\n.dash-fe-error-top {\n    display: flex;\n    align-items: center;\n}\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-close:hover {\n    cursor: pointer;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error__icon-arrow:hover {\n    cursor: pointer;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 0px;\n    font-size: 18px;\n}\n.dash-fe-error__collapse {\n    width: 14px;\n    position: absolute;\n    right: 22px;\n}\n.dash-fe-error__collapse:hover {\n    cursor: pointer;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__st {\n    background-color: #fdf3f4;\n    width: 386px;\n    height: 200px;\n    overflow: scroll;\n    padding: 1rem;\n    margin-top: 8px;\n}\n", ""]);
+exports.push([module.i, ".dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error-top {\n    display: flex;\n}\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-close:hover {\n    cursor: pointer;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error__icon-arrow:hover {\n    cursor: pointer;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 2px;\n    font-size: 13px;\n    display: inline-block;\n}\n.dash-fe-error__collapse {\n    width: 14px;\n    position: absolute;\n    right: 22px;\n}\n.dash-fe-error__collapse:hover {\n    cursor: pointer;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    overflow: scroll;\n    padding: 2rem;\n    margin-top: 8px;\n    display: inline-block;\n}\n", ""]);
 
 // exports
 
@@ -9436,10 +9436,10 @@ exports.push([module.i, ".dash-fe-errors {\n}\n\n.dash-fe-error-top {\n    displ
 
 exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
 // imports
-exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Roboto);", ""]);
+exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Fira);", ""]);
 
 // module
-exports.push([module.i, ".dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    min-width: 412px;\n    min-height: 300px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n    font-family: Roboto;\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 0px 8px;\n    background-color: #f3f6fa;\n    max-height: 100px;\n    width:422px;\n    overflow: scroll;\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-weight: bold;\n    font-size: 1rem;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 1rem;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 8px 16px;\n    margin-bottom: 8px;\n    display: flex;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
+exports.push([module.i, ".dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: Fira Code;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    max-width: 800px;\n    max-height: 650px;\n    margin: 1rem;\n    overflow: auto;\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 1rem;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 1rem;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: -webkit-box;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
 
 // exports
 
@@ -34636,7 +34636,7 @@ var UnconnectedAppContainer = function (_React$Component) {
                 );
             }
             return React.createElement(
-                'div',
+                React.Fragment,
                 null,
                 React.createElement(Toolbar, null),
                 React.createElement(APIController, null),
@@ -34818,6 +34818,7 @@ var connect = _reactRedux.connect;
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
+var any = _ramda.any;
 var contains = _ramda.contains;
 var filter = _ramda.filter;
 var forEach = _ramda.forEach;
@@ -34830,10 +34831,6 @@ var omit = _ramda.omit;
 var pick = _ramda.pick;
 var propOr = _ramda.propOr;
 var type = _ramda.type;
-
-var _constants = __webpack_require__(/*! ./constants/constants */ "./src/constants/constants.js");
-
-var STATUS = _constants.STATUS;
 
 var _actions = __webpack_require__(/*! ./actions */ "./src/actions/index.js");
 
@@ -34912,45 +34909,6 @@ var TreeContainer = function (_Component) {
             return React.createElement.apply(React, [element, mergeAll([omit(['children'], _dashprivate_layout.props), { loading_state: loading_state, setProps: setProps }])].concat(_toConsumableArray(Array.isArray(children) ? children : [children])));
         }
     }, {
-        key: 'getLoadingState',
-        value: function getLoadingState(id, requestQueue) {
-            // loading prop coming from TreeContainer
-            var isLoading = false;
-            var loadingProp = void 0;
-            var loadingComponent = void 0;
-
-            if (requestQueue && requestQueue.filter) {
-                forEach(function (r) {
-                    var controllerId = isNil(r.controllerId) ? '' : r.controllerId;
-                    if (r.status === 'loading' && contains(id, controllerId)) {
-                        isLoading = true;
-
-                        var _r$controllerId$split = r.controllerId.split('.');
-
-                        var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
-
-                        loadingComponent = _r$controllerId$split2[0];
-                        loadingProp = _r$controllerId$split2[1];
-                    }
-                }, requestQueue);
-
-                var thisRequest = requestQueue.filter(function (r) {
-                    var controllerId = isNil(r.controllerId) ? '' : r.controllerId;
-                    return contains(id, controllerId);
-                });
-                if (thisRequest.status === STATUS.OK) {
-                    isLoading = false;
-                }
-            }
-
-            // Set loading state
-            return {
-                is_loading: isLoading,
-                prop_name: loadingProp,
-                component_name: loadingComponent
-            };
-        }
-    }, {
         key: 'getSetProps',
         value: function getSetProps() {
             var _this2 = this;
@@ -34994,7 +34952,11 @@ var TreeContainer = function (_Component) {
     }, {
         key: 'shouldComponentUpdate',
         value: function shouldComponentUpdate(nextProps) {
-            return nextProps._dashprivate_layout !== this.props._dashprivate_layout;
+            var _dashprivate_layout = nextProps._dashprivate_layout,
+                _dashprivate_loadingState = nextProps._dashprivate_loadingState;
+
+
+            return _dashprivate_layout !== this.props._dashprivate_layout || _dashprivate_loadingState.is_loading !== this.props._dashprivate_loadingState.is_loading;
         }
     }, {
         key: 'getLayoutProps',
@@ -35007,13 +34969,12 @@ var TreeContainer = function (_Component) {
             var _props2 = this.props,
                 _dashprivate_dispatch = _props2._dashprivate_dispatch,
                 _dashprivate_layout = _props2._dashprivate_layout,
-                _dashprivate_requestQueue = _props2._dashprivate_requestQueue;
+                _dashprivate_loadingState = _props2._dashprivate_loadingState;
 
 
             var layoutProps = this.getLayoutProps();
 
             var children = this.getChildren(layoutProps.children);
-            var loadingState = this.getLoadingState(layoutProps.id, _dashprivate_requestQueue);
             var setProps = this.getSetProps(_dashprivate_dispatch);
 
             return React.createElement(
@@ -35022,7 +34983,7 @@ var TreeContainer = function (_Component) {
                     componentType: _dashprivate_layout.type,
                     componentId: _dashprivate_layout.props.id
                 },
-                this.getComponent(_dashprivate_layout, children, loadingState, setProps)
+                this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps)
             );
         }
     }]);
@@ -35034,6 +34995,7 @@ TreeContainer.propTypes = {
     _dashprivate_dependencies: PropTypes.any,
     _dashprivate_dispatch: PropTypes.func,
     _dashprivate_layout: PropTypes.object,
+    _dashprivate_loadingState: PropTypes.object,
     _dashprivate_paths: PropTypes.any,
     _dashprivate_requestQueue: PropTypes.object
 };
@@ -35055,10 +35017,80 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
         _dashprivate_dependencies: stateProps.dependencies,
         _dashprivate_dispatch: dispatchProps.dispatch,
         _dashprivate_layout: ownProps._dashprivate_layout,
-        _dashprivate_loading: ownProps._dashprivate_loading,
+        _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.requestQueue),
         _dashprivate_paths: stateProps.paths,
         _dashprivate_requestQueue: stateProps.requestQueue
     };
+}
+
+function getLoadingState(layout, requestQueue) {
+    var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id ? [layout.props.id] : [];
+
+    var isLoading = false;
+    var loadingProp = void 0;
+    var loadingComponent = void 0;
+
+    if (requestQueue) {
+        forEach(function (r) {
+            var controllerId = isNil(r.controllerId) ? '' : r.controllerId;
+            if (r.status === 'loading' && any(function (id) {
+                return contains(id, controllerId);
+            }, ids)) {
+                isLoading = true;
+
+                var _r$controllerId$split = r.controllerId.split('.');
+
+                var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
+
+                loadingComponent = _r$controllerId$split2[0];
+                loadingProp = _r$controllerId$split2[1];
+            }
+        }, requestQueue);
+    }
+
+    // Set loading state
+    return {
+        is_loading: isLoading,
+        prop_name: loadingProp,
+        component_name: loadingComponent
+    };
+}
+
+function getNestedIds(layout) {
+    var ids = [];
+    var queue = [layout];
+
+    while (queue.length) {
+        var elementLayout = queue.shift();
+
+        var props = elementLayout && elementLayout.props;
+
+        if (!props) {
+            continue;
+        }
+
+        var children = props.children,
+            id = props.id;
+
+
+        if (id) {
+            ids.push(id);
+        }
+
+        if (children) {
+            var filteredChildren = filter(function (child) {
+                return !isSimpleComponent(child) && !isLoadingComponent(child);
+            }, Array.isArray(children) ? children : [children]);
+
+            queue.push.apply(queue, _toConsumableArray(filteredChildren));
+        }
+    }
+
+    return ids;
+}
+
+function isLoadingComponent(layout) {
+    return Registry.resolve(layout.type, layout.namespace)._dashprivate_isLoadingComponent;
 }
 
 var AugmentedTreeContainer = exports.AugmentedTreeContainer = connect(mapStateToProps, mapDispatchToProps, mergeProps)(TreeContainer);
@@ -35347,6 +35379,7 @@ function triggerDefaultState(dispatch, getState) {
             type: 'backEnd',
             errorPage: err
         }));
+        return;
     }
     var inputNodeIds = [];
     allNodes.reverse();
@@ -37187,8 +37220,12 @@ var FrontEndErrorContainer = function (_Component) {
                     React.createElement(
                         'h6',
                         { className: 'dash-error-card__message' },
-                        'New Alerts (',
-                        errorsLength,
+                        '\u26A0\uFE0F Alerts (',
+                        React.createElement(
+                            'strong',
+                            null,
+                            errorsLength
+                        ),
                         ' errors)'
                     ),
                     React.createElement(CloseIcon, {
@@ -37267,7 +37304,6 @@ var isEmpty = _ramda.isEmpty;
 var _actions = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
 
 var _resolveError = _actions.resolveError;
-var revert = _actions.revert;
 
 __webpack_require__(/*! ./werkzeug.css */ "./src/components/error/werkzeug.css");
 
@@ -37297,7 +37333,7 @@ var UnconnectedGlobalErrorContainer = function (_Component) {
         value: function resolveError(dispatch, type, myId) {
             if (type === 'backEnd') {
                 dispatch(_resolveError({ type: type }));
-                dispatch(revert);
+                // dispatch(revert);
             } else {
                 dispatch(_resolveError({ myId: myId, type: type }));
             }
