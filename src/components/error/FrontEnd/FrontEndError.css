@@ -1,9 +1,12 @@
 .dash-fe-errors {
+    min-width: 386px;
+    max-width: 650px;
+    max-height: 450px;
+    display: inline-block;
 }
 
 .dash-fe-error-top {
     display: flex;
-    align-items: center;
 }
 .dash-fe-error__icon-error {
     width: 20px;
@@ -32,8 +35,9 @@
 }
 .dash-fe-error__title {
     text-align: left;
-    margin: 0px;
-    font-size: 18px;
+    margin: 2px;
+    font-size: 13px;
+    display: inline-block;
 }
 .dash-fe-error__collapse {
     width: 14px;
@@ -51,9 +55,11 @@
 
 .dash-fe-error__st {
     background-color: #fdf3f4;
-    width: 386px;
-    height: 200px;
+    min-width: 386px;
+    max-width: 650px;
+    max-height: 450px;
     overflow: scroll;
-    padding: 1rem;
+    padding: 2rem;
     margin-top: 8px;
+    display: inline-block;
 }

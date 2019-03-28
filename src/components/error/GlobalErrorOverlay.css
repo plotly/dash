@@ -1,8 +1,18 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url('https://fonts.googleapis.com/css?family=Fira');
+
+.dash-error-menu {
+    max-width: 50%;
+    max-height: 60%;
+    display: contents;
+    font-family: Fira Code;
+    font-size: 14px;
+    font-variant-ligatures: common-ligatures;
+}
 
 .dash-error-card {
     box-sizing: border-box;
     background: #ffffff;
+    display: inline-block;
     /* shadow-1 */
     box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),
         0px 2px 6px rgba(80, 103, 132, 0.12),
@@ -11,13 +21,11 @@
     position: fixed;
     top: 16px;
     right: 16px;
-    min-width: 412px;
-    min-height: 300px;
     animation: dash-error-card-animation 0.5s;
     padding: 24px;
     text-align: left;
     background-color: white;
-    font-family: Roboto;
+
 }
 .dash-error-card--alerts-tray {
     position: absolute;
@@ -32,11 +40,11 @@
     width: 422px;
 }
 .dash-error-card--container {
-    padding: 0px 8px;
-    background-color: #f3f6fa;
-    max-height: 100px;
-    width:422px;
-    overflow: scroll;
+    padding: 10px 10px;
+    max-width: 800px;
+    max-height: 650px;
+    margin: 1rem;
+    overflow: auto;
 }
 
 .dash-error-card__topbar {
@@ -47,8 +55,11 @@
     align-items: center;
 }
 .dash-error-card__message {
-    font-weight: bold;
     font-size: 1rem;
+}
+
+.dash-error-card__message > strong {
+    color: #ff4500;
 }
 
 .dash-error-card__content {
@@ -66,9 +77,9 @@
     box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),
         0px 1px 3px rgba(162, 177, 198, 0.32);
     border-radius: 2px;
-    padding: 8px 16px;
-    margin-bottom: 8px;
-    display: flex;
+    padding: 10px 10px;
+    margin-bottom: 10px;
+    display: -webkit-box;
     align-items: center;
 }
 
