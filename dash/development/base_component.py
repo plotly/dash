@@ -6,7 +6,7 @@ import six
 from .._utils import patch_collections_abc
 
 if six.PY2:
-    from collections import MutableSequence
+    from collections import MutableSequence  # pylint: disable=no-name-in-module
 else:
     from collections.abc import MutableSequence
 
