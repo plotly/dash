@@ -5,10 +5,11 @@ import six
 
 from .._utils import patch_collections_abc
 
+# pylint: disable=no-name-in-module, import-error
 if six.PY2:
-    from collections import MutableSequence  # pylint: disable=E0611
+    from collections import MutableSequence
 else:
-    from collections.abc import MutableSequence  # pylint: disable=E0611, E0401
+    from collections.abc import MutableSequence
 
 
 # pylint: disable=no-init,too-few-public-methods
