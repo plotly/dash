@@ -1,14 +1,14 @@
 import abc
 import inspect
 import sys
-try:
-    from collections.abc import MutableSequence
-except ImportError:
-    from collections import MutableSequence
-
 import six
 
 from .._utils import patch_collections_abc
+
+if six.PY2:
+    from collections import MutableSequence
+else:
+    from collections.abc import MutableSequence
 
 
 # pylint: disable=no-init,too-few-public-methods
