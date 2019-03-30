@@ -571,10 +571,10 @@ function updateOutput(
              * by `...`, e.g.
              * "..output-1.value...output-2.value...output-3.value...output-4.value.."
              */
-            const outputPropIds = payload.output.split('...').map(
-                o => o.replace('..', '')
-            );
-            for(let i=0; i < outputPropIds.length; i++) {
+            const outputPropIds = payload.output
+                .split('...')
+                .map(o => o.replace('..', ''));
+            for (let i = 0; i < outputPropIds.length; i++) {
                 updateOutput(outputPropIds[i], returnValue[i]);
             }
         } else {
