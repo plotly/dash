@@ -3,7 +3,7 @@ import textwrap
 
 import dash
 from dash import Dash
-from dash.dependencies import Input, Output, State, ClientFunction
+from dash.dependencies import Input, Output, State, ClientsideFunction
 from dash.exceptions import PreventUpdate
 from dash.development.base_component import Component
 import dash_html_components as html
@@ -2313,13 +2313,13 @@ class Tests(IntegrationTests):
             return 'Server says "{}"'.format(value)
 
 
-        app.callback(
-            Output('output-clientside', 'children'),
-            [Input('input', 'value')],
-            client_function=ClientFunction(
+        app.clientside_callback(
+            ClientsideFunction(
                 namespace='clientside',
                 function_name='display'
-            )
+            ),
+            Output('output-clientside', 'children'),
+            [Input('input', 'value')]
         )
 
         self.startServer(app)
@@ -2387,11 +2387,12 @@ class Tests(IntegrationTests):
 
         ])
 
-        app.callback(
+        app.clientside_callback(
+            ClientsideFunction('R', 'add'),
             Output('x+y', 'value'),
             [Input('x', 'value'),
              Input('y', 'value')],
-            client_function=ClientFunction('R', 'add'))
+        )
 
         call_counts = {
             'divide': Value('i', 0),
@@ -2413,11 +2414,12 @@ class Tests(IntegrationTests):
             call_counts['display'].value += 1
             return '\n'.join([str(a) for a in args])
 
-        app.callback(
+        app.clientside_callback(
+            ClientsideFunction('clientside', 'mean'),
             Output('mean-of-all-values', 'value'),
             [Input('x', 'value'), Input('y', 'value'),
              Input('x+y', 'value'), Input('x+y / 2', 'value')],
-            client_function=ClientFunction('clientside', 'mean'))
+        )
 
         self.startServer(app)
 
@@ -2458,15 +2460,17 @@ class Tests(IntegrationTests):
             dcc.Input(id='third'),
         ])
 
-        app.callback(
+        app.clientside_callback(
+            ClientsideFunction('clientside', 'add1_break_at_11'),
             Output('second', 'value'),
             [Input('first', 'value')],
-            client_function=ClientFunction('clientside', 'add1_break_at_11'))
+        )
 
-        app.callback(
+        app.clientside_callback(
+            ClientsideFunction('clientside', 'add1_break_at_11'),
             Output('third', 'value'),
             [Input('second', 'value')],
-            client_function=ClientFunction('clientside', 'add1_break_at_11'))
+        )
 
         self.startServer(app)
 
@@ -2509,12 +2513,13 @@ class Tests(IntegrationTests):
             dcc.Input(id='output-4'),
         ])
 
-        app.callback([Output('output-1', 'value'),
-                      Output('output-2', 'value'),
-                      Output('output-3', 'value'),
-                      Output('output-4', 'value')],
-                     [Input('input', 'value')],
-                     client_function=ClientFunction('clientside', 'add_to_four_outputs'))
+        app.clientside_callback(
+            ClientsideFunction('clientside', 'add_to_four_outputs'),
+            [Output('output-1', 'value'),
+             Output('output-2', 'value'),
+             Output('output-3', 'value'),
+             Output('output-4', 'value')],
+            [Input('input', 'value')])
 
         self.startServer(app)
 

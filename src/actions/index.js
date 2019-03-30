@@ -426,7 +426,11 @@ function updateOutput(
         changedPropIds,
     };
 
-    const {inputs, state, client_function} = dependenciesRequest.content.find(
+    const {
+        inputs,
+        state,
+        clientside_function,
+    } = dependenciesRequest.content.find(
         dependency => dependency.output === outputIdAndProp
     );
     const validKeys = keys(getState().paths);
@@ -498,11 +502,11 @@ function updateOutput(
     }
 
     // Clientside hook
-    if (!isNil(client_function) && !isEmpty(client_function)) {
+    if (!isNil(clientside_function) && !isEmpty(clientside_function)) {
         let returnValue;
         try {
-            returnValue = window[client_function.namespace][
-                client_function.function_name
+            returnValue = window[clientside_function.namespace][
+                clientside_function.function_name
             ](
                 ...(has('inputs', payload)
                     ? pluck('value', payload.inputs)
@@ -513,8 +517,8 @@ function updateOutput(
             /* eslint-disable no-console */
             console.error(
                 `The following error occurred while executing ${
-                    client_function.namespace
-                }.${client_function.function_name} ` +
+                    clientside_function.namespace
+                }.${clientside_function.function_name} ` +
                     `in order to update component "${payload.output}" ⋁⋁⋁`
             );
             console.error(e);
