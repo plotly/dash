@@ -35,13 +35,13 @@ class State(DashDependency):
 
 
 # pylint: disable=too-few-public-methods
-class ClientFunction:
+class ClientsideFunction:
     def __init__(self, namespace=None, function_name=None):
         self.namespace = namespace
         self.function_name = function_name
 
     def __repr__(self):
-        return 'ClientFunction({}, {})'.format(
+        return 'ClientsideFunction({}, {})'.format(
             self.namespace,
             self.function_name
         )

@@ -631,7 +631,7 @@ class Dash(object):
                 'output': k,
                 'inputs': v['inputs'],
                 'state': v['state'],
-                'client_function': v['client_function']
+                'clientside_function': v.get('clientside_function', {})
             } for k, v in self.callback_map.items()
         ])
 
@@ -935,6 +935,65 @@ class Dash(object):
         else:
             _validate_value(output_value)
 
+
+    def clientside_callback(self, clientside_function, output, inputs=[], state=[]):
+        """
+        Create a callback that updates the output by calling a clientside
+        (JavaScript) function instead of a Python function.
+
+        Unlike `@app.calllback`, `clientside_callback` is not a decorator:
+        it takes a `dash.dependencies.ClientsideFunction(namespace, function_name)`
+        argument that describes which JavaScript function to call
+        (Dash will look for the JavaScript function at `window[namespace][function_name]`).
+
+        For example:
+        ```
+        app.clientside_callback(
+            ClientsideFunction('my_clientside_library', 'my_function'),
+            Output('my-div' 'children'),
+            [Input('my-input', 'value'),
+             Input('another-input', 'value')]
+        )
+        ```
+
+        With this signature, Dash's front-end will call
+        `window.my_clientside_library.my_function` with the current values of
+        the `value` properties of the components `my-input` and `another-input`
+        whenver those values change.
+
+        Include a JavaScript file by including it your `assets/` folder.
+        The file can be named anything but you'll need to assign the
+        function's namespace to the `window`. For example, this file might
+        look like:
+        ```
+        window.my_clientside_library = {
+            my_function: function(input_value_1, input_value_2) {
+                return (
+                    parseFloat(input_value_1, 10) +
+                    parseFloat(input_value_2, 10)
+                );
+            }
+        }
+        ```
+        """
+        self._validate_callback(output, inputs, state)
+        callback_id = _create_callback_id(output)
+
+        self.callback_map[callback_id] = {
+            'inputs': [
+                {'id': c.component_id, 'property': c.component_property}
+                for c in inputs
+            ],
+            'state': [
+                {'id': c.component_id, 'property': c.component_property}
+                for c in state
+            ],
+            'clientside_function': {
+                'namespace': clientside_function.namespace,
+                'function_name': clientside_function.function_name
+            }
+        }
+
     # TODO - Update nomenclature.
     # "Parents" and "Children" should refer to the DOM tree
     # and not the dependency tree.
@@ -947,7 +1006,7 @@ class Dash(object):
     # TODO - Check this map for recursive or other ill-defined non-tree
     # relationships
     # pylint: disable=dangerous-default-value
-    def callback(self, output, inputs=[], state=[], client_function=None):
+    def callback(self, output, inputs=[], state=[]):
         self._validate_callback(output, inputs, state)
 
         callback_id = _create_callback_id(output)
@@ -963,14 +1022,6 @@ class Dash(object):
                 for c in state
             ],
         }
-        if client_function is not None:
-            self.callback_map[callback_id]['client_function'] = {
-                'namespace': client_function.namespace,
-                'function_name': client_function.function_name
-            }
-        else:
-            self.callback_map[callback_id]['client_function'] = {}
-
 
         def wrap_func(func):
             @wraps(func)
