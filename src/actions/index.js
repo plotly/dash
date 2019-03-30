@@ -531,36 +531,38 @@ function updateOutput(
             return;
         }
 
-        const [outputId, outputProp] = payload.output.split('.');
-        const updatedProps = {
-            [outputProp]: returnValue,
-        };
+        function updateOutput(outputIdAndProp, outputValue) {
+            const [outputId, outputProp] = outputIdAndProp.split('.');
+            const updatedProps = {
+                [outputProp]: outputValue,
+            };
 
-        /*
-         * Update the request queue by treating a successful clientside
-         * like a succesful serverside response (200 status code)
-         */
-        updateRequestQueue(false, STATUS.OK);
+            /*
+             * Update the request queue by treating a successful clientside
+             * like a succesful serverside response (200 status code)
+             */
+            updateRequestQueue(false, STATUS.OK);
 
-        // Update the layout with the new result
-        dispatch(
-            updateProps({
-                itempath: getState().paths[outputId],
-                props: updatedProps,
-                source: 'response',
-            })
-        );
+            // Update the layout with the new result
+            dispatch(
+                updateProps({
+                    itempath: getState().paths[outputId],
+                    props: updatedProps,
+                    source: 'response',
+                })
+            );
 
-        /*
-         * This output could itself be a serverside or clientside input
-         * to another function
-         */
-        dispatch(
-            notifyObservers({
-                id: outputId,
-                props: updatedProps,
-            })
-        );
+            /*
+             * This output could itself be a serverside or clientside input
+             * to another function
+             */
+            dispatch(
+                notifyObservers({
+                    id: outputId,
+                    props: updatedProps,
+                })
+            );
+        }
 
         /*
          * Note that unlike serverside updates, we're not handling
