@@ -499,17 +499,16 @@ function updateOutput(
 
     // Clientside hook
     if (!isNil(client_function) && !isEmpty(client_function)) {
-
-        const returnValue = (
-            window[client_function.namespace][client_function.function_name](
-                ...(has('inputs', payload) ? pluck('value', payload.inputs) : []),
-                ...(has('state', payload) ? pluck('value', payload.state) : [])
-            )
+        const returnValue = window[client_function.namespace][
+            client_function.function_name
+        ](
+            ...(has('inputs', payload) ? pluck('value', payload.inputs) : []),
+            ...(has('state', payload) ? pluck('value', payload.state) : [])
         );
 
         const [outputId, outputProp] = payload.output.split('.');
         const updatedProps = {
-            [outputProp]: returnValue
+            [outputProp]: returnValue,
         };
 
         /*
@@ -519,20 +518,24 @@ function updateOutput(
         updateRequestQueue(false, STATUS.OK);
 
         // Update the layout with the new result
-        dispatch(updateProps({
-            itempath: getState().paths[outputId],
-            props: updatedProps,
-            source: 'response'
-        }));
+        dispatch(
+            updateProps({
+                itempath: getState().paths[outputId],
+                props: updatedProps,
+                source: 'response',
+            })
+        );
 
         /*
          * This output could itself be a serverside or clientside input
          * to another function
          */
-        dispatch(notifyObservers({
-            id: outputId,
-            props: updatedProps
-        }));
+        dispatch(
+            notifyObservers({
+                id: outputId,
+                props: updatedProps,
+            })
+        );
 
         /*
          * Note that unlike serverside updates, we're not handling
