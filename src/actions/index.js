@@ -13,6 +13,7 @@ import {
     has,
     intersection,
     isEmpty,
+    isNil,
     keys,
     lensPath,
     merge,
@@ -425,7 +426,7 @@ function updateOutput(
         changedPropIds,
     };
 
-    const {inputs, state} = dependenciesRequest.content.find(
+    const {inputs, state, client_function} = dependenciesRequest.content.find(
         dependency => dependency.output === outputIdAndProp
     );
     const validKeys = keys(getState().paths);
@@ -494,6 +495,53 @@ function updateOutput(
                 value: view(propLens, layout),
             };
         });
+    }
+
+    // Clientside hook
+    if (!isNil(client_function) && !isEmpty(client_function)) {
+
+        const returnValue = (
+            window[client_function.namespace][client_function.function_name](
+                ...(has('inputs', payload) ? pluck('value', payload.inputs) : []),
+                ...(has('state', payload) ? pluck('value', payload.state) : [])
+            )
+        );
+
+        const [outputId, outputProp] = payload.output.split('.');
+        const updatedProps = {
+            [outputProp]: returnValue
+        };
+
+        /*
+         * Update the request queue by treating a successful clientside
+         * like a succesful serverside response (200 status code)
+         */
+        updateRequestQueue(false, STATUS.OK);
+
+        // Update the layout with the new result
+        dispatch(updateProps({
+            itempath: getState().paths[outputId],
+            props: updatedProps,
+            source: 'response'
+        }));
+
+        /*
+         * This output could itself be a serverside or clientside input
+         * to another function
+         */
+        dispatch(notifyObservers({
+            id: outputId,
+            props: updatedProps
+        }));
+
+        /*
+         * Note that unlike serverside updates, we're not handling
+         * children as components right now, so we don't need to
+         * crawl the computed result to check for nested components
+         * or properties that might trigger other inputs.
+         * In the future, we could handle this case.
+         */
+        return;
     }
 
     if (hooks.request_pre !== null) {
