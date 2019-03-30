@@ -1,3 +1,4 @@
+import dash
 from dash.dependencies import Input, Output, State, ClientFunction
 from dash.exceptions import PreventUpdate
 import dash_html_components as html
@@ -18,7 +19,7 @@ class Tests(IntegrationTests):
         pass
 
     def test_simple_clientside_serverside_callback(self):
-        app = Dash(__name__, assets_folder='test_clientside')
+        app = dash.Dash(__name__, assets_folder='test_clientside')
 
         app.layout = html.Div([
             dcc.Input(id='input'),
