@@ -43,6 +43,7 @@ jobs:
               git clone git@github.com:plotly/dash-html-components.git
               git clone git@github.com:plotly/dash-table.git
               . venv/bin/activate
+              cd dash && git checkout clientside-2 && cd ..
               pip install -e ./dash --quiet
               cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
