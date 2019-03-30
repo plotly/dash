@@ -358,7 +358,7 @@ export function notifyObservers(payload) {
 
         /* eslint-disable consistent-return */
         return Promise.all(promises);
-        /* eslint-enableconsistent-return */
+        /* eslint-enable consistent-return */
     };
 }
 
@@ -508,16 +508,22 @@ function updateOutput(
                 ...(has('state', payload) ? pluck('value', payload.state) : [])
             );
         } catch(e) {
+            /* eslint-disable no-console */
             console.error(
                 `The following error occurred while executing ${client_function.namespace}.${client_function.function_name} ` +
                 `in order to update component "${payload.output}" ⋁⋁⋁`
             );
             console.error(e);
+            /* eslint-enable no-console */
+
             /*
              * Update the request queue by treating a successful clientside
              * like a failed serverside response (500 status code)
              */
+
+            /* eslint-disable no-magic-numbers */
             updateRequestQueue(true, 500);
+            /* eslint-enable no-magic-numbers */
             return;
         }
 
@@ -565,7 +571,11 @@ function updateOutput(
     if (hooks.request_pre !== null) {
         hooks.request_pre(payload);
     }
+
+    /* eslint-disable consistent-return */
     return fetch(`${urlBase(config)}_dash-update-component`, {
+    /* eslint-enable consistent-return */
+
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
