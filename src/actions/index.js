@@ -504,14 +504,18 @@ function updateOutput(
             returnValue = window[client_function.namespace][
                 client_function.function_name
             ](
-                ...(has('inputs', payload) ? pluck('value', payload.inputs) : []),
+                ...(has('inputs', payload)
+                    ? pluck('value', payload.inputs)
+                    : []),
                 ...(has('state', payload) ? pluck('value', payload.state) : [])
             );
-        } catch(e) {
+        } catch (e) {
             /* eslint-disable no-console */
             console.error(
-                `The following error occurred while executing ${client_function.namespace}.${client_function.function_name} ` +
-                `in order to update component "${payload.output}" ⋁⋁⋁`
+                `The following error occurred while executing ${
+                    client_function.namespace
+                }.${client_function.function_name} ` +
+                    `in order to update component "${payload.output}" ⋁⋁⋁`
             );
             console.error(e);
             /* eslint-enable no-console */
@@ -574,7 +578,7 @@ function updateOutput(
 
     /* eslint-disable consistent-return */
     return fetch(`${urlBase(config)}_dash-update-component`, {
-    /* eslint-enable consistent-return */
+        /* eslint-enable consistent-return */
 
         method: 'POST',
         headers: {
