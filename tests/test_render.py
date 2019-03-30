@@ -2519,7 +2519,7 @@ class Tests(IntegrationTests):
         self.startServer(app)
 
         self.run_value_assertions({
-            'input': '1'
+            'input': '1',
             'output-1': '2',
             'output-2': '3',
             'output-3': '4',
@@ -2532,7 +2532,7 @@ class Tests(IntegrationTests):
         input.send_keys('1')
 
         self.run_value_assertions({
-            'input': '11'
+            'input': '11',
             'output-1': '12',
             'output-2': '13',
             'output-3': '14',
