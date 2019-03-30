@@ -18,6 +18,19 @@ class Tests(IntegrationTests):
     def setUp(self):
         pass
 
+    def run_value_assertions(self, assertions):
+        for id in assertions:
+            WebDriverWait(self.driver, 10).until(
+                EC.text_to_be_present_in_element_value(
+                    (By.ID, id),
+                    assertions[id]
+                ),
+                message='Failed assertion: #{}.value != {}'.format(
+                    id, assertions[id]
+                )
+            )
+
+
     def test_simple_clientside_serverside_callback(self):
         app = dash.Dash(__name__, assets_folder='test_clientside')
 
@@ -143,19 +156,7 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        def run_assertions(assertions):
-            for id in assertions:
-                WebDriverWait(self.driver, 10).until(
-                    EC.text_to_be_present_in_element_value(
-                        (By.ID, id),
-                        assertions[id]
-                    ),
-                    message='Failed assertion: #{}.value != {}'.format(
-                        id, assertions[id]
-                    )
-                )
-
-        run_assertions({
+        self.run_value_assertions({
             'x': '3',
             'y': '6',
             'x+y': '9',
@@ -171,7 +172,7 @@ class Tests(IntegrationTests):
         )
         x_input.send_keys('1')
 
-        run_assertions({
+        self.run_value_assertions({
             'x': '31',
             'y': '6',
             'x+y': '37',
@@ -181,3 +182,52 @@ class Tests(IntegrationTests):
         })
         self.assertEqual(call_counts['display'].value, 2)
         self.assertEqual(call_counts['divide'].value, 2)
+
+
+    def test_clientside_exceptions_halt_subsequent_updates(self):
+        app = dash.Dash(__name__, assets_folder='test_clientside')
+
+        app.layout = html.Div([
+            dcc.Input(id='first', value=1),
+            dcc.Input(id='second'),
+            dcc.Input(id='third'),
+        ])
+
+        app.callback(
+            Output('second', 'value'),
+            [Input('first', 'value')],
+            client_function=ClientFunction('clientside', 'add1_break_at_11'))
+
+        app.callback(
+            Output('third', 'value'),
+            [Input('second', 'value')],
+            client_function=ClientFunction('clientside', 'add1_break_at_11'))
+
+        self.startServer(app)
+
+        self.run_value_assertions({
+            'first': '1',
+            'second': '2',
+            'third': '3',
+        })
+
+        first_input = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, 'first'))
+        )
+        first_input.send_keys('1')
+        # clientside code will prevent the update from occurring
+        self.run_value_assertions({
+            'first': '11',
+            'second': '2',
+            'third': '3',
+        })
+
+        first_input.send_keys('1')
+
+        # the previous clientside code error should not be fatal:
+        # subsequent updates should still be able to occur
+        self.run_value_assertions({
+            'first': '111',
+            'second': '112',
+            'third': '113',
+        })

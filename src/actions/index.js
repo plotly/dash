@@ -499,12 +499,27 @@ function updateOutput(
 
     // Clientside hook
     if (!isNil(client_function) && !isEmpty(client_function)) {
-        const returnValue = window[client_function.namespace][
-            client_function.function_name
-        ](
-            ...(has('inputs', payload) ? pluck('value', payload.inputs) : []),
-            ...(has('state', payload) ? pluck('value', payload.state) : [])
-        );
+        let returnValue;
+        try {
+            returnValue = window[client_function.namespace][
+                client_function.function_name
+            ](
+                ...(has('inputs', payload) ? pluck('value', payload.inputs) : []),
+                ...(has('state', payload) ? pluck('value', payload.state) : [])
+            );
+        } catch(e) {
+            console.error(
+                `The following error occurred while executing ${client_function.namespace}.${client_function.function_name} ` +
+                `in order to update component "${payload.output}" ⋁⋁⋁`
+            );
+            console.error(e);
+            /*
+             * Update the request queue by treating a successful clientside
+             * like a failed serverside response (500 status code)
+             */
+            updateRequestQueue(true, 500);
+            return;
+        }
 
         const [outputId, outputProp] = payload.output.split('.');
         const updatedProps = {
