@@ -2541,5 +2541,5 @@ class Tests(IntegrationTests):
             'output-1': '12',
             'output-2': '13',
             'output-3': '14',
-            'output-4': '15',
+            'output-4': '15'
         })
