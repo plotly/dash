@@ -564,6 +564,23 @@ function updateOutput(
             );
         }
 
+        if (payload.output.startsWith('..')) {
+            /*
+             * If this update is for multiple outputs, then it has
+             * starting & trailing `..` and each propId pair is separated
+             * by `...`, e.g.
+             * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+             */
+            const outputPropIds = payload.output.split('...').map(
+                o => o.replace('..', '')
+            );
+            for(let i=0; i < outputPropIds.length; i++) {
+                updateOutput(outputPropIds[i], returnValue[i]);
+            }
+        } else {
+            updateOutput(payload.output, returnValue);
+        }
+
         /*
          * Note that unlike serverside updates, we're not handling
          * children as components right now, so we don't need to
