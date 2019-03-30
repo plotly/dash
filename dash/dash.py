@@ -631,6 +631,7 @@ class Dash(object):
                 'output': k,
                 'inputs': v['inputs'],
                 'state': v['state'],
+                'client_function': v['client_function']
             } for k, v in self.callback_map.items()
         ])
 
@@ -946,7 +947,7 @@ class Dash(object):
     # TODO - Check this map for recursive or other ill-defined non-tree
     # relationships
     # pylint: disable=dangerous-default-value
-    def callback(self, output, inputs=[], state=[]):
+    def callback(self, output, inputs=[], state=[], client_function=None):
         self._validate_callback(output, inputs, state)
 
         callback_id = _create_callback_id(output)
@@ -960,8 +961,16 @@ class Dash(object):
             'state': [
                 {'id': c.component_id, 'property': c.component_property}
                 for c in state
-            ]
+            ],
         }
+        if client_function is not None:
+            self.callback_map[callback_id]['client_function'] = {
+                'namespace': client_function.namespace,
+                'function_name': client_function.function_name
+            }
+        else:
+            self.callback_map[callback_id]['client_function'] = {}
+
 
         def wrap_func(func):
             @wraps(func)
