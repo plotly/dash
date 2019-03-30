@@ -371,6 +371,44 @@ function updateOutput(
     const {config, layout, graphs, dependenciesRequest, hooks} = getState();
     const {InputGraph} = graphs;
 
+    const getThisRequestIndex = () => {
+        const postRequestQueue = getState().requestQueue;
+        const thisRequestIndex = findIndex(
+            propEq('uid', requestUid),
+            postRequestQueue
+        );
+        return thisRequestIndex;
+    };
+
+    const updateRequestQueue = (rejected, status) => {
+        const postRequestQueue = getState().requestQueue;
+        const thisRequestIndex = getThisRequestIndex();
+        if (thisRequestIndex === -1) {
+            // It was already pruned away
+            return;
+        }
+        const updatedQueue = adjust(
+            merge(__, {
+                status: status,
+                responseTime: Date.now(),
+                rejected,
+            }),
+            thisRequestIndex,
+            postRequestQueue
+        );
+        // We don't need to store any requests before this one
+        const thisControllerId =
+            postRequestQueue[thisRequestIndex].controllerId;
+        const prunedQueue = updatedQueue.filter((queueItem, index) => {
+            return (
+                queueItem.controllerId !== thisControllerId ||
+                index >= thisRequestIndex
+            );
+        });
+
+        dispatch(setRequestQueue(prunedQueue));
+    };
+
     /*
      * Construct a payload of the input and state.
      * For example:
@@ -470,44 +508,6 @@ function updateOutput(
         credentials: 'same-origin',
         body: JSON.stringify(payload),
     }).then(function handleResponse(res) {
-        const getThisRequestIndex = () => {
-            const postRequestQueue = getState().requestQueue;
-            const thisRequestIndex = findIndex(
-                propEq('uid', requestUid),
-                postRequestQueue
-            );
-            return thisRequestIndex;
-        };
-
-        const updateRequestQueue = rejected => {
-            const postRequestQueue = getState().requestQueue;
-            const thisRequestIndex = getThisRequestIndex();
-            if (thisRequestIndex === -1) {
-                // It was already pruned away
-                return;
-            }
-            const updatedQueue = adjust(
-                merge(__, {
-                    status: res.status,
-                    responseTime: Date.now(),
-                    rejected,
-                }),
-                thisRequestIndex,
-                postRequestQueue
-            );
-            // We don't need to store any requests before this one
-            const thisControllerId =
-                postRequestQueue[thisRequestIndex].controllerId;
-            const prunedQueue = updatedQueue.filter((queueItem, index) => {
-                return (
-                    queueItem.controllerId !== thisControllerId ||
-                    index >= thisRequestIndex
-                );
-            });
-
-            dispatch(setRequestQueue(prunedQueue));
-        };
-
         const isRejected = () => {
             const latestRequestIndex = findLastIndex(
                 propEq('controllerId', outputIdAndProp),
@@ -525,7 +525,7 @@ function updateOutput(
 
         if (res.status !== STATUS.OK) {
             // update the status of this request
-            updateRequestQueue(true);
+            updateRequestQueue(true, res.status);
             return;
         }
 
@@ -535,7 +535,7 @@ function updateOutput(
          * If so, ignore this request.
          */
         if (isRejected()) {
-            updateRequestQueue(true);
+            updateRequestQueue(true, res.status);
             return;
         }
 
@@ -547,11 +547,11 @@ function updateOutput(
              * get out of order
              */
             if (isRejected()) {
-                updateRequestQueue(true);
+                updateRequestQueue(true, res.status);
                 return;
             }
 
-            updateRequestQueue(false);
+            updateRequestQueue(false, res.status);
 
             // Fire custom request_post hook if any
             if (hooks.request_post !== null) {
