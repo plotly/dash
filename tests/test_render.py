@@ -2496,3 +2496,45 @@ class Tests(IntegrationTests):
             'second': '112',
             'third': '113',
         })
+
+
+    def test_clientside_multiple_outputs(self):
+        app = dash.Dash(__name__, assets_folder='test_clientside')
+
+        app.layout = html.Div([
+            dcc.Input(id='input', value=1),
+            dcc.Input(id='output-1'),
+            dcc.Input(id='output-2'),
+            dcc.Input(id='output-3'),
+            dcc.Input(id='output-4'),
+        ])
+
+        app.callback([Output('output-1', 'value'),
+                      Output('output-2', 'value'),
+                      Output('output-3', 'value'),
+                      Output('output-4', 'value')],
+                     [Input('input', 'value')],
+                     client_function=ClientFunction('clientside', 'add_to_four_outputs'))
+
+        self.startServer(app)
+
+        self.run_value_assertions({
+            'input': '1'
+            'output-1': '2',
+            'output-2': '3',
+            'output-3': '4',
+            'output-4': '5',
+        })
+
+        input = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, 'input'))
+        )
+        input.send_keys('1')
+
+        self.run_value_assertions({
+            'input': '11'
+            'output-1': '12',
+            'output-2': '13',
+            'output-3': '14',
+            'output-4': '15',
+        })

@@ -13,6 +13,15 @@ window.clientside = {
             throw new Error('Unexpected error');
         }
         return parseInt(value, 10) + 1;
+    },
+
+    add_to_four_outputs: function(value) {
+        return [
+            parseInt(value) + 1,
+            parseInt(value) + 2,
+            parseInt(value) + 3,
+            parseInt(value) + 4
+        ]
     }
 
 }
