@@ -1746,7 +1746,7 @@ class Tests(IntegrationTests):
 
         self.wait_for_text_to_equal('#output-1', 'fire request hooks')
         self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
-        self.wait_for_text_to_equal('#output-pre-payload', '{"output":"output-1.children","changedProning: unclosed <socket.socket fd=4ds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
+        self.wait_for_text_to_equal('#output-pre-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
         self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
         self.wait_for_text_to_equal('#output-post-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
         self.wait_for_text_to_equal('#output-post-response', '{"props":{"children":"fire request hooks"}}')
