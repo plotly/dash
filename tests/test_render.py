@@ -12,7 +12,7 @@ from dash.exceptions import PreventUpdate
 
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-
+from bs4 import BeautifulSoup
 from .IntegrationTests import IntegrationTests
 from .utils import assert_clean_console, wait_for
 from multiprocessing import Value
@@ -20,6 +20,9 @@ import time
 import re
 import itertools
 import json
+import string
+import plotly
+import requests
 
 
 class Tests(IntegrationTests):
@@ -107,17 +110,18 @@ class Tests(IntegrationTests):
 
     def test_initial_state(self):
         app = Dash(__name__)
+        my_class_attrs = {
+            'id': 'p.c.4',
+            'className': 'my-class',
+            'title': 'tooltip',
+            'style': {'color': 'red', 'fontSize': 30},
+        }
         app.layout = html.Div([
             'Basic string',
             3.14,
             True,
             None,
-            html.Div('Child div with basic string',
-                     id='p.c.4',
-                     className="my-class",
-                     title='tooltip',
-                     style={'color': 'red', 'fontSize': 30}
-                     ),
+            html.Div('Child div with basic string', **my_class_attrs),
             html.Div(id='p.c.5'),
             html.Div([
                 html.Div('Grandchild div', id='p.c.6.p.c.0'),
@@ -146,94 +150,18 @@ class Tests(IntegrationTests):
         ])
 
         self.startServer(app)
-
         el = self.wait_for_element_by_css_selector('#_dash-app-content')
 
-        # TODO - Make less fragile with http://lxml.de/lxmlhtml.html#html-diff
-        rendered_dom = '''
-            <div n_clicks="0" n_clicks_timestamp="-1">
-                Basic string
+        _dash_app_content_html = os.path.join(
+            os.path.dirname(__file__),
+            'test_assets', 'initial_state_dash_app_content.html')
+        with open(_dash_app_content_html) as fp:
+            rendered_dom = BeautifulSoup(fp.read(), 'lxml')
+        fetched_dom = BeautifulSoup(el.get_attribute('outerHTML'), 'lxml')
 
-                3.14
-
-                <div PERMUTE>
-                    Child div with basic string
-                </div>
-
-                <div id="p.c.5" n_clicks="0" n_clicks_timestamp="-1">
-                </div>
-
-                <div id="p.c.6" n_clicks="0" n_clicks_timestamp="-1">
-                    <div id="p.c.6.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
-                        Grandchild div
-                    </div>
-
-                    <div id="p.c.6.p.c.1" n_clicks="0" n_clicks_timestamp="-1">
-                        <div id="p.c.6.p.c.1.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
-                            Great grandchild
-                        </div>
-
-                        3.14159
-
-                        another basic string
-                    </div>
-
-                    <div id="p.c.6.p.c.2" n_clicks="0" n_clicks_timestamp="-1">
-                        <div id="p.c.6.p.c.2.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
-                            <div id="p.c.6.p.c.2.p.c.0.p.c" n_clicks="0" n_clicks_timestamp="-1">
-                                <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
-
-                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0" n_clicks="0" n_clicks_timestamp="-1">
-                                    </div>
-
-
-                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2" n_clicks="0" n_clicks_timestamp="-1">
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        '''
-        # React wraps text and numbers with e.g. <!-- react-text: 20 -->
-        # Remove those
-        comment_regex = '<!--[^\[](.*?)-->'
-
-        # Somehow the html attributes are unordered.
-        # Try different combinations (they're all valid html)
-        style_permutations = [
-            'style="color: red; font-size: 30px;"',
-            'style="font-size: 30px; color: red;"'
-        ]
-        permutations = itertools.permutations([
-            'id="p.c.4"',
-            'class="my-class"',
-            'title="tooltip"',
-            'n_clicks="0"',
-            'n_clicks_timestamp="-1"'
-        ], 5)
-        passed = False
-        for permutation in permutations:
-            for style in style_permutations:
-                actual_cleaned = re.sub(comment_regex, '', el.get_attribute('innerHTML'))
-                expected_cleaned = re.sub(
-                    comment_regex,
-                    '',
-                    rendered_dom.replace('\n', '')
-                                .replace('    ', '')
-                                .replace('PERMUTE', ' '.join(list(permutation) + [style]))
-                )
-                passed = passed or (actual_cleaned == expected_cleaned)
-        if not passed:
-            raise Exception(
-                'HTML does not match\nActual:\n{}\n\nExpected:\n{}'.format(
-                    actual_cleaned,
-                    expected_cleaned
-                )
-            )
+        self.assertEqual(
+            fetched_dom.decode(), rendered_dom.decode(),
+            "the fetching rendered dom is expected ")
 
         # Check that no errors or warnings were displayed
         self.assertEqual(
@@ -249,226 +177,41 @@ class Tests(IntegrationTests):
             0
         )
 
-        # Check the initial stores
-
-        # layout should just be the JSON-ified app.layout
         self.assertEqual(
             self.driver.execute_script(
                 'return JSON.parse(JSON.stringify('
                 'window.store.getState().layout'
                 '))'
             ),
-            {
-                "namespace": "dash_html_components",
-                "props": {
-                  "children": [
-                    "Basic string",
-                    3.14,
-                    True,
-                    None,
-                    {
-                      "namespace": "dash_html_components",
-                      "props": {
-                        "children": "Child div with basic string",
-                        "id": "p.c.4",
-                         'className': "my-class",
-                         'title': 'tooltip',
-                         'style': {
-                            'color': 'red', 'fontSize': 30
-                         }
-                      },
-                      "type": "Div"
-                    },
-                    {
-                      "namespace": "dash_html_components",
-                      "props": {
-                        "children": None,
-                        "id": "p.c.5"
-                      },
-                      "type": "Div"
-                    },
-                    {
-                      "namespace": "dash_html_components",
-                      "props": {
-                        "children": [
-                          {
-                            "namespace": "dash_html_components",
-                            "props": {
-                              "children": "Grandchild div",
-                              "id": "p.c.6.p.c.0"
-                            },
-                            "type": "Div"
-                          },
-                          {
-                            "namespace": "dash_html_components",
-                            "props": {
-                              "children": [
-                                {
-                                  "namespace": "dash_html_components",
-                                  "props": {
-                                    "children": "Great grandchild",
-                                    "id": "p.c.6.p.c.1.p.c.0"
-                                  },
-                                  "type": "Div"
-                                },
-                                3.14159,
-                                "another basic string"
-                              ],
-                              "id": "p.c.6.p.c.1"
-                            },
-                            "type": "Div"
-                          },
-                          {
-                            "namespace": "dash_html_components",
-                            "props": {
-                              "children": [
-                                {
-                                  "namespace": "dash_html_components",
-                                  "props": {
-                                    "children": {
-                                      "namespace": "dash_html_components",
-                                      "props": {
-                                        "children": [
-                                          {
-                                            "namespace": "dash_html_components",
-                                            "props": {
-                                              "children": [
-                                                {
-                                                  "namespace": "dash_html_components",
-                                                  "props": {
-                                                    "children": None,
-                                                    "id": "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0"
-                                                  },
-                                                  "type": "Div"
-                                                },
-                                                "",
-                                                {
-                                                  "namespace": "dash_html_components",
-                                                  "props": {
-                                                    "children": None,
-                                                    "id": "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2"
-                                                  },
-                                                  "type": "Div"
-                                                }
-                                              ],
-                                              "id": "p.c.6.p.c.2.p.c.0.p.c.p.c.0"
-                                            },
-                                            "type": "Div"
-                                          }
-                                        ],
-                                        "id": "p.c.6.p.c.2.p.c.0.p.c"
-                                      },
-                                      "type": "Div"
-                                    },
-                                    "id": "p.c.6.p.c.2.p.c.0"
-                                  },
-                                  "type": "Div"
-                                }
-                              ],
-                              "id": "p.c.6.p.c.2"
-                            },
-                            "type": "Div"
-                          }
-                        ],
-                        "id": "p.c.6"
-                      },
-                      "type": "Div"
-                    }
-                  ]
-                },
-                "type": "Div"
-            }
+            json.loads(json.dumps(app.layout, cls=plotly.utils.PlotlyJSONEncoder)),
+            "the state layout is identical to app.layout"
         )
 
-        # graphs should just be empty since there are no dependencies
+        r = requests.get('http://localhost:8050/_dash-dependencies')
+        self.assertEqual(r.status_code, 200)
         self.assertEqual(
-            self.driver.execute_script(
-                'return JSON.parse(JSON.stringify('
-                'window.store.getState().graphs'
-                '))'
-            ),
-            {
-              "InputGraph": {
-                "nodes": {},
-                "outgoingEdges": {},
-                "incomingEdges": {}
-              },
-              'MultiGraph': {
-                  'incomingEdges': {}, 'nodes': {}, 'outgoingEdges': {}
-              }
-            }
+            r.json(), [],
+            "no dependencies present in app as no callbacks are defined"
+
         )
 
-        # paths is just a lookup table of the components's IDs and their
-        # placement in the tree.
-        # in this case the IDs are just abbreviations of the path to make
-        # things easy to verify.
         self.assertEqual(
             self.driver.execute_script(
                 'return window.store.getState().paths'
             ),
             {
-                "p.c.4": [
-                    "props",  "children",  4
-                ],
-                "p.c.5": [
-                    "props",  "children",  5
-                ],
-                "p.c.6": [
-                    "props",  "children",  6
-                ],
-                "p.c.6.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.1": [
-                    "props",  "children",  6,
-                    "props",  "children",  1
-                ],
-                "p.c.6.p.c.1.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  1,
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.2": [
-                    "props",  "children",  6,
-                    "props",  "children",  2
-                ],
-                "p.c.6.p.c.2.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.2.p.c.0.p.c": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0,
-                    "props",  "children"
-                ],
-                "p.c.6.p.c.2.p.c.0.p.c.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0,
-                    "props",  "children",
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0,
-                    "props",  "children",
-                    "props",  "children",  0,
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0,
-                    "props",  "children",
-                    "props",  "children",  0,
-                    "props",  "children",  2
+                abbr: [
+                    int(token) if token in string.digits
+                    else token.replace('p', 'props').replace('c', 'children')
+                    for token in abbr.split('.')
                 ]
-            }
+                for abbr in (
+                    child.get('id')
+                    for child in fetched_dom.find(
+                    id='_dash-app-content').findChildren(id=True)
+                )
+            },
+            "paths should refect to the component hierarchy"
         )
 
         self.request_queue_assertions(0)
