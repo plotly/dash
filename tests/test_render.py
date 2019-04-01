@@ -322,9 +322,9 @@ class Tests(IntegrationTests):
             lambda: (
                 self.driver.find_element_by_id('output')
                 .get_attribute('innerHTML') in ['''
-                    <div n_clicks="0" n_clicks_timestamp="-1">
+                    <div>
                         {}
-                        <div id="sub-output-1" n_clicks="0" n_clicks_timestamp="-1">
+                        <div id="sub-output-1">
                             sub input initial value
                         </div>
                     </div>'''.replace('\n', '').replace('  ', '').format(input)
