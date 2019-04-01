@@ -310,33 +310,24 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        output = self.driver.find_element_by_id('output')
-        output_html = output.get_attribute('innerHTML')
-
         wait_for(lambda: call_count.value == 1)
 
-        # Adding new children to the layout should
-        # call the callbacks immediately to set
-        # the correct initial state
-        wait_for(
-            lambda: (
-                self.driver.find_element_by_id('output')
-                .get_attribute('innerHTML') in ['''
-                    <div>
-                        {}
-                        <div id="sub-output-1">
-                            sub input initial value
-                        </div>
-                    </div>'''.replace('\n', '').replace('  ', '').format(input)
-                    for input in [
-                        # html attributes are unordered, so include both versions
-                        '<input id="sub-input-1" value="sub input initial value">',
-                        '<input value="sub input initial value" id="sub-input-1">'
-                    ]
-                ]
-            ),
-            lambda: self.driver.find_element_by_id('output').get_attribute('innerHTML')
+        pad_input, pad_div = BeautifulSoup(
+            self.driver.find_element_by_css_selector(
+                '#_dash-app-content').get_attribute('innerHTML'),
+            'lxml').select_one('#output > div').contents
+
+        self.assertTrue(
+            pad_input.attrs == {'id': 'sub-input-1', 'value': 'sub input initial value'}
+                and pad_input.name == 'input',
+            "pad input is correctly rendered")
+
+        self.assertTrue(
+            pad_div.text == pad_input.attrs['value']
+                and pad_div.get('id') == 'sub-output-1',
+            "the sub-output-1 content reflects to sub-input-1 value"
         )
+
         self.percy_snapshot(name='callback-generating-function-1')
 
         # the paths should include these new output IDs
@@ -362,12 +353,15 @@ class Tests(IntegrationTests):
 
         # editing the input should modify the sub output
         sub_input = self.driver.find_element_by_id('sub-input-1')
-        sub_input.send_keys('a')
+
+        sub_input.send_keys('deadbeef')
         self.wait_for_text_to_equal(
             '#sub-output-1',
-            'sub input initial valuea')
+            pad_input.attrs['value'] + 'deadbeef')
 
-        self.assertEqual(call_count.value, 2)
+        self.assertEqual(
+            call_count.value, len('deadbeef') + 1,
+            "the total updates is initial one + the text input changes")
 
         self.request_queue_assertions(call_count.value + 1)
         self.percy_snapshot(name='callback-generating-function-2')
@@ -1752,7 +1746,7 @@ class Tests(IntegrationTests):
 
         self.wait_for_text_to_equal('#output-1', 'fire request hooks')
         self.wait_for_text_to_equal('#output-pre', 'request_pre changed this text!')
-        self.wait_for_text_to_equal('#output-pre-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
+        self.wait_for_text_to_equal('#output-pre-payload', '{"output":"output-1.children","changedProning: unclosed <socket.socket fd=4ds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
         self.wait_for_text_to_equal('#output-post', 'request_post changed this text!')
         self.wait_for_text_to_equal('#output-post-payload', '{"output":"output-1.children","changedPropIds":["input.value"],"inputs":[{"id":"input","property":"value","value":"fire request hooks"}]}')
         self.wait_for_text_to_equal('#output-post-response', '{"props":{"children":"fire request hooks"}}')
