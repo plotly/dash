@@ -1042,8 +1042,10 @@ class Dash(object):
                 if prefix_name in in_name:
                     return in_name.find(prefix_name) + len(prefix_name)
 
-            raise ValueError('auto_callback requires callback name to start with {}'.format(
-                valid_prefix_names))
+            raise ValueError(
+                'auto_callback requires name to start with {}'.format(
+                valid_prefix_names)
+            )
 
         def process_output(callback_func):
             callback_name = getattr(callback_func, '__name__', '')
@@ -1057,7 +1059,8 @@ class Dash(object):
                 # assume children if no underscore
                 comp_name = comp_prop_name
                 prop_name = 'children'
-            return Output(component_id=comp_name, component_property=prop_name)
+            return Output(component_id=comp_name,
+                          component_property=prop_name)
 
         def process_input(callback_func):
             if sys.version_info[0] == 3:
@@ -1067,7 +1070,10 @@ class Dash(object):
                 # pylint: disable=maybe-no-member
                 spec_args = inspect.getargspec(callback_func).args
             else:
-                raise ValueError("Requires Python 2 or 3, {}".format(sys.version_info))
+                raise ValueError(
+                    "Requires Python 2 or 3, {}".format(
+                    sys.version_info)
+                )
 
             input_list = []
             for c_comp_prop_arg in spec_args:
@@ -1079,7 +1085,8 @@ class Dash(object):
                     # assume value if no underscore
                     comp_name = c_comp_prop_arg
                     prop_name = 'value'
-                input_list += [Input(component_id=comp_name, component_property=prop_name)]
+                input_list += [Input(component_id=comp_name,
+                                     component_property=prop_name)]
             return input_list
 
         def wrap_callback(callback_func):
