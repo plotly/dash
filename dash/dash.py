@@ -1042,7 +1042,8 @@ class Dash(object):
                 if prefix_name in in_name:
                     return in_name.find(prefix_name) + len(prefix_name)
 
-            raise ValueError('EasyDash requires callback name to start with {}'.format(valid_prefix_names))
+            raise ValueError('auto_callback requires callback name to start with {}'.format(
+                valid_prefix_names))
 
         def process_output(callback_func):
             callback_name = getattr(callback_func, '__name__', '')
@@ -1060,8 +1061,10 @@ class Dash(object):
 
         def process_input(callback_func):
             if sys.version_info[0] == 3:
+                # pylint: disable=maybe-no-member
                 spec_args = inspect.getfullargspec(callback_func).args
             elif sys.version_info[0] == 2:
+                # pylint: disable=maybe-no-member
                 spec_args = inspect.getargspec(callback_func).args
             else:
                 raise ValueError("Requires Python 2 or 3, {}".format(sys.version_info))
