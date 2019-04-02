@@ -1044,7 +1044,7 @@ class Dash(object):
 
             raise ValueError(
                 'auto_callback requires name to start with {}'.format(
-                valid_prefix_names)
+                    valid_prefix_names)
             )
 
         def process_output(callback_func):
@@ -1072,7 +1072,7 @@ class Dash(object):
             else:
                 raise ValueError(
                     "Requires Python 2 or 3, {}".format(
-                    sys.version_info)
+                        sys.version_info)
                 )
 
             input_list = []
