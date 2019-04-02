@@ -1067,7 +1067,7 @@ class Dash(object):
                 # pylint: disable=maybe-no-member
                 spec_args = inspect.getfullargspec(callback_func).args
             elif sys.version_info[0] == 2:
-                # pylint: disable=maybe-no-member
+                # pylint: disable=maybe-no-member, deprecated-method
                 spec_args = inspect.getargspec(callback_func).args
             else:
                 raise ValueError(
