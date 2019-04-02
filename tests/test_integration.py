@@ -111,7 +111,7 @@ class Tests(IntegrationTests):
         @app.auto_callback()
         def update_output1_children(input_value):
             call_count.value = call_count.value + 1
-            return value
+            return input_value
 
         self.startServer(app)
 
