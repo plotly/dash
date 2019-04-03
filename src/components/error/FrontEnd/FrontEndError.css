@@ -69,6 +69,7 @@
     min-width: 386px;
     max-width: 650px;
     max-height: 450px;
-    overflow: scroll;
+    /* iframe container handles the scrolling */
+    overflow: hidden;
     display: inline-block;
 }

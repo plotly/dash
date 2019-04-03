@@ -77,7 +77,13 @@ class FrontEndError extends Component {
                               */}
                             <iframe
                                 style={{
-                                    'width': '600px',
+                                    /*
+                                     * 67px of padding and margin between this
+                                     * iframe and the parent container.
+                                     * 67 was determined manually in the
+                                     * browser's dev tools.
+                                     */
+                                    'width': 'calc(600px - 67px)',
                                     'height': '75vh',
                                     'border': 'none'
                                 }}
@@ -159,6 +165,17 @@ class FrontEndError extends Component {
     body {
         padding: 0px;
         margin: 0px;
+    }
+
+    .plain {
+        display: block !important;
+    }
+    .plain > form > p {
+        display: none;
+    }
+    .plain pre {
+        padding: 15px;
+        overflow-x: scroll;
     }
 </style>
 </head>`
