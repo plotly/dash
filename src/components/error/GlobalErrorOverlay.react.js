@@ -12,19 +12,25 @@ export default class GlobalErrorOverlay extends Component {
 
     render() {
         const {resolve, visible, error, toastsEnabled} = this.props;
+        let backEndErrors;
         let frontEndErrors;
         if (toastsEnabled) {
-            if (error.frontEnd.length > 1) {
-                frontEndErrors = (
-                    <FrontEndErrorContainer
-                        errors={error.frontEnd}
-                        resolve={resolve}
-                    />
-                );
-            } else if (!isEmpty(error.frontEnd)) {
-                const e = error.frontEnd[0];
-                frontEndErrors = <FrontEndError e={e} resolve={resolve} />;
+            let errors = [];
+            if (error.frontEnd.length) {
+                errors = error.frontEnd;
             }
+            if (!isEmpty(error.backEnd)) {
+                errors.push({error: {
+                    message: 'Python exception',
+                    html: error.backEnd.errorPage,
+                }});
+            }
+            frontEndErrors = (
+                <FrontEndErrorContainer
+                    errors={errors}
+                    resolve={resolve}
+                />
+            );
         }
         return (
             <div>

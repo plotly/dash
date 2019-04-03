@@ -797,12 +797,14 @@ function updateOutput(
             });
         })
         .catch(err => {
-            dispatch(
-                onError({
-                    type: 'backEnd',
-                    errorPage: err,
-                })
-            );
+            err.text().then(text => {
+                dispatch(
+                    onError({
+                        type: 'backEnd',
+                        errorPage: text,
+                    })
+                );
+            });
         });
 }
 

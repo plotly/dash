@@ -23,16 +23,6 @@ class UnconnectedGlobalErrorContainer extends Component {
 
     render() {
         const {error, dispatch} = this.props;
-        if (!isEmpty(error.backEnd)) {
-            return (
-                <div className="dash-backend-error">
-                    <h2> {error.backEnd.errorPage.message} </h2>
-                    <pre className="traceback">
-                        {error.backEnd.errorPage.stack}
-                    </pre>
-                </div>
-            );
-        }
         return (
             <div id="_dash-global-error-container">
                 <DebugMenu

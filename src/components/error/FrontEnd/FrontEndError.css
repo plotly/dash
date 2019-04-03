@@ -63,3 +63,12 @@
     margin-top: 8px;
     display: inline-block;
 }
+
+.dash-be-error__st {
+    background-color: #fdf3f4;
+    min-width: 386px;
+    max-width: 650px;
+    max-height: 450px;
+    overflow: scroll;
+    display: inline-block;
+}

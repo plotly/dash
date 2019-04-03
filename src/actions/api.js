@@ -70,17 +70,14 @@ function apiThunk(endpoint, method, store, id, body, headers = {}) {
                 });
             })
             .catch(err => {
-                /* eslint-disable no-console */
-                console.error(err);
-                /* eslint-enable no-console */
-                if (err) {
+                err.text().then(text => {
                     dispatch(
                         onError({
                             type: 'backEnd',
-                            errorPage: err,
+                            errorPage: text,
                         })
                     );
-                }
+                });
             });
     };
 }

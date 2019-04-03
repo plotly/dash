@@ -45,6 +45,7 @@
     max-height: 650px;
     margin: 1rem;
     overflow: auto;
+    z-index: 1001;  /* above the plotly.js toolbar */
 }
 
 .dash-error-card__topbar {
