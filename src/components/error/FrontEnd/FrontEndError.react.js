@@ -174,7 +174,7 @@ class FrontEndError extends Component {
         display: none;
     }
     .plain pre {
-        padding: 15px;
+        padding: 15px !important;
         overflow-x: scroll;
     }
 </style>
