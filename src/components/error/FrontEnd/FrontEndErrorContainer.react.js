@@ -24,7 +24,7 @@ class FrontEndErrorContainer extends Component {
             <div className={cardClasses}>
                 <div className="dash-error-card__topbar">
                     <h6 className="dash-error-card__message">
-                        ⚠️ Alerts (<strong>{errorsLength}</strong> errors)
+                        🛑 Alerts (<strong>{errorsLength}</strong> errors)
                     </h6>
                     <CloseIcon
                         className="dash-fe-error__icon-close"

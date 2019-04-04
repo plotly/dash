@@ -1,6 +1,5 @@
 import './FrontEndError.css';
 import {Component} from 'react';
-import ErrorIcon from '../icons/ErrorIcon.svg';
 import CloseIcon from '../icons/CloseIcon.svg';
 import CollapseIcon from '../icons/CollapseIcon.svg';
 import PropTypes from 'prop-types';
@@ -35,9 +34,8 @@ class FrontEndError extends Component {
         }
         return collapsed ? (
             <div className="dash-error-card__list-item">
-                <ErrorIcon className="dash-fe-error__icon-error" />
                 <h6 className="dash-fe-error__title">
-                    {e.error.message ||
+                    ☣️&nbsp;{e.error.message ||
                         'An error was thrown that was not an Error object, so info could not be gathered.'}
                 </h6>
                 <CollapseIcon
@@ -48,9 +46,8 @@ class FrontEndError extends Component {
         ) : (
             <div className={cardClasses}>
                 <div className="dash-fe-error-top">
-                    <ErrorIcon className="dash-fe-error__icon-error" />
                     <h6 className="dash-fe-error__title">
-                        {e.error.message ||
+                        ☣️&nbsp;{e.error.message ||
                             'An error was thrown that was not an Error object, so info could not be gathered.'}
                     </h6>
                     {this.props.isListItem ? (

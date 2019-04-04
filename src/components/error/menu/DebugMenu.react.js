@@ -8,7 +8,6 @@ import BellIconGrey from '../icons/BellIconGrey.svg';
 import ReloadIcon from '../icons/ReloadIcon.svg';
 import GraphIcon from '../icons/GraphIcon.svg';
 import WarningIcon from '../icons/WarningIcon.svg';
-import ErrorIcon from '../icons/ErrorIcon.svg';
 
 import PropTypes from 'prop-types';
 import {DebugAlertContainer} from './DebugAlertContainer.react';
@@ -134,8 +133,7 @@ class DebugMenu extends Component {
             errors.frontEnd.length > 0 && !opened ? (
                 <div className="dash-debug-alert-label">
                     <div className="dash-debug-alert">
-                        <ErrorIcon className="dash-debug-alert-container__icon" />
-                        {errors.frontEnd.length}
+                        ☣️&nbsp;{errors.frontEnd.length}
                     </div>
                     <div className="dash-debug-alert">
                         <WarningIcon className="dash-debug-alert-container__icon dash-debug-alert-container__icon--warning" />
