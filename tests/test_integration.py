@@ -54,7 +54,7 @@ class Tests(IntegrationTests):
 
         @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
         def update_output(value):
-            call_count.value = call_count.value + 1
+            call_count.value += 1
             return value
 
         self.startServer(app)
@@ -111,7 +111,7 @@ class Tests(IntegrationTests):
 
         @app.callback(Output('output-1', 'data-cb'), [Input('input', 'value')])
         def update_data(value):
-            input_call_count.value = input_call_count.value + 1
+            input_call_count.value += 1
             return value
 
         @app.callback(Output('output-1', 'children'),
@@ -167,13 +167,13 @@ class Tests(IntegrationTests):
 
         @app.callback(Output('output1', 'children'), [Input('input', 'value')])
         def callback1(value):
-            callback1_count.value = callback1_count.value + 1
+            callback1_count.value += 1
             raise PreventUpdate("testing callback does not update")
             return value
 
         @app.callback(Output('output2', 'children'), [Input('output1', 'children')])
         def callback2(value):
-            callback2_count.value = callback2_count.value + 1
+            callback2_count.value += 1
             return value
 
         self.startServer(app)
