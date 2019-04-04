@@ -13,7 +13,7 @@ import dash_flow_example
 import dash_html_components as html
 import dash_core_components as dcc
 
-import dash
+from dash import Dash, callback_context
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import (
@@ -34,7 +34,7 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_id = wait_for_element_by_id
 
     def test_simple_callback(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             dcc.Input(
                 id='input',
@@ -90,7 +90,7 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_wildcard_callback(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             dcc.Input(
                 id='input',
@@ -155,7 +155,7 @@ class Tests(IntegrationTests):
         initial_input = 'initial input'
         initial_output = 'initial output'
 
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             dcc.Input(id='input', value=initial_input),
             html.Div(initial_output, id='output1'),
@@ -199,7 +199,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='aborted')
 
     def test_wildcard_data_attributes(self):
-        app = dash.Dash()
+        app = Dash()
         test_time = datetime.datetime(2012, 1, 10, 2, 3)
         test_date = datetime.date(test_time.year, test_time.month,
                                   test_time.day)
@@ -257,7 +257,7 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_no_props_component(self):
-        app = dash.Dash()
+        app = Dash()
         app.layout = html.Div([
             dash_dangerously_set_inner_html.DangerouslySetInnerHTML('''
                 <h1>No Props Component</h1>
@@ -268,7 +268,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='no-props-component')
 
     def test_flow_component(self):
-        app = dash.Dash()
+        app = Dash()
 
         app.layout = html.Div([
             dash_flow_example.ExampleReactComponent(
@@ -309,7 +309,7 @@ class Tests(IntegrationTests):
             {'name': 'custom', 'content': 'customized'},
         ]
 
-        app = dash.Dash(meta_tags=metas)
+        app = Dash(meta_tags=metas)
 
         app.layout = html.Div(id='content')
 
@@ -329,7 +329,7 @@ class Tests(IntegrationTests):
             self.assertEqual(content, meta_info['content'])
 
     def test_index_customization(self):
-        app = dash.Dash()
+        app = Dash()
 
         app.index_string = '''
         <!DOCTYPE html>
@@ -384,8 +384,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot('custom-index')
 
     def test_assets(self):
-        app = dash.Dash(__name__,
-                        assets_ignore='.*ignored.*')
+        app = Dash(__name__, assets_ignore='.*ignored.*')
         app.index_string = '''
         <!DOCTYPE html>
         <html>
@@ -437,7 +436,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot('test assets includes')
 
     def test_invalid_index_string(self):
-        app = dash.Dash()
+        app = Dash()
 
         def will_raise():
             app.index_string = '''
@@ -496,9 +495,9 @@ class Tests(IntegrationTests):
             }
         ]
 
-        app = dash.Dash(__name__,
-                        external_scripts=js_files,
-                        external_stylesheets=css_files)
+        app = Dash(__name__,
+                   external_scripts=js_files,
+                   external_stylesheets=css_files)
 
         app.index_string = '''
         <!DOCTYPE html>
@@ -547,7 +546,7 @@ class Tests(IntegrationTests):
 
     def test_func_layout_accepted(self):
 
-        app = dash.Dash()
+        app = Dash()
 
         def create_layout():
             return html.Div('Hello World')
@@ -557,7 +556,7 @@ class Tests(IntegrationTests):
         time.sleep(0.5)
 
     def test_multi_output(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.scripts.config.serve_locally = True
 
         app.layout = html.Div([
@@ -658,7 +657,7 @@ class Tests(IntegrationTests):
         self.assertGreater(int(output2.text), t)
 
     def test_with_custom_renderer(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
 
         app.index_string = '''
         <!DOCTYPE html>
@@ -758,7 +757,7 @@ class Tests(IntegrationTests):
             </script>
         '''
 
-        class CustomDash(dash.Dash):
+        class CustomDash(Dash):
 
             def interpolate_index(self, **kwargs):
                 return '''
@@ -824,7 +823,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='request-hooks interpolated')
 
     def test_modified_response(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             dcc.Input(id='input', value='ab'),
             html.Div(id='output')
@@ -832,7 +831,7 @@ class Tests(IntegrationTests):
 
         @app.callback(Output('output', 'children'), [Input('input', 'value')])
         def update_output(value):
-            dash.callback_context.response.set_cookie(
+            callback_context.response.set_cookie(
                 'dash cookie', value + ' - cookie')
             return value + ' - output'
 
@@ -850,7 +849,7 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_late_component_register(self):
-        app = dash.Dash()
+        app = Dash()
 
         app.layout = html.Div([
             html.Button('Click me to put a dcc ', id='btn-insert'),
@@ -874,7 +873,7 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_css_selector('#inserted-input')
 
     def test_output_input_invalid_callback(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             html.Div('child', id='input-output'),
             html.Div(id='out')
@@ -905,7 +904,7 @@ class Tests(IntegrationTests):
         )
 
     def test_callback_return_validation(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             html.Div(id='a'),
             html.Div(id='b'),
@@ -942,7 +941,7 @@ class Tests(IntegrationTests):
             multi2('aaa')
 
     def test_callback_context(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
 
         btns = ['btn-{}'.format(x) for x in range(1, 6)]
 
@@ -956,9 +955,9 @@ class Tests(IntegrationTests):
         @app.callback(Output('output', 'children'),
                       [Input(x, 'n_clicks') for x in btns])
         def on_click(*args):
-            if not dash.callback_context.triggered:
+            if not callback_context.triggered:
                 raise PreventUpdate
-            trigger = dash.callback_context.triggered[0]
+            trigger = callback_context.triggered[0]
             return 'Just clicked {} for the {} time!'.format(
                 trigger['prop_id'].split('.')[0], trigger['value']
             )
@@ -982,4 +981,4 @@ class Tests(IntegrationTests):
     def test_no_callback_context(self):
         for attr in ['inputs', 'states', 'triggered', 'response']:
             with self.assertRaises(MissingCallbackContextException):
-                getattr(dash.callback_context, attr)
+                getattr(callback_context, attr)
