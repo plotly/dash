@@ -636,13 +636,6 @@ class Dash(object):
             } for k, v in self.callback_map.items()
         ])
 
-    # pylint: disable=unused-argument, no-self-use
-    def react(self, *args, **kwargs):
-        raise exceptions.DashException(
-            'Yo! `react` is no longer used. \n'
-            'Use `callback` instead. `callback` has a new syntax too, '
-            'so make sure to call `help(app.callback)` to learn more.')
-
     def _validate_callback(self, output, inputs, state):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
