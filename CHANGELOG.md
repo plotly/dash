@@ -1,3 +1,11 @@
+## Unreleased
+
+### Added
+
+- add `dev_tools_ui` in `<script id="_dash-config" type="application/json">`,
+  so renderer can know if it should enable the UI. [#676](https://github.com/plotly/dash/pull/676)
+
+
 ## [0.40.0] - 2019-03-25
 ### Changed
 - Bumped dash-core-components version from 0.44.0 to [0.45.0](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0450---2019-03-25)
