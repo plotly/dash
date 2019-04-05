@@ -1076,6 +1076,8 @@ class Tests(IntegrationTests):
 
         self.startServer(app=app)
 
+        self.wait_for_element_by_css_selector('#tabs-content')
+
         self.snapshot('Tabs component with children undefined')
 
     def test_tabs_render_without_selected(self):

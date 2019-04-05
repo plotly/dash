@@ -67,8 +67,8 @@ export default class DatePickerSingle extends Component {
 
     onDateChange(date) {
         const {setProps} = this.props;
-        if (setProps && date !== null) {
-            setProps({date: date.format('YYYY-MM-DD')});
+        if (setProps) {
+            setProps({date: date ? date.format('YYYY-MM-DD') : null});
         } else {
             this.setState({date});
         }
