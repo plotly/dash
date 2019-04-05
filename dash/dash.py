@@ -74,6 +74,15 @@ _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 _re_renderer_scripts_id = re.compile(r'id="_dash-renderer')
 
 
+class _NoUpdate(object):
+    # pylint: disable=too-few-public-methods
+    pass
+
+
+# Singleton signal to not update an output, alternative to PreventUpdate
+no_update = _NoUpdate()
+
+
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
@@ -990,15 +999,25 @@ class Dash(object):
                         )
 
                     component_ids = collections.defaultdict(dict)
+                    has_update = False
                     for i, o in enumerate(output):
-                        component_ids[o.component_id][o.component_property] =\
-                            output_value[i]
+                        val = output_value[i]
+                        if val is not no_update:
+                            has_update = True
+                            o_id, o_prop = o.component_id, o.component_property
+                            component_ids[o_id][o_prop] = val
+
+                    if not has_update:
+                        raise exceptions.PreventUpdate
 
                     response = {
                         'response': component_ids,
                         'multi': True
                     }
                 else:
+                    if output_value is no_update:
+                        raise exceptions.PreventUpdate
+
                     response = {
                         'response': {
                             'props': {

@@ -13,7 +13,7 @@ import dash_flow_example
 import dash_html_components as html
 import dash_core_components as dcc
 
-from dash import Dash, callback_context
+from dash import Dash, callback_context, no_update
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import (
@@ -150,7 +150,10 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_aborted_callback(self):
-        """Raising PreventUpdate prevents update and triggering dependencies"""
+        """
+        Raising PreventUpdate OR returning no_update
+        prevents update and triggering dependencies
+        """
 
         initial_input = 'initial input'
         initial_output = 'initial output'
@@ -168,6 +171,8 @@ class Tests(IntegrationTests):
         @app.callback(Output('output1', 'children'), [Input('input', 'value')])
         def callback1(value):
             callback1_count.value += 1
+            if callback1_count.value > 2:
+                return no_update
             raise PreventUpdate("testing callback does not update")
             return value
 
@@ -180,12 +185,12 @@ class Tests(IntegrationTests):
 
         input_ = self.wait_for_element_by_id('input')
         input_.clear()
-        input_.send_keys('x')
+        input_.send_keys('xyz')
         output1 = self.wait_for_element_by_id('output1')
         output2 = self.wait_for_element_by_id('output2')
 
-        # callback1 runs twice (initial page load and through send_keys)
-        self.assertEqual(callback1_count.value, 2)
+        # callback1 runs 4x (initial page load and 3x through send_keys)
+        self.assertEqual(callback1_count.value, 4)
 
         # callback2 is never triggered, even on initial load
         self.assertEqual(callback2_count.value, 0)
@@ -655,6 +660,39 @@ class Tests(IntegrationTests):
         output2 = self.wait_for_element_by_css_selector('#output2')
 
         self.assertGreater(int(output2.text), t)
+
+    def test_multi_output_no_update(self):
+        app = Dash(__name__)
+        app.scripts.config.serve_locally = True
+
+        app.layout = html.Div([
+            html.Button('B', 'btn'),
+            html.P('initial1', 'n1'),
+            html.P('initial2', 'n2'),
+            html.P('initial3', 'n3')
+        ])
+
+        @app.callback([Output('n1', 'children'),
+                       Output('n2', 'children'),
+                       Output('n3', 'children')],
+                      [Input('btn', 'n_clicks')])
+        def show_clicks(n):
+            # partial or complete cancelation of updates via no_update
+            return [
+                no_update if n > 4 else n,
+                no_update if n > 2 else n,
+                no_update
+            ]
+
+        self.startServer(app)
+
+        btn = self.wait_for_element_by_id('btn')
+        for _ in range(10):
+            btn.click()
+
+        self.wait_for_text_to_equal('#n1', '4')
+        self.wait_for_text_to_equal('#n2', '2')
+        self.wait_for_text_to_equal('#n3', 'initial3')
 
     def test_with_custom_renderer(self):
         app = Dash(__name__)
