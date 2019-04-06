@@ -3,6 +3,10 @@ if (!window.dash_clientside) {
 }
 window.dash_clientside.clientside = {
 
+    add: function(a, b) {
+        return window.R.add(a, b);
+    },
+
     display: function (value) {
         return 'Client says "' + value + '"';
     },
