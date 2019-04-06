@@ -3,5 +3,5 @@ export const OAUTH_COOKIE_NAME = 'plotly_oauth_token';
 
 export const STATUS = {
     OK: 200,
-    CLIENTSIDE_ERROR: 'CLIENTSIDE_ERROR'
+    CLIENTSIDE_ERROR: 'CLIENTSIDE_ERROR',
 };
