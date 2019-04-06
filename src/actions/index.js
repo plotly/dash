@@ -523,12 +523,11 @@ function updateOutput(
 
             /*
              * Update the request queue by treating an unsuccessful clientside
-             * like a failed serverside response (500 status code)
+             * like a failed serverside response via same request queue
+             * mechanism
              */
 
-            /* eslint-disable no-magic-numbers */
-            updateRequestQueue(true, 500);
-            /* eslint-enable no-magic-numbers */
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
             return;
         }
 
