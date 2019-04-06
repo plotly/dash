@@ -75,7 +75,7 @@ export function parseMultipleOutputs(outputIdAndProp) {
      * by `...`, e.g.
      * "..output-1.value...output-2.value...output-3.value...output-4.value.."
      */
-    return outputIdAndProp.output
+    return outputIdAndProp
         .split('...')
         .map(o => o.replace('..', ''));
 }

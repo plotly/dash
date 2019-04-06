@@ -585,7 +585,7 @@ function updateOutput(
              * by `...`, e.g.
              * "..output-1.value...output-2.value...output-3.value...output-4.value.."
              */
-            parseMultiOutputs(payload.output).forEach((outputPropId, i) => {
+            parseMultipleOutputs(payload.output).forEach((outputPropId, i) => {
                 updateClientsideOutput(outputPropId, returnValue[i]);
             });
         } else {
