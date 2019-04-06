@@ -22,6 +22,19 @@ window.clientside = {
             parseInt(value) + 3,
             parseInt(value) + 4
         ]
+    },
+
+    side_effect_and_return_a_promise: function(value) {
+        return new Promise(function(resolve, reject) {
+            setTimeout(function() {
+                setTimeout(function() {
+                    document.getElementById('#side-effect').innerText = (
+                        'side effect'
+                    );
+                }, 100);
+                resolve('foo');
+            }, 1);
+        });
     }
 
 }

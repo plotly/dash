@@ -535,7 +535,18 @@ function updateOutput(
             return;
         }
 
-        function updateOutput(outputIdAndProp, outputValue) {
+        // Returning promises isn't support atm
+        if (type(returnValue.then) === 'Promise') {
+            throw new Error(
+                'The clientside function ' +
+                `${clientside_function.namespace}.${clientside_function.function_name} ` +
+                'returned a Promise instead of a value. Promises are not ' +
+                'supported in Dash clientside right now, but may be in the ' +
+                'future.'
+            );
+        }
+
+        function updateClientsideOutput(outputIdAndProp, outputValue) {
             const [outputId, outputProp] = outputIdAndProp.split('.');
             const updatedProps = {
                 [outputProp]: outputValue,
@@ -579,10 +590,10 @@ function updateOutput(
                 .split('...')
                 .map(o => o.replace('..', ''));
             for (let i = 0; i < outputPropIds.length; i++) {
-                updateOutput(outputPropIds[i], returnValue[i]);
+                updateClientsideOutput(outputPropIds[i], returnValue[i]);
             }
         } else {
-            updateOutput(payload.output, returnValue);
+            updateClientsideOutput(payload.output, returnValue);
         }
 
         /*
