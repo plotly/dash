@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {isEmpty} from 'ramda';
-import {FrontEndError} from './FrontEnd/FrontEndError.react';
+// import {FrontEndError} from './FrontEnd/FrontEndError.react';
 import './GlobalErrorOverlay.css';
 import {FrontEndErrorContainer} from './FrontEnd/FrontEndErrorContainer.react';
 
@@ -12,7 +12,7 @@ export default class GlobalErrorOverlay extends Component {
 
     render() {
         const {resolve, visible, error, toastsEnabled} = this.props;
-        let backEndErrors;
+        // let backEndErrors;
         let frontEndErrors;
         if (toastsEnabled) {
             let errors = [];
@@ -55,5 +55,5 @@ GlobalErrorOverlay.propTypes = {
     resolve: PropTypes.func,
     visible: PropTypes.bool,
     error: PropTypes.object,
-    toastsEnabled: PropTypes.boolean,
+    toastsEnabled: PropTypes.any,
 };

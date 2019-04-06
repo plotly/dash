@@ -44,11 +44,11 @@ class FrontEndErrorContainer extends Component {
 FrontEndErrorContainer.propTypes = {
     errors: PropTypes.array,
     resolve: PropTypes.func,
-    inAlertsTray: PropTypes.bool,
+    inAlertsTray: PropTypes.any,
 };
 
 FrontEndErrorContainer.propTypes = {
-    inAlertsTray: false,
+    inAlertsTray: PropTypes.any,
 };
 
 export {FrontEndErrorContainer};

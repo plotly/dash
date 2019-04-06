@@ -167,8 +167,8 @@ class DebugMenu extends Component {
 DebugMenu.propTypes = {
     children: PropTypes.object,
     errors: PropTypes.object,
-    resolveError: PropTypes.function,
-    dispatch: PropTypes.function,
+    resolveError: PropTypes.any,
+    dispatch: PropTypes.any,
 };
 
 export {DebugMenu};

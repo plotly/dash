@@ -68,23 +68,47 @@ class TreeContainer extends Component {
         }
         const component = Registry.resolve(_dashprivate_layout.type, _dashprivate_layout.namespace);
 
-        const getCheckedElement = (component) => {return class extends React.Component {
-            componentDidMount() {
-                assertPropTypes(component.propTypes, _dashprivate_layout.props, 'component prop', component);
+        const getCheckedElement = (component) => {
+            return class CheckedComponent extends React.Component {
+                componentDidMount() {
+                    assertPropTypes(
+                        component.propTypes,
+                        _dashprivate_layout.props,
+                        'component prop', component
+                    );
+                }
+                render() {
+                    return React.createElement(
+                        component,
+                        mergeAll([
+                            omit(['children'], _dashprivate_layout.props),
+                            { loading_state, setProps }
+                        ]),
+                        children
+                    );
+                }
             }
-            render() {
-                return React.createElement(
-                    component,
-                    mergeAll([
-                        omit(['children'], _dashprivate_layout.props),
-                        { loading_state, setProps }
-                    ]),
-                    ...(Array.isArray(children) ? children : [children])
-                )
-            }
-        };};
-        return React.createElement(getCheckedElement(component));
+        };
 
+        if (Array.isArray(children)) {
+            return React.createElement(
+                component,
+                mergeAll([
+                    omit(['children'], _dashprivate_layout.props),
+                    { loading_state, setProps }
+                ]),
+                ...children
+            );
+        }
+        const checkedElement = React.createElement(getCheckedElement(component));
+        return (
+            <ComponentErrorBoundary
+                componentType={_dashprivate_layout.type}
+                componentId={_dashprivate_layout.props.id}
+            >
+                {checkedElement}
+            </ComponentErrorBoundary>
+        );
     }
 
     getSetProps() {
@@ -147,15 +171,8 @@ class TreeContainer extends Component {
         const children = this.getChildren(layoutProps.children);
         const setProps = this.getSetProps(_dashprivate_dispatch);
 
-        return (
-            <ComponentErrorBoundary
-                componentType={_dashprivate_layout.type}
-                componentId={_dashprivate_layout.props.id}
-            >
-                {this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps)}
-            </ComponentErrorBoundary>
-        );
-    }
+        return this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps);
+    };
 }
 
 TreeContainer.propTypes = {
@@ -164,7 +181,7 @@ TreeContainer.propTypes = {
     _dashprivate_layout: PropTypes.object,
     _dashprivate_loadingState: PropTypes.object,
     _dashprivate_paths: PropTypes.any,
-    _dashprivate_requestQueue: PropTypes.object,
+    _dashprivate_requestQueue: PropTypes.any,
 };
 
 function mapDispatchToProps(dispatch) {

@@ -57,6 +57,7 @@
     "babel-plugin-transform-es2015-modules-commonjs-simple": "^6.7.4",
     "babel-preset-es2015-webpack": "^6.4.1",
     "babel-preset-stage-2": "^6.24.1",
+    "check-prop-types": "^1.1.2",
     "css-loader": "^1.0.0",
     "eslint": "^5.15.3",
     "eslint-config-airbnb": "^17.1.0",
