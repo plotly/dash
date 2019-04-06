@@ -501,7 +501,9 @@ function updateOutput(
     }
 
     // Clientside hook
-    if (!isNil(clientside_function) && !isEmpty(clientside_function)) {
+    if (clientside_function &&
+        // allow the API to skip clientside if provided {} or nothing at all
+        !isEmpty(clientside_function)) {
         let returnValue;
         try {
             returnValue = window.dash_clientside[clientside_function.namespace][
