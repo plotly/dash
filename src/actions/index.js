@@ -13,7 +13,6 @@ import {
     has,
     intersection,
     isEmpty,
-    isNil,
     keys,
     lensPath,
     merge,
@@ -537,6 +536,7 @@ function updateOutput(
 
         // Returning promises isn't support atm
         if (type(returnValue) === 'Promise') {
+            /* eslint-disable no-console */
             console.error(
                 'The clientside function ' +
                     `${clientside_function.namespace}.${
@@ -546,6 +546,7 @@ function updateOutput(
                     'supported in Dash clientside right now, but may be in the ' +
                     'future.'
             );
+            /* eslint-enable no-console */
             updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
             return;
         }
