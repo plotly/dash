@@ -523,7 +523,7 @@ function updateOutput(
             /* eslint-enable no-console */
 
             /*
-             * Update the request queue by treating a successful clientside
+             * Update the request queue by treating an unsuccessful clientside
              * like a failed serverside response (500 status code)
              */
 
