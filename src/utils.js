@@ -57,7 +57,7 @@ export function uid() {
     );
 }
 
-function isMultiOutputProp(outputIdAndProp) {
+export function isMultiOutputProp(outputIdAndProp) {
     /*
      * If this update is for multiple outputs, then it has
      * starting & trailing `..` and each propId pair is separated
@@ -68,7 +68,7 @@ function isMultiOutputProp(outputIdAndProp) {
     return payload.output.startsWith('..');
 }
 
-function parseMultipleOutputs(outputIdAndProp) {
+export function parseMultipleOutputs(outputIdAndProp) {
     /*
      * If this update is for multiple outputs, then it has
      * starting & trailing `..` and each propId pair is separated
