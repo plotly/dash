@@ -9719,12 +9719,15 @@ function isError(action) {
  * Copyright 2015, Yahoo! Inc.
  * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
  */
+var ReactIs = __webpack_require__(/*! react-is */ "./node_modules/react-is/index.js");
 var REACT_STATICS = {
     childContextTypes: true,
+    contextType: true,
     contextTypes: true,
     defaultProps: true,
     displayName: true,
     getDefaultProps: true,
+    getDerivedStateFromError: true,
     getDerivedStateFromProps: true,
     mixins: true,
     propTypes: true,
@@ -9741,15 +9744,43 @@ var KNOWN_STATICS = {
     arity: true
 };
 
+var FORWARD_REF_STATICS = {
+    '$$typeof': true,
+    render: true,
+    defaultProps: true,
+    displayName: true,
+    propTypes: true
+};
+
+var MEMO_STATICS = {
+    '$$typeof': true,
+    compare: true,
+    defaultProps: true,
+    displayName: true,
+    propTypes: true,
+    type: true
+};
+
+var TYPE_STATICS = {};
+TYPE_STATICS[ReactIs.ForwardRef] = FORWARD_REF_STATICS;
+
+function getStatics(component) {
+    if (ReactIs.isMemo(component)) {
+        return MEMO_STATICS;
+    }
+    return TYPE_STATICS[component['$$typeof']] || REACT_STATICS;
+}
+
 var defineProperty = Object.defineProperty;
 var getOwnPropertyNames = Object.getOwnPropertyNames;
 var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 var getPrototypeOf = Object.getPrototypeOf;
-var objectPrototype = getPrototypeOf && getPrototypeOf(Object);
+var objectPrototype = Object.prototype;
 
 function hoistNonReactStatics(targetComponent, sourceComponent, blacklist) {
-    if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
+    if (typeof sourceComponent !== 'string') {
+        // don't hoist over string (html) components
 
         if (objectPrototype) {
             var inheritedComponent = getPrototypeOf(sourceComponent);
@@ -9764,11 +9795,15 @@ function hoistNonReactStatics(targetComponent, sourceComponent, blacklist) {
             keys = keys.concat(getOwnPropertySymbols(sourceComponent));
         }
 
+        var targetStatics = getStatics(targetComponent);
+        var sourceStatics = getStatics(sourceComponent);
+
         for (var i = 0; i < keys.length; ++i) {
             var key = keys[i];
-            if (!REACT_STATICS[key] && !KNOWN_STATICS[key] && (!blacklist || !blacklist[key])) {
+            if (!KNOWN_STATICS[key] && !(blacklist && blacklist[key]) && !(sourceStatics && sourceStatics[key]) && !(targetStatics && targetStatics[key])) {
                 var descriptor = getOwnPropertyDescriptor(sourceComponent, key);
-                try { // Avoid failures from read-only properties
+                try {
+                    // Avoid failures from read-only properties
                     defineProperty(targetComponent, key, descriptor);
                 } catch (e) {}
             }
@@ -13124,6 +13159,7 @@ var printWarning = function() {};
 if (true) {
   var ReactPropTypesSecret = __webpack_require__(/*! ./lib/ReactPropTypesSecret */ "./node_modules/prop-types/lib/ReactPropTypesSecret.js");
   var loggedTypeFailures = {};
+  var has = Function.call.bind(Object.prototype.hasOwnProperty);
 
   printWarning = function(text) {
     var message = 'Warning: ' + text;
@@ -13153,7 +13189,7 @@ if (true) {
 function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
   if (true) {
     for (var typeSpecName in typeSpecs) {
-      if (typeSpecs.hasOwnProperty(typeSpecName)) {
+      if (has(typeSpecs, typeSpecName)) {
         var error;
         // Prop type validation may throw. In case they do, we don't want to
         // fail the render phase where it didn't fail before. So we log it.
@@ -13181,8 +13217,7 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
             'You may have forgotten to pass an argument to the type checker ' +
             'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' +
             'shape all require an argument).'
-          )
-
+          );
         }
         if (error instanceof Error && !(error.message in loggedTypeFailures)) {
           // Only monitor this failure once because there tends to be a lot of the
@@ -13197,6 +13232,17 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
         }
       }
     }
+  }
+}
+
+/**
+ * Resets warning cache when testing.
+ *
+ * @private
+ */
+checkPropTypes.resetWarningCache = function() {
+  if (true) {
+    loggedTypeFailures = {};
   }
 }
 
@@ -13222,11 +13268,13 @@ module.exports = checkPropTypes;
 
 
 
+var ReactIs = __webpack_require__(/*! react-is */ "./node_modules/react-is/index.js");
 var assign = __webpack_require__(/*! object-assign */ "./node_modules/object-assign/index.js");
 
 var ReactPropTypesSecret = __webpack_require__(/*! ./lib/ReactPropTypesSecret */ "./node_modules/prop-types/lib/ReactPropTypesSecret.js");
 var checkPropTypes = __webpack_require__(/*! ./checkPropTypes */ "./node_modules/prop-types/checkPropTypes.js");
 
+var has = Function.call.bind(Object.prototype.hasOwnProperty);
 var printWarning = function() {};
 
 if (true) {
@@ -13337,6 +13385,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
     any: createAnyTypeChecker(),
     arrayOf: createArrayOfTypeChecker,
     element: createElementTypeChecker(),
+    elementType: createElementTypeTypeChecker(),
     instanceOf: createInstanceTypeChecker,
     node: createNodeChecker(),
     objectOf: createObjectOfTypeChecker,
@@ -13490,6 +13539,18 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
     return createChainableTypeChecker(validate);
   }
 
+  function createElementTypeTypeChecker() {
+    function validate(props, propName, componentName, location, propFullName) {
+      var propValue = props[propName];
+      if (!ReactIs.isValidElementType(propValue)) {
+        var propType = getPropType(propValue);
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected a single ReactElement type.'));
+      }
+      return null;
+    }
+    return createChainableTypeChecker(validate);
+  }
+
   function createInstanceTypeChecker(expectedClass) {
     function validate(props, propName, componentName, location, propFullName) {
       if (!(props[propName] instanceof expectedClass)) {
@@ -13504,7 +13565,16 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 
   function createEnumTypeChecker(expectedValues) {
     if (!Array.isArray(expectedValues)) {
-       true ? printWarning('Invalid argument supplied to oneOf, expected an instance of array.') : undefined;
+      if (true) {
+        if (arguments.length > 1) {
+          printWarning(
+            'Invalid arguments supplied to oneOf, expected an array, got ' + arguments.length + ' arguments. ' +
+            'A common mistake is to write oneOf(x, y, z) instead of oneOf([x, y, z]).'
+          );
+        } else {
+          printWarning('Invalid argument supplied to oneOf, expected an array.');
+        }
+      }
       return emptyFunctionThatReturnsNull;
     }
 
@@ -13516,8 +13586,14 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
         }
       }
 
-      var valuesString = JSON.stringify(expectedValues);
-      return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of value `' + propValue + '` ' + ('supplied to `' + componentName + '`, expected one of ' + valuesString + '.'));
+      var valuesString = JSON.stringify(expectedValues, function replacer(key, value) {
+        var type = getPreciseType(value);
+        if (type === 'symbol') {
+          return String(value);
+        }
+        return value;
+      });
+      return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of value `' + String(propValue) + '` ' + ('supplied to `' + componentName + '`, expected one of ' + valuesString + '.'));
     }
     return createChainableTypeChecker(validate);
   }
@@ -13533,7 +13609,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
         return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected an object.'));
       }
       for (var key in propValue) {
-        if (propValue.hasOwnProperty(key)) {
+        if (has(propValue, key)) {
           var error = typeChecker(propValue, key, componentName, location, propFullName + '.' + key, ReactPropTypesSecret);
           if (error instanceof Error) {
             return error;
@@ -13690,6 +13766,11 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
       return true;
     }
 
+    // falsy value can't be a Symbol
+    if (!propValue) {
+      return false;
+    }
+
     // 19.4.3.5 Symbol.prototype[@@toStringTag] === 'Symbol'
     if (propValue['@@toStringTag'] === 'Symbol') {
       return true;
@@ -13764,6 +13845,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
   }
 
   ReactPropTypes.checkPropTypes = checkPropTypes;
+  ReactPropTypes.resetWarningCache = checkPropTypes.resetWarningCache;
   ReactPropTypes.PropTypes = ReactPropTypes;
 
   return ReactPropTypes;
@@ -13787,21 +13869,12 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
  */
 
 if (true) {
-  var REACT_ELEMENT_TYPE = (typeof Symbol === 'function' &&
-    Symbol.for &&
-    Symbol.for('react.element')) ||
-    0xeac7;
-
-  var isValidElement = function(object) {
-    return typeof object === 'object' &&
-      object !== null &&
-      object.$$typeof === REACT_ELEMENT_TYPE;
-  };
+  var ReactIs = __webpack_require__(/*! react-is */ "./node_modules/react-is/index.js");
 
   // By explicitly using `prop-types` you are opting into new development behavior.
   // http://fb.me/prop-types-in-prod
   var throwOnDirectAccess = true;
-  module.exports = __webpack_require__(/*! ./factoryWithTypeCheckers */ "./node_modules/prop-types/factoryWithTypeCheckers.js")(isValidElement, throwOnDirectAccess);
+  module.exports = __webpack_require__(/*! ./factoryWithTypeCheckers */ "./node_modules/prop-types/factoryWithTypeCheckers.js")(ReactIs.isElement, throwOnDirectAccess);
 } else {}
 
 
@@ -30114,6 +30187,262 @@ module.exports = _curry3(function zipWith(fn, a, b) {
 
 /***/ }),
 
+/***/ "./node_modules/react-is/cjs/react-is.development.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/react-is/cjs/react-is.development.js ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/** @license React v16.8.4
+ * react-is.development.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+
+
+
+if (true) {
+  (function() {
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+// The Symbol used to tag the ReactElement-like types. If there is no native Symbol
+// nor polyfill, then a plain number is used for performance.
+var hasSymbol = typeof Symbol === 'function' && Symbol.for;
+
+var REACT_ELEMENT_TYPE = hasSymbol ? Symbol.for('react.element') : 0xeac7;
+var REACT_PORTAL_TYPE = hasSymbol ? Symbol.for('react.portal') : 0xeaca;
+var REACT_FRAGMENT_TYPE = hasSymbol ? Symbol.for('react.fragment') : 0xeacb;
+var REACT_STRICT_MODE_TYPE = hasSymbol ? Symbol.for('react.strict_mode') : 0xeacc;
+var REACT_PROFILER_TYPE = hasSymbol ? Symbol.for('react.profiler') : 0xead2;
+var REACT_PROVIDER_TYPE = hasSymbol ? Symbol.for('react.provider') : 0xeacd;
+var REACT_CONTEXT_TYPE = hasSymbol ? Symbol.for('react.context') : 0xeace;
+var REACT_ASYNC_MODE_TYPE = hasSymbol ? Symbol.for('react.async_mode') : 0xeacf;
+var REACT_CONCURRENT_MODE_TYPE = hasSymbol ? Symbol.for('react.concurrent_mode') : 0xeacf;
+var REACT_FORWARD_REF_TYPE = hasSymbol ? Symbol.for('react.forward_ref') : 0xead0;
+var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
+var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
+var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
+
+function isValidElementType(type) {
+  return typeof type === 'string' || typeof type === 'function' ||
+  // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
+  type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE);
+}
+
+/**
+ * Forked from fbjs/warning:
+ * https://github.com/facebook/fbjs/blob/e66ba20ad5be433eb54423f2b097d829324d9de6/packages/fbjs/src/__forks__/warning.js
+ *
+ * Only change is we use console.warn instead of console.error,
+ * and do nothing when 'console' is not supported.
+ * This really simplifies the code.
+ * ---
+ * Similar to invariant but only logs a warning if the condition is not met.
+ * This can be used to log issues in development environments in critical
+ * paths. Removing the logging code for production environments will keep the
+ * same logic and follow the same code paths.
+ */
+
+var lowPriorityWarning = function () {};
+
+{
+  var printWarning = function (format) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    var argIndex = 0;
+    var message = 'Warning: ' + format.replace(/%s/g, function () {
+      return args[argIndex++];
+    });
+    if (typeof console !== 'undefined') {
+      console.warn(message);
+    }
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  };
+
+  lowPriorityWarning = function (condition, format) {
+    if (format === undefined) {
+      throw new Error('`lowPriorityWarning(condition, format, ...args)` requires a warning ' + 'message argument');
+    }
+    if (!condition) {
+      for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+        args[_key2 - 2] = arguments[_key2];
+      }
+
+      printWarning.apply(undefined, [format].concat(args));
+    }
+  };
+}
+
+var lowPriorityWarning$1 = lowPriorityWarning;
+
+function typeOf(object) {
+  if (typeof object === 'object' && object !== null) {
+    var $$typeof = object.$$typeof;
+    switch ($$typeof) {
+      case REACT_ELEMENT_TYPE:
+        var type = object.type;
+
+        switch (type) {
+          case REACT_ASYNC_MODE_TYPE:
+          case REACT_CONCURRENT_MODE_TYPE:
+          case REACT_FRAGMENT_TYPE:
+          case REACT_PROFILER_TYPE:
+          case REACT_STRICT_MODE_TYPE:
+          case REACT_SUSPENSE_TYPE:
+            return type;
+          default:
+            var $$typeofType = type && type.$$typeof;
+
+            switch ($$typeofType) {
+              case REACT_CONTEXT_TYPE:
+              case REACT_FORWARD_REF_TYPE:
+              case REACT_PROVIDER_TYPE:
+                return $$typeofType;
+              default:
+                return $$typeof;
+            }
+        }
+      case REACT_LAZY_TYPE:
+      case REACT_MEMO_TYPE:
+      case REACT_PORTAL_TYPE:
+        return $$typeof;
+    }
+  }
+
+  return undefined;
+}
+
+// AsyncMode is deprecated along with isAsyncMode
+var AsyncMode = REACT_ASYNC_MODE_TYPE;
+var ConcurrentMode = REACT_CONCURRENT_MODE_TYPE;
+var ContextConsumer = REACT_CONTEXT_TYPE;
+var ContextProvider = REACT_PROVIDER_TYPE;
+var Element = REACT_ELEMENT_TYPE;
+var ForwardRef = REACT_FORWARD_REF_TYPE;
+var Fragment = REACT_FRAGMENT_TYPE;
+var Lazy = REACT_LAZY_TYPE;
+var Memo = REACT_MEMO_TYPE;
+var Portal = REACT_PORTAL_TYPE;
+var Profiler = REACT_PROFILER_TYPE;
+var StrictMode = REACT_STRICT_MODE_TYPE;
+var Suspense = REACT_SUSPENSE_TYPE;
+
+var hasWarnedAboutDeprecatedIsAsyncMode = false;
+
+// AsyncMode should be deprecated
+function isAsyncMode(object) {
+  {
+    if (!hasWarnedAboutDeprecatedIsAsyncMode) {
+      hasWarnedAboutDeprecatedIsAsyncMode = true;
+      lowPriorityWarning$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
+    }
+  }
+  return isConcurrentMode(object) || typeOf(object) === REACT_ASYNC_MODE_TYPE;
+}
+function isConcurrentMode(object) {
+  return typeOf(object) === REACT_CONCURRENT_MODE_TYPE;
+}
+function isContextConsumer(object) {
+  return typeOf(object) === REACT_CONTEXT_TYPE;
+}
+function isContextProvider(object) {
+  return typeOf(object) === REACT_PROVIDER_TYPE;
+}
+function isElement(object) {
+  return typeof object === 'object' && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
+}
+function isForwardRef(object) {
+  return typeOf(object) === REACT_FORWARD_REF_TYPE;
+}
+function isFragment(object) {
+  return typeOf(object) === REACT_FRAGMENT_TYPE;
+}
+function isLazy(object) {
+  return typeOf(object) === REACT_LAZY_TYPE;
+}
+function isMemo(object) {
+  return typeOf(object) === REACT_MEMO_TYPE;
+}
+function isPortal(object) {
+  return typeOf(object) === REACT_PORTAL_TYPE;
+}
+function isProfiler(object) {
+  return typeOf(object) === REACT_PROFILER_TYPE;
+}
+function isStrictMode(object) {
+  return typeOf(object) === REACT_STRICT_MODE_TYPE;
+}
+function isSuspense(object) {
+  return typeOf(object) === REACT_SUSPENSE_TYPE;
+}
+
+exports.typeOf = typeOf;
+exports.AsyncMode = AsyncMode;
+exports.ConcurrentMode = ConcurrentMode;
+exports.ContextConsumer = ContextConsumer;
+exports.ContextProvider = ContextProvider;
+exports.Element = Element;
+exports.ForwardRef = ForwardRef;
+exports.Fragment = Fragment;
+exports.Lazy = Lazy;
+exports.Memo = Memo;
+exports.Portal = Portal;
+exports.Profiler = Profiler;
+exports.StrictMode = StrictMode;
+exports.Suspense = Suspense;
+exports.isValidElementType = isValidElementType;
+exports.isAsyncMode = isAsyncMode;
+exports.isConcurrentMode = isConcurrentMode;
+exports.isContextConsumer = isContextConsumer;
+exports.isContextProvider = isContextProvider;
+exports.isElement = isElement;
+exports.isForwardRef = isForwardRef;
+exports.isFragment = isFragment;
+exports.isLazy = isLazy;
+exports.isMemo = isMemo;
+exports.isPortal = isPortal;
+exports.isProfiler = isProfiler;
+exports.isStrictMode = isStrictMode;
+exports.isSuspense = isSuspense;
+  })();
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/react-is/index.js":
+/*!****************************************!*\
+  !*** ./node_modules/react-is/index.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+if (false) {} else {
+  module.exports = __webpack_require__(/*! ./cjs/react-is.development.js */ "./node_modules/react-is/cjs/react-is.development.js");
+}
+
+
+/***/ }),
+
 /***/ "./node_modules/react-redux/lib/components/Provider.js":
 /*!*************************************************************!*\
   !*** ./node_modules/react-redux/lib/components/Provider.js ***!
@@ -34157,8 +34486,8 @@ function notifyObservers(payload) {
         var queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
             var outputIds = void 0;
-            if (outputIdAndProp.startsWith('..')) {
-                outputIds = outputIdAndProp.slice(2, outputIdAndProp.length - 2).split('...').map(function (e) {
+            if ((0, _utils2.isMultiOutputProp)(outputIdAndProp)) {
+                outputIds = (0, _utils2.parseMultipleOutputs)(outputIdAndProp).map(function (e) {
                     return e.split('.')[0];
                 });
             } else {
@@ -34260,7 +34589,7 @@ function notifyObservers(payload) {
 
         /* eslint-disable consistent-return */
         return Promise.all(promises);
-        /* eslint-enableconsistent-return */
+        /* eslint-enable consistent-return */
     };
 }
 
@@ -34328,7 +34657,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
     }),
         inputs = _dependenciesRequest$.inputs,
         state = _dependenciesRequest$.state,
-        client_function = _dependenciesRequest$.client_function;
+        clientside_function = _dependenciesRequest$.clientside_function;
 
     var validKeys = (0, _ramda.keys)(getState().paths);
 
@@ -34369,39 +34698,77 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
     }
 
     // Clientside hook
-    if (!(0, _ramda.isNil)(client_function) && !(0, _ramda.isEmpty)(client_function)) {
-        var _window$client_functi;
+    if (clientside_function &&
+    // allow the API to skip clientside if provided {} or nothing at all
+    !(0, _ramda.isEmpty)(clientside_function)) {
+        var updateClientsideOutput = function updateClientsideOutput(outputIdAndProp, outputValue) {
+            var _outputIdAndProp$spli3 = outputIdAndProp.split('.'),
+                _outputIdAndProp$spli4 = _slicedToArray(_outputIdAndProp$spli3, 2),
+                outputId = _outputIdAndProp$spli4[0],
+                outputProp = _outputIdAndProp$spli4[1];
 
-        var returnValue = (_window$client_functi = window[client_function.namespace])[client_function.function_name].apply(_window$client_functi, _toConsumableArray((0, _ramda.has)('inputs', payload) ? (0, _ramda.pluck)('value', payload.inputs) : []).concat(_toConsumableArray((0, _ramda.has)('state', payload) ? (0, _ramda.pluck)('value', payload.state) : [])));
+            var updatedProps = _defineProperty({}, outputProp, outputValue);
 
-        var _payload$output$split = payload.output.split('.'),
-            _payload$output$split2 = _slicedToArray(_payload$output$split, 2),
-            outputId = _payload$output$split2[0],
-            outputProp = _payload$output$split2[1];
+            /*
+             * Update the request queue by treating a successful clientside
+             * like a succesful serverside response (200 status code)
+             */
+            updateRequestQueue(false, _constants3.STATUS.OK);
 
-        var updatedProps = _defineProperty({}, outputProp, returnValue);
+            // Update the layout with the new result
+            dispatch(updateProps({
+                itempath: getState().paths[outputId],
+                props: updatedProps,
+                source: 'response'
+            }));
 
-        /*
-         * Update the request queue by treating a successful clientside
-         * like a succesful serverside response (200 status code)
-         */
-        updateRequestQueue(false, _constants3.STATUS.OK);
+            /*
+             * This output could itself be a serverside or clientside input
+             * to another function
+             */
+            dispatch(notifyObservers({
+                id: outputId,
+                props: updatedProps
+            }));
+        };
 
-        // Update the layout with the new result
-        dispatch(updateProps({
-            itempath: getState().paths[outputId],
-            props: updatedProps,
-            source: 'response'
-        }));
+        var returnValue = void 0;
+        try {
+            var _window$dash_clientsi;
 
-        /*
-         * This output could itself be a serverside or clientside input
-         * to another function
-         */
-        dispatch(notifyObservers({
-            id: outputId,
-            props: updatedProps
-        }));
+            returnValue = (_window$dash_clientsi = window.dash_clientside[clientside_function.namespace])[clientside_function.function_name].apply(_window$dash_clientsi, _toConsumableArray((0, _ramda.pluck)('value', payload.inputs)).concat(_toConsumableArray((0, _ramda.has)('state', payload) ? (0, _ramda.pluck)('value', payload.state) : [])));
+        } catch (e) {
+            /* eslint-disable no-console */
+            console.error('The following error occurred while executing ' + clientside_function.namespace + '.' + clientside_function.function_name + ' ' + ('in order to update component "' + payload.output + '" \u22C1\u22C1\u22C1'));
+            console.error(e);
+            /* eslint-enable no-console */
+
+            /*
+             * Update the request queue by treating an unsuccessful clientside
+             * like a failed serverside response via same request queue
+             * mechanism
+             */
+
+            updateRequestQueue(true, _constants3.STATUS.CLIENTSIDE_ERROR);
+            return;
+        }
+
+        // Returning promises isn't support atm
+        if ((0, _ramda.type)(returnValue) === 'Promise') {
+            /* eslint-disable no-console */
+            console.error('The clientside function ' + (clientside_function.namespace + '.' + clientside_function.function_name + ' ') + 'returned a Promise instead of a value. Promises are not ' + 'supported in Dash clientside right now, but may be in the ' + 'future.');
+            /* eslint-enable no-console */
+            updateRequestQueue(true, _constants3.STATUS.CLIENTSIDE_ERROR);
+            return;
+        }
+
+        if ((0, _utils2.isMultiOutputProp)(payload.output)) {
+            (0, _utils2.parseMultipleOutputs)(payload.output).forEach(function (outputPropId, i) {
+                updateClientsideOutput(outputPropId, returnValue[i]);
+            });
+        } else {
+            updateClientsideOutput(payload.output, returnValue);
+        }
 
         /*
          * Note that unlike serverside updates, we're not handling
@@ -34416,7 +34783,11 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
     if (hooks.request_pre !== null) {
         hooks.request_pre(payload);
     }
+
+    /* eslint-disable consistent-return */
     return fetch((0, _utils2.urlBase)(config) + '_dash-update-component', {
+        /* eslint-enable consistent-return */
+
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -34517,10 +34888,10 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
                     }));
 
                     /*
-                    * if children contains objects with IDs, then we
-                    * need to dispatch a propChange for all of these
-                    * new children components
-                    */
+                     * if children contains objects with IDs, then we
+                     * need to dispatch a propChange for all of these
+                     * new children components
+                     */
                     if ((0, _ramda.contains)((0, _ramda.type)(observerUpdatePayload.props.children), ['Array', 'Object']) && !(0, _ramda.isEmpty)(observerUpdatePayload.props.children)) {
                         /*
                          * TODO: We're just naively crawling
@@ -35182,7 +35553,8 @@ var REDIRECT_URI_PATHNAME = exports.REDIRECT_URI_PATHNAME = '/_oauth2/callback';
 var OAUTH_COOKIE_NAME = exports.OAUTH_COOKIE_NAME = 'plotly_oauth_token';
 
 var STATUS = exports.STATUS = {
-    OK: 200
+    OK: 200,
+    CLIENTSIDE_ERROR: 'CLIENTSIDE_ERROR'
 };
 
 /***/ }),
@@ -35367,6 +35739,8 @@ var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
 var _dependencyGraph = __webpack_require__(/*! dependency-graph */ "./node_modules/dependency-graph/lib/dep_graph.js");
 
+var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js");
+
 var initialGraph = {};
 
 var graphs = function graphs() {
@@ -35392,8 +35766,8 @@ var graphs = function graphs() {
                         outputId = output.id + '.' + output.property;
                     } else {
                         outputId = output;
-                        if (output.startsWith('.')) {
-                            output.slice(2, output.length - 2).split('...').forEach(function (out) {
+                        if ((0, _utils.isMultiOutputProp)(output)) {
+                            (0, _utils.parseMultipleOutputs)(output).forEach(function (out) {
                                 multiGraph.addNode(out);
                                 inputs.forEach(function (i) {
                                     var inputId = i.id + '.' + i.property;
@@ -35999,6 +36373,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.urlBase = urlBase;
 exports.uid = uid;
+exports.isMultiOutputProp = isMultiOutputProp;
+exports.parseMultipleOutputs = parseMultipleOutputs;
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
@@ -36024,6 +36400,29 @@ function uid() {
         return Math.floor((1 + Math.random()) * h).toString(16).substring(1);
     }
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
+
+function isMultiOutputProp(outputIdAndProp) {
+    /*
+     * If this update is for multiple outputs, then it has
+     * starting & trailing `..` and each propId pair is separated
+     * by `...`, e.g.
+     * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+     */
+
+    return outputIdAndProp.startsWith('..');
+}
+
+function parseMultipleOutputs(outputIdAndProp) {
+    /*
+     * If this update is for multiple outputs, then it has
+     * starting & trailing `..` and each propId pair is separated
+     * by `...`, e.g.
+     * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+     */
+    return outputIdAndProp.split('...').map(function (o) {
+        return o.replace('..', '');
+    });
 }
 
 /***/ }),
