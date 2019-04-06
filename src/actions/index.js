@@ -585,12 +585,6 @@ function updateOutput(
         }
 
         if (isMultiOutputProp(payload.output)) {
-            /*
-             * If this update is for multiple outputs, then it has
-             * starting & trailing `..` and each propId pair is separated
-             * by `...`, e.g.
-             * "..output-1.value...output-2.value...output-3.value...output-4.value.."
-             */
             parseMultipleOutputs(payload.output).forEach((outputPropId, i) => {
                 updateClientsideOutput(outputPropId, returnValue[i]);
             });
