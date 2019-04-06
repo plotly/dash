@@ -35,7 +35,7 @@ window.dash_clientside.clientside = {
         return new Promise(function(resolve, reject) {
             setTimeout(function() {
                 setTimeout(function() {
-                    document.getElementById('#side-effect').innerText = (
+                    document.getElementById('side-effect').innerText = (
                         'side effect'
                     );
                 }, 100);
