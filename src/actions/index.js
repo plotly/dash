@@ -505,7 +505,7 @@ function updateOutput(
     if (!isNil(clientside_function) && !isEmpty(clientside_function)) {
         let returnValue;
         try {
-            returnValue = window[clientside_function.namespace][
+            returnValue = window.dash_clientside[clientside_function.namespace][
                 clientside_function.function_name
             ](
                 ...pluck('value', payload.inputs),
