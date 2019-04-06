@@ -537,10 +537,12 @@ function updateOutput(
         if (type(returnValue.then) === 'Promise') {
             throw new Error(
                 'The clientside function ' +
-                `${clientside_function.namespace}.${clientside_function.function_name} ` +
-                'returned a Promise instead of a value. Promises are not ' +
-                'supported in Dash clientside right now, but may be in the ' +
-                'future.'
+                    `${clientside_function.namespace}.${
+                        clientside_function.function_name
+                    } ` +
+                    'returned a Promise instead of a value. Promises are not ' +
+                    'supported in Dash clientside right now, but may be in the ' +
+                    'future.'
             );
         }
 
@@ -718,10 +720,10 @@ function updateOutput(
                     );
 
                     /*
-                    * if children contains objects with IDs, then we
-                    * need to dispatch a propChange for all of these
-                    * new children components
-                    */
+                     * if children contains objects with IDs, then we
+                     * need to dispatch a propChange for all of these
+                     * new children components
+                     */
                     if (
                         contains(type(observerUpdatePayload.props.children), [
                             'Array',
