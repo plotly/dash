@@ -65,7 +65,7 @@ export function isMultiOutputProp(outputIdAndProp) {
      * "..output-1.value...output-2.value...output-3.value...output-4.value.."
      */
 
-    return payload.output.startsWith('..');
+    return outputIdAndProp.startsWith('..');
 }
 
 export function parseMultipleOutputs(outputIdAndProp) {
@@ -75,7 +75,7 @@ export function parseMultipleOutputs(outputIdAndProp) {
      * by `...`, e.g.
      * "..output-1.value...output-2.value...output-3.value...output-4.value.."
      */
-    return payload.output
+    return outputIdAndProp.output
         .split('...')
         .map(o => o.replace('..', ''));
 }
