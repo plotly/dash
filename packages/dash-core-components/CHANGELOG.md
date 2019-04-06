@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Fix unnecessary `loading_state` prop for `Input` component. [#498](https://github.com/plotly/dash-core-components/issues/498)
+- Ensure `DatePickerSingle` callbacks fire with cleared dates. [#511](https://github.com/plotly/dash-core-components/pull/511)
 
 ## [0.45.0] - 2019-03-25
 ### Added
