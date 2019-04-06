@@ -535,7 +535,7 @@ function updateOutput(
 
         // Returning promises isn't support atm
         if (type(returnValue.then) === 'Promise') {
-            throw new Error(
+            console.error(
                 'The clientside function ' +
                     `${clientside_function.namespace}.${
                         clientside_function.function_name
@@ -544,6 +544,8 @@ function updateOutput(
                     'supported in Dash clientside right now, but may be in the ' +
                     'future.'
             );
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
+            return;
         }
 
         function updateClientsideOutput(outputIdAndProp, outputValue) {
