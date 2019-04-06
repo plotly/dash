@@ -104,7 +104,7 @@ class Tests(IntegrationTests):
 
         if expected_length is not None:
             self.assertEqual(len(request_queue), expected_length)
-
+    
     def test_initial_state(self):
         app = Dash(__name__)
         app.layout = html.Div([
@@ -2280,20 +2280,6 @@ class Tests(IntegrationTests):
             'body', 'Error loading dependencies', timeout=2
         )
 
-    # Clientside tests
-    def run_value_assertions(self, assertions):
-        for id in assertions:
-            WebDriverWait(self.driver, 10).until(
-                EC.text_to_be_present_in_element_value(
-                    (By.ID, id),
-                    assertions[id]
-                ),
-                message='Failed assertion: #{}.value != {}'.format(
-                    id, assertions[id]
-                )
-            )
-
-
     def test_simple_clientside_serverside_callback(self):
         app = dash.Dash(__name__, assets_folder='test_clientside')
 
@@ -2322,37 +2308,19 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, "input"))
-        )
-        WebDriverWait(self.driver, 10).until(
-            EC.text_to_be_present_in_element(
-                (By.ID, 'output-serverside'),
-                'Server says "None"'
-            )
-        )
-
-        WebDriverWait(self.driver, 10).until(
-            EC.text_to_be_present_in_element(
-                (By.ID, 'output-clientside'),
-                'Client says "undefined"'
-            )
+        input = self.wait_for_element_by_css_selector('#input')
+        self.wait_for_text_to_equal('#output-serverside', 'Server says "None"')
+        self.wait_for_text_to_equal(
+            '#output-clientside', 'Client says "undefined"'
         )
 
         input.send_keys('hello world')
-        WebDriverWait(self.driver, 10).until(
-            EC.text_to_be_present_in_element(
-                (By.ID, 'output-serverside'),
-                'Server says "hello world"'
-            )
+        self.wait_for_text_to_equal(
+            '#output-serverside', 'Server says "hello world"'
         )
-        WebDriverWait(self.driver, 10).until(
-            EC.text_to_be_present_in_element(
-                (By.ID, 'output-clientside'),
-                'Client says "hello world"'
-            )
+        self.wait_for_text_to_equal(
+            '#output-clientside', 'Client says "hello world"'
         )
-
 
     def test_chained_serverside_clientside_callbacks(self):
         app = dash.Dash(__name__, assets_folder='test_clientside')
@@ -2367,11 +2335,11 @@ class Tests(IntegrationTests):
 
             # clientside
             html.Label('x + y (clientside)'),
-            dcc.Input(id='x+y'),
+            dcc.Input(id='x-plus-y'),
 
             # server-side
             html.Label('x+y / 2 (serverside)'),
-            dcc.Input(id='x+y / 2'),
+            dcc.Input(id='x-plus-y-div-2'),
 
             # server-side
             html.Div([
@@ -2386,8 +2354,8 @@ class Tests(IntegrationTests):
         ])
 
         app.clientside_callback(
-            ClientsideFunction('R', 'add'),
-            Output('x+y', 'value'),
+            ClientsideFunction('clientside', 'add'),
+            Output('x-plus-y', 'value'),
             [Input('x', 'value'),
              Input('y', 'value')],
         )
@@ -2397,8 +2365,8 @@ class Tests(IntegrationTests):
             'display': Value('i', 0)
         }
 
-        @app.callback(Output('x+y / 2', 'value'),
-                      [Input('x+y', 'value')])
+        @app.callback(Output('x-plus-y-div-2', 'value'),
+                      [Input('x-plus-y', 'value')])
         def divide_by_two(value):
             call_counts['divide'].value += 1
             return float(value) / 2.0
@@ -2406,8 +2374,8 @@ class Tests(IntegrationTests):
         @app.callback(Output('display-all-of-the-values', 'value'),
                       [Input('x', 'value'),
                        Input('y', 'value'),
-                       Input('x+y', 'value'),
-                       Input('x+y / 2', 'value')])
+                       Input('x-plus-y', 'value'),
+                       Input('x-plus-y-div-2', 'value')])
         def display_all(*args):
             call_counts['display'].value += 1
             return '\n'.join([str(a) for a in args])
@@ -2416,35 +2384,39 @@ class Tests(IntegrationTests):
             ClientsideFunction('clientside', 'mean'),
             Output('mean-of-all-values', 'value'),
             [Input('x', 'value'), Input('y', 'value'),
-             Input('x+y', 'value'), Input('x+y / 2', 'value')],
+             Input('x-plus-y', 'value'), Input('x-plus-y-div-2', 'value')],
         )
 
         self.startServer(app)
 
-        self.run_value_assertions({
-            'x': '3',
-            'y': '6',
-            'x+y': '9',
-            'x+y / 2': '4.5',
-            'display-all-of-the-values': '3\n6\n9\n4.5',
-            'mean-of-all-values': str((3+6+9+4.5) / 4.0)
-        })
+        test_cases = [
+            ['#x', '3'],
+            ['#y', '6'],
+            ['#x-plus-y', '9'],
+            ['#x-plus-y-div-2', '4.5'],
+            ['#display-all-of-the-values', '3\n6\n9\n4.5'],
+            ['#mean-of-all-values', str((3+6+9+4.5) / 4.0)],
+        ]
+        for test_case in test_cases:
+            self.wait_for_text_to_equal(test_case[0], test_case[1])
+
         self.assertEqual(call_counts['display'].value, 1)
         self.assertEqual(call_counts['divide'].value, 1)
 
-        x_input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'x'))
-        )
+        x_input = self.wait_for_element_by_css_selector('#x')
         x_input.send_keys('1')
 
-        self.run_value_assertions({
-            'x': '31',
-            'y': '6',
-            'x+y': '37',
-            'x+y / 2': '18.5',
-            'display-all-of-the-values': '31\n6\n37\n18.5',
-            'mean-of-all-values': str((31+6+37+18.5) / 4.0)
-        })
+        test_cases = [
+            ['#x', '31'],
+            ['#y', '6'],
+            ['#x-plus-y', '37'],
+            ['#x-plus-y-div-2', '18.5'],
+            ['#display-all-of-the-values', '31\n6\n37\n18.5'],
+            ['#mean-of-all-values', str((31+6+37+18.5) / 4.0)],
+        ]
+        for test_case in test_cases:
+            self.wait_for_text_to_equal(test_case[0], test_case[1])
+
         self.assertEqual(call_counts['display'].value, 2)
         self.assertEqual(call_counts['divide'].value, 2)
 
@@ -2472,32 +2444,38 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        self.run_value_assertions({
-            'first': '1',
-            'second': '2',
-            'third': '3',
-        })
+        test_cases = [
+            ['#first', '1'],
+            ['#second', '2'],
+            ['#third', '3'],
+        ]
+        for test_case in test_cases:
+            self.wait_for_text_to_equal(test_case[0], test_case[1])
 
         first_input = WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.ID, 'first'))
         )
         first_input.send_keys('1')
         # clientside code will prevent the update from occurring
-        self.run_value_assertions({
-            'first': '11',
-            'second': '2',
-            'third': '3',
-        })
+        test_cases = [
+            ['#first', '11'],
+            ['#second', '2'],
+            ['#third', '3']
+        ]
+        for test_case in test_cases:
+            self.wait_for_text_to_equal(test_case[0], test_case[1])
 
         first_input.send_keys('1')
 
         # the previous clientside code error should not be fatal:
         # subsequent updates should still be able to occur
-        self.run_value_assertions({
-            'first': '111',
-            'second': '112',
-            'third': '113',
-        })
+        test_cases = [
+            ['#first', '111'],
+            ['#second', '112'],
+            ['#third', '113']
+        ]
+        for test_case in test_cases:
+            self.wait_for_text_to_equal(test_case[0], test_case[1])
 
 
     def test_clientside_multiple_outputs(self):
@@ -2521,26 +2499,22 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        self.run_value_assertions({
-            'input': '1',
-            'output-1': '2',
-            'output-2': '3',
-            'output-3': '4',
-            'output-4': '5',
-        })
+        for test_case in [['#input', '1'],
+                ['#output-1', '2'],
+                ['#output-2', '3'],
+                ['#output-3', '4'],
+                ['#output-4', '5']]:
+            self.wait_for_text_to_equal(test_case[0], test_case[1])
 
-        input = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'input'))
-        )
+        input = self.wait_for_element_by_css_selector('#input')
         input.send_keys('1')
 
-        self.run_value_assertions({
-            'input': '11',
-            'output-1': '12',
-            'output-2': '13',
-            'output-3': '14',
-            'output-4': '15'
-        })
+        for test_case in [['#input', '11'],
+                ['#output-1', '12'],
+                ['#output-2', '13'],
+                ['#output-3', '14'],
+                ['#output-4', '15']]:
+            self.wait_for_text_to_equal(test_case[0], test_case[1])
 
     def test_clientside_fails_when_returning_a_promise(self):
         app = dash.Dash(__name__, assets_folder='test_clientside')
