@@ -508,9 +508,7 @@ function updateOutput(
             returnValue = window[clientside_function.namespace][
                 clientside_function.function_name
             ](
-                ...(has('inputs', payload)
-                    ? pluck('value', payload.inputs)
-                    : []),
+                ...pluck('value', payload.inputs),
                 ...(has('state', payload) ? pluck('value', payload.state) : [])
             );
         } catch (e) {
