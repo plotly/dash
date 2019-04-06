@@ -24,36 +24,12 @@ import itertools
 import json
 
 
+TIMEOUT = 20
+
+
 class Tests(IntegrationTests):
     def setUp(self):
         pass
-
-    def wait_for_element_by_css_selector(self, selector):
-        start_time = time.time()
-        exception = Exception('Time ran out, {} not found'.format(selector))
-        while time.time() < start_time + 20:
-            try:
-                return self.driver.find_element_by_css_selector(selector)
-            except Exception as e:
-                exception = e
-                pass
-            time.sleep(0.25)
-        raise exception
-
-    def wait_for_text_to_equal(self, selector, assertion_text, timeout=20):
-        start_time = time.time()
-        exception = Exception('Time ran out, {} on {} not found'.format(
-            assertion_text, selector))
-        while time.time() < start_time + timeout:
-            el = self.wait_for_element_by_css_selector(selector)
-            try:
-                return self.assertEqual(str(el.text), assertion_text)
-            except Exception as e:
-                exception = e
-                pass
-            time.sleep(0.25)
-
-        raise exception
 
     def wait_for_style_to_equal(self, selector, style, assertion_style,
                                 timeout=20):
@@ -72,6 +48,28 @@ class Tests(IntegrationTests):
             time.sleep(0.25)
 
         raise exception
+
+
+    def wait_for_element_by_css_selector(self, selector, timeout=TIMEOUT):
+        return WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, selector)),
+            'Could not find element with selector "{}"'.format(selector)
+        )
+
+    def wait_for_text_to_equal(self, selector, assertion_text, timeout=TIMEOUT):
+        self.wait_for_element_by_css_selector(selector)
+        WebDriverWait(self.driver, timeout).until(
+            lambda *args: (
+                (str(self.wait_for_element_by_css_selector(selector).text)
+                 == assertion_text) or
+                 (str(self.wait_for_element_by_css_selector(selector).get_attribute('value'))
+                  == assertion_text)
+            ),
+            "Element '{}' text was supposed to equal '{}' but it didn't".format(
+                selector,
+                assertion_text
+            )
+        )
 
     def clear_input(self, input_element):
         (
