@@ -534,7 +534,7 @@ function updateOutput(
         }
 
         // Returning promises isn't support atm
-        if (type(returnValue.then) === 'Promise') {
+        if (type(returnValue) === 'Promise') {
             console.error(
                 'The clientside function ' +
                     `${clientside_function.namespace}.${
