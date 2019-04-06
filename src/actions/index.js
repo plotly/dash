@@ -31,7 +31,7 @@ import {crawlLayout, hasId} from '../reducers/utils';
 import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
 import cookie from 'cookie';
-import {uid, urlBase} from '../utils';
+import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
@@ -242,11 +242,10 @@ export function notifyObservers(payload) {
         const queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
             let outputIds;
-            if (outputIdAndProp.startsWith('..')) {
-                outputIds = outputIdAndProp
-                    .slice(2, outputIdAndProp.length - 2)
-                    .split('...')
-                    .map(e => e.split('.')[0]);
+            if (isMultiOutputProp(outputIdAndProp)) {
+                outputIds = parseMultipleOutputs(outputIdAndProp).map(
+                    e => e.split('.')[0]
+                );
             } else {
                 outputIds = [outputIdAndProp.split('.')[0]];
             }
@@ -579,19 +578,16 @@ function updateOutput(
             );
         }
 
-        if (payload.output.startsWith('..')) {
+        if (isMultiOutputProp(payload.output)) {
             /*
              * If this update is for multiple outputs, then it has
              * starting & trailing `..` and each propId pair is separated
              * by `...`, e.g.
              * "..output-1.value...output-2.value...output-3.value...output-4.value.."
              */
-            const outputPropIds = payload.output
-                .split('...')
-                .map(o => o.replace('..', ''));
-            for (let i = 0; i < outputPropIds.length; i++) {
-                updateClientsideOutput(outputPropIds[i], returnValue[i]);
-            }
+            parseMultiOutputs(payload.output).forEach((outputPropId, i) => {
+                updateClientsideOutput(outputPropId, returnValue[i]);
+            });
         } else {
             updateClientsideOutput(payload.output, returnValue);
         }
