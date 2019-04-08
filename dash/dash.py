@@ -935,16 +935,19 @@ class Dash(object):
         else:
             _validate_value(output_value)
 
-
-    def clientside_callback(self, clientside_function, output, inputs=[], state=[]):
+    # pylint: disable=dangerous-default-value
+    def clientside_callback(
+            self, clientside_function, output, inputs=[], state=[]):
         """
         Create a callback that updates the output by calling a clientside
         (JavaScript) function instead of a Python function.
 
         Unlike `@app.calllback`, `clientside_callback` is not a decorator:
-        it takes a `dash.dependencies.ClientsideFunction(namespace, function_name)`
+        it takes a
+        `dash.dependencies.ClientsideFunction(namespace, function_name)`
         argument that describes which JavaScript function to call
-        (Dash will look for the JavaScript function at `window[namespace][function_name]`).
+        (Dash will look for the JavaScript function at
+        `window[namespace][function_name]`).
 
         For example:
         ```
@@ -957,9 +960,9 @@ class Dash(object):
         ```
 
         With this signature, Dash's front-end will call
-        `window.my_clientside_library.my_function` with the current values of
-        the `value` properties of the components `my-input` and `another-input`
-        whenver those values change.
+        `window.my_clientside_library.my_function` with the current
+        values of the `value` properties of the components
+        `my-input` and `another-input` whenever those values change.
 
         Include a JavaScript file by including it your `assets/` folder.
         The file can be named anything but you'll need to assign the
