@@ -184,8 +184,8 @@ class Tests(IntegrationTests):
         self.startServer(app)
 
         input_ = self.wait_for_element_by_id('input')
-        input_.clear()
         input_.send_keys('xyz')
+        self.wait_for_text_to_equal('#input', 'initial inputxyz')
         output1 = self.wait_for_element_by_id('output1')
         output2 = self.wait_for_element_by_id('output2')
 
