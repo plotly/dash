@@ -631,7 +631,7 @@ class Dash(object):
                 'output': k,
                 'inputs': v['inputs'],
                 'state': v['state'],
-                'clientside_function': v.get('clientside_function', {})
+                'clientside_function': v.get('clientside_function', None)
             } for k, v in self.callback_map.items()
         ])
 
