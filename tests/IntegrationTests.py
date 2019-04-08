@@ -28,13 +28,11 @@ class IntegrationTests(unittest.TestCase):
         )
 
     def wait_for_text_to_equal(self, selector, assertion_text, timeout=TIMEOUT):
-        self.wait_for_element_by_css_selector(selector)
+        el = self.wait_for_element_by_css_selector(selector)
         WebDriverWait(self.driver, timeout).until(
             lambda *args: (
-                (str(self.wait_for_element_by_css_selector(selector).text)
-                 == assertion_text) or
-                 (str(self.wait_for_element_by_css_selector(selector).get_attribute('value'))
-                  == assertion_text)
+                (str(el.text) == assertion_text) or
+                (str(el.get_attribute('value')) == assertion_text)
             ),
             "Element '{}' text was supposed to equal '{}' but it didn't".format(
                 selector,
