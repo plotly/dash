@@ -694,6 +694,65 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#n2', '2')
         self.wait_for_text_to_equal('#n3', 'initial3')
 
+    def test_no_update_chains(self):
+        app = Dash(__name__)
+        app.scripts.config.serve_locally = True
+
+        app.layout = html.Div([
+            dcc.Input(id='a_in', value='a'),
+            dcc.Input(id='b_in', value='b'),
+            html.P('', id='a_out'),
+            html.P('', id='a_out_short'),
+            html.P('', id='b_out'),
+            html.P('', id='ab_out')
+        ])
+
+        @app.callback([Output('a_out', 'children'),
+                       Output('a_out_short', 'children')],
+                      [Input('a_in', 'value')])
+        def a_out(a):
+            return (a, a if len(a) < 3 else no_update)
+
+        @app.callback(Output('b_out', 'children'), [Input('b_in', 'value')])
+        def b_out(b):
+            return b
+
+        @app.callback(Output('ab_out', 'children'),
+                      [Input('a_out_short', 'children')],
+                      [State('b_out', 'children')])
+        def ab_out(a, b):
+            return a + ' ' + b
+
+        self.startServer(app)
+
+        a_in = self.wait_for_element_by_id('a_in')
+        b_in = self.wait_for_element_by_id('b_in')
+
+        b_in.send_keys('b')
+        a_in.send_keys('a')
+        self.wait_for_text_to_equal('#a_out', 'aa')
+        self.wait_for_text_to_equal('#b_out', 'bb')
+        self.wait_for_text_to_equal('#a_out_short', 'aa')
+        self.wait_for_text_to_equal('#ab_out', 'aa bb')
+
+        b_in.send_keys('b')
+        a_in.send_keys('a')
+        self.wait_for_text_to_equal('#a_out', 'aaa')
+        self.wait_for_text_to_equal('#b_out', 'bbb')
+        self.wait_for_text_to_equal('#a_out_short', 'aa')
+        # ab_out has not been triggered because a_out_short received no_update
+        self.wait_for_text_to_equal('#ab_out', 'aa bb')
+
+        b_in.send_keys('b')
+        a_in.send_keys(Keys.END)
+        a_in.send_keys(Keys.BACKSPACE)
+        self.wait_for_text_to_equal('#a_out', 'aa')
+        self.wait_for_text_to_equal('#b_out', 'bbbb')
+        self.wait_for_text_to_equal('#a_out_short', 'aa')
+        # now ab_out *is* triggered - a_out_short got a new value
+        # even though that value is the same as the last value it got
+        self.wait_for_text_to_equal('#ab_out', 'aa bbbb')
+
     def test_with_custom_renderer(self):
         app = Dash(__name__)
 
