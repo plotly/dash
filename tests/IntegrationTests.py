@@ -21,15 +21,23 @@ class IntegrationTests(unittest.TestCase):
             name=snapshot_name
         )
 
-    def wait_for_element_by_css_selector(self, selector):
-        return WebDriverWait(self.driver, TIMEOUT).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+    def wait_for_element_by_css_selector(self, selector, timeout=TIMEOUT):
+        return WebDriverWait(self.driver, timeout).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, selector)),
+            'Could not find element with selector "{}"'.format(selector)
         )
 
-    def wait_for_text_to_equal(self, selector, assertion_text):
-        return WebDriverWait(self.driver, TIMEOUT).until(
-            EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector),
-                                             assertion_text)
+    def wait_for_text_to_equal(self, selector, assertion_text, timeout=TIMEOUT):
+        el = self.wait_for_element_by_css_selector(selector)
+        WebDriverWait(self.driver, timeout).until(
+            lambda *args: (
+                (str(el.text) == assertion_text) or
+                (str(el.get_attribute('value')) == assertion_text)
+            ),
+            "Element '{}' text was supposed to equal '{}' but it didn't".format(
+                selector,
+                assertion_text
+            )
         )
 
     @classmethod
