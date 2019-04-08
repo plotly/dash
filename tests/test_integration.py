@@ -13,7 +13,7 @@ import dash_flow_example
 import dash_html_components as html
 import dash_core_components as dcc
 
-import dash
+from dash import Dash, callback_context, no_update
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import (
@@ -34,7 +34,7 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_id = wait_for_element_by_id
 
     def test_simple_callback(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             dcc.Input(
                 id='input',
@@ -54,7 +54,7 @@ class Tests(IntegrationTests):
 
         @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
         def update_output(value):
-            call_count.value = call_count.value + 1
+            call_count.value += 1
             return value
 
         self.startServer(app)
@@ -90,7 +90,7 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_wildcard_callback(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             dcc.Input(
                 id='input',
@@ -111,7 +111,7 @@ class Tests(IntegrationTests):
 
         @app.callback(Output('output-1', 'data-cb'), [Input('input', 'value')])
         def update_data(value):
-            input_call_count.value = input_call_count.value + 1
+            input_call_count.value += 1
             return value
 
         @app.callback(Output('output-1', 'children'),
@@ -150,12 +150,15 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_aborted_callback(self):
-        """Raising PreventUpdate prevents update and triggering dependencies"""
+        """
+        Raising PreventUpdate OR returning no_update
+        prevents update and triggering dependencies
+        """
 
         initial_input = 'initial input'
         initial_output = 'initial output'
 
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             dcc.Input(id='input', value=initial_input),
             html.Div(initial_output, id='output1'),
@@ -167,25 +170,27 @@ class Tests(IntegrationTests):
 
         @app.callback(Output('output1', 'children'), [Input('input', 'value')])
         def callback1(value):
-            callback1_count.value = callback1_count.value + 1
+            callback1_count.value += 1
+            if callback1_count.value > 2:
+                return no_update
             raise PreventUpdate("testing callback does not update")
             return value
 
         @app.callback(Output('output2', 'children'), [Input('output1', 'children')])
         def callback2(value):
-            callback2_count.value = callback2_count.value + 1
+            callback2_count.value += 1
             return value
 
         self.startServer(app)
 
         input_ = self.wait_for_element_by_id('input')
-        input_.clear()
-        input_.send_keys('x')
+        input_.send_keys('xyz')
+        self.wait_for_text_to_equal('#input', 'initial inputxyz')
         output1 = self.wait_for_element_by_id('output1')
         output2 = self.wait_for_element_by_id('output2')
 
-        # callback1 runs twice (initial page load and through send_keys)
-        self.assertEqual(callback1_count.value, 2)
+        # callback1 runs 4x (initial page load and 3x through send_keys)
+        self.assertEqual(callback1_count.value, 4)
 
         # callback2 is never triggered, even on initial load
         self.assertEqual(callback2_count.value, 0)
@@ -199,7 +204,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='aborted')
 
     def test_wildcard_data_attributes(self):
-        app = dash.Dash()
+        app = Dash()
         test_time = datetime.datetime(2012, 1, 10, 2, 3)
         test_date = datetime.date(test_time.year, test_time.month,
                                   test_time.day)
@@ -257,7 +262,7 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_no_props_component(self):
-        app = dash.Dash()
+        app = Dash()
         app.layout = html.Div([
             dash_dangerously_set_inner_html.DangerouslySetInnerHTML('''
                 <h1>No Props Component</h1>
@@ -268,7 +273,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='no-props-component')
 
     def test_flow_component(self):
-        app = dash.Dash()
+        app = Dash()
 
         app.layout = html.Div([
             dash_flow_example.ExampleReactComponent(
@@ -309,7 +314,7 @@ class Tests(IntegrationTests):
             {'name': 'custom', 'content': 'customized'},
         ]
 
-        app = dash.Dash(meta_tags=metas)
+        app = Dash(meta_tags=metas)
 
         app.layout = html.Div(id='content')
 
@@ -329,7 +334,7 @@ class Tests(IntegrationTests):
             self.assertEqual(content, meta_info['content'])
 
     def test_index_customization(self):
-        app = dash.Dash()
+        app = Dash()
 
         app.index_string = '''
         <!DOCTYPE html>
@@ -384,8 +389,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot('custom-index')
 
     def test_assets(self):
-        app = dash.Dash(__name__,
-                        assets_ignore='.*ignored.*')
+        app = Dash(__name__, assets_ignore='.*ignored.*')
         app.index_string = '''
         <!DOCTYPE html>
         <html>
@@ -437,7 +441,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot('test assets includes')
 
     def test_invalid_index_string(self):
-        app = dash.Dash()
+        app = Dash()
 
         def will_raise():
             app.index_string = '''
@@ -496,9 +500,9 @@ class Tests(IntegrationTests):
             }
         ]
 
-        app = dash.Dash(__name__,
-                        external_scripts=js_files,
-                        external_stylesheets=css_files)
+        app = Dash(__name__,
+                   external_scripts=js_files,
+                   external_stylesheets=css_files)
 
         app.index_string = '''
         <!DOCTYPE html>
@@ -547,7 +551,7 @@ class Tests(IntegrationTests):
 
     def test_func_layout_accepted(self):
 
-        app = dash.Dash()
+        app = Dash()
 
         def create_layout():
             return html.Div('Hello World')
@@ -557,7 +561,7 @@ class Tests(IntegrationTests):
         time.sleep(0.5)
 
     def test_multi_output(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.scripts.config.serve_locally = True
 
         app.layout = html.Div([
@@ -657,8 +661,100 @@ class Tests(IntegrationTests):
 
         self.assertGreater(int(output2.text), t)
 
+    def test_multi_output_no_update(self):
+        app = Dash(__name__)
+        app.scripts.config.serve_locally = True
+
+        app.layout = html.Div([
+            html.Button('B', 'btn'),
+            html.P('initial1', 'n1'),
+            html.P('initial2', 'n2'),
+            html.P('initial3', 'n3')
+        ])
+
+        @app.callback([Output('n1', 'children'),
+                       Output('n2', 'children'),
+                       Output('n3', 'children')],
+                      [Input('btn', 'n_clicks')])
+        def show_clicks(n):
+            # partial or complete cancelation of updates via no_update
+            return [
+                no_update if n and n > 4 else n,
+                no_update if n and n > 2 else n,
+                no_update
+            ]
+
+        self.startServer(app)
+
+        btn = self.wait_for_element_by_id('btn')
+        for _ in range(10):
+            btn.click()
+
+        self.wait_for_text_to_equal('#n1', '4')
+        self.wait_for_text_to_equal('#n2', '2')
+        self.wait_for_text_to_equal('#n3', 'initial3')
+
+    def test_no_update_chains(self):
+        app = Dash(__name__)
+        app.scripts.config.serve_locally = True
+
+        app.layout = html.Div([
+            dcc.Input(id='a_in', value='a'),
+            dcc.Input(id='b_in', value='b'),
+            html.P('', id='a_out'),
+            html.P('', id='a_out_short'),
+            html.P('', id='b_out'),
+            html.P('', id='ab_out')
+        ])
+
+        @app.callback([Output('a_out', 'children'),
+                       Output('a_out_short', 'children')],
+                      [Input('a_in', 'value')])
+        def a_out(a):
+            return (a, a if len(a) < 3 else no_update)
+
+        @app.callback(Output('b_out', 'children'), [Input('b_in', 'value')])
+        def b_out(b):
+            return b
+
+        @app.callback(Output('ab_out', 'children'),
+                      [Input('a_out_short', 'children')],
+                      [State('b_out', 'children')])
+        def ab_out(a, b):
+            return a + ' ' + b
+
+        self.startServer(app)
+
+        a_in = self.wait_for_element_by_id('a_in')
+        b_in = self.wait_for_element_by_id('b_in')
+
+        b_in.send_keys('b')
+        a_in.send_keys('a')
+        self.wait_for_text_to_equal('#a_out', 'aa')
+        self.wait_for_text_to_equal('#b_out', 'bb')
+        self.wait_for_text_to_equal('#a_out_short', 'aa')
+        self.wait_for_text_to_equal('#ab_out', 'aa bb')
+
+        b_in.send_keys('b')
+        a_in.send_keys('a')
+        self.wait_for_text_to_equal('#a_out', 'aaa')
+        self.wait_for_text_to_equal('#b_out', 'bbb')
+        self.wait_for_text_to_equal('#a_out_short', 'aa')
+        # ab_out has not been triggered because a_out_short received no_update
+        self.wait_for_text_to_equal('#ab_out', 'aa bb')
+
+        b_in.send_keys('b')
+        a_in.send_keys(Keys.END)
+        a_in.send_keys(Keys.BACKSPACE)
+        self.wait_for_text_to_equal('#a_out', 'aa')
+        self.wait_for_text_to_equal('#b_out', 'bbbb')
+        self.wait_for_text_to_equal('#a_out_short', 'aa')
+        # now ab_out *is* triggered - a_out_short got a new value
+        # even though that value is the same as the last value it got
+        self.wait_for_text_to_equal('#ab_out', 'aa bbbb')
+
     def test_with_custom_renderer(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
 
         app.index_string = '''
         <!DOCTYPE html>
@@ -758,7 +854,7 @@ class Tests(IntegrationTests):
             </script>
         '''
 
-        class CustomDash(dash.Dash):
+        class CustomDash(Dash):
 
             def interpolate_index(self, **kwargs):
                 return '''
@@ -824,7 +920,7 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='request-hooks interpolated')
 
     def test_modified_response(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             dcc.Input(id='input', value='ab'),
             html.Div(id='output')
@@ -832,7 +928,7 @@ class Tests(IntegrationTests):
 
         @app.callback(Output('output', 'children'), [Input('input', 'value')])
         def update_output(value):
-            dash.callback_context.response.set_cookie(
+            callback_context.response.set_cookie(
                 'dash cookie', value + ' - cookie')
             return value + ' - output'
 
@@ -850,7 +946,7 @@ class Tests(IntegrationTests):
         assert_clean_console(self)
 
     def test_late_component_register(self):
-        app = dash.Dash()
+        app = Dash()
 
         app.layout = html.Div([
             html.Button('Click me to put a dcc ', id='btn-insert'),
@@ -874,7 +970,7 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_css_selector('#inserted-input')
 
     def test_output_input_invalid_callback(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             html.Div('child', id='input-output'),
             html.Div(id='out')
@@ -905,7 +1001,7 @@ class Tests(IntegrationTests):
         )
 
     def test_callback_return_validation(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
         app.layout = html.Div([
             html.Div(id='a'),
             html.Div(id='b'),
@@ -942,7 +1038,7 @@ class Tests(IntegrationTests):
             multi2('aaa')
 
     def test_callback_context(self):
-        app = dash.Dash(__name__)
+        app = Dash(__name__)
 
         btns = ['btn-{}'.format(x) for x in range(1, 6)]
 
@@ -956,9 +1052,9 @@ class Tests(IntegrationTests):
         @app.callback(Output('output', 'children'),
                       [Input(x, 'n_clicks') for x in btns])
         def on_click(*args):
-            if not dash.callback_context.triggered:
+            if not callback_context.triggered:
                 raise PreventUpdate
-            trigger = dash.callback_context.triggered[0]
+            trigger = callback_context.triggered[0]
             return 'Just clicked {} for the {} time!'.format(
                 trigger['prop_id'].split('.')[0], trigger['value']
             )
@@ -982,4 +1078,4 @@ class Tests(IntegrationTests):
     def test_no_callback_context(self):
         for attr in ['inputs', 'states', 'triggered', 'response']:
             with self.assertRaises(MissingCallbackContextException):
-                getattr(dash.callback_context, attr)
+                getattr(callback_context, attr)
