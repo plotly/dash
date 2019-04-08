@@ -237,7 +237,8 @@ class Dash(object):
             'hot_reload': False,
             'hot_reload_interval': 3000,
             'hot_reload_watch_interval': 0.5,
-            'hot_reload_max_retry': 8
+            'hot_reload_max_retry': 8,
+            'dev_tools_ui': False,
         })
 
         # add a handler for components suites errors to return 404
@@ -328,7 +329,8 @@ class Dash(object):
     def _config(self):
         config = {
             'url_base_pathname': self.url_base_pathname,
-            'requests_pathname_prefix': self.config['requests_pathname_prefix']
+            'requests_pathname_prefix': self.config.requests_pathname_prefix,
+            'dev_tools_ui': self._dev_tools.dev_tools_ui,
         }
         if self._dev_tools.hot_reload:
             config['hot_reload'] = {
@@ -1289,6 +1291,8 @@ class Dash(object):
         env = _configs.env_configs()
         debug = debug or _configs.get_config('debug', None, env, debug,
                                              is_bool=True)
+
+        self._dev_tools.dev_tools_ui = debug
 
         self._dev_tools['serve_dev_bundles'] = _configs.get_config(
             'serve_dev_bundles', dev_tools_serve_dev_bundles, env,

@@ -86,7 +86,8 @@ function collectMetadataRecursively(componentPath) {
         }
         dirs.forEach(filename => {
             const filepath = path.join(componentPath, filename);
-            if (fs.lstatSync(filepath).isDirectory()) {
+            if (fs.lstatSync(filepath).isDirectory()
+                && !ignorePattern.test(filename)) {
                 collectMetadataRecursively(filepath);
             } else if (!ignorePattern.test(filename)) {
                 parseFile(filepath);
