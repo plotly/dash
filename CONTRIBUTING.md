@@ -41,14 +41,14 @@ Or:
 ## Local configuration
 You can configure the test server with the following variables:
 ### DASH_TEST_CHROMEPATH
-If you run a special chrome set the path to your chrome binary with this environment variable.
+If you run a special chrome, set the path to your chrome binary with this environment variable.
 
 ### DASH_TEST_PROCESSES
-If you encounter errors about Multi-server + Multi-processing when running under Python 3 try running the tests with the number of server processes set to 1.
+If you encounter errors about Multi-server + Multi-processing when running under Python 3, try running the tests with the number of server processes set to 1.
 
 ### Example: single test run with configuration
 ```
-DASH_TEST_CHROMEPATH=/bin/google-chrome-beta DASH_TEST_PROCESSES=1 python -m unittest -v test.test_integration.Tests.test_inputs
+DASH_TEST_CHROMEPATH=/bin/google-chrome-beta DASH_TEST_PROCESSES=1 python -m unittest -v tests.test_integration.Tests.test_no_callback_context
 ```
 
 ## Making a contribution
