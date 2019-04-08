@@ -1,3 +1,7 @@
+## Unreleased
+### Added
+- Support for "Clientside Callbacks" - an escape hatch to execute your callbacks in JavaScript instead of Python [#672](https://github.com/plotly/dash/pull/672)
+
 ## [0.40.0] - 2019-03-25
 ### Changed
 - Bumped dash-core-components version from 0.44.0 to [0.45.0](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0450---2019-03-25)
