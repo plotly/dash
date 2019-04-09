@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Registry from './registry';
 import {connect} from 'react-redux';
-import {assertPropTypes} from 'check-prop-types';
 import {
     any,
     contains,
