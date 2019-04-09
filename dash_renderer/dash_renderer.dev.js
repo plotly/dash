@@ -9523,7 +9523,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: Fira Code;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    width: 600px;\n    max-width: 800px;\n    max-height: 650px;\n    margin: 1rem;\n    overflow: auto;\n    z-index: 1001;  /* above the plotly.js toolbar */\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 1rem;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 1rem;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: -webkit-box;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
+exports.push([module.i, "<<<<<<< HEAD\n=======\n\n>>>>>>> dev-tools-props\n.dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: Fira Code;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    width: 600px;\n    max-width: 800px;\n    max-height: 650px;\n    margin: 1rem;\n    overflow: auto;\n    z-index: 1001;  /* above the plotly.js toolbar */\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 1rem;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 1rem;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: -webkit-box;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
 
 // exports
 
@@ -35011,6 +35011,7 @@ var TreeContainer = function (_Component) {
                 /* eslint-enable no-console */
                 throw new Error('component.namespace is undefined');
             }
+
             var element = Registry.resolve(_dashprivate_layout.type, _dashprivate_layout.namespace);
 
             var layout = omit(['children'], _dashprivate_layout.props);
@@ -35111,7 +35112,7 @@ TreeContainer.propTypes = {
     _dashprivate_layout: PropTypes.object,
     _dashprivate_loadingState: PropTypes.object,
     _dashprivate_paths: PropTypes.any,
-    _dashprivate_requestQueue: PropTypes.object
+    _dashprivate_requestQueue: PropTypes.any
 };
 
 function isLoadingComponent(layout) {
@@ -37376,11 +37377,11 @@ var FrontEndErrorContainer = function (_Component) {
 FrontEndErrorContainer.propTypes = {
     errors: PropTypes.array,
     resolve: PropTypes.func,
-    inAlertsTray: PropTypes.bool
+    inAlertsTray: PropTypes.any
 };
 
 FrontEndErrorContainer.propTypes = {
-    inAlertsTray: false
+    inAlertsTray: PropTypes.any
 };
 
 exports.FrontEndErrorContainer = FrontEndErrorContainer;
@@ -37570,10 +37571,6 @@ var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
 var isEmpty = _ramda.isEmpty;
 
-var _FrontEndError = __webpack_require__(/*! ./FrontEnd/FrontEndError.react */ "./src/components/error/FrontEnd/FrontEndError.react.js");
-
-var FrontEndError = _FrontEndError.FrontEndError;
-
 __webpack_require__(/*! ./GlobalErrorOverlay.css */ "./src/components/error/GlobalErrorOverlay.css");
 
 var _FrontEndErrorContainer = __webpack_require__(/*! ./FrontEnd/FrontEndErrorContainer.react */ "./src/components/error/FrontEnd/FrontEndErrorContainer.react.js");
@@ -37587,6 +37584,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+// import {FrontEndError} from './FrontEnd/FrontEndError.react';
+
 
 var GlobalErrorOverlay = function (_Component) {
     _inherits(GlobalErrorOverlay, _Component);
@@ -37605,8 +37604,8 @@ var GlobalErrorOverlay = function (_Component) {
                 visible = _props.visible,
                 error = _props.error,
                 toastsEnabled = _props.toastsEnabled;
+            // let backEndErrors;
 
-            var backEndErrors = void 0;
             var frontEndErrors = void 0;
             if (toastsEnabled) {
                 var errors = [];
@@ -37663,7 +37662,7 @@ GlobalErrorOverlay.propTypes = {
     resolve: PropTypes.func,
     visible: PropTypes.bool,
     error: PropTypes.object,
-    toastsEnabled: PropTypes.boolean
+    toastsEnabled: PropTypes.any
 };
 
 /***/ }),
@@ -37942,39 +37941,6 @@ var SvgReloadIcon = function SvgReloadIcon(props) {
 
 /***/ }),
 
-/***/ "./src/components/error/icons/WarningIcon.svg":
-/*!****************************************************!*\
-  !*** ./src/components/error/icons/WarningIcon.svg ***!
-  \****************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-
-
-var _ref =
-/*#__PURE__*/
-react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("path", {
-  d: "M0 12h12.923L6.462 0 0 12zm7.154-1.846H5.769V8.769h1.385v1.385zm0-2.308H5.769v-2.77h1.385v2.77z",
-  fill: "#F4BC2B"
-});
-
-var SvgWarningIcon = function SvgWarningIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("svg", _extends({
-    viewBox: "0 0 13 12",
-    fill: "none"
-  }, props), _ref);
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (SvgWarningIcon);
-
-/***/ }),
-
 /***/ "./src/components/error/icons/WarningIconWhite.svg":
 /*!*********************************************************!*\
   !*** ./src/components/error/icons/WarningIconWhite.svg ***!
@@ -38099,10 +38065,6 @@ var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-type
 
 var PropTypes = _interopRequireDefault(_propTypes).default;
 
-var _WarningIcon = __webpack_require__(/*! ../icons/WarningIcon.svg */ "./src/components/error/icons/WarningIcon.svg");
-
-var WarningIcon = _interopRequireDefault(_WarningIcon).default;
-
 var _WarningIconWhite = __webpack_require__(/*! ../icons/WarningIconWhite.svg */ "./src/components/error/icons/WarningIconWhite.svg");
 
 var WarningIconWhite = _interopRequireDefault(_WarningIconWhite).default;
@@ -38142,13 +38104,13 @@ var DebugAlertContainer = function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    alertsOpened ? React.createElement(ErrorIconWhite, { className: 'dash-debug-alert-container__icon' }) : '❌',
+                    alertsOpened ? React.createElement(ErrorIconWhite, { className: 'dash-debug-alert-container__icon' }) : '☣️',
                     this.props.errors.length
                 ),
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    alertsOpened ? React.createElement(WarningIconWhite, { className: 'dash-debug-alert-container__icon dash-debug-alert-container__icon--warning' }) : React.createElement(WarningIcon, { className: 'dash-debug-alert-container__icon dash-debug-alert-container__icon--warning' }),
+                    alertsOpened ? React.createElement(WarningIconWhite, { className: 'dash-debug-alert-container__icon dash-debug-alert-container__icon--warning' }) : '⚠️',
                     '0'
                 )
             );
@@ -38246,10 +38208,6 @@ var ReloadIcon = _interopRequireDefault(_ReloadIcon).default;
 var _GraphIcon = __webpack_require__(/*! ../icons/GraphIcon.svg */ "./src/components/error/icons/GraphIcon.svg");
 
 var GraphIcon = _interopRequireDefault(_GraphIcon).default;
-
-var _WarningIcon = __webpack_require__(/*! ../icons/WarningIcon.svg */ "./src/components/error/icons/WarningIcon.svg");
-
-var WarningIcon = _interopRequireDefault(_WarningIcon).default;
 
 var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
 
@@ -38431,8 +38389,7 @@ var DebugMenu = function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    React.createElement(WarningIcon, { className: 'dash-debug-alert-container__icon dash-debug-alert-container__icon--warning' }),
-                    '0'
+                    '\u26A0\uFE0F\xA00'
                 )
             ) : null;
 
@@ -38472,8 +38429,8 @@ var DebugMenu = function (_Component) {
 DebugMenu.propTypes = {
     children: PropTypes.object,
     errors: PropTypes.object,
-    resolveError: PropTypes.function,
-    dispatch: PropTypes.function
+    resolveError: PropTypes.any,
+    dispatch: PropTypes.any
 };
 
 exports.DebugMenu = DebugMenu;
