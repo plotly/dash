@@ -20,11 +20,8 @@ import {
 } from 'ramda';
 import { notifyObservers, updateProps } from './actions';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
-<<<<<<< HEAD
-// import ComponentErrorBoundary from './components/error/SimpleErrorBoundary.react';
-=======
 import { assertPropTypes } from 'check-prop-types';
->>>>>>> dev-tools-props
+
 
 const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
 const isSimpleComponent = component => contains(type(component), SIMPLE_COMPONENT_TYPES)
@@ -89,51 +86,7 @@ class TreeContainer extends Component {
             /* eslint-enable no-console */
             throw new Error('component.namespace is undefined');
         }
-<<<<<<< HEAD
-        const component = Registry.resolve(_dashprivate_layout.type, _dashprivate_layout.namespace);
 
-        const getCheckedElement = (component) => {
-            return class CheckedComponent extends React.Component {
-                componentDidMount() {
-                    assertPropTypes(
-                        component.propTypes,
-                        _dashprivate_layout.props,
-                        'component prop', component
-                    );
-                }
-                render() {
-                    return React.createElement(
-                        component,
-                        mergeAll([
-                            omit(['children'], _dashprivate_layout.props),
-                            { loading_state, setProps }
-                        ]),
-                        children
-                    );
-                }
-            }
-        };
-
-        if (Array.isArray(children)) {
-            return React.createElement(
-                component,
-                mergeAll([
-                    omit(['children'], _dashprivate_layout.props),
-                    { loading_state, setProps }
-                ]),
-                ...children
-            );
-        }
-        const checkedElement = React.createElement(getCheckedElement(component));
-        return (
-            <ComponentErrorBoundary
-                componentType={_dashprivate_layout.type}
-                componentId={_dashprivate_layout.props.id}
-            >
-                {checkedElement}
-            </ComponentErrorBoundary>
-        );
-=======
         const element = Registry.resolve(_dashprivate_layout.type, _dashprivate_layout.namespace);
 
         const layout = omit(['children'], _dashprivate_layout.props);
@@ -150,7 +103,7 @@ class TreeContainer extends Component {
                 props={{ loading_state, setProps }}
             />
         </ComponentErrorBoundary>);
->>>>>>> dev-tools-props
+
     }
 
     getSetProps() {
@@ -213,11 +166,8 @@ class TreeContainer extends Component {
         const setProps = this.getSetProps(_dashprivate_dispatch);
 
         return this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps);
-<<<<<<< HEAD
-    };
-=======
+
     }
->>>>>>> dev-tools-props
 }
 
 TreeContainer.propTypes = {
