@@ -35,7 +35,8 @@ class FrontEndError extends Component {
         return collapsed ? (
             <div className="dash-error-card__list-item">
                 <h6 className="dash-fe-error__title">
-                    ☣️&nbsp;{e.error.message ||
+                    ☣️&nbsp;
+                    {e.error.message ||
                         'An error was thrown that was not an Error object, so info could not be gathered.'}
                 </h6>
                 <CollapseIcon
@@ -47,7 +48,8 @@ class FrontEndError extends Component {
             <div className={cardClasses}>
                 <div className="dash-fe-error-top">
                     <h6 className="dash-fe-error__title">
-                        ☣️&nbsp;{e.error.message ||
+                        ☣️&nbsp;
+                        {e.error.message ||
                             'An error was thrown that was not an Error object, so info could not be gathered.'}
                     </h6>
                     {this.props.isListItem ? (
@@ -59,10 +61,12 @@ class FrontEndError extends Component {
                         closeButton
                     )}
                 </div>
-                {!e.error.stack ? null: (
+                {!e.error.stack ? null : (
                     <div className="dash-fe-error__st">
                         {e.error.stack &&
-                            e.error.stack.split('\n').map(line => <p>{line}</p>)}
+                            e.error.stack
+                                .split('\n')
+                                .map(line => <p>{line}</p>)}
                     </div>
                 )}
                 {!e.error.html ? null : (
@@ -80,13 +84,13 @@ class FrontEndError extends Component {
                                      * 67 was determined manually in the
                                      * browser's dev tools.
                                      */
-                                    'width': 'calc(600px - 67px)',
-                                    'height': '75vh',
-                                    'border': 'none'
+                                    width: 'calc(600px - 67px)',
+                                    height: '75vh',
+                                    border: 'none',
                                 }}
                                 srcDoc={e.error.html.replace(
-                                '</head>',
-`
+                                    '</head>',
+                                    `
 <style type="text/css">
     {
         font-family: Roboto;
@@ -176,7 +180,8 @@ class FrontEndError extends Component {
     }
 </style>
 </head>`
-                            )}/>
+                                )}
+                            />
                         </div>
                     </div>
                 )}

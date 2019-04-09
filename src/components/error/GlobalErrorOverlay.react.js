@@ -20,16 +20,15 @@ export default class GlobalErrorOverlay extends Component {
                 errors = error.frontEnd;
             }
             if (!isEmpty(error.backEnd)) {
-                errors.push({error: {
-                    message: 'Python exception',
-                    html: error.backEnd.errorPage,
-                }});
+                errors.push({
+                    error: {
+                        message: 'Python exception',
+                        html: error.backEnd.errorPage,
+                    },
+                });
             }
             frontEndErrors = (
-                <FrontEndErrorContainer
-                    errors={errors}
-                    resolve={resolve}
-                />
+                <FrontEndErrorContainer errors={errors} resolve={resolve} />
             );
         }
         return (
