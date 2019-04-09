@@ -415,6 +415,20 @@
         "required": false,
         "description": "Specifies the starting date for the component.\nAccepts datetime.datetime objects or strings\nin the format 'YYYY-MM-DD'"
       },
+      "start_date_id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
+      "end_date_id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": ""
+      },
       "end_date": {
         "type": {
           "name": "string"
@@ -1342,6 +1356,11 @@
               "description": "no interactivity, for export or image generation",
               "required": false
             },
+            "plotlyServerURL": {
+              "name": "string",
+              "description": "base URL for a Plotly cloud instance, if `showSendToCloud` is enabled",
+              "required": false
+            },
             "editable": {
               "name": "bool",
               "description": "we can edit titles, move annotations, etc - sets all pieces of `edits`\nunless a separate `edits` config item overrides individual parts",
@@ -1401,6 +1420,11 @@
             "autosizable": {
               "name": "bool",
               "description": "DO autosize once regardless of layout.autosize\n(use default width or height values otherwise)",
+              "required": false
+            },
+            "responsive": {
+              "name": "bool",
+              "description": "Whether to change layout size when the window size changes",
               "required": false
             },
             "queueLength": {
@@ -1495,6 +1519,11 @@
               "description": "display the mode bar (true, false, or 'hover')",
               "required": false
             },
+            "showSendToCloud": {
+              "name": "bool",
+              "description": "should we include a modebar button to send this data to a\nPlotly Cloud instance, linked by `plotlyServerURL`.\nBy default this is false.",
+              "required": false
+            },
             "modeBarButtonsToRemove": {
               "name": "array",
               "description": "remove mode bar button by name.\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\nCommon names include:\n - sendDataToCloud\n- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d\n- (Cartesian): hoverClosestCartesian, hoverCompareCartesian\n- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d\n- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo\n- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews",
@@ -1510,9 +1539,63 @@
               "description": "fully custom mode bar buttons as nested array,\nwhere the outer arrays represents button groups, and\nthe inner arrays have buttons config objects or names of default buttons",
               "required": false
             },
+            "toImageButtonOptions": {
+              "name": "shape",
+              "value": {
+                "format": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "'jpeg'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'png'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'webp'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'svg'",
+                      "computed": false
+                    }
+                  ],
+                  "description": "The file format to create",
+                  "required": false
+                },
+                "filename": {
+                  "name": "string",
+                  "description": "The name given to the downloaded file",
+                  "required": false
+                },
+                "width": {
+                  "name": "number",
+                  "description": "Width of the downloaded file, in px",
+                  "required": false
+                },
+                "height": {
+                  "name": "number",
+                  "description": "Height of the downloaded file, in px",
+                  "required": false
+                },
+                "scale": {
+                  "name": "number",
+                  "description": "Extra resolution to give the file after\nrendering it with the given width and height",
+                  "required": false
+                }
+              },
+              "required": false
+            },
             "displaylogo": {
               "name": "bool",
               "description": "add the plotly logo on the end of the mode bar",
+              "required": false
+            },
+            "watermark": {
+              "name": "bool",
+              "description": "add the plotly logo even with no modebar",
               "required": false
             },
             "plotGlPixelRatio": {
@@ -1529,13 +1612,23 @@
               "name": "any",
               "description": "Mapbox access token (required to plot mapbox trace types)\nIf using an Mapbox Atlas server, set this option to '',\nso that plotly.js won't attempt to authenticate to the public Mapbox server.",
               "required": false
+            },
+            "locale": {
+              "name": "string",
+              "description": "The locale to use. Locales may be provided with the plot\n(`locales` below) or by loading them on the page, see:\nhttps://github.com/plotly/plotly.js/blob/master/dist/README.md#to-include-localization",
+              "required": false
+            },
+            "locales": {
+              "name": "object",
+              "description": "Localization definitions, if you choose to provide them with the\nplot rather than registering them globally.",
+              "required": false
             }
           }
         },
         "required": false,
         "description": "Plotly.js config options.\nSee https://plot.ly/javascript/configuration-options/\nfor more info.",
         "defaultValue": {
-          "value": "{\n    staticPlot: false,\n    editable: false,\n    edits: {\n        annotationPosition: false,\n        annotationTail: false,\n        annotationText: false,\n        axisTitleText: false,\n        colorbarPosition: false,\n        colorbarTitleText: false,\n        legendPosition: false,\n        legendText: false,\n        shapePosition: false,\n        titleText: false,\n    },\n    autosizable: false,\n    queueLength: 0,\n    fillFrame: false,\n    frameMargins: 0,\n    scrollZoom: false,\n    doubleClick: 'reset+autosize',\n    showTips: true,\n    showAxisDragHandles: true,\n    showAxisRangeEntryBoxes: true,\n    showLink: false,\n    sendData: true,\n    linkText: 'Edit chart',\n    showSources: false,\n    displayModeBar: 'hover',\n    modeBarButtonsToRemove: [],\n    modeBarButtonsToAdd: [],\n    modeBarButtons: false,\n    displaylogo: true,\n    plotGlPixelRatio: 2,\n    topojsonURL: 'https://cdn.plot.ly/',\n    mapboxAccessToken: null,\n}",
+          "value": "{}",
           "computed": false
         }
       },

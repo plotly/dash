@@ -8,6 +8,7 @@ import sys
 from multiprocessing import Lock
 import time
 import json
+import re
 
 import flask
 import pandas as pd
@@ -1183,6 +1184,54 @@ class Tests(IntegrationTests):
 
         time.sleep(1)
         self.snapshot("Tabs 2 rendered ")
+
+        # do some extra tests while we're here
+        # and have access to Graph and plotly.js
+        self.check_graph_config_shape()
+        self.check_plotlyjs()
+
+    def check_plotlyjs(self):
+        # find plotly.js files in the dist folder, check that there's only one
+        all_dist = os.listdir(dcc.__path__[0])
+        js_re = r'^plotly-(.*)\.min\.js$'
+        plotlyjs_dist = [fn for fn in all_dist if re.match(js_re, fn)]
+
+        self.assertEqual(len(plotlyjs_dist), 1)
+
+        # check that the version matches what we see in the page
+        page_version = self.driver.execute_script('return Plotly.version;')
+        dist_version = re.match(js_re, plotlyjs_dist[0]).groups()[0]
+        self.assertEqual(page_version, dist_version)
+
+    def check_graph_config_shape(self):
+        config_schema = self.driver.execute_script(
+            'return Plotly.PlotSchema.get().config;'
+        )
+        with open(os.path.join(dcc.__path__[0], 'metadata.json')) as meta:
+            graph_meta = json.load(meta)['src/components/Graph.react.js']
+            config_prop_shape = graph_meta['props']['config']['type']['value']
+
+        ignored_config = [
+            'setBackground',
+            'showSources',
+            'logging',
+            'globalTransforms',
+            'role'
+        ]
+
+        def crawl(schema, props):
+            for prop_name in props:
+                self.assertIn(prop_name, schema)
+
+            for item_name, item in schema.items():
+                if item_name in ignored_config:
+                    continue
+
+                self.assertIn(item_name, props)
+                if 'valType' not in item:
+                    crawl(item, props[item_name]['value'])
+
+        crawl(config_schema, config_prop_shape)
 
     def test_tabs_without_value(self):
         app = dash.Dash(__name__)

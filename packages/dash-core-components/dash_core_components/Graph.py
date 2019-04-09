@@ -51,9 +51,10 @@ plotly.js's `animate` function
 Only applies if `animate` is `true`
 - config (optional): Plotly.js config options.
 See https://plot.ly/javascript/configuration-options/
-for more info.. config has the following type: dict containing keys 'staticPlot', 'editable', 'edits', 'autosizable', 'queueLength', 'fillFrame', 'frameMargins', 'scrollZoom', 'doubleClick', 'showTips', 'showAxisDragHandles', 'showAxisRangeEntryBoxes', 'showLink', 'sendData', 'linkText', 'displayModeBar', 'modeBarButtonsToRemove', 'modeBarButtonsToAdd', 'modeBarButtons', 'displaylogo', 'plotGlPixelRatio', 'topojsonURL', 'mapboxAccessToken'.
+for more info.. config has the following type: dict containing keys 'staticPlot', 'plotlyServerURL', 'editable', 'edits', 'autosizable', 'responsive', 'queueLength', 'fillFrame', 'frameMargins', 'scrollZoom', 'doubleClick', 'showTips', 'showAxisDragHandles', 'showAxisRangeEntryBoxes', 'showLink', 'sendData', 'linkText', 'displayModeBar', 'showSendToCloud', 'modeBarButtonsToRemove', 'modeBarButtonsToAdd', 'modeBarButtons', 'toImageButtonOptions', 'displaylogo', 'watermark', 'plotGlPixelRatio', 'topojsonURL', 'mapboxAccessToken', 'locale', 'locales'.
 Those keys have the following types:
   - staticPlot (boolean; optional): no interactivity, for export or image generation
+  - plotlyServerURL (string; optional): base URL for a Plotly cloud instance, if `showSendToCloud` is enabled
   - editable (boolean; optional): we can edit titles, move annotations, etc - sets all pieces of `edits`
 unless a separate `edits` config item overrides individual parts
   - edits (optional): a set of editable properties. edits has the following type: dict containing keys 'annotationPosition', 'annotationTail', 'annotationText', 'axisTitleText', 'colorbarPosition', 'colorbarTitleText', 'legendPosition', 'legendText', 'shapePosition', 'titleText'.
@@ -72,6 +73,7 @@ the arrow length & direction unchanged)
   - titleText (boolean; optional): the global `layout.title`
   - autosizable (boolean; optional): DO autosize once regardless of layout.autosize
 (use default width or height values otherwise)
+  - responsive (boolean; optional): Whether to change layout size when the window size changes
   - queueLength (number; optional): set the length of the undo/redo queue
   - fillFrame (boolean; optional): if we DO autosize, do we fill the container or the screen?
   - frameMargins (number; optional): if we DO autosize, set the frame margins in percents of plot size
@@ -85,6 +87,9 @@ the arrow length & direction unchanged)
   - sendData (boolean; optional): if we show a link, does it contain data or just link to a plotly file?
   - linkText (string; optional): text appearing in the sendData link
   - displayModeBar (a value equal to: true, false, 'hover'; optional): display the mode bar (true, false, or 'hover')
+  - showSendToCloud (boolean; optional): should we include a modebar button to send this data to a
+Plotly Cloud instance, linked by `plotlyServerURL`.
+By default this is false.
   - modeBarButtonsToRemove (list; optional): remove mode bar button by name.
 All modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js
 Common names include:
@@ -98,12 +103,26 @@ Common names include:
   - modeBarButtons (boolean | number | string | dict | list; optional): fully custom mode bar buttons as nested array,
 where the outer arrays represents button groups, and
 the inner arrays have buttons config objects or names of default buttons
+  - toImageButtonOptions (optional): . toImageButtonOptions has the following type: dict containing keys 'format', 'filename', 'width', 'height', 'scale'.
+Those keys have the following types:
+  - format (a value equal to: 'jpeg', 'png', 'webp', 'svg'; optional): The file format to create
+  - filename (string; optional): The name given to the downloaded file
+  - width (number; optional): Width of the downloaded file, in px
+  - height (number; optional): Height of the downloaded file, in px
+  - scale (number; optional): Extra resolution to give the file after
+rendering it with the given width and height
   - displaylogo (boolean; optional): add the plotly logo on the end of the mode bar
+  - watermark (boolean; optional): add the plotly logo even with no modebar
   - plotGlPixelRatio (number; optional): increase the pixel ratio for Gl plot images
   - topojsonURL (string; optional): URL to topojson files used in geo charts
   - mapboxAccessToken (boolean | number | string | dict | list; optional): Mapbox access token (required to plot mapbox trace types)
 If using an Mapbox Atlas server, set this option to '',
 so that plotly.js won't attempt to authenticate to the public Mapbox server.
+  - locale (string; optional): The locale to use. Locales may be provided with the plot
+(`locales` below) or by loading them on the page, see:
+https://github.com/plotly/plotly.js/blob/master/dist/README.md#to-include-localization
+  - locales (dict; optional): Localization definitions, if you choose to provide them with the
+plot rather than registering them globally.
 - loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not

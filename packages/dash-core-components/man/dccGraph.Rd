@@ -10,7 +10,7 @@
 }
 
 \usage{
-dccGraph(id=NULL, clickData=NULL, clickAnnotationData=NULL, hoverData=NULL, clear_on_unhover=NULL, selectedData=NULL, relayoutData=NULL, restyleData=NULL, figure=NULL, style=NULL, className=NULL, animate=NULL, animation_options=NULL, config=NULL, loading_state=NULL)
+dccGraph(id=NULL, clickData=NULL, clickAnnotationData=NULL, hoverData=NULL, clear_on_unhover=NULL, selectedData=NULL, relayoutData=NULL, extendData=NULL, restyleData=NULL, figure=NULL, style=NULL, className=NULL, animate=NULL, animation_options=NULL, config=NULL, loading_state=NULL)
 }
 
 \arguments{
@@ -35,6 +35,15 @@ data from the last point that was hovered over.}
 when the user zooms or pans on the plot or other
 layout-level edits. Has the form `{<attr string>: <value>}`
 describing the changes made. Read-only.}
+
+\item{extendData}{Data that should be appended to existing traces. Has the form
+`[updateData, traceIndices, maxPoints]`, where `updateData` is an object
+containing the data to extend, `traceIndices` (optional) is an array of
+trace indices that should be extended, and `maxPoints` (optional) is
+either an integer defining the maximum number of points allowed or an
+object with key:value pairs matching `updateData`
+Reference the Plotly.extendTraces API for full usage:
+https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces}
 
 \item{restyleData}{Data from latest restyle event which occurs
 when the user toggles a legend item, changes

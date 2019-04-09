@@ -41,7 +41,7 @@
     "ramda": "^0.24.1",
     "rc-slider": "^8.3.1",
     "react-addons-shallow-compare": "^15.6.0",
-    "react-dates": "^12.3.0",
+    "react-dates": "^20.1.0",
     "react-docgen": "^2.21.0",
     "react-dropzone": "^4.1.2",
     "react-markdown": "^4.0.6",
@@ -70,9 +70,8 @@
     "jest": "^24.5.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.14.2",
-    "react": "^16.6.1",
-    "react-dom": "^16.6.1",
-    "react-dot-fragment": "^0.2.8",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "style-loader": "^0.23.1",
     "styled-jsx": "^3.1.1",
     "webpack": "^4.29.6",
@@ -80,7 +79,7 @@
     "webpack-serve": "^2.0.3"
   },
   "peerDependencies": {
-    "react": "^15.6.0 || ^16.0.0",
-    "react-dom": "^15.6.0 || ^16.0.0"
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0"
   }
 }
