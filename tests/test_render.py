@@ -1807,29 +1807,12 @@ class Tests(IntegrationTests):
             dash_renderer._js_dist_dependencies,
             [{
                 'external_url': [
-                    'https://unpkg.com/react@15.4.2/dist/react.min.js',
-                    'https://unpkg.com/react-dom@15.4.2/dist/react-dom.min.js',
+                    'https://unpkg.com/react@16.8.6/umd/react.production.min.js',
+                    'https://unpkg.com/react-dom@16.8.6/umd/react-dom.production.min.js',
                 ],
                 'relative_package_path': [
-                    'react@15.4.2.min.js',
-                    'react-dom@15.4.2.min.js',
-                ],
-                'namespace': 'dash_renderer',
-            }])
-
-        dash_renderer._set_react_version('16.2.0')
-
-        # Check that the _js_dist_dependencies updated
-        self.assertEqual(
-            dash_renderer._js_dist_dependencies,
-            [{
-                'external_url': [
-                    'https://unpkg.com/react@16.2.0/umd/react.production.min.js',
-                    'https://unpkg.com/react-dom@16.2.0/umd/react-dom.production.min.js',
-                ],
-                'relative_package_path': [
-                    'react@16.2.0.production.min.js',
-                    'react-dom@16.2.0.production.min.js'
+                    'react@16.8.6.min.js',
+                    'react-dom@16.8.6.min.js'
                 ],
                 'namespace': 'dash_renderer',
             }])
@@ -1852,9 +1835,6 @@ class Tests(IntegrationTests):
         app.layout = _test_component
 
         self.startServer(app)
-
-        # Reset react version
-        dash_renderer._set_react_version(dash_renderer._DEFAULT_REACT_VERSION)
 
 
     def test_multiple_properties_update_at_same_time_on_same_component(self):
