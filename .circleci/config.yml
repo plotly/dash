@@ -39,7 +39,7 @@ jobs:
           name: Install dependencies (dash)
           command: |
               git clone git@github.com:plotly/dash.git
-              git clone -b react-16 git@github.com:plotly/dash-core-components.git
+              git clone git@github.com:plotly/dash-core-components.git
               git clone git@github.com:plotly/dash-html-components.git
               git clone git@github.com:plotly/dash-table.git
               . venv/bin/activate
