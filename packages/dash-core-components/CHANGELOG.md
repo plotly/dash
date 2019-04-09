@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - `extendData` prop for `Graph` component. This feeds `Plotly.extendTraces` for incremental data updates. [#461](https://github.com/plotly/dash-core-components/pull/461)
 
+### Changed
+[#508](https://github.com/plotly/dash-core-components/pull/508)
+- Upgrade from React 15.4.2 to 16.8.6
+- Upgrade from react-date 12.3.0 to 20.1.0
+
 ### Fixed
 - Fix unnecessary `loading_state` prop for `Input` component. [#498](https://github.com/plotly/dash-core-components/issues/498)
 - Ensure `DatePickerSingle` callbacks fire with cleared dates. [#511](https://github.com/plotly/dash-core-components/pull/511)

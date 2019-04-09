@@ -3,15 +3,18 @@ import R from 'ramda';
 import React from 'react';
 import {mount, render} from 'enzyme';
 
+const defaultProps = {
+    start_date_id: 'start-date-id',
+    end_date_id: 'end-date-id',
+};
+
 test('DatePickerRange renders', () => {
-    const dps = render(<DatePickerRange />);
+    const dps = render(<DatePickerRange {...defaultProps} />);
 
     expect(dps.html()).toBeDefined();
 });
 
 describe('Date can be set properly', () => {
-    const defaultProps = {};
-
     test('null date is not converted by moment', () => {
         const props = R.merge(defaultProps, {
             end_date: null,

@@ -16,7 +16,7 @@ import dash
 from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
-import dash_table_experiments as dt
+from dash_table import DataTable
 from dash.exceptions import PreventUpdate
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import InvalidElementStateException, TimeoutException
@@ -103,7 +103,7 @@ class Tests(IntegrationTests):
                 )
             ),
             html.Div(id='output'),
-            html.Div(dt.DataTable(rows=[{}]), style={'display': 'none'})
+            html.Div(DataTable(data=[{}]), style={'display': 'none'})
         ])
 
         @app.callback(Output('output', 'children'),
@@ -115,9 +115,9 @@ class Tests(IntegrationTests):
                     df = pd.read_csv(io.StringIO(base64.b64decode(
                         content_string).decode('utf-8')))
                     return html.Div([
-                        dt.DataTable(
-                            rows=df.to_dict('records'),
-                            columns=['city', 'country']),
+                        DataTable(
+                            data=df.to_dict('records'),
+                            columns=[{'id': i} for i in ['city', 'country']]),
                         html.Hr(),
                         html.Div('Raw Content'),
                         html.Pre(contents, style=pre_style)
@@ -126,9 +126,9 @@ class Tests(IntegrationTests):
                     df = pd.read_excel(io.BytesIO(base64.b64decode(
                         content_string)))
                     return html.Div([
-                        dt.DataTable(
-                            rows=df.to_dict('records'),
-                            columns=['city', 'country']),
+                        DataTable(
+                            data=df.to_dict('records'),
+                            columns=[{'id': i} for i in ['city', 'country']]),
                         html.Hr(),
                         html.Div('Raw Content'),
                         html.Pre(contents, style=pre_style)
@@ -980,32 +980,49 @@ class Tests(IntegrationTests):
         dt_input_1.click()
         self.snapshot('gallery - DatePickerSingle\'s datepicker '
                       'when no date value and no initial month specified')
+        dt_length = len(dt_input_1.get_attribute('value'))
+        dt_input_1.send_keys(dt_length * Keys.BACKSPACE)
         dt_input_1.send_keys("1997-05-03")
 
         dt_input_2 = self.driver.find_element_by_css_selector(
             '#dt-single-no-date-value-init-month #date'
         )
+        self.driver.find_element_by_css_selector(
+            'label'
+        ).click()
         dt_input_2.click()
         self.snapshot('gallery - DatePickerSingle\'s datepicker '
                       'when no date value, but initial month is specified')
+        dt_length = len(dt_input_2.get_attribute('value'))
+        dt_input_2.send_keys(dt_length * Keys.BACKSPACE)
         dt_input_2.send_keys("1997-05-03")
 
         dt_input_3 = self.driver.find_element_by_css_selector(
             '#dt-range-no-date-values #endDate'
         )
+        self.driver.find_element_by_css_selector(
+            'label'
+        ).click()
         dt_input_3.click()
         self.snapshot('gallery - DatePickerRange\'s datepicker '
                       'when neither start date nor end date '
                       'nor initial month is specified')
+        dt_length = len(dt_input_3.get_attribute('value'))
+        dt_input_3.send_keys(dt_length * Keys.BACKSPACE)
         dt_input_3.send_keys("1997-05-03")
 
         dt_input_4 = self.driver.find_element_by_css_selector(
             '#dt-range-no-date-values-init-month #endDate'
         )
+        self.driver.find_element_by_css_selector(
+            'label'
+        ).click()
         dt_input_4.click()
         self.snapshot('gallery - DatePickerRange\'s datepicker '
                       'when neither start date nor end date is specified, '
                       'but initial month is')
+        dt_length = len(dt_input_4.get_attribute('value'))
+        dt_input_4.send_keys(dt_length * Keys.BACKSPACE)
         dt_input_4.send_keys("1997-05-03")
 
     def test_tabs_in_vertical_mode(self):
@@ -1593,10 +1610,14 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#date-picker-range-output', 'None - None')
 
         # updated only one date, callback shouldn't fire and output should be unchanged
+        dt_length = len(start_date.get_attribute('value'))
+        start_date.send_keys(dt_length * Keys.BACKSPACE)
         start_date.send_keys("1997-05-03")
         self.wait_for_text_to_equal('#date-picker-range-output', 'None - None')
 
         # updated both dates, callback should now fire and update output
+        dt_length = len(end_date.get_attribute('value'))
+        end_date.send_keys(dt_length * Keys.BACKSPACE)
         end_date.send_keys("1997-05-04")
         end_date.click()
         self.wait_for_text_to_equal(

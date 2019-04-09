@@ -1,6 +1,5 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import PropTypes from 'prop-types';
-import Fragment from 'react-dot-fragment';
 
 const Tab = ({children}) => <Fragment>{children}</Fragment>;
 
