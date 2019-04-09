@@ -2,7 +2,7 @@
 deps_metadata <- list(`dash_core_components_0` = structure(list(name = "dash_core_components_0",
 version = "0", src = list(href = NULL,
 file = "deps"), meta = NULL,
-script = "plotly-1.45.0.min.js",
+script = "plotly-1.47.0.min.js",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "dashCoreComponents",
 all_files = FALSE), class = "html_dependency"),
 `dash_core_components` = structure(list(name = "dash_core_components",
