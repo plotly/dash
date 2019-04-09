@@ -9131,6 +9131,90 @@ module.exports = __webpack_require__(/*! ../modules/_core */ "./node_modules/@ba
 
 /***/ }),
 
+/***/ "./node_modules/check-prop-types/index.js":
+/*!************************************************!*\
+  !*** ./node_modules/check-prop-types/index.js ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Copyright Facebook, ratehub.
+ * All rights reserved.
+ *
+ * This code is intended to closely match the behaviour of checkPropTypes() from
+ * facebook/prop-types. The license for that code can be found here:
+ * https://github.com/facebook/prop-types/blob/be165febc8133dfbe2c45133db6d25664dd68ad8/LICENSE
+ *
+ * That function's source:
+ * https://github.com/facebook/prop-types/blob/be165febc8133dfbe2c45133db6d25664dd68ad8/checkPropTypes.js
+ */
+
+/**
+ * Check if the values match with the type specs
+ * Return a type error message or null
+ *
+ * @param {object} typeSpecs Map of name to a ReactPropType
+ * @param {object} values Runtime values that need to be type-checked
+ * @param {string} location e.g. "prop", "context", "child context"
+ * @param {string} componentName Name of the component for error messages.
+ * @param {?Function} getStack Returns the component stack.
+ */
+function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
+  if (true) {
+    const ReactPropTypesSecret = __webpack_require__(/*! prop-types/lib/ReactPropTypesSecret */ "./node_modules/prop-types/lib/ReactPropTypesSecret.js");
+    var name = componentName || 'React class';
+    for (var typeSpecName in typeSpecs) {
+      if (typeSpecs.hasOwnProperty(typeSpecName)) {
+        var error;
+        if (typeof typeSpecs[typeSpecName] !== 'function') {
+          return (name + ': ' + location + ' type `' + typeSpecName + '` is ' +
+            'invalid; it must be a function, usually from React.PropTypes.');
+        } else {
+          // Prop type validation may throw. In case they do, catch and save the
+          // exception as the error.
+          try {
+            error = typeSpecs[typeSpecName](values, typeSpecName, componentName,
+              location, null, ReactPropTypesSecret);
+          } catch (ex) {
+            error = ex;
+          }
+        }
+        if (error && !(error instanceof Error)) {
+          return (name + ': type specification of ' + location + ' `' +
+            typeSpecName + '` is invalid; the type checker function must ' +
+            'return `null` or an `Error` but returned a ' + typeof error + '. '+
+            'You may have forgotten to pass an argument to the type checker ' +
+            'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' +
+            'shape all require an argument).');
+        }
+        if (error instanceof Error) {
+          var stack = getStack && getStack() || '';
+          return 'Failed ' + location + ' type: ' + error.message + stack;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Same as checkPropTypes but throws on error
+ */
+function assertPropTypes() {
+  if (true) {
+    var error = checkPropTypes.apply(null, arguments);
+    if (error) {
+      throw new Error(error);
+    }
+  }
+}
+
+module.exports = checkPropTypes;
+module.exports.assertPropTypes = assertPropTypes;
+
+
+/***/ }),
+
 /***/ "./node_modules/cookie/index.js":
 /*!**************************************!*\
   !*** ./node_modules/cookie/index.js ***!
@@ -9420,7 +9504,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error-top {\n    display: flex;\n}\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-close:hover {\n    cursor: pointer;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error__icon-arrow:hover {\n    cursor: pointer;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 2px;\n    font-size: 13px;\n    display: inline-block;\n}\n.dash-fe-error__collapse {\n    width: 14px;\n    position: absolute;\n    right: 22px;\n}\n.dash-fe-error__collapse:hover {\n    cursor: pointer;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    overflow: scroll;\n    padding: 2rem;\n    margin-top: 8px;\n    display: inline-block;\n}\n", ""]);
+exports.push([module.i, ".dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error-top {\n    display: flex;\n}\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-close:hover {\n    cursor: pointer;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error__icon-arrow:hover {\n    cursor: pointer;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 2px;\n    font-size: 13px;\n    display: inline-block;\n}\n.dash-fe-error__collapse {\n    width: 14px;\n    position: absolute;\n    right: 22px;\n}\n.dash-fe-error__collapse:hover {\n    cursor: pointer;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    overflow: scroll;\n    padding: 2rem;\n    margin-top: 8px;\n    display: inline-block;\n}\n\n.dash-be-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    /* iframe container handles the scrolling */\n    overflow: hidden;\n    display: inline-block;\n}\n", ""]);
 
 // exports
 
@@ -9436,10 +9520,10 @@ exports.push([module.i, ".dash-fe-errors {\n    min-width: 386px;\n    max-width
 
 exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
 // imports
-exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Fira);", ""]);
+
 
 // module
-exports.push([module.i, ".dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: Fira Code;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    max-width: 800px;\n    max-height: 650px;\n    margin: 1rem;\n    overflow: auto;\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 1rem;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 1rem;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: -webkit-box;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
+exports.push([module.i, "\n.dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: Fira Code;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    width: 600px;\n    max-width: 800px;\n    max-height: 650px;\n    margin: 1rem;\n    overflow: auto;\n    z-index: 1001;  /* above the plotly.js toolbar */\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 1rem;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 1rem;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: -webkit-box;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
 
 // exports
 
@@ -34841,15 +34925,19 @@ var _ComponentErrorBoundary = __webpack_require__(/*! ./components/error/Compone
 
 var ComponentErrorBoundary = _interopRequireDefault(_ComponentErrorBoundary).default;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _checkPropTypes = __webpack_require__(/*! check-prop-types */ "./node_modules/check-prop-types/index.js");
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var assertPropTypes = _checkPropTypes.assertPropTypes;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 var SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
 var isSimpleComponent = function isSimpleComponent(component) {
@@ -34861,6 +34949,25 @@ var createContainer = function createContainer(component) {
         key: component && component.props && component.props.id,
         _dashprivate_layout: component
     });
+};
+
+function CheckedComponent(p) {
+    var element = p.element,
+        layout = p.layout,
+        props = p.props,
+        children = p.children;
+
+
+    assertPropTypes(element.propTypes, layout, 'component prop', element);
+
+    return React.createElement.apply(React, [element, mergeAll([layout, props])].concat(_toConsumableArray(Array.isArray(children) ? children : [children])));
+}
+
+CheckedComponent.propTypes = {
+    children: PropTypes.any,
+    element: PropTypes.any,
+    layout: PropTypes.any,
+    props: PropTypes.any
 };
 
 var TreeContainer = function (_Component) {
@@ -34906,7 +35013,22 @@ var TreeContainer = function (_Component) {
             }
             var element = Registry.resolve(_dashprivate_layout.type, _dashprivate_layout.namespace);
 
-            return React.createElement.apply(React, [element, mergeAll([omit(['children'], _dashprivate_layout.props), { loading_state: loading_state, setProps: setProps }])].concat(_toConsumableArray(Array.isArray(children) ? children : [children])));
+            var layout = omit(['children'], _dashprivate_layout.props);
+
+            return React.createElement(
+                ComponentErrorBoundary,
+                {
+                    componentType: _dashprivate_layout.type,
+                    componentId: _dashprivate_layout.props.id,
+                    key: element && element.props && element.props.id
+                },
+                React.createElement(CheckedComponent, {
+                    children: children,
+                    element: element,
+                    layout: layout,
+                    props: { loading_state: loading_state, setProps: setProps }
+                })
+            );
         }
     }, {
         key: 'getSetProps',
@@ -34955,7 +35077,6 @@ var TreeContainer = function (_Component) {
             var _dashprivate_layout = nextProps._dashprivate_layout,
                 _dashprivate_loadingState = nextProps._dashprivate_loadingState;
 
-
             return _dashprivate_layout !== this.props._dashprivate_layout || _dashprivate_loadingState.is_loading !== this.props._dashprivate_loadingState.is_loading;
         }
     }, {
@@ -34977,14 +35098,7 @@ var TreeContainer = function (_Component) {
             var children = this.getChildren(layoutProps.children);
             var setProps = this.getSetProps(_dashprivate_dispatch);
 
-            return React.createElement(
-                ComponentErrorBoundary,
-                {
-                    componentType: _dashprivate_layout.type,
-                    componentId: _dashprivate_layout.props.id
-                },
-                this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps)
-            );
+            return this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps);
         }
     }]);
 
@@ -35000,60 +35114,8 @@ TreeContainer.propTypes = {
     _dashprivate_requestQueue: PropTypes.object
 };
 
-function mapDispatchToProps(dispatch) {
-    return { dispatch: dispatch };
-}
-
-function mapStateToProps(state) {
-    return {
-        dependencies: state.dependenciesRequest.content,
-        paths: state.paths,
-        requestQueue: state.requestQueue
-    };
-}
-
-function mergeProps(stateProps, dispatchProps, ownProps) {
-    return {
-        _dashprivate_dependencies: stateProps.dependencies,
-        _dashprivate_dispatch: dispatchProps.dispatch,
-        _dashprivate_layout: ownProps._dashprivate_layout,
-        _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.requestQueue),
-        _dashprivate_paths: stateProps.paths,
-        _dashprivate_requestQueue: stateProps.requestQueue
-    };
-}
-
-function getLoadingState(layout, requestQueue) {
-    var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id ? [layout.props.id] : [];
-
-    var isLoading = false;
-    var loadingProp = void 0;
-    var loadingComponent = void 0;
-
-    if (requestQueue) {
-        forEach(function (r) {
-            var controllerId = isNil(r.controllerId) ? '' : r.controllerId;
-            if (r.status === 'loading' && any(function (id) {
-                return contains(id, controllerId);
-            }, ids)) {
-                isLoading = true;
-
-                var _r$controllerId$split = r.controllerId.split('.');
-
-                var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
-
-                loadingComponent = _r$controllerId$split2[0];
-                loadingProp = _r$controllerId$split2[1];
-            }
-        }, requestQueue);
-    }
-
-    // Set loading state
-    return {
-        is_loading: isLoading,
-        prop_name: loadingProp,
-        component_name: loadingComponent
-    };
+function isLoadingComponent(layout) {
+    return Registry.resolve(layout.type, layout.namespace)._dashprivate_isLoadingComponent;
 }
 
 function getNestedIds(layout) {
@@ -35089,11 +35151,57 @@ function getNestedIds(layout) {
     return ids;
 }
 
-function isLoadingComponent(layout) {
-    return Registry.resolve(layout.type, layout.namespace)._dashprivate_isLoadingComponent;
+function getLoadingState(layout, requestQueue) {
+    var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id ? [layout.props.id] : [];
+
+    var isLoading = false;
+    var loadingProp = void 0;
+    var loadingComponent = void 0;
+
+    if (requestQueue) {
+        forEach(function (r) {
+            var controllerId = isNil(r.controllerId) ? '' : r.controllerId;
+            if (r.status === 'loading' && any(function (id) {
+                return contains(id, controllerId);
+            }, ids)) {
+                isLoading = true;
+
+                var _r$controllerId$split = r.controllerId.split('.');
+
+                var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
+
+                loadingComponent = _r$controllerId$split2[0];
+                loadingProp = _r$controllerId$split2[1];
+            }
+        }, requestQueue);
+    }
+
+    // Set loading state
+    return {
+        is_loading: isLoading,
+        prop_name: loadingProp,
+        component_name: loadingComponent
+    };
 }
 
-var AugmentedTreeContainer = exports.AugmentedTreeContainer = connect(mapStateToProps, mapDispatchToProps, mergeProps)(TreeContainer);
+var AugmentedTreeContainer = exports.AugmentedTreeContainer = connect(function (state) {
+    return {
+        dependencies: state.dependenciesRequest.content,
+        paths: state.paths,
+        requestQueue: state.requestQueue
+    };
+}, function (dispatch) {
+    return { dispatch: dispatch };
+}, function (stateProps, dispatchProps, ownProps) {
+    return {
+        _dashprivate_dependencies: stateProps.dependencies,
+        _dashprivate_dispatch: dispatchProps.dispatch,
+        _dashprivate_layout: ownProps._dashprivate_layout,
+        _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.requestQueue),
+        _dashprivate_paths: stateProps.paths,
+        _dashprivate_requestQueue: stateProps.requestQueue
+    };
+})(TreeContainer);
 
 exports.default = AugmentedTreeContainer;
 
@@ -35198,15 +35306,12 @@ function apiThunk(endpoint, method, store, id, body) {
                 }
             });
         }).catch(function (err) {
-            /* eslint-disable no-console */
-            console.error(err);
-            /* eslint-enable no-console */
-            if (err) {
+            err.text().then(function (text) {
                 dispatch(onError({
                     type: 'backEnd',
-                    errorPage: err
+                    errorPage: text
                 }));
-            }
+            });
         });
     };
 }
@@ -35996,10 +36101,12 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
             }
         });
     }).catch(function (err) {
-        dispatch(onError({
-            type: 'backEnd',
-            errorPage: err
-        }));
+        err.text().then(function (text) {
+            dispatch(onError({
+                type: 'backEnd',
+                errorPage: text
+            }));
+        });
     });
 }
 
@@ -37007,10 +37114,6 @@ var _react = __webpack_require__(/*! react */ "react");
 
 var Component = _react.Component;
 
-var _ErrorIcon = __webpack_require__(/*! ../icons/ErrorIcon.svg */ "./src/components/error/icons/ErrorIcon.svg");
-
-var ErrorIcon = _interopRequireDefault(_ErrorIcon).default;
-
 var _CloseIcon = __webpack_require__(/*! ../icons/CloseIcon.svg */ "./src/components/error/icons/CloseIcon.svg");
 
 var CloseIcon = _interopRequireDefault(_CloseIcon).default;
@@ -37077,10 +37180,10 @@ var FrontEndError = function (_Component) {
             return collapsed ? React.createElement(
                 'div',
                 { className: 'dash-error-card__list-item' },
-                React.createElement(ErrorIcon, { className: 'dash-fe-error__icon-error' }),
                 React.createElement(
                     'h6',
                     { className: 'dash-fe-error__title' },
+                    '\u2623\uFE0F\xA0',
                     e.error.message || 'An error was thrown that was not an Error object, so info could not be gathered.'
                 ),
                 React.createElement(CollapseIcon, {
@@ -37095,10 +37198,10 @@ var FrontEndError = function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'dash-fe-error-top' },
-                    React.createElement(ErrorIcon, { className: 'dash-fe-error__icon-error' }),
                     React.createElement(
                         'h6',
                         { className: 'dash-fe-error__title' },
+                        '\u2623\uFE0F\xA0',
                         e.error.message || 'An error was thrown that was not an Error object, so info could not be gathered.'
                     ),
                     this.props.isListItem ? React.createElement(CollapseIcon, {
@@ -37108,7 +37211,7 @@ var FrontEndError = function (_Component) {
                         }
                     }) : closeButton
                 ),
-                React.createElement(
+                !e.error.stack ? null : React.createElement(
                     'div',
                     { className: 'dash-fe-error__st' },
                     e.error.stack && e.error.stack.split('\n').map(function (line) {
@@ -37118,6 +37221,27 @@ var FrontEndError = function (_Component) {
                             line
                         );
                     })
+                ),
+                !e.error.html ? null : React.createElement(
+                    'div',
+                    { className: 'dash-be-error__st' },
+                    React.createElement(
+                        'div',
+                        { className: 'dash-backend-error' },
+                        React.createElement('iframe', {
+                            style: {
+                                /*
+                                 * 67px of padding and margin between this
+                                 * iframe and the parent container.
+                                 * 67 was determined manually in the
+                                 * browser's dev tools.
+                                 */
+                                'width': 'calc(600px - 67px)',
+                                'height': '75vh',
+                                'border': 'none'
+                            },
+                            srcDoc: e.error.html.replace('</head>', '\n<style type="text/css">\n    {\n        font-family: Roboto;\n    }\n    .traceback {\n        background-color: white;\n        border: 2px solid #dfe8f3;\n        border-radius: 0px 0px 4px 4px;\n        color: #506784;\n    }\n    h2.traceback {\n        background-color: #f3f6fa;\n        border: 2px solid #dfe8f3;\n        border-bottom: 0px;\n        box-sizing: border-box;\n        border-radius: 4px 4px 0px 0px;\n        color: #506784;\n    }\n    h2.traceback em{\n        color: #506784;\n        font-weight: 100;\n    }\n    .traceback pre, .debugger textarea{\n        background-color: #F3F6FA;\n    }\n    .debugger h1{\n        color: #506784;\n        font-family: Roboto;\n    }\n    .explanation {\n        color: #A2B1C6;\n    }\n     /* Hide the Don\'t Panic! footer */\n     .debugger .footer {\n         display: none;\n     }\n\n    /* Messing around */\n     .traceback > ul > li {\n         display: none;\n     }\n     .traceback > ul > li:nth-last-child(-n+3) {\n         display: block;\n     }\n     .debugger h1 {\n         display: none;\n     }\n\n     .debugger .errormsg {\n         margin: 0;\n         color: #506784;\n         font-size: 16px;\n         background-color: #f3f6fa;\n         border: 2px solid #dfe8f3;\n         box-sizing: border-box;\n         border-radius: 4px;\n         padding: 10px;\n     }\n\n    .debugger .pastemessage input {\n        display: none;\n    }\n\n    .debugger .explanation {\n        display: none;\n    }\n    .debugger div.plain {\n        border-radius: 4px;\n        border-width: 2px;\n        color: #506784;\n    }\n\n    body {\n        padding: 0px;\n        margin: 0px;\n    }\n\n    .plain {\n        display: block !important;\n    }\n    .plain > form > p {\n        display: none;\n    }\n    .plain pre {\n        padding: 15px !important;\n        overflow-x: scroll;\n    }\n</style>\n</head>') })
+                    )
                 )
             );
         }
@@ -37220,7 +37344,7 @@ var FrontEndErrorContainer = function (_Component) {
                     React.createElement(
                         'h6',
                         { className: 'dash-error-card__message' },
-                        '\u26A0\uFE0F Alerts (',
+                        '\uD83D\uDED1 Alerts (',
                         React.createElement(
                             'strong',
                             null,
@@ -37345,24 +37469,6 @@ var UnconnectedGlobalErrorContainer = function (_Component) {
                 error = _props.error,
                 dispatch = _props.dispatch;
 
-            if (!isEmpty(error.backEnd)) {
-                return React.createElement(
-                    'div',
-                    { className: 'dash-backend-error' },
-                    React.createElement(
-                        'h2',
-                        null,
-                        ' ',
-                        error.backEnd.errorPage.message,
-                        ' '
-                    ),
-                    React.createElement(
-                        'pre',
-                        { className: 'traceback' },
-                        error.backEnd.errorPage.stack
-                    )
-                );
-            }
             return React.createElement(
                 'div',
                 { id: '_dash-global-error-container' },
@@ -37500,17 +37606,23 @@ var GlobalErrorOverlay = function (_Component) {
                 error = _props.error,
                 toastsEnabled = _props.toastsEnabled;
 
+            var backEndErrors = void 0;
             var frontEndErrors = void 0;
             if (toastsEnabled) {
-                if (error.frontEnd.length > 1) {
-                    frontEndErrors = React.createElement(FrontEndErrorContainer, {
-                        errors: error.frontEnd,
-                        resolve: resolve
-                    });
-                } else if (!isEmpty(error.frontEnd)) {
-                    var e = error.frontEnd[0];
-                    frontEndErrors = React.createElement(FrontEndError, { e: e, resolve: resolve });
+                var errors = [];
+                if (error.frontEnd.length) {
+                    errors = error.frontEnd;
                 }
+                if (!isEmpty(error.backEnd)) {
+                    errors.push({ error: {
+                            message: 'Python exception',
+                            html: error.backEnd.errorPage
+                        } });
+                }
+                frontEndErrors = React.createElement(FrontEndErrorContainer, {
+                    errors: errors,
+                    resolve: resolve
+                });
             }
             return React.createElement(
                 'div',
@@ -37724,41 +37836,6 @@ var SvgDebugIcon = function SvgDebugIcon(props) {
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (SvgDebugIcon);
-
-/***/ }),
-
-/***/ "./src/components/error/icons/ErrorIcon.svg":
-/*!**************************************************!*\
-  !*** ./src/components/error/icons/ErrorIcon.svg ***!
-  \**************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-
-
-var _ref =
-/*#__PURE__*/
-react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("path", {
-  fillRule: "evenodd",
-  clipRule: "evenodd",
-  d: "M0 8c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8-8-3.58-8-8zm10.88 4L12 10.88 9.12 8 12 5.12 10.88 4 8 6.88 5.12 4 4 5.12 6.88 8 4 10.88 5.12 12 8 9.12 10.88 12z",
-  fill: "#EF553B"
-});
-
-var SvgErrorIcon = function SvgErrorIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("svg", _extends({
-    viewBox: "0 0 16 16",
-    fill: "none"
-  }, props), _ref);
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (SvgErrorIcon);
 
 /***/ }),
 
@@ -38030,10 +38107,6 @@ var _WarningIconWhite = __webpack_require__(/*! ../icons/WarningIconWhite.svg */
 
 var WarningIconWhite = _interopRequireDefault(_WarningIconWhite).default;
 
-var _ErrorIcon = __webpack_require__(/*! ../icons/ErrorIcon.svg */ "./src/components/error/icons/ErrorIcon.svg");
-
-var ErrorIcon = _interopRequireDefault(_ErrorIcon).default;
-
 var _ErrorIconWhite = __webpack_require__(/*! ../icons/ErrorIconWhite.svg */ "./src/components/error/icons/ErrorIconWhite.svg");
 
 var ErrorIconWhite = _interopRequireDefault(_ErrorIconWhite).default;
@@ -38069,7 +38142,7 @@ var DebugAlertContainer = function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    alertsOpened ? React.createElement(ErrorIconWhite, { className: 'dash-debug-alert-container__icon' }) : React.createElement(ErrorIcon, { className: 'dash-debug-alert-container__icon' }),
+                    alertsOpened ? React.createElement(ErrorIconWhite, { className: 'dash-debug-alert-container__icon' }) : '❌',
                     this.props.errors.length
                 ),
                 React.createElement(
@@ -38177,10 +38250,6 @@ var GraphIcon = _interopRequireDefault(_GraphIcon).default;
 var _WarningIcon = __webpack_require__(/*! ../icons/WarningIcon.svg */ "./src/components/error/icons/WarningIcon.svg");
 
 var WarningIcon = _interopRequireDefault(_WarningIcon).default;
-
-var _ErrorIcon = __webpack_require__(/*! ../icons/ErrorIcon.svg */ "./src/components/error/icons/ErrorIcon.svg");
-
-var ErrorIcon = _interopRequireDefault(_ErrorIcon).default;
 
 var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
 
@@ -38356,7 +38425,7 @@ var DebugMenu = function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    React.createElement(ErrorIcon, { className: 'dash-debug-alert-container__icon' }),
+                    '\u2623\uFE0F\xA0',
                     errors.frontEnd.length
                 ),
                 React.createElement(
