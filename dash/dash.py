@@ -646,13 +646,6 @@ class Dash(object):
             } for k, v in self.callback_map.items()
         ])
 
-    # pylint: disable=unused-argument, no-self-use
-    def react(self, *args, **kwargs):
-        raise exceptions.DashException(
-            'Yo! `react` is no longer used. \n'
-            'Use `callback` instead. `callback` has a new syntax too, '
-            'so make sure to call `help(app.callback)` to learn more.')
-
     def _validate_callback(self, output, inputs, state):
         # pylint: disable=too-many-branches
         layout = self._cached_layout or self._layout_value()
@@ -842,7 +835,8 @@ class Dash(object):
                 ).replace('    ', '')
             raise exceptions.DuplicateCallbackOutput(msg)
 
-    def _validate_callback_output(self, output_value, output):
+    @staticmethod
+    def _validate_callback_output(output_value, output):
         valid = [str, dict, int, float, type(None), Component]
 
         def _raise_invalid(bad_val, outer_val, bad_type, path, index=None,
@@ -1232,7 +1226,8 @@ class Dash(object):
                 elif f == 'favicon.ico':
                     self._favicon = path
 
-    def _invalid_resources_handler(self, err):
+    @staticmethod
+    def _invalid_resources_handler(err):
         return err.args[0], 404
 
     def _serve_default_favicon(self):
