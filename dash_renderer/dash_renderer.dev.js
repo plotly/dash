@@ -14020,6 +14020,21 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
   }
 
   function createElementTypeTypeChecker() {
+<<<<<<< HEAD
+=======
+    function validate(props, propName, componentName, location, propFullName) {
+      var propValue = props[propName];
+      if (!ReactIs.isValidElementType(propValue)) {
+        var propType = getPropType(propValue);
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected a single ReactElement type.'));
+      }
+      return null;
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function createInstanceTypeChecker(expectedClass) {
+>>>>>>> master
     function validate(props, propName, componentName, location, propFullName) {
       var propValue = props[propName];
       if (!ReactIs.isValidElementType(propValue)) {
@@ -35449,6 +35464,8 @@ var STATUS = _constants3.STATUS;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var updateProps = exports.updateProps = createAction(getAction('ON_PROP_CHANGE'));
@@ -35683,8 +35700,8 @@ function notifyObservers(payload) {
         var queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
             var outputIds = void 0;
-            if (outputIdAndProp.startsWith('..')) {
-                outputIds = outputIdAndProp.slice(2, outputIdAndProp.length - 2).split('...').map(function (e) {
+            if ((0, _utils2.isMultiOutputProp)(outputIdAndProp)) {
+                outputIds = (0, _utils2.parseMultipleOutputs)(outputIdAndProp).map(function (e) {
                     return e.split('.')[0];
                 });
             } else {
@@ -35786,7 +35803,7 @@ function notifyObservers(payload) {
 
         /* eslint-disable consistent-return */
         return Promise.all(promises);
-        /* eslint-enableconsistent-return */
+        /* eslint-enable consistent-return */
     };
 }
 
@@ -35799,6 +35816,34 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         hooks = _getState3.hooks;
 
     var InputGraph = graphs.InputGraph;
+
+
+    var getThisRequestIndex = function getThisRequestIndex() {
+        var postRequestQueue = getState().requestQueue;
+        var thisRequestIndex = (0, _ramda.findIndex)((0, _ramda.propEq)('uid', requestUid), postRequestQueue);
+        return thisRequestIndex;
+    };
+
+    var updateRequestQueue = function updateRequestQueue(rejected, status) {
+        var postRequestQueue = getState().requestQueue;
+        var thisRequestIndex = getThisRequestIndex();
+        if (thisRequestIndex === -1) {
+            // It was already pruned away
+            return;
+        }
+        var updatedQueue = (0, _ramda.adjust)((0, _ramda.merge)(_ramda.__, {
+            status: status,
+            responseTime: Date.now(),
+            rejected: rejected
+        }), thisRequestIndex, postRequestQueue);
+        // We don't need to store any requests before this one
+        var thisControllerId = postRequestQueue[thisRequestIndex].controllerId;
+        var prunedQueue = updatedQueue.filter(function (queueItem, index) {
+            return queueItem.controllerId !== thisControllerId || index >= thisRequestIndex;
+        });
+
+        dispatch(setRequestQueue(prunedQueue));
+    };
 
     /*
      * Construct a payload of the input and state.
@@ -35825,7 +35870,8 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         return dependency.output === outputIdAndProp;
     }),
         inputs = _dependenciesRequest$.inputs,
-        state = _dependenciesRequest$.state;
+        state = _dependenciesRequest$.state,
+        clientside_function = _dependenciesRequest$.clientside_function;
 
     var validKeys = keys(getState().paths);
 
@@ -35865,10 +35911,101 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         });
     }
 
+    // Clientside hook
+    if (clientside_function &&
+    // allow the API to skip clientside if provided {} or nothing at all
+    !(0, _ramda.isEmpty)(clientside_function)) {
+        var updateClientsideOutput = function updateClientsideOutput(outputIdAndProp, outputValue) {
+            var _outputIdAndProp$spli3 = outputIdAndProp.split('.'),
+                _outputIdAndProp$spli4 = _slicedToArray(_outputIdAndProp$spli3, 2),
+                outputId = _outputIdAndProp$spli4[0],
+                outputProp = _outputIdAndProp$spli4[1];
+
+            var updatedProps = _defineProperty({}, outputProp, outputValue);
+
+            /*
+             * Update the request queue by treating a successful clientside
+             * like a succesful serverside response (200 status code)
+             */
+            updateRequestQueue(false, _constants3.STATUS.OK);
+
+            // Update the layout with the new result
+            dispatch(updateProps({
+                itempath: getState().paths[outputId],
+                props: updatedProps,
+                source: 'response'
+            }));
+
+            /*
+             * This output could itself be a serverside or clientside input
+             * to another function
+             */
+            dispatch(notifyObservers({
+                id: outputId,
+                props: updatedProps
+            }));
+        };
+
+        var returnValue = void 0;
+        try {
+            var _window$dash_clientsi;
+
+            returnValue = (_window$dash_clientsi = window.dash_clientside[clientside_function.namespace])[clientside_function.function_name].apply(_window$dash_clientsi, _toConsumableArray((0, _ramda.pluck)('value', payload.inputs)).concat(_toConsumableArray((0, _ramda.has)('state', payload) ? (0, _ramda.pluck)('value', payload.state) : [])));
+        } catch (e) {
+            /* eslint-disable no-console */
+            console.error('The following error occurred while executing ' + clientside_function.namespace + '.' + clientside_function.function_name + ' ' + ('in order to update component "' + payload.output + '" \u22C1\u22C1\u22C1'));
+            console.error(e);
+            /* eslint-enable no-console */
+
+            /*
+             * Update the request queue by treating an unsuccessful clientside
+             * like a failed serverside response via same request queue
+             * mechanism
+             */
+
+            updateRequestQueue(true, _constants3.STATUS.CLIENTSIDE_ERROR);
+            return;
+        }
+
+        // Returning promises isn't support atm
+        if ((0, _ramda.type)(returnValue) === 'Promise') {
+            /* eslint-disable no-console */
+            console.error('The clientside function ' + (clientside_function.namespace + '.' + clientside_function.function_name + ' ') + 'returned a Promise instead of a value. Promises are not ' + 'supported in Dash clientside right now, but may be in the ' + 'future.');
+            /* eslint-enable no-console */
+            updateRequestQueue(true, _constants3.STATUS.CLIENTSIDE_ERROR);
+            return;
+        }
+
+        if ((0, _utils2.isMultiOutputProp)(payload.output)) {
+            (0, _utils2.parseMultipleOutputs)(payload.output).forEach(function (outputPropId, i) {
+                updateClientsideOutput(outputPropId, returnValue[i]);
+            });
+        } else {
+            updateClientsideOutput(payload.output, returnValue);
+        }
+
+        /*
+         * Note that unlike serverside updates, we're not handling
+         * children as components right now, so we don't need to
+         * crawl the computed result to check for nested components
+         * or properties that might trigger other inputs.
+         * In the future, we could handle this case.
+         */
+        return;
+    }
+
     if (hooks.request_pre !== null) {
         hooks.request_pre(payload);
     }
+<<<<<<< HEAD
     return fetch(urlBase(config) + '_dash-update-component', {
+=======
+
+    /* eslint-disable consistent-return */
+    return fetch((0, _utils2.urlBase)(config) + '_dash-update-component', {
+        /* eslint-enable consistent-return */
+
+>>>>>>> master
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -35877,6 +36014,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         credentials: 'same-origin',
         body: JSON.stringify(payload)
     }).then(function handleResponse(res) {
+<<<<<<< HEAD
         if (!res.ok) {
             throw res;
         }
@@ -35908,6 +36046,8 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
             dispatch(setRequestQueue(prunedQueue));
         };
 
+=======
+>>>>>>> master
         var isRejected = function isRejected() {
             var latestRequestIndex = findLastIndex(propEq('controllerId', outputIdAndProp), getState().requestQueue);
             /*
@@ -35922,7 +36062,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
 
         if (res.status !== STATUS.OK) {
             // update the status of this request
-            updateRequestQueue(true);
+            updateRequestQueue(true, res.status);
             return;
         }
 
@@ -35932,7 +36072,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
          * If so, ignore this request.
          */
         if (isRejected()) {
-            updateRequestQueue(true);
+            updateRequestQueue(true, res.status);
             return;
         }
 
@@ -35944,11 +36084,11 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
              * get out of order
              */
             if (isRejected()) {
-                updateRequestQueue(true);
+                updateRequestQueue(true, res.status);
                 return;
             }
 
-            updateRequestQueue(false);
+            updateRequestQueue(false, res.status);
 
             // Fire custom request_post hook if any
             if (hooks.request_post !== null) {
@@ -36004,7 +36144,11 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
                      * need to dispatch a propChange for all of these
                      * new children components
                      */
+<<<<<<< HEAD
                     if (contains(type(observerUpdatePayload.props.children), ['Array', 'Object']) && !isEmpty(observerUpdatePayload.props.children)) {
+=======
+                    if ((0, _ramda.contains)((0, _ramda.type)(observerUpdatePayload.props.children), ['Array', 'Object']) && !(0, _ramda.isEmpty)(observerUpdatePayload.props.children)) {
+>>>>>>> master
                         /*
                          * TODO: We're just naively crawling
                          * the _entire_ layout to recompute the
@@ -38484,7 +38628,8 @@ var REDIRECT_URI_PATHNAME = exports.REDIRECT_URI_PATHNAME = '/_oauth2/callback';
 var OAUTH_COOKIE_NAME = exports.OAUTH_COOKIE_NAME = 'plotly_oauth_token';
 
 var STATUS = exports.STATUS = {
-    OK: 200
+    OK: 200,
+    CLIENTSIDE_ERROR: 'CLIENTSIDE_ERROR'
 };
 
 /***/ }),
@@ -38686,8 +38831,12 @@ var type = _ramda.type;
 
 var _dependencyGraph = __webpack_require__(/*! dependency-graph */ "./node_modules/dependency-graph/lib/dep_graph.js");
 
+<<<<<<< HEAD
 var DepGraph = _dependencyGraph.DepGraph;
 
+=======
+var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js");
+>>>>>>> master
 
 var initialGraph = {};
 
@@ -38714,8 +38863,8 @@ var graphs = function graphs() {
                         outputId = output.id + '.' + output.property;
                     } else {
                         outputId = output;
-                        if (output.startsWith('.')) {
-                            output.slice(2, output.length - 2).split('...').forEach(function (out) {
+                        if ((0, _utils.isMultiOutputProp)(output)) {
+                            (0, _utils.parseMultipleOutputs)(output).forEach(function (out) {
                                 multiGraph.addNode(out);
                                 inputs.forEach(function (i) {
                                     var inputId = i.id + '.' + i.property;
@@ -39445,6 +39594,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.urlBase = urlBase;
 exports.uid = uid;
+exports.isMultiOutputProp = isMultiOutputProp;
+exports.parseMultipleOutputs = parseMultipleOutputs;
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
@@ -39474,6 +39625,29 @@ function uid() {
         return Math.floor((1 + Math.random()) * h).toString(16).substring(1);
     }
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
+
+function isMultiOutputProp(outputIdAndProp) {
+    /*
+     * If this update is for multiple outputs, then it has
+     * starting & trailing `..` and each propId pair is separated
+     * by `...`, e.g.
+     * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+     */
+
+    return outputIdAndProp.startsWith('..');
+}
+
+function parseMultipleOutputs(outputIdAndProp) {
+    /*
+     * If this update is for multiple outputs, then it has
+     * starting & trailing `..` and each propId pair is separated
+     * by `...`, e.g.
+     * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+     */
+    return outputIdAndProp.split('...').map(function (o) {
+        return o.replace('..', '');
+    });
 }
 
 /***/ }),

@@ -21,6 +21,9 @@ class UnconnectedContainer extends Component {
     constructor(props) {
         super(props);
         this.initialization = this.initialization.bind(this);
+        this.state = {
+            errorLoading: false,
+        };
     }
     componentDidMount() {
         this.initialization(this.props);
@@ -71,7 +74,16 @@ class UnconnectedContainer extends Component {
             // Hasn't already hydrated
             appLifecycle === getAppState('STARTED')
         ) {
-            dispatch(hydrateInitialOutputs());
+            let errorLoading = false;
+            try {
+                dispatch(hydrateInitialOutputs());
+            } catch (err) {
+                errorLoading = true;
+            } finally {
+                this.setState(state =>
+                    state.errorLoading !== errorLoading ? {errorLoading} : null
+                );
+            }
         }
     }
 
@@ -83,14 +95,17 @@ class UnconnectedContainer extends Component {
             layout,
         } = this.props;
 
+        const {errorLoading} = this.state;
+
         if (
             layoutRequest.status &&
             !contains(layoutRequest.status, [STATUS.OK, 'loading'])
         ) {
             return <div className="_dash-error">{'Error loading layout'}</div>;
         } else if (
-            dependenciesRequest.status &&
-            !contains(dependenciesRequest.status, [STATUS.OK, 'loading'])
+            errorLoading ||
+            (dependenciesRequest.status &&
+                !contains(dependenciesRequest.status, [STATUS.OK, 'loading']))
         ) {
             return (
                 <div className="_dash-error">

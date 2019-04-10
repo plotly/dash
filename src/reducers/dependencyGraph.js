@@ -1,5 +1,6 @@
 import {type} from 'ramda';
 import {DepGraph} from 'dependency-graph';
+import {isMultiOutputProp, parseMultipleOutputs} from '../utils';
 
 const initialGraph = {};
 
@@ -20,20 +21,17 @@ const graphs = (state = initialGraph, action) => {
                     outputId = `${output.id}.${output.property}`;
                 } else {
                     outputId = output;
-                    if (output.startsWith('.')) {
-                        output
-                            .slice(2, output.length - 2)
-                            .split('...')
-                            .forEach(out => {
-                                multiGraph.addNode(out);
-                                inputs.forEach(i => {
-                                    const inputId = `${i.id}.${i.property}`;
-                                    if (!multiGraph.hasNode(inputId)) {
-                                        multiGraph.addNode(inputId);
-                                    }
-                                    multiGraph.addDependency(inputId, out);
-                                });
+                    if (isMultiOutputProp(output)) {
+                        parseMultipleOutputs(output).forEach(out => {
+                            multiGraph.addNode(out);
+                            inputs.forEach(i => {
+                                const inputId = `${i.id}.${i.property}`;
+                                if (!multiGraph.hasNode(inputId)) {
+                                    multiGraph.addNode(inputId);
+                                }
+                                multiGraph.addDependency(inputId, out);
                             });
+                        });
                     } else {
                         multiGraph.addNode(output);
                         inputs.forEach(i => {
