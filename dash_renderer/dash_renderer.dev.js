@@ -14020,21 +14020,6 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
   }
 
   function createElementTypeTypeChecker() {
-<<<<<<< HEAD
-=======
-    function validate(props, propName, componentName, location, propFullName) {
-      var propValue = props[propName];
-      if (!ReactIs.isValidElementType(propValue)) {
-        var propType = getPropType(propValue);
-        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected a single ReactElement type.'));
-      }
-      return null;
-    }
-    return createChainableTypeChecker(validate);
-  }
-
-  function createInstanceTypeChecker(expectedClass) {
->>>>>>> master
     function validate(props, propName, componentName, location, propFullName) {
       var propValue = props[propName];
       if (!ReactIs.isValidElementType(propValue)) {
@@ -34512,6 +34497,9 @@ var UnconnectedContainer = function (_Component) {
         var _this = _possibleConstructorReturn(this, (UnconnectedContainer.__proto__ || Object.getPrototypeOf(UnconnectedContainer)).call(this, props));
 
         _this.initialization = _this.initialization.bind(_this);
+        _this.state = {
+            errorLoading: false
+        };
         return _this;
     }
 
@@ -34560,7 +34548,16 @@ var UnconnectedContainer = function (_Component) {
             layoutRequest.status === STATUS.OK && !isEmpty(layout) && !isNil(paths) &&
             // Hasn't already hydrated
             appLifecycle === getAppState('STARTED')) {
-                dispatch(hydrateInitialOutputs());
+                var errorLoading = false;
+                try {
+                    dispatch(hydrateInitialOutputs());
+                } catch (err) {
+                    errorLoading = true;
+                } finally {
+                    this.setState(function (state) {
+                        return state.errorLoading !== errorLoading ? { errorLoading: errorLoading } : null;
+                    });
+                }
             }
         }
     }, {
@@ -34571,6 +34568,7 @@ var UnconnectedContainer = function (_Component) {
                 dependenciesRequest = _props.dependenciesRequest,
                 layoutRequest = _props.layoutRequest,
                 layout = _props.layout;
+            var errorLoading = this.state.errorLoading;
 
 
             if (layoutRequest.status && !contains(layoutRequest.status, [STATUS.OK, 'loading'])) {
@@ -34579,7 +34577,7 @@ var UnconnectedContainer = function (_Component) {
                     { className: '_dash-error' },
                     'Error loading layout'
                 );
-            } else if (dependenciesRequest.status && !contains(dependenciesRequest.status, [STATUS.OK, 'loading'])) {
+            } else if (errorLoading || dependenciesRequest.status && !contains(dependenciesRequest.status, [STATUS.OK, 'loading'])) {
                 return React.createElement(
                     'div',
                     { className: '_dash-error' },
@@ -35457,6 +35455,8 @@ var _utils2 = __webpack_require__(/*! ../utils */ "./src/utils.js");
 
 var uid = _utils2.uid;
 var urlBase = _utils2.urlBase;
+var isMultiOutputProp = _utils2.isMultiOutputProp;
+var parseMultipleOutputs = _utils2.parseMultipleOutputs;
 
 var _constants3 = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
 
@@ -35700,8 +35700,8 @@ function notifyObservers(payload) {
         var queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
             var outputIds = void 0;
-            if ((0, _utils2.isMultiOutputProp)(outputIdAndProp)) {
-                outputIds = (0, _utils2.parseMultipleOutputs)(outputIdAndProp).map(function (e) {
+            if (isMultiOutputProp(outputIdAndProp)) {
+                outputIds = parseMultipleOutputs(outputIdAndProp).map(function (e) {
                     return e.split('.')[0];
                 });
             } else {
@@ -35820,7 +35820,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
 
     var getThisRequestIndex = function getThisRequestIndex() {
         var postRequestQueue = getState().requestQueue;
-        var thisRequestIndex = (0, _ramda.findIndex)((0, _ramda.propEq)('uid', requestUid), postRequestQueue);
+        var thisRequestIndex = findIndex(propEq('uid', requestUid), postRequestQueue);
         return thisRequestIndex;
     };
 
@@ -35831,7 +35831,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
             // It was already pruned away
             return;
         }
-        var updatedQueue = (0, _ramda.adjust)((0, _ramda.merge)(_ramda.__, {
+        var updatedQueue = adjust(merge(__, {
             status: status,
             responseTime: Date.now(),
             rejected: rejected
@@ -35912,9 +35912,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
     }
 
     // Clientside hook
-    if (clientside_function &&
-    // allow the API to skip clientside if provided {} or nothing at all
-    !(0, _ramda.isEmpty)(clientside_function)) {
+    if (clientside_function) {
         var updateClientsideOutput = function updateClientsideOutput(outputIdAndProp, outputValue) {
             var _outputIdAndProp$spli3 = outputIdAndProp.split('.'),
                 _outputIdAndProp$spli4 = _slicedToArray(_outputIdAndProp$spli3, 2),
@@ -35927,7 +35925,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
              * Update the request queue by treating a successful clientside
              * like a succesful serverside response (200 status code)
              */
-            updateRequestQueue(false, _constants3.STATUS.OK);
+            updateRequestQueue(false, STATUS.OK);
 
             // Update the layout with the new result
             dispatch(updateProps({
@@ -35950,7 +35948,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         try {
             var _window$dash_clientsi;
 
-            returnValue = (_window$dash_clientsi = window.dash_clientside[clientside_function.namespace])[clientside_function.function_name].apply(_window$dash_clientsi, _toConsumableArray((0, _ramda.pluck)('value', payload.inputs)).concat(_toConsumableArray((0, _ramda.has)('state', payload) ? (0, _ramda.pluck)('value', payload.state) : [])));
+            returnValue = (_window$dash_clientsi = window.dash_clientside[clientside_function.namespace])[clientside_function.function_name].apply(_window$dash_clientsi, _toConsumableArray(pluck('value', payload.inputs)).concat(_toConsumableArray(has('state', payload) ? pluck('value', payload.state) : [])));
         } catch (e) {
             /* eslint-disable no-console */
             console.error('The following error occurred while executing ' + clientside_function.namespace + '.' + clientside_function.function_name + ' ' + ('in order to update component "' + payload.output + '" \u22C1\u22C1\u22C1'));
@@ -35963,21 +35961,21 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
              * mechanism
              */
 
-            updateRequestQueue(true, _constants3.STATUS.CLIENTSIDE_ERROR);
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
             return;
         }
 
         // Returning promises isn't support atm
-        if ((0, _ramda.type)(returnValue) === 'Promise') {
+        if (type(returnValue) === 'Promise') {
             /* eslint-disable no-console */
             console.error('The clientside function ' + (clientside_function.namespace + '.' + clientside_function.function_name + ' ') + 'returned a Promise instead of a value. Promises are not ' + 'supported in Dash clientside right now, but may be in the ' + 'future.');
             /* eslint-enable no-console */
-            updateRequestQueue(true, _constants3.STATUS.CLIENTSIDE_ERROR);
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
             return;
         }
 
-        if ((0, _utils2.isMultiOutputProp)(payload.output)) {
-            (0, _utils2.parseMultipleOutputs)(payload.output).forEach(function (outputPropId, i) {
+        if (isMultiOutputProp(payload.output)) {
+            parseMultipleOutputs(payload.output).forEach(function (outputPropId, i) {
                 updateClientsideOutput(outputPropId, returnValue[i]);
             });
         } else {
@@ -35997,15 +35995,11 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
     if (hooks.request_pre !== null) {
         hooks.request_pre(payload);
     }
-<<<<<<< HEAD
-    return fetch(urlBase(config) + '_dash-update-component', {
-=======
 
     /* eslint-disable consistent-return */
-    return fetch((0, _utils2.urlBase)(config) + '_dash-update-component', {
+    return fetch(urlBase(config) + '_dash-update-component', {
         /* eslint-enable consistent-return */
 
->>>>>>> master
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -36014,40 +36008,6 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         credentials: 'same-origin',
         body: JSON.stringify(payload)
     }).then(function handleResponse(res) {
-<<<<<<< HEAD
-        if (!res.ok) {
-            throw res;
-        }
-
-        var getThisRequestIndex = function getThisRequestIndex() {
-            var postRequestQueue = getState().requestQueue;
-            var thisRequestIndex = findIndex(propEq('uid', requestUid), postRequestQueue);
-            return thisRequestIndex;
-        };
-
-        var updateRequestQueue = function updateRequestQueue(rejected) {
-            var postRequestQueue = getState().requestQueue;
-            var thisRequestIndex = getThisRequestIndex();
-            if (thisRequestIndex === -1) {
-                // It was already pruned away
-                return;
-            }
-            var updatedQueue = adjust(merge(__, {
-                status: res.status,
-                responseTime: Date.now(),
-                rejected: rejected
-            }), thisRequestIndex, postRequestQueue);
-            // We don't need to store any requests before this one
-            var thisControllerId = postRequestQueue[thisRequestIndex].controllerId;
-            var prunedQueue = updatedQueue.filter(function (queueItem, index) {
-                return queueItem.controllerId !== thisControllerId || index >= thisRequestIndex;
-            });
-
-            dispatch(setRequestQueue(prunedQueue));
-        };
-
-=======
->>>>>>> master
         var isRejected = function isRejected() {
             var latestRequestIndex = findLastIndex(propEq('controllerId', outputIdAndProp), getState().requestQueue);
             /*
@@ -36144,11 +36104,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
                      * need to dispatch a propChange for all of these
                      * new children components
                      */
-<<<<<<< HEAD
                     if (contains(type(observerUpdatePayload.props.children), ['Array', 'Object']) && !isEmpty(observerUpdatePayload.props.children)) {
-=======
-                    if ((0, _ramda.contains)((0, _ramda.type)(observerUpdatePayload.props.children), ['Array', 'Object']) && !(0, _ramda.isEmpty)(observerUpdatePayload.props.children)) {
->>>>>>> master
                         /*
                          * TODO: We're just naively crawling
                          * the _entire_ layout to recompute the
@@ -36158,7 +36114,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
                          */
                         var newProps = {};
                         crawlLayout(observerUpdatePayload.props.children, function appendIds(child) {
-                            if (hasPropsId(child)) {
+                            if (hasId(child)) {
                                 keys(child.props).forEach(function (childProp) {
                                     var componentIdAndProp = child.props.id + '.' + childProp;
                                     if (has(componentIdAndProp, InputGraph.nodes)) {
@@ -37381,11 +37337,12 @@ var FrontEndError = function (_Component) {
                                  * 67 was determined manually in the
                                  * browser's dev tools.
                                  */
-                                'width': 'calc(600px - 67px)',
-                                'height': '75vh',
-                                'border': 'none'
+                                width: 'calc(600px - 67px)',
+                                height: '75vh',
+                                border: 'none'
                             },
-                            srcDoc: e.error.html.replace('</head>', '\n<style type="text/css">\n    {\n        font-family: Roboto;\n    }\n    .traceback {\n        background-color: white;\n        border: 2px solid #dfe8f3;\n        border-radius: 0px 0px 4px 4px;\n        color: #506784;\n    }\n    h2.traceback {\n        background-color: #f3f6fa;\n        border: 2px solid #dfe8f3;\n        border-bottom: 0px;\n        box-sizing: border-box;\n        border-radius: 4px 4px 0px 0px;\n        color: #506784;\n    }\n    h2.traceback em{\n        color: #506784;\n        font-weight: 100;\n    }\n    .traceback pre, .debugger textarea{\n        background-color: #F3F6FA;\n    }\n    .debugger h1{\n        color: #506784;\n        font-family: Roboto;\n    }\n    .explanation {\n        color: #A2B1C6;\n    }\n     /* Hide the Don\'t Panic! footer */\n     .debugger .footer {\n         display: none;\n     }\n\n    /* Messing around */\n     .traceback > ul > li {\n         display: none;\n     }\n     .traceback > ul > li:nth-last-child(-n+3) {\n         display: block;\n     }\n     .debugger h1 {\n         display: none;\n     }\n\n     .debugger .errormsg {\n         margin: 0;\n         color: #506784;\n         font-size: 16px;\n         background-color: #f3f6fa;\n         border: 2px solid #dfe8f3;\n         box-sizing: border-box;\n         border-radius: 4px;\n         padding: 10px;\n     }\n\n    .debugger .pastemessage input {\n        display: none;\n    }\n\n    .debugger .explanation {\n        display: none;\n    }\n    .debugger div.plain {\n        border-radius: 4px;\n        border-width: 2px;\n        color: #506784;\n    }\n\n    body {\n        padding: 0px;\n        margin: 0px;\n    }\n\n    .plain {\n        display: block !important;\n    }\n    .plain > form > p {\n        display: none;\n    }\n    .plain pre {\n        padding: 15px !important;\n        overflow-x: scroll;\n    }\n</style>\n</head>') })
+                            srcDoc: e.error.html.replace('</head>', '\n<style type="text/css">\n    {\n        font-family: Roboto;\n    }\n    .traceback {\n        background-color: white;\n        border: 2px solid #dfe8f3;\n        border-radius: 0px 0px 4px 4px;\n        color: #506784;\n    }\n    h2.traceback {\n        background-color: #f3f6fa;\n        border: 2px solid #dfe8f3;\n        border-bottom: 0px;\n        box-sizing: border-box;\n        border-radius: 4px 4px 0px 0px;\n        color: #506784;\n    }\n    h2.traceback em{\n        color: #506784;\n        font-weight: 100;\n    }\n    .traceback pre, .debugger textarea{\n        background-color: #F3F6FA;\n    }\n    .debugger h1{\n        color: #506784;\n        font-family: Roboto;\n    }\n    .explanation {\n        color: #A2B1C6;\n    }\n     /* Hide the Don\'t Panic! footer */\n     .debugger .footer {\n         display: none;\n     }\n\n    /* Messing around */\n     .traceback > ul > li {\n         display: none;\n     }\n     .traceback > ul > li:nth-last-child(-n+3) {\n         display: block;\n     }\n     .debugger h1 {\n         display: none;\n     }\n\n     .debugger .errormsg {\n         margin: 0;\n         color: #506784;\n         font-size: 16px;\n         background-color: #f3f6fa;\n         border: 2px solid #dfe8f3;\n         box-sizing: border-box;\n         border-radius: 4px;\n         padding: 10px;\n     }\n\n    .debugger .pastemessage input {\n        display: none;\n    }\n\n    .debugger .explanation {\n        display: none;\n    }\n    .debugger div.plain {\n        border-radius: 4px;\n        border-width: 2px;\n        color: #506784;\n    }\n\n    body {\n        padding: 0px;\n        margin: 0px;\n    }\n\n    .plain {\n        display: block !important;\n    }\n    .plain > form > p {\n        display: none;\n    }\n    .plain pre {\n        padding: 15px !important;\n        overflow-x: scroll;\n    }\n</style>\n</head>')
+                        })
                     )
                 )
             );
@@ -37757,15 +37714,14 @@ var GlobalErrorOverlay = function (_Component) {
                     errors = error.frontEnd;
                 }
                 if (!isEmpty(error.backEnd)) {
-                    errors.push({ error: {
+                    errors.push({
+                        error: {
                             message: 'Python exception',
                             html: error.backEnd.errorPage
-                        } });
+                        }
+                    });
                 }
-                frontEndErrors = React.createElement(FrontEndErrorContainer, {
-                    errors: errors,
-                    resolve: resolve
-                });
+                frontEndErrors = React.createElement(FrontEndErrorContainer, { errors: errors, resolve: resolve });
             }
             return React.createElement(
                 'div',
@@ -38831,12 +38787,13 @@ var type = _ramda.type;
 
 var _dependencyGraph = __webpack_require__(/*! dependency-graph */ "./node_modules/dependency-graph/lib/dep_graph.js");
 
-<<<<<<< HEAD
 var DepGraph = _dependencyGraph.DepGraph;
 
-=======
 var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js");
->>>>>>> master
+
+var isMultiOutputProp = _utils.isMultiOutputProp;
+var parseMultipleOutputs = _utils.parseMultipleOutputs;
+
 
 var initialGraph = {};
 
@@ -38863,8 +38820,8 @@ var graphs = function graphs() {
                         outputId = output.id + '.' + output.property;
                     } else {
                         outputId = output;
-                        if ((0, _utils.isMultiOutputProp)(output)) {
-                            (0, _utils.parseMultipleOutputs)(output).forEach(function (out) {
+                        if (isMultiOutputProp(output)) {
+                            parseMultipleOutputs(output).forEach(function (out) {
                                 multiGraph.addNode(out);
                                 inputs.forEach(function (i) {
                                     var inputId = i.id + '.' + i.property;
