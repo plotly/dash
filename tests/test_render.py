@@ -1998,7 +1998,7 @@ class Tests(IntegrationTests):
 
         # Front-end failed to render.
         self.assertIn(
-            'Dependency Cycle Found',
+            'Resolve BackEnd Error',
             self.driver.find_element_by_tag_name('body').text,
             "circular dependencies is not detected"
         )
