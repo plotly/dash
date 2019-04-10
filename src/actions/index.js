@@ -26,7 +26,7 @@ import {
     view,
 } from 'ramda';
 import {createAction} from 'redux-actions';
-import {crawlLayout, hasPropsId} from '../reducers/utils';
+import {crawlLayout, hasId} from '../reducers/utils';
 import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
 import cookie from 'cookie';

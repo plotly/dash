@@ -72,10 +72,6 @@ class FrontEndError extends Component {
                 {!e.error.html ? null : (
                     <div className="dash-be-error__st">
                         <div className="dash-backend-error">
-                            {/* Embed werkzeug debugger in an iframe to prevent
-                                CSS leaking - werkzeug HTML includes a bunch
-                                of CSS on base html elements like `<body/>`
-                              */}
                             <iframe
                                 style={{
                                     /*

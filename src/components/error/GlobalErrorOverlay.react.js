@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {isEmpty} from 'ramda';
-// import {FrontEndError} from './FrontEnd/FrontEndError.react';
+
 import './GlobalErrorOverlay.css';
 import {FrontEndErrorContainer} from './FrontEnd/FrontEndErrorContainer.react';
 
