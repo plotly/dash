@@ -1993,7 +1993,7 @@ class Tests(IntegrationTests):
         def set_bc(a):
             return [a, a]
 
-        self.startServer(app)
+        self.startServer(app, debug=True)
 
         # Front-end failed to render.
         self.assertIn(
