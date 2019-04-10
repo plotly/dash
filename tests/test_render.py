@@ -1977,8 +1977,6 @@ class Tests(IntegrationTests):
 
     def test_multi_output_circular_dependencies(self):
         app = dash.Dash(__name__)
-        app.config['suppress_callback_exceptions'] = True
-
         app.layout = html.Div([
             dcc.Input(id='a'),
             dcc.Input(id='b'),
@@ -1994,7 +1992,7 @@ class Tests(IntegrationTests):
         def set_bc(a):
             return [a, a]
 
-        self.startServer(app)
+        self.startServer(app, debug=True)
 
         # Front-end failed to render.
         self.assertIn(
