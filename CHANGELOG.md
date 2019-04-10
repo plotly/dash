@@ -1,9 +1,13 @@
-## Unreleased
+## [0.41.0] - 2019-04-10
 ### Added
 - Support for "Clientside Callbacks" - an escape hatch to execute your callbacks in JavaScript instead of Python [#672](https://github.com/plotly/dash/pull/672)
 - Added `dev_tools_ui` config flag in `app.run_server` (serialized in `<script id="_dash-config" type="application/json">`)
   to display or hide the forthcoming Dev Tools UI in Dash's front-end (dash-renderer). [#676](https://github.com/plotly/dash/pull/676)
 - Partial updates: leave some multi-output updates unchanged while updating others [#680](https://github.com/plotly/dash/pull/680)
+
+## Changed
+- Bumped dash-core-components version from 0.45.0 to [0.46.0](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0460---2019-04-10)
+- Bumped dash-renderer version from 0.21.0 to [0.22.0](https://github.com/plotly/dash-renderer/blob/master/CHANGELOG.md#0220---2019-04-10)
 
 ## [0.40.0] - 2019-03-25
 ### Changed
