@@ -315,7 +315,7 @@ class Tests(IntegrationTests):
 
         pad_input, pad_div = BeautifulSoup(
             self.driver.find_element_by_css_selector(
-                '#_dash-app-content').get_attribute('innerHTML'),
+                '#react-entry-point').get_attribute('innerHTML'),
             'lxml').select_one('#output > div').contents
 
         self.assertTrue(
@@ -1987,12 +1987,13 @@ class Tests(IntegrationTests):
         def set_a(b):
             return ((b or '') + 'X')[:100]
 
-        @app.callback([Output('b', 'value'), Output('c', 'children')],
-                      [Input('a', 'value')])
+        @app.callback(
+            [Output('b', 'value'), Output('c', 'children')],
+            [Input('a', 'value')])
         def set_bc(a):
             return [a, a]
 
-        self.startServer(app, debug=True)
+        self.startServer(app)
 
         # Front-end failed to render.
         self.assertIn(
