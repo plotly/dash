@@ -151,7 +151,7 @@ class Tests(IntegrationTests):
         ])
 
         self.startServer(app)
-        el = self.wait_for_element_by_css_selector('#_dash-app-content')
+        el = self.wait_for_element_by_css_selector('#react-entry-point')
 
         _dash_app_content_html = os.path.join(
             os.path.dirname(__file__),
@@ -209,7 +209,7 @@ class Tests(IntegrationTests):
                 for abbr in (
                     child.get('id')
                     for child in fetched_dom.find(
-                    id='_dash-app-content').findChildren(id=True)
+                    id='react-entry-point').findChildren(id=True)
                 )
             },
             "paths should refect to the component hierarchy"
