@@ -34567,7 +34567,8 @@ var UnconnectedContainer = function (_Component) {
                 appLifecycle = _props.appLifecycle,
                 dependenciesRequest = _props.dependenciesRequest,
                 layoutRequest = _props.layoutRequest,
-                layout = _props.layout;
+                layout = _props.layout,
+                config = _props.config;
             var errorLoading = this.state.errorLoading;
 
 
@@ -34583,12 +34584,14 @@ var UnconnectedContainer = function (_Component) {
                     { className: '_dash-error' },
                     'Error loading dependencies'
                 );
-            } else if (appLifecycle === getAppState('HYDRATED')) {
+            } else if (appLifecycle === getAppState('HYDRATED') && config.dev_tools_ui === true) {
                 return React.createElement(
                     GlobalErrorContainer,
                     null,
                     React.createElement(TreeContainer, { _dashprivate_layout: layout })
                 );
+            } else if (appLifecycle === getAppState('HYDRATED')) {
+                return React.createElement(TreeContainer, { _dashprivate_layout: layout });
             }
 
             return React.createElement(
@@ -34609,8 +34612,9 @@ UnconnectedContainer.propTypes = {
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,
-    history: PropTypes.array,
-    error: PropTypes.object
+    history: PropTypes.any,
+    error: PropTypes.object,
+    config: PropTypes.object
 };
 
 var Container = connect(
@@ -34624,7 +34628,8 @@ function (state) {
         graphs: state.graphs,
         paths: state.paths,
         history: state.history,
-        error: state.error
+        error: state.error,
+        config: state.config
     };
 }, function (dispatch) {
     return { dispatch: dispatch };
@@ -35437,7 +35442,7 @@ var createAction = _reduxActions.createAction;
 var _utils = __webpack_require__(/*! ../reducers/utils */ "./src/reducers/utils.js");
 
 var crawlLayout = _utils.crawlLayout;
-var hasPropsId = _utils.hasPropsId;
+var hasId = _utils.hasId;
 
 var _constants = __webpack_require__(/*! ../reducers/constants */ "./src/reducers/constants.js");
 
@@ -37523,10 +37528,6 @@ var _radium = __webpack_require__(/*! radium */ "./node_modules/radium/es/index.
 
 var Radium = _interopRequireDefault(_radium).default;
 
-var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
-
-var isEmpty = _ramda.isEmpty;
-
 var _actions = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
 
 var _resolveError = _actions.resolveError;
@@ -37685,8 +37686,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-// import {FrontEndError} from './FrontEnd/FrontEndError.react';
-
 
 var GlobalErrorOverlay = function (_Component) {
     _inherits(GlobalErrorOverlay, _Component);
@@ -39394,6 +39393,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.crawlLayout = exports.hasPropsChildren = exports.hasPropsId = undefined;
+exports.hasId = hasId;
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
@@ -39442,6 +39442,10 @@ var crawlLayout = exports.crawlLayout = function crawlLayout(object, func) {
         });
     }
 };
+
+function hasId(child) {
+    return R.type(child) === 'Object' && R.has('props', child) && R.has('id', child.props);
+}
 
 /***/ }),
 
