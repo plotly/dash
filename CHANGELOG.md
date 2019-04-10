@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.22.0] - 2019-04-10
 ### Added
 - Added support for clientside callbacks [#143](https://github.com/plotly/dash-renderer/pull/143)
 
