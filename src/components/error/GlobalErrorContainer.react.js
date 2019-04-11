@@ -2,7 +2,6 @@ import {connect} from 'react-redux';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Radium from 'radium';
-import {isEmpty} from 'ramda';
 import {resolveError} from '../../actions';
 import {DebugMenu} from './menu/DebugMenu.react';
 

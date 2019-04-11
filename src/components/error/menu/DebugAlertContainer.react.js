@@ -1,8 +1,6 @@
 import './DebugAlertContainer.css';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
-import WarningIcon from '../icons/WarningIcon.svg';
-import WarningIconWhite from '../icons/WarningIconWhite.svg';
 import ErrorIcon from '../icons/ErrorIcon.svg';
 import ErrorIconWhite from '../icons/ErrorIconWhite.svg';
 

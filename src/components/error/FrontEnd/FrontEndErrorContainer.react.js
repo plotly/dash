@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import './FrontEndError.css';
-import CloseIcon from '../icons/CloseIcon.svg';
 import PropTypes from 'prop-types';
 import {FrontEndError} from './FrontEndError.react';
 

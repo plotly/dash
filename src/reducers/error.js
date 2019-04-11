@@ -12,17 +12,16 @@ function error(state = initialError, action) {
                 return {
                     frontEnd: [
                         merge(action.payload, {timestamp: new Date()}),
-                        ...state.frontEnd
+                        ...state.frontEnd,
                     ],
                     backEnd: state.backEnd,
                 };
             } else if (action.payload.type === 'backEnd') {
-                debugger;
                 return {
                     frontEnd: state.frontEnd,
                     backEnd: [
                         merge(action.payload, {timestamp: new Date()}),
-                        ...state.backEnd
+                        ...state.backEnd,
                     ],
                 };
             }

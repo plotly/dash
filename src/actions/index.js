@@ -805,7 +805,7 @@ function updateOutput(
                         error: {
                             message: `Callack error updating ${payload.output}`,
                             html: text,
-                        }
+                        },
                     })
                 );
             });
