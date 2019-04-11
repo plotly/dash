@@ -11,6 +11,10 @@ class FrontEndErrorContainer extends Component {
 
     render() {
         const errorsLength = this.props.errors.length;
+        if (errorsLength === 0) {
+            return null;
+        }
+
         const inAlertsTray = this.props.inAlertsTray;
         let cardClasses = 'dash-error-card dash-error-card--container';
 
