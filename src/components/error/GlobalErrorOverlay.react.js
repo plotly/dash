@@ -34,11 +34,6 @@ export default class GlobalErrorOverlay extends Component {
             <div>
                 <div>{this.props.children}</div>
                 <div className="dash-error-menu">
-                    {isEmpty(error.backEnd) ? null : (
-                        <button onClick={() => resolve('backEnd')}>
-                            Resolve BackEnd Error
-                        </button>
-                    )}
                     <div className={visible ? 'dash-fe-errors' : ''}>
                         {frontEndErrors}
                     </div>
