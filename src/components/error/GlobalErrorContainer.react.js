@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import Radium from 'radium';
 import {isEmpty} from 'ramda';
 import {resolveError} from '../../actions';
-import './werkzeug.css';
 import {DebugMenu} from './menu/DebugMenu.react';
 
 class UnconnectedGlobalErrorContainer extends Component {
@@ -26,7 +25,7 @@ class UnconnectedGlobalErrorContainer extends Component {
         return (
             <div id="_dash-global-error-container">
                 <DebugMenu
-                    errors={error}
+                    error={error}
                     dispatch={dispatch}
                     resolveError={this.resolveError}
                 >
