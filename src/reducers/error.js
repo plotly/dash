@@ -39,9 +39,12 @@ function error(state = initialError, action) {
                     backEnd: state.backEnd,
                 };
             } else if (action.payload.type === 'backEnd') {
+                const removeIdx = findIndex(
+                    propEq('myUID', action.payload.myUID)
+                )(state.backEnd);
                 return {
                     frontEnd: state.frontEnd,
-                    backEnd: {},
+                    backEnd: remove(removeIdx, 1, state.backEnd),
                 };
             }
             return state;
