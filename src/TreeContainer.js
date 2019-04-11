@@ -33,7 +33,7 @@ const createContainer = component => isSimpleComponent(component) ?
 
 class TreeContainer extends Component {
     getChildren(components) {
-        if (!components) {
+        if (isNil(components)) {
             return null;
         }
 

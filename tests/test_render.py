@@ -104,7 +104,7 @@ class Tests(IntegrationTests):
 
         if expected_length is not None:
             self.assertEqual(len(request_queue), expected_length)
-    
+
     def test_initial_state(self):
         app = Dash(__name__)
         app.layout = html.Div([
@@ -472,6 +472,26 @@ class Tests(IntegrationTests):
         self.request_queue_assertions(0)
 
         self.percy_snapshot(name='layout')
+
+        assert_clean_console(self)
+
+    def test_array_of_falsy_child(self):
+        app = Dash(__name__)
+        app.layout = html.Div(id='nully-wrapper', children=[0])
+
+        self.startServer(app)
+
+        self.wait_for_text_to_equal('#nully-wrapper', '0')
+
+        assert_clean_console(self)
+
+    def test_of_falsy_child(self):
+        app = Dash(__name__)
+        app.layout = html.Div(id='nully-wrapper', children=0)
+
+        self.startServer(app)
+
+        self.wait_for_text_to_equal('#nully-wrapper', '0')
 
         assert_clean_console(self)
 
