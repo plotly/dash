@@ -80,10 +80,10 @@ function ErrorContent({error, type}) {
             {!error.stack ? null : (
                 <div className="dash-fe-error__st">
                     <div className="dash-fe-error__info_title dash-fe-error__curved-top">
-                        {'JS Stack trace (see browser\'s console for details)'}
+                        {"JS Stack trace (see browser's console for details)"}
                     </div>
                     <div className="dash-fe-error__info dash-fe-error__curved-bottom">
-                        <hr/>
+                        <hr />
                         {error.stack.split('\n').map(line => (
                             <p>{line}</p>
                         ))}
@@ -135,7 +135,7 @@ const errorPropTypes = PropTypes.shape({
 
 ErrorContent.propTypes = {
     error: errorPropTypes,
-    type: PropTypes.oneOf(['backEnd', 'frontEnd'])
+    type: PropTypes.oneOf(['backEnd', 'frontEnd']),
 };
 
 FrontEndError.propTypes = {

@@ -59,14 +59,14 @@ function triggerDefaultState(dispatch, getState) {
 
     try {
         MultiGraph.overallOrder();
-    } catch(err) {
+    } catch (err) {
         dispatch(
             onError({
                 type: 'backEnd',
                 error: {
                     message: 'Circular Dependencies',
                     html: err.toString(),
-                }
+                },
             })
         );
     }
