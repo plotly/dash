@@ -1,6 +1,5 @@
 import './FrontEndError.css';
 import {Component} from 'react';
-import ErrorIcon from '../icons/ErrorIcon.svg';
 import CollapseIcon from '../icons/CollapseIcon.svg';
 import PropTypes from 'prop-types';
 
@@ -35,8 +34,7 @@ class FrontEndError extends Component {
                 onClick={() => this.setState({collapsed: !collapsed})}
             >
                 <span className="dash-fe-error-top__group">
-                    <ErrorIcon className="dash-fe-error__icon-error" />
-
+                    ☣️&nbsp;
                     <span className="dash-fe-error__title">
                         {e.error.message || 'Error'}
                     </span>
