@@ -9504,7 +9504,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error-top {\n    display: flex;\n}\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-close:hover {\n    cursor: pointer;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error__icon-arrow:hover {\n    cursor: pointer;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 2px;\n    font-size: 13px;\n    display: inline-block;\n}\n.dash-fe-error__collapse {\n    width: 14px;\n    position: absolute;\n    right: 22px;\n}\n.dash-fe-error__collapse:hover {\n    cursor: pointer;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    overflow: scroll;\n    padding: 2rem;\n    margin-top: 8px;\n    display: inline-block;\n}\n\n.dash-be-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    /* iframe container handles the scrolling */\n    overflow: hidden;\n    display: inline-block;\n}\n", ""]);
+exports.push([module.i, ".dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error-top {\n    height: 20px;\n    display: flex;\n    justify-content: space-between;\n    width: 100%;\n    cursor: pointer;\n}\n.dash-fe-error-top__group {\n    display: inline-flex;\n    align-items: center;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 0px;\n    padding: 0px;\n    font-size: 14px;\n    display: inline-block;\n}\n.dash-fe-error__timestamp {\n    margin-right: 30px;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    overflow: scroll;\n    padding: 2rem;\n    margin-top: 8px;\n    display: inline-block;\n}\n\n.dash-be-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    /* iframe container handles the scrolling */\n    overflow: hidden;\n    display: inline-block;\n}\n", ""]);
 
 // exports
 
@@ -9523,7 +9523,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "<<<<<<< HEAD\n=======\n\n>>>>>>> dev-tools-props\n.dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: Fira Code;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    width: 600px;\n    max-width: 800px;\n    max-height: 650px;\n    margin: 1rem;\n    overflow: auto;\n    z-index: 1001;  /* above the plotly.js toolbar */\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 1rem;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 1rem;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: -webkit-box;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
+exports.push([module.i, ".dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: monospace;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    width: 600px;\n    max-width: 800px;\n    max-height: 650px;\n    margin: 1rem;\n    overflow: auto;\n    z-index: 1001;  /* above the plotly.js toolbar */\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 1rem;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 10px 10px;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: flex;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
 
 // exports
 
@@ -9561,26 +9561,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".dash-debug-menu {\n    transition: width 0.05s, background-color 0.1s;\n    position: fixed;\n    bottom: 68px;\n    right: 84px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-debug-menu--closed {\n    background-color: #119dff;\n    border-radius: 100%;\n    width: 64px;\n    height: 64px;\n}\n.dash-debug-menu--opened {\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 4px;\n    padding: 12px 0px;\n}\n\n.dash-debug-menu--closed:hover {\n    cursor: pointer;\n    background-color: #108de4;\n}\n\n.dash-debug-menu__icon {\n    width: 24px;\n    height: 28px;\n}\n.dash-debug-menu__icon--close {\n    width: 14px;\n    height: 14px;\n}\n.dash-debug-menu__icon--bell {\n    height: 24px;\n    width: 28px;\n}\n.dash-debug-menu__icon--debug {\n    height: 24px;\n    width: auto;\n}\n.dash-debug-menu__icon--graph {\n    height: 24px;\n}\n\n.dash-debug-menu__content {\n    display: flex;\n    width: 100%;\n    height: 100%;\n}\n\n.dash-debug-menu__button-container {\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    align-items: center;\n    width: 74px;\n    margin-left: 10px;\n}\n.dash-debug-menu__button-label {\n    color: #A2B1C6;\n    font-size: 10px;\n    margin-top: 4px;\n}\n\n.dash-debug-menu__button {\n    background-color: white;\n    border-radius: 100%;\n    border: 1px solid #B9C2CE;\n    width: 64px;\n    height: 64px;\n    font-size: 10px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    transition: background-color 0.2s;\n    color: black;\n}\n.dash-debug-menu__button--enabled {\n    background-color: #00CC96;\n    color: white;\n}\n.dash-debug-menu__button--small {\n    width: 32px;\n    height: 32px;\n    background-color: #B9C2CE;\n}\n.dash-debug-menu__button:hover {\n    cursor: pointer;\n    background-color: #f5f5f5;\n}\n.dash-debug-menu__button--small:hover {\n    background-color: #a1a9b5;\n}\n\n.dash-debug-menu__button--enabled:hover {\n    background-color: #03bb8a;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ "./node_modules/css-loader/index.js!./src/components/error/werkzeug.css":
-/*!*********************************************************************!*\
-  !*** ./node_modules/css-loader!./src/components/error/werkzeug.css ***!
-  \*********************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
-// imports
-
-
-// module
-exports.push([module.i, ".dash-backend-error {\n    font-family: Roboto;\n}\n.dash-backend-error .traceback {\n    background-color: white;\n    border: 2px solid #dfe8f3;\n    border-radius: 0px 0px 4px 4px;\n    color: #506784;\n}\n.dash-backend-error h2.traceback {\n    background-color: #f3f6fa;\n    border: 2px solid #dfe8f3;\n    border-bottom: 0px;\n    box-sizing: border-box;\n    border-radius: 4px 4px 0px 0px;\n    color: #506784;\n    font-weight: 800;\n}\n.dash-backend-error h2.traceback em{\n    color: #506784;\n    font-weight: 100;\n}\n.dash-backend-error .traceback pre, .dash-backend-error .debugger textarea{\n    background-color: #F3F6FA;\n}\n.dash-backend-error .debugger {\n    width: 60%;\n}\n.dash-backend-error .debugger h1{\n    color: #506784;\n    font-family: Roboto;\n}\n.dash-backend-error .explanation {\n    color: #A2B1C6;\n}\n /* Hide the Don't Panic! footer */\n .dash-backend-error .debugger .footer {\n     display: none;\n }\n", ""]);
+exports.push([module.i, ".dash-debug-menu {\n    transition: width 0.05s, background-color 0.1s;\n    position: fixed;\n    bottom: 35px;\n    right: 35px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    z-index: 10000;\n}\n.dash-debug-menu--closed {\n    background-color: #119dff;\n    border-radius: 100%;\n    width: 64px;\n    height: 64px;\n}\n.dash-debug-menu--opened {\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 4px;\n    padding: 12px 0px;\n}\n\n.dash-debug-menu--closed:hover {\n    cursor: pointer;\n    background-color: #108de4;\n}\n\n.dash-debug-menu__icon {\n    width: 24px;\n    height: 28px;\n}\n.dash-debug-menu__icon--close {\n    width: 14px;\n    height: 14px;\n}\n.dash-debug-menu__icon--bell {\n    height: 24px;\n    width: 28px;\n}\n.dash-debug-menu__icon--debug {\n    height: 24px;\n    width: auto;\n}\n.dash-debug-menu__icon--graph {\n    height: 24px;\n}\n\n.dash-debug-menu__content {\n    display: flex;\n    width: 100%;\n    height: 100%;\n}\n\n.dash-debug-menu__button-container {\n    display: flex;\n    flex-direction: column;\n    justify-content: center;\n    align-items: center;\n    width: 74px;\n    margin-left: 10px;\n}\n.dash-debug-menu__button-label {\n    color: #A2B1C6;\n    font-size: 10px;\n    margin-top: 4px;\n}\n\n.dash-debug-menu__button {\n    background-color: white;\n    border-radius: 100%;\n    border: 1px solid #B9C2CE;\n    width: 64px;\n    height: 64px;\n    font-size: 10px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    transition: background-color 0.2s;\n    color: black;\n}\n.dash-debug-menu__button--enabled {\n    background-color: #00CC96;\n    color: white;\n}\n.dash-debug-menu__button--small {\n    width: 32px;\n    height: 32px;\n    background-color: #B9C2CE;\n}\n.dash-debug-menu__button:hover {\n    cursor: pointer;\n    background-color: #f5f5f5;\n}\n.dash-debug-menu__button--small:hover {\n    background-color: #a1a9b5;\n}\n\n.dash-debug-menu__button--enabled:hover {\n    background-color: #03bb8a;\n}\n", ""]);
 
 // exports
 
@@ -36207,10 +36188,14 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
             }
         });
     }).catch(function (err) {
+        // Handle html & JSON error responses
         err.text().then(function (text) {
             dispatch(onError({
                 type: 'backEnd',
-                errorPage: text
+                error: {
+                    message: 'Callack error updating ' + payload.output,
+                    html: text
+                }
             }));
         });
     });
@@ -37220,9 +37205,9 @@ var _react = __webpack_require__(/*! react */ "react");
 
 var Component = _react.Component;
 
-var _CloseIcon = __webpack_require__(/*! ../icons/CloseIcon.svg */ "./src/components/error/icons/CloseIcon.svg");
+var _ErrorIcon = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module '../icons/ErrorIcon.svg'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
-var CloseIcon = _interopRequireDefault(_CloseIcon).default;
+var ErrorIcon = _interopRequireDefault(_ErrorIcon).default;
 
 var _CollapseIcon = __webpack_require__(/*! ../icons/CollapseIcon.svg */ "./src/components/error/icons/CollapseIcon.svg");
 
@@ -37231,6 +37216,10 @@ var CollapseIcon = _interopRequireDefault(_CollapseIcon).default;
 var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
 
 var PropTypes = _interopRequireDefault(_propTypes).default;
+
+var _werkzeugCss = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module '../werkzeug.css.txt'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+var werkzeugCss = _interopRequireDefault(_werkzeugCss).default;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -37266,16 +37255,9 @@ var FrontEndError = function (_Component) {
             var collapsed = this.state.collapsed;
 
 
-            var closeButton = void 0,
-                cardClasses = void 0;
+            var cardClasses = void 0;
             // if resolve is defined, the error should be a standalone card
             if (resolve) {
-                closeButton = React.createElement(CloseIcon, {
-                    className: 'dash-fe-error__icon-close',
-                    onClick: function onClick() {
-                        return resolve('frontEnd', e.myUID);
-                    }
-                });
                 cardClasses = 'dash-error-card';
             } else {
                 cardClasses = 'dash-error-card__content';
@@ -37283,73 +37265,51 @@ var FrontEndError = function (_Component) {
             if (inAlertsTray) {
                 cardClasses += ' dash-error-card--alerts-tray';
             }
+
+            var errorHeader = React.createElement(
+                'div',
+                {
+                    className: 'dash-fe-error-top',
+                    onClick: function onClick() {
+                        return _this2.setState({ collapsed: !collapsed });
+                    }
+                },
+                React.createElement(
+                    'span',
+                    { className: 'dash-fe-error-top__group' },
+                    React.createElement(ErrorIcon, { className: 'dash-fe-error__icon-error' }),
+                    React.createElement(
+                        'span',
+                        { className: 'dash-fe-error__title' },
+                        e.error.message || 'Error'
+                    )
+                ),
+                React.createElement(
+                    'span',
+                    { className: 'dash-fe-error-top__group' },
+                    React.createElement(
+                        'span',
+                        { className: 'dash-fe-error__timestamp' },
+                        '' + e.timestamp.toLocaleTimeString()
+                    ),
+                    React.createElement(CollapseIcon, {
+                        className: 'dash-fe-error__collapse ' + (collapsed ? 'dash-fe-error__collapse--flipped' : ''),
+                        onClick: function onClick() {
+                            return _this2.setState({ collapsed: !collapsed });
+                        }
+                    })
+                )
+            );
+
             return collapsed ? React.createElement(
                 'div',
                 { className: 'dash-error-card__list-item' },
-                React.createElement(
-                    'h6',
-                    { className: 'dash-fe-error__title' },
-                    '\u2623\uFE0F\xA0',
-                    e.error.message || 'An error was thrown that was not an Error object, so info could not be gathered.'
-                ),
-                React.createElement(CollapseIcon, {
-                    className: 'dash-fe-error__collapse',
-                    onClick: function onClick() {
-                        return _this2.setState({ collapsed: false });
-                    }
-                })
+                errorHeader
             ) : React.createElement(
                 'div',
                 { className: cardClasses },
-                React.createElement(
-                    'div',
-                    { className: 'dash-fe-error-top' },
-                    React.createElement(
-                        'h6',
-                        { className: 'dash-fe-error__title' },
-                        '\u2623\uFE0F\xA0',
-                        e.error.message || 'An error was thrown that was not an Error object, so info could not be gathered.'
-                    ),
-                    this.props.isListItem ? React.createElement(CollapseIcon, {
-                        className: 'dash-fe-error__collapse dash-fe-error__collapse--flipped',
-                        onClick: function onClick() {
-                            return _this2.setState({ collapsed: true });
-                        }
-                    }) : closeButton
-                ),
-                !e.error.stack ? null : React.createElement(
-                    'div',
-                    { className: 'dash-fe-error__st' },
-                    e.error.stack && e.error.stack.split('\n').map(function (line) {
-                        return React.createElement(
-                            'p',
-                            null,
-                            line
-                        );
-                    })
-                ),
-                !e.error.html ? null : React.createElement(
-                    'div',
-                    { className: 'dash-be-error__st' },
-                    React.createElement(
-                        'div',
-                        { className: 'dash-backend-error' },
-                        React.createElement('iframe', {
-                            style: {
-                                /*
-                                 * 67px of padding and margin between this
-                                 * iframe and the parent container.
-                                 * 67 was determined manually in the
-                                 * browser's dev tools.
-                                 */
-                                width: 'calc(600px - 67px)',
-                                height: '75vh',
-                                border: 'none'
-                            },
-                            srcDoc: e.error.html.replace('</head>', '\n<style type="text/css">\n    {\n        font-family: Roboto;\n    }\n    .traceback {\n        background-color: white;\n        border: 2px solid #dfe8f3;\n        border-radius: 0px 0px 4px 4px;\n        color: #506784;\n    }\n    h2.traceback {\n        background-color: #f3f6fa;\n        border: 2px solid #dfe8f3;\n        border-bottom: 0px;\n        box-sizing: border-box;\n        border-radius: 4px 4px 0px 0px;\n        color: #506784;\n    }\n    h2.traceback em{\n        color: #506784;\n        font-weight: 100;\n    }\n    .traceback pre, .debugger textarea{\n        background-color: #F3F6FA;\n    }\n    .debugger h1{\n        color: #506784;\n        font-family: Roboto;\n    }\n    .explanation {\n        color: #A2B1C6;\n    }\n     /* Hide the Don\'t Panic! footer */\n     .debugger .footer {\n         display: none;\n     }\n\n    /* Messing around */\n     .traceback > ul > li {\n         display: none;\n     }\n     .traceback > ul > li:nth-last-child(-n+3) {\n         display: block;\n     }\n     .debugger h1 {\n         display: none;\n     }\n\n     .debugger .errormsg {\n         margin: 0;\n         color: #506784;\n         font-size: 16px;\n         background-color: #f3f6fa;\n         border: 2px solid #dfe8f3;\n         box-sizing: border-box;\n         border-radius: 4px;\n         padding: 10px;\n     }\n\n    .debugger .pastemessage input {\n        display: none;\n    }\n\n    .debugger .explanation {\n        display: none;\n    }\n    .debugger div.plain {\n        border-radius: 4px;\n        border-width: 2px;\n        color: #506784;\n    }\n\n    body {\n        padding: 0px;\n        margin: 0px;\n    }\n\n    .plain {\n        display: block !important;\n    }\n    .plain > form > p {\n        display: none;\n    }\n    .plain pre {\n        padding: 15px !important;\n        overflow-x: scroll;\n    }\n</style>\n</head>')
-                        })
-                    )
-                )
+                errorHeader,
+                React.createElement(ErrorContent, { error: e.error })
             );
         }
     }]);
@@ -37357,8 +37317,71 @@ var FrontEndError = function (_Component) {
     return FrontEndError;
 }(Component);
 
+/* eslint-disable no-inline-comments */
+
+
+function ErrorContent(_ref) {
+    var error = _ref.error;
+
+    return React.createElement(
+        'div',
+        { className: 'error-container' },
+        !error.stack ? null : React.createElement(
+            'div',
+            { className: 'dash-fe-error__st' },
+            error.stack.split('\n').map(function (line) {
+                return React.createElement(
+                    'p',
+                    null,
+                    line
+                );
+            })
+        ),
+        !error.html ? null : React.createElement(
+            'div',
+            { className: 'dash-be-error__st' },
+            React.createElement(
+                'div',
+                { className: 'dash-backend-error' },
+                React.createElement('iframe', {
+                    srcDoc: error.html.replace('</head>', '<style type="text/css">' + werkzeugCss + '</style></head>'),
+                    style: {
+                        /*
+                         * 67px of padding and margin between this
+                         * iframe and the parent container.
+                         * 67 was determined manually in the
+                         * browser's dev tools.
+                         */
+                        width: 'calc(600px - 67px)',
+                        height: '75vh',
+                        border: 'none'
+                    }
+                })
+            )
+        )
+    );
+}
+
+var errorPropTypes = PropTypes.shape({
+    message: PropTypes.string,
+
+    /* front-end error messages */
+    stack: PropTypes.string,
+
+    /* backend error messages */
+    html: PropTypes.string
+});
+
+ErrorContent.propTypes = {
+    error: errorPropTypes
+};
+
 FrontEndError.propTypes = {
-    e: PropTypes.object,
+    e: PropTypes.shape({
+        myUID: PropTypes.string,
+        timestamp: PropTypes.object,
+        error: errorPropTypes
+    }),
     resolve: PropTypes.func,
     inAlertsTray: PropTypes.bool,
     isListItem: PropTypes.bool
@@ -37398,10 +37421,6 @@ var Component = _react.Component;
 
 __webpack_require__(/*! ./FrontEndError.css */ "./src/components/error/FrontEnd/FrontEndError.css");
 
-var _CloseIcon = __webpack_require__(/*! ../icons/CloseIcon.svg */ "./src/components/error/icons/CloseIcon.svg");
-
-var CloseIcon = _interopRequireDefault(_CloseIcon).default;
-
 var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
 
 var PropTypes = _interopRequireDefault(_propTypes).default;
@@ -37430,9 +37449,11 @@ var FrontEndErrorContainer = function (_Component) {
     _createClass(FrontEndErrorContainer, [{
         key: 'render',
         value: function render() {
-            var _this2 = this;
-
             var errorsLength = this.props.errors.length;
+            if (errorsLength === 0) {
+                return null;
+            }
+
             var inAlertsTray = this.props.inAlertsTray;
             var cardClasses = 'dash-error-card dash-error-card--container';
 
@@ -37451,22 +37472,14 @@ var FrontEndErrorContainer = function (_Component) {
                     React.createElement(
                         'h6',
                         { className: 'dash-error-card__message' },
-                        '\uD83D\uDED1 Alerts (',
+                        '\uD83D\uDED1 Errors (',
                         React.createElement(
                             'strong',
                             null,
                             errorsLength
                         ),
-                        ' errors)'
-                    ),
-                    React.createElement(CloseIcon, {
-                        className: 'dash-fe-error__icon-close',
-                        onClick: function onClick() {
-                            return _this2.props.errors.forEach(function (error) {
-                                _this2.props.resolve('frontEnd', error.myUID);
-                            });
-                        }
-                    })
+                        ')'
+                    )
                 ),
                 React.createElement(
                     'div',
@@ -37532,8 +37545,6 @@ var _actions = __webpack_require__(/*! ../../actions */ "./src/actions/index.js"
 
 var _resolveError = _actions.resolveError;
 
-__webpack_require__(/*! ./werkzeug.css */ "./src/components/error/werkzeug.css");
-
 var _DebugMenu = __webpack_require__(/*! ./menu/DebugMenu.react */ "./src/components/error/menu/DebugMenu.react.js");
 
 var DebugMenu = _DebugMenu.DebugMenu;
@@ -37578,7 +37589,7 @@ var UnconnectedGlobalErrorContainer = function (_Component) {
                 React.createElement(
                     DebugMenu,
                     {
-                        errors: error,
+                        error: error,
                         dispatch: dispatch,
                         resolveError: this.resolveError
                     },
@@ -37669,10 +37680,6 @@ var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-type
 
 var PropTypes = _interopRequireDefault(_propTypes).default;
 
-var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
-
-var isEmpty = _ramda.isEmpty;
-
 __webpack_require__(/*! ./GlobalErrorOverlay.css */ "./src/components/error/GlobalErrorOverlay.css");
 
 var _FrontEndErrorContainer = __webpack_require__(/*! ./FrontEnd/FrontEndErrorContainer.react */ "./src/components/error/FrontEnd/FrontEndErrorContainer.react.js");
@@ -37704,7 +37711,7 @@ var GlobalErrorOverlay = function (_Component) {
                 visible = _props.visible,
                 error = _props.error,
                 toastsEnabled = _props.toastsEnabled;
-            // let backEndErrors;
+
 
             var frontEndErrors = void 0;
             if (toastsEnabled) {
@@ -37712,14 +37719,11 @@ var GlobalErrorOverlay = function (_Component) {
                 if (error.frontEnd.length) {
                     errors = error.frontEnd;
                 }
-                if (!isEmpty(error.backEnd)) {
-                    errors.push({
-                        error: {
-                            message: 'Python exception',
-                            html: error.backEnd.errorPage
-                        }
-                    });
-                }
+
+                error.backEnd.forEach(function (backEndError) {
+                    errors.push(backEndError);
+                });
+
                 frontEndErrors = React.createElement(FrontEndErrorContainer, { errors: errors, resolve: resolve });
             }
             return React.createElement(
@@ -37733,13 +37737,6 @@ var GlobalErrorOverlay = function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'dash-error-menu' },
-                    isEmpty(error.backEnd) ? null : React.createElement(
-                        'button',
-                        { onClick: function onClick() {
-                                return resolve('backEnd');
-                            } },
-                        'Resolve BackEnd Error'
-                    ),
                     React.createElement(
                         'div',
                         { className: visible ? 'dash-fe-errors' : '' },
@@ -37831,41 +37828,6 @@ var SvgBellIconGrey = function SvgBellIconGrey(props) {
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (SvgBellIconGrey);
-
-/***/ }),
-
-/***/ "./src/components/error/icons/CloseIcon.svg":
-/*!**************************************************!*\
-  !*** ./src/components/error/icons/CloseIcon.svg ***!
-  \**************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-
-
-var _ref =
-/*#__PURE__*/
-react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("path", {
-  d: "M1 1l8 8m0-8L1 9",
-  stroke: "#A2B1C6",
-  strokeWidth: 1.25
-});
-
-var SvgCloseIcon = function SvgCloseIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("svg", _extends({
-    width: 10,
-    height: 10,
-    fill: "none"
-  }, props), _ref);
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (SvgCloseIcon);
 
 /***/ }),
 
@@ -38006,73 +37968,6 @@ var SvgGraphIcon = function SvgGraphIcon(props) {
 
 /***/ }),
 
-/***/ "./src/components/error/icons/ReloadIcon.svg":
-/*!***************************************************!*\
-  !*** ./src/components/error/icons/ReloadIcon.svg ***!
-  \***************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-
-
-var _ref =
-/*#__PURE__*/
-react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("path", {
-  d: "M10.986 4.333v-4L5.653 5.667 10.986 11V7c4.414 0 8 3.587 8 8a7.827 7.827 0 0 1-.933 3.733L20 20.68A10.575 10.575 0 0 0 21.653 15c0-5.893-4.773-10.667-10.666-10.667zm0 18.667c-4.413 0-8-3.587-8-8 0-1.347.334-2.627.934-3.733L1.973 9.32A10.575 10.575 0 0 0 .32 15c0 5.893 4.773 10.667 10.666 10.667v4l5.334-5.334L10.986 19v4z",
-  fill: "#B9C2CE"
-});
-
-var SvgReloadIcon = function SvgReloadIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("svg", _extends({
-    width: 22,
-    height: 30,
-    fill: "none"
-  }, props), _ref);
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (SvgReloadIcon);
-
-/***/ }),
-
-/***/ "./src/components/error/icons/WarningIconWhite.svg":
-/*!*********************************************************!*\
-  !*** ./src/components/error/icons/WarningIconWhite.svg ***!
-  \*********************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-
-
-var _ref =
-/*#__PURE__*/
-react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("path", {
-  d: "M0 8h8.615L4.308 0 0 8zm4.77-1.23h-.924v-.924h.923v.923zm0-1.54h-.924V3.386h.923V5.23z",
-  fill: "#fff"
-});
-
-var SvgWarningIconWhite = function SvgWarningIconWhite(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("svg", _extends({
-    viewBox: "0 0 9 8",
-    fill: "none"
-  }, props), _ref);
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (SvgWarningIconWhite);
-
-/***/ }),
-
 /***/ "./src/components/error/icons/WhiteCloseIcon.svg":
 /*!*******************************************************!*\
   !*** ./src/components/error/icons/WhiteCloseIcon.svg ***!
@@ -38164,9 +38059,9 @@ var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-type
 
 var PropTypes = _interopRequireDefault(_propTypes).default;
 
-var _WarningIconWhite = __webpack_require__(/*! ../icons/WarningIconWhite.svg */ "./src/components/error/icons/WarningIconWhite.svg");
+var _ErrorIcon = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module '../icons/ErrorIcon.svg'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
-var WarningIconWhite = _interopRequireDefault(_WarningIconWhite).default;
+var ErrorIcon = _interopRequireDefault(_ErrorIcon).default;
 
 var _ErrorIconWhite = __webpack_require__(/*! ../icons/ErrorIconWhite.svg */ "./src/components/error/icons/ErrorIconWhite.svg");
 
@@ -38205,12 +38100,6 @@ var DebugAlertContainer = function (_Component) {
                     { className: 'dash-debug-alert' },
                     alertsOpened ? React.createElement(ErrorIconWhite, { className: 'dash-debug-alert-container__icon' }) : '☣️',
                     this.props.errors.length
-                ),
-                React.createElement(
-                    'div',
-                    { className: 'dash-debug-alert' },
-                    alertsOpened ? React.createElement(WarningIconWhite, { className: 'dash-debug-alert-container__icon dash-debug-alert-container__icon--warning' }) : '⚠️',
-                    '0'
                 )
             );
         }
@@ -38282,6 +38171,11 @@ var React = _interopRequireDefault(_react).default;
 
 var Component = _react.Component;
 
+var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
+
+var concat = _ramda.concat;
+var isEmpty = _ramda.isEmpty;
+
 __webpack_require__(/*! ./DebugMenu.css */ "./src/components/error/menu/DebugMenu.css");
 
 var _DebugIcon = __webpack_require__(/*! ../icons/DebugIcon.svg */ "./src/components/error/icons/DebugIcon.svg");
@@ -38300,13 +38194,13 @@ var _BellIconGrey = __webpack_require__(/*! ../icons/BellIconGrey.svg */ "./src/
 
 var BellIconGrey = _interopRequireDefault(_BellIconGrey).default;
 
-var _ReloadIcon = __webpack_require__(/*! ../icons/ReloadIcon.svg */ "./src/components/error/icons/ReloadIcon.svg");
-
-var ReloadIcon = _interopRequireDefault(_ReloadIcon).default;
-
 var _GraphIcon = __webpack_require__(/*! ../icons/GraphIcon.svg */ "./src/components/error/icons/GraphIcon.svg");
 
 var GraphIcon = _interopRequireDefault(_GraphIcon).default;
+
+var _ErrorIcon = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module '../icons/ErrorIcon.svg'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+var ErrorIcon = _interopRequireDefault(_ErrorIcon).default;
 
 var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
 
@@ -38319,18 +38213,6 @@ var DebugAlertContainer = _DebugAlertContainer.DebugAlertContainer;
 var _GlobalErrorOverlay = __webpack_require__(/*! ../GlobalErrorOverlay.react */ "./src/components/error/GlobalErrorOverlay.react.js");
 
 var GlobalErrorOverlay = _interopRequireDefault(_GlobalErrorOverlay).default;
-
-var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
-
-var isEmpty = _ramda.isEmpty;
-
-var _FrontEndError = __webpack_require__(/*! ../FrontEnd/FrontEndError.react */ "./src/components/error/FrontEnd/FrontEndError.react.js");
-
-var FrontEndError = _FrontEndError.FrontEndError;
-
-var _FrontEndErrorContainer = __webpack_require__(/*! ../FrontEnd/FrontEndErrorContainer.react */ "./src/components/error/FrontEnd/FrontEndErrorContainer.react.js");
-
-var FrontEndErrorContainer = _FrontEndErrorContainer.FrontEndErrorContainer;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -38366,44 +38248,21 @@ var DebugMenu = function (_Component) {
                 alertsOpened = _state.alertsOpened,
                 toastsEnabled = _state.toastsEnabled;
             var _props = this.props,
-                errors = _props.errors,
+                error = _props.error,
                 resolveError = _props.resolveError,
                 dispatch = _props.dispatch;
 
 
             var menuClasses = opened ? 'dash-debug-menu dash-debug-menu--opened' : 'dash-debug-menu dash-debug-menu--closed';
 
-            var frontEndErrors = void 0;
-            if (alertsOpened) {
-                if (errors.frontEnd.length > 1) {
-                    frontEndErrors = React.createElement(FrontEndErrorContainer, {
-                        errors: errors.frontEnd,
-                        resolve: function resolve(type, myId) {
-                            return resolveError(dispatch, type, myId);
-                        },
-                        inAlertsTray: true
-                    });
-                } else if (!isEmpty(errors.frontEnd)) {
-                    var e = errors.frontEnd[0];
-                    frontEndErrors = React.createElement(FrontEndError, {
-                        e: e,
-                        resolve: function resolve(type, myId) {
-                            return resolveError(dispatch, type, myId);
-                        },
-                        inAlertsTray: true
-                    });
-                }
-            }
-
             var menuContent = opened ? React.createElement(
                 'div',
                 { className: 'dash-debug-menu__content' },
-                frontEndErrors,
-                errors.frontEnd.length > 0 ? React.createElement(
+                error.frontEnd.length > 0 || error.backEnd.length > 0 ? React.createElement(
                     'div',
                     { className: 'dash-debug-menu__button-container' },
                     React.createElement(DebugAlertContainer, {
-                        errors: errors.frontEnd,
+                        errors: concat(error.frontEnd, error.backEnd),
                         alertsOpened: alertsOpened,
                         onClick: function onClick() {
                             return _this2.setState({ alertsOpened: !alertsOpened });
@@ -38429,20 +38288,6 @@ var DebugMenu = function (_Component) {
                     { className: 'dash-debug-menu__button-container' },
                     React.createElement(
                         'div',
-                        { className: 'dash-debug-menu__button' },
-                        React.createElement(ReloadIcon, { className: 'dash-debug-menu__icon' })
-                    ),
-                    React.createElement(
-                        'label',
-                        { className: 'dash-debug-menu__button-label' },
-                        'Live Reload'
-                    )
-                ),
-                React.createElement(
-                    'div',
-                    { className: 'dash-debug-menu__button-container' },
-                    React.createElement(
-                        'div',
                         {
                             className: 'dash-debug-menu__button ' + (toastsEnabled ? 'dash-debug-menu__button--enabled' : ''),
                             onClick: function onClick() {
@@ -38456,7 +38301,7 @@ var DebugMenu = function (_Component) {
                     React.createElement(
                         'label',
                         { className: 'dash-debug-menu__button-label' },
-                        'Notifications'
+                        'Errors'
                     )
                 ),
                 React.createElement(
@@ -38476,14 +38321,14 @@ var DebugMenu = function (_Component) {
                 )
             ) : React.createElement(DebugIcon, { className: 'dash-debug-menu__icon dash-debug-menu__icon--debug' });
 
-            var alertsLabel = errors.frontEnd.length > 0 && !opened ? React.createElement(
+            var alertsLabel = error.frontEnd.length + error.backEnd.length > 0 && !opened ? React.createElement(
                 'div',
                 { className: 'dash-debug-alert-label' },
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    '\u2623\uFE0F\xA0',
-                    errors.frontEnd.length
+                    React.createElement(ErrorIcon, { className: 'dash-debug-alert-container__icon' }),
+                    error.frontEnd.length + error.backEnd.length
                 ),
                 React.createElement(
                     'div',
@@ -38512,8 +38357,8 @@ var DebugMenu = function (_Component) {
                         resolve: function resolve(type, myId) {
                             return resolveError(dispatch, type, myId);
                         },
-                        error: errors,
-                        visible: !(isEmpty(errors.backEnd) && isEmpty(errors.frontEnd)),
+                        error: error,
+                        visible: !(isEmpty(error.backEnd) && isEmpty(error.frontEnd)),
                         toastsEnabled: toastsEnabled
                     },
                     this.props.children
@@ -38527,42 +38372,12 @@ var DebugMenu = function (_Component) {
 
 DebugMenu.propTypes = {
     children: PropTypes.object,
-    errors: PropTypes.object,
-    resolveError: PropTypes.any,
-    dispatch: PropTypes.any
+    error: PropTypes.object,
+    resolveError: PropTypes.function,
+    dispatch: PropTypes.function
 };
 
 exports.DebugMenu = DebugMenu;
-
-/***/ }),
-
-/***/ "./src/components/error/werkzeug.css":
-/*!*******************************************!*\
-  !*** ./src/components/error/werkzeug.css ***!
-  \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-var content = __webpack_require__(/*! !../../../node_modules/css-loader!./werkzeug.css */ "./node_modules/css-loader/index.js!./src/components/error/werkzeug.css");
-
-if(typeof content === 'string') content = [[module.i, content, '']];
-
-var transform;
-var insertInto;
-
-
-
-var options = {"hmr":true}
-
-options.transform = transform
-options.insertInto = undefined;
-
-var update = __webpack_require__(/*! ../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
-
-if(content.locals) module.exports = content.locals;
-
-if(false) {}
 
 /***/ }),
 
@@ -38881,6 +38696,7 @@ Object.defineProperty(exports, "__esModule", {
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
 var findIndex = _ramda.findIndex;
+var merge = _ramda.merge;
 var propEq = _ramda.propEq;
 var remove = _ramda.remove;
 
@@ -38888,7 +38704,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var initialError = {
     frontEnd: [],
-    backEnd: {}
+    backEnd: []
 };
 
 function error() {
@@ -38900,13 +38716,13 @@ function error() {
             {
                 if (action.payload.type === 'frontEnd') {
                     return {
-                        frontEnd: [].concat(_toConsumableArray(state.frontEnd), [action.payload]),
+                        frontEnd: [merge(action.payload, { timestamp: new Date() })].concat(_toConsumableArray(state.frontEnd)),
                         backEnd: state.backEnd
                     };
                 } else if (action.payload.type === 'backEnd') {
                     return {
                         frontEnd: state.frontEnd,
-                        backEnd: action.payload
+                        backEnd: [merge(action.payload, { timestamp: new Date() })].concat(_toConsumableArray(state.backEnd))
                     };
                 }
                 return state;
@@ -38921,9 +38737,10 @@ function error() {
                         backEnd: state.backEnd
                     };
                 } else if (action.payload.type === 'backEnd') {
+                    var _removeIdx = findIndex(propEq('myUID', action.payload.myUID))(state.backEnd);
                     return {
                         frontEnd: state.frontEnd,
-                        backEnd: {}
+                        backEnd: remove(_removeIdx, 1, state.backEnd)
                     };
                 }
                 return state;

@@ -1,7 +1,6 @@
 import './DebugAlertContainer.css';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
-import ErrorIcon from '../icons/ErrorIcon.svg';
 import ErrorIconWhite from '../icons/ErrorIconWhite.svg';
 
 class DebugAlertContainer extends Component {
