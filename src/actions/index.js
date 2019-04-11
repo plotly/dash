@@ -673,7 +673,9 @@ function updateOutput(
             if (res.status !== STATUS.OK) {
                 // update the status of this request
                 updateRequestQueue(true, res.status);
-                return;
+
+                // eject into `catch` handler below
+                throw res;
             }
 
             /*
@@ -903,7 +905,7 @@ function updateOutput(
             });
         })
         .catch(err => {
-            // Handle html & JSON error responses
+            // Handle html error responses
             err.text().then(text => {
                 dispatch(
                     onError({
