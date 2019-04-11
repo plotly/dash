@@ -116,7 +116,7 @@ class DebugMenu extends Component {
                 </div>
                 <GlobalErrorOverlay
                     resolve={(type, myId) => resolveError(dispatch, type, myId)}
-                    error={errors}
+                    error={error}
                     visible={
                         !(isEmpty(error.backEnd) && isEmpty(error.frontEnd))
                     }

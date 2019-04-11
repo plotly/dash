@@ -4,6 +4,7 @@ import ErrorIcon from '../icons/ErrorIcon.svg';
 import CloseIcon from '../icons/CloseIcon.svg';
 import CollapseIcon from '../icons/CollapseIcon.svg';
 import PropTypes from 'prop-types';
+import {has} from 'ramda';
 
 import werkzeugCss from '../werkzeug.css.txt';
 
@@ -71,6 +72,7 @@ class FrontEndError extends Component {
 
             </div>
         );
+
     }
 }
 
