@@ -84,7 +84,7 @@ class DebugMenu extends Component {
                         )}
                     </div>
                     <label className="dash-debug-menu__button-label">
-                        Notifications
+                        {'Errors'}
                     </label>
                 </div>
                 <div className="dash-debug-menu__button-container">
