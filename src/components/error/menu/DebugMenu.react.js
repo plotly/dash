@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {concat} from 'ramda';
 import './DebugMenu.css';
 
 import DebugIcon from '../icons/DebugIcon.svg';
@@ -37,10 +38,10 @@ class DebugMenu extends Component {
 
         const menuContent = opened ? (
             <div className="dash-debug-menu__content">
-                {errors.frontEnd.length > 0 ? (
+                {(error.frontEnd.length > 0 || error.backEnd.length > 0) ? (
                     <div className="dash-debug-menu__button-container">
                         <DebugAlertContainer
-                            errors={errors.frontEnd}
+                            errors={concat(error.frontEnd, error.backEnd)}
                             alertsOpened={alertsOpened}
                             onClick={() =>
                                 this.setState({alertsOpened: !alertsOpened})
