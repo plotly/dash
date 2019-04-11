@@ -19,6 +19,7 @@
         0px 1px 3px rgba(162, 177, 198, 0.32);
     border-radius: 4px;
     padding: 12px 0px;
+    background-color: white;
 }
 
 .dash-debug-menu--closed:hover {
