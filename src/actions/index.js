@@ -797,11 +797,15 @@ function updateOutput(
             });
         })
         .catch(err => {
+            // Handle html & JSON error responses
             err.text().then(text => {
                 dispatch(
                     onError({
                         type: 'backEnd',
-                        errorPage: text,
+                        error: {
+                            message: `Callack error updating ${payload.output}`,
+                            html: text,
+                        }
                     })
                 );
             });

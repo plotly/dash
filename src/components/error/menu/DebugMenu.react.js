@@ -29,7 +29,7 @@ class DebugMenu extends Component {
     }
     render() {
         const {opened, alertsOpened, toastsEnabled} = this.state;
-        const {errors, resolveError, dispatch} = this.props;
+        const {error, resolveError, dispatch} = this.props;
 
         const menuClasses = opened
             ? 'dash-debug-menu dash-debug-menu--opened'
@@ -131,15 +131,11 @@ class DebugMenu extends Component {
         );
 
         const alertsLabel =
-            errors.frontEnd.length > 0 && !opened ? (
+            (error.frontEnd.length + error.backEnd.length) > 0 && !opened ? (
                 <div className="dash-debug-alert-label">
                     <div className="dash-debug-alert">
                         <ErrorIcon className="dash-debug-alert-container__icon" />
-                        {errors.frontEnd.length}
-                    </div>
-                    <div className="dash-debug-alert">
-                        <WarningIcon className="dash-debug-alert-container__icon dash-debug-alert-container__icon--warning" />
-                        0
+                        {error.frontEnd.length + error.backEnd.length}
                     </div>
                 </div>
             ) : null;
@@ -157,7 +153,7 @@ class DebugMenu extends Component {
                     resolve={(type, myId) => resolveError(dispatch, type, myId)}
                     error={errors}
                     visible={
-                        !(isEmpty(errors.backEnd) && isEmpty(errors.frontEnd))
+                        !(isEmpty(error.backEnd) && isEmpty(error.frontEnd))
                     }
                     toastsEnabled={toastsEnabled}
                 >
@@ -170,7 +166,7 @@ class DebugMenu extends Component {
 
 DebugMenu.propTypes = {
     children: PropTypes.object,
-    errors: PropTypes.object,
+    error: PropTypes.object,
     resolveError: PropTypes.function,
     dispatch: PropTypes.function,
 };
