@@ -51,3 +51,11 @@ export const crawlLayout = (object, func, path = []) => {
         });
     }
 };
+
+export function hasId(child) {
+    return (
+        R.type(child) === 'Object' &&
+        R.has('props', child) &&
+        R.has('id', child.props)
+    );
+}

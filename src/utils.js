@@ -56,3 +56,26 @@ export function uid() {
         s4()
     );
 }
+
+export function isMultiOutputProp(outputIdAndProp) {
+    /*
+     * If this update is for multiple outputs, then it has
+     * starting & trailing `..` and each propId pair is separated
+     * by `...`, e.g.
+     * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+     */
+
+    return outputIdAndProp.startsWith('..');
+}
+
+export function parseMultipleOutputs(outputIdAndProp) {
+    /*
+     * If this update is for multiple outputs, then it has
+     * starting & trailing `..` and each propId pair is separated
+     * by `...`, e.g.
+     * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+     */
+    return outputIdAndProp
+        .split('...')
+        .map(o => o.replace('..', ''));
+}

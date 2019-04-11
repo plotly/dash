@@ -9131,6 +9131,90 @@ module.exports = __webpack_require__(/*! ../modules/_core */ "./node_modules/@ba
 
 /***/ }),
 
+/***/ "./node_modules/check-prop-types/index.js":
+/*!************************************************!*\
+  !*** ./node_modules/check-prop-types/index.js ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Copyright Facebook, ratehub.
+ * All rights reserved.
+ *
+ * This code is intended to closely match the behaviour of checkPropTypes() from
+ * facebook/prop-types. The license for that code can be found here:
+ * https://github.com/facebook/prop-types/blob/be165febc8133dfbe2c45133db6d25664dd68ad8/LICENSE
+ *
+ * That function's source:
+ * https://github.com/facebook/prop-types/blob/be165febc8133dfbe2c45133db6d25664dd68ad8/checkPropTypes.js
+ */
+
+/**
+ * Check if the values match with the type specs
+ * Return a type error message or null
+ *
+ * @param {object} typeSpecs Map of name to a ReactPropType
+ * @param {object} values Runtime values that need to be type-checked
+ * @param {string} location e.g. "prop", "context", "child context"
+ * @param {string} componentName Name of the component for error messages.
+ * @param {?Function} getStack Returns the component stack.
+ */
+function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
+  if (true) {
+    const ReactPropTypesSecret = __webpack_require__(/*! prop-types/lib/ReactPropTypesSecret */ "./node_modules/prop-types/lib/ReactPropTypesSecret.js");
+    var name = componentName || 'React class';
+    for (var typeSpecName in typeSpecs) {
+      if (typeSpecs.hasOwnProperty(typeSpecName)) {
+        var error;
+        if (typeof typeSpecs[typeSpecName] !== 'function') {
+          return (name + ': ' + location + ' type `' + typeSpecName + '` is ' +
+            'invalid; it must be a function, usually from React.PropTypes.');
+        } else {
+          // Prop type validation may throw. In case they do, catch and save the
+          // exception as the error.
+          try {
+            error = typeSpecs[typeSpecName](values, typeSpecName, componentName,
+              location, null, ReactPropTypesSecret);
+          } catch (ex) {
+            error = ex;
+          }
+        }
+        if (error && !(error instanceof Error)) {
+          return (name + ': type specification of ' + location + ' `' +
+            typeSpecName + '` is invalid; the type checker function must ' +
+            'return `null` or an `Error` but returned a ' + typeof error + '. '+
+            'You may have forgotten to pass an argument to the type checker ' +
+            'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' +
+            'shape all require an argument).');
+        }
+        if (error instanceof Error) {
+          var stack = getStack && getStack() || '';
+          return 'Failed ' + location + ' type: ' + error.message + stack;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Same as checkPropTypes but throws on error
+ */
+function assertPropTypes() {
+  if (true) {
+    var error = checkPropTypes.apply(null, arguments);
+    if (error) {
+      throw new Error(error);
+    }
+  }
+}
+
+module.exports = checkPropTypes;
+module.exports.assertPropTypes = assertPropTypes;
+
+
+/***/ }),
+
 /***/ "./node_modules/cookie/index.js":
 /*!**************************************!*\
   !*** ./node_modules/cookie/index.js ***!
@@ -9420,7 +9504,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error-top {\n    display: flex;\n}\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-close:hover {\n    cursor: pointer;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error__icon-arrow:hover {\n    cursor: pointer;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 2px;\n    font-size: 13px;\n    display: inline-block;\n}\n.dash-fe-error__collapse {\n    width: 14px;\n    position: absolute;\n    right: 22px;\n}\n.dash-fe-error__collapse:hover {\n    cursor: pointer;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    overflow: scroll;\n    padding: 2rem;\n    margin-top: 8px;\n    display: inline-block;\n}\n", ""]);
+exports.push([module.i, ".dash-fe-errors {\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    display: inline-block;\n}\n\n.dash-fe-error-top {\n    display: flex;\n}\n.dash-fe-error__icon-error {\n    width: 20px;\n    height: 20px;\n    display: inline-block;\n    margin-right: 16px;\n}\n.dash-fe-error__icon-close {\n    width: 10px;\n    height: 10px;\n    position: absolute;\n    right: 12px;\n    top: 12px;\n    display: inline-block;\n}\n.dash-fe-error__icon-close:hover {\n    cursor: pointer;\n}\n.dash-fe-error__icon-arrow {\n    width: 8px;\n    height: 28px;\n    margin: 0px 8px;\n}\n.dash-fe-error__icon-arrow:hover {\n    cursor: pointer;\n}\n.dash-fe-error__title {\n    text-align: left;\n    margin: 2px;\n    font-size: 13px;\n    display: inline-block;\n}\n.dash-fe-error__collapse {\n    width: 14px;\n    position: absolute;\n    right: 22px;\n}\n.dash-fe-error__collapse:hover {\n    cursor: pointer;\n}\n.dash-fe-error__collapse--flipped {\n    -webkit-transform: rotate(180deg);\n    -ms-transform: rotate(180deg);\n    transform: rotate(180deg);\n}\n\n.dash-fe-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    max-height: 450px;\n    overflow: scroll;\n    padding: 2rem;\n    margin-top: 8px;\n    display: inline-block;\n}\n\n.dash-be-error__st {\n    background-color: #fdf3f4;\n    min-width: 386px;\n    max-width: 650px;\n    /* iframe container handles the scrolling */\n    overflow: hidden;\n    display: inline-block;\n}\n", ""]);
 
 // exports
 
@@ -9436,10 +9520,10 @@ exports.push([module.i, ".dash-fe-errors {\n    min-width: 386px;\n    max-width
 
 exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
 // imports
-exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Fira);", ""]);
+
 
 // module
-exports.push([module.i, ".dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: Fira Code;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    max-width: 800px;\n    max-height: 650px;\n    margin: 1rem;\n    overflow: auto;\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 1rem;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 1rem;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: -webkit-box;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
+exports.push([module.i, "<<<<<<< HEAD\n=======\n\n>>>>>>> dev-tools-props\n.dash-error-menu {\n    max-width: 50%;\n    max-height: 60%;\n    display: contents;\n    font-family: Fira Code;\n    font-size: 14px;\n    font-variant-ligatures: common-ligatures;\n}\n\n.dash-error-card {\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n    border-radius: 4px;\n    position: fixed;\n    top: 16px;\n    right: 16px;\n    animation: dash-error-card-animation 0.5s;\n    padding: 24px;\n    text-align: left;\n    background-color: white;\n\n}\n.dash-error-card--alerts-tray {\n    position: absolute;\n    top: -300px;\n    left: -1px;\n    animation: none;\n    box-shadow: none;\n    border: 1px solid #ececec;\n    border-bottom: 0;\n    border-bottom-left-radius: 0px;\n    border-bottom-right-radius: 0px;\n    width: 422px;\n}\n.dash-error-card--container {\n    padding: 10px 10px;\n    width: 600px;\n    max-width: 800px;\n    max-height: 650px;\n    margin: 1rem;\n    overflow: auto;\n    z-index: 1001;  /* above the plotly.js toolbar */\n}\n\n.dash-error-card__topbar {\n    width: 100%;\n    height: 32px;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n}\n.dash-error-card__message {\n    font-size: 1rem;\n}\n\n.dash-error-card__message > strong {\n    color: #ff4500;\n}\n\n.dash-error-card__content {\n    box-sizing: border-box;\n    padding: 1rem;\n    background-color: white;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    margin-bottom: 8px;\n}\n\n.dash-error-card__list-item {\n    background: #ffffff;\n    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),\n        0px 1px 3px rgba(162, 177, 198, 0.32);\n    border-radius: 2px;\n    padding: 10px 10px;\n    margin-bottom: 10px;\n    display: -webkit-box;\n    align-items: center;\n}\n\n@keyframes dash-error-card-animation {\n    from {\n        opacity: 0;\n        -webkit-transform: scale(1.1);\n        -moz-transform: scale(1.1);\n        -ms-transform: scale(1.1);\n        transform: scale(1.1);\n    }\n    to {\n        opacity: 1;\n        -webkit-transform: scale(1);\n        -moz-transform: scale(1);\n        -ms-transform: scale(1);\n        transform: scale(1);\n    }\n}\n", ""]);
 
 // exports
 
@@ -34413,6 +34497,9 @@ var UnconnectedContainer = function (_Component) {
         var _this = _possibleConstructorReturn(this, (UnconnectedContainer.__proto__ || Object.getPrototypeOf(UnconnectedContainer)).call(this, props));
 
         _this.initialization = _this.initialization.bind(_this);
+        _this.state = {
+            errorLoading: false
+        };
         return _this;
     }
 
@@ -34461,7 +34548,16 @@ var UnconnectedContainer = function (_Component) {
             layoutRequest.status === STATUS.OK && !isEmpty(layout) && !isNil(paths) &&
             // Hasn't already hydrated
             appLifecycle === getAppState('STARTED')) {
-                dispatch(hydrateInitialOutputs());
+                var errorLoading = false;
+                try {
+                    dispatch(hydrateInitialOutputs());
+                } catch (err) {
+                    errorLoading = true;
+                } finally {
+                    this.setState(function (state) {
+                        return state.errorLoading !== errorLoading ? { errorLoading: errorLoading } : null;
+                    });
+                }
             }
         }
     }, {
@@ -34471,7 +34567,9 @@ var UnconnectedContainer = function (_Component) {
                 appLifecycle = _props.appLifecycle,
                 dependenciesRequest = _props.dependenciesRequest,
                 layoutRequest = _props.layoutRequest,
-                layout = _props.layout;
+                layout = _props.layout,
+                config = _props.config;
+            var errorLoading = this.state.errorLoading;
 
 
             if (layoutRequest.status && !contains(layoutRequest.status, [STATUS.OK, 'loading'])) {
@@ -34480,18 +34578,20 @@ var UnconnectedContainer = function (_Component) {
                     { className: '_dash-error' },
                     'Error loading layout'
                 );
-            } else if (dependenciesRequest.status && !contains(dependenciesRequest.status, [STATUS.OK, 'loading'])) {
+            } else if (errorLoading || dependenciesRequest.status && !contains(dependenciesRequest.status, [STATUS.OK, 'loading'])) {
                 return React.createElement(
                     'div',
                     { className: '_dash-error' },
                     'Error loading dependencies'
                 );
-            } else if (appLifecycle === getAppState('HYDRATED')) {
+            } else if (appLifecycle === getAppState('HYDRATED') && config.dev_tools_ui === true) {
                 return React.createElement(
                     GlobalErrorContainer,
                     null,
                     React.createElement(TreeContainer, { _dashprivate_layout: layout })
                 );
+            } else if (appLifecycle === getAppState('HYDRATED')) {
+                return React.createElement(TreeContainer, { _dashprivate_layout: layout });
             }
 
             return React.createElement(
@@ -34512,8 +34612,9 @@ UnconnectedContainer.propTypes = {
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,
-    history: PropTypes.array,
-    error: PropTypes.object
+    history: PropTypes.any,
+    error: PropTypes.object,
+    config: PropTypes.object
 };
 
 var Container = connect(
@@ -34527,7 +34628,8 @@ function (state) {
         graphs: state.graphs,
         paths: state.paths,
         history: state.history,
-        error: state.error
+        error: state.error,
+        config: state.config
     };
 }, function (dispatch) {
     return { dispatch: dispatch };
@@ -34841,15 +34943,19 @@ var _ComponentErrorBoundary = __webpack_require__(/*! ./components/error/Compone
 
 var ComponentErrorBoundary = _interopRequireDefault(_ComponentErrorBoundary).default;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _checkPropTypes = __webpack_require__(/*! check-prop-types */ "./node_modules/check-prop-types/index.js");
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var assertPropTypes = _checkPropTypes.assertPropTypes;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 var SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
 var isSimpleComponent = function isSimpleComponent(component) {
@@ -34861,6 +34967,25 @@ var createContainer = function createContainer(component) {
         key: component && component.props && component.props.id,
         _dashprivate_layout: component
     });
+};
+
+function CheckedComponent(p) {
+    var element = p.element,
+        layout = p.layout,
+        props = p.props,
+        children = p.children;
+
+
+    assertPropTypes(element.propTypes, layout, 'component prop', element);
+
+    return React.createElement.apply(React, [element, mergeAll([layout, props])].concat(_toConsumableArray(Array.isArray(children) ? children : [children])));
+}
+
+CheckedComponent.propTypes = {
+    children: PropTypes.any,
+    element: PropTypes.any,
+    layout: PropTypes.any,
+    props: PropTypes.any
 };
 
 var TreeContainer = function (_Component) {
@@ -34904,9 +35029,25 @@ var TreeContainer = function (_Component) {
                 /* eslint-enable no-console */
                 throw new Error('component.namespace is undefined');
             }
+
             var element = Registry.resolve(_dashprivate_layout.type, _dashprivate_layout.namespace);
 
-            return React.createElement.apply(React, [element, mergeAll([omit(['children'], _dashprivate_layout.props), { loading_state: loading_state, setProps: setProps }])].concat(_toConsumableArray(Array.isArray(children) ? children : [children])));
+            var layout = omit(['children'], _dashprivate_layout.props);
+
+            return React.createElement(
+                ComponentErrorBoundary,
+                {
+                    componentType: _dashprivate_layout.type,
+                    componentId: _dashprivate_layout.props.id,
+                    key: element && element.props && element.props.id
+                },
+                React.createElement(CheckedComponent, {
+                    children: children,
+                    element: element,
+                    layout: layout,
+                    props: { loading_state: loading_state, setProps: setProps }
+                })
+            );
         }
     }, {
         key: 'getSetProps',
@@ -34955,7 +35096,6 @@ var TreeContainer = function (_Component) {
             var _dashprivate_layout = nextProps._dashprivate_layout,
                 _dashprivate_loadingState = nextProps._dashprivate_loadingState;
 
-
             return _dashprivate_layout !== this.props._dashprivate_layout || _dashprivate_loadingState.is_loading !== this.props._dashprivate_loadingState.is_loading;
         }
     }, {
@@ -34977,14 +35117,7 @@ var TreeContainer = function (_Component) {
             var children = this.getChildren(layoutProps.children);
             var setProps = this.getSetProps(_dashprivate_dispatch);
 
-            return React.createElement(
-                ComponentErrorBoundary,
-                {
-                    componentType: _dashprivate_layout.type,
-                    componentId: _dashprivate_layout.props.id
-                },
-                this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps)
-            );
+            return this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps);
         }
     }]);
 
@@ -34997,63 +35130,11 @@ TreeContainer.propTypes = {
     _dashprivate_layout: PropTypes.object,
     _dashprivate_loadingState: PropTypes.object,
     _dashprivate_paths: PropTypes.any,
-    _dashprivate_requestQueue: PropTypes.object
+    _dashprivate_requestQueue: PropTypes.any
 };
 
-function mapDispatchToProps(dispatch) {
-    return { dispatch: dispatch };
-}
-
-function mapStateToProps(state) {
-    return {
-        dependencies: state.dependenciesRequest.content,
-        paths: state.paths,
-        requestQueue: state.requestQueue
-    };
-}
-
-function mergeProps(stateProps, dispatchProps, ownProps) {
-    return {
-        _dashprivate_dependencies: stateProps.dependencies,
-        _dashprivate_dispatch: dispatchProps.dispatch,
-        _dashprivate_layout: ownProps._dashprivate_layout,
-        _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.requestQueue),
-        _dashprivate_paths: stateProps.paths,
-        _dashprivate_requestQueue: stateProps.requestQueue
-    };
-}
-
-function getLoadingState(layout, requestQueue) {
-    var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id ? [layout.props.id] : [];
-
-    var isLoading = false;
-    var loadingProp = void 0;
-    var loadingComponent = void 0;
-
-    if (requestQueue) {
-        forEach(function (r) {
-            var controllerId = isNil(r.controllerId) ? '' : r.controllerId;
-            if (r.status === 'loading' && any(function (id) {
-                return contains(id, controllerId);
-            }, ids)) {
-                isLoading = true;
-
-                var _r$controllerId$split = r.controllerId.split('.');
-
-                var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
-
-                loadingComponent = _r$controllerId$split2[0];
-                loadingProp = _r$controllerId$split2[1];
-            }
-        }, requestQueue);
-    }
-
-    // Set loading state
-    return {
-        is_loading: isLoading,
-        prop_name: loadingProp,
-        component_name: loadingComponent
-    };
+function isLoadingComponent(layout) {
+    return Registry.resolve(layout.type, layout.namespace)._dashprivate_isLoadingComponent;
 }
 
 function getNestedIds(layout) {
@@ -35089,11 +35170,57 @@ function getNestedIds(layout) {
     return ids;
 }
 
-function isLoadingComponent(layout) {
-    return Registry.resolve(layout.type, layout.namespace)._dashprivate_isLoadingComponent;
+function getLoadingState(layout, requestQueue) {
+    var ids = isLoadingComponent(layout) ? getNestedIds(layout) : layout && layout.props.id ? [layout.props.id] : [];
+
+    var isLoading = false;
+    var loadingProp = void 0;
+    var loadingComponent = void 0;
+
+    if (requestQueue) {
+        forEach(function (r) {
+            var controllerId = isNil(r.controllerId) ? '' : r.controllerId;
+            if (r.status === 'loading' && any(function (id) {
+                return contains(id, controllerId);
+            }, ids)) {
+                isLoading = true;
+
+                var _r$controllerId$split = r.controllerId.split('.');
+
+                var _r$controllerId$split2 = _slicedToArray(_r$controllerId$split, 2);
+
+                loadingComponent = _r$controllerId$split2[0];
+                loadingProp = _r$controllerId$split2[1];
+            }
+        }, requestQueue);
+    }
+
+    // Set loading state
+    return {
+        is_loading: isLoading,
+        prop_name: loadingProp,
+        component_name: loadingComponent
+    };
 }
 
-var AugmentedTreeContainer = exports.AugmentedTreeContainer = connect(mapStateToProps, mapDispatchToProps, mergeProps)(TreeContainer);
+var AugmentedTreeContainer = exports.AugmentedTreeContainer = connect(function (state) {
+    return {
+        dependencies: state.dependenciesRequest.content,
+        paths: state.paths,
+        requestQueue: state.requestQueue
+    };
+}, function (dispatch) {
+    return { dispatch: dispatch };
+}, function (stateProps, dispatchProps, ownProps) {
+    return {
+        _dashprivate_dependencies: stateProps.dependencies,
+        _dashprivate_dispatch: dispatchProps.dispatch,
+        _dashprivate_layout: ownProps._dashprivate_layout,
+        _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.requestQueue),
+        _dashprivate_paths: stateProps.paths,
+        _dashprivate_requestQueue: stateProps.requestQueue
+    };
+})(TreeContainer);
 
 exports.default = AugmentedTreeContainer;
 
@@ -35198,15 +35325,12 @@ function apiThunk(endpoint, method, store, id, body) {
                 }
             });
         }).catch(function (err) {
-            /* eslint-disable no-console */
-            console.error(err);
-            /* eslint-enable no-console */
-            if (err) {
+            err.text().then(function (text) {
                 dispatch(onError({
                     type: 'backEnd',
-                    errorPage: err
+                    errorPage: text
                 }));
-            }
+            });
         });
     };
 }
@@ -35318,7 +35442,7 @@ var createAction = _reduxActions.createAction;
 var _utils = __webpack_require__(/*! ../reducers/utils */ "./src/reducers/utils.js");
 
 var crawlLayout = _utils.crawlLayout;
-var hasPropsId = _utils.hasPropsId;
+var hasId = _utils.hasId;
 
 var _constants = __webpack_require__(/*! ../reducers/constants */ "./src/reducers/constants.js");
 
@@ -35336,12 +35460,16 @@ var _utils2 = __webpack_require__(/*! ../utils */ "./src/utils.js");
 
 var uid = _utils2.uid;
 var urlBase = _utils2.urlBase;
+var isMultiOutputProp = _utils2.isMultiOutputProp;
+var parseMultipleOutputs = _utils2.parseMultipleOutputs;
 
 var _constants3 = __webpack_require__(/*! ../constants/constants */ "./src/constants/constants.js");
 
 var STATUS = _constants3.STATUS;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -35577,8 +35705,8 @@ function notifyObservers(payload) {
         var queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
             var outputIds = void 0;
-            if (outputIdAndProp.startsWith('..')) {
-                outputIds = outputIdAndProp.slice(2, outputIdAndProp.length - 2).split('...').map(function (e) {
+            if (isMultiOutputProp(outputIdAndProp)) {
+                outputIds = parseMultipleOutputs(outputIdAndProp).map(function (e) {
                     return e.split('.')[0];
                 });
             } else {
@@ -35680,7 +35808,7 @@ function notifyObservers(payload) {
 
         /* eslint-disable consistent-return */
         return Promise.all(promises);
-        /* eslint-enableconsistent-return */
+        /* eslint-enable consistent-return */
     };
 }
 
@@ -35693,6 +35821,34 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         hooks = _getState3.hooks;
 
     var InputGraph = graphs.InputGraph;
+
+
+    var getThisRequestIndex = function getThisRequestIndex() {
+        var postRequestQueue = getState().requestQueue;
+        var thisRequestIndex = findIndex(propEq('uid', requestUid), postRequestQueue);
+        return thisRequestIndex;
+    };
+
+    var updateRequestQueue = function updateRequestQueue(rejected, status) {
+        var postRequestQueue = getState().requestQueue;
+        var thisRequestIndex = getThisRequestIndex();
+        if (thisRequestIndex === -1) {
+            // It was already pruned away
+            return;
+        }
+        var updatedQueue = adjust(merge(__, {
+            status: status,
+            responseTime: Date.now(),
+            rejected: rejected
+        }), thisRequestIndex, postRequestQueue);
+        // We don't need to store any requests before this one
+        var thisControllerId = postRequestQueue[thisRequestIndex].controllerId;
+        var prunedQueue = updatedQueue.filter(function (queueItem, index) {
+            return queueItem.controllerId !== thisControllerId || index >= thisRequestIndex;
+        });
+
+        dispatch(setRequestQueue(prunedQueue));
+    };
 
     /*
      * Construct a payload of the input and state.
@@ -35719,7 +35875,8 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         return dependency.output === outputIdAndProp;
     }),
         inputs = _dependenciesRequest$.inputs,
-        state = _dependenciesRequest$.state;
+        state = _dependenciesRequest$.state,
+        clientside_function = _dependenciesRequest$.clientside_function;
 
     var validKeys = keys(getState().paths);
 
@@ -35759,10 +35916,95 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         });
     }
 
+    // Clientside hook
+    if (clientside_function) {
+        var updateClientsideOutput = function updateClientsideOutput(outputIdAndProp, outputValue) {
+            var _outputIdAndProp$spli3 = outputIdAndProp.split('.'),
+                _outputIdAndProp$spli4 = _slicedToArray(_outputIdAndProp$spli3, 2),
+                outputId = _outputIdAndProp$spli4[0],
+                outputProp = _outputIdAndProp$spli4[1];
+
+            var updatedProps = _defineProperty({}, outputProp, outputValue);
+
+            /*
+             * Update the request queue by treating a successful clientside
+             * like a succesful serverside response (200 status code)
+             */
+            updateRequestQueue(false, STATUS.OK);
+
+            // Update the layout with the new result
+            dispatch(updateProps({
+                itempath: getState().paths[outputId],
+                props: updatedProps,
+                source: 'response'
+            }));
+
+            /*
+             * This output could itself be a serverside or clientside input
+             * to another function
+             */
+            dispatch(notifyObservers({
+                id: outputId,
+                props: updatedProps
+            }));
+        };
+
+        var returnValue = void 0;
+        try {
+            var _window$dash_clientsi;
+
+            returnValue = (_window$dash_clientsi = window.dash_clientside[clientside_function.namespace])[clientside_function.function_name].apply(_window$dash_clientsi, _toConsumableArray(pluck('value', payload.inputs)).concat(_toConsumableArray(has('state', payload) ? pluck('value', payload.state) : [])));
+        } catch (e) {
+            /* eslint-disable no-console */
+            console.error('The following error occurred while executing ' + clientside_function.namespace + '.' + clientside_function.function_name + ' ' + ('in order to update component "' + payload.output + '" \u22C1\u22C1\u22C1'));
+            console.error(e);
+            /* eslint-enable no-console */
+
+            /*
+             * Update the request queue by treating an unsuccessful clientside
+             * like a failed serverside response via same request queue
+             * mechanism
+             */
+
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
+            return;
+        }
+
+        // Returning promises isn't support atm
+        if (type(returnValue) === 'Promise') {
+            /* eslint-disable no-console */
+            console.error('The clientside function ' + (clientside_function.namespace + '.' + clientside_function.function_name + ' ') + 'returned a Promise instead of a value. Promises are not ' + 'supported in Dash clientside right now, but may be in the ' + 'future.');
+            /* eslint-enable no-console */
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
+            return;
+        }
+
+        if (isMultiOutputProp(payload.output)) {
+            parseMultipleOutputs(payload.output).forEach(function (outputPropId, i) {
+                updateClientsideOutput(outputPropId, returnValue[i]);
+            });
+        } else {
+            updateClientsideOutput(payload.output, returnValue);
+        }
+
+        /*
+         * Note that unlike serverside updates, we're not handling
+         * children as components right now, so we don't need to
+         * crawl the computed result to check for nested components
+         * or properties that might trigger other inputs.
+         * In the future, we could handle this case.
+         */
+        return;
+    }
+
     if (hooks.request_pre !== null) {
         hooks.request_pre(payload);
     }
+
+    /* eslint-disable consistent-return */
     return fetch(urlBase(config) + '_dash-update-component', {
+        /* eslint-enable consistent-return */
+
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -35771,37 +36013,6 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
         credentials: 'same-origin',
         body: JSON.stringify(payload)
     }).then(function handleResponse(res) {
-        if (!res.ok) {
-            throw res;
-        }
-
-        var getThisRequestIndex = function getThisRequestIndex() {
-            var postRequestQueue = getState().requestQueue;
-            var thisRequestIndex = findIndex(propEq('uid', requestUid), postRequestQueue);
-            return thisRequestIndex;
-        };
-
-        var updateRequestQueue = function updateRequestQueue(rejected) {
-            var postRequestQueue = getState().requestQueue;
-            var thisRequestIndex = getThisRequestIndex();
-            if (thisRequestIndex === -1) {
-                // It was already pruned away
-                return;
-            }
-            var updatedQueue = adjust(merge(__, {
-                status: res.status,
-                responseTime: Date.now(),
-                rejected: rejected
-            }), thisRequestIndex, postRequestQueue);
-            // We don't need to store any requests before this one
-            var thisControllerId = postRequestQueue[thisRequestIndex].controllerId;
-            var prunedQueue = updatedQueue.filter(function (queueItem, index) {
-                return queueItem.controllerId !== thisControllerId || index >= thisRequestIndex;
-            });
-
-            dispatch(setRequestQueue(prunedQueue));
-        };
-
         var isRejected = function isRejected() {
             var latestRequestIndex = findLastIndex(propEq('controllerId', outputIdAndProp), getState().requestQueue);
             /*
@@ -35816,7 +36027,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
 
         if (res.status !== STATUS.OK) {
             // update the status of this request
-            updateRequestQueue(true);
+            updateRequestQueue(true, res.status);
             return;
         }
 
@@ -35826,7 +36037,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
          * If so, ignore this request.
          */
         if (isRejected()) {
-            updateRequestQueue(true);
+            updateRequestQueue(true, res.status);
             return;
         }
 
@@ -35838,11 +36049,11 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
              * get out of order
              */
             if (isRejected()) {
-                updateRequestQueue(true);
+                updateRequestQueue(true, res.status);
                 return;
             }
 
-            updateRequestQueue(false);
+            updateRequestQueue(false, res.status);
 
             // Fire custom request_post hook if any
             if (hooks.request_post !== null) {
@@ -35908,7 +36119,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
                          */
                         var newProps = {};
                         crawlLayout(observerUpdatePayload.props.children, function appendIds(child) {
-                            if (hasPropsId(child)) {
+                            if (hasId(child)) {
                                 keys(child.props).forEach(function (childProp) {
                                     var componentIdAndProp = child.props.id + '.' + childProp;
                                     if (has(componentIdAndProp, InputGraph.nodes)) {
@@ -35996,10 +36207,12 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
             }
         });
     }).catch(function (err) {
-        dispatch(onError({
-            type: 'backEnd',
-            errorPage: err
-        }));
+        err.text().then(function (text) {
+            dispatch(onError({
+                type: 'backEnd',
+                errorPage: text
+            }));
+        });
     });
 }
 
@@ -37007,10 +37220,6 @@ var _react = __webpack_require__(/*! react */ "react");
 
 var Component = _react.Component;
 
-var _ErrorIcon = __webpack_require__(/*! ../icons/ErrorIcon.svg */ "./src/components/error/icons/ErrorIcon.svg");
-
-var ErrorIcon = _interopRequireDefault(_ErrorIcon).default;
-
 var _CloseIcon = __webpack_require__(/*! ../icons/CloseIcon.svg */ "./src/components/error/icons/CloseIcon.svg");
 
 var CloseIcon = _interopRequireDefault(_CloseIcon).default;
@@ -37077,10 +37286,10 @@ var FrontEndError = function (_Component) {
             return collapsed ? React.createElement(
                 'div',
                 { className: 'dash-error-card__list-item' },
-                React.createElement(ErrorIcon, { className: 'dash-fe-error__icon-error' }),
                 React.createElement(
                     'h6',
                     { className: 'dash-fe-error__title' },
+                    '\u2623\uFE0F\xA0',
                     e.error.message || 'An error was thrown that was not an Error object, so info could not be gathered.'
                 ),
                 React.createElement(CollapseIcon, {
@@ -37095,10 +37304,10 @@ var FrontEndError = function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'dash-fe-error-top' },
-                    React.createElement(ErrorIcon, { className: 'dash-fe-error__icon-error' }),
                     React.createElement(
                         'h6',
                         { className: 'dash-fe-error__title' },
+                        '\u2623\uFE0F\xA0',
                         e.error.message || 'An error was thrown that was not an Error object, so info could not be gathered.'
                     ),
                     this.props.isListItem ? React.createElement(CollapseIcon, {
@@ -37108,7 +37317,7 @@ var FrontEndError = function (_Component) {
                         }
                     }) : closeButton
                 ),
-                React.createElement(
+                !e.error.stack ? null : React.createElement(
                     'div',
                     { className: 'dash-fe-error__st' },
                     e.error.stack && e.error.stack.split('\n').map(function (line) {
@@ -37118,6 +37327,28 @@ var FrontEndError = function (_Component) {
                             line
                         );
                     })
+                ),
+                !e.error.html ? null : React.createElement(
+                    'div',
+                    { className: 'dash-be-error__st' },
+                    React.createElement(
+                        'div',
+                        { className: 'dash-backend-error' },
+                        React.createElement('iframe', {
+                            style: {
+                                /*
+                                 * 67px of padding and margin between this
+                                 * iframe and the parent container.
+                                 * 67 was determined manually in the
+                                 * browser's dev tools.
+                                 */
+                                width: 'calc(600px - 67px)',
+                                height: '75vh',
+                                border: 'none'
+                            },
+                            srcDoc: e.error.html.replace('</head>', '\n<style type="text/css">\n    {\n        font-family: Roboto;\n    }\n    .traceback {\n        background-color: white;\n        border: 2px solid #dfe8f3;\n        border-radius: 0px 0px 4px 4px;\n        color: #506784;\n    }\n    h2.traceback {\n        background-color: #f3f6fa;\n        border: 2px solid #dfe8f3;\n        border-bottom: 0px;\n        box-sizing: border-box;\n        border-radius: 4px 4px 0px 0px;\n        color: #506784;\n    }\n    h2.traceback em{\n        color: #506784;\n        font-weight: 100;\n    }\n    .traceback pre, .debugger textarea{\n        background-color: #F3F6FA;\n    }\n    .debugger h1{\n        color: #506784;\n        font-family: Roboto;\n    }\n    .explanation {\n        color: #A2B1C6;\n    }\n     /* Hide the Don\'t Panic! footer */\n     .debugger .footer {\n         display: none;\n     }\n\n    /* Messing around */\n     .traceback > ul > li {\n         display: none;\n     }\n     .traceback > ul > li:nth-last-child(-n+3) {\n         display: block;\n     }\n     .debugger h1 {\n         display: none;\n     }\n\n     .debugger .errormsg {\n         margin: 0;\n         color: #506784;\n         font-size: 16px;\n         background-color: #f3f6fa;\n         border: 2px solid #dfe8f3;\n         box-sizing: border-box;\n         border-radius: 4px;\n         padding: 10px;\n     }\n\n    .debugger .pastemessage input {\n        display: none;\n    }\n\n    .debugger .explanation {\n        display: none;\n    }\n    .debugger div.plain {\n        border-radius: 4px;\n        border-width: 2px;\n        color: #506784;\n    }\n\n    body {\n        padding: 0px;\n        margin: 0px;\n    }\n\n    .plain {\n        display: block !important;\n    }\n    .plain > form > p {\n        display: none;\n    }\n    .plain pre {\n        padding: 15px !important;\n        overflow-x: scroll;\n    }\n</style>\n</head>')
+                        })
+                    )
                 )
             );
         }
@@ -37220,7 +37451,7 @@ var FrontEndErrorContainer = function (_Component) {
                     React.createElement(
                         'h6',
                         { className: 'dash-error-card__message' },
-                        '\u26A0\uFE0F Alerts (',
+                        '\uD83D\uDED1 Alerts (',
                         React.createElement(
                             'strong',
                             null,
@@ -37252,11 +37483,11 @@ var FrontEndErrorContainer = function (_Component) {
 FrontEndErrorContainer.propTypes = {
     errors: PropTypes.array,
     resolve: PropTypes.func,
-    inAlertsTray: PropTypes.bool
+    inAlertsTray: PropTypes.any
 };
 
 FrontEndErrorContainer.propTypes = {
-    inAlertsTray: false
+    inAlertsTray: PropTypes.any
 };
 
 exports.FrontEndErrorContainer = FrontEndErrorContainer;
@@ -37296,10 +37527,6 @@ var PropTypes = _interopRequireDefault(_propTypes).default;
 var _radium = __webpack_require__(/*! radium */ "./node_modules/radium/es/index.js");
 
 var Radium = _interopRequireDefault(_radium).default;
-
-var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
-
-var isEmpty = _ramda.isEmpty;
 
 var _actions = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
 
@@ -37345,24 +37572,6 @@ var UnconnectedGlobalErrorContainer = function (_Component) {
                 error = _props.error,
                 dispatch = _props.dispatch;
 
-            if (!isEmpty(error.backEnd)) {
-                return React.createElement(
-                    'div',
-                    { className: 'dash-backend-error' },
-                    React.createElement(
-                        'h2',
-                        null,
-                        ' ',
-                        error.backEnd.errorPage.message,
-                        ' '
-                    ),
-                    React.createElement(
-                        'pre',
-                        { className: 'traceback' },
-                        error.backEnd.errorPage.stack
-                    )
-                );
-            }
             return React.createElement(
                 'div',
                 { id: '_dash-global-error-container' },
@@ -37464,10 +37673,6 @@ var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
 var isEmpty = _ramda.isEmpty;
 
-var _FrontEndError = __webpack_require__(/*! ./FrontEnd/FrontEndError.react */ "./src/components/error/FrontEnd/FrontEndError.react.js");
-
-var FrontEndError = _FrontEndError.FrontEndError;
-
 __webpack_require__(/*! ./GlobalErrorOverlay.css */ "./src/components/error/GlobalErrorOverlay.css");
 
 var _FrontEndErrorContainer = __webpack_require__(/*! ./FrontEnd/FrontEndErrorContainer.react */ "./src/components/error/FrontEnd/FrontEndErrorContainer.react.js");
@@ -37499,18 +37704,23 @@ var GlobalErrorOverlay = function (_Component) {
                 visible = _props.visible,
                 error = _props.error,
                 toastsEnabled = _props.toastsEnabled;
+            // let backEndErrors;
 
             var frontEndErrors = void 0;
             if (toastsEnabled) {
-                if (error.frontEnd.length > 1) {
-                    frontEndErrors = React.createElement(FrontEndErrorContainer, {
-                        errors: error.frontEnd,
-                        resolve: resolve
-                    });
-                } else if (!isEmpty(error.frontEnd)) {
-                    var e = error.frontEnd[0];
-                    frontEndErrors = React.createElement(FrontEndError, { e: e, resolve: resolve });
+                var errors = [];
+                if (error.frontEnd.length) {
+                    errors = error.frontEnd;
                 }
+                if (!isEmpty(error.backEnd)) {
+                    errors.push({
+                        error: {
+                            message: 'Python exception',
+                            html: error.backEnd.errorPage
+                        }
+                    });
+                }
+                frontEndErrors = React.createElement(FrontEndErrorContainer, { errors: errors, resolve: resolve });
             }
             return React.createElement(
                 'div',
@@ -37551,7 +37761,7 @@ GlobalErrorOverlay.propTypes = {
     resolve: PropTypes.func,
     visible: PropTypes.bool,
     error: PropTypes.object,
-    toastsEnabled: PropTypes.boolean
+    toastsEnabled: PropTypes.any
 };
 
 /***/ }),
@@ -37727,41 +37937,6 @@ var SvgDebugIcon = function SvgDebugIcon(props) {
 
 /***/ }),
 
-/***/ "./src/components/error/icons/ErrorIcon.svg":
-/*!**************************************************!*\
-  !*** ./src/components/error/icons/ErrorIcon.svg ***!
-  \**************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-
-
-var _ref =
-/*#__PURE__*/
-react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("path", {
-  fillRule: "evenodd",
-  clipRule: "evenodd",
-  d: "M0 8c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8-8-3.58-8-8zm10.88 4L12 10.88 9.12 8 12 5.12 10.88 4 8 6.88 5.12 4 4 5.12 6.88 8 4 10.88 5.12 12 8 9.12 10.88 12z",
-  fill: "#EF553B"
-});
-
-var SvgErrorIcon = function SvgErrorIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("svg", _extends({
-    viewBox: "0 0 16 16",
-    fill: "none"
-  }, props), _ref);
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (SvgErrorIcon);
-
-/***/ }),
-
 /***/ "./src/components/error/icons/ErrorIconWhite.svg":
 /*!*******************************************************!*\
   !*** ./src/components/error/icons/ErrorIconWhite.svg ***!
@@ -37862,39 +38037,6 @@ var SvgReloadIcon = function SvgReloadIcon(props) {
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (SvgReloadIcon);
-
-/***/ }),
-
-/***/ "./src/components/error/icons/WarningIcon.svg":
-/*!****************************************************!*\
-  !*** ./src/components/error/icons/WarningIcon.svg ***!
-  \****************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-
-
-var _ref =
-/*#__PURE__*/
-react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("path", {
-  d: "M0 12h12.923L6.462 0 0 12zm7.154-1.846H5.769V8.769h1.385v1.385zm0-2.308H5.769v-2.77h1.385v2.77z",
-  fill: "#F4BC2B"
-});
-
-var SvgWarningIcon = function SvgWarningIcon(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("svg", _extends({
-    viewBox: "0 0 13 12",
-    fill: "none"
-  }, props), _ref);
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (SvgWarningIcon);
 
 /***/ }),
 
@@ -38022,17 +38164,9 @@ var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-type
 
 var PropTypes = _interopRequireDefault(_propTypes).default;
 
-var _WarningIcon = __webpack_require__(/*! ../icons/WarningIcon.svg */ "./src/components/error/icons/WarningIcon.svg");
-
-var WarningIcon = _interopRequireDefault(_WarningIcon).default;
-
 var _WarningIconWhite = __webpack_require__(/*! ../icons/WarningIconWhite.svg */ "./src/components/error/icons/WarningIconWhite.svg");
 
 var WarningIconWhite = _interopRequireDefault(_WarningIconWhite).default;
-
-var _ErrorIcon = __webpack_require__(/*! ../icons/ErrorIcon.svg */ "./src/components/error/icons/ErrorIcon.svg");
-
-var ErrorIcon = _interopRequireDefault(_ErrorIcon).default;
 
 var _ErrorIconWhite = __webpack_require__(/*! ../icons/ErrorIconWhite.svg */ "./src/components/error/icons/ErrorIconWhite.svg");
 
@@ -38069,13 +38203,13 @@ var DebugAlertContainer = function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    alertsOpened ? React.createElement(ErrorIconWhite, { className: 'dash-debug-alert-container__icon' }) : React.createElement(ErrorIcon, { className: 'dash-debug-alert-container__icon' }),
+                    alertsOpened ? React.createElement(ErrorIconWhite, { className: 'dash-debug-alert-container__icon' }) : '☣️',
                     this.props.errors.length
                 ),
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    alertsOpened ? React.createElement(WarningIconWhite, { className: 'dash-debug-alert-container__icon dash-debug-alert-container__icon--warning' }) : React.createElement(WarningIcon, { className: 'dash-debug-alert-container__icon dash-debug-alert-container__icon--warning' }),
+                    alertsOpened ? React.createElement(WarningIconWhite, { className: 'dash-debug-alert-container__icon dash-debug-alert-container__icon--warning' }) : '⚠️',
                     '0'
                 )
             );
@@ -38173,14 +38307,6 @@ var ReloadIcon = _interopRequireDefault(_ReloadIcon).default;
 var _GraphIcon = __webpack_require__(/*! ../icons/GraphIcon.svg */ "./src/components/error/icons/GraphIcon.svg");
 
 var GraphIcon = _interopRequireDefault(_GraphIcon).default;
-
-var _WarningIcon = __webpack_require__(/*! ../icons/WarningIcon.svg */ "./src/components/error/icons/WarningIcon.svg");
-
-var WarningIcon = _interopRequireDefault(_WarningIcon).default;
-
-var _ErrorIcon = __webpack_require__(/*! ../icons/ErrorIcon.svg */ "./src/components/error/icons/ErrorIcon.svg");
-
-var ErrorIcon = _interopRequireDefault(_ErrorIcon).default;
 
 var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
 
@@ -38356,14 +38482,13 @@ var DebugMenu = function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    React.createElement(ErrorIcon, { className: 'dash-debug-alert-container__icon' }),
+                    '\u2623\uFE0F\xA0',
                     errors.frontEnd.length
                 ),
                 React.createElement(
                     'div',
                     { className: 'dash-debug-alert' },
-                    React.createElement(WarningIcon, { className: 'dash-debug-alert-container__icon dash-debug-alert-container__icon--warning' }),
-                    '0'
+                    '\u26A0\uFE0F\xA00'
                 )
             ) : null;
 
@@ -38403,8 +38528,8 @@ var DebugMenu = function (_Component) {
 DebugMenu.propTypes = {
     children: PropTypes.object,
     errors: PropTypes.object,
-    resolveError: PropTypes.function,
-    dispatch: PropTypes.function
+    resolveError: PropTypes.any,
+    dispatch: PropTypes.any
 };
 
 exports.DebugMenu = DebugMenu;
@@ -38458,7 +38583,8 @@ var REDIRECT_URI_PATHNAME = exports.REDIRECT_URI_PATHNAME = '/_oauth2/callback';
 var OAUTH_COOKIE_NAME = exports.OAUTH_COOKIE_NAME = 'plotly_oauth_token';
 
 var STATUS = exports.STATUS = {
-    OK: 200
+    OK: 200,
+    CLIENTSIDE_ERROR: 'CLIENTSIDE_ERROR'
 };
 
 /***/ }),
@@ -38662,6 +38788,11 @@ var _dependencyGraph = __webpack_require__(/*! dependency-graph */ "./node_modul
 
 var DepGraph = _dependencyGraph.DepGraph;
 
+var _utils = __webpack_require__(/*! ../utils */ "./src/utils.js");
+
+var isMultiOutputProp = _utils.isMultiOutputProp;
+var parseMultipleOutputs = _utils.parseMultipleOutputs;
+
 
 var initialGraph = {};
 
@@ -38688,8 +38819,8 @@ var graphs = function graphs() {
                         outputId = output.id + '.' + output.property;
                     } else {
                         outputId = output;
-                        if (output.startsWith('.')) {
-                            output.slice(2, output.length - 2).split('...').forEach(function (out) {
+                        if (isMultiOutputProp(output)) {
+                            parseMultipleOutputs(output).forEach(function (out) {
                                 multiGraph.addNode(out);
                                 inputs.forEach(function (i) {
                                     var inputId = i.id + '.' + i.property;
@@ -39262,6 +39393,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.crawlLayout = exports.hasPropsChildren = exports.hasPropsId = undefined;
+exports.hasId = hasId;
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
@@ -39310,6 +39442,10 @@ var crawlLayout = exports.crawlLayout = function crawlLayout(object, func) {
         });
     }
 };
+
+function hasId(child) {
+    return R.type(child) === 'Object' && R.has('props', child) && R.has('id', child.props);
+}
 
 /***/ }),
 
@@ -39419,6 +39555,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.urlBase = urlBase;
 exports.uid = uid;
+exports.isMultiOutputProp = isMultiOutputProp;
+exports.parseMultipleOutputs = parseMultipleOutputs;
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
@@ -39448,6 +39586,29 @@ function uid() {
         return Math.floor((1 + Math.random()) * h).toString(16).substring(1);
     }
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
+
+function isMultiOutputProp(outputIdAndProp) {
+    /*
+     * If this update is for multiple outputs, then it has
+     * starting & trailing `..` and each propId pair is separated
+     * by `...`, e.g.
+     * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+     */
+
+    return outputIdAndProp.startsWith('..');
+}
+
+function parseMultipleOutputs(outputIdAndProp) {
+    /*
+     * If this update is for multiple outputs, then it has
+     * starting & trailing `..` and each propId pair is separated
+     * by `...`, e.g.
+     * "..output-1.value...output-2.value...output-3.value...output-4.value.."
+     */
+    return outputIdAndProp.split('...').map(function (o) {
+        return o.replace('..', '');
+    });
 }
 
 /***/ }),

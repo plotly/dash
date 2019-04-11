@@ -62,7 +62,6 @@ class FrontEndError extends Component {
         ) : (
             <div className={cardClasses}>
                 {errorHeader}
-
                 <ErrorContent error={e.error} />
             </div>
         );
@@ -81,7 +80,6 @@ function ErrorContent({error}) {
                     ))}
                 </div>
             )}
-
             {/* Backend Error */}
             {!error.html ? null : (
                 <div className="dash-be-error__st">

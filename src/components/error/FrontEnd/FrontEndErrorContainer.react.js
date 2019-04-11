@@ -27,7 +27,7 @@ class FrontEndErrorContainer extends Component {
             <div className={cardClasses}>
                 <div className="dash-error-card__topbar">
                     <h6 className="dash-error-card__message">
-                        ⚠️ Errors (<strong>{errorsLength}</strong>)
+                        🛑 Errors (<strong>{errorsLength}</strong>)
                     </h6>
                 </div>
                 <div className="dash-error-card__list">{errorElements}</div>
@@ -39,11 +39,11 @@ class FrontEndErrorContainer extends Component {
 FrontEndErrorContainer.propTypes = {
     errors: PropTypes.array,
     resolve: PropTypes.func,
-    inAlertsTray: PropTypes.bool,
+    inAlertsTray: PropTypes.any,
 };
 
 FrontEndErrorContainer.propTypes = {
-    inAlertsTray: false,
+    inAlertsTray: PropTypes.any,
 };
 
 export {FrontEndErrorContainer};

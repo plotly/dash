@@ -21,6 +21,9 @@ class UnconnectedContainer extends Component {
     constructor(props) {
         super(props);
         this.initialization = this.initialization.bind(this);
+        this.state = {
+            errorLoading: false,
+        };
     }
     componentDidMount() {
         this.initialization(this.props);
@@ -71,7 +74,16 @@ class UnconnectedContainer extends Component {
             // Hasn't already hydrated
             appLifecycle === getAppState('STARTED')
         ) {
-            dispatch(hydrateInitialOutputs());
+            let errorLoading = false;
+            try {
+                dispatch(hydrateInitialOutputs());
+            } catch (err) {
+                errorLoading = true;
+            } finally {
+                this.setState(state =>
+                    state.errorLoading !== errorLoading ? {errorLoading} : null
+                );
+            }
         }
     }
 
@@ -81,7 +93,10 @@ class UnconnectedContainer extends Component {
             dependenciesRequest,
             layoutRequest,
             layout,
+            config,
         } = this.props;
+
+        const {errorLoading} = this.state;
 
         if (
             layoutRequest.status &&
@@ -89,20 +104,26 @@ class UnconnectedContainer extends Component {
         ) {
             return <div className="_dash-error">{'Error loading layout'}</div>;
         } else if (
-            dependenciesRequest.status &&
-            !contains(dependenciesRequest.status, [STATUS.OK, 'loading'])
+            errorLoading ||
+            (dependenciesRequest.status &&
+                !contains(dependenciesRequest.status, [STATUS.OK, 'loading']))
         ) {
             return (
                 <div className="_dash-error">
                     {'Error loading dependencies'}
                 </div>
             );
-        } else if (appLifecycle === getAppState('HYDRATED')) {
+        } else if (
+            appLifecycle === getAppState('HYDRATED') &&
+            config.dev_tools_ui === true
+        ) {
             return (
                 <GlobalErrorContainer>
                     <TreeContainer _dashprivate_layout={layout} />
                 </GlobalErrorContainer>
             );
+        } else if (appLifecycle === getAppState('HYDRATED')) {
+            return <TreeContainer _dashprivate_layout={layout} />;
         }
 
         return <div className="_dash-loading">{'Loading...'}</div>;
@@ -118,8 +139,9 @@ UnconnectedContainer.propTypes = {
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,
-    history: PropTypes.array,
+    history: PropTypes.any,
     error: PropTypes.object,
+    config: PropTypes.object,
 };
 
 const Container = connect(
@@ -133,6 +155,7 @@ const Container = connect(
         paths: state.paths,
         history: state.history,
         error: state.error,
+        config: state.config,
     }),
     dispatch => ({dispatch})
 )(UnconnectedContainer);

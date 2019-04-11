@@ -26,11 +26,11 @@ import {
     view,
 } from 'ramda';
 import {createAction} from 'redux-actions';
-import {crawlLayout, hasPropsId} from '../reducers/utils';
+import {crawlLayout, hasId} from '../reducers/utils';
 import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
 import cookie from 'cookie';
-import {uid, urlBase} from '../utils';
+import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
@@ -277,11 +277,10 @@ export function notifyObservers(payload) {
         const queuedObservers = [];
         outputObservers.forEach(function filterObservers(outputIdAndProp) {
             let outputIds;
-            if (outputIdAndProp.startsWith('..')) {
-                outputIds = outputIdAndProp
-                    .slice(2, outputIdAndProp.length - 2)
-                    .split('...')
-                    .map(e => e.split('.')[0]);
+            if (isMultiOutputProp(outputIdAndProp)) {
+                outputIds = parseMultipleOutputs(outputIdAndProp).map(
+                    e => e.split('.')[0]
+                );
             } else {
                 outputIds = [outputIdAndProp.split('.')[0]];
             }
@@ -393,7 +392,7 @@ export function notifyObservers(payload) {
 
         /* eslint-disable consistent-return */
         return Promise.all(promises);
-        /* eslint-enableconsistent-return */
+        /* eslint-enable consistent-return */
     };
 }
 
@@ -406,6 +405,44 @@ function updateOutput(
 ) {
     const {config, layout, graphs, dependenciesRequest, hooks} = getState();
     const {InputGraph} = graphs;
+
+    const getThisRequestIndex = () => {
+        const postRequestQueue = getState().requestQueue;
+        const thisRequestIndex = findIndex(
+            propEq('uid', requestUid),
+            postRequestQueue
+        );
+        return thisRequestIndex;
+    };
+
+    const updateRequestQueue = (rejected, status) => {
+        const postRequestQueue = getState().requestQueue;
+        const thisRequestIndex = getThisRequestIndex();
+        if (thisRequestIndex === -1) {
+            // It was already pruned away
+            return;
+        }
+        const updatedQueue = adjust(
+            merge(__, {
+                status: status,
+                responseTime: Date.now(),
+                rejected,
+            }),
+            thisRequestIndex,
+            postRequestQueue
+        );
+        // We don't need to store any requests before this one
+        const thisControllerId =
+            postRequestQueue[thisRequestIndex].controllerId;
+        const prunedQueue = updatedQueue.filter((queueItem, index) => {
+            return (
+                queueItem.controllerId !== thisControllerId ||
+                index >= thisRequestIndex
+            );
+        });
+
+        dispatch(setRequestQueue(prunedQueue));
+    };
 
     /*
      * Construct a payload of the input and state.
@@ -423,7 +460,11 @@ function updateOutput(
         changedPropIds,
     };
 
-    const {inputs, state} = dependenciesRequest.content.find(
+    const {
+        inputs,
+        state,
+        clientside_function,
+    } = dependenciesRequest.content.find(
         dependency => dependency.output === outputIdAndProp
     );
     const validKeys = keys(getState().paths);
@@ -494,10 +535,113 @@ function updateOutput(
         });
     }
 
+    // Clientside hook
+    if (clientside_function) {
+        let returnValue;
+        try {
+            returnValue = window.dash_clientside[clientside_function.namespace][
+                clientside_function.function_name
+            ](
+                ...pluck('value', payload.inputs),
+                ...(has('state', payload) ? pluck('value', payload.state) : [])
+            );
+        } catch (e) {
+            /* eslint-disable no-console */
+            console.error(
+                `The following error occurred while executing ${
+                    clientside_function.namespace
+                }.${clientside_function.function_name} ` +
+                    `in order to update component "${payload.output}" ⋁⋁⋁`
+            );
+            console.error(e);
+            /* eslint-enable no-console */
+
+            /*
+             * Update the request queue by treating an unsuccessful clientside
+             * like a failed serverside response via same request queue
+             * mechanism
+             */
+
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
+            return;
+        }
+
+        // Returning promises isn't support atm
+        if (type(returnValue) === 'Promise') {
+            /* eslint-disable no-console */
+            console.error(
+                'The clientside function ' +
+                    `${clientside_function.namespace}.${
+                        clientside_function.function_name
+                    } ` +
+                    'returned a Promise instead of a value. Promises are not ' +
+                    'supported in Dash clientside right now, but may be in the ' +
+                    'future.'
+            );
+            /* eslint-enable no-console */
+            updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
+            return;
+        }
+
+        function updateClientsideOutput(outputIdAndProp, outputValue) {
+            const [outputId, outputProp] = outputIdAndProp.split('.');
+            const updatedProps = {
+                [outputProp]: outputValue,
+            };
+
+            /*
+             * Update the request queue by treating a successful clientside
+             * like a succesful serverside response (200 status code)
+             */
+            updateRequestQueue(false, STATUS.OK);
+
+            // Update the layout with the new result
+            dispatch(
+                updateProps({
+                    itempath: getState().paths[outputId],
+                    props: updatedProps,
+                    source: 'response',
+                })
+            );
+
+            /*
+             * This output could itself be a serverside or clientside input
+             * to another function
+             */
+            dispatch(
+                notifyObservers({
+                    id: outputId,
+                    props: updatedProps,
+                })
+            );
+        }
+
+        if (isMultiOutputProp(payload.output)) {
+            parseMultipleOutputs(payload.output).forEach((outputPropId, i) => {
+                updateClientsideOutput(outputPropId, returnValue[i]);
+            });
+        } else {
+            updateClientsideOutput(payload.output, returnValue);
+        }
+
+        /*
+         * Note that unlike serverside updates, we're not handling
+         * children as components right now, so we don't need to
+         * crawl the computed result to check for nested components
+         * or properties that might trigger other inputs.
+         * In the future, we could handle this case.
+         */
+        return;
+    }
+
     if (hooks.request_pre !== null) {
         hooks.request_pre(payload);
     }
+
+    /* eslint-disable consistent-return */
     return fetch(`${urlBase(config)}_dash-update-component`, {
+        /* eslint-enable consistent-return */
+
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -507,48 +651,6 @@ function updateOutput(
         body: JSON.stringify(payload),
     })
         .then(function handleResponse(res) {
-            if (!res.ok) {
-                throw res;
-            }
-
-            const getThisRequestIndex = () => {
-                const postRequestQueue = getState().requestQueue;
-                const thisRequestIndex = findIndex(
-                    propEq('uid', requestUid),
-                    postRequestQueue
-                );
-                return thisRequestIndex;
-            };
-
-            const updateRequestQueue = rejected => {
-                const postRequestQueue = getState().requestQueue;
-                const thisRequestIndex = getThisRequestIndex();
-                if (thisRequestIndex === -1) {
-                    // It was already pruned away
-                    return;
-                }
-                const updatedQueue = adjust(
-                    merge(__, {
-                        status: res.status,
-                        responseTime: Date.now(),
-                        rejected,
-                    }),
-                    thisRequestIndex,
-                    postRequestQueue
-                );
-                // We don't need to store any requests before this one
-                const thisControllerId =
-                    postRequestQueue[thisRequestIndex].controllerId;
-                const prunedQueue = updatedQueue.filter((queueItem, index) => {
-                    return (
-                        queueItem.controllerId !== thisControllerId ||
-                        index >= thisRequestIndex
-                    );
-                });
-
-                dispatch(setRequestQueue(prunedQueue));
-            };
-
             const isRejected = () => {
                 const latestRequestIndex = findLastIndex(
                     propEq('controllerId', outputIdAndProp),
@@ -566,7 +668,7 @@ function updateOutput(
 
             if (res.status !== STATUS.OK) {
                 // update the status of this request
-                updateRequestQueue(true);
+                updateRequestQueue(true, res.status);
                 return;
             }
 
@@ -576,7 +678,7 @@ function updateOutput(
              * If so, ignore this request.
              */
             if (isRejected()) {
-                updateRequestQueue(true);
+                updateRequestQueue(true, res.status);
                 return;
             }
 
@@ -588,11 +690,11 @@ function updateOutput(
                  * get out of order
                  */
                 if (isRejected()) {
-                    updateRequestQueue(true);
+                    updateRequestQueue(true, res.status);
                     return;
                 }
 
-                updateRequestQueue(false);
+                updateRequestQueue(false, res.status);
 
                 // Fire custom request_post hook if any
                 if (hooks.request_post !== null) {
@@ -669,7 +771,7 @@ function updateOutput(
                             crawlLayout(
                                 observerUpdatePayload.props.children,
                                 function appendIds(child) {
-                                    if (hasPropsId(child)) {
+                                    if (hasId(child)) {
                                         keys(child.props).forEach(childProp => {
                                             const componentIdAndProp = `${
                                                 child.props.id
