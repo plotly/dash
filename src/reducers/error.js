@@ -1,8 +1,8 @@
-import {findIndex, propEq, remove} from 'ramda';
+import {findIndex, merge, propEq, remove} from 'ramda';
 
 const initialError = {
     frontEnd: [],
-    backEnd: {},
+    backEnd: [],
 };
 
 function error(state = initialError, action) {
@@ -10,13 +10,20 @@ function error(state = initialError, action) {
         case 'ON_ERROR': {
             if (action.payload.type === 'frontEnd') {
                 return {
-                    frontEnd: [...state.frontEnd, action.payload],
+                    frontEnd: [
+                        merge(action.payload, {timestamp: new Date()}),
+                        ...state.frontEnd
+                    ],
                     backEnd: state.backEnd,
                 };
             } else if (action.payload.type === 'backEnd') {
+                debugger;
                 return {
                     frontEnd: state.frontEnd,
-                    backEnd: action.payload,
+                    backEnd: [
+                        merge(action.payload, {timestamp: new Date()}),
+                        ...state.backEnd
+                    ],
                 };
             }
             return state;

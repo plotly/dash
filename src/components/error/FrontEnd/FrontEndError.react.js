@@ -35,17 +35,33 @@ class FrontEndError extends Component {
         if (inAlertsTray) {
             cardClasses += ' dash-error-card--alerts-tray';
         }
+
+        const errorHeader = (
+            <div className="dash-fe-error-top" onClick={() => this.setState({collapsed: !collapsed})}>
+                <span className="dash-fe-error-top__group">
+                    <ErrorIcon className="dash-fe-error__icon-error" />
+
+                    <span className="dash-fe-error__title">
+                        {e.error.message || 'Error'}
+                    </span>
+                </span>
+
+                <span className="dash-fe-error-top__group">
+                    <span className="dash-fe-error__timestamp">
+                        {`${e.timestamp.toLocaleTimeString()}`}
+                    </span>
+
+                    <CollapseIcon
+                        className={`dash-fe-error__collapse ${collapsed ? 'dash-fe-error__collapse--flipped' : ''}`}
+                        onClick={() => this.setState({collapsed: !collapsed})}
+                    />
+                </span>
+            </div>
+        );
+
         return collapsed ? (
             <div className="dash-error-card__list-item">
-                <ErrorIcon className="dash-fe-error__icon-error" />
-                <h6 className="dash-fe-error__title">
-                    {e.error.message ||
-                        'An error was thrown that was not an Error object, so info could not be gathered.'}
-                </h6>
-                <CollapseIcon
-                    className="dash-fe-error__collapse"
-                    onClick={() => this.setState({collapsed: false})}
-                />
+                {errorHeader}
             </div>
         ) : (
             <div className={cardClasses}>
