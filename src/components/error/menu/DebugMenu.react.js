@@ -57,14 +57,6 @@ class DebugMenu extends Component {
                     </label>
                 </div>
                 <div className="dash-debug-menu__button-container">
-                    <div className="dash-debug-menu__button">
-                        <ReloadIcon className="dash-debug-menu__icon" />
-                    </div>
-                    <label className="dash-debug-menu__button-label">
-                        Live Reload
-                    </label>
-                </div>
-                <div className="dash-debug-menu__button-container">
                     <div
                         className={`dash-debug-menu__button ${
                             toastsEnabled
