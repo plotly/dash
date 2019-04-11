@@ -24,7 +24,6 @@ import Store from './components/Store.react';
 import LogoutButton from './components/LogoutButton.react';
 
 import 'react-dates/lib/css/_datepicker.css';
-import './components/css/react-dates@20.1.0-fix.css';
 
 export {
     Checklist,
