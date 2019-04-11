@@ -95,7 +95,6 @@ class DebugMenu extends Component {
                     <div className="dash-debug-alert">
                         🛑 &nbsp;{error.frontEnd.length + error.backEnd.length}
                     </div>
-                    <div className="dash-debug-alert">⚠️&nbsp;0</div>
                 </div>
             ) : null;
 
