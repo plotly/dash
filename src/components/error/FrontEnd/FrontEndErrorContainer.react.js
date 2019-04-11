@@ -24,16 +24,8 @@ class FrontEndErrorContainer extends Component {
             <div className={cardClasses}>
                 <div className="dash-error-card__topbar">
                     <h6 className="dash-error-card__message">
-                        ⚠️ Alerts (<strong>{errorsLength}</strong> errors)
+                        ⚠️ Errors (<strong>{errorsLength}</strong>)
                     </h6>
-                    <CloseIcon
-                        className="dash-fe-error__icon-close"
-                        onClick={() =>
-                            this.props.errors.forEach(error => {
-                                this.props.resolve('frontEnd', error.myUID);
-                            })
-                        }
-                    />
                 </div>
                 <div className="dash-error-card__list">{errorElements}</div>
             </div>

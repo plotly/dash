@@ -5,9 +5,7 @@
     display: inline-block;
 }
 
-.dash-fe-error-top {
-    display: flex;
-}
+
 .dash-fe-error__icon-error {
     width: 20px;
     height: 20px;
@@ -22,30 +20,31 @@
     top: 12px;
     display: inline-block;
 }
-.dash-fe-error__icon-close:hover {
-    cursor: pointer;
-}
 .dash-fe-error__icon-arrow {
     width: 8px;
     height: 28px;
     margin: 0px 8px;
 }
-.dash-fe-error__icon-arrow:hover {
+.dash-fe-error-top {
+    height: 20px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
     cursor: pointer;
+}
+.dash-fe-error-top__group {
+    display: inline-flex;
+    align-items: center;
 }
 .dash-fe-error__title {
     text-align: left;
-    margin: 2px;
-    font-size: 13px;
+    margin: 0px;
+    padding: 0px;
+    font-size: 14px;
     display: inline-block;
 }
-.dash-fe-error__collapse {
-    width: 14px;
-    position: absolute;
-    right: 22px;
-}
-.dash-fe-error__collapse:hover {
-    cursor: pointer;
+.dash-fe-error__timestamp {
+    margin-right: 30px;
 }
 .dash-fe-error__collapse--flipped {
     -webkit-transform: rotate(180deg);
