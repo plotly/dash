@@ -35,35 +35,8 @@ class DebugMenu extends Component {
             ? 'dash-debug-menu dash-debug-menu--opened'
             : 'dash-debug-menu dash-debug-menu--closed';
 
-        let frontEndErrors;
-        if (alertsOpened) {
-            if (errors.frontEnd.length > 1) {
-                frontEndErrors = (
-                    <FrontEndErrorContainer
-                        errors={errors.frontEnd}
-                        resolve={(type, myId) =>
-                            resolveError(dispatch, type, myId)
-                        }
-                        inAlertsTray={true}
-                    />
-                );
-            } else if (!isEmpty(errors.frontEnd)) {
-                const e = errors.frontEnd[0];
-                frontEndErrors = (
-                    <FrontEndError
-                        e={e}
-                        resolve={(type, myId) =>
-                            resolveError(dispatch, type, myId)
-                        }
-                        inAlertsTray={true}
-                    />
-                );
-            }
-        }
-
         const menuContent = opened ? (
             <div className="dash-debug-menu__content">
-                {frontEndErrors}
                 {errors.frontEnd.length > 0 ? (
                     <div className="dash-debug-menu__button-container">
                         <DebugAlertContainer
