@@ -1,19 +1,16 @@
 import React, {Component} from 'react';
+import {concat, isEmpty} from 'ramda';
 import './DebugMenu.css';
 
 import DebugIcon from '../icons/DebugIcon.svg';
 import WhiteCloseIcon from '../icons/WhiteCloseIcon.svg';
 import BellIcon from '../icons/BellIcon.svg';
 import BellIconGrey from '../icons/BellIconGrey.svg';
-import ReloadIcon from '../icons/ReloadIcon.svg';
 import GraphIcon from '../icons/GraphIcon.svg';
-
+import ErrorIcon from '../icons/ErrorIcon.svg';
 import PropTypes from 'prop-types';
 import {DebugAlertContainer} from './DebugAlertContainer.react';
 import GlobalErrorOverlay from '../GlobalErrorOverlay.react';
-import {isEmpty} from 'ramda';
-import {FrontEndError} from '../FrontEnd/FrontEndError.react';
-import {FrontEndErrorContainer} from '../FrontEnd/FrontEndErrorContainer.react';
 
 class DebugMenu extends Component {
     constructor(props) {
@@ -27,45 +24,18 @@ class DebugMenu extends Component {
     }
     render() {
         const {opened, alertsOpened, toastsEnabled} = this.state;
-        const {errors, resolveError, dispatch} = this.props;
+        const {error, resolveError, dispatch} = this.props;
 
         const menuClasses = opened
             ? 'dash-debug-menu dash-debug-menu--opened'
             : 'dash-debug-menu dash-debug-menu--closed';
 
-        let frontEndErrors;
-        if (alertsOpened) {
-            if (errors.frontEnd.length > 1) {
-                frontEndErrors = (
-                    <FrontEndErrorContainer
-                        errors={errors.frontEnd}
-                        resolve={(type, myId) =>
-                            resolveError(dispatch, type, myId)
-                        }
-                        inAlertsTray={true}
-                    />
-                );
-            } else if (!isEmpty(errors.frontEnd)) {
-                const e = errors.frontEnd[0];
-                frontEndErrors = (
-                    <FrontEndError
-                        e={e}
-                        resolve={(type, myId) =>
-                            resolveError(dispatch, type, myId)
-                        }
-                        inAlertsTray={true}
-                    />
-                );
-            }
-        }
-
         const menuContent = opened ? (
             <div className="dash-debug-menu__content">
-                {frontEndErrors}
-                {errors.frontEnd.length > 0 ? (
+                {error.frontEnd.length > 0 || error.backEnd.length > 0 ? (
                     <div className="dash-debug-menu__button-container">
                         <DebugAlertContainer
-                            errors={errors.frontEnd}
+                            errors={concat(error.frontEnd, error.backEnd)}
                             alertsOpened={alertsOpened}
                             onClick={() =>
                                 this.setState({alertsOpened: !alertsOpened})
@@ -79,14 +49,6 @@ class DebugMenu extends Component {
                     </div>
                     <label className="dash-debug-menu__button-label">
                         Callback Graph
-                    </label>
-                </div>
-                <div className="dash-debug-menu__button-container">
-                    <div className="dash-debug-menu__button">
-                        <ReloadIcon className="dash-debug-menu__icon" />
-                    </div>
-                    <label className="dash-debug-menu__button-label">
-                        Live Reload
                     </label>
                 </div>
                 <div className="dash-debug-menu__button-container">
@@ -109,7 +71,7 @@ class DebugMenu extends Component {
                         )}
                     </div>
                     <label className="dash-debug-menu__button-label">
-                        Notifications
+                        {'Errors'}
                     </label>
                 </div>
                 <div className="dash-debug-menu__button-container">
@@ -129,10 +91,11 @@ class DebugMenu extends Component {
         );
 
         const alertsLabel =
-            errors.frontEnd.length > 0 && !opened ? (
+            error.frontEnd.length + error.backEnd.length > 0 && !opened ? (
                 <div className="dash-debug-alert-label">
                     <div className="dash-debug-alert">
-                        ☣️&nbsp;{errors.frontEnd.length}
+                        <ErrorIcon className="dash-debug-alert-container__icon" />
+                        {error.frontEnd.length + error.backEnd.length}
                     </div>
                     <div className="dash-debug-alert">⚠️&nbsp;0</div>
                 </div>
@@ -149,9 +112,9 @@ class DebugMenu extends Component {
                 </div>
                 <GlobalErrorOverlay
                     resolve={(type, myId) => resolveError(dispatch, type, myId)}
-                    error={errors}
+                    error={error}
                     visible={
-                        !(isEmpty(errors.backEnd) && isEmpty(errors.frontEnd))
+                        !(isEmpty(error.backEnd) && isEmpty(error.frontEnd))
                     }
                     toastsEnabled={toastsEnabled}
                 >
@@ -164,9 +127,9 @@ class DebugMenu extends Component {
 
 DebugMenu.propTypes = {
     children: PropTypes.object,
-    errors: PropTypes.object,
-    resolveError: PropTypes.any,
-    dispatch: PropTypes.any,
+    error: PropTypes.object,
+    resolveError: PropTypes.function,
+    dispatch: PropTypes.function,
 };
 
 export {DebugMenu};

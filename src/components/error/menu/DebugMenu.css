@@ -1,11 +1,12 @@
 .dash-debug-menu {
     transition: width 0.05s, background-color 0.1s;
     position: fixed;
-    bottom: 68px;
-    right: 84px;
+    bottom: 35px;
+    right: 35px;
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 10000;
 }
 .dash-debug-menu--closed {
     background-color: #119dff;

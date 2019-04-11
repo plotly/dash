@@ -1,7 +1,7 @@
 import './DebugAlertContainer.css';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
-import WarningIconWhite from '../icons/WarningIconWhite.svg';
+import ErrorIcon from '../icons/ErrorIcon.svg';
 import ErrorIconWhite from '../icons/ErrorIconWhite.svg';
 
 class DebugAlertContainer extends Component {
@@ -24,14 +24,6 @@ class DebugAlertContainer extends Component {
                         '☣️'
                     )}
                     {this.props.errors.length}
-                </div>
-                <div className="dash-debug-alert">
-                    {alertsOpened ? (
-                        <WarningIconWhite className="dash-debug-alert-container__icon dash-debug-alert-container__icon--warning" />
-                    ) : (
-                        '⚠️'
-                    )}
-                    0
                 </div>
             </div>
         );
