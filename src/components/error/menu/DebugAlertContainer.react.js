@@ -27,14 +27,6 @@ class DebugAlertContainer extends Component {
                     )}
                     {this.props.errors.length}
                 </div>
-                <div className="dash-debug-alert">
-                    {alertsOpened ? (
-                        <WarningIconWhite className="dash-debug-alert-container__icon dash-debug-alert-container__icon--warning" />
-                    ) : (
-                        <WarningIcon className="dash-debug-alert-container__icon dash-debug-alert-container__icon--warning" />
-                    )}
-                    0
-                </div>
             </div>
         );
     }
