@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import {concat} from 'ramda';
 
 import './GlobalErrorOverlay.css';
 import {FrontEndErrorContainer} from './FrontEnd/FrontEndErrorContainer.react';
@@ -14,14 +15,10 @@ export default class GlobalErrorOverlay extends Component {
 
         let frontEndErrors;
         if (toastsEnabled) {
-            let errors = [];
-            if (error.frontEnd.length) {
-                errors = error.frontEnd;
-            }
-
-            error.backEnd.forEach(backEndError => {
-                errors.push(backEndError);
-            });
+            const errors = concat(
+                error.frontEnd,
+                error.backEnd
+            );
 
             frontEndErrors = (
                 <FrontEndErrorContainer errors={errors} resolve={resolve} />
