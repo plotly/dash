@@ -33,12 +33,12 @@ class FrontEndError extends Component {
                 className="dash-fe-error-top"
                 onClick={() => this.setState({collapsed: !collapsed})}
             >
+                ⛑️
                 <span className="dash-fe-error-top__group">
                     <span className="dash-fe-error__title">
                         {e.error.message || 'Error'}
                     </span>
                 </span>
-
                 <span className="dash-fe-error-top__group">
                     <span className="dash-fe-error__timestamp">
                         {`${e.timestamp.toLocaleTimeString()}`}
