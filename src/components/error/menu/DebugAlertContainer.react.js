@@ -20,7 +20,7 @@ class DebugAlertContainer extends Component {
                     {alertsOpened ? (
                         <ErrorIconWhite className="dash-debug-alert-container__icon" />
                     ) : (
-                        '☣️'
+                        '🛑 '
                     )}
                     {this.props.errors.length}
                 </div>

@@ -34,7 +34,6 @@ class FrontEndError extends Component {
                 onClick={() => this.setState({collapsed: !collapsed})}
             >
                 <span className="dash-fe-error-top__group">
-                    ☣️&nbsp;
                     <span className="dash-fe-error__title">
                         {e.error.message || 'Error'}
                     </span>
@@ -60,22 +59,35 @@ class FrontEndError extends Component {
         ) : (
             <div className={cardClasses}>
                 {errorHeader}
-                <ErrorContent error={e.error} />
+                <ErrorContent error={e.error} type={e.type} />
             </div>
         );
     }
 }
 
 /* eslint-disable no-inline-comments */
-function ErrorContent({error}) {
+function ErrorContent({error, type}) {
     return (
         <div className="error-container">
-            {/* Frontend Error objects */}
+            {!error.message || type === 'backEnd' ? null : (
+                <div className="dash-fe-error__st">
+                    <div className="dash-fe-error__info dash-fe-error__curved">
+                        {error.message}
+                    </div>
+                </div>
+            )}
+
             {!error.stack ? null : (
                 <div className="dash-fe-error__st">
-                    {error.stack.split('\n').map(line => (
-                        <p>{line}</p>
-                    ))}
+                    <div className="dash-fe-error__info_title dash-fe-error__curved-top">
+                        {"JS Stack trace (see browser's console for details)"}
+                    </div>
+                    <div className="dash-fe-error__info dash-fe-error__curved-bottom">
+                        <hr />
+                        {error.stack.split('\n').map(line => (
+                            <p>{line}</p>
+                        ))}
+                    </div>
                 </div>
             )}
             {/* Backend Error */}
@@ -123,12 +135,14 @@ const errorPropTypes = PropTypes.shape({
 
 ErrorContent.propTypes = {
     error: errorPropTypes,
+    type: PropTypes.oneOf(['backEnd', 'frontEnd']),
 };
 
 FrontEndError.propTypes = {
     e: PropTypes.shape({
         myUID: PropTypes.string,
         timestamp: PropTypes.object,
+        type: PropTypes.oneOf(['backEnd', 'frontEnd']),
         error: errorPropTypes,
     }),
     resolve: PropTypes.func,

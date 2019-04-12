@@ -1,10 +1,13 @@
+.error-container {
+    margin-top: 10px;
+}
+
 .dash-fe-errors {
     min-width: 386px;
     max-width: 650px;
     max-height: 450px;
     display: inline-block;
 }
-
 
 .dash-fe-error__icon-error {
     width: 20px;
@@ -32,6 +35,13 @@
     width: 100%;
     cursor: pointer;
 }
+.dash-fe-error-top__group:first-child {
+    /*
+     * 77% is the maximum space allowed based off of the other elements
+     * in the top part of the error container (timestamp & collapse arrow).
+     * this was manually determined */
+    width: 77%;
+}
 .dash-fe-error-top__group {
     display: inline-flex;
     align-items: center;
@@ -42,9 +52,12 @@
     padding: 0px;
     font-size: 14px;
     display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 .dash-fe-error__timestamp {
-    margin-right: 30px;
+    margin-right: 20px;
 }
 .dash-fe-error__collapse--flipped {
     -webkit-transform: rotate(180deg);
@@ -52,15 +65,43 @@
     transform: rotate(180deg);
 }
 
-.dash-fe-error__st {
-    background-color: #fdf3f4;
-    min-width: 386px;
-    max-width: 650px;
-    max-height: 450px;
+.dash-fe-error__info_title {
+    margin: 0;
+    color: #506784;
+    font-size: 16px;
+    background-color: #f3f6fa;
+    border: 2px solid #dfe8f3;
+    box-sizing: border-box;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    padding: 10px;
+}
+
+.dash-fe-error__info {
+    border: 1px solid #dfe8f3;
+    margin: 0 0 1em 0;
+    padding: 10px;
+
+    background-color: white;
+    border: 2px solid #dfe8f3;
+    border-radius: 0px 0px 4px 4px;
+    color: #506784;
     overflow: scroll;
-    padding: 2rem;
-    margin-top: 8px;
-    display: inline-block;
+}
+
+.dash-fe-error__curved {
+    border-radius: 4px;
+}
+
+.dash-fe-error__curved-top {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-width: 0px;
+}
+
+.dash-fe-error__curved-bottom {
+    border-radius-bottom-left: 4px;
+    border-radius-bottom-right: 4px;
 }
 
 .dash-be-error__st {
