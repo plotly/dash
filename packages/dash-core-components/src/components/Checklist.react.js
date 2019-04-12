@@ -86,14 +86,14 @@ Checklist.propTypes = {
             /**
              * The checkbox's label
              */
-            label: PropTypes.string,
+            label: PropTypes.string.isRequired,
 
             /**
              * The value of the checkbox. This value
              * corresponds to the items specified in the
              * `values` property.
              */
-            value: PropTypes.string,
+            value: PropTypes.string.isRequired,
 
             /**
              * If true, this checkbox is disabled and can't be clicked on.

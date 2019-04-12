@@ -85,14 +85,14 @@ RadioItems.propTypes = {
             /**
              * The radio item's label
              */
-            label: PropTypes.string,
+            label: PropTypes.string.isRequired,
 
             /**
              * The value of the radio item. This value
              * corresponds to the items specified in the
              * `values` property.
              */
-            value: PropTypes.string,
+            value: PropTypes.string.isRequired,
 
             /**
              * If true, this radio item is disabled and can't be clicked on.
