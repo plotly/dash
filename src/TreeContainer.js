@@ -7,6 +7,7 @@ import {
     contains,
     filter,
     forEach,
+    has,
     isEmpty,
     isNil,
     keysIn,
@@ -24,6 +25,29 @@ import { assertPropTypes } from 'check-prop-types';
 
 const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
 const isSimpleComponent = component => contains(type(component), SIMPLE_COMPONENT_TYPES)
+
+function validateComponent(componentDefinition) {
+    if (type(componentDefinition) === 'Array') {
+        throw new Error(
+            'The children property of a component is a list of lists, instead '+
+            'of just a list. ' +
+            'Check the component that has the following contents, ' +
+            'and remove of the levels of nesting: \n' +
+            JSON.stringify(componentDefinition, null, 2)
+        );
+    }
+    if (type(componentDefinition) === 'Object' &&
+            !(has('namespace', componentDefinition) &&
+              has('type', componentDefinition) &&
+              has('props', componentDefinition))) {
+        throw new Error(
+            'An object was provided as `children` instead of a component, ' +
+            'string, or number (or list of those). ' +
+            'Check the children property that looks something like:\n' +
+            JSON.stringify(componentDefinition, null, 2)
+        );
+    }
+}
 
 const createContainer = component => isSimpleComponent(component) ?
     component :
@@ -72,21 +96,9 @@ class TreeContainer extends Component {
         if (isSimpleComponent(_dashprivate_layout)) {
             return _dashprivate_layout;
         }
+        validateComponent(_dashprivate_layout);
 
-        if (!_dashprivate_layout.type) {
-            /* eslint-disable no-console */
-            console.error(type(_dashprivate_layout), _dashprivate_layout);
-            /* eslint-enable no-console */
-            throw new Error('component.type is undefined');
-        }
-        if (!_dashprivate_layout.namespace) {
-            /* eslint-disable no-console */
-            console.error(type(_dashprivate_layout), _dashprivate_layout);
-            /* eslint-enable no-console */
-            throw new Error('component.namespace is undefined');
-        }
-
-        const element = Registry.resolve(_dashprivate_layout.type, _dashprivate_layout.namespace);
+        const element = Registry.resolve(_dashprivate_layout);
 
         const layout = omit(['children'], _dashprivate_layout.props);
 
@@ -178,7 +190,8 @@ TreeContainer.propTypes = {
 };
 
 function isLoadingComponent(layout) {
-    return Registry.resolve(layout.type, layout.namespace)._dashprivate_isLoadingComponent;
+    validateComponent(layout);
+    return Registry.resolve(layout)._dashprivate_isLoadingComponent;
 }
 
 function getNestedIds(layout) {
