@@ -68,28 +68,13 @@ Slider.propTypes = {
 
     /**
      * Marks on the slider.
-     * The key determines the position,
+     * The key determines the position (a number),
      * and the value determines what will show.
      * If you want to set the style of a specific mark point,
      * the value should be an object which
      * contains style and label properties.
      */
-    marks: PropTypes.shape({
-        number: PropTypes.oneOfType([
-            /**
-             * The label of the mark
-             */
-            PropTypes.string,
-
-            /**
-             * The style and label of the mark
-             */
-            PropTypes.shape({
-                style: PropTypes.object,
-                label: PropTypes.string,
-            }),
-        ]),
-    }),
+    marks: PropTypes.object,
 
     /**
      * The value of the input
