@@ -141,7 +141,10 @@ Input.propTypes = {
      * If true, changes to input will be sent back to the Dash server only on enter or when losing focus.
      * If it's false, it will sent the value back on every change.
      */
-    debounce: PropTypes.bool,
+    debounce: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * The type of control to render.
@@ -162,17 +165,26 @@ Input.propTypes = {
     /**
      * This attribute indicates whether the value of the control can be automatically completed by the browser.
      */
-    autocomplete: PropTypes.string,
+    autocomplete: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * The element should be automatically focused after the page loaded.
      */
-    autofocus: PropTypes.string,
+    autofocus: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * If true, the input is disabled and can't be clicked on.
      */
-    disabled: PropTypes.bool,
+    disabled: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     inputmode: PropTypes.oneOf([
         /**
@@ -249,7 +261,10 @@ Input.propTypes = {
     /**
      * If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed.
      */
-    maxlength: PropTypes.string,
+    maxlength: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
 
     /**
      * The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value.
@@ -259,7 +274,10 @@ Input.propTypes = {
     /**
      * If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored.
      */
-    minlength: PropTypes.string,
+    minlength: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
 
     /**
      * This Boolean attribute indicates whether the user can enter more than one value. This attribute applies when the type attribute is set to email or file, otherwise it is ignored.
@@ -279,12 +297,18 @@ Input.propTypes = {
     /**
      * A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it.
      */
-    placeholder: PropTypes.string,
+    placeholder: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
 
     /**
      * This attribute indicates that the user cannot modify the value of the control. The value of the attribute is irrelevant. If you need read-write access to the input value, do not add the "readonly" attribute. It is ignored if the value of the type attribute is hidden, range, color, checkbox, radio, file, or a button type (such as button or submit).
      */
-    readOnly: PropTypes.string,
+    readOnly: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * This attribute specifies that the user must fill in a value before submitting a form. It cannot be used when the type attribute is hidden, image, or a button type (submit, reset, or button). The :optional and :required CSS pseudo-classes will be applied to the field as appropriate.
@@ -314,7 +338,10 @@ Input.propTypes = {
     /**
      * Setting the value of this attribute to true indicates that the element needs to have its spelling and grammar checked. The value default indicates that the element is to act according to a default behavior, possibly based on the parent element's own spellcheck value. The value false indicates that the element should not be checked.
      */
-    spellCheck: PropTypes.string,
+    spellCheck: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * Works with the min and max attributes to limit the increments at which a numeric or date-time value can be set. It can be the string any or a positive floating point number. If this attribute is not set to any, the control accepts only values at multiples of the step value greater than the minimum.

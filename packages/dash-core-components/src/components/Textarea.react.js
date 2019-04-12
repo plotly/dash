@@ -82,12 +82,18 @@ Textarea.propTypes = {
     /**
      * Defines the number of columns in a textarea.
      */
-    cols: PropTypes.string,
+    cols: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
 
     /**
      * Indicates whether the user can interact with the element.
      */
-    disabled: PropTypes.string,
+    disabled: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * Indicates the form that is the owner of the element.
@@ -122,17 +128,26 @@ Textarea.propTypes = {
     /**
      * Indicates whether this element is required to fill out or not.
      */
-    required: PropTypes.string,
+    required: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * Defines the number of rows in a text area.
      */
-    rows: PropTypes.string,
+    rows: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
 
     /**
      * Indicates whether the text should be wrapped.
      */
-    wrap: PropTypes.string,
+    wrap: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -147,7 +162,10 @@ Textarea.propTypes = {
     /**
      * Indicates whether the element's content is editable.
      */
-    contentEditable: PropTypes.string,
+    contentEditable: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * Defines the ID of a <menu> element which will serve as the element's context menu.
@@ -162,7 +180,10 @@ Textarea.propTypes = {
     /**
      * Defines whether the element can be dragged.
      */
-    draggable: PropTypes.string,
+    draggable: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
@@ -177,7 +198,10 @@ Textarea.propTypes = {
     /**
      * Indicates whether spell checking is allowed for the element.
      */
-    spellCheck: PropTypes.string,
+    spellCheck: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.bool
+    ]),
 
     /**
      * Defines CSS styles which will override styles previously set.
@@ -187,7 +211,10 @@ Textarea.propTypes = {
     /**
      * Overrides the browser's default tab order and follows the one specified instead.
      */
-    tabIndex: PropTypes.string,
+    tabIndex: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]),
 
     /**
      * Text to be displayed in a tooltip when hovering over the element.
