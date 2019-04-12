@@ -339,7 +339,10 @@ const graphPropTypes = {
      * `config` is set separately by the `config` property,
      * and `frames` is not supported.
      */
-    figure: PropTypes.object,
+    figure: PropTypes.shape({
+        data: PropTypes.array,
+        layout: PropTypes.object,
+    }),
 
     /**
      * Generic style overrides on the plot div
