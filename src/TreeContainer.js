@@ -37,9 +37,9 @@ function validateComponent(componentDefinition) {
         );
     }
     if (type(componentDefinition) === 'Object' &&
-            !has('namespace', componentDefinition) &&
-            !has('type', componentDefinition) &&
-            !has('props', componentDefinition)) {
+            !(has('namespace', componentDefinition) &&
+              has('type', componentDefinition) &&
+              has('props', componentDefinition))) {
         throw new Error(
             'An object was provided as `children` instead of a component, ' +
             'string, or number (or list of those). ' +
