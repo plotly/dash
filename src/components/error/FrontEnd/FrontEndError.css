@@ -49,6 +49,7 @@
 .dash-fe-error__title {
     text-align: left;
     margin: 0px;
+    margin-left: 5px;
     padding: 0px;
     font-size: 14px;
     display: inline-block;
