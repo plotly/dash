@@ -165,15 +165,12 @@ Input.propTypes = {
     /**
      * This attribute indicates whether the value of the control can be automatically completed by the browser.
      */
-    autocomplete: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
-    ]),
+    autoComplete: PropTypes.string,
 
     /**
      * The element should be automatically focused after the page loaded.
      */
-    autofocus: PropTypes.oneOfType([
+    autoFocus: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.bool
     ]),
@@ -186,7 +183,7 @@ Input.propTypes = {
         PropTypes.bool
     ]),
 
-    inputmode: PropTypes.oneOf([
+    inputMode: PropTypes.oneOf([
         /**
          * Alphanumeric, non-prose content such as usernames and passwords.
          */
@@ -261,7 +258,7 @@ Input.propTypes = {
     /**
      * If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed.
      */
-    maxlength: PropTypes.oneOfType([
+    maxLength: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number
     ]),
@@ -274,7 +271,7 @@ Input.propTypes = {
     /**
      * If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored.
      */
-    minlength: PropTypes.oneOfType([
+    minLength: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number
     ]),

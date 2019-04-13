@@ -144,10 +144,7 @@ Textarea.propTypes = {
     /**
      * Indicates whether the text should be wrapped.
      */
-    wrap: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
-    ]),
+    wrap: PropTypes.string,
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
