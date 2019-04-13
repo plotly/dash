@@ -1,7 +1,7 @@
 import os
 import unittest
 # noinspection PyProtectedMember
-from dash import _configs
+from dash._configs import (pathname_configs, DASH_ENV_VARS)
 from dash import exceptions as _exc
 from dash._utils import get_asset_path
 
@@ -9,31 +9,29 @@ from dash._utils import get_asset_path
 class MyTestCase(unittest.TestCase):
 
     def setUp(self):
-        environ = _configs.env_configs()
-
-        for k in environ.keys():
+        for k in DASH_ENV_VARS.keys():
             if k in os.environ:
                 os.environ.pop(k)
 
     def test_valid_pathname_prefix_init(self):
-        _, routes, req = _configs.pathname_configs()
+        _, routes, req = pathname_configs()
 
         self.assertEqual('/', routes)
         self.assertEqual('/', req)
 
-        _, routes, req = _configs.pathname_configs(
+        _, routes, req = pathname_configs(
             routes_pathname_prefix='/dash/')
 
         self.assertEqual('/dash/', req)
 
-        _, routes, req = _configs.pathname_configs(
+        _, routes, req = pathname_configs(
             requests_pathname_prefix='/my-dash-app/',
         )
 
         self.assertEqual(routes, '/')
         self.assertEqual(req, '/my-dash-app/')
 
-        _, routes, req = _configs.pathname_configs(
+        _, routes, req = pathname_configs(
             routes_pathname_prefix='/dash/',
             requests_pathname_prefix='/my-dash-app/dash/'
         )
@@ -43,12 +41,12 @@ class MyTestCase(unittest.TestCase):
 
     def test_invalid_pathname_prefix(self):
         with self.assertRaises(_exc.InvalidConfig) as context:
-            _, _, _ = _configs.pathname_configs('/my-path', '/another-path')
+            _, _, _ = pathname_configs('/my-path', '/another-path')
 
             self.assertTrue('url_base_pathname' in str(context.exception))
 
         with self.assertRaises(_exc.InvalidConfig) as context:
-            _, _, _ = _configs.pathname_configs(
+            _, _, _ = pathname_configs(
                 url_base_pathname='/invalid',
                 routes_pathname_prefix='/invalid')
 
@@ -56,7 +54,7 @@ class MyTestCase(unittest.TestCase):
                             .endswith('`routes_pathname_prefix`'))
 
         with self.assertRaises(_exc.InvalidConfig) as context:
-            _, _, _ = _configs.pathname_configs(
+            _, _, _ = pathname_configs(
                 url_base_pathname='/my-path',
                 requests_pathname_prefix='/another-path')
 
@@ -64,29 +62,29 @@ class MyTestCase(unittest.TestCase):
                             .endswith('`requests_pathname_prefix`'))
 
         with self.assertRaises(_exc.InvalidConfig) as context:
-            _, _, _ = _configs.pathname_configs('my-path')
+            _, _, _ = pathname_configs('my-path')
 
             self.assertTrue('start with `/`' in str(context.exception))
 
         with self.assertRaises(_exc.InvalidConfig) as context:
-            _, _, _ = _configs.pathname_configs('/my-path')
+            _, _, _ = pathname_configs('/my-path')
 
             self.assertTrue('end with `/`' in str(context.exception))
 
     def test_pathname_prefix_from_environ_app_name(self):
         os.environ['DASH_APP_NAME'] = 'my-dash-app'
-        _, routes, req = _configs.pathname_configs()
+        _, routes, req = pathname_configs()
         self.assertEqual('/my-dash-app/', req)
         self.assertEqual('/', routes)
 
     def test_pathname_prefix_environ_routes(self):
         os.environ['DASH_ROUTES_PATHNAME_PREFIX'] = '/routes/'
-        _, routes, req = _configs.pathname_configs()
+        _, routes, _ = pathname_configs()
         self.assertEqual('/routes/', routes)
 
     def test_pathname_prefix_environ_requests(self):
         os.environ['DASH_REQUESTS_PATHNAME_PREFIX'] = '/requests/'
-        _, routes, req = _configs.pathname_configs()
+        _, _, req = pathname_configs()
         self.assertEqual('/requests/', req)
 
     def test_pathname_prefix_assets(self):

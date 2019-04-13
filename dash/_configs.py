@@ -4,51 +4,50 @@ import os
 from . import exceptions
 from ._utils import AttributeDict
 
-DASH_ENV_VARS = (
-    'DASH_APP_NAME',
-    'DASH_URL_BASE_PATHNAME',
-    'DASH_ROUTES_PATHNAME_PREFIX',
-    'DASH_REQUESTS_PATHNAME_PREFIX',
-    'DASH_SUPPRESS_CALLBACK_EXCEPTIONS',
-    'DASH_ASSETS_EXTERNAL_PATH',
-    'DASH_INCLUDE_ASSETS_FILES',
-    'DASH_COMPONENTS_CACHE_MAX_AGE',
-    'DASH_INCLUDE_ASSETS_FILES',
-    'DASH_SERVE_DEV_BUNDLES',
-    'DASH_DEBUG',
-    'DASH_HOT_RELOAD',
-    'DASH_HOT_RELOAD_INTERVAL',
-    'DASH_HOT_RELOAD_WATCH_INTERVAL',
-    'DASH_HOT_RELOAD_MAX_RETRY',
-    'DASH_SILENCE_ROUTES_LOGGING',
+load_dash_env_vars = lambda: AttributeDict(
+    {
+        var: os.getenv(var, os.getenv(var.lower()))
+        for var in (
+            'DASH_APP_NAME',
+            'DASH_URL_BASE_PATHNAME',
+            'DASH_ROUTES_PATHNAME_PREFIX',
+            'DASH_REQUESTS_PATHNAME_PREFIX',
+            'DASH_SUPPRESS_CALLBACK_EXCEPTIONS',
+            'DASH_ASSETS_EXTERNAL_PATH',
+            'DASH_INCLUDE_ASSETS_FILES',
+            'DASH_COMPONENTS_CACHE_MAX_AGE',
+            'DASH_INCLUDE_ASSETS_FILES',
+            'DASH_SERVE_DEV_BUNDLES',
+            'DASH_DEBUG',
+            'DASH_HOT_RELOAD',
+            'DASH_HOT_RELOAD_INTERVAL',
+            'DASH_HOT_RELOAD_WATCH_INTERVAL',
+            'DASH_HOT_RELOAD_MAX_RETRY',
+            'DASH_SILENCE_ROUTES_LOGGING',
+        )
+    }
 )
 
-def env_configs():
-    """
-    Configs from the environ.
+DASH_ENV_VARS = load_dash_env_vars()
 
-    :return: A dict with the dash environ vars
-    """
-    return AttributeDict({
-        x: os.getenv(x, os.getenv(x.lower()))
-        for x in DASH_ENV_VARS
-    })
+def get_combined_config(name, val, default=None):
+    '''consolidate the config with priority from high to low
+    provided init value > OS environ > default
+    '''
+    if val is not None:
+        return val
 
-
-def get_config(config_name, init, env, default=None, is_bool=False):
-    if init is not None:
-        return init
-
-    env_value = env.get('DASH_{}'.format(config_name.upper()))
-    if env_value is None:
+    env = load_dash_env_vars().get('DASH_{}'.format(name.upper()))
+    if env is None:
         return default
-    return env_value if not is_bool else env_value.lower() == 'true'
 
+    return env.lower() == 'true' if env.lower() in {'true', 'false'} \
+        else env
 
-def pathname_configs(url_base_pathname=None,
-                     routes_pathname_prefix=None,
-                     requests_pathname_prefix=None,
-                     environ_configs=None):
+def pathname_configs(
+        url_base_pathname=None,
+        routes_pathname_prefix=None,
+        requests_pathname_prefix=None):
     _pathname_config_error_message = '''
     {} This is ambiguous.
     To fix this, set `routes_pathname_prefix` instead of `url_base_pathname`.
@@ -62,19 +61,14 @@ def pathname_configs(url_base_pathname=None,
     `requests_pathname_prefix` and `routes_pathname_prefix`,
     not `url_base_pathname`.
     '''
-    environ_configs = environ_configs or env_configs()
+    url_base_pathname = get_combined_config(
+        'url_base_pathname', url_base_pathname)
 
-    url_base_pathname = get_config('url_base_pathname',
-                                   url_base_pathname,
-                                   environ_configs)
+    routes_pathname_prefix = get_combined_config(
+        'routes_pathname_prefix', routes_pathname_prefix)
 
-    routes_pathname_prefix = get_config('routes_pathname_prefix',
-                                        routes_pathname_prefix,
-                                        environ_configs)
-
-    requests_pathname_prefix = get_config('requests_pathname_prefix',
-                                          requests_pathname_prefix,
-                                          environ_configs)
+    requests_pathname_prefix = get_combined_config(
+        'requests_pathname_prefix', requests_pathname_prefix)
 
     if url_base_pathname is not None and requests_pathname_prefix is not None:
         raise exceptions.InvalidConfig(
@@ -103,7 +97,7 @@ def pathname_configs(url_base_pathname=None,
         raise exceptions.InvalidConfig(
             '`routes_pathname_prefix` needs to end with `/`')
 
-    app_name = environ_configs.DASH_APP_NAME
+    app_name = load_dash_env_vars().DASH_APP_NAME
 
     if not requests_pathname_prefix and app_name:
         requests_pathname_prefix = '/' + app_name + routes_pathname_prefix
