@@ -330,8 +330,7 @@ class Dash(object):
 
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
-            json.dumps(layout,
-                       cls=plotly.utils.PlotlyJSONEncoder),
+            json.dumps(layout, cls=plotly.utils.PlotlyJSONEncoder),
             mimetype='application/json'
         )
 
@@ -365,8 +364,7 @@ class Dash(object):
 
     def serve_routes(self):
         return flask.Response(
-            json.dumps(self.routes,
-                       cls=plotly.utils.PlotlyJSONEncoder),
+            json.dumps(self.routes, cls=plotly.utils.PlotlyJSONEncoder),
             mimetype='application/json'
         )
 
@@ -1235,9 +1233,11 @@ class Dash(object):
             'Cache-Control': 'public, max-age={}'.format(
                 self.config.components_cache_max_age)
         }
-        return flask.Response(pkgutil.get_data('dash', 'favicon.ico'),
-                              headers=headers,
-                              content_type='image/x-icon')
+        return flask.Response(
+            pkgutil.get_data('dash', 'favicon.ico'),
+            headers=headers,
+            content_type='image/x-icon',
+        )
 
     def get_asset_url(self, path):
         asset = _get_asset_path(
@@ -1303,8 +1303,8 @@ class Dash(object):
         :return: debug
         """
         env = _configs.env_configs()
-        debug = debug or _configs.get_config('debug', None, env, debug,
-                                             is_bool=True)
+        debug = debug or \
+            _configs.get_config('debug', None, env, debug, is_bool=True)
 
         self._dev_tools.dev_tools_ui = debug
 
@@ -1483,10 +1483,6 @@ class Dash(object):
                     for _ in range(3))
             )
 
-            self.logger.info(
-                'Debugger PIN: %s',
-                debugger_pin
-            )
+            self.logger.info('Debugger PIN: %s', debugger_pin)
 
-        self.server.run(port=port, debug=debug,
-                        **flask_run_options)
+        self.server.run(port=port, debug=debug, **flask_run_options)

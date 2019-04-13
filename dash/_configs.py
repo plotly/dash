@@ -4,6 +4,24 @@ import os
 from . import exceptions
 from ._utils import AttributeDict
 
+DASH_ENV_VARS = (
+    'DASH_APP_NAME',
+    'DASH_URL_BASE_PATHNAME',
+    'DASH_ROUTES_PATHNAME_PREFIX',
+    'DASH_REQUESTS_PATHNAME_PREFIX',
+    'DASH_SUPPRESS_CALLBACK_EXCEPTIONS',
+    'DASH_ASSETS_EXTERNAL_PATH',
+    'DASH_INCLUDE_ASSETS_FILES',
+    'DASH_COMPONENTS_CACHE_MAX_AGE',
+    'DASH_INCLUDE_ASSETS_FILES',
+    'DASH_SERVE_DEV_BUNDLES',
+    'DASH_DEBUG',
+    'DASH_HOT_RELOAD',
+    'DASH_HOT_RELOAD_INTERVAL',
+    'DASH_HOT_RELOAD_WATCH_INTERVAL',
+    'DASH_HOT_RELOAD_MAX_RETRY',
+    'DASH_SILENCE_ROUTES_LOGGING',
+)
 
 def env_configs():
     """
@@ -11,24 +29,10 @@ def env_configs():
 
     :return: A dict with the dash environ vars
     """
-    return AttributeDict({x: os.getenv(x, os.getenv(x.lower())) for x in (
-        'DASH_APP_NAME',
-        'DASH_URL_BASE_PATHNAME',
-        'DASH_ROUTES_PATHNAME_PREFIX',
-        'DASH_REQUESTS_PATHNAME_PREFIX',
-        'DASH_SUPPRESS_CALLBACK_EXCEPTIONS',
-        'DASH_ASSETS_EXTERNAL_PATH',
-        'DASH_INCLUDE_ASSETS_FILES',
-        'DASH_COMPONENTS_CACHE_MAX_AGE',
-        'DASH_INCLUDE_ASSETS_FILES',
-        'DASH_SERVE_DEV_BUNDLES',
-        'DASH_DEBUG',
-        'DASH_HOT_RELOAD',
-        'DASH_HOT_RELOAD_INTERVAL',
-        'DASH_HOT_RELOAD_WATCH_INTERVAL',
-        'DASH_HOT_RELOAD_MAX_RETRY',
-        'DASH_SILENCE_ROUTES_LOGGING'
-    )})
+    return AttributeDict({
+        x: os.getenv(x, os.getenv(x.lower()))
+        for x in DASH_ENV_VARS
+    })
 
 
 def get_config(config_name, init, env, default=None, is_bool=False):
