@@ -62,7 +62,7 @@ export default class Input extends Component {
                     if (setProps) {
                         const payload = {
                             n_blur: this.props.n_blur + 1,
-                            n_blur_timestamp: new Date(),
+                            n_blur_timestamp: new Date.now(),
                         };
                         if (debounce) {
                             payload.value =
@@ -75,7 +75,7 @@ export default class Input extends Component {
                     if (setProps && e.key === 'Enter') {
                         const payload = {
                             n_submit: this.props.n_submit + 1,
-                            n_submit_timestamp: new Date(),
+                            n_submit_timestamp: new Date.now(),
                         };
                         if (debounce) {
                             payload.value =
