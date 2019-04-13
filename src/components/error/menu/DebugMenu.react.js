@@ -10,6 +10,7 @@ import GraphIcon from '../icons/GraphIcon.svg';
 import PropTypes from 'prop-types';
 import {DebugAlertContainer} from './DebugAlertContainer.react';
 import GlobalErrorOverlay from '../GlobalErrorOverlay.react';
+import {CallbackGraphContainer} from '../CallbackGraph/CallbackGraphContainer.react';
 
 class DebugMenu extends Component {
     constructor(props) {
@@ -18,12 +19,18 @@ class DebugMenu extends Component {
         this.state = {
             opened: false,
             alertsOpened: false,
+            callbackGraphOpened: false,
             toastsEnabled: true,
         };
     }
     render() {
-        const {opened, alertsOpened, toastsEnabled} = this.state;
-        const {error, resolveError, dispatch} = this.props;
+        const {
+            opened,
+            alertsOpened,
+            toastsEnabled,
+            callbackGraphOpened,
+        } = this.state;
+        const {error, resolveError, dispatch, dependenciesRequest} = this.props;
 
         const menuClasses = opened
             ? 'dash-debug-menu dash-debug-menu--opened'
@@ -31,6 +38,11 @@ class DebugMenu extends Component {
 
         const menuContent = opened ? (
             <div className="dash-debug-menu__content">
+                {callbackGraphOpened ? (
+                    <CallbackGraphContainer
+                        dependenciesRequest={dependenciesRequest}
+                    />
+                ) : null}
                 {error.frontEnd.length > 0 || error.backEnd.length > 0 ? (
                     <div className="dash-debug-menu__button-container">
                         <DebugAlertContainer
@@ -43,7 +55,14 @@ class DebugMenu extends Component {
                     </div>
                 ) : null}
                 <div className="dash-debug-menu__button-container">
-                    <div className="dash-debug-menu__button">
+                    <div
+                        className="dash-debug-menu__button"
+                        onClick={() =>
+                            this.setState({
+                                callbackGraphOpened: !callbackGraphOpened,
+                            })
+                        }
+                    >
                         <GraphIcon className="dash-debug-menu__icon dash-debug-menu__icon--graph" />
                     </div>
                     <label className="dash-debug-menu__button-label">
@@ -125,6 +144,7 @@ class DebugMenu extends Component {
 DebugMenu.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
+    dependenciesRequest: PropTypes.object,
     resolveError: PropTypes.function,
     dispatch: PropTypes.function,
 };
