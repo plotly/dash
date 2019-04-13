@@ -79,14 +79,23 @@ function ErrorContent({error, type}) {
 
             {!error.stack ? null : (
                 <div className="dash-fe-error__st">
-                    <div className="dash-fe-error__info_title dash-fe-error__curved-top">
-                        {"JS Stack trace (see browser's console for details)"}
-                    </div>
-                    <div className="dash-fe-error__info dash-fe-error__curved-bottom">
-                        <hr />
-                        {error.stack.split('\n').map(line => (
-                            <p>{line}</p>
-                        ))}
+                    <div className="dash-fe-error__info">
+
+                        <details>
+                            <summary>
+                                <i>
+                                (This error originated from the built-in
+                                 JavaScript code that runs Dash apps.
+                                 Click to see the full stack trace or open
+                                 your browser's console.)
+                                </i>
+                            </summary>
+
+                            {error.stack.split('\n').map(line => (
+                                <p>{line}</p>
+                            ))}
+                        </details>
+
                     </div>
                 </div>
             )}
