@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Registry from './registry';
+import {propTypeErrorHandler} from './exceptions';
 import {connect} from 'react-redux';
 import {
     any,
@@ -71,40 +72,7 @@ function CheckedComponent(p) {
             props,
             'component prop', element);
     } catch (e) {
-        /*
-         * e.message looks like:
-         *
-         * Error: "Failed component prop type: Invalid component prop `animate` of type `number` supplied to `function GraphWithDefaults(props) {
-         *   var id = props.id ? props.id : generateId();
-         *   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(PlotlyGraph, _extends({}, props, {
-         *     id: id
-         *   }));
-         * }`, expected `boolean`."
-         */
-        const messageParts = e.message.split('`');
-        const invalidPropName = messageParts[1];
-        const invalidPropTypeProvided = messageParts[3];
-        const expectedPropType = messageParts[7];
-        const jsonSuppliedValue = JSON.stringify(props[invalidPropName], null, 2);
-
-        let errorMessage = `Invalid argument \`${invalidPropName}\` passed into ${type}`;
-        if (props.id) {
-            errorMessage += ` with ID "${props.id}".`;
-        } else {
-            errorMessage += '.';
-        }
-        errorMessage += (
-            `\nExpected type \`${expectedPropType}\`` +
-            `\nWas supplied type \`${invalidPropTypeProvided}\`` +
-            `\nValue provided: `
-        );
-        if (contains('\n', jsonSuppliedValue)) {
-            errorMessage += `\n${jsonSuppliedValue}`;
-        } else {
-            errorMessage += jsonSuppliedValue;
-        }
-
-        throw new Error(errorMessage);
+        propTypeErrorHandler(e, props, type);
     }
 
     return React.createElement(
