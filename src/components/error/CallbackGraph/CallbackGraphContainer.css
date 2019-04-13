@@ -1,0 +1,8 @@
+.dash-callback-dag--container {
+    position: absolute;
+    bottom: 110px;
+    right: 110px;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: scroll;
+}

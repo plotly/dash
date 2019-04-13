@@ -102,6 +102,7 @@
 .dash-fe-error__curved-bottom {
     border-radius-bottom-left: 4px;
     border-radius-bottom-right: 4px;
+    background-color: #FFEFEF;
 }
 
 .dash-be-error__st {
