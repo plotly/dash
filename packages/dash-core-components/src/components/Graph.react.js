@@ -340,7 +340,7 @@ const graphPropTypes = {
      * and `frames` is not supported.
      */
     figure: PropTypes.shape({
-        data: PropTypes.array,
+        data: PropTypes.arrayOf(PropTypes.object),
         layout: PropTypes.object,
     }),
 
