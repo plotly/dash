@@ -85,7 +85,7 @@
     background-color: white;
     border: 2px solid #dfe8f3;
     color: #506784;
-    overflow: scroll;
+    overflow: auto;
     white-space: pre-wrap;
 }
 
