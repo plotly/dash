@@ -33,7 +33,6 @@ export function propTypeErrorHandler(e, props, type) {
     if (contains('is marked as required', e.message)) {
 
         const invalidPropPath = messageParts[1];
-        const providedValue = messageParts[5];
         errorMessage = `${invalidPropPath} in ${type}`;
         if (props.id) {
             errorMessage += ` with ID "${props.id}"`;
