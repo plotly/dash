@@ -84,10 +84,10 @@ function ErrorContent({error, type}) {
                         <details>
                             <summary>
                                 <i>
-                                (This error originated from the built-in
-                                 JavaScript code that runs Dash apps.
-                                 Click to see the full stack trace or open
-                                 your browser's console.)
+                                    (This error originated from the built-in
+                                    JavaScript code that runs Dash apps. Click
+                                    to see the full stack trace or open your
+                                    browser's console.)
                                 </i>
                             </summary>
 
