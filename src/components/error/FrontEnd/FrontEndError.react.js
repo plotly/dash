@@ -80,7 +80,6 @@ function ErrorContent({error, type}) {
             {!error.stack ? null : (
                 <div className="dash-fe-error__st">
                     <div className="dash-fe-error__info">
-
                         <details>
                             <summary>
                                 <i>
@@ -95,7 +94,6 @@ function ErrorContent({error, type}) {
                                 <p>{line}</p>
                             ))}
                         </details>
-
                     </div>
                 </div>
             )}
