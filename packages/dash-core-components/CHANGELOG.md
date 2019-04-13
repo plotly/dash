@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - `maxlength` is now `maxLength`
     - `minlength` is now `minLength`
 - Updated property definitions of various components in anticipation of upcoming component validation (https://github.com/plotly/dash-renderer/pull/100/). [#523](https://github.com/plotly/dash-core-components/pull/523/)
+- `n_blur_timestamp` & `n_submit_timestamp` in `Input` & `Textarea` is now a number instead of a date object/string. This matches the form of `n_clicks_timestamp` as used in `dash_html_components`.
 
 
 ## [0.46.0] - 2019-04-10
