@@ -57,16 +57,60 @@ const createContainer = component => isSimpleComponent(component) ?
     />);
 
 function CheckedComponent(p) {
-    const { element, layout, props, children } = p;
+    const {
+        element,
+        extraProps,
+        props,
+        children,
+        type,
+        namespace
+    } = p;
 
-    assertPropTypes(
-        element.propTypes,
-        layout,
-        'component prop', element);
+    try {
+        assertPropTypes(
+            element.propTypes,
+            props,
+            'component prop', element);
+    } catch (e) {
+        /*
+         * e.message looks like:
+         *
+         * Error: "Failed component prop type: Invalid component prop `animate` of type `number` supplied to `function GraphWithDefaults(props) {
+         *   var id = props.id ? props.id : generateId();
+         *   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(PlotlyGraph, _extends({}, props, {
+         *     id: id
+         *   }));
+         * }`, expected `boolean`."
+         */
+        const messageParts = e.message.split('`');
+        const invalidPropName = messageParts[1];
+        const invalidPropTypeProvided = messageParts[3];
+        const expectedPropType = messageParts[7];
+        const jsonSuppliedValue = JSON.stringify(props[invalidPropName], null, 2);
+
+        let errorMessage = `Invalid argument \`${invalidPropName}\` passed into ${type}`;
+        if (props.id) {
+            errorMessage += ` with ID "${props.id}".`;
+        } else {
+            errorMessage += '.';
+        }
+        errorMessage += (
+            `\nExpected type \`${expectedPropType}\`` +
+            `\nWas supplied type \`${invalidPropTypeProvided}\`` +
+            `\nValue provided: `
+        );
+        if (contains('\n', jsonSuppliedValue)) {
+            errorMessage += `\n${jsonSuppliedValue}`;
+        } else {
+            errorMessage += jsonSuppliedValue;
+        }
+
+        throw new Error(errorMessage);
+    }
 
     return React.createElement(
         element,
-        mergeAll([layout, props]),
+        mergeAll([props, extraProps]),
         ...(Array.isArray(children) ? children : [children])
     );
 }
@@ -100,7 +144,7 @@ class TreeContainer extends Component {
 
         const element = Registry.resolve(_dashprivate_layout);
 
-        const layout = omit(['children'], _dashprivate_layout.props);
+        const props = omit(['children'], _dashprivate_layout.props);
 
         return (<ComponentErrorBoundary
             componentType={_dashprivate_layout.type}
@@ -110,8 +154,10 @@ class TreeContainer extends Component {
             <CheckedComponent
                 children={children}
                 element={element}
-                layout={layout}
-                props={{ loading_state, setProps }}
+                props={props}
+                extraProps={{ loading_state, setProps }}
+                type={_dashprivate_layout.type}
+                namespace={_dashprivate_layout.namespace}
             />
         </ComponentErrorBoundary>);
 
