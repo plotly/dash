@@ -62,8 +62,7 @@ function CheckedComponent(p) {
         extraProps,
         props,
         children,
-        type,
-        namespace
+        type
     } = p;
 
     try {
@@ -119,7 +118,9 @@ CheckedComponent.propTypes = {
     children: PropTypes.any,
     element: PropTypes.any,
     layout: PropTypes.any,
-    props: PropTypes.any
+    props: PropTypes.any,
+    extraProps: PropTypes.any,
+    id: PropTypes.string,
 };
 class TreeContainer extends Component {
     getChildren(components) {
@@ -157,7 +158,6 @@ class TreeContainer extends Component {
                 props={props}
                 extraProps={{ loading_state, setProps }}
                 type={_dashprivate_layout.type}
-                namespace={_dashprivate_layout.namespace}
             />
         </ComponentErrorBoundary>);
 

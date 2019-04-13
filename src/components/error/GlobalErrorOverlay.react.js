@@ -15,10 +15,7 @@ export default class GlobalErrorOverlay extends Component {
 
         let frontEndErrors;
         if (toastsEnabled) {
-            const errors = concat(
-                error.frontEnd,
-                error.backEnd
-            );
+            const errors = concat(error.frontEnd, error.backEnd);
 
             frontEndErrors = (
                 <FrontEndErrorContainer errors={errors} resolve={resolve} />
