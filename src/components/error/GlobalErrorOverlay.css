@@ -41,7 +41,7 @@
     padding: 10px 10px;
     width: 600px;
     max-width: 800px;
-    max-height: 650px;
+    max-height: calc(100vh - 50px);
     margin: 1rem;
     overflow: auto;
     z-index: 1001;  /* above the plotly.js toolbar */
