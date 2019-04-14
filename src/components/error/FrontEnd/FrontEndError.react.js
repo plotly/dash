@@ -30,7 +30,7 @@ class FrontEndError extends Component {
 
         const errorHeader = (
             <div
-                className="dash-fe-error-top"
+                className="dash-fe-error-top test-devtools-error-toggle"
                 onClick={() => this.setState({collapsed: !collapsed})}
             >
                 <span className="dash-fe-error-top__group">

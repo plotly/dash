@@ -2261,4 +2261,30 @@ class Tests(IntegrationTests):
     """
 
     def test_devtools_python_errors(self):
-        pass
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Button(id='python', children='Python exception', n_clicks=0),
+            html.Div(id='output')
+        ])
+
+        @app.callback(
+            Output('output', 'children'),
+            [Input('python', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks > 0:
+                1/0
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        self.percy_snapshot('devtools - python exception - start')
+        self.wait_for_element_by_css_selector('#python').click()
+        self.percy_snapshot('devtools - python exception - closed')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - python exception - open')
