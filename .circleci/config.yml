@@ -63,6 +63,12 @@ jobs:
               python --version
               npm run test:py
 
+      - run:
+          name: Create artifacts folder
+          command: |
+            mkdir /tmp/artifacts;
+            echo "test artifact files in a dir" > /tmp/artifacts/artifact-2;
+
       - store_artifacts:
           path: /tmp/artifacts
 
