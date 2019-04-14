@@ -53,6 +53,7 @@ jobs:
           command: |
               . venv/bin/activate
               npm run build
+              npm run build:dev
               pip install -e . --quiet
               pip list | grep dash
 
