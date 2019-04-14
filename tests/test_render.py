@@ -2272,8 +2272,10 @@ class Tests(IntegrationTests):
             Output('output', 'children'),
             [Input('python', 'n_clicks')])
         def update_output(n_clicks):
-            if n_clicks > 0:
+            if n_clicks == 1:
                 1/0
+            elif n_clicks == 2:
+                raise Exception('Special 2 clicks exception')
 
         self.startServer(
             app,
@@ -2284,8 +2286,296 @@ class Tests(IntegrationTests):
         )
 
         self.percy_snapshot('devtools - python exception - start')
+
         self.wait_for_element_by_css_selector('#python').click()
-        time.sleep(5)
         self.percy_snapshot('devtools - python exception - closed')
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - python exception - open')
+
+        self.wait_for_element_by_css_selector('#python').click()
+        self.percy_snapshot('devtools - python exception - 2 errors')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - python exception - 2 errors open')
+
+
+    def test_devtools_validation_errors_in_place(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Button(id='button', children='update-graph', n_clicks=0),
+            dcc.Graph(id='output', figure={'data': [{'y': [3, 1, 2]}]})
+        ])
+
+        # animate is a bool property
+        @app.callback(
+            Output('output', 'animate'),
+            [Input('button', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks == 1:
+                return n_clicks
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        self.wait_for_element_by_css_selector('#button').click()
+        self.percy_snapshot('devtools - validation exception - closed')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - validation exception - open')
+
+
+    def test_devtools_validation_errors_creation(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Button(id='button', children='update-graph', n_clicks=0),
+            html.Div(id='output')
+        ])
+
+        # animate is a bool property
+        @app.callback(
+            Output('output', 'children'),
+            [Input('button', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks == 1:
+                return dcc.Graph(
+                    id='output',
+                    animate=0,
+                    figure={'data': [{'y': [3, 1, 2]}]}
+                )
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        self.wait_for_element_by_css_selector('#button').click()
+        self.percy_snapshot('devtools - validation creation exception - closed')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - validation creation exception - open')
+
+
+    def test_devtools_validation_errors(self):
+        app = dash.Dash(__name__)
+
+        test_cases = {
+            'not-boolean': {
+                'fail': True,
+                'name': 'simple "not a boolean" check',
+                'component': dcc.Graph,
+                'props': {
+                    'animate': 0
+                }
+            },
+
+            'missing-required-nested-prop': {
+                'fail': True,
+                'name': 'missing required "value" inside options',
+                'component': dcc.Checklist,
+                'props': {
+                    'options': [{
+                        'label': 'hello'
+                    }],
+                    'values': ['test']
+                }
+            },
+
+            'invalid-nested-prop': {
+                'fail': True,
+                'name': 'invalid nested prop',
+                'component': dcc.Checklist,
+                'props': {
+                    'options': [{
+                        'label': 'hello',
+                        'value': True
+                    }],
+                    'values': ['test']
+                }
+            },
+
+            'string-not-list': {
+                'fail': True,
+                'name': 'string-not-a-list',
+                'component': dcc.Checklist,
+                'props': {
+                    'options': [{
+                        'label': 'hello',
+                        'value': 'test'
+                    }],
+                    'values': 'test'
+                }
+            },
+
+            'no-properties': {
+                'fail': False,
+                'name': 'no properties',
+                'component': dcc.Graph,
+                'props': {}
+            },
+
+            'nested-children': {
+                'fail': True,
+                'name': 'nested children',
+                'component': html.Div,
+                'props': {'children': [[1]]}
+            },
+
+            'deeply-nested-children': {
+                'fail': True,
+                'name': 'deeply nested children',
+                'component': html.Div,
+                'props': {'children': html.Div([
+                    html.Div([
+                        3,
+                        html.Div([[10]])
+                    ])
+                ])}
+            },
+
+            'dict': {
+                'fail': True,
+                'name': 'returning a dictionary',
+                'component': html.Div,
+                'props': {
+                    'children': {'hello': 'world'}
+                }
+            },
+
+            'nested-prop-failure': {
+                'fail': True,
+                'name': 'nested string instead of number/null',
+                'component': dcc.Graph,
+                'props': {
+                    'figure': {'data': [{}]},
+                    'config': {
+                        'toImageButtonOptions': {
+                            'width': None,
+                            'height': 'test'
+                        }
+                    }
+                }
+            },
+
+            'allow-null': {
+                'fail': False,
+                'name': 'nested null',
+                'component': dcc.Graph,
+                'props': {
+                    'figure': {'data': [{}]},
+                    'config': {
+                        'toImageButtonOptions': {
+                            'width': None,
+                            'height': None
+                        }
+                    }
+                }
+            },
+
+            'allow-null-2': {
+                'fail': False,
+                'name': 'allow null as value',
+                'component': dcc.Dropdown,
+                'props': {
+                    'value': None
+                }
+            },
+
+            'allow-null-3': {
+                'fail': False,
+                'name': 'allow null in properties',
+                'component': dcc.Input,
+                'props': {
+                    'value': None
+                }
+            },
+
+            'allow-null-4': {
+                'fail': False,
+                'name': 'allow null in oneOfType',
+                'component': dcc.Store,
+                'props': {
+                    'id': 'store',
+                    'data': None
+                }
+            },
+
+            'long-property-string': {
+                'fail': True,
+                'name': 'long property string with id',
+                'component': html.Div,
+                'props': {
+                    'id': 'pink div',
+                    'style': 'color: hotpink; ' * 1000
+                }
+            },
+
+            'multiple-wrong-values': {
+                'fail': True,
+                'name': 'multiple wrong props',
+                'component': dcc.Dropdown,
+                'props': {
+                    'id': 'dropdown',
+                    'value': 10,
+                    'options': 'asdf',
+                }
+            },
+
+            'boolean-html-properties': {
+                'fail': True,
+                'name': 'dont allow booleans for dom props',
+                'component': html.Div,
+                'props': {
+                    'contentEditable': True
+                }
+            }
+
+        }
+
+        app.layout = html.Div([
+            html.Div(id='content'),
+            dcc.Location(id='location'),
+        ])
+
+        @app.callback(
+            Output('content', 'children'),
+            [Input('location', 'pathname')])
+        def display_content(pathname):
+            if pathname is None or pathname == '/':
+                return 'Initial state'
+            test_case = test_cases[pathname.strip('/')]
+            return html.Div(
+                id='new-component',
+                children=test_case['component'](**test_case['props'])
+            )
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        for test_case_id in test_cases:
+            self.driver.get('http://localhost:8050/{}'.format(test_case_id))
+            if test_cases[test_case_id]['fail']:
+                self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+                self.percy_snapshot(
+                    'devtools validation exception: {}'.format(
+                        test_cases[test_case_id]['name']
+                    )
+                )
+            else:
+                self.wait_for_element_by_css_selector('#new-component')
+                self.percy_snapshot(
+                    'devtools validation no exception: {}'.format(
+                        test_cases[test_case_id]['name']
+                    )
+                )
