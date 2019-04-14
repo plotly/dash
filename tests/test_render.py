@@ -2285,6 +2285,7 @@ class Tests(IntegrationTests):
 
         self.percy_snapshot('devtools - python exception - start')
         self.wait_for_element_by_css_selector('#python').click()
+        time.sleep(5)
         self.percy_snapshot('devtools - python exception - closed')
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - python exception - open')
