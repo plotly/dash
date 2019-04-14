@@ -50,9 +50,13 @@ class Reloader extends React.Component {
          * then we  could simply compare `props` with `prevProps` in
          * `componentDidUpdate`.
          */
-        if (!isEmpty(props.reloadRequest) && props.reloadRequest.status !== 'loading') {
+        if (
+            !isEmpty(props.reloadRequest) &&
+            props.reloadRequest.status !== 'loading'
+        ) {
             return {reloadRequest: props.reloadRequest};
         }
+        return null;
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -74,21 +78,32 @@ class Reloader extends React.Component {
             return;
         }
 
-        if (reloadRequest.status === 200 &&
-                path(['content', 'reloadHash'], reloadRequest) !==
+        if (
+            reloadRequest.status === 200 &&
+            path(['content', 'reloadHash'], reloadRequest) !==
                 path(['reloadRequest', 'content', 'reloadHash'], prevState)
-            ) {
-
+        ) {
             // Check for CSS (!content.hard) or new package assets
             if (
                 reloadRequest.content.hard ||
                 !equals(
                     reloadRequest.content.packages.length,
-                    pathOr([], ['reloadRequest', 'content', 'packages'], prevState).length
+                    pathOr(
+                        [],
+                        ['reloadRequest', 'content', 'packages'],
+                        prevState
+                    ).length
                 ) ||
                 !equals(
                     sort(comparator(lt), reloadRequest.content.packages),
-                    sort(comparator(lt), pathOr([], ['reloadRequest', 'content', 'packages'], prevState))
+                    sort(
+                        comparator(lt),
+                        pathOr(
+                            [],
+                            ['reloadRequest', 'content', 'packages'],
+                            prevState
+                        )
+                    )
                 )
             ) {
                 // Look if it was a css file.
