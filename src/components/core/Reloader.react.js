@@ -1,5 +1,15 @@
 /* eslint-disable no-undef,react/no-did-update-set-state,no-magic-numbers */
-import R from 'ramda';
+import {
+    comparator,
+    equals,
+    forEach,
+    has,
+    isEmpty,
+    lt,
+    path,
+    pathOr,
+    sort,
+} from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
@@ -40,7 +50,7 @@ class Reloader extends React.Component {
          * then we  could simply compare `props` with `prevProps` in
          * `componentDidUpdate`.
          */
-        if (!R.isEmpty(props.reloadRequest) && props.reloadRequest.status !== 'loading') {
+        if (!isEmpty(props.reloadRequest) && props.reloadRequest.status !== 'loading') {
             return {reloadRequest: props.reloadRequest};
         }
     }
@@ -60,25 +70,25 @@ class Reloader extends React.Component {
          * The first reloadRequest defines the initial/baseline hash -
          * it doesn't require a reload
          */
-        if (!R.has('reloadRequest', prevState)) {
+        if (!has('reloadRequest', prevState)) {
             return;
         }
 
         if (reloadRequest.status === 200 &&
-                R.path(['content', 'reloadHash'], reloadRequest) !==
-                R.path(['reloadRequest', 'content', 'reloadHash'], prevState)
+                path(['content', 'reloadHash'], reloadRequest) !==
+                path(['reloadRequest', 'content', 'reloadHash'], prevState)
             ) {
 
             // Check for CSS (!content.hard) or new package assets
             if (
                 reloadRequest.content.hard ||
-                !R.equals(
+                !equals(
                     reloadRequest.content.packages.length,
-                    R.pathOr([], ['reloadRequest', 'content', 'packages'], prevState).length
+                    pathOr([], ['reloadRequest', 'content', 'packages'], prevState).length
                 ) ||
-                !R.equals(
-                    R.sort(R.comparator(R.lt), reloadRequest.content.packages),
-                    R.sort(R.comparator(R.lt), R.pathOr([], ['reloadRequest', 'content', 'packages'], prevState))
+                !equals(
+                    sort(comparator(lt), reloadRequest.content.packages),
+                    sort(comparator(lt), pathOr([], ['reloadRequest', 'content', 'packages'], prevState))
                 )
             ) {
                 // Look if it was a css file.
@@ -101,7 +111,7 @@ class Reloader extends React.Component {
                             node = it.iterateNext();
                         }
 
-                        R.forEach(
+                        forEach(
                             n => n.setAttribute('disabled', 'disabled'),
                             nodesToDisable
                         );
