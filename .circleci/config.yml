@@ -5,7 +5,7 @@ jobs:
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
     environment:
-      PERCY_PARALLEL_TOTAL: 2
+      PERCY_PARALLEL_TOTAL: 1
 
     working_directory: ~/repo
 
