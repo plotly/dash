@@ -11,7 +11,6 @@ class Reloader extends React.Component {
         if (props.config.hot_reload) {
             const {interval, max_retry} = props.config.hot_reload;
             this.state = {
-                hash: null,
                 interval,
                 disabled: false,
                 intervalId: null,
@@ -25,28 +24,64 @@ class Reloader extends React.Component {
         }
         this._retry = 0;
         this._head = document.querySelector('head');
+        this.clearInterval = this.clearInterval.bind(this);
     }
 
-    componentDidUpdate() {
-        const {reloadRequest, dispatch} = this.props;
-        if (reloadRequest.status === 200) {
-            if (this.state.hash === null) {
-                this.setState({
-                    hash: reloadRequest.content.reloadHash,
-                    packages: reloadRequest.content.packages,
-                });
-                return;
-            }
-            if (reloadRequest.content.reloadHash !== this.state.hash) {
+    clearInterval() {
+        window.clearInterval(this.state.intervalId);
+        this.setState({intervalId: null});
+    }
+
+    static getDerivedStateFromProps(props) {
+        /*
+         * Save the non-loading requests in the state in order to compare
+         * current hashes with previous hashes.
+         * Note that if there wasn't a "loading" state for the requests,
+         * then we  could simply compare `props` with `prevProps` in
+         * `componentDidUpdate`.
+         */
+        if (!R.isEmpty(props.reloadRequest) && props.reloadRequest.status !== 'loading') {
+            return {reloadRequest: props.reloadRequest};
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        const {reloadRequest} = this.state;
+        const {dispatch} = this.props;
+
+        // In the beginning, reloadRequest won't be defined
+        if (!reloadRequest) {
+            return;
+        }
+
+        /*
+         * When reloadRequest is first defined, prevState won't be defined
+         * for one render loop.
+         * The first reloadRequest defines the initial/baseline hash -
+         * it doesn't require a reload
+         */
+        if (!R.has('reloadRequest', prevState)) {
+            return;
+        }
+
+        if (reloadRequest.status === 200 &&
+                R.path(['content', 'reloadHash'], reloadRequest) !==
+                R.path(['reloadRequest', 'content', 'reloadHash'], prevState)
+            ) {
+
+            // (removing this if(true) in a subsequent commit - keeping it here so the diff isn't too crazy)
+            if (true) {
+
+                // Check for CSS (!content.hard) or new package assets
                 if (
                     reloadRequest.content.hard ||
-                    reloadRequest.content.packages.length !==
-                        this.state.packages.length ||
-                    !R.all(
-                        R.map(
-                            x => R.contains(x, this.state.packages),
-                            reloadRequest.content.packages
-                        )
+                    !R.equals(
+                        reloadRequest.content.packages.length,
+                        R.pathOr([], ['reloadRequest', 'content', 'packages'], prevState).length
+                    ) ||
+                    !R.equals(
+                        R.sort(R.comparator(R.lt), reloadRequest.content.packages),
+                        R.sort(R.comparator(R.lt), R.pathOr([], ['reloadRequest', 'content', 'packages'], prevState))
                     )
                 ) {
                     // Look if it was a css file.
@@ -90,29 +125,23 @@ class Reloader extends React.Component {
                     }
                     if (!was_css) {
                         // Assets file have changed
-                        // or a component lib has been added/removed
+                        // or a component lib has been added/removed -
+                        // Must do a hard reload
                         window.top.location.reload();
-                    } else {
-                        // Since it's only a css reload,
-                        // we just change the hash.
-                        this.setState({
-                            hash: reloadRequest.content.reloadHash,
-                        });
                     }
                 } else {
-                    // Soft reload
-                    window.clearInterval(this.state.intervalId);
+                    // Backend code changed - can do a soft reload in place
                     dispatch({type: 'RELOAD'});
                 }
             }
         } else if (reloadRequest.status === 500) {
             if (this._retry > this.state.max_retry) {
-                window.clearInterval(this.state.intervalId);
+                this.clearInterval();
                 // Integrate with dev tools ui?!
                 window.alert(
                     `
                     Reloader failed after ${this._retry} times.
-                    Please check your application for errors. 
+                    Please check your application for errors.
                     `
                 );
             }
@@ -124,8 +153,12 @@ class Reloader extends React.Component {
         const {dispatch} = this.props;
         const {disabled, interval} = this.state;
         if (!disabled && !this.state.intervalId) {
-            const intervalId = setInterval(() => {
-                dispatch(getReloadHash());
+            const intervalId = window.setInterval(() => {
+                // Prevent requests from piling up - reloading can take
+                // many seconds (10-30) and the interval is 3s by default
+                if (this.props.reloadRequest.status !== 'loading') {
+                    dispatch(getReloadHash());
+                }
             }, interval);
             this.setState({intervalId});
         }
@@ -133,7 +166,7 @@ class Reloader extends React.Component {
 
     componentWillUnmount() {
         if (!this.state.disabled && this.state.intervalId) {
-            window.clearInterval(this.state.intervalId);
+            this.clearInterval();
         }
     }
 
