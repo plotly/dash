@@ -63,6 +63,9 @@ jobs:
               python --version
               npm run test:py
 
+      - store_artifacts:
+          path: /tmp/artifacts
+
   "python-3.6":
     <<: *test-template
     docker:
