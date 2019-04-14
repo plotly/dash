@@ -69,70 +69,66 @@ class Reloader extends React.Component {
                 R.path(['reloadRequest', 'content', 'reloadHash'], prevState)
             ) {
 
-            // (removing this if(true) in a subsequent commit - keeping it here so the diff isn't too crazy)
-            if (true) {
+            // Check for CSS (!content.hard) or new package assets
+            if (
+                reloadRequest.content.hard ||
+                !R.equals(
+                    reloadRequest.content.packages.length,
+                    R.pathOr([], ['reloadRequest', 'content', 'packages'], prevState).length
+                ) ||
+                !R.equals(
+                    R.sort(R.comparator(R.lt), reloadRequest.content.packages),
+                    R.sort(R.comparator(R.lt), R.pathOr([], ['reloadRequest', 'content', 'packages'], prevState))
+                )
+            ) {
+                // Look if it was a css file.
+                let was_css = false;
+                // eslint-disable-next-line prefer-const
+                for (let a of reloadRequest.content.files) {
+                    if (a.is_css) {
+                        was_css = true;
+                        const nodesToDisable = [];
 
-                // Check for CSS (!content.hard) or new package assets
-                if (
-                    reloadRequest.content.hard ||
-                    !R.equals(
-                        reloadRequest.content.packages.length,
-                        R.pathOr([], ['reloadRequest', 'content', 'packages'], prevState).length
-                    ) ||
-                    !R.equals(
-                        R.sort(R.comparator(R.lt), reloadRequest.content.packages),
-                        R.sort(R.comparator(R.lt), R.pathOr([], ['reloadRequest', 'content', 'packages'], prevState))
-                    )
-                ) {
-                    // Look if it was a css file.
-                    let was_css = false;
-                    // eslint-disable-next-line prefer-const
-                    for (let a of reloadRequest.content.files) {
-                        if (a.is_css) {
-                            was_css = true;
-                            const nodesToDisable = [];
+                        // Search for the old file by xpath.
+                        const it = document.evaluate(
+                            `//link[contains(@href, "${a.url}")]`,
+                            this._head
+                        );
+                        let node = it.iterateNext();
 
-                            // Search for the old file by xpath.
-                            const it = document.evaluate(
-                                `//link[contains(@href, "${a.url}")]`,
-                                this._head
-                            );
-                            let node = it.iterateNext();
-
-                            while (node) {
-                                nodesToDisable.push(node);
-                                node = it.iterateNext();
-                            }
-
-                            R.forEach(
-                                n => n.setAttribute('disabled', 'disabled'),
-                                nodesToDisable
-                            );
-
-                            if (a.modified > 0) {
-                                const link = document.createElement('link');
-                                link.href = `${a.url}?m=${a.modified}`;
-                                link.type = 'text/css';
-                                link.rel = 'stylesheet';
-                                this._head.appendChild(link);
-                                // Else the file was deleted.
-                            }
-                        } else {
-                            // If there's another kind of file here do a hard reload.
-                            was_css = false;
-                            break;
+                        while (node) {
+                            nodesToDisable.push(node);
+                            node = it.iterateNext();
                         }
+
+                        R.forEach(
+                            n => n.setAttribute('disabled', 'disabled'),
+                            nodesToDisable
+                        );
+
+                        if (a.modified > 0) {
+                            const link = document.createElement('link');
+                            link.href = `${a.url}?m=${a.modified}`;
+                            link.type = 'text/css';
+                            link.rel = 'stylesheet';
+                            this._head.appendChild(link);
+                            // Else the file was deleted.
+                        }
+                    } else {
+                        // If there's another kind of file here do a hard reload.
+                        was_css = false;
+                        break;
                     }
-                    if (!was_css) {
-                        // Assets file have changed
-                        // or a component lib has been added/removed -
-                        // Must do a hard reload
-                        window.top.location.reload();
-                    }
-                } else {
-                    // Backend code changed - can do a soft reload in place
-                    dispatch({type: 'RELOAD'});
                 }
+                if (!was_css) {
+                    // Assets file have changed
+                    // or a component lib has been added/removed -
+                    // Must do a hard reload
+                    window.top.location.reload();
+                }
+            } else {
+                // Backend code changed - can do a soft reload in place
+                dispatch({type: 'RELOAD'});
             }
         } else if (reloadRequest.status === 500) {
             if (this._retry > this.state.max_retry) {
