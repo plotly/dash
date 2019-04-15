@@ -2483,6 +2483,21 @@ class Tests(IntegrationTests):
                 }
             },
 
+            'invalid-shape-5': {
+                'fail': True,
+                'name': 'invalid not required key',
+                'component': dcc.Dropdown,
+                'props': {
+                    'options': [
+                        {
+                            'label': 'new york',
+                            'value': 'ny',
+                            'typo': 'asdf'
+                        }
+                    ]
+                }
+            },
+
             'string-not-list': {
                 'fail': True,
                 'name': 'string-not-a-list',
