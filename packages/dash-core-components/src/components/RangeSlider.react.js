@@ -77,7 +77,7 @@ RangeSlider.propTypes = {
     marks: PropTypes.objectOf(
         PropTypes.oneOfType([
             PropTypes.string,
-            PropTypes.shape({
+            PropTypes.exact({
                 label: PropTypes.string,
                 style: PropTypes.object,
             }),

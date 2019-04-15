@@ -81,7 +81,7 @@ RadioItems.propTypes = {
      * An array of options
      */
     options: PropTypes.arrayOf(
-        PropTypes.shape({
+        PropTypes.exact({
             /**
              * The radio item's label
              */

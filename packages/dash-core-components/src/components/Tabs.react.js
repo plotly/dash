@@ -416,7 +416,7 @@ Tabs.propTypes = {
      *    background: '#f9f9f9'
      *  }
      */
-    colors: PropTypes.shape({
+    colors: PropTypes.exact({
         border: PropTypes.string,
         primary: PropTypes.string,
         background: PropTypes.string,

@@ -339,7 +339,7 @@ const graphPropTypes = {
      * `config` is set separately by the `config` property,
      * and `frames` is not supported.
      */
-    figure: PropTypes.shape({
+    figure: PropTypes.exact({
         data: PropTypes.arrayOf(PropTypes.object),
         layout: PropTypes.object,
     }),
@@ -371,7 +371,7 @@ const graphPropTypes = {
      * See https://plot.ly/javascript/configuration-options/
      * for more info.
      */
-    config: PropTypes.shape({
+    config: PropTypes.exact({
         /**
          * No interactivity, for export or image generation
          */
@@ -391,7 +391,7 @@ const graphPropTypes = {
         /**
          * A set of editable properties
          */
-        edits: PropTypes.shape({
+        edits: PropTypes.exact({
             /**
              * annotationPosition: the main anchor of the annotation, which is the
              * text (if no arrow) or the arrow (which drags the whole thing leaving
@@ -539,7 +539,7 @@ const graphPropTypes = {
         /**
          * Modifications to how the toImage modebar button works
          */
-        toImageButtonOptions: PropTypes.shape({
+        toImageButtonOptions: PropTypes.exact({
             /**
              * The file format to create
              */

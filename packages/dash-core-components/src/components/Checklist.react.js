@@ -82,7 +82,7 @@ Checklist.propTypes = {
      * An array of options
      */
     options: PropTypes.arrayOf(
-        PropTypes.shape({
+        PropTypes.exact({
             /**
              * The checkbox's label
              */
