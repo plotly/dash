@@ -187,8 +187,9 @@ Textarea.propTypes = {
      * Defines whether the element can be dragged.
      */
     draggable: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
+        // enumerated property, not a boolean property: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/draggable
+        PropTypes.oneOf(['true', 'false']),
+        PropTypes.bool,
     ]),
 
     /**
@@ -205,8 +206,9 @@ Textarea.propTypes = {
      * Indicates whether spell checking is allowed for the element.
      */
     spellCheck: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
+        // enumerated property, not a boolean property: https://www.w3.org/TR/html51/editing.html#spelling-and-grammar-checking
+        PropTypes.oneOf(['true', 'false']),
+        PropTypes.bool,
     ]),
 
     /**
