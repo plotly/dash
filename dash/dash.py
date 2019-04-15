@@ -35,7 +35,7 @@ from ._utils import patch_collections_abc as _patch_collections_abc
 from . import _watch
 from ._utils import get_asset_path as _get_asset_path
 from ._utils import create_callback_id as _create_callback_id
-from . import _configs
+from ._configs import (get_combined_config, pathname_configs)
 
 _default_index = '''<!DOCTYPE html>
 <html>
@@ -126,33 +126,29 @@ class Dash(object):
         # allow users to supply their own flask server
         self.server = server or Flask(name, static_folder=static_folder)
 
-        env_configs = _configs.env_configs()
-
         url_base_pathname, routes_pathname_prefix, requests_pathname_prefix = \
-            _configs.pathname_configs(
+            pathname_configs(
                 url_base_pathname,
                 routes_pathname_prefix,
-                requests_pathname_prefix,
-                environ_configs=env_configs)
+                requests_pathname_prefix
+            )
 
         self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict({
-            'suppress_callback_exceptions': _configs.get_config(
+            'suppress_callback_exceptions': get_combined_config(
                 'suppress_callback_exceptions',
-                suppress_callback_exceptions, env_configs, False
-            ),
+                suppress_callback_exceptions,
+                False),
             'routes_pathname_prefix': routes_pathname_prefix,
             'requests_pathname_prefix': requests_pathname_prefix,
-            'include_assets_files': _configs.get_config(
-                'include_assets_files',
-                include_assets_files,
-                env_configs,
-                True),
-            'assets_external_path': _configs.get_config(
-                'assets_external_path', assets_external_path, env_configs, ''),
-            'components_cache_max_age': int(_configs.get_config(
-                'components_cache_max_age', components_cache_max_age,
-                env_configs, 2678400))
+            'include_assets_files': get_combined_config(
+                'include_assets_files', include_assets_files, True),
+            'assets_external_path': get_combined_config(
+                'assets_external_path', assets_external_path, ''),
+            'components_cache_max_age': int(get_combined_config(
+                'components_cache_max_age',
+                components_cache_max_age,
+                2678400))
         })
 
         assets_blueprint_name = '{}{}'.format(
@@ -248,6 +244,7 @@ class Dash(object):
             'hot_reload_watch_interval': 0.5,
             'hot_reload_max_retry': 8,
             'dev_tools_ui': False,
+            'dev_tools_props_check': False,
         })
 
         # add a handler for components suites errors to return 404
@@ -330,8 +327,7 @@ class Dash(object):
 
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
-            json.dumps(layout,
-                       cls=plotly.utils.PlotlyJSONEncoder),
+            json.dumps(layout, cls=plotly.utils.PlotlyJSONEncoder),
             mimetype='application/json'
         )
 
@@ -340,6 +336,7 @@ class Dash(object):
             'url_base_pathname': self.url_base_pathname,
             'requests_pathname_prefix': self.config.requests_pathname_prefix,
             'dev_tools_ui': self._dev_tools.dev_tools_ui,
+            'dev_tools_props_check': self._dev_tools.dev_tools_props_check,
         }
         if self._dev_tools.hot_reload:
             config['hot_reload'] = {
@@ -365,8 +362,7 @@ class Dash(object):
 
     def serve_routes(self):
         return flask.Response(
-            json.dumps(self.routes,
-                       cls=plotly.utils.PlotlyJSONEncoder),
+            json.dumps(self.routes, cls=plotly.utils.PlotlyJSONEncoder),
             mimetype='application/json'
         )
 
@@ -1235,9 +1231,11 @@ class Dash(object):
             'Cache-Control': 'public, max-age={}'.format(
                 self.config.components_cache_max_age)
         }
-        return flask.Response(pkgutil.get_data('dash', 'favicon.ico'),
-                              headers=headers,
-                              content_type='image/x-icon')
+        return flask.Response(
+            pkgutil.get_data('dash', 'favicon.ico'),
+            headers=headers,
+            content_type='image/x-icon',
+        )
 
     def get_asset_url(self, path):
         asset = _get_asset_path(
@@ -1250,6 +1248,8 @@ class Dash(object):
 
     def enable_dev_tools(self,
                          debug=False,
+                         dev_tools_ui=None,
+                         dev_tools_props_check=None,
                          dev_tools_serve_dev_bundles=None,
                          dev_tools_hot_reload=None,
                          dev_tools_hot_reload_interval=None,
@@ -1267,6 +1267,8 @@ class Dash(object):
         Available dev_tools environment variables:
 
             - DASH_DEBUG
+            - DASH_DEV_TOOLS_UI
+            - DASH_DEV_TOOLS_PROPS_CHECK
             - DASH_SERVE_DEV_BUNDLES
             - DASH_HOT_RELOAD
             - DASH_HOT_RELOAD_INTERVAL
@@ -1278,6 +1280,11 @@ class Dash(object):
             disabled by the arguments or by environ variables. Available as
             `DASH_DEBUG` environment variable.
         :type debug: bool
+        :param dev_tools_ui: Switch the dev tools UI in debugger mode
+        :type dev_tools_ui: bool
+        :param dev_tools_props_check: Validate the properties of
+            the Dash components
+        :type dev_tools_props_check: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles. Available
             as `DASH_SERVE_DEV_BUNDLES` environment variable.
         :type dev_tools_serve_dev_bundles: bool
@@ -1302,46 +1309,40 @@ class Dash(object):
         :type dev_tools_silence_routes_logging: bool
         :return: debug
         """
-        env = _configs.env_configs()
-        debug = debug or _configs.get_config('debug', None, env, debug,
-                                             is_bool=True)
+        debug = debug or get_combined_config('debug', None, debug)
 
-        self._dev_tools.dev_tools_ui = debug
+        self._dev_tools['dev_tools_ui'] = get_combined_config(
+            'dev_tools_ui', dev_tools_ui, default=debug
+        )
+        self._dev_tools['dev_tools_props_check'] = get_combined_config(
+            'dev_tools_props_check', dev_tools_props_check, default=debug
+        )
+        self._dev_tools['serve_dev_bundles'] = get_combined_config(
+            'serve_dev_bundles', dev_tools_serve_dev_bundles, default=debug)
 
-        self._dev_tools['serve_dev_bundles'] = _configs.get_config(
-            'serve_dev_bundles', dev_tools_serve_dev_bundles, env,
-            default=debug,
-            is_bool=True
-        )
-        self._dev_tools['hot_reload'] = _configs.get_config(
-            'hot_reload', dev_tools_hot_reload, env,
-            default=debug,
-            is_bool=True
-        )
-        self._dev_tools['hot_reload_interval'] = int(_configs.get_config(
-            'hot_reload_interval', dev_tools_hot_reload_interval, env,
-            default=3000
+        self._dev_tools['hot_reload'] = get_combined_config(
+            'hot_reload', dev_tools_hot_reload, default=debug)
+        self._dev_tools['hot_reload_interval'] = int(get_combined_config(
+            'hot_reload_interval', dev_tools_hot_reload_interval, default=3000
         ))
         self._dev_tools['hot_reload_watch_interval'] = float(
-            _configs.get_config(
+            get_combined_config(
                 'hot_reload_watch_interval',
                 dev_tools_hot_reload_watch_interval,
-                env,
                 default=0.5
             )
         )
         self._dev_tools['hot_reload_max_retry'] = int(
-            _configs.get_config(
+            get_combined_config(
                 'hot_reload_max_retry',
                 dev_tools_hot_reload_max_retry,
-                env,
                 default=8
             )
         )
-        self._dev_tools['silence_routes_logging'] = _configs.get_config(
-            'silence_routes_logging', dev_tools_silence_routes_logging, env,
+        self._dev_tools['silence_routes_logging'] = get_combined_config(
+            'silence_routes_logging',
+            dev_tools_silence_routes_logging,
             default=debug,
-            is_bool=True,
         )
 
         if self._dev_tools.silence_routes_logging:
@@ -1425,6 +1426,8 @@ class Dash(object):
     def run_server(self,
                    port=8050,
                    debug=False,
+                   dev_tools_ui=None,
+                   dev_tools_props_check=None,
                    dev_tools_serve_dev_bundles=None,
                    dev_tools_hot_reload=None,
                    dev_tools_hot_reload_interval=None,
@@ -1440,6 +1443,11 @@ class Dash(object):
         :type port: int
         :param debug: Set the debug mode of flask and enable the dev tools.
         :type debug: bool
+        :param dev_tools_ui: Switch the dev tools UI in debugger mode
+        :type dev_tools_ui: bool
+        :param dev_tools_props_check: Validate the properties of
+            the Dash components
+        :type dev_tools_props_check: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles of components
         :type dev_tools_serve_dev_bundles: bool
         :param dev_tools_hot_reload: Enable the hot reload.
@@ -1458,6 +1466,8 @@ class Dash(object):
         """
         debug = self.enable_dev_tools(
             debug,
+            dev_tools_ui,
+            dev_tools_props_check,
             dev_tools_serve_dev_bundles,
             dev_tools_hot_reload,
             dev_tools_hot_reload_interval,
@@ -1483,10 +1493,6 @@ class Dash(object):
                     for _ in range(3))
             )
 
-            self.logger.info(
-                'Debugger PIN: %s',
-                debugger_pin
-            )
+            self.logger.info('Debugger PIN: %s', debugger_pin)
 
-        self.server.run(port=port, debug=debug,
-                        **flask_run_options)
+        self.server.run(port=port, debug=debug, **flask_run_options)
