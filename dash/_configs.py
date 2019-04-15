@@ -4,31 +4,33 @@ import os
 from . import exceptions
 from ._utils import AttributeDict
 
-load_dash_env_vars = lambda: AttributeDict(
-    {
-        var: os.getenv(var, os.getenv(var.lower()))
-        for var in (
-            'DASH_APP_NAME',
-            'DASH_URL_BASE_PATHNAME',
-            'DASH_ROUTES_PATHNAME_PREFIX',
-            'DASH_REQUESTS_PATHNAME_PREFIX',
-            'DASH_SUPPRESS_CALLBACK_EXCEPTIONS',
-            'DASH_ASSETS_EXTERNAL_PATH',
-            'DASH_INCLUDE_ASSETS_FILES',
-            'DASH_COMPONENTS_CACHE_MAX_AGE',
-            'DASH_INCLUDE_ASSETS_FILES',
-            'DASH_SERVE_DEV_BUNDLES',
-            'DASH_DEBUG',
-            'DASH_HOT_RELOAD',
-            'DASH_HOT_RELOAD_INTERVAL',
-            'DASH_HOT_RELOAD_WATCH_INTERVAL',
-            'DASH_HOT_RELOAD_MAX_RETRY',
-            'DASH_SILENCE_ROUTES_LOGGING',
-        )
-    }
-)
+def load_dash_env_vars():
+    return AttributeDict(
+        {
+            var: os.getenv(var, os.getenv(var.lower()))
+            for var in (
+                'DASH_APP_NAME',
+                'DASH_URL_BASE_PATHNAME',
+                'DASH_ROUTES_PATHNAME_PREFIX',
+                'DASH_REQUESTS_PATHNAME_PREFIX',
+                'DASH_SUPPRESS_CALLBACK_EXCEPTIONS',
+                'DASH_ASSETS_EXTERNAL_PATH',
+                'DASH_INCLUDE_ASSETS_FILES',
+                'DASH_COMPONENTS_CACHE_MAX_AGE',
+                'DASH_INCLUDE_ASSETS_FILES',
+                'DASH_SERVE_DEV_BUNDLES',
+                'DASH_DEBUG',
+                'DASH_HOT_RELOAD',
+                'DASH_HOT_RELOAD_INTERVAL',
+                'DASH_HOT_RELOAD_WATCH_INTERVAL',
+                'DASH_HOT_RELOAD_MAX_RETRY',
+                'DASH_SILENCE_ROUTES_LOGGING',
+            )
+        }
+    )
 
 DASH_ENV_VARS = load_dash_env_vars()
+
 
 def get_combined_config(name, val, default=None):
     '''consolidate the config with priority from high to low
@@ -43,6 +45,7 @@ def get_combined_config(name, val, default=None):
 
     return env.lower() == 'true' if env.lower() in {'true', 'false'} \
         else env
+
 
 def pathname_configs(
         url_base_pathname=None,
