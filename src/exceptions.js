@@ -46,11 +46,21 @@ export function propTypeErrorHandler(e, props, type) {
         }
         errorMessage += ` is required but it was not provided.`;
 
-    } else if(contains(', expected ', e.message)) {
+    } else if(contains('Bad object', e.message)) {
+        /*
+         * Handle .exact errors
+         * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L438-L442
+         */
+        errorMessage = (
+            e.message.split('supplied to ')[0] +
+            `supplied to ${type}` +
+            '.\nBad' +
+            e.message.split('.\nBad')[1]
+        );
+
+    } else if(contains('Invalid ', e.message) && contains(' supplied to ', e.message)) {
 
         const invalidPropPath = messageParts[1];
-        const invalidPropTypeProvided = messageParts[3];
-        const expectedPropType = e.message.split(', expected ')[1];
 
         errorMessage = `Invalid argument \`${invalidPropPath}\` passed into ${type}`;
         if (props.id) {
@@ -58,10 +68,27 @@ export function propTypeErrorHandler(e, props, type) {
         }
         errorMessage += '.';
 
-        errorMessage += (
-            `\nExpected ${expectedPropType}` +
-            `\nWas supplied type \`${invalidPropTypeProvided}\`.`
-        );
+        /*
+         * Not all error messages include the expected value.
+         * In particular, oneOfType.
+         * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L388
+         */
+        if (contains(', expected ', e.message)) {
+            const expectedPropType = e.message.split(', expected ')[1];
+            errorMessage += `\nExpected ${expectedPropType}`;
+        }
+
+        /*
+         * Not all error messages include the type
+         * In particular, oneOfType.
+         * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L388
+         */
+        if (contains(' of type `', e.message)) {
+            const invalidPropTypeProvided = e.message.split(' of type `')[1].split('`')[0];
+            errorMessage += (
+                `\nWas supplied type \`${invalidPropTypeProvided}\`.`
+            );
+        }
 
         if (has(invalidPropPath, props)) {
             /*
