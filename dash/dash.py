@@ -243,8 +243,8 @@ class Dash(object):
             'hot_reload_interval': 3000,
             'hot_reload_watch_interval': 0.5,
             'hot_reload_max_retry': 8,
-            'dev_tools_ui': True,
-            'dev_tools_props_check': True,
+            'dev_tools_ui': False,
+            'dev_tools_props_check': False,
         })
 
         # add a handler for components suites errors to return 404
@@ -1282,7 +1282,7 @@ class Dash(object):
         :type debug: bool
         :param dev_tools_ui: Switch the dev tools UI in debugger mode
         :type dev_tools_ui: bool
-        :param dev_tools_props_check: Switch the props check of dash components
+        :param dev_tools_props_check: Validate the properties of the Dash components
         :type dev_tools_props_check: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles. Available
             as `DASH_SERVE_DEV_BUNDLES` environment variable.
@@ -1311,10 +1311,10 @@ class Dash(object):
         debug = debug or get_combined_config('debug', None, debug)
 
         self._dev_tools['dev_tools_ui'] = get_combined_config(
-            'dev_tools_ui', dev_tools_ui, default=True
+            'dev_tools_ui', dev_tools_ui, default=debug
         )
         self._dev_tools['dev_tools_props_check'] = get_combined_config(
-            'dev_tools_props_check', dev_tools_props_check, default=True
+            'dev_tools_props_check', dev_tools_props_check, default=debug
         )
         self._dev_tools['serve_dev_bundles'] = get_combined_config(
             'serve_dev_bundles', dev_tools_serve_dev_bundles, default=debug)
@@ -1425,8 +1425,8 @@ class Dash(object):
     def run_server(self,
                    port=8050,
                    debug=False,
-                   dev_tools_ui=True,
-                   dev_tools_props_check=True,
+                   dev_tools_ui=None,
+                   dev_tools_props_check=None,
                    dev_tools_serve_dev_bundles=None,
                    dev_tools_hot_reload=None,
                    dev_tools_hot_reload_interval=None,
@@ -1444,7 +1444,7 @@ class Dash(object):
         :type debug: bool
         :param dev_tools_ui: Switch the dev tools UI in debugger mode
         :type dev_tools_ui: bool
-        :param dev_tools_props_check: Switch the props check of dash components
+        :param dev_tools_props_check: Validate the properties of the Dash components
         :type dev_tools_props_check: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles of components
         :type dev_tools_serve_dev_bundles: bool
