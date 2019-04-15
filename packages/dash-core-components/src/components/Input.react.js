@@ -141,10 +141,7 @@ Input.propTypes = {
      * If true, changes to input will be sent back to the Dash server only on enter or when losing focus.
      * If it's false, it will sent the value back on every change.
      */
-    debounce: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
-    ]),
+    debounce: PropTypes.bool,
 
     /**
      * The type of control to render.
@@ -263,10 +260,7 @@ Input.propTypes = {
     /**
      * If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed.
      */
-    maxLength: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number
-    ]),
+    maxLength: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value.
@@ -276,10 +270,7 @@ Input.propTypes = {
     /**
      * If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored.
      */
-    minLength: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number
-    ]),
+    minLength: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * This Boolean attribute indicates whether the user can enter more than one value. This attribute applies when the type attribute is set to email or file, otherwise it is ignored.
@@ -299,10 +290,7 @@ Input.propTypes = {
     /**
      * A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it.
      */
-    placeholder: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number
-    ]),
+    placeholder: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * This attribute indicates that the user cannot modify the value of the control. The value of the attribute is irrelevant. If you need read-write access to the input value, do not add the "readonly" attribute. It is ignored if the value of the type attribute is hidden, range, color, checkbox, radio, file, or a button type (such as button or submit).

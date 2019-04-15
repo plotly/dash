@@ -79,8 +79,8 @@ Slider.propTypes = {
             PropTypes.string,
             PropTypes.shape({
                 label: PropTypes.string,
-                style: PropTypes.object
-            })
+                style: PropTypes.object,
+            }),
         ])
     ),
 

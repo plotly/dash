@@ -82,18 +82,12 @@ Textarea.propTypes = {
     /**
      * Defines the number of columns in a textarea.
      */
-    cols: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number
-    ]),
+    cols: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * Indicates whether the user can interact with the element.
      */
-    disabled: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
-    ]),
+    disabled: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
 
     /**
      * Indicates the form that is the owner of the element.
@@ -145,10 +139,7 @@ Textarea.propTypes = {
     /**
      * Defines the number of rows in a text area.
      */
-    rows: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number
-    ]),
+    rows: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * Indicates whether the text should be wrapped.
@@ -168,10 +159,7 @@ Textarea.propTypes = {
     /**
      * Indicates whether the element's content is editable.
      */
-    contentEditable: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
-    ]),
+    contentEditable: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
 
     /**
      * Defines the ID of a <menu> element which will serve as the element's context menu.
@@ -219,10 +207,7 @@ Textarea.propTypes = {
     /**
      * Overrides the browser's default tab order and follows the one specified instead.
      */
-    tabIndex: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number
-    ]),
+    tabIndex: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * Text to be displayed in a tooltip when hovering over the element.
