@@ -2632,6 +2632,31 @@ class Tests(IntegrationTests):
                 'props': {
                     'contentEditable': True
                 }
+            },
+
+            'allow-exact-with-optional-and-required-1': {
+                'fail': False,
+                'name': 'allow exact with optional and required keys',
+                'component': dcc.Dropdown,
+                'props': {
+                    'options': [{
+                        'label': 'new york',
+                        'value': 'ny',
+                        'disabled': False
+                    }]
+                }
+            },
+
+            'allow-exact-with-optional-and-required-2': {
+                'fail': False,
+                'name': 'allow exact with optional and required keys 2',
+                'component': dcc.Dropdown,
+                'props': {
+                    'options': [{
+                        'label': 'new york',
+                        'value': 'ny'
+                    }]
+                }
             }
 
         }
