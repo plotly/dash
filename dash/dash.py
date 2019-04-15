@@ -243,7 +243,7 @@ class Dash(object):
             'hot_reload_interval': 3000,
             'hot_reload_watch_interval': 0.5,
             'hot_reload_max_retry': 8,
-            'dev_tools_ui': False,
+            'dev_tools_ui': True,
             'dev_tools_props_check': True,
         })
 
@@ -1248,6 +1248,7 @@ class Dash(object):
 
     def enable_dev_tools(self,
                          debug=False,
+                         dev_tools_ui=None,
                          dev_tools_props_check=None,
                          dev_tools_serve_dev_bundles=None,
                          dev_tools_hot_reload=None,
@@ -1266,6 +1267,7 @@ class Dash(object):
         Available dev_tools environment variables:
 
             - DASH_DEBUG
+            - DASH_DEV_TOOLS_UI
             - DASH_DEV_TOOLS_PROPS_CHECK
             - DASH_SERVE_DEV_BUNDLES
             - DASH_HOT_RELOAD
@@ -1278,6 +1280,8 @@ class Dash(object):
             disabled by the arguments or by environ variables. Available as
             `DASH_DEBUG` environment variable.
         :type debug: bool
+        :param dev_tools_ui: Switch the dev tools UI in debugger mode
+        :type dev_tools_ui: bool
         :param dev_tools_props_check: Switch the props check of dash components
         :type dev_tools_props_check: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles. Available
@@ -1306,7 +1310,9 @@ class Dash(object):
         """
         debug = debug or get_combined_config('debug', None, debug)
 
-        self._dev_tools.dev_tools_ui = debug
+        self._dev_tools['dev_tools_ui'] = get_combined_config(
+            'dev_tools_ui', dev_tools_ui, default=True
+        )
         self._dev_tools['dev_tools_props_check'] = get_combined_config(
             'dev_tools_props_check', dev_tools_props_check, default=True
         )
@@ -1419,6 +1425,7 @@ class Dash(object):
     def run_server(self,
                    port=8050,
                    debug=False,
+                   dev_tools_ui=True,
                    dev_tools_props_check=True,
                    dev_tools_serve_dev_bundles=None,
                    dev_tools_hot_reload=None,
@@ -1435,6 +1442,8 @@ class Dash(object):
         :type port: int
         :param debug: Set the debug mode of flask and enable the dev tools.
         :type debug: bool
+        :param dev_tools_ui: Switch the dev tools UI in debugger mode
+        :type dev_tools_ui: bool
         :param dev_tools_props_check: Switch the props check of dash components
         :type dev_tools_props_check: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles of components
@@ -1455,6 +1464,7 @@ class Dash(object):
         """
         debug = self.enable_dev_tools(
             debug,
+            dev_tools_ui,
             dev_tools_props_check,
             dev_tools_serve_dev_bundles,
             dev_tools_hot_reload,
