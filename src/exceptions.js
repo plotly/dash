@@ -2,6 +2,13 @@ import {contains, has} from 'ramda';
 
 export function propTypeErrorHandler(e, props, type) {
     /*
+     * propType error messages are constructed in
+     * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js
+     * (Version 15.7.2)
+     *
+     * Parse these exception objects to remove JS source code and improve
+     * the clarity.
+     *
      * If wrong prop type was passed in, e.message looks like:
      *
      * Error: "Failed component prop type: Invalid component prop `animate` of type `number` supplied to `function GraphWithDefaults(props) {
@@ -39,11 +46,11 @@ export function propTypeErrorHandler(e, props, type) {
         }
         errorMessage += ` is required but it was not provided.`;
 
-    } else if(contains('Invalid component prop', e.message)) {
+    } else if(contains(', expected ', e.message)) {
 
         const invalidPropPath = messageParts[1];
         const invalidPropTypeProvided = messageParts[3];
-        const expectedPropType = messageParts[7];
+        const expectedPropType = e.message.split(', expected ')[1];
 
         errorMessage = `Invalid argument \`${invalidPropPath}\` passed into ${type}`;
         if (props.id) {
@@ -52,8 +59,8 @@ export function propTypeErrorHandler(e, props, type) {
         errorMessage += '.';
 
         errorMessage += (
-            `\nExpected type \`${expectedPropType}\`` +
-            `\nWas supplied type \`${invalidPropTypeProvided}\``
+            `\nExpected ${expectedPropType}` +
+            `\nWas supplied type \`${invalidPropTypeProvided}\`.`
         );
 
         if (has(invalidPropPath, props)) {

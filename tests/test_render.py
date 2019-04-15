@@ -2405,6 +2405,79 @@ class Tests(IntegrationTests):
                 }
             },
 
+            'invalid-arrayOf': {
+                'fail': True,
+                'name': 'invalid arrayOf',
+                'component': dcc.Checklist,
+                'props': {
+                    'options': 'test',
+                }
+            },
+
+            'invalid-oneOf': {
+                'fail': True,
+                'name': 'invalid oneOf',
+                'component': dcc.Input,
+                'props': {
+                    'type': 'test',
+                }
+            },
+
+            'invalid-oneOfType': {
+                'fail': True,
+                'name': 'invalid oneOfType',
+                'component': dcc.Input,
+                'props': {
+                    'max': True,
+                }
+            },
+
+            'invalid-shape-1': {
+                'fail': True,
+                'name': 'invalid shape 1',
+                'component': dcc.Graph,
+                'props': {
+                    'config': {
+                        'this': 'that'
+                    }
+                }
+            },
+
+            'invalid-shape-2': {
+                'fail': True,
+                'name': 'invalid shape 2',
+                'component': dcc.Graph,
+                'props': {
+                    'config': {
+                        'edits': {
+                            'legendPosition': 'asdf'
+                        }
+                    }
+                }
+            },
+
+            'invalid-shape-3': {
+                'fail': True,
+                'name': 'invalid shape 3',
+                'component': dcc.Graph,
+                'props': {
+                    'toImageButtonOptions': {
+                        'format': 'asdf'
+                    }
+                }
+            },
+
+            'invalid-shape-4': {
+                'fail': True,
+                'name': 'invalid shape 4',
+                'component': dcc.Graph,
+                'props': {
+                    'toImageButtonOptions': {
+                        'asdf': 'test'
+                    }
+                }
+            },
+
             'string-not-list': {
                 'fail': True,
                 'name': 'string-not-a-list',
