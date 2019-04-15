@@ -84,9 +84,9 @@
 
     background-color: white;
     border: 2px solid #dfe8f3;
-    border-radius: 0px 0px 4px 4px;
     color: #506784;
     overflow: scroll;
+    white-space: pre-wrap;
 }
 
 .dash-fe-error__curved {

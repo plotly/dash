@@ -911,9 +911,13 @@ function updateOutput(
                     onError({
                         type: 'backEnd',
                         error: {
+<<<<<<< HEAD
                             message: `Callback Error - updating: [${
                                 payload.output
                             }]`,
+=======
+                            message: `Callback error updating ${payload.output}`,
+>>>>>>> 119cfc612c6db4fb16697bacad48e2c57d4d8d1c
                             html: text,
                         },
                     })
