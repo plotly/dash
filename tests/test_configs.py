@@ -107,25 +107,25 @@ class TestConfigs(unittest.TestCase):
         self.assertEqual('/requests/routes/assets/reset.css', path)
 
     def test_get_combined_config_dev_tools_ui(self):
-        val1 = get_combined_config('dev_tools_ui', None, default=False)
+        val1 = get_combined_config('ui', None, default=False)
         self.assertEqual(
             val1, False,
             "should return the default value if None is provided for init and environment")
-        os.environ['DASH_DEV_TOOLS_UI'] = 'true'
-        val2 = get_combined_config('dev_tools_ui', None, default=False)
+        os.environ['DASH_UI'] = 'true'
+        val2 = get_combined_config('ui', None, default=False)
         self.assertEqual(val2, True, "should return the set environment value as True")
-        val3 = get_combined_config('dev_tools_ui', False, default=True)
+        val3 = get_combined_config('ui', False, default=True)
         self.assertEqual(val3, False, "init value overrides the environment value")
 
-    def test_get_combined_config_dev_tools_props_check(self):
-        val1 = get_combined_config('dev_tools_props_check', None, default=False)
+    def test_get_combined_config_props_check(self):
+        val1 = get_combined_config('props_check', None, default=False)
         self.assertEqual(
             val1, False,
             "should return the default value if None is provided for init and environment")
-        os.environ['DASH_DEV_TOOLS_PROPS_CHECK'] = 'true'
-        val2 = get_combined_config('dev_tools_props_check', None, default=False)
+        os.environ['DASH_PROPS_CHECK'] = 'true'
+        val2 = get_combined_config('props_check', None, default=False)
         self.assertEqual(val2, True, "should return the set environment value as True")
-        val3 = get_combined_config('dev_tools_props_check', False, default=True)
+        val3 = get_combined_config('props_check', False, default=True)
         self.assertEqual(val3, False, "init value overrides the environment value")
 
     def test_load_dash_env_vars_refects_to_os_environ(self):
