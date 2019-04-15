@@ -1,3 +1,8 @@
+## Unreleased
+
+### Added
+- Added `dev_tools_props_check` config flag in `app.run_server` to enable or explicitly disable the forthcoming Component Validation in Dash's front-end /(dash-renderer). Note this will only be effective with dash version bumping to React 16 [#687](https://github.com/plotly/dash/pull/687)
+
 ## [0.41.0] - 2019-04-10
 ### Added
 - Support for "Clientside Callbacks" - an escape hatch to execute your callbacks in JavaScript instead of Python [#672](https://github.com/plotly/dash/pull/672)
