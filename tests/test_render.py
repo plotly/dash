@@ -2645,14 +2645,20 @@ class Tests(IntegrationTests):
         for test_case_id in test_cases:
             self.driver.get('http://localhost:8050/{}'.format(test_case_id))
             if test_cases[test_case_id]['fail']:
-                self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+                try:
+                    self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+                except Exception as e:
+                    raise Exception('Error popup not shown for {}'.format(test_case_id))
                 self.percy_snapshot(
                     'devtools validation exception: {}'.format(
                         test_cases[test_case_id]['name']
                     )
                 )
             else:
-                self.wait_for_element_by_css_selector('#new-component')
+                try:
+                    self.wait_for_element_by_css_selector('#new-component')
+                except Exception as e:
+                    raise Exception('Component not rendered in {}'.format(test_case_id))
                 self.percy_snapshot(
                     'devtools validation no exception: {}'.format(
                         test_cases[test_case_id]['name']
