@@ -2,6 +2,7 @@ import './FrontEndError.css';
 import {Component} from 'react';
 import CollapseIcon from '../icons/CollapseIcon.svg';
 import PropTypes from 'prop-types';
+import '../Percy.css';
 
 import werkzeugCss from '../werkzeug.css.txt';
 
@@ -40,8 +41,11 @@ class FrontEndError extends Component {
                     </span>
                 </span>
                 <span className="dash-fe-error-top__group">
-                    <span className="dash-fe-error__timestamp">
+                    <span className="dash-fe-error__timestamp percy-hide">
                         {`${e.timestamp.toLocaleTimeString()}`}
+                    </span>
+                    <span className="dash-fe-error__timestamp percy-show">
+                        {'12:49:14 PM'}
                     </span>
 
                     <CollapseIcon
