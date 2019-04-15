@@ -103,12 +103,12 @@ Textarea.propTypes = {
     /**
      * Defines the maximum number of characters allowed in the element.
      */
-    maxLength: PropTypes.string,
+    maxLength: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * Defines the minimum number of characters allowed in the element.
      */
-    minLength: PropTypes.string,
+    minLength: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * Name of the element. For example used by the server to identify the fields in form submits.
