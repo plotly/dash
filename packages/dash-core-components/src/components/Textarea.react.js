@@ -36,7 +36,7 @@ export default class Textarea extends Component {
                     if (setProps) {
                         setProps({
                             n_blur: this.props.n_blur + 1,
-                            n_blur_timestamp: new Date.now(),
+                            n_blur_timestamp: Date.now(),
                         });
                     }
                 }}
@@ -44,7 +44,7 @@ export default class Textarea extends Component {
                     if (setProps) {
                         setProps({
                             n_clicks: this.props.n_clicks + 1,
-                            n_clicks_timestamp: new Date.now(),
+                            n_clicks_timestamp: Date.now(),
                         });
                     }
                 }}
