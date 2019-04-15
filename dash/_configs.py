@@ -4,6 +4,7 @@ import os
 from . import exceptions
 from ._utils import AttributeDict
 
+
 def load_dash_env_vars():
     return AttributeDict(
         {
@@ -28,6 +29,7 @@ def load_dash_env_vars():
             )
         }
     )
+
 
 DASH_ENV_VARS = load_dash_env_vars()
 
