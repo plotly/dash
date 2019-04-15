@@ -169,18 +169,23 @@ Input.propTypes = {
 
     /**
      * The element should be automatically focused after the page loaded.
+     * autoFocus is an HTML boolean attribute - it is enabled by a boolean or
+     * 'autoFocus'. Alternative capitalizations `autofocus` & `AUTOFOCUS`
+     * are also acccepted.
      */
     autoFocus: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
+        PropTypes.oneOf(['autoFocus', 'autofocus', 'AUTOFOCUS']),
+        PropTypes.bool,
     ]),
 
     /**
      * If true, the input is disabled and can't be clicked on.
+     * disabled is an HTML boolean attribute - it is enabled by a boolean or
+     * 'disabled'. Alternative capitalizations `DISABLED`
      */
     disabled: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
+        PropTypes.oneOf(['disabled', 'DISABLED']),
+        PropTypes.bool,
     ]),
 
     inputMode: PropTypes.oneOf([
@@ -301,16 +306,25 @@ Input.propTypes = {
 
     /**
      * This attribute indicates that the user cannot modify the value of the control. The value of the attribute is irrelevant. If you need read-write access to the input value, do not add the "readonly" attribute. It is ignored if the value of the type attribute is hidden, range, color, checkbox, radio, file, or a button type (such as button or submit).
+     * readOnly is an HTML boolean attribute - it is enabled by a boolean or
+     * 'readOnly'. Alternative capitalizations `readonly` & `READONLY`
+     * are also acccepted.
      */
     readOnly: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
+        PropTypes.bool,
+        PropTypes.oneOf(['readOnly', 'readonly', 'READONLY']),
     ]),
 
     /**
      * This attribute specifies that the user must fill in a value before submitting a form. It cannot be used when the type attribute is hidden, image, or a button type (submit, reset, or button). The :optional and :required CSS pseudo-classes will be applied to the field as appropriate.
+     * required is an HTML boolean attribute - it is enabled by a boolean or
+     * 'required'. Alternative capitalizations `REQUIRED`
+     * are also acccepted.
      */
-    required: PropTypes.string,
+    required: PropTypes.oneOfType([
+        PropTypes.oneOf(['required', 'REQUIRED']),
+        PropTypes.bool,
+    ]),
 
     /**
      * The direction in which selection occurred. This is "forward" if the selection was made from left-to-right in an LTR locale or right-to-left in an RTL locale, or "backward" if the selection was made in the opposite direction. On platforms on which it's possible this value isn't known, the value can be "none"; for example, on macOS, the default direction is "none", then as the user begins to modify the selection using the keyboard, this will change to reflect the direction in which the selection is expanding.
@@ -336,8 +350,9 @@ Input.propTypes = {
      * Setting the value of this attribute to true indicates that the element needs to have its spelling and grammar checked. The value default indicates that the element is to act according to a default behavior, possibly based on the parent element's own spellcheck value. The value false indicates that the element should not be checked.
      */
     spellCheck: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
+        // enumerated property, not a boolean property: https://www.w3.org/TR/html51/editing.html#spelling-and-grammar-checking
+        PropTypes.oneOf(['true', 'false']),
+        PropTypes.bool,
     ]),
 
     /**

@@ -122,15 +122,24 @@ Textarea.propTypes = {
 
     /**
      * Indicates whether the element can be edited.
+     * readOnly is an HTML boolean attribute - it is enabled by a boolean or
+     * 'readOnly'. Alternative capitalizations `readonly` & `READONLY`
+     * are also acccepted.
      */
-    readOnly: PropTypes.string,
+    readOnly: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.oneOf(['readOnly', 'readonly', 'READONLY']),
+    ]),
 
     /**
      * Indicates whether this element is required to fill out or not.
+     * required is an HTML boolean attribute - it is enabled by a boolean or
+     * 'required'. Alternative capitalizations `REQUIRED`
+     * are also acccepted.
      */
     required: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.bool
+        PropTypes.oneOf(['required', 'REQUIRED']),
+        PropTypes.bool,
     ]),
 
     /**
