@@ -1,17 +1,23 @@
 import os
 import unittest
 # noinspection PyProtectedMember
-from dash._configs import (pathname_configs, DASH_ENV_VARS)
+from dash._configs import (
+    pathname_configs, DASH_ENV_VARS, get_combined_config, load_dash_env_vars)
 from dash import exceptions as _exc
 from dash._utils import get_asset_path
 
 
-class MyTestCase(unittest.TestCase):
+class TestConfigs(unittest.TestCase):
 
     def setUp(self):
         for k in DASH_ENV_VARS.keys():
             if k in os.environ:
                 os.environ.pop(k)
+
+    def test_dash_env_vars(self):
+        self.assertEqual(
+            {None}, {val for _, val in DASH_ENV_VARS.items()},
+            "initial var values are None without extra OS environ setting")
 
     def test_valid_pathname_prefix_init(self):
         _, routes, req = pathname_configs()
@@ -99,6 +105,37 @@ class MyTestCase(unittest.TestCase):
         req = '/requests/routes/'
         path = get_asset_path(req, 'reset.css', 'assets')
         self.assertEqual('/requests/routes/assets/reset.css', path)
+
+    def test_get_combined_config_dev_tools_ui(self):
+        val1 = get_combined_config('dev_tools_ui', None, default=False)
+        self.assertEqual(
+            val1, False,
+            "should return the default value if None is provided for init and environment")
+        os.environ['DASH_DEV_TOOLS_UI'] = 'true'
+        val2 = get_combined_config('dev_tools_ui', None, default=False)
+        self.assertEqual(val2, True, "should return the set environment value as True")
+        val3 = get_combined_config('dev_tools_ui', False, default=True)
+        self.assertEqual(val3, False, "init value overrides the environment value")
+
+    def test_get_combined_config_dev_tools_props_check(self):
+        val1 = get_combined_config('dev_tools_props_check', None, default=False)
+        self.assertEqual(
+            val1, False,
+            "should return the default value if None is provided for init and environment")
+        os.environ['DASH_DEV_TOOLS_PROPS_CHECK'] = 'true'
+        val2 = get_combined_config('dev_tools_props_check', None, default=False)
+        self.assertEqual(val2, True, "should return the set environment value as True")
+        val3 = get_combined_config('dev_tools_props_check', False, default=True)
+        self.assertEqual(val3, False, "init value overrides the environment value")
+
+    def test_load_dash_env_vars_refects_to_os_environ(self):
+        for var in DASH_ENV_VARS.keys():
+            os.environ[var] = 'true'
+            vars = load_dash_env_vars()
+            self.assertEqual(vars[var], 'true')
+            os.environ[var] = 'false'
+            vars = load_dash_env_vars()
+            self.assertEqual(vars[var], 'false')
 
 
 if __name__ == '__main__':
