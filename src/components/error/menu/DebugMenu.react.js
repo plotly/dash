@@ -7,6 +7,7 @@ import WhiteCloseIcon from '../icons/WhiteCloseIcon.svg';
 import BellIcon from '../icons/BellIcon.svg';
 import BellIconGrey from '../icons/BellIconGrey.svg';
 import GraphIcon from '../icons/GraphIcon.svg';
+import GraphIconGrey from '../icons/GraphIconGrey.svg';
 import PropTypes from 'prop-types';
 import {DebugAlertContainer} from './DebugAlertContainer.react';
 import GlobalErrorOverlay from '../GlobalErrorOverlay.react';
@@ -56,14 +57,22 @@ class DebugMenu extends Component {
                 ) : null}
                 <div className="dash-debug-menu__button-container">
                     <div
-                        className="dash-debug-menu__button"
+                        className={`dash-debug-menu__button ${
+                            callbackGraphOpened
+                                ? 'dash-debug-menu__button--enabled'
+                                : ''
+                        }`}
                         onClick={() =>
                             this.setState({
                                 callbackGraphOpened: !callbackGraphOpened,
                             })
                         }
                     >
-                        <GraphIcon className="dash-debug-menu__icon dash-debug-menu__icon--graph" />
+                        {callbackGraphOpened ? (
+                            <GraphIcon className="dash-debug-menu__icon dash-debug-menu__icon--graph" />
+                        ) : (
+                            <GraphIconGrey className="dash-debug-menu__icon dash-debug-menu__icon--bell" />
+                        )}
                     </div>
                     <label className="dash-debug-menu__button-label">
                         Callback Graph
