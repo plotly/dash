@@ -29,6 +29,7 @@ class FrontEndError extends Component {
             cardClasses += ' dash-error-card--alerts-tray';
         }
 
+        /* eslint-disable no-inline-comments */
         const errorHeader = (
             <div
                 className="dash-fe-error-top test-devtools-error-toggle"
@@ -45,7 +46,10 @@ class FrontEndError extends Component {
                         {`${e.timestamp.toLocaleTimeString()}`}
                     </span>
                     <span className="dash-fe-error__timestamp percy-show">
-                        {'12:49:14 PM'}
+                        {/* Special percy timestamp for visual testing.
+                         * Hidden during regular usage.
+                         */}
+                        {'00:00:00 PM'}
                     </span>
 
                     <CollapseIcon
@@ -57,6 +61,7 @@ class FrontEndError extends Component {
                 </span>
             </div>
         );
+        /* eslint-enable no-inline-comments */
 
         return collapsed ? (
             <div className="dash-error-card__list-item">{errorHeader}</div>
