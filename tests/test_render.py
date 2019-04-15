@@ -2411,6 +2411,7 @@ class Tests(IntegrationTests):
                 'component': dcc.Checklist,
                 'props': {
                     'options': 'test',
+                    'values': []
                 }
             },
 
