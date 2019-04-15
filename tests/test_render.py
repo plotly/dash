@@ -2295,7 +2295,7 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
 
         self.wait_for_element_by_css_selector('#python').click()
-        self.wait_for_text_to_equal('.test-devtools-error-count', '1')
+        self.wait_for_text_to_equal('.test-devtools-error-count', '2')
         self.percy_snapshot('devtools - python exception - 2 errors')
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - python exception - 2 errors open')
