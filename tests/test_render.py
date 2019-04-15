@@ -2435,18 +2435,18 @@ class Tests(IntegrationTests):
 
             'invalid-shape-1': {
                 'fail': True,
-                'name': 'invalid shape 1',
+                'name': 'invalid key within nested object',
                 'component': dcc.Graph,
                 'props': {
                     'config': {
-                        'this': 'that'
+                        'asdf': 'that'
                     }
                 }
             },
 
             'invalid-shape-2': {
                 'fail': True,
-                'name': 'invalid shape 2',
+                'name': 'nested object with bad value',
                 'component': dcc.Graph,
                 'props': {
                     'config': {
@@ -2459,22 +2459,26 @@ class Tests(IntegrationTests):
 
             'invalid-shape-3': {
                 'fail': True,
-                'name': 'invalid shape 3',
+                'name': 'invalid oneOf within nested object',
                 'component': dcc.Graph,
                 'props': {
-                    'toImageButtonOptions': {
-                        'format': 'asdf'
+                    'config': {
+                        'toImageButtonOptions': {
+                            'format': 'asdf'
+                        }
                     }
                 }
             },
 
             'invalid-shape-4': {
                 'fail': True,
-                'name': 'invalid shape 4',
+                'name': 'invalid key within deeply nested object',
                 'component': dcc.Graph,
                 'props': {
-                    'toImageButtonOptions': {
-                        'asdf': 'test'
+                    'config': {
+                        'toImageButtonOptions': {
+                            'asdf': 'test'
+                        }
                     }
                 }
             },
