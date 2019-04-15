@@ -1282,7 +1282,8 @@ class Dash(object):
         :type debug: bool
         :param dev_tools_ui: Switch the dev tools UI in debugger mode
         :type dev_tools_ui: bool
-        :param dev_tools_props_check: Validate the properties of the Dash components
+        :param dev_tools_props_check: Validate the properties of
+            the Dash components
         :type dev_tools_props_check: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles. Available
             as `DASH_SERVE_DEV_BUNDLES` environment variable.
@@ -1444,7 +1445,8 @@ class Dash(object):
         :type debug: bool
         :param dev_tools_ui: Switch the dev tools UI in debugger mode
         :type dev_tools_ui: bool
-        :param dev_tools_props_check: Validate the properties of the Dash components
+        :param dev_tools_props_check: Validate the properties of
+            the Dash components
         :type dev_tools_props_check: bool
         :param dev_tools_serve_dev_bundles: Serve the dev bundles of components
         :type dev_tools_serve_dev_bundles: bool
