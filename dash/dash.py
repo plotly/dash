@@ -243,8 +243,8 @@ class Dash(object):
             'hot_reload_interval': 3000,
             'hot_reload_watch_interval': 0.5,
             'hot_reload_max_retry': 8,
-            'dev_tools_ui': False,
-            'dev_tools_props_check': False,
+            'ui': False,
+            'props_check': False,
         })
 
         # add a handler for components suites errors to return 404
@@ -335,8 +335,8 @@ class Dash(object):
         config = {
             'url_base_pathname': self.url_base_pathname,
             'requests_pathname_prefix': self.config.requests_pathname_prefix,
-            'dev_tools_ui': self._dev_tools.dev_tools_ui,
-            'dev_tools_props_check': self._dev_tools.dev_tools_props_check,
+            'ui': self._dev_tools.ui,
+            'props_check': self._dev_tools.props_check,
         }
         if self._dev_tools.hot_reload:
             config['hot_reload'] = {
@@ -1267,8 +1267,8 @@ class Dash(object):
         Available dev_tools environment variables:
 
             - DASH_DEBUG
-            - DASH_DEV_TOOLS_UI
-            - DASH_DEV_TOOLS_PROPS_CHECK
+            - DASH_UI
+            - DASH_PROPS_CHECK
             - DASH_SERVE_DEV_BUNDLES
             - DASH_HOT_RELOAD
             - DASH_HOT_RELOAD_INTERVAL
@@ -1311,11 +1311,11 @@ class Dash(object):
         """
         debug = debug or get_combined_config('debug', None, debug)
 
-        self._dev_tools['dev_tools_ui'] = get_combined_config(
-            'dev_tools_ui', dev_tools_ui, default=debug
+        self._dev_tools['ui'] = get_combined_config(
+            'ui', dev_tools_ui, default=debug
         )
-        self._dev_tools['dev_tools_props_check'] = get_combined_config(
-            'dev_tools_props_check', dev_tools_props_check, default=debug
+        self._dev_tools['props_check'] = get_combined_config(
+            'props_check', dev_tools_props_check, default=debug
         )
         self._dev_tools['serve_dev_bundles'] = get_combined_config(
             'serve_dev_bundles', dev_tools_serve_dev_bundles, default=debug)
