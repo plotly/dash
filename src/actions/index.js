@@ -912,6 +912,8 @@ function updateOutput(
                         type: 'backEnd',
                         error: {
                             message: `Callback error updating ${
+                                isMultiOutputProp(payload.output) ?
+                                parseMultipleOutputs(payload.output).join(', ') :
                                 payload.output
                             }`,
                             html: text,
