@@ -66,13 +66,9 @@ function CheckedComponent(p) {
         type
     } = p;
 
-    try {
-        assertPropTypes(
-            element.propTypes,
-            props,
-            'component prop', element);
-    } catch (e) {
-        propTypeErrorHandler(e, props, type);
+    const errorMessage = checkPropTypes(element.propTypes, props, 'component prop', element);
+    if (errorMessage) {
+        propTypeErrorHandler(errorMessage, props, type);
     }
 
     return React.createElement(

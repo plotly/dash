@@ -1,6 +1,6 @@
 import {contains, has} from 'ramda';
 
-export function propTypeErrorHandler(e, props, type) {
+export function propTypeErrorHandler(message, props, type) {
     /*
      * propType error messages are constructed in
      * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js
@@ -9,7 +9,7 @@ export function propTypeErrorHandler(e, props, type) {
      * Parse these exception objects to remove JS source code and improve
      * the clarity.
      *
-     * If wrong prop type was passed in, e.message looks like:
+     * If wrong prop type was passed in, message looks like:
      *
      * Error: "Failed component prop type: Invalid component prop `animate` of type `number` supplied to `function GraphWithDefaults(props) {
      *   var id = props.id ? props.id : generateId();
@@ -19,7 +19,7 @@ export function propTypeErrorHandler(e, props, type) {
      * }`, expected `boolean`."
      *
      *
-     * If a required prop type was omitted, e.message looks like:
+     * If a required prop type was omitted, message looks like:
      *
      * "Failed component prop type: The component prop `options[0].value` is marked as required in `function Checklist(props) {
      *    var _this;
@@ -35,9 +35,9 @@ export function propTypeErrorHandler(e, props, type) {
      *
      */
 
-    const messageParts = e.message.split('`');
+    const messageParts = message.split('`');
     let errorMessage;
-    if (contains('is marked as required', e.message)) {
+    if (contains('is marked as required', message)) {
 
         const invalidPropPath = messageParts[1];
         errorMessage = `${invalidPropPath} in ${type}`;
@@ -46,19 +46,19 @@ export function propTypeErrorHandler(e, props, type) {
         }
         errorMessage += ` is required but it was not provided.`;
 
-    } else if(contains('Bad object', e.message)) {
+    } else if(contains('Bad object', message)) {
         /*
          * Handle .exact errors
          * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L438-L442
          */
         errorMessage = (
-            e.message.split('supplied to ')[0] +
+            message.split('supplied to ')[0] +
             `supplied to ${type}` +
             '.\nBad' +
-            e.message.split('.\nBad')[1]
+            message.split('.\nBad')[1]
         );
 
-    } else if(contains('Invalid ', e.message) && contains(' supplied to ', e.message)) {
+    } else if(contains('Invalid ', message) && contains(' supplied to ', message)) {
 
         const invalidPropPath = messageParts[1];
 
@@ -73,8 +73,8 @@ export function propTypeErrorHandler(e, props, type) {
          * In particular, oneOfType.
          * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L388
          */
-        if (contains(', expected ', e.message)) {
-            const expectedPropType = e.message.split(', expected ')[1];
+        if (contains(', expected ', message)) {
+            const expectedPropType = message.split(', expected ')[1];
             errorMessage += `\nExpected ${expectedPropType}`;
         }
 
@@ -83,8 +83,8 @@ export function propTypeErrorHandler(e, props, type) {
          * In particular, oneOfType.
          * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L388
          */
-        if (contains(' of type `', e.message)) {
-            const invalidPropTypeProvided = e.message.split(' of type `')[1].split('`')[0];
+        if (contains(' of type `', message)) {
+            const invalidPropTypeProvided = message.split(' of type `')[1].split('`')[0];
             errorMessage += (
                 `\nWas supplied type \`${invalidPropTypeProvided}\`.`
             );
@@ -112,7 +112,7 @@ export function propTypeErrorHandler(e, props, type) {
          * But, if they exist, then at least throw the default
          * react prop types error
          */
-        throw e;
+        throw new Error(message);
     }
 
     throw new Error(errorMessage);
