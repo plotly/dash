@@ -2366,6 +2366,44 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - validation creation exception - open')
 
+    def test_devtools_multiple_outputs(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Button(
+                id='multi-output',
+                children='trigger multi output update',
+                n_clicks=0
+            ),
+            html.Div(id='multi-1'),
+            html.Div(id='multi-2'),
+        ])
+
+        @app.callback(
+            [Output('multi-1', 'children'), Output('multi-2', 'children')],
+            [Input('multi-output', 'n_clicks')])
+        def update_outputs(n_clicks):
+            if n_clicks == 0:
+                return [
+                    'Output 1 - {} Clicks'.format(n_clicks),
+                    'Output 2 - {} Clicks'.format(n_clicks),
+                ]
+            else:
+                n_clicks / 0
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        self.wait_for_element_by_css_selector('#python').click()
+        self.wait_for_text_to_equal('.test-devtools-error-count', '1')
+        self.percy_snapshot('devtools - multi output python exception - closed')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - multi output python exception - open')
+
 
     def test_devtools_validation_errors(self):
         app = dash.Dash(__name__)
