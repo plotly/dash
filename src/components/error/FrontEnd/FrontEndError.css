@@ -49,6 +49,7 @@
 .dash-fe-error__title {
     text-align: left;
     margin: 0px;
+    margin-left: 5px;
     padding: 0px;
     font-size: 14px;
     display: inline-block;
@@ -85,7 +86,7 @@
     background-color: white;
     border: 2px solid #dfe8f3;
     color: #506784;
-    overflow: scroll;
+    overflow: auto;
     white-space: pre-wrap;
 }
 

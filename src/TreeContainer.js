@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Registry from './registry';
+import {propTypeErrorHandler} from './exceptions';
 import {connect} from 'react-redux';
 import {
     any,
@@ -20,7 +21,7 @@ import {
 } from 'ramda';
 import { notifyObservers, updateProps } from './actions';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
-import { assertPropTypes } from 'check-prop-types';
+import { checkPropTypes } from 'check-prop-types';
 
 
 const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
@@ -57,16 +58,22 @@ const createContainer = component => isSimpleComponent(component) ?
     />);
 
 function CheckedComponent(p) {
-    const { element, layout, props, children } = p;
+    const {
+        element,
+        extraProps,
+        props,
+        children,
+        type
+    } = p;
 
-    assertPropTypes(
-        element.propTypes,
-        layout,
-        'component prop', element);
+    const errorMessage = checkPropTypes(element.propTypes, props, 'component prop', element);
+    if (errorMessage) {
+        propTypeErrorHandler(errorMessage, props, type);
+    }
 
     return React.createElement(
         element,
-        mergeAll([layout, props]),
+        mergeAll([props, extraProps]),
         ...(Array.isArray(children) ? children : [children])
     );
 }
@@ -75,7 +82,9 @@ CheckedComponent.propTypes = {
     children: PropTypes.any,
     element: PropTypes.any,
     layout: PropTypes.any,
-    props: PropTypes.any
+    props: PropTypes.any,
+    extraProps: PropTypes.any,
+    id: PropTypes.string,
 };
 class TreeContainer extends Component {
     getChildren(components) {
@@ -100,7 +109,7 @@ class TreeContainer extends Component {
 
         const element = Registry.resolve(_dashprivate_layout);
 
-        const layout = omit(['children'], _dashprivate_layout.props);
+        const props = omit(['children'], _dashprivate_layout.props);
 
         return (<ComponentErrorBoundary
             componentType={_dashprivate_layout.type}
@@ -110,8 +119,9 @@ class TreeContainer extends Component {
             <CheckedComponent
                 children={children}
                 element={element}
-                layout={layout}
-                props={{ loading_state, setProps }}
+                props={props}
+                extraProps={{ loading_state, setProps }}
+                type={_dashprivate_layout.type}
             />
         </ComponentErrorBoundary>);
 
