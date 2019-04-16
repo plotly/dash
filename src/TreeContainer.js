@@ -110,20 +110,34 @@ class TreeContainer extends Component {
         const element = Registry.resolve(_dashprivate_layout);
 
         const props = omit(['children'], _dashprivate_layout.props);
-
-        return (<ComponentErrorBoundary
-            componentType={_dashprivate_layout.type}
-            componentId={_dashprivate_layout.props.id}
-            key={element && element.props && element.props.id}
-        >
-            <CheckedComponent
-                children={children}
-                element={element}
-                props={props}
-                extraProps={{ loading_state, setProps }}
-                type={_dashprivate_layout.type}
-            />
-        </ComponentErrorBoundary>);
+        const config = window.store.getState().config;
+        return config.props_check && config.ui ? (
+            <ComponentErrorBoundary
+                componentType={_dashprivate_layout.type}
+                componentId={_dashprivate_layout.props.id}
+                key={element && element.props && element.props.id}
+            >
+                <CheckedComponent
+                    children={children}
+                    element={element}
+                    props={props}
+                    extraProps={{ loading_state, setProps }}
+                    type={_dashprivate_layout.type}
+                />
+            </ComponentErrorBoundary>
+        ) : (
+            <ComponentErrorBoundary
+                componentType={_dashprivate_layout.type}
+                componentId={_dashprivate_layout.props.id}
+                key={element && element.props && element.props.id}
+            >
+                {React.createElement(
+                    element,
+                    mergeAll([props, { loading_state, setProps }]),
+                    ...(Array.isArray(children) ? children : [children])
+                )}
+            </ComponentErrorBoundary>
+        );
 
     }
 
