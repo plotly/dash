@@ -21,7 +21,7 @@ import {
 } from 'ramda';
 import { notifyObservers, updateProps } from './actions';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
-import { assertPropTypes } from 'check-prop-types';
+import { checkPropTypes } from 'check-prop-types';
 
 
 const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];

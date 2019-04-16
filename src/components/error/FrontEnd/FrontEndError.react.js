@@ -68,21 +68,21 @@ class FrontEndError extends Component {
         ) : (
             <div className={cardClasses}>
                 {errorHeader}
-                <ErrorContent error={e.error} type={e.type} />
+                <ErrorContent error={e.error} />
             </div>
         );
     }
 }
 
-/* eslint-disable no-inline-comments */
-function ErrorContent({error, type}) {
+/* eslint-disable no-inline-comments, no-magic-numbers */
+function ErrorContent({error}) {
     return (
         <div className="error-container">
             {/*
-              * 40 is a rough heuristic - if longer than 40 then the
-              * message might overflow into ellipses in the title above &
-              * will need to be displayed in full in this error body
-              */}
+             * 40 is a rough heuristic - if longer than 40 then the
+             * message might overflow into ellipses in the title above &
+             * will need to be displayed in full in this error body
+             */}
             {!error.message || error.message.length < 40 ? null : (
                 <div className="dash-fe-error__st">
                     <div className="dash-fe-error__info dash-fe-error__curved">
@@ -143,6 +143,7 @@ function ErrorContent({error, type}) {
         </div>
     );
 }
+/* eslint-enable no-inline-comments, no-magic-numbers */
 
 const errorPropTypes = PropTypes.shape({
     message: PropTypes.string,
