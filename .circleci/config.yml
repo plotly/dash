@@ -38,7 +38,7 @@ jobs:
       - run:
           name: Install dependencies (dash)
           command: |
-              git clone git@github.com:plotly/dash.git
+              git clone --branch flag-for-props-check git@github.com:plotly/dash.git
               git clone --branch fix-prop-types git@github.com:plotly/dash-core-components.git
               git clone git@github.com:plotly/dash-html-components.git
               git clone git@github.com:plotly/dash-table.git
