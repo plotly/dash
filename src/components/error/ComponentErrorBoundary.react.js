@@ -63,7 +63,7 @@ UnconnectedComponentErrorBoundary.propTypes = {
     children: PropTypes.object,
     componentId: PropTypes.string,
     error: PropTypes.object,
-    dispatch: PropTypes.function,
+    dispatch: PropTypes.func,
 };
 
 const ComponentErrorBoundary = connect(
