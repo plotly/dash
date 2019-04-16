@@ -2528,7 +2528,7 @@ class Tests(IntegrationTests):
             dev_tools_hot_reload=False,
         )
 
-        self.wait_for_element_by_css_selector('#python').click()
+        self.wait_for_element_by_css_selector('#multi-output').click()
         self.wait_for_text_to_equal('.test-devtools-error-count', '1')
         self.percy_snapshot('devtools - multi output python exception - closed')
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
