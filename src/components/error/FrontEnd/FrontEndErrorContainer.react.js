@@ -26,9 +26,13 @@ class FrontEndErrorContainer extends Component {
         return (
             <div className={cardClasses}>
                 <div className="dash-error-card__topbar">
-                    <h6 className="dash-error-card__message">
-                        🛑 Errors (<strong>{errorsLength}</strong>)
-                    </h6>
+                    <div className="dash-error-card__message">
+                        🛑 Errors (
+                        <strong className="test-devtools-error-count">
+                            {errorsLength}
+                        </strong>
+                        )
+                    </div>
                 </div>
                 <div className="dash-error-card__list">{errorElements}</div>
             </div>

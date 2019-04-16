@@ -5,7 +5,7 @@ jobs:
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
     environment:
-      PERCY_PARALLEL_TOTAL: 2
+      PERCY_PARALLEL_TOTAL: 1
 
     working_directory: ~/repo
 
@@ -39,7 +39,7 @@ jobs:
           name: Install dependencies (dash)
           command: |
               git clone git@github.com:plotly/dash.git
-              git clone git@github.com:plotly/dash-core-components.git
+              git clone --branch fix-prop-types git@github.com:plotly/dash-core-components.git
               git clone git@github.com:plotly/dash-html-components.git
               git clone git@github.com:plotly/dash-table.git
               . venv/bin/activate
@@ -53,8 +53,15 @@ jobs:
           command: |
               . venv/bin/activate
               npm run build
+              npm run build:dev
               pip install -e . --quiet
               pip list | grep dash
+
+      - run:
+          name: Create artifacts folder
+          command: |
+            mkdir /tmp/artifacts;
+            echo "test artifact files in a dir" > /tmp/artifacts/artifact-2;
 
       - run:
           name: Run tests
@@ -62,6 +69,9 @@ jobs:
               . venv/bin/activate
               python --version
               npm run test:py
+
+      - store_artifacts:
+          path: /tmp/artifacts
 
   "python-3.6":
     <<: *test-template

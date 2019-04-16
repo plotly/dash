@@ -2,6 +2,7 @@ import './FrontEndError.css';
 import {Component} from 'react';
 import CollapseIcon from '../icons/CollapseIcon.svg';
 import PropTypes from 'prop-types';
+import '../Percy.css';
 
 import werkzeugCss from '../werkzeug.css.txt';
 
@@ -28,20 +29,27 @@ class FrontEndError extends Component {
             cardClasses += ' dash-error-card--alerts-tray';
         }
 
+        /* eslint-disable no-inline-comments */
         const errorHeader = (
             <div
-                className="dash-fe-error-top"
+                className="dash-fe-error-top test-devtools-error-toggle"
                 onClick={() => this.setState({collapsed: !collapsed})}
             >
-                ⛑️
                 <span className="dash-fe-error-top__group">
+                    ⛑️
                     <span className="dash-fe-error__title">
                         {e.error.message || 'Error'}
                     </span>
                 </span>
                 <span className="dash-fe-error-top__group">
-                    <span className="dash-fe-error__timestamp">
+                    <span className="dash-fe-error__timestamp percy-hide">
                         {`${e.timestamp.toLocaleTimeString()}`}
+                    </span>
+                    <span className="dash-fe-error__timestamp percy-show">
+                        {/* Special percy timestamp for visual testing.
+                         * Hidden during regular usage.
+                         */}
+                        {'00:00:00 PM'}
                     </span>
 
                     <CollapseIcon
@@ -53,23 +61,29 @@ class FrontEndError extends Component {
                 </span>
             </div>
         );
+        /* eslint-enable no-inline-comments */
 
         return collapsed ? (
             <div className="dash-error-card__list-item">{errorHeader}</div>
         ) : (
             <div className={cardClasses}>
                 {errorHeader}
-                <ErrorContent error={e.error} type={e.type} />
+                <ErrorContent error={e.error} />
             </div>
         );
     }
 }
 
-/* eslint-disable no-inline-comments */
-function ErrorContent({error, type}) {
+/* eslint-disable no-inline-comments, no-magic-numbers */
+function ErrorContent({error}) {
     return (
         <div className="error-container">
-            {!error.message || type === 'backEnd' ? null : (
+            {/*
+             * 40 is a rough heuristic - if longer than 40 then the
+             * message might overflow into ellipses in the title above &
+             * will need to be displayed in full in this error body
+             */}
+            {!error.message || error.message.length < 40 ? null : (
                 <div className="dash-fe-error__st">
                     <div className="dash-fe-error__info dash-fe-error__curved">
                         {error.message}
@@ -79,14 +93,21 @@ function ErrorContent({error, type}) {
 
             {!error.stack ? null : (
                 <div className="dash-fe-error__st">
-                    <div className="dash-fe-error__info_title dash-fe-error__curved-top">
-                        {"JS Stack trace (see browser's console for details)"}
-                    </div>
-                    <div className="dash-fe-error__info dash-fe-error__curved-bottom">
-                        <hr />
-                        {error.stack.split('\n').map(line => (
-                            <p>{line}</p>
-                        ))}
+                    <div className="dash-fe-error__info">
+                        <details>
+                            <summary>
+                                <i>
+                                    (This error originated from the built-in
+                                    JavaScript code that runs Dash apps. Click
+                                    to see the full stack trace or open your
+                                    browser's console.)
+                                </i>
+                            </summary>
+
+                            {error.stack.split('\n').map(line => (
+                                <p>{line}</p>
+                            ))}
+                        </details>
                     </div>
                 </div>
             )}
@@ -122,6 +143,7 @@ function ErrorContent({error, type}) {
         </div>
     );
 }
+/* eslint-enable no-inline-comments, no-magic-numbers */
 
 const errorPropTypes = PropTypes.shape({
     message: PropTypes.string,
