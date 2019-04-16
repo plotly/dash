@@ -78,7 +78,12 @@ class FrontEndError extends Component {
 function ErrorContent({error, type}) {
     return (
         <div className="error-container">
-            {!error.message || type === 'backEnd' ? null : (
+            {/*
+              * 40 is a rough heuristic - if longer than 40 then the
+              * message might overflow into ellipses in the title above &
+              * will need to be displayed in full in this error body
+              */}
+            {!error.message error.message.length < 40 ? null : (
                 <div className="dash-fe-error__st">
                     <div className="dash-fe-error__info dash-fe-error__curved">
                         {error.message}
