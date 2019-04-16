@@ -21,7 +21,7 @@ import {
 } from 'ramda';
 import { notifyObservers, updateProps } from './actions';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
-import { checkPropTypes } from 'check-prop-types';
+import checkPropTypes from 'check-prop-types';
 
 
 const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
@@ -88,7 +88,7 @@ CheckedComponent.propTypes = {
 };
 class TreeContainer extends Component {
     getChildren(components) {
-        if (!components) {
+        if (isNil(components)) {
             return null;
         }
 

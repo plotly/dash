@@ -115,7 +115,7 @@ class UnconnectedContainer extends Component {
             );
         } else if (
             appLifecycle === getAppState('HYDRATED') &&
-            config.dev_tools_ui === true
+            config.ui === true
         ) {
             return (
                 <GlobalErrorContainer>

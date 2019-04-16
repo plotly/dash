@@ -31,6 +31,9 @@ import requests
 TIMEOUT = 20
 
 
+TIMEOUT = 20
+
+
 class Tests(IntegrationTests):
     def setUp(self):
         pass
@@ -219,6 +222,26 @@ class Tests(IntegrationTests):
         self.request_queue_assertions(0)
 
         self.percy_snapshot(name='layout')
+
+        assert_clean_console(self)
+
+    def test_array_of_falsy_child(self):
+        app = Dash(__name__)
+        app.layout = html.Div(id='nully-wrapper', children=[0])
+
+        self.startServer(app)
+
+        self.wait_for_text_to_equal('#nully-wrapper', '0')
+
+        assert_clean_console(self)
+
+    def test_of_falsy_child(self):
+        app = Dash(__name__)
+        app.layout = html.Div(id='nully-wrapper', children=0)
+
+        self.startServer(app)
+
+        self.wait_for_text_to_equal('#nully-wrapper', '0')
 
         assert_clean_console(self)
 
@@ -2001,6 +2024,113 @@ class Tests(IntegrationTests):
             'Resolve BackEnd Error',
             self.driver.find_element_by_tag_name('body').text,
             "circular dependencies is not detected"
+        )
+
+    def test_simple_clientside_serverside_callback(self):
+        app = dash.Dash(__name__, assets_folder='test_clientside')
+
+        app.layout = html.Div([
+            dcc.Input(id='input'),
+            html.Div(id='output-clientside'),
+            html.Div(id='output-serverside')
+        ])
+
+
+        @app.callback(
+            Output('output-serverside', 'children'),
+            [Input('input', 'value')])
+        def update_output(value):
+            return 'Server says "{}"'.format(value)
+
+
+        app.clientside_callback(
+            ClientsideFunction(
+                namespace='clientside',
+                function_name='display'
+            ),
+            Output('output-clientside', 'children'),
+            [Input('input', 'value')]
+        )
+
+        self.startServer(app)
+
+        input = self.wait_for_element_by_css_selector('#input')
+        self.wait_for_text_to_equal('#output-serverside', 'Server says "None"')
+        self.wait_for_text_to_equal(
+            '#output-clientside', 'Client says "undefined"'
+        )
+
+        input.send_keys('hello world')
+        self.wait_for_text_to_equal(
+            '#output-serverside', 'Server says "hello world"'
+        )
+        self.wait_for_text_to_equal(
+            '#output-clientside', 'Client says "hello world"'
+        )
+
+    def test_chained_serverside_clientside_callbacks(self):
+        app = dash.Dash(__name__, assets_folder='test_clientside')
+
+        app.layout = html.Div([
+
+            html.Label('x'),
+            dcc.Input(id='x', value=3),
+
+            html.Label('y'),
+            dcc.Input(id='y', value=6),
+
+            # clientside
+            html.Label('x + y (clientside)'),
+            dcc.Input(id='x-plus-y'),
+
+            # server-side
+            html.Label('x+y / 2 (serverside)'),
+            dcc.Input(id='x-plus-y-div-2'),
+
+            # server-side
+            html.Div([
+                html.Label('Display x, y, x+y/2 (serverside)'),
+                dcc.Textarea(id='display-all-of-the-values'),
+            ]),
+
+            # clientside
+            html.Label('Mean(x, y, x+y, x+y/2) (clientside)'),
+            dcc.Input(id='mean-of-all-values'),
+
+        ])
+
+        app.clientside_callback(
+            ClientsideFunction('clientside', 'add'),
+            Output('x-plus-y', 'value'),
+            [Input('x', 'value'),
+             Input('y', 'value')],
+        )
+
+        call_counts = {
+            'divide': Value('i', 0),
+            'display': Value('i', 0)
+        }
+
+        @app.callback(Output('x-plus-y-div-2', 'value'),
+                      [Input('x-plus-y', 'value')])
+        def divide_by_two(value):
+            call_counts['divide'].value += 1
+            return float(value) / 2.0
+
+        @app.callback(Output('display-all-of-the-values', 'value'),
+                      [Input('x', 'value'),
+                       Input('y', 'value'),
+                       Input('x-plus-y', 'value'),
+                       Input('x-plus-y-div-2', 'value')])
+        def display_all(*args):
+            call_counts['display'].value += 1
+            return '\n'.join([str(a) for a in args])
+
+        app.clientside_callback(
+            ClientsideFunction('clientside', 'mean'),
+            Output('mean-of-all-values', 'value'),
+            [Input('x', 'value'), Input('y', 'value'),
+             Input('x-plus-y', 'value'), Input('x-plus-y-div-2', 'value')],
         )
 
     def test_simple_clientside_serverside_callback(self):

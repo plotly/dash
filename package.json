@@ -16,7 +16,7 @@
     "format": "prettier --config .prettierrc --write src/**/*.js src/**/*.react.js",
     "format:test": "prettier --config .prettierrc src/**/*.js src/**/*.react.js --list-different",
     "test": "npm run lint",
-    "test:py": "python -W ignore -m unittest -v tests.test_render"
+    "test:py": "python -m unittest -v tests.test_render tests.test_race_conditions"
   },
   "author": "chriddyp",
   "license": "MIT",
