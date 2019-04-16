@@ -53,7 +53,7 @@ def layout():
             > A quick note on filtering. We have defined our own
             > syntax for performing filtering operations. Here are some
             > examples for this particular dataset:
-            > - `lt num(50)` in the `lifeExp` column
+            > - `lt 50` in the `lifeExp` column
             > - `eq "Canada"` in the `country` column
 
             By default, these transformations are done clientside.

@@ -1,5 +1,11 @@
 declare var module: any;
 
+declare module '*.csv' {
+    const value: any;
+
+    export default value;
+}
+
 declare module '@storybook/react' {
     export const storiesOf: any;
     export const addDecorator: any;

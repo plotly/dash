@@ -1,20 +1,63 @@
+import * as R from 'ramda';
+
 import Logger from 'core/Logger';
-import lexer from 'core/syntax-tree/lexer';
-import syntaxer, { ISyntaxerResult } from 'core/syntax-tree/syntaxer';
+import lexer, { ILexerResult } from 'core/syntax-tree/lexer';
+import syntaxer, { ISyntaxerResult, ISyntaxTree } from 'core/syntax-tree/syntaxer';
+import { Lexicon } from './lexicon';
+
+interface IStructure {
+    subType?: string;
+    type: string;
+    value: any;
+
+    block?: IStructure;
+    left?: IStructure;
+    right?: IStructure;
+}
+
+function toStructure(tree: ISyntaxTree): IStructure {
+    const { block, left, lexeme, right, value } = tree;
+
+    const res: IStructure = {
+        subType: lexeme.subType,
+        type: lexeme.type,
+        value: lexeme.present ? lexeme.present(tree) : value
+    };
+
+    if (block) {
+        res.block = toStructure(block);
+    }
+
+    if (left) {
+        res.left = toStructure(left);
+    }
+
+    if (right) {
+        res.right = toStructure(right);
+    }
+
+    return res;
+}
 
 export default class SyntaxTree {
-    private result: ISyntaxerResult;
+    protected lexerResult: ILexerResult;
+    protected syntaxerResult: ISyntaxerResult;
 
     get isValid() {
-        return this.result.valid;
+        return this.syntaxerResult.valid;
     }
 
     private get tree() {
-        return this.result.tree;
+        return this.syntaxerResult.tree;
     }
 
-    constructor(private readonly query: string) {
-        this.result = syntaxer(lexer(this.query));
+    constructor(
+        public readonly lexicon: Lexicon,
+        public readonly query: string,
+        postProcessor: (res: ILexerResult) => ILexerResult = res => res
+    ) {
+        this.lexerResult = postProcessor(lexer(this.lexicon, this.query));
+        this.syntaxerResult = syntaxer(this.lexerResult);
     }
 
     evaluate = (target: any) => {
@@ -32,5 +75,19 @@ export default class SyntaxTree {
 
     filter = (targets: any[]) => {
         return targets.filter(this.evaluate);
+    }
+
+    toQueryString() {
+        return this.lexerResult.valid ?
+            R.map(l => l.value, this.lexerResult.lexemes).join(' ') :
+            '';
+    }
+
+    toStructure() {
+        if (!this.isValid || !this.syntaxerResult.tree) {
+            return null;
+        }
+
+        return toStructure(this.syntaxerResult.tree);
     }
 }

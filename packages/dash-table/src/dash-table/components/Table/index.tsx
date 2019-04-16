@@ -12,6 +12,8 @@ import derivedVirtualData from 'dash-table/derived/data/virtual';
 import derivedVirtualizedData from 'dash-table/derived/data/virtualized';
 import derivedVisibleColumns from 'dash-table/derived/column/visible';
 
+import QuerySyntaxTree from 'dash-table/syntax-tree/QuerySyntaxTree';
+
 import {
     ControlledTableProps,
     PropsWithDefaultsAndDerived,
@@ -37,6 +39,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
 
         this.state = {
             forcedResizeOnly: false,
+            rawFilterQuery: '',
             scrollbarWidth: 0
         };
     }
@@ -67,8 +70,8 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
         const {
             columns,
             data,
+            filter,
             filtering,
-            filtering_settings,
             pagination_mode,
             pagination_settings,
             selected_rows,
@@ -84,7 +87,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
         const virtual = this.virtual(
             data,
             filtering,
-            filtering_settings,
+            filter,
             sorting,
             sorting_settings,
             sorting_treat_empty_string_as_none
@@ -143,8 +146,8 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
 
     private updateDerivedProps(controlled: ControlledTableProps) {
         const {
+            filter,
             filtering,
-            filtering_settings,
             pagination_mode,
             pagination_settings,
             sorting,
@@ -155,13 +158,15 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
             virtual_selected_rows
         } = controlled;
 
+        const derivedStructureCache = this.structuredQueryCache(filter);
+
         const viewportCached = this.viewportCache(viewport).cached;
         const virtualCached = this.virtualCache(virtual).cached;
 
         const viewportSelectedRowsCached = this.viewportSelectedRowsCache(viewport_selected_rows).cached;
         const virtualSelectedRowsCached = this.virtualSelectedRowsCache(virtual_selected_rows).cached;
 
-        const invalidatedFilter = this.filterCache(filtering_settings);
+        const invalidatedFilter = this.filterCache(filter);
         const invalidatedPagination = this.paginationCache(pagination_settings);
         const invalidatedSort = this.sortCache(sorting_settings);
 
@@ -172,6 +177,10 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
 
         const { controlledSetProps } = this;
         let newProps: Partial<PropsWithDefaultsAndDerived> = {};
+
+        if (!derivedStructureCache.cached) {
+            newProps.derived_filter_structure = derivedStructureCache.result;
+        }
 
         if (!virtualCached) {
             newProps.derived_virtual_data = virtual.data;
@@ -260,4 +269,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
     private readonly viewportSelectedRowsCache = memoizeOneWithFlag(viewport => viewport);
     private readonly virtualCache = memoizeOneWithFlag(virtual => virtual);
     private readonly virtualSelectedRowsCache = memoizeOneWithFlag(virtual => virtual);
+    private readonly structuredQueryCache = memoizeOneWithFlag(
+        (query: string) => new QuerySyntaxTree(query).toStructure()
+    );
 }

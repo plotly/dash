@@ -53,7 +53,7 @@ const parser = (lexs: ILexemeResult[]): ISyntaxTree => {
 
         return tree;
     } else {
-        throw new Error(pivot.lexeme.name);
+        throw new Error(pivot.lexeme.type);
     }
 };
 

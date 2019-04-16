@@ -1,5 +1,5 @@
 import { ColumnId, Datum, ColumnType } from 'dash-table/components/Table/props';
-import SyntaxTree from 'core/syntax-tree';
+import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 
 export interface IConditionalElement {
     filter?: string;
@@ -26,7 +26,7 @@ export type ConditionalDataCell = IConditionalElement & IIndexedRowElement & INa
 export type ConditionalCell = INamedElement & ITypedElement;
 export type ConditionalHeader = IIndexedHeaderElement & INamedElement & ITypedElement;
 
-function ifAstFilter(ast: SyntaxTree, datum: Datum) {
+function ifAstFilter(ast: QuerySyntaxTree, datum: Datum) {
     return ast.isValid && ast.evaluate(datum);
 }
 
@@ -69,5 +69,5 @@ export function ifHeaderIndex(condition: IIndexedHeaderElement | undefined, head
 export function ifFilter(condition: IConditionalElement | undefined, datum: Datum) {
     return !condition ||
         condition.filter === undefined ||
-        ifAstFilter(new SyntaxTree(condition.filter), datum);
+        ifAstFilter(new QuerySyntaxTree(condition.filter), datum);
 }

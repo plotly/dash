@@ -65,7 +65,7 @@ function getBaseTableProps(mock: IDataMock) {
             max_width: '1000px',
             width: '1000px'
         },
-        style_data_conditional: [
+        style_cell_conditional: [
             { max_width: 150, min_width: 150, width: 150 },
             { if: { column_id: 'rows' }, max_width: 60, min_width: 60, width: 60 },
             { if: { column_id: 'bbb' }, max_width: 200, min_width: 200, width: 200 },
@@ -150,7 +150,7 @@ function getTooltipsState() {
     state.tableProps.column_conditional_tooltips = [{
         if: {
             column_id: 'aaa-readonly',
-            filter: `aaa is prime`
+            filter: `{aaa} is prime`
         },
         type: TooltipSyntax.Markdown,
         value: `### Go Proverbs\nCapture three to get an eye`

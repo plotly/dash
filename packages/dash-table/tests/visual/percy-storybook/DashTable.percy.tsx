@@ -1,6 +1,8 @@
+import parser from 'papaparse';
 import * as R from 'ramda';
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+
 import random from 'core/math/random';
 import DataTable from 'dash-table/dash/DataTable';
 import fixtures from './fixtures';
@@ -10,6 +12,8 @@ const setProps = () => { };
 // Legacy: Tests previously run in Python
 const fixtureStories = storiesOf('DashTable/Fixtures', module);
 fixtures.forEach(fixture => fixtureStories.add(fixture.name, () => (<DataTable {...Object.assign(fixture.props)} />)));
+
+import dataset from './../../../datasets/gapminder.csv';
 
 storiesOf('DashTable/Without Data', module)
     .add('with 1 column', () => (<DataTable
@@ -24,6 +28,18 @@ storiesOf('DashTable/Without Data', module)
     />));
 
 storiesOf('DashTable/With Data', module)
+    .add('simple', () => {
+        const result = parser.parse(dataset, { delimiter: ',', header: true });
+
+        return (<DataTable
+            id='table'
+            data={result.data}
+            columns={R.map(
+                i => ({ name: i, id: i }),
+                result.meta.fields)
+            }
+        />);
+    })
     .add('with 3 columns and 3 rows, not actionable', () => (<DataTable
         setProps={setProps}
         id='table'

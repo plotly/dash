@@ -1,7 +1,6 @@
 import * as R from 'ramda';
 import { CSSProperties } from 'react';
 
-import SyntaxTree from 'core/syntax-tree';
 import { memoizeOneFactory } from 'core/memoizer';
 
 import { Datum, IVisibleColumn } from 'dash-table/components/Table/props';
@@ -25,6 +24,7 @@ import {
     ifColumnId,
     ifColumnType
  } from 'dash-table/conditional';
+import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 
 export interface IConvertedStyle {
     style: CSSProperties;
@@ -38,7 +38,7 @@ type GenericStyle = Style & Partial<{ if: GenericIf }>;
 
 function convertElement(style: GenericStyle) {
     const indexFilter = style.if && (style.if.header_index || style.if.row_index);
-    let ast: SyntaxTree;
+    let ast: QuerySyntaxTree;
 
     return {
         matchesColumn: (column: IVisibleColumn) =>
@@ -55,7 +55,7 @@ function convertElement(style: GenericStyle) {
         matchesFilter: (datum: Datum) =>
             !style.if ||
             style.if.filter === undefined ||
-            (ast = ast || new SyntaxTree(style.if.filter)).evaluate(datum),
+            (ast = ast || new QuerySyntaxTree(style.if.filter)).evaluate(datum),
         style: convertStyle(style)
     };
 }

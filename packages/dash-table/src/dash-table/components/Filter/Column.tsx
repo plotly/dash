@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { CSSProperties, PureComponent } from 'react';
 
 import IsolatedInput from 'core/components/IsolatedInput';
 
@@ -11,6 +11,7 @@ interface IColumnFilterProps {
     columnId: ColumnId;
     isValid: boolean;
     setFilter: SetFilter;
+    style?: CSSProperties;
     value?: string;
 }
 
@@ -36,12 +37,14 @@ export default class ColumnFilter extends PureComponent<IColumnFilterProps> {
             classes,
             columnId,
             isValid,
+            style,
             value
         } = this.props;
 
         return (<th
             className={classes + (isValid ? '' : ' invalid')}
             data-dash-column={columnId}
+            style={style}
         >
             <IsolatedInput
                 value={value}

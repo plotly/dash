@@ -1,14 +1,27 @@
+import * as R from 'ramda';
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import DataTable from 'dash-table/dash/DataTable';
-import fixtures from './fixtures';
 import { ColumnType } from 'dash-table/components/Table/props';
 
 const setProps = () => { };
 
-// Legacy: Tests previously run in Python
-const fixtureStories = storiesOf('DashTable/Fixtures', module);
-fixtures.forEach(fixture => fixtureStories.add(fixture.name, () => (<DataTable {...Object.assign(fixture.props)} />)));
+const date = ['2015-01-01', '2015-10-24', '2016-05-10'];
+const region = ['Montreal', 'Vermont', 'New York City'];
+const temperature = [1, -20, 3.512];
+const humidity = [10, 20, 30];
+const pressure = [2, 10924, 3912];
+
+const data: any[] = [];
+for (let i = 0; i < 6; ++i) {
+    data.push({
+        Date: date[i % date.length],
+        Region: region[i % region.length],
+        Temperature: temperature[i % temperature.length],
+        Humidity: humidity[i % humidity.length],
+        Pressure: pressure[i % pressure.length]
+    });
+}
 
 storiesOf('DashTable/Style type condition', module)
     .add('with 1 column', () => (<DataTable
@@ -37,4 +50,89 @@ storiesOf('DashTable/Style type condition', module)
             { if: { column_type: ColumnType.Text }, background_color: 'red' },
             { if: { column_type: ColumnType.Numeric }, background_color: 'green' }
         ]}
+    />))
+    .add('row padding', () => (<DataTable
+        id='styling-2'
+        data={data}
+        columns={R.map(
+            i => ({ name: i, id: i }),
+            R.keysIn(data[0]))
+        }
+        style_data_conditional={[{
+            padding_bottom: 5,
+            padding_top: 5
+        }]}
+    />))
+    .add('dark theme with cells', () => (<DataTable
+        id='styling-6'
+        data={data}
+        columns={R.map(
+            i => ({ name: i, id: i }),
+            R.keysIn(data[0]))
+        }
+        content_style='grow'
+        style_table={{
+            width: '100%'
+        }}
+        style_data_conditional={[{
+            background_color: 'rgb(50, 50, 50)',
+            color: 'white',
+            font_family: 'arial'
+        }, {
+            if: { column_id: 'Humidity' },
+            font_family: 'monospace',
+            padding_left: 20,
+            text_align: 'left'
+        }, {
+            if: { column_id: 'Pressure' },
+            font_family: 'monospace',
+            padding_left: 20,
+            text_align: 'left'
+        }, {
+            if: { column_id: 'Temperature' },
+            font_family: 'monospace',
+            padding_left: 20,
+            text_align: 'left'
+        }]}
+    />))
+    .add('highlight columns', () => (<DataTable
+        id='styling-9'
+        data={data}
+        columns={R.map(
+            i => ({ name: i, id: i }),
+            R.keysIn(data[0]))
+        }
+        content_style='grow'
+        style_table={{
+            width: '100%'
+        }}
+        style_data_conditional={[{
+            color: 'rgb(60, 60, 60)',
+            padding_left: 20,
+            'text-align': 'left',
+            width: '20%'
+        }, {
+            if: { column_id: 'Temperature' },
+            background_color: 'yellow'
+        }]}
+    />))
+    .add('highlight cells', () => (<DataTable
+        id='styling-10'
+        data={data}
+        columns={R.map(
+            i => ({ name: i, id: i }),
+            R.keysIn(data[0]))
+        }
+        content_style='grow'
+        style_table={{
+            width: '100%'
+        }}
+        style_data_conditional={[{
+            if: { column_id: 'Region', filter: '{Region} eq Montreal' },
+            background_color: 'yellow'
+        }, {
+            if: { column_id: 'Humidity', filter: '{Humidity} eq 20' },
+            background_color: 'yellow'
+        }]}
+
     />));

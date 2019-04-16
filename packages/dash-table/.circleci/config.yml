@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-    "test-v0":
+    "test":
         docker:
             - image: circleci/python:3.6.7-node-browsers
             - image: cypress/base:10
@@ -30,20 +30,7 @@ jobs:
                     sudo pip install --upgrade virtualenv
                     python -m venv venv || virtualenv venv
                     . venv/bin/activate
-                    pip install -r requirements-base.txt --quiet
-
-            - run:
-                name: Install dependencies (dash)
-                command: |
-                    git clone git@github.com:plotly/dash.git
-                    git clone git@github.com:plotly/dash-renderer.git
-                    git clone git@github.com:plotly/dash-core-components.git
-                    git clone git@github.com:plotly/dash-html-components.git
-                    . venv/bin/activate
-                    pip install -e ./dash --quiet
-                    cd dash-renderer && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-                    cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-                    cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+                    pip install -r requirements.txt --quiet
 
             - run:
                 name: Build
@@ -57,54 +44,7 @@ jobs:
                 name: Run tests
                 command: |
                     . venv/bin/activate
-                    npm run test-v0
-
-
-    "test-v1":
-        docker:
-            - image: circleci/python:3.6.7-node-browsers
-            - image: cypress/base:10
-
-        steps:
-            - checkout
-            - restore_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
-            - run:
-                name: Install npm packages
-                command: npm install
-            - run:
-                name: Cypress Install
-                command: |
-                    $(npm bin)/cypress install
-
-            - save_cache:
-                key: deps1-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
-                paths:
-                    - node_modules
-                    - /home/circleci/.cache/Cypress
-
-            - run:
-                name: Install requirements
-                command: |
-                    sudo pip install --upgrade virtualenv
-                    python -m venv venv || virtualenv venv
-                    . venv/bin/activate
-                    pip install -r requirements-base.txt --quiet
-                    pip install -r requirements-v1.txt --quiet
-
-            - run:
-                name: Build
-                command: |
-                    . venv/bin/activate
-                    npm run private::build:js-test
-                    npm run private::build:py
-                    pip install -e .
-
-            - run:
-                name: Run tests
-                command: |
-                    . venv/bin/activate
-                    npm run test-v1
+                    npm run test
 
 
     "visual-test":
@@ -172,7 +112,7 @@ jobs:
                 when: always
 
 
-    "python-3.6-v0":
+    "python-3.6":
         docker:
             - image: circleci/python:3.6.7-stretch-node-browsers
 
@@ -224,53 +164,11 @@ jobs:
                   python -m unittest tests.dash.test_integration
 
 
-    "python-3.6-v1":
-        docker:
-            - image: circleci/python:3.6.7-stretch-node-browsers
-
-        environment:
-            PERCY_ENABLED: True
-            PERCY_PROJECT: plotly/dash-table-python-v1
-
-        steps:
-            - checkout
-
-            - run:
-                name: Inject Percy Environment variables
-                command: |
-                  echo 'export PERCY_TOKEN="$PERCY_PYTHON_TOKEN_V1"' >> $BASH_ENV
-
-            - run:
-                name: Install requirements
-                command: |
-                    sudo pip install --upgrade virtualenv
-                    python -m venv venv || virtualenv venv
-                    . venv/bin/activate
-                    pip install -r requirements-base.txt --quiet
-                    pip install -r requirements-v1.txt --quiet
-                    npm install
-
-            - run:
-                name: Install test requirements
-                command: |
-                    . venv/bin/activate
-                    npm run build
-                    pip install -e .
-
-            - run:
-                name: Run integration tests
-                command: |
-                  . venv/bin/activate
-                  python -m unittest tests.dash.test_integration
-
-
 workflows:
     version: 2
     build:
         jobs:
-            - "python-3.6-v0"
-            - "python-3.6-v1"
+            - "python-3.6"
             - "node"
-            - "test-v0"
-            - "test-v1"
+            - "test"
             - "visual-test"

@@ -232,6 +232,7 @@ export interface IUSerInterfaceTooltip {
 
 export interface IState {
     forcedResizeOnly: boolean;
+    rawFilterQuery: string;
     scrollbarWidth: number;
     tooltip?: IUSerInterfaceTooltip;
     uiViewport?: IUserInterfaceViewport;
@@ -265,8 +266,8 @@ interface IProps {
     data?: Data;
     dropdown_properties: any; // legacy
     editable?: boolean;
+    filter?: string;
     filtering?: Filtering;
-    filtering_settings?: string;
     filtering_type?: FilteringType;
     filtering_types?: FilteringType[];
     locale_format: INumberLocale;
@@ -308,8 +309,8 @@ interface IDefaultProps {
     css: IStylesheetRule[];
     data: Data;
     editable: boolean;
+    filter: string;
     filtering: Filtering;
-    filtering_settings: string;
     filtering_type: FilteringType;
     filtering_types: FilteringType[];
     merge_duplicate_headers: boolean;
@@ -344,6 +345,7 @@ interface IDefaultProps {
 }
 
 interface IDerivedProps {
+    derived_filter_structure: object | null;
     derived_viewport_data: Data;
     derived_viewport_indices: Indices;
     derived_viewport_selected_rows: Indices;

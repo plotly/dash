@@ -14,6 +14,7 @@ class App extends Component {
         super();
 
         this.state = AppState;
+        this.state.temp_filtering = '';
 
         const setProps = memoizeOne(() => {
             return newProps => {
@@ -33,15 +34,30 @@ class App extends Component {
         const mode = Environment.searchParams.get('mode');
 
         if (mode === AppMode.Filtering) {
-            return (<button
-                className='clear-filters'
-                onClick={() => {
-                    const tableProps = R.clone(this.state.tableProps);
-                    tableProps.filtering_settings = '';
+            return (
+                <div>
+                    <button
+                        className='clear-filters'
+                        onClick={() => {
+                            const tableProps = R.clone(this.state.tableProps);
+                            tableProps.filter = '';
 
-                    this.setState({ tableProps });
-                }}
-            >Clear Filter</button>);
+                            this.setState({ tableProps });
+                        }}
+                    >Clear Filter</button>
+                    <input
+                        style={{ width: '500px' }}
+                        value={this.state.temp_filtering}
+                        onChange={
+                            e => this.setState({ temp_filtering: e.target.value })
+                        }
+                        onBlur={e => {
+                            const tableProps = R.clone(this.state.tableProps);
+                            tableProps.filter = e.target.value;
+
+                            this.setState({ tableProps });
+                        }} />
+                </div>);
         }
     }
 

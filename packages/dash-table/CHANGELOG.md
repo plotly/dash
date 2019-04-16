@@ -2,6 +2,22 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Added
+[#397](https://github.com/plotly/dash-table/pull/397)
+- Improve filtering syntax and capabilities
+    - new field syntax `{myField}`
+    - short form by-column filter
+        - implicit column and `eq` operator (e.g `"value"`)
+        - implicit column (e.g `ne "value"`)
+        - explicit form (e.g `{field} ne "value"`)
+    - new `contains` relational operator for strings
+    - new readonly `derived_filter_structure` prop exposing the query structure in a programmatically friendlier way
+
+### Changed
+[#397](https://github.com/plotly/dash-table/pull/397)
+- Rename `filtering_settings` to `filter`
+
 ## [3.6.0] - 2019-03-04
 ### Fixed
 [#189](https://github.com/plotly/dash-table/issues/189)

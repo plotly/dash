@@ -2,26 +2,29 @@ import * as R from 'ramda';
 import React from 'react';
 
 import Logger from 'core/Logger';
+import { arrayMap } from 'core/math/arrayZipMap';
+import memoizerCache from 'core/cache/memoizer';
+import { memoizeOne } from 'core/memoizer';
 
 import ColumnFilter from 'dash-table/components/Filter/Column';
-import { ColumnId, Filtering, FilteringType, IVisibleColumn, VisibleColumns } from 'dash-table/components/Table/props';
-import lexer, { ILexerResult, ILexemeResult } from 'core/syntax-tree/lexer';
-import { LexemeType } from 'core/syntax-tree/lexicon';
-import syntaxer, { ISyntaxerResult, ISyntaxTree } from 'core/syntax-tree/syntaxer';
+import { ColumnId, Filtering, FilteringType, IVisibleColumn, VisibleColumns, RowSelection } from 'dash-table/components/Table/props';
 import derivedFilterStyles from 'dash-table/derived/filter/wrapperStyles';
+import derivedHeaderOperations from 'dash-table/derived/header/operations';
 import { derivedRelevantFilterStyles } from 'dash-table/derived/style';
-import { arrayMap } from 'core/math/arrayZipMap';
-import { Style, Cells, BasicFilters } from 'dash-table/derived/style/props';
+import { BasicFilters, Cells, Style } from 'dash-table/derived/style/props';
+import { MultiColumnsSyntaxTree, SingleColumnSyntaxTree, getMultiColumnQueryString, getSingleColumnMap } from 'dash-table/syntax-tree';
 
-type SetFilter = (filter: string) => void;
+type SetFilter = (filter: string, rawFilter: string) => void;
 
 export interface IFilterOptions {
     columns: VisibleColumns;
-    fillerColumns: number;
+    filter: string;
     filtering: Filtering;
-    filtering_settings: string;
     filtering_type: FilteringType;
     id: string;
+    rawFilterQuery: string;
+    row_deletable: boolean;
+    row_selectable: RowSelection;
     setFilter: SetFilter;
     style_cell: Style;
     style_cell_conditional: Cells;
@@ -31,9 +34,11 @@ export interface IFilterOptions {
 
 export default class FilterFactory {
     private readonly handlers = new Map();
-    private readonly ops = new Map<string, string>();
     private readonly filterStyles = derivedFilterStyles();
     private readonly relevantStyles = derivedRelevantFilterStyles();
+    private readonly headerOperations = derivedHeaderOperations();
+
+    private ops = new Map<string, SingleColumnSyntaxTree>();
 
     private get props() {
         return this.propsFn();
@@ -43,139 +48,90 @@ export default class FilterFactory {
 
     }
 
-    private onChange = (columnId: ColumnId, ops: Map<ColumnId, string>, setFilter: SetFilter, ev: any) => {
+    private onChange = (columnId: ColumnId, setFilter: SetFilter, ev: any) => {
         Logger.debug('Filter -- onChange', columnId, ev.target.value && ev.target.value.trim());
 
         const value = ev.target.value.trim();
+        const safeColumnId = columnId.toString();
 
         if (value && value.length) {
-            ops.set(columnId.toString(), value);
+            this.ops.set(safeColumnId, new SingleColumnSyntaxTree(safeColumnId, value));
         } else {
-            ops.delete(columnId.toString());
+            this.ops.delete(safeColumnId);
         }
 
-        setFilter(R.map(
-            ([cId, filter]) => `"${cId}" ${filter}`,
-            R.filter(
-                ([cId]) => this.isFragmentValid(cId),
-                Array.from(ops.entries())
-            )
-        ).join(' && '));
+        const asts = Array.from(this.ops.values());
+        const globalFilter = getMultiColumnQueryString(asts);
+
+        const rawGlobalFilter = R.map(
+            ast => ast.query || '',
+            R.filter(ast => Boolean(ast), asts)
+        ).join(' && ');
+
+        setFilter(globalFilter, rawGlobalFilter);
     }
 
-    private getEventHandler = (fn: Function, columnId: ColumnId, ops: Map<ColumnId, string>, setFilter: SetFilter): any => {
+    private getEventHandler = (fn: Function, columnId: ColumnId, setFilter: SetFilter): any => {
         const fnHandler = (this.handlers.get(fn) || this.handlers.set(fn, new Map()).get(fn));
         const columnIdHandler = (fnHandler.get(columnId) || fnHandler.set(columnId, new Map()).get(columnId));
 
         return (
             columnIdHandler.get(setFilter) ||
-            (columnIdHandler.set(setFilter, fn.bind(this, columnId, ops, setFilter)).get(setFilter))
+            (columnIdHandler.set(setFilter, fn.bind(this, columnId, setFilter)).get(setFilter))
         );
     }
 
-    private respectsBasicSyntax(lexemes: ILexemeResult[], allowMultiple: boolean = true) {
-        const allowedLexemeTypes = [
-            LexemeType.BinaryOperator,
-            LexemeType.Expression,
-            LexemeType.Operand,
-            LexemeType.UnaryOperator
-        ];
+    private updateOps = memoizeOne((query: string) => {
+        const multiQuery = new MultiColumnsSyntaxTree(query);
 
-        if (allowMultiple) {
-            allowedLexemeTypes.push(LexemeType.And);
-        }
-
-        const allAllowed = R.all(
-            item => R.contains(item.lexeme.name, allowedLexemeTypes),
-            lexemes
-        );
-
-        if (!allAllowed) {
-            return false;
-        }
-
-        const fields = R.map(
-            item => item.value,
-            R.filter(
-                i => i.lexeme.name === LexemeType.Operand,
-                lexemes
-            )
-        );
-
-        const uniqueFields = R.uniq(fields);
-
-        if (fields.length !== uniqueFields.length) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private isBasicFilter(
-        lexerResult: ILexerResult,
-        syntaxerResult: ISyntaxerResult,
-        allowMultiple: boolean = true
-    ) {
-        return lexerResult.valid &&
-            syntaxerResult.valid &&
-            this.respectsBasicSyntax(lexerResult.lexemes, allowMultiple);
-    }
-
-    private updateOps(query: string) {
-        const lexerResult = lexer(query);
-        const syntaxerResult = syntaxer(lexerResult);
-
-        if (!this.isBasicFilter(lexerResult, syntaxerResult)) {
+        const newOps = getSingleColumnMap(multiQuery);
+        if (!newOps) {
             return;
         }
 
-        const { tree } = syntaxerResult;
-        if (!tree) {
-            this.ops.clear();
-            return;
-        }
+        /* Mapping multi-column to single column queries will expand
+         * compressed forms. If the new ast query is equal to the
+         * old one, keep the old one instead.
+         *
+         * If the value was changed by the user, the current ast will
+         * have been modified already and the UI experience will also
+         * be consistent in that case.
+         */
+        R.forEach(([key, ast]) => {
+            const newAst = newOps.get(key);
 
-        const toCheck: (ISyntaxTree | undefined)[] = [tree];
-        while (toCheck.length) {
-            const item = toCheck.pop();
-            if (!item) {
-                continue;
+            if (newAst && newAst.toQueryString() === ast.toQueryString()) {
+                newOps.set(key, ast);
             }
+        }, Array.from(this.ops.entries()));
 
-            if (item.lexeme.name === LexemeType.UnaryOperator && item.block) {
-                this.ops.set(item.block.value, item.value);
-            } else if (item.lexeme.name === LexemeType.BinaryOperator && item.left && item.right) {
-                this.ops.set(item.left.value, `${item.value} ${item.right.value}`);
-            } else {
-                toCheck.push(item.left);
-                toCheck.push(item.block);
-                toCheck.push(item.right);
-            }
-        }
-    }
+        this.ops = newOps;
+    });
 
-    private isFragmentValidOrNull(columnId: ColumnId) {
-        const op = this.ops.get(columnId.toString());
-
-        return !op || !op.trim().length || this.isFragmentValid(columnId);
-    }
-
-    private isFragmentValid(columnId: ColumnId) {
-        const op = this.ops.get(columnId.toString());
-
-        const lexerResult = lexer(`"${columnId}" ${op}`);
-        const syntaxerResult = syntaxer(lexerResult);
-
-        return syntaxerResult.valid && this.isBasicFilter(lexerResult, syntaxerResult, false);
-    }
+    private filter = memoizerCache<[ColumnId, number]>()((
+        column: ColumnId,
+        index: number,
+        ast: SingleColumnSyntaxTree | undefined,
+        setFilter: SetFilter
+    ) => {
+        return (<ColumnFilter
+            key={`column-${index}`}
+            classes={`dash-filter column-${index}`}
+            columnId={column}
+            isValid={!ast || ast.isValid}
+            setFilter={this.getEventHandler(this.onChange, column, setFilter)}
+            value={ast && ast.query}
+        />);
+    });
 
     public createFilters() {
         const {
             columns,
-            fillerColumns,
+            filter,
             filtering,
-            filtering_settings,
             filtering_type,
+            row_deletable,
+            row_selectable,
             setFilter,
             style_cell,
             style_cell_conditional,
@@ -187,7 +143,7 @@ export default class FilterFactory {
             return [];
         }
 
-        this.updateOps(filtering_settings);
+        this.updateOps(filter);
 
         if (filtering_type === FilteringType.Basic) {
             const filterStyles = this.relevantStyles(
@@ -203,14 +159,12 @@ export default class FilterFactory {
             );
 
             const filters = R.addIndex<IVisibleColumn, JSX.Element>(R.map)((column, index) => {
-                return (<ColumnFilter
-                    key={`column-${index}`}
-                    classes={`dash-filter column-${index}`}
-                    columnId={column.id}
-                    isValid={this.isFragmentValidOrNull(column.id)}
-                    setFilter={this.getEventHandler(this.onChange, column.id, this.ops, setFilter)}
-                    value={this.ops.get(column.id.toString())}
-                />);
+                return this.filter.get(column.id, index)(
+                    column.id,
+                    index,
+                    this.ops.get(column.id.toString()),
+                    setFilter
+                );
             }, columns);
 
             const styledFilters = arrayMap(
@@ -218,9 +172,13 @@ export default class FilterFactory {
                 wrapperStyles,
                     (f, s) => React.cloneElement(f, { style: s }));
 
-            const offsets = R.range(0, fillerColumns).map(i => (<th key={`offset-${i}`} />));
+            const operations = this.headerOperations(
+                1,
+                row_selectable,
+                row_deletable
+            )[0];
 
-            return [offsets.concat(styledFilters)];
+            return [operations.concat(styledFilters)];
         } else {
             return [[]];
         }

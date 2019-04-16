@@ -2,7 +2,6 @@ import * as R from 'ramda';
 
 import { memoizeOne } from 'core/memoizer';
 import memoizerCache from 'core/cache/memoizer';
-import SyntaxTree from 'core/syntax-tree';
 
 import {
     IConditionalDropdown
@@ -18,6 +17,7 @@ import {
     IBaseVisibleColumn,
     IVisibleColumn
 } from 'dash-table/components/Table/props';
+import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 
 const mapData = R.addIndex<Datum, (DropdownValues | undefined)[]>(R.map);
 
@@ -116,13 +116,13 @@ class Dropdowns {
      */
     private readonly ast = memoizerCache<[ColumnId, number]>()((
         query: string
-    ) => new SyntaxTree(query));
+    ) => new QuerySyntaxTree(query));
 
     /**
      * Evaluate if the query matches the cell's data.
      */
     private readonly evaluation = memoizerCache<[ColumnId, number]>()((
-        ast: SyntaxTree,
+        ast: QuerySyntaxTree,
         datum: Datum
     ) => ast.evaluate(datum));
 }

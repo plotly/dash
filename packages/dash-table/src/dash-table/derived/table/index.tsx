@@ -1,43 +1,21 @@
+import * as R from 'ramda';
+
+import { memoizeOne } from 'core/memoizer';
+
 import CellFactory from 'dash-table/components/CellFactory';
 import FilterFactory from 'dash-table/components/FilterFactory';
 import HeaderFactory from 'dash-table/components/HeaderFactory';
-import { ControlledTableProps, SetProps } from 'dash-table/components/Table/props';
+import { ControlledTableProps, SetProps, SetState } from 'dash-table/components/Table/props';
 
-const handleSetFilter = (setProps: SetProps, filtering_settings: string) => setProps({ filtering_settings });
+const handleSetFilter = (setProps: SetProps, setState: SetState, filter: string, rawFilterQuery: string) => {
+    setProps({ filter });
+    setState({ rawFilterQuery });
+};
 
-function filterPropsFn(propsFn: () => ControlledTableProps) {
-    const {
-        columns,
-        filtering,
-        filtering_settings,
-        filtering_type,
-        id,
-        row_deletable,
-        row_selectable,
-        setProps,
-        style_cell,
-        style_cell_conditional,
-        style_filter,
-        style_filter_conditional
-    } = propsFn();
+function filterPropsFn(propsFn: () => ControlledTableProps, setFilter: any) {
+    const props = propsFn();
 
-    const fillerColumns =
-        (row_deletable ? 1 : 0) +
-        (row_selectable ? 1 : 0);
-
-    return {
-        columns,
-        fillerColumns,
-        filtering,
-        filtering_settings,
-        filtering_type,
-        id,
-        setFilter: handleSetFilter.bind(undefined, setProps),
-        style_cell,
-        style_cell_conditional,
-        style_filter,
-        style_filter_conditional
-    };
+    return R.merge(props, { setFilter });
 }
 
 function getter(
@@ -59,8 +37,17 @@ function getter(
 }
 
 export default (propsFn: () => ControlledTableProps) => {
+    const setFilter = memoizeOne((
+        setProps: SetProps,
+        setState: SetState
+    ) => handleSetFilter.bind(undefined, setProps, setState));
+
     const cellFactory = new CellFactory(propsFn);
-    const filterFactory = new FilterFactory(() => filterPropsFn(propsFn));
+    const filterFactory = new FilterFactory(() => {
+        const props = propsFn();
+
+        return filterPropsFn(propsFn, setFilter(props.setProps, props.setState));
+    });
     const headerFactory = new HeaderFactory(propsFn);
 
     return getter.bind(undefined, cellFactory, filterFactory, headerFactory);

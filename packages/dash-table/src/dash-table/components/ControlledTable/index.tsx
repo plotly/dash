@@ -29,6 +29,8 @@ import { derivedTableStyle } from 'dash-table/derived/style';
 import { IStyle } from 'dash-table/derived/style/props';
 import TableTooltip from './fragments/TableTooltip';
 
+import queryLexicon from 'dash-table/syntax-tree/lexicon/query';
+
 const sortNumerical = R.sort<number>((a, b) => a - b);
 
 const DEFAULT_STYLE = {
@@ -50,12 +52,12 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         this.updateStylesheet();
     }
 
-    getLexerResult = memoizeOne(lexer);
+    getLexerResult = memoizeOne(lexer.bind(undefined, queryLexicon));
 
     get lexerResult() {
-        const { filtering_settings } = this.props;
+        const { filter } = this.props;
 
-        return this.getLexerResult(filtering_settings);
+        return this.getLexerResult(filter);
     }
 
     private updateStylesheet() {
@@ -533,7 +535,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             columns,
             data,
             editable,
-            filtering_settings,
+            filter,
             setProps,
             sorting_settings,
             viewport
@@ -550,7 +552,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             columns,
             data,
             true,
-            !sorting_settings.length || !filtering_settings.length
+            !sorting_settings.length || !filter.length
         );
 
         if (result) {

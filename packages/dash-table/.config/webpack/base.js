@@ -44,6 +44,10 @@ module.exports = (preprocessor = {}, mode = 'development') => {
                     loader: 'file-loader?name=index.[ext]'
                 },
                 {
+                    test: /\.csv$/,
+                    loader: 'raw-loader'
+                },
+                {
                     test: /\.ts(x?)$/,
                     exclude: /node_modules/,
                     loader: `babel-loader!ts-loader!webpack-preprocessor?${JSON.stringify(preprocessor)}`

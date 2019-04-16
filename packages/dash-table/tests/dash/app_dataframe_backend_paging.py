@@ -141,7 +141,7 @@ def layout():
                 pagination_mode='be',
 
                 filtering='be',
-                filtering_settings=''
+                filter=''
             ),
 
             section_title('Backend Paging with Filtering and Multi-Column Sorting'),
@@ -158,7 +158,7 @@ def layout():
                 pagination_mode='be',
 
                 filtering='be',
-                filtering_settings='',
+                filter='',
 
                 sorting='be',
                 sorting_type='multi',
@@ -188,7 +188,7 @@ def layout():
                             pagination_mode='be',
 
                             filtering='be',
-                            filtering_settings='',
+                            filter='',
 
                             sorting='be',
                             sorting_type='multi',
@@ -269,10 +269,10 @@ def update_graph(pagination_settings, sorting_settings):
 @app.callback(
     Output(IDS["table-filtering"], "data"),
     [Input(IDS["table-filtering"], "pagination_settings"),
-     Input(IDS["table-filtering"], "filtering_settings")])
-def update_graph(pagination_settings, filtering_settings):
-    print(filtering_settings)
-    filtering_expressions = filtering_settings.split(' && ')
+     Input(IDS["table-filtering"], "filter")])
+def update_graph(pagination_settings, filter):
+    print(filter)
+    filtering_expressions = filter.split(' && ')
     dff = df
     for filter in filtering_expressions:
         if ' eq ' in filter:
@@ -298,9 +298,9 @@ def update_graph(pagination_settings, filtering_settings):
     Output(IDS["table-sorting-filtering"], "data"),
     [Input(IDS["table-sorting-filtering"], "pagination_settings"),
      Input(IDS["table-sorting-filtering"], "sorting_settings"),
-     Input(IDS["table-sorting-filtering"], "filtering_settings")])
-def update_graph(pagination_settings, sorting_settings, filtering_settings):
-    filtering_expressions = filtering_settings.split(' && ')
+     Input(IDS["table-sorting-filtering"], "filter")])
+def update_graph(pagination_settings, sorting_settings, filter):
+    filtering_expressions = filter.split(' && ')
     dff = df
     for filter in filtering_expressions:
         if ' eq ' in filter:
@@ -336,9 +336,9 @@ def update_graph(pagination_settings, sorting_settings, filtering_settings):
     Output(IDS["table-paging-with-graph"], "data"),
     [Input(IDS["table-paging-with-graph"], "pagination_settings"),
      Input(IDS["table-paging-with-graph"], "sorting_settings"),
-     Input(IDS["table-paging-with-graph"], "filtering_settings")])
-def update_table(pagination_settings, sorting_settings, filtering_settings):
-    filtering_expressions = filtering_settings.split(' && ')
+     Input(IDS["table-paging-with-graph"], "filter")])
+def update_table(pagination_settings, sorting_settings, filter):
+    filtering_expressions = filter.split(' && ')
     dff = df
     for filter in filtering_expressions:
         if ' eq ' in filter:
