@@ -738,7 +738,7 @@ class TestGenerateClass(unittest.TestCase):
         if hasattr(inspect, 'signature'):
             self.assertEqual(
                 [str(x) for x in inspect.getargspec(__init__func).defaults],
-                ['None'] + ['undefined'] * 19
+                ['None'] + ['undefined'] * 20
             )
 
     def test_required_props(self):
