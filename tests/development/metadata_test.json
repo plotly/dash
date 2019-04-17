@@ -137,9 +137,9 @@
       "required": false,
       "description": ""
     },
-    "optionalObjectWithShapeAndNestedDescription": {
+    "optionalObjectWithExactAndNestedDescription": {
       "type": {
-        "name": "shape",
+        "name": "exact",
         "value": {
           "color": {
             "name": "string",
@@ -174,9 +174,9 @@
       "required": false,
       "description": ""
     },
-    "optionalObjectWithExactAndNestedDescription": {
+    "optionalObjectWithShapeAndNestedDescription": {
       "type": {
-        "name": "exact",
+        "name": "shape",
         "value": {
           "color": {
             "name": "string",

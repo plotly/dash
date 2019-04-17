@@ -21,7 +21,7 @@ Keyword arguments:
 - optionalUnion (string | number; optional)
 - optionalArrayOf (list; optional)
 - optionalObjectOf (dict with strings as keys and values of type number; optional)
-- optionalObjectWithShapeAndNestedDescription (optional): . optionalObjectWithShapeAndNestedDescription has the following type: dict containing keys 'color', 'fontSize', 'figure'.
+- optionalObjectWithExactAndNestedDescription (optional): . optionalObjectWithExactAndNestedDescription has the following type: dict containing keys 'color', 'fontSize', 'figure'.
 Those keys have the following types:
   - color (string; optional)
   - fontSize (number; optional)
@@ -29,7 +29,7 @@ Those keys have the following types:
 Those keys have the following types:
   - data (list; optional): data is a collection of traces
   - layout (dict; optional): layout describes the rest of the figure
-- optionalObjectWithExactAndNestedDescription (optional): . optionalObjectWithShapeAndNestedDescription has the following type: dict containing keys 'color', 'fontSize', 'figure'.
+- optionalObjectWithShapeAndNestedDescription (optional): . optionalObjectWithShapeAndNestedDescription has the following type: dict containing keys 'color', 'fontSize', 'figure'.
 Those keys have the following types:
   - color (string; optional)
   - fontSize (number; optional)

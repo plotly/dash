@@ -718,8 +718,8 @@ class TestGenerateClass(unittest.TestCase):
              'optionalUnion',
              'optionalArrayOf',
              'optionalObjectOf',
-             'optionalObjectWithShapeAndNestedDescription',
              'optionalObjectWithExactAndNestedDescription',
+             'optionalObjectWithShapeAndNestedDescription',
              'optionalAny',
              'customProp',
              'customArrayProp',
@@ -795,7 +795,7 @@ class TestMetaDataConversions(unittest.TestCase):
             ['optionalObjectOf',
              'dict with strings as keys and values of type number'],
 
-            ['optionalObjectWithShapeAndNestedDescription', '\n'.join([
+            ['optionalObjectWithExactAndNestedDescription', '\n'.join([
 
                 "dict containing keys 'color', 'fontSize', 'figure'.",
                 "Those keys have the following types:",
@@ -808,7 +808,7 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ])],
 
-            ['optionalObjectWithExactAndNestedDescription', '\n'.join([
+            ['optionalObjectWithShapeAndNestedDescription', '\n'.join([
 
                 "dict containing keys 'color', 'fontSize', 'figure'.",
                 "Those keys have the following types:",
@@ -882,8 +882,8 @@ def assert_docstring(assertEqual, docstring):
             "- optionalObjectOf (dict with strings as keys and values "
             "of type number; optional)",
 
-            "- optionalObjectWithShapeAndNestedDescription (optional): . "
-            "optionalObjectWithShapeAndNestedDescription has the "
+            "- optionalObjectWithExactAndNestedDescription (optional): . "
+            "optionalObjectWithExactAndNestedDescription has the "
             "following type: dict containing keys "
             "'color', 'fontSize', 'figure'.",
 
@@ -901,8 +901,8 @@ def assert_docstring(assertEqual, docstring):
             "  - layout (dict; optional): layout describes "
             "the rest of the figure",
 
-            "- optionalObjectWithExactAndNestedDescription (optional): . "
-            "optionalObjectWithExactAndNestedDescription has the "
+            "- optionalObjectWithShapeAndNestedDescription (optional): . "
+            "optionalObjectWithShapeAndNestedDescription has the "
             "following type: dict containing keys "
             "'color', 'fontSize', 'figure'.",
 
