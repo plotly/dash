@@ -718,6 +718,7 @@ class TestGenerateClass(unittest.TestCase):
              'optionalUnion',
              'optionalArrayOf',
              'optionalObjectOf',
+             'optionalObjectWithExactAndNestedDescription',
              'optionalObjectWithShapeAndNestedDescription',
              'optionalAny',
              'customProp',
@@ -737,7 +738,7 @@ class TestGenerateClass(unittest.TestCase):
         if hasattr(inspect, 'signature'):
             self.assertEqual(
                 [str(x) for x in inspect.getargspec(__init__func).defaults],
-                ['None'] + ['undefined'] * 19
+                ['None'] + ['undefined'] * 20
             )
 
     def test_required_props(self):
@@ -793,6 +794,19 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['optionalObjectOf',
              'dict with strings as keys and values of type number'],
+
+            ['optionalObjectWithExactAndNestedDescription', '\n'.join([
+
+                "dict containing keys 'color', 'fontSize', 'figure'.",
+                "Those keys have the following types:",
+                "  - color (string; optional)",
+                "  - fontSize (number; optional)",
+                "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
+                "Those keys have the following types:",
+                "  - data (list; optional): data is a collection of traces",
+                "  - layout (dict; optional): layout describes the rest of the figure"  # noqa: E501
+
+            ])],
 
             ['optionalObjectWithShapeAndNestedDescription', '\n'.join([
 
@@ -867,6 +881,25 @@ def assert_docstring(assertEqual, docstring):
 
             "- optionalObjectOf (dict with strings as keys and values "
             "of type number; optional)",
+
+            "- optionalObjectWithExactAndNestedDescription (optional): . "
+            "optionalObjectWithExactAndNestedDescription has the "
+            "following type: dict containing keys "
+            "'color', 'fontSize', 'figure'.",
+
+            "Those keys have the following types:",
+            "  - color (string; optional)",
+            "  - fontSize (number; optional)",
+
+            "  - figure (optional): Figure is a plotly graph object. "
+            "figure has the following type: dict containing "
+            "keys 'data', 'layout'.",
+
+            "Those keys have the following types:",
+            "  - data (list; optional): data is a collection of traces",
+
+            "  - layout (dict; optional): layout describes "
+            "the rest of the figure",
 
             "- optionalObjectWithShapeAndNestedDescription (optional): . "
             "optionalObjectWithShapeAndNestedDescription has the "
