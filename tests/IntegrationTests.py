@@ -1,5 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 import dash
 import dash_core_components
 import dash_core_components as dcc
@@ -12,25 +10,29 @@ import unittest
 import os
 import sys
 
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
 
 class IntegrationTests(unittest.TestCase):
 
-    def percy_snapshot(cls, name=''):
+
+    def percy_snapshot(self, name=''):
         snapshot_name = '{} - py{}.{}'.format(name, sys.version_info.major, sys.version_info.minor)
         print(snapshot_name)
-        cls.percy_runner.snapshot(
+        self.percy_runner.snapshot(
             name=snapshot_name
         )
-        cls.driver.save_screenshot('/tmp/artifacts/{}.png'.format(name))
+        self.driver.save_screenshot('/tmp/artifacts/{}.png'.format(name))
 
     @classmethod
     def setUpClass(cls):
         super(IntegrationTests, cls).setUpClass()
         cls.driver = webdriver.Chrome()
 
-        loader = percy.ResourceLoader(
-          webdriver=cls.driver
-        )
+        loader = percy.ResourceLoader(webdriver=cls.driver)
         cls.percy_runner = percy.Runner(loader=loader)
 
         cls.percy_runner.initialize_build()
@@ -42,15 +44,15 @@ class IntegrationTests(unittest.TestCase):
         cls.driver.quit()
         cls.percy_runner.finalize_build()
 
-    def setUp(s):
+    def setUp(self):
         pass
 
-    def tearDown(s):
+    def tearDown(self):
         time.sleep(2)
-        s.server_process.terminate()
+        self.server_process.terminate()
         time.sleep(2)
 
-    def startServer(s, dash, **kwargs):
+    def startServer(self, dash, **kwargs):
         def run():
             dash.scripts.config.serve_locally = True
             dash.css.config.serve_locally = True
@@ -64,12 +66,12 @@ class IntegrationTests(unittest.TestCase):
             dash.run_server(**kws)
 
         # Run on a separate process so that it doesn't block
-        s.server_process = multiprocessing.Process(target=run)
-        s.server_process.start()
+        self.server_process = multiprocessing.Process(target=run)
+        self.server_process.start()
         time.sleep(0.5)
 
         # Visit the dash page
-        s.driver.get('http://localhost:8050')
+        self.driver.get('http://localhost:8050')
         time.sleep(0.5)
 
         # Inject an error and warning logger
@@ -96,4 +98,4 @@ class IntegrationTests(unittest.TestCase):
             return _error.apply(console, arguments);
         };
         '''
-        s.driver.execute_script(logger)
+        self.driver.execute_script(logger)
