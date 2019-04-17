@@ -28,20 +28,22 @@ import plotly
 import requests
 
 
+TIMEOUT = 20
+
+
 class Tests(IntegrationTests):
     def setUp(self):
         pass
 
-    def wait_for_style_to_equal(self, selector, style, assertion_style,
-                                timeout=20):
+    def wait_for_style_to_equal(self, selector, style, assertion_style, timeout=TIMEOUT):
         start = time.time()
         exception = Exception('Time ran out, {} on {} not found'.format(
             assertion_style, selector))
         while time.time() < start + timeout:
             element = self.wait_for_element_by_css_selector(selector)
             try:
-                self.assertEqual(assertion_style,
-                                 element.value_of_css_property(style))
+                self.assertEqual(
+                    assertion_style, element.value_of_css_property(style))
             except Exception as e:
                 exception = e
             else:
@@ -2454,6 +2456,46 @@ class Tests(IntegrationTests):
         self.percy_snapshot('devtools - validation exception - closed')
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - validation exception - open')
+
+
+    def test_dev_tools_disable_props_check_config(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.P(id='tcid', children='Hello Props Check'),
+            dcc.Graph(id='broken', animate=3),  # error ignored by disable
+        ])
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+            dev_tools_props_check=False
+        )
+
+        self.wait_for_text_to_equal('#tcid', "Hello Props Check")
+        self.assertTrue(
+            self.driver.find_elements_by_css_selector('#broken svg.main-svg'),
+            "graph should be rendered")
+        self.percy_snapshot('devtools - disable props check - Graph should render')
+
+
+    def test_dev_tools_disable_ui_config(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.P(id='tcid', children='Hello Disable UI'),
+            dcc.Graph(id='broken', animate=3),  # error ignored by disable
+        ])
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+            dev_tools_ui=False
+        )
 
 
     def test_devtools_validation_errors_creation(self):
