@@ -829,7 +829,6 @@ class Tests(IntegrationTests):
         state = lambda: self.driver.find_element_by_id('state')
 
         # callback gets called with initial input
-        self.assertEqual(call_count.value, 1)
         self.assertEqual(
             output().text,
             'input="Initial Input", state="Initial State"'
