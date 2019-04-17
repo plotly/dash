@@ -102,7 +102,6 @@ class IntegrationTests(unittest.TestCase):
         cnt, poll = 0, 0.1
         while not logs:
             logs = self.get_log()
-            print(cnt, ' => ', logs)
             time.sleep(poll)
             cnt += 1
             if cnt * poll >= timeout * 1000:
