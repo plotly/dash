@@ -176,7 +176,7 @@
     },
     "optionalObjectWithExactAndNestedDescription": {
       "type": {
-        "name": "shape",
+        "name": "exact",
         "value": {
           "color": {
             "name": "string",
