@@ -48,7 +48,7 @@ class Tests(IntegrationTests):
                 exception = e
             else:
                 return
-            time.sleep(0.25)
+            time.sleep(0.1)
 
         raise exception
 
@@ -1857,6 +1857,7 @@ class Tests(IntegrationTests):
         hot_reload_file = os.path.join(
             os.path.dirname(__file__), 'test_assets', 'hot_reload.css')
 
+        self.percy_snapshot('hot reload ----debug ')
         self.wait_for_style_to_equal(
             '#hot-reload-content', 'background-color', 'rgba(0, 0, 255, 1)'
         )
