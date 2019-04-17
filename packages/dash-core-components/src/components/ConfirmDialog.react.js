@@ -21,7 +21,12 @@ export default class ConfirmDialog extends Component {
     }
 
     _update(shouldTriggerDisplay) {
-        const {message, setProps, cancel_n_clicks, submit_n_clicks} = this.props;
+        const {
+            message,
+            setProps,
+            cancel_n_clicks,
+            submit_n_clicks,
+        } = this.props;
 
         if (shouldTriggerDisplay) {
             new Promise(resolve => resolve(window.confirm(message))).then(
