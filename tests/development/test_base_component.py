@@ -719,6 +719,7 @@ class TestGenerateClass(unittest.TestCase):
              'optionalArrayOf',
              'optionalObjectOf',
              'optionalObjectWithShapeAndNestedDescription',
+             'optionalObjectWithExactAndNestedDescription',
              'optionalAny',
              'customProp',
              'customArrayProp',
