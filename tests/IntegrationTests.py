@@ -90,11 +90,25 @@ class IntegrationTests(unittest.TestCase):
 
     def clear_log(self):
         entries = self.driver.get_log("browser")
-
         if entries:
             self.last_timestamp = entries[-1]["timestamp"]
 
     def get_log(self):
         entries = self.driver.get_log("browser")
-
         return [entry for entry in entries if entry["timestamp"] > self.last_timestamp]
+
+    def wait_until_get_log(self, timeout=10):
+        logs = None
+        cnt, poll = 0, 0.1
+        while not logs:
+            logs = self.get_log()
+            print(cnt, ' => ', logs)
+            time.sleep(poll)
+            cnt += 1
+            if cnt * poll >= timeout * 1000:
+                raise TimeoutError('cannot get log in {}'.format(timeout))
+
+        return logs
+
+    def is_console_clean(self):
+        return not self.get_log()
