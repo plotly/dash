@@ -448,19 +448,20 @@ def map_js_to_py_types_prop_types(type_object):
 
     def shape_or_exact():
         return 'dict containing keys {}.\n{}'.format(
-        ', '.join(
-            "'{}'".format(t)
-            for t in list(type_object['value'].keys())),
-        'Those keys have the following types:\n{}'.format(
-            '\n'.join(
-                create_prop_docstring(
-                    prop_name=prop_name,
-                    type_object=prop,
-                    required=prop['required'],
-                    description=prop.get('description', ''),
-                    indent_num=1
-                ) for prop_name, prop in
-                list(type_object['value'].items()))))
+            ', '.join(
+                "'{}'".format(t) for t in list(type_object['value'].keys())
+            ),
+            'Those keys have the following types:\n{}'.format(
+                '\n'.join(
+                    create_prop_docstring(
+                        prop_name=prop_name,
+                        type_object=prop,
+                        required=prop['required'],
+                        description=prop.get('description', ''),
+                        indent_num=1
+                    ) for prop_name, prop in
+                    list(type_object['value'].items())))
+            )
 
     return dict(
         array=lambda: 'list',
