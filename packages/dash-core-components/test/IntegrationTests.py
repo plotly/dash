@@ -71,9 +71,12 @@ class IntegrationTests(unittest.TestCase):
             app.css.config.serve_locally = True
             app.run_server(
                 port=8050,
-                debug=False,
                 processes=processes,
                 threaded=False,
+                debug=True,
+                use_reloader=False,
+                use_debugger=True,
+                dev_tools_hot_reload=False,
             )
 
         def run_windows():
