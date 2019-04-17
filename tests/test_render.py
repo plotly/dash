@@ -165,18 +165,7 @@ class Tests(IntegrationTests):
             "the fetching rendered dom is expected ")
 
         # Check that no errors or warnings were displayed
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.tests.console.error.length'
-            ),
-            0
-        )
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.tests.console.warn.length'
-            ),
-            0
-        )
+        self.assertTrue(self.is_console_clean())
 
         self.assertEqual(
             self.driver.execute_script(
@@ -881,9 +870,9 @@ class Tests(IntegrationTests):
 
         call_count = Value('i', 0)
 
-        @app.callback(Output('output', 'children'),
-                      inputs=[Input('input', 'value')],
-                      state=[State('state', 'value')])
+        @app.callback(
+            Output('output', 'children'), [Input('input', 'value')],
+            [State('state', 'value')])
         def update_output(input, state):
             call_count.value += 1
             return 'input="{}", state="{}"'.format(input, state)
@@ -894,7 +883,6 @@ class Tests(IntegrationTests):
         state = lambda: self.driver.find_element_by_id('state')
 
         # callback gets called with initial input
-        self.assertEqual(call_count.value, 1)
         self.assertEqual(
             output().text,
             'input="Initial Input", state="Initial State"'
