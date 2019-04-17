@@ -28,12 +28,6 @@ import plotly
 import requests
 
 
-TIMEOUT = 20
-
-
-TIMEOUT = 20
-
-
 class Tests(IntegrationTests):
     def setUp(self):
         pass
