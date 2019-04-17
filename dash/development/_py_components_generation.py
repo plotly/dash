@@ -446,7 +446,8 @@ def create_prop_docstring(prop_name, type_object, required, description,
 def map_js_to_py_types_prop_types(type_object):
     """Mapping from the PropTypes js type object to the Python type"""
 
-    shape_or_exact = lambda: 'dict containing keys {}.\n{}'.format(
+    def shape_or_exact():
+        return 'dict containing keys {}.\n{}'.format(
         ', '.join(
             "'{}'".format(t)
             for t in list(type_object['value'].keys())),
