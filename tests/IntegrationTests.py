@@ -18,6 +18,8 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class IntegrationTests(unittest.TestCase):
 
+    last_timestamp = 0
+
 
     def percy_snapshot(self, name=''):
         snapshot_name = '{} - py{}.{}'.format(name, sys.version_info.major, sys.version_info.minor)
@@ -30,7 +32,16 @@ class IntegrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super(IntegrationTests, cls).setUpClass()
-        cls.driver = webdriver.Chrome()
+
+        options = Options()
+        capabilities = DesiredCapabilities.CHROME
+        capabilities['loggingPrefs'] = {'browser': 'SEVERE'}
+
+        if 'DASH_TEST_CHROMEPATH' in os.environ:
+            options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
+
+        cls.driver = webdriver.Chrome(
+            options=options, desired_capabilities=capabilities)
 
         loader = percy.ResourceLoader(webdriver=cls.driver)
         cls.percy_runner = percy.Runner(loader=loader)
@@ -52,6 +63,9 @@ class IntegrationTests(unittest.TestCase):
         self.server_process.terminate()
         time.sleep(2)
 
+        self.clear_log()
+        time.sleep(1)
+
     def startServer(self, dash, **kwargs):
         def run():
             dash.scripts.config.serve_locally = True
@@ -71,31 +85,16 @@ class IntegrationTests(unittest.TestCase):
         time.sleep(0.5)
 
         # Visit the dash page
+        self.driver.implicitly_wait(2)
         self.driver.get('http://localhost:8050')
-        time.sleep(0.5)
 
-        # Inject an error and warning logger
-        logger = '''
-        window.tests = {};
-        window.tests.console = {error: [], warn: [], log: []};
+    def clear_log(self):
+        entries = self.driver.get_log("browser")
 
-        var _log = console.log;
-        var _warn = console.warn;
-        var _error = console.error;
+        if entries:
+            self.last_timestamp = entries[-1]["timestamp"]
 
-        console.log = function() {
-            window.tests.console.log.push({method: 'log', arguments: arguments});
-            return _log.apply(console, arguments);
-        };
+    def get_log(self):
+        entries = self.driver.get_log("browser")
 
-        console.warn = function() {
-            window.tests.console.warn.push({method: 'warn', arguments: arguments});
-            return _warn.apply(console, arguments);
-        };
-
-        console.error = function() {
-            window.tests.console.error.push({method: 'error', arguments: arguments});
-            return _error.apply(console, arguments);
-        };
-        '''
-        self.driver.execute_script(logger)
+        return [entry for entry in entries if entry["timestamp"] > self.last_timestamp]
