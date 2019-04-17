@@ -1848,7 +1848,6 @@ class Tests(IntegrationTests):
 
         self.startServer(
             app,
-            use_reloader=True,
             dev_tools_hot_reload=True,
             dev_tools_hot_reload_interval=100,
             dev_tools_hot_reload_max_retry=30,
@@ -1857,7 +1856,6 @@ class Tests(IntegrationTests):
         hot_reload_file = os.path.join(
             os.path.dirname(__file__), 'test_assets', 'hot_reload.css')
 
-        self.percy_snapshot('hot reload ----debug ')
         self.wait_for_style_to_equal(
             '#hot-reload-content', 'background-color', 'rgba(0, 0, 255, 1)'
         )
