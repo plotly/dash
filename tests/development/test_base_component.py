@@ -807,6 +807,19 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ])],
 
+            ['optionalObjectWithExactAndNestedDescription', '\n'.join([
+
+                "dict containing keys 'color', 'fontSize', 'figure'.",
+                "Those keys have the following types:",
+                "  - color (string; optional)",
+                "  - fontSize (number; optional)",
+                "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
+                "Those keys have the following types:",
+                "  - data (list; optional): data is a collection of traces",
+                "  - layout (dict; optional): layout describes the rest of the figure"  # noqa: E501
+
+            ])],
+
             ['optionalAny', 'boolean | number | string | dict | list'],
 
             ['customProp', ''],

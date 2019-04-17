@@ -445,6 +445,22 @@ def create_prop_docstring(prop_name, type_object, required, description,
 
 def map_js_to_py_types_prop_types(type_object):
     """Mapping from the PropTypes js type object to the Python type"""
+
+    shape_or_exact = lambda: 'dict containing keys {}.\n{}'.format(
+        ', '.join(
+            "'{}'".format(t)
+            for t in list(type_object['value'].keys())),
+        'Those keys have the following types:\n{}'.format(
+            '\n'.join(
+                create_prop_docstring(
+                    prop_name=prop_name,
+                    type_object=prop,
+                    required=prop['required'],
+                    description=prop.get('description', ''),
+                    indent_num=1
+                ) for prop_name, prop in
+                list(type_object['value'].items()))))
+
     return dict(
         array=lambda: 'list',
         bool=lambda: 'boolean',
@@ -483,25 +499,15 @@ def map_js_to_py_types_prop_types(type_object):
                 js_to_py_type(type_object['value'])),
 
         # React's PropTypes.shape
-        shape=lambda: 'dict containing keys {}.\n{}'.format(
-            ', '.join(
-                "'{}'".format(t)
-                for t in list(type_object['value'].keys())),
-            'Those keys have the following types:\n{}'.format(
-                '\n'.join(
-                    create_prop_docstring(
-                        prop_name=prop_name,
-                        type_object=prop,
-                        required=prop['required'],
-                        description=prop.get('description', ''),
-                        indent_num=1
-                    ) for prop_name, prop in
-                    list(type_object['value'].items())))),
+        shape=shape_or_exact,
+        # React's PropTypes.exact
+        exact=shape_or_exact,
     )
 
 
 def map_js_to_py_types_flow_types(type_object):
     """Mapping from the Flow js types to the Python type"""
+
     return dict(
         array=lambda: 'list',
         boolean=lambda: 'boolean',
