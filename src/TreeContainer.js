@@ -98,6 +98,8 @@ class TreeContainer extends Component {
     }
 
     getComponent(_dashprivate_layout, children, loading_state, setProps) {
+        const { _dashprivate_config } = this.props;
+
         if (isEmpty(_dashprivate_layout)) {
             return null;
         }
@@ -110,8 +112,8 @@ class TreeContainer extends Component {
         const element = Registry.resolve(_dashprivate_layout);
 
         const props = omit(['children'], _dashprivate_layout.props);
-        const config = window.store.getState().config;
-        return config.props_check && config.ui ? (
+
+        return _dashprivate_config.props_check ? (
             <ComponentErrorBoundary
                 componentType={_dashprivate_layout.type}
                 componentId={_dashprivate_layout.props.id}
@@ -211,6 +213,7 @@ TreeContainer.propTypes = {
     _dashprivate_loadingState: PropTypes.object,
     _dashprivate_paths: PropTypes.any,
     _dashprivate_requestQueue: PropTypes.any,
+    _dashprivate_config: PropTypes.object,
 };
 
 function isLoadingComponent(layout) {
@@ -284,7 +287,8 @@ export const AugmentedTreeContainer = connect(
     state => ({
         dependencies: state.dependenciesRequest.content,
         paths: state.paths,
-        requestQueue: state.requestQueue
+        requestQueue: state.requestQueue,
+        config: state.config
     }),
     dispatch => ({dispatch}),
     (stateProps, dispatchProps, ownProps) => ({
@@ -294,6 +298,7 @@ export const AugmentedTreeContainer = connect(
         _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.requestQueue),
         _dashprivate_paths: stateProps.paths,
         _dashprivate_requestQueue: stateProps.requestQueue,
+        _dashprivate_config: stateProps.config,
     })
 )(TreeContainer);
 
