@@ -104,45 +104,6 @@ class Reloader extends React.Component {
                             prevState
                         )
                     )
-<<<<<<< HEAD
-                ) {
-                    // Look if it was a css file.
-                    let was_css = false;
-                    for (const a of reloadRequest.content.files) {
-                        if (a.is_css) {
-                            was_css = true;
-                            const nodesToDisable = [];
-
-                            // Search for the old file by xpath.
-                            const it = document.evaluate(
-                                `//link[contains(@href, "${a.url}")]`,
-                                this._head
-                            );
-                            let node = it.iterateNext();
-
-                            while (node) {
-                                nodesToDisable.push(node);
-                                node = it.iterateNext();
-                            }
-
-                            R.forEach(
-                                n => n.setAttribute('disabled', 'disabled'),
-                                nodesToDisable
-                            );
-
-                            if (a.modified > 0) {
-                                const link = document.createElement('link');
-                                link.href = `${a.url}?m=${a.modified}`;
-                                link.type = 'text/css';
-                                link.rel = 'stylesheet';
-                                this._head.appendChild(link);
-                                // Else the file was deleted.
-                            }
-                        } else {
-                            // If there's another kind of file here do a hard reload.
-                            was_css = false;
-                            break;
-=======
                 )
             ) {
                 // Look if it was a css file.
@@ -177,7 +138,6 @@ class Reloader extends React.Component {
                             link.rel = 'stylesheet';
                             this._head.appendChild(link);
                             // Else the file was deleted.
->>>>>>> master
                         }
                     } else {
                         // If there's another kind of file here do a hard reload.
