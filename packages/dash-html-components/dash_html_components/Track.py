@@ -23,7 +23,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - role (string; optional): The ARIA role attribute
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
-- default (string; optional): Indicates that the track should be enabled unless the user's preferences indicate something different.
+- default (boolean; optional): Indicates that the track should be enabled unless the user's preferences indicate something different.
 - kind (string; optional): Specifies the kind of text track.
 - label (string; optional): Specifies a user-readable title of the text track.
 - src (string; optional): The URL of the embeddable content.
@@ -34,7 +34,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

@@ -79,7 +79,10 @@ Th.propTypes = {
     /**
      * The colspan attribute defines the number of columns a cell should span.
      */
-    'colSpan': PropTypes.string,
+    'colSpan': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * IDs of the <th> elements which applies to this element.
@@ -89,7 +92,10 @@ Th.propTypes = {
     /**
      * Defines the number of rows a table cell should span over.
      */
-    'rowSpan': PropTypes.string,
+    'rowSpan': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Defines the cells that the header test (defined in the th element) relates to.
@@ -129,7 +135,10 @@ Th.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

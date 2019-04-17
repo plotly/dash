@@ -23,23 +23,23 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - role (string; optional): The ARIA role attribute
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
-- autoPlay (string; optional): The audio or video should play as soon as possible.
-- controls (string; optional): Indicates whether the browser should show playback controls to the user.
+- autoPlay (boolean; optional): The audio or video should play as soon as possible.
+- controls (boolean; optional): Indicates whether the browser should show playback controls to the user.
 - crossOrigin (string; optional): How the element handles cross-origin requests
-- height (string; optional): Specifies the height of elements listed here. For all other elements, use the CSS height property.						Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
-- loop (string; optional): Indicates whether the media should start playing from the start when it's finished.
-- muted (string; optional): Indicates whether the audio will be initially silenced on page load.
+- height (string | number; optional): Specifies the height of elements listed here. For all other elements, use the CSS height property.						Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
+- loop (boolean; optional): Indicates whether the media should start playing from the start when it's finished.
+- muted (boolean; optional): Indicates whether the audio will be initially silenced on page load.
 - poster (string; optional): A URL indicating a poster frame to show until the user plays or seeks.
 - preload (string; optional): Indicates whether the whole resource, parts of it or nothing should be preloaded.
 - src (string; optional): The URL of the embeddable content.
-- width (string; optional): For the elements listed here, this establishes the element's width.						Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.
+- width (string | number; optional): For the elements listed here, this establishes the element's width.						Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.
 - className (string; optional): Often used with CSS to style elements with common properties.
 - contentEditable (string; optional): Indicates whether the element's content is editable.
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

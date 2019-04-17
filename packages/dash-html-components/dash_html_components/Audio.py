@@ -23,11 +23,11 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - role (string; optional): The ARIA role attribute
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
-- autoPlay (string; optional): The audio or video should play as soon as possible.
-- controls (string; optional): Indicates whether the browser should show playback controls to the user.
+- autoPlay (boolean; optional): The audio or video should play as soon as possible.
+- controls (boolean; optional): Indicates whether the browser should show playback controls to the user.
 - crossOrigin (string; optional): How the element handles cross-origin requests
-- loop (string; optional): Indicates whether the media should start playing from the start when it's finished.
-- muted (string; optional): Indicates whether the audio will be initially silenced on page load.
+- loop (boolean; optional): Indicates whether the media should start playing from the start when it's finished.
+- muted (boolean; optional): Indicates whether the audio will be initially silenced on page load.
 - preload (string; optional): Indicates whether the whole resource, parts of it or nothing should be preloaded.
 - src (string; optional): The URL of the embeddable content.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.
@@ -36,7 +36,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

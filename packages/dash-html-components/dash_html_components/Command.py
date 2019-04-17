@@ -23,8 +23,8 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - role (string; optional): The ARIA role attribute
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
-- checked (string; optional): Indicates whether the element should be checked on page load.
-- disabled (string; optional): Indicates whether the user can interact with the element.
+- checked (boolean; optional): Indicates whether the element should be checked on page load.
+- disabled (boolean; optional): Indicates whether the user can interact with the element.
 - icon (string; optional): Specifies a picture which represents the command.
 - radioGroup (string; optional)
 - type (string; optional): Defines the type of the element.
@@ -34,7 +34,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

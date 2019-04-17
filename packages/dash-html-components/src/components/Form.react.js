@@ -114,7 +114,10 @@ Form.propTypes = {
     /**
      * This attribute indicates that the form shouldn't be validated when submitted.
      */
-    'noValidate': PropTypes.string,
+    'noValidate': PropTypes.oneOfType([
+        PropTypes.oneOf('noValidate', 'novalidate', 'NOVALIDATE'),
+        PropTypes.bool
+     ]),
 
     /**
      *
@@ -154,7 +157,10 @@ Form.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

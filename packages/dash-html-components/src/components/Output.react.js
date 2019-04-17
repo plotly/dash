@@ -124,7 +124,10 @@ Output.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

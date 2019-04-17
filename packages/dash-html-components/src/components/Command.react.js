@@ -79,12 +79,18 @@ Command.propTypes = {
     /**
      * Indicates whether the element should be checked on page load.
      */
-    'checked': PropTypes.string,
+    'checked': PropTypes.oneOfType([
+        PropTypes.oneOf('checked', 'CHECKED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Indicates whether the user can interact with the element.
      */
-    'disabled': PropTypes.string,
+    'disabled': PropTypes.oneOfType([
+        PropTypes.oneOf('disabled', 'DISABLED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Specifies a picture which represents the command.
@@ -134,7 +140,10 @@ Command.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

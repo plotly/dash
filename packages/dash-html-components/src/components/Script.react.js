@@ -79,7 +79,10 @@ Script.propTypes = {
     /**
      * Indicates that the script should be executed asynchronously.
      */
-    'async': PropTypes.string,
+    'async': PropTypes.oneOfType([
+        PropTypes.oneOf('async', 'ASYNC'),
+        PropTypes.bool
+     ]),
 
     /**
      * Declares the character encoding of the page or script.
@@ -94,7 +97,10 @@ Script.propTypes = {
     /**
      * Indicates that the script should be executed after the page has been parsed.
      */
-    'defer': PropTypes.string,
+    'defer': PropTypes.oneOfType([
+        PropTypes.oneOf('defer', 'DEFER'),
+        PropTypes.bool
+     ]),
 
     /**
      * Security Feature that allows browsers to verify what they fetch.
@@ -144,7 +150,10 @@ Script.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

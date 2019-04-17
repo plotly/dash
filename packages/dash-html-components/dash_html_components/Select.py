@@ -23,20 +23,20 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - role (string; optional): The ARIA role attribute
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
-- autoFocus (string; optional): The element should be automatically focused after the page loaded.
-- disabled (string; optional): Indicates whether the user can interact with the element.
+- autoFocus (boolean; optional): The element should be automatically focused after the page loaded.
+- disabled (boolean; optional): Indicates whether the user can interact with the element.
 - form (string; optional): Indicates the form that is the owner of the element.
-- multiple (string; optional): Indicates whether multiple values can be entered in an input of the type email or file.
+- multiple (boolean; optional): Indicates whether multiple values can be entered in an input of the type email or file.
 - name (string; optional): Name of the element. For example used by the server to identify the fields in form submits.
-- required (string; optional): Indicates whether this element is required to fill out or not.
-- size (string; optional): Defines the width of the element (in pixels). If the element's type attribute is text or password then it's the number of characters.
+- required (boolean; optional): Indicates whether this element is required to fill out or not.
+- size (string | number; optional): Defines the width of the element (in pixels). If the element's type attribute is text or password then it's the number of characters.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.
 - className (string; optional): Often used with CSS to style elements with common properties.
 - contentEditable (string; optional): Indicates whether the element's content is editable.
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

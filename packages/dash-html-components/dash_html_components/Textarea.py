@@ -24,17 +24,17 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
 - autoComplete (string; optional): Indicates whether controls in this form can by default have their values automatically completed by the browser.
-- autoFocus (string; optional): The element should be automatically focused after the page loaded.
-- cols (string; optional): Defines the number of columns in a textarea.
-- disabled (string; optional): Indicates whether the user can interact with the element.
+- autoFocus (boolean; optional): The element should be automatically focused after the page loaded.
+- cols (string | number; optional): Defines the number of columns in a textarea.
+- disabled (boolean; optional): Indicates whether the user can interact with the element.
 - form (string; optional): Indicates the form that is the owner of the element.
-- maxLength (string; optional): Defines the maximum number of characters allowed in the element.
-- minLength (string; optional): Defines the minimum number of characters allowed in the element.
+- maxLength (string | number; optional): Defines the maximum number of characters allowed in the element.
+- minLength (string | number; optional): Defines the minimum number of characters allowed in the element.
 - name (string; optional): Name of the element. For example used by the server to identify the fields in form submits.
 - placeholder (string; optional): Provides a hint to the user of what can be entered in the field.
 - readOnly (string; optional): Indicates whether the element can be edited.
-- required (string; optional): Indicates whether this element is required to fill out or not.
-- rows (string; optional): Defines the number of rows in a text area.
+- required (boolean; optional): Indicates whether this element is required to fill out or not.
+- rows (string | number; optional): Defines the number of rows in a text area.
 - wrap (string; optional): Indicates whether the text should be wrapped.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.
 - className (string; optional): Often used with CSS to style elements with common properties.
@@ -42,7 +42,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

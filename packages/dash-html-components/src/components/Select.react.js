@@ -79,12 +79,18 @@ Select.propTypes = {
     /**
      * The element should be automatically focused after the page loaded.
      */
-    'autoFocus': PropTypes.string,
+    'autoFocus': PropTypes.oneOfType([
+        PropTypes.oneOf('autoFocus', 'autofocus', 'AUTOFOCUS'),
+        PropTypes.bool
+     ]),
 
     /**
      * Indicates whether the user can interact with the element.
      */
-    'disabled': PropTypes.string,
+    'disabled': PropTypes.oneOfType([
+        PropTypes.oneOf('disabled', 'DISABLED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Indicates the form that is the owner of the element.
@@ -94,7 +100,10 @@ Select.propTypes = {
     /**
      * Indicates whether multiple values can be entered in an input of the type email or file.
      */
-    'multiple': PropTypes.string,
+    'multiple': PropTypes.oneOfType([
+        PropTypes.oneOf('multiple', 'MULTIPLE'),
+        PropTypes.bool
+     ]),
 
     /**
      * Name of the element. For example used by the server to identify the fields in form submits.
@@ -104,12 +113,18 @@ Select.propTypes = {
     /**
      * Indicates whether this element is required to fill out or not.
      */
-    'required': PropTypes.string,
+    'required': PropTypes.oneOfType([
+        PropTypes.oneOf('required', 'REQUIRED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the width of the element (in pixels). If the element's type attribute is text or password then it's the number of characters.
      */
-    'size': PropTypes.string,
+    'size': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -144,7 +159,10 @@ Select.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

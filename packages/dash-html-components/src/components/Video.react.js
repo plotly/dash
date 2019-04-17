@@ -79,12 +79,18 @@ Video.propTypes = {
     /**
      * The audio or video should play as soon as possible.
      */
-    'autoPlay': PropTypes.string,
+    'autoPlay': PropTypes.oneOfType([
+        PropTypes.oneOf('autoPlay', 'autoplay', 'AUTOPLAY'),
+        PropTypes.bool
+     ]),
 
     /**
      * Indicates whether the browser should show playback controls to the user.
      */
-    'controls': PropTypes.string,
+    'controls': PropTypes.oneOfType([
+        PropTypes.oneOf('controls', 'CONTROLS'),
+        PropTypes.bool
+     ]),
 
     /**
      * How the element handles cross-origin requests
@@ -94,17 +100,26 @@ Video.propTypes = {
     /**
      * Specifies the height of elements listed here. For all other elements, use the CSS height property.						Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
      */
-    'height': PropTypes.string,
+    'height': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Indicates whether the media should start playing from the start when it's finished.
      */
-    'loop': PropTypes.string,
+    'loop': PropTypes.oneOfType([
+        PropTypes.oneOf('loop', 'LOOP'),
+        PropTypes.bool
+     ]),
 
     /**
      * Indicates whether the audio will be initially silenced on page load.
      */
-    'muted': PropTypes.string,
+    'muted': PropTypes.oneOfType([
+        PropTypes.oneOf('muted', 'MUTED'),
+        PropTypes.bool
+     ]),
 
     /**
      * A URL indicating a poster frame to show until the user plays or seeks.
@@ -124,7 +139,10 @@ Video.propTypes = {
     /**
      * For the elements listed here, this establishes the element's width.						Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.
      */
-    'width': PropTypes.string,
+    'width': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -159,7 +177,10 @@ Video.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

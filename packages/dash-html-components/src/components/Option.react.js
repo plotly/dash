@@ -79,12 +79,18 @@ Option.propTypes = {
     /**
      * Indicates whether the user can interact with the element.
      */
-    'disabled': PropTypes.string,
+    'disabled': PropTypes.oneOfType([
+        PropTypes.oneOf('disabled', 'DISABLED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines a value which will be selected on page load.
      */
-    'selected': PropTypes.string,
+    'selected': PropTypes.oneOfType([
+        PropTypes.oneOf('selected', 'SELECTED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines a default value which will be displayed in the element on page load.
@@ -124,7 +130,10 @@ Option.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

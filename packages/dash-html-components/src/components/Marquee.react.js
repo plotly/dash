@@ -79,7 +79,10 @@ Marquee.propTypes = {
     /**
      * Indicates whether the media should start playing from the start when it's finished.
      */
-    'loop': PropTypes.string,
+    'loop': PropTypes.oneOfType([
+        PropTypes.oneOf('loop', 'LOOP'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -114,7 +117,10 @@ Marquee.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

@@ -79,7 +79,10 @@ Details.propTypes = {
     /**
      * Indicates whether the details will be shown on page load.
      */
-    'open': PropTypes.string,
+    'open': PropTypes.oneOfType([
+        PropTypes.oneOf('open', 'OPEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -114,7 +117,10 @@ Details.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

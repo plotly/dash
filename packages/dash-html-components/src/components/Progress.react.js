@@ -84,7 +84,10 @@ Progress.propTypes = {
     /**
      * Indicates the maximum value allowed.
      */
-    'max': PropTypes.string,
+    'max': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Defines a default value which will be displayed in the element on page load.
@@ -124,7 +127,10 @@ Progress.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

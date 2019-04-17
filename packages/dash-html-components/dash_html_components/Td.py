@@ -23,16 +23,16 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - role (string; optional): The ARIA role attribute
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
-- colSpan (string; optional): The colspan attribute defines the number of columns a cell should span.
+- colSpan (string | number; optional): The colspan attribute defines the number of columns a cell should span.
 - headers (string; optional): IDs of the <th> elements which applies to this element.
-- rowSpan (string; optional): Defines the number of rows a table cell should span over.
+- rowSpan (string | number; optional): Defines the number of rows a table cell should span over.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.
 - className (string; optional): Often used with CSS to style elements with common properties.
 - contentEditable (string; optional): Indicates whether the element's content is editable.
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

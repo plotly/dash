@@ -79,7 +79,10 @@ Optgroup.propTypes = {
     /**
      * Indicates whether the user can interact with the element.
      */
-    'disabled': PropTypes.string,
+    'disabled': PropTypes.oneOfType([
+        PropTypes.oneOf('disabled', 'DISABLED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -114,7 +117,10 @@ Optgroup.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

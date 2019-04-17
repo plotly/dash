@@ -84,17 +84,26 @@ Textarea.propTypes = {
     /**
      * The element should be automatically focused after the page loaded.
      */
-    'autoFocus': PropTypes.string,
+    'autoFocus': PropTypes.oneOfType([
+        PropTypes.oneOf('autoFocus', 'autofocus', 'AUTOFOCUS'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the number of columns in a textarea.
      */
-    'cols': PropTypes.string,
+    'cols': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Indicates whether the user can interact with the element.
      */
-    'disabled': PropTypes.string,
+    'disabled': PropTypes.oneOfType([
+        PropTypes.oneOf('disabled', 'DISABLED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Indicates the form that is the owner of the element.
@@ -104,12 +113,18 @@ Textarea.propTypes = {
     /**
      * Defines the maximum number of characters allowed in the element.
      */
-    'maxLength': PropTypes.string,
+    'maxLength': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Defines the minimum number of characters allowed in the element.
      */
-    'minLength': PropTypes.string,
+    'minLength': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Name of the element. For example used by the server to identify the fields in form submits.
@@ -129,12 +144,18 @@ Textarea.propTypes = {
     /**
      * Indicates whether this element is required to fill out or not.
      */
-    'required': PropTypes.string,
+    'required': PropTypes.oneOfType([
+        PropTypes.oneOf('required', 'REQUIRED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the number of rows in a text area.
      */
-    'rows': PropTypes.string,
+    'rows': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Indicates whether the text should be wrapped.
@@ -174,7 +195,10 @@ Textarea.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

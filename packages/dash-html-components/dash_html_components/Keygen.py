@@ -23,9 +23,9 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - role (string; optional): The ARIA role attribute
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
-- autoFocus (string; optional): The element should be automatically focused after the page loaded.
+- autoFocus (boolean; optional): The element should be automatically focused after the page loaded.
 - challenge (string; optional): A challenge string that is submitted along with the public key.
-- disabled (string; optional): Indicates whether the user can interact with the element.
+- disabled (boolean; optional): Indicates whether the user can interact with the element.
 - form (string; optional): Indicates the form that is the owner of the element.
 - keyType (string; optional): Specifies the type of key generated.
 - name (string; optional): Name of the element. For example used by the server to identify the fields in form submits.
@@ -35,7 +35,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

@@ -94,12 +94,18 @@ Meter.propTypes = {
     /**
      * Indicates the maximum value allowed.
      */
-    'max': PropTypes.string,
+    'max': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Indicates the minimum value allowed.
      */
-    'min': PropTypes.string,
+    'min': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Indicates the optimal numeric value.
@@ -144,7 +150,10 @@ Meter.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

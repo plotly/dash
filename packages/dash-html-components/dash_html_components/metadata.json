@@ -161,7 +161,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -347,7 +357,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -533,7 +553,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -719,7 +749,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -968,7 +1008,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -1154,7 +1204,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -1340,7 +1400,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -1484,14 +1554,34 @@
       },
       "autoPlay": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'autoPlay'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "The audio or video should play as soon as possible."
       },
       "controls": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'controls'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the browser should show playback controls to the user."
@@ -1505,14 +1595,34 @@
       },
       "loop": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'loop'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the media should start playing from the start when it's finished."
       },
       "muted": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'muted'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the audio will be initially silenced on page load."
@@ -1575,7 +1685,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -1761,7 +1881,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -1961,7 +2091,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -2147,7 +2287,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -2333,7 +2483,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -2519,7 +2679,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -2705,7 +2875,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -2891,7 +3071,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -3084,7 +3274,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -3270,7 +3470,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -3414,14 +3624,34 @@
       },
       "autoFocus": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'autoFocus'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "The element should be automatically focused after the page loaded."
       },
       "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'disabled'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
@@ -3505,7 +3735,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -3649,14 +3889,30 @@
       },
       "height": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.\t\t\t\t\t\tNote: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
       },
       "width": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "For the elements listed here, this establishes the element's width.\t\t\t\t\t\tNote: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
@@ -3705,7 +3961,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -3891,7 +4157,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -4077,7 +4353,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -4263,7 +4549,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -4449,7 +4745,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -4642,7 +4948,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -4835,7 +5151,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -4979,14 +5305,34 @@
       },
       "checked": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'checked'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the element should be checked on page load."
       },
       "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'disabled'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
@@ -5056,7 +5402,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -5242,7 +5598,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -5428,7 +5794,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -5614,7 +5990,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -5800,7 +6186,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -6000,7 +6396,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -6144,7 +6550,17 @@
       },
       "open": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'open'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the details will be shown on page load."
@@ -6193,7 +6609,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -6379,7 +6805,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -6565,7 +7001,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -6751,7 +7197,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -6937,7 +7393,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -7123,7 +7589,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -7309,7 +7785,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -7495,7 +7981,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -7639,7 +8135,15 @@
       },
       "height": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.\t\t\t\t\t\tNote: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
@@ -7660,7 +8164,15 @@
       },
       "width": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "For the elements listed here, this establishes the element's width.\t\t\t\t\t\tNote: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
@@ -7709,7 +8221,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -7853,7 +8375,17 @@
       },
       "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'disabled'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
@@ -7916,7 +8448,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -8102,7 +8644,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -8288,7 +8840,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -8474,7 +9036,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -8660,7 +9232,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -8853,7 +9435,17 @@
       },
       "noValidate": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'noValidate'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "This attribute indicates that the form shouldn't be validated when submitted."
@@ -8909,7 +9501,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -9095,7 +9697,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -9281,7 +9893,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -9467,7 +10089,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -9653,7 +10285,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -9839,7 +10481,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -10025,7 +10677,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -10211,7 +10873,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -10397,7 +11069,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -10583,7 +11265,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -10769,7 +11461,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -10955,7 +11657,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -11141,7 +11853,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -11285,7 +12007,15 @@
       },
       "height": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.\t\t\t\t\t\tNote: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
@@ -11320,7 +12050,15 @@
       },
       "width": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "For the elements listed here, this establishes the element's width.\t\t\t\t\t\tNote: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
@@ -11369,7 +12107,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -11527,7 +12275,15 @@
       },
       "height": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.\t\t\t\t\t\tNote: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
@@ -11562,7 +12318,15 @@
       },
       "width": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "For the elements listed here, this establishes the element's width.\t\t\t\t\t\tNote: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
@@ -11611,7 +12375,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -11811,7 +12585,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -11997,7 +12781,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -12183,7 +12977,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -12327,7 +13131,17 @@
       },
       "autoFocus": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'autoFocus'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "The element should be automatically focused after the page loaded."
@@ -12341,7 +13155,17 @@
       },
       "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'disabled'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
@@ -12411,7 +13235,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -12611,7 +13445,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -12797,7 +13641,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -12990,7 +13844,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -13225,7 +14089,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -13411,7 +14285,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -13597,7 +14481,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -13790,7 +14684,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -13976,7 +14880,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -14120,7 +15034,17 @@
       },
       "loop": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'loop'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the media should start playing from the start when it's finished."
@@ -14169,7 +15093,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -14383,7 +15317,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -14548,14 +15492,30 @@
       },
       "max": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates the maximum value allowed."
       },
       "min": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates the minimum value allowed."
@@ -14618,7 +15578,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -14804,7 +15774,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -14990,7 +15970,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -15176,7 +16166,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -15362,7 +16362,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -15548,7 +16558,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -15699,7 +16719,15 @@
       },
       "height": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.\t\t\t\t\t\tNote: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
@@ -15727,7 +16755,15 @@
       },
       "width": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "For the elements listed here, this establishes the element's width.\t\t\t\t\t\tNote: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
@@ -15776,7 +16812,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -15920,7 +16966,17 @@
       },
       "reversed": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'reversed'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the list should be displayed in a descending order instead of a ascending."
@@ -15976,7 +17032,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -16120,7 +17186,17 @@
       },
       "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'disabled'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
@@ -16169,7 +17245,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -16313,14 +17399,34 @@
       },
       "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'disabled'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
       },
       "selected": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'selected'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Defines a value which will be selected on page load."
@@ -16376,7 +17482,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -16583,7 +17699,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -16769,7 +17895,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -16969,7 +18105,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -17155,7 +18301,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -17341,7 +18497,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -17527,7 +18693,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -17678,7 +18854,15 @@
       },
       "max": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates the maximum value allowed."
@@ -17734,7 +18918,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -17927,7 +19121,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -18113,7 +19317,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -18299,7 +19513,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -18485,7 +19709,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -18671,7 +19905,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -18857,7 +20101,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -19043,7 +20297,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -19229,7 +20493,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -19373,7 +20647,17 @@
       },
       "async": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'async'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates that the script should be executed asynchronously."
@@ -19394,7 +20678,17 @@
       },
       "defer": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'defer'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates that the script should be executed after the page has been parsed."
@@ -19464,7 +20758,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -19650,7 +20954,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -19794,14 +21108,34 @@
       },
       "autoFocus": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'autoFocus'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "The element should be automatically focused after the page loaded."
       },
       "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'disabled'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
@@ -19815,7 +21149,17 @@
       },
       "multiple": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'multiple'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether multiple values can be entered in an input of the type email or file."
@@ -19829,14 +21173,32 @@
       },
       "required": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'required'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether this element is required to fill out or not."
       },
       "size": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the width of the element (in pixels). If the element's type attribute is text or password then it's the number of characters."
@@ -19885,7 +21247,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -20071,7 +21443,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -20257,7 +21639,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -20443,7 +21835,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -20664,7 +22066,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -20850,7 +22262,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -21036,7 +22458,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -21222,7 +22654,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -21408,7 +22850,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -21594,7 +23046,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -21780,7 +23242,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -21966,7 +23438,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -22159,7 +23641,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -22345,7 +23837,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -22489,7 +23991,15 @@
       },
       "colSpan": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "The colspan attribute defines the number of columns a cell should span."
@@ -22503,7 +24013,15 @@
       },
       "rowSpan": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the number of rows a table cell should span over."
@@ -22552,7 +24070,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -22738,7 +24266,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -22889,21 +24427,49 @@
       },
       "autoFocus": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'autoFocus'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "The element should be automatically focused after the page loaded."
       },
       "cols": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the number of columns in a textarea."
       },
       "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'disabled'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
@@ -22917,14 +24483,30 @@
       },
       "maxLength": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the maximum number of characters allowed in the element."
       },
       "minLength": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the minimum number of characters allowed in the element."
@@ -22952,14 +24534,32 @@
       },
       "required": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'required'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether this element is required to fill out or not."
       },
       "rows": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the number of rows in a text area."
@@ -23015,7 +24615,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -23201,7 +24811,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -23345,7 +24965,15 @@
       },
       "colSpan": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "The colspan attribute defines the number of columns a cell should span."
@@ -23359,7 +24987,15 @@
       },
       "rowSpan": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the number of rows a table cell should span over."
@@ -23415,7 +25051,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -23601,7 +25247,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -23794,7 +25450,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -23980,7 +25646,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -24166,7 +25842,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -24310,7 +25996,17 @@
       },
       "default": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'default'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates that the track should be enabled unless the user's preferences indicate something different."
@@ -24387,7 +26083,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -24573,7 +26279,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -24759,7 +26475,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -24945,7 +26671,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -25089,14 +26825,34 @@
       },
       "autoPlay": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'autoPlay'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "The audio or video should play as soon as possible."
       },
       "controls": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'controls'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the browser should show playback controls to the user."
@@ -25110,21 +26866,49 @@
       },
       "height": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.\t\t\t\t\t\tNote: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
       },
       "loop": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'loop'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the media should start playing from the start when it's finished."
       },
       "muted": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'muted'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the audio will be initially silenced on page load."
@@ -25152,7 +26936,15 @@
       },
       "width": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "For the elements listed here, this establishes the element's width.\t\t\t\t\t\tNote: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
@@ -25201,7 +26993,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -25387,7 +27189,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."
@@ -25573,7 +27385,17 @@
       },
       "hidden": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "computed": true,
+              "value": "'hidden'"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Prevents rendering of given element, while keeping child elements, e.g. script elements, active."

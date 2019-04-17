@@ -26,8 +26,8 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - form (string; optional): Indicates the form that is the owner of the element.
 - high (string; optional): Indicates the lower bound of the upper range.
 - low (string; optional): Indicates the upper bound of the lower range.
-- max (string; optional): Indicates the maximum value allowed.
-- min (string; optional): Indicates the minimum value allowed.
+- max (string | number; optional): Indicates the maximum value allowed.
+- min (string | number; optional): Indicates the minimum value allowed.
 - optimum (string; optional): Indicates the optimal numeric value.
 - value (string; optional): Defines a default value which will be displayed in the element on page load.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.
@@ -36,7 +36,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

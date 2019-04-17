@@ -10,10 +10,82 @@ const path = require('path');
 const srcPath = '../src/components';
 const attributesPath = './data/attributes.json';
 
+// Based off https://github.com/iandevlin/html-attributes/blob/master/boolean-attributes.json
+const BOOLEAN_PROPERTIES = [
+    'allowFullScreen',
+    'allowPaymentRequest',
+    'async',
+    'autoFocus',
+    'autoPlay',
+    'checked',
+    'controls',
+    'default',
+    'defer',
+    'disabled',
+    'formNoValidate',
+    'hidden',
+    'isMap',
+    'itemScope',
+    'loop',
+    'multiple',
+    'muted',
+    'noModule',
+    'noValidate',
+    'open',
+    'readonly',
+    'required',
+    'reversed',
+    'selected',
+    'typeMustMatch'
+];
+
+// Based off reading through
+// "Some of the DOM attributes supported by React include" section in
+// https://reactjs.org/docs/dom-elements.html
+const NUMERIC_PROPERTIES = [
+    'width',
+    'height',
+    'marginWidth',
+    'marginHeight',
+    'max',
+    'maxLength',
+    'min',
+    'minLength',
+    'rows',
+    'rowSpan',
+    'cols',
+    'colSpan',
+    'size',
+    'step'
+];
+
 const PROP_TYPES = {
     _default: 'string',
-    style: 'object'
+    style: 'object',
 };
+BOOLEAN_PROPERTIES.forEach(property => {
+    let capitalizationOptions;
+    if (property.toLowerCase() !== property) {
+        capitalizationOptions = `${property}', '${property.toLowerCase()}', '${property.toUpperCase()}`
+    } else {
+        capitalizationOptions = `${property}', '${property.toUpperCase()}`
+    }
+    PROP_TYPES[property] = (
+        'oneOfType([\n' +
+        `        PropTypes.oneOf('${capitalizationOptions}'),\n` +
+        '        PropTypes.bool\n' +
+        '     ])'
+    );
+})
+NUMERIC_PROPERTIES.forEach(property => {
+    PROP_TYPES[property] = (
+        'oneOfType([\n' +
+        '        PropTypes.string,\n' +
+        '        PropTypes.number\n' +
+        '     ])'
+    );
+
+})
 
 function bail(message) {
     console.error('Error: ' + message);

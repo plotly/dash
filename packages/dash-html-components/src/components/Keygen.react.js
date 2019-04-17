@@ -79,7 +79,10 @@ Keygen.propTypes = {
     /**
      * The element should be automatically focused after the page loaded.
      */
-    'autoFocus': PropTypes.string,
+    'autoFocus': PropTypes.oneOfType([
+        PropTypes.oneOf('autoFocus', 'autofocus', 'AUTOFOCUS'),
+        PropTypes.bool
+     ]),
 
     /**
      * A challenge string that is submitted along with the public key.
@@ -89,7 +92,10 @@ Keygen.propTypes = {
     /**
      * Indicates whether the user can interact with the element.
      */
-    'disabled': PropTypes.string,
+    'disabled': PropTypes.oneOfType([
+        PropTypes.oneOf('disabled', 'DISABLED'),
+        PropTypes.bool
+     ]),
 
     /**
      * Indicates the form that is the owner of the element.
@@ -139,7 +145,10 @@ Keygen.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.

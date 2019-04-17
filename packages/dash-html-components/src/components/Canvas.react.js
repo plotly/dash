@@ -79,12 +79,18 @@ Canvas.propTypes = {
     /**
      * Specifies the height of elements listed here. For all other elements, use the CSS height property.						Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
      */
-    'height': PropTypes.string,
+    'height': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * For the elements listed here, this establishes the element's width.						Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.
      */
-    'width': PropTypes.string,
+    'width': PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+     ]),
 
     /**
      * Defines a keyboard shortcut to activate or add focus to the element.
@@ -119,7 +125,10 @@ Canvas.propTypes = {
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
-    'hidden': PropTypes.string,
+    'hidden': PropTypes.oneOfType([
+        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.bool
+     ]),
 
     /**
      * Defines the language used in the element.
