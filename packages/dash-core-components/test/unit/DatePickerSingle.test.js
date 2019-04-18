@@ -23,7 +23,6 @@ describe('Date can be set properly', () => {
 
         expect(dps.props()).toBeDefined();
         expect(dps.props().date).toEqual(props.date);
-        expect(dps.state().date).toEqual(null);
     });
 
     test('valid date is not converted by moment', () => {
@@ -35,7 +34,6 @@ describe('Date can be set properly', () => {
 
         expect(dps.props()).toBeDefined();
         expect(dps.props().date).toEqual(props.date);
-        expect(dps.state().date).not.toEqual(null);
     });
 });
 
