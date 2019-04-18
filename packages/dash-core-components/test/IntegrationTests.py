@@ -77,6 +77,7 @@ class IntegrationTests(unittest.TestCase):
                 use_reloader=False,
                 use_debugger=True,
                 dev_tools_hot_reload=False,
+                dev_tools_ui=False
             )
 
         def run_windows():
