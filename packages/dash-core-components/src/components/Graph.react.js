@@ -319,7 +319,10 @@ const graphPropTypes = {
      * Reference the Plotly.extendTraces API for full usage:
      * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
      */
-    extendData: PropTypes.array,
+    extendData: PropTypes.oneOfType([
+        PropTypes.array,
+        PropTypes.object
+    ]),
 
     /**
      * Data from latest restyle event which occurs
