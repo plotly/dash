@@ -26,8 +26,8 @@ jobs:
             - run:
                 name: Install dependencies (dash)
                 command: |
-                    git clone --branch exact git@github.com:plotly/dash.git
-                    git clone --branch dev-tools git@github.com:plotly/dash-renderer.git
+                    git clone git@github.com:plotly/dash.git
+                    git clone git@github.com:plotly/dash-renderer.git
                     git clone git@github.com:plotly/dash-html-components.git
                     git clone git@github.com:plotly/dash-table.git
                     . venv/bin/activate
