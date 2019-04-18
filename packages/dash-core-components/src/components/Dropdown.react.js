@@ -118,20 +118,16 @@ Dropdown.propTypes = {
             /**
              * The dropdown's label
              */
-            label: PropTypes.oneOfType([
-                PropTypes.string,
-                PropTypes.number
-            ]).isRequired,
+            label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                .isRequired,
 
             /**
              * The value of the dropdown. This value
              * corresponds to the items specified in the
              * `values` property.
              */
-            value: PropTypes.oneOfType([
-                PropTypes.string,
-                PropTypes.number
-            ]).isRequired,
+            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+                .isRequired,
 
             /**
              * If true, this dropdown is disabled and items can't be selected.
