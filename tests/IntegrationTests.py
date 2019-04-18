@@ -27,7 +27,6 @@ class IntegrationTests(unittest.TestCase):
         self.percy_runner.snapshot(
             name=snapshot_name
         )
-        self.driver.save_screenshot('/tmp/artifacts/{}.png'.format(name))
 
     @classmethod
     def setUpClass(cls):
