@@ -17,7 +17,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from .IntegrationTests import IntegrationTests
-from .utils import assert_clean_console, wait_for
+from .utils import wait_for
 from multiprocessing import Value
 import time
 import re
@@ -31,28 +31,24 @@ import requests
 TIMEOUT = 20
 
 
-TIMEOUT = 20
-
-
 class Tests(IntegrationTests):
     def setUp(self):
         pass
 
-    def wait_for_style_to_equal(self, selector, style, assertion_style,
-                                timeout=20):
+    def wait_for_style_to_equal(self, selector, style, assertion_style, timeout=TIMEOUT):
         start = time.time()
         exception = Exception('Time ran out, {} on {} not found'.format(
             assertion_style, selector))
         while time.time() < start + timeout:
             element = self.wait_for_element_by_css_selector(selector)
             try:
-                self.assertEqual(assertion_style,
-                                 element.value_of_css_property(style))
+                self.assertEqual(
+                    assertion_style, element.value_of_css_property(style))
             except Exception as e:
                 exception = e
             else:
                 return
-            time.sleep(0.25)
+            time.sleep(0.1)
 
         raise exception
 
@@ -112,7 +108,7 @@ class Tests(IntegrationTests):
         if expected_length is not None:
             self.assertEqual(len(request_queue), expected_length)
 
-    """
+
     def test_initial_state(self):
         app = Dash(__name__)
         my_class_attrs = {
@@ -169,18 +165,7 @@ class Tests(IntegrationTests):
             "the fetching rendered dom is expected ")
 
         # Check that no errors or warnings were displayed
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.tests.console.error.length'
-            ),
-            0
-        )
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.tests.console.warn.length'
-            ),
-            0
-        )
+        self.assertTrue(self.is_console_clean())
 
         self.assertEqual(
             self.driver.execute_script(
@@ -223,7 +208,7 @@ class Tests(IntegrationTests):
 
         self.percy_snapshot(name='layout')
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_array_of_falsy_child(self):
         app = Dash(__name__)
@@ -233,7 +218,7 @@ class Tests(IntegrationTests):
 
         self.wait_for_text_to_equal('#nully-wrapper', '0')
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_of_falsy_child(self):
         app = Dash(__name__)
@@ -243,7 +228,7 @@ class Tests(IntegrationTests):
 
         self.wait_for_text_to_equal('#nully-wrapper', '0')
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_simple_callback(self):
         app = Dash(__name__)
@@ -294,7 +279,7 @@ class Tests(IntegrationTests):
             expected_length=1,
             check_rejected=False)
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_callbacks_generating_children(self):
         ''' Modify the DOM tree by adding new
@@ -391,7 +376,7 @@ class Tests(IntegrationTests):
         self.request_queue_assertions(call_count.value + 1)
         self.percy_snapshot(name='callback-generating-function-2')
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_radio_buttons_callbacks_generating_children(self):
         self.maxDiff = 100 * 1000
@@ -749,7 +734,7 @@ class Tests(IntegrationTests):
 
         self.request_queue_assertions(2)
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_event_properties(self):
         app = Dash(__name__)
@@ -844,7 +829,6 @@ class Tests(IntegrationTests):
         state = lambda: self.driver.find_element_by_id('state')
 
         # callback gets called with initial input
-        self.assertEqual(call_count.value, 1)
         self.assertEqual(
             output().text,
             'input="Initial Input", state="Initial State"'
@@ -885,9 +869,9 @@ class Tests(IntegrationTests):
 
         call_count = Value('i', 0)
 
-        @app.callback(Output('output', 'children'),
-                      inputs=[Input('input', 'value')],
-                      state=[State('state', 'value')])
+        @app.callback(
+            Output('output', 'children'), [Input('input', 'value')],
+            [State('state', 'value')])
         def update_output(input, state):
             call_count.value += 1
             return 'input="{}", state="{}"'.format(input, state)
@@ -898,7 +882,6 @@ class Tests(IntegrationTests):
         state = lambda: self.driver.find_element_by_id('state')
 
         # callback gets called with initial input
-        self.assertEqual(call_count.value, 1)
         self.assertEqual(
             output().text,
             'input="Initial Input", state="Initial State"'
@@ -1180,7 +1163,7 @@ class Tests(IntegrationTests):
         wait_for(lambda: call_counts['button-output'].value, expected_value=1)
         time.sleep(2)  # liberally wait for the front-end to process request
         chapter2_assertions()
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_rendering_layout_calls_callback_once_per_output(self):
         app = Dash(__name__)
@@ -1382,7 +1365,7 @@ class Tests(IntegrationTests):
         self.assertEqual(call_counts['dropdown_1'].value, 1)
         self.assertEqual(call_counts['dropdown_2'].value, 1)
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_callbacks_triggered_on_generated_output(self):
         app = dash.Dash()
@@ -1448,7 +1431,7 @@ class Tests(IntegrationTests):
         self.assertEqual(call_counts['tab1'].value, 1)
         self.assertEqual(call_counts['tab2'].value, 1)
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_initialization_with_overlapping_outputs(self):
         app = dash.Dash()
@@ -1866,7 +1849,7 @@ class Tests(IntegrationTests):
         self.startServer(
             app,
             dev_tools_hot_reload=True,
-            dev_tools_hot_reload_interval=500,
+            dev_tools_hot_reload_interval=100,
             dev_tools_hot_reload_max_retry=30,
         )
 
@@ -1886,6 +1869,7 @@ class Tests(IntegrationTests):
                 background-color: red;
             }
             '''))
+
         try:
             self.wait_for_style_to_equal(
                 '#hot-reload-content', 'background-color', 'rgba(255, 0, 0, 1)'
@@ -2017,13 +2001,20 @@ class Tests(IntegrationTests):
         def set_bc(a):
             return [a, a]
 
-        self.startServer(app, debug=True)
+        self.startServer(
+            app, debug=True, use_debugger=True,
+            use_reloader=False, dev_tools_hot_reload=False)
 
-        # Front-end failed to render.
-        self.assertIn(
-            'Resolve BackEnd Error',
-            self.driver.find_element_by_tag_name('body').text,
-            "circular dependencies is not detected"
+        self.assertEqual(
+            'Circular Dependencies',
+            self.driver.find_element_by_css_selector('span.dash-fe-error__title').text,
+            "circular dependencies should be captured by debug menu"
+        )
+
+        self.assertEqual(
+            {'X'},
+            set(self.driver.find_element_by_css_selector('#c').text),
+            "the UI still renders the output triggered by callback"
         )
 
     def test_simple_clientside_serverside_callback(self):
@@ -2388,7 +2379,7 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#input', 'hello')
         self.wait_for_text_to_equal('#side-effect', 'side effect')
         self.wait_for_text_to_equal('#output', 'output')
-    """
+
 
     def test_devtools_python_errors(self):
         app = dash.Dash(__name__)
@@ -2461,6 +2452,61 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - validation exception - open')
 
+
+    def test_dev_tools_disable_props_check_config(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.P(id='tcid', children='Hello Props Check'),
+            dcc.Graph(id='broken', animate=3),  # error ignored by disable
+        ])
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+            dev_tools_props_check=False
+        )
+
+        self.wait_for_text_to_equal('#tcid', "Hello Props Check")
+        self.assertTrue(
+            self.driver.find_elements_by_css_selector('#broken svg.main-svg'),
+            "graph should be rendered")
+        self.assertTrue(
+            self.driver.find_elements_by_css_selector('.dash-debug-menu'),
+            "the debug menu icon should show up")
+
+        self.percy_snapshot('devtools - disable props check - Graph should render')
+
+
+    def test_dev_tools_disable_ui_config(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.P(id='tcid', children='Hello Disable UI'),
+            dcc.Graph(id='broken', animate=3),  # error ignored by disable
+        ])
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+            dev_tools_ui=False
+        )
+
+        self.wait_for_text_to_equal('#tcid', "Hello Disable UI")
+        logs = self.wait_until_get_log()
+        self.assertIn(
+            'Invalid argument `animate` passed into Graph', str(logs),
+            "the error should present in the console without DEV tools UI")
+
+        self.assertFalse(
+            self.driver.find_elements_by_css_selector('.dash-debug-menu'),
+            "the debug menu icon should NOT show up")
+
+        self.percy_snapshot('devtools - disable dev tools UI - no debug menu')
 
     def test_devtools_validation_errors_creation(self):
         app = dash.Dash(__name__)
