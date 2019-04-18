@@ -2421,6 +2421,44 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - python exception - 2 errors open')
 
+    def test_devtools_prevent_update(self):
+        # raising PreventUpdate shouldn't display the error message
+        app = dash.Dash(__name__)
+
+
+        app.layout = html.Div([
+            html.Button(id='python', children='Prevent update', n_clicks=0),
+            html.Div(id='output')
+        ])
+
+        @app.callback(
+            Output('output', 'children'),
+            [Input('python', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks == 1:
+                raise PreventUpdate
+            if n_clicks == 2:
+                raise Exception('An actual python exception')
+
+            return 'button clicks: {}'.format(n_clicks)
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        self.wait_for_element_by_css_selector('#python').click()
+        self.wait_for_element_by_css_selector('#python').click()
+        self.wait_for_element_by_css_selector('#python').click()
+        self.wait_for_text_to_equal('#output', 'button clicks: 3')
+
+        # two exceptions fired, but only a single exception appeared in the UI:
+        # the prevent default was not displayed
+        self.wait_for_text_to_equal('.test-devtools-error-count', '1')
+        self.percy_snapshot('devtools - prevent update - only a single exception')
 
     def test_devtools_validation_errors_in_place(self):
         app = dash.Dash(__name__)
