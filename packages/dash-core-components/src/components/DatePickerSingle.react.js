@@ -75,7 +75,8 @@ export default class DatePickerSingle extends Component {
              * manage its own state.
              *
              * In the future, dash-renderer may be able to
-             * handle the state no matter what
+             * handle the state no matter what:
+             * https://github.com/plotly/dash-renderer/issues/163
              *
              * In almost all practical cases, these controls
              * will have an ID (as they are inputs to callbacks)
@@ -85,6 +86,7 @@ export default class DatePickerSingle extends Component {
              * the user may be surprised the component reacts
              * different to user input when it is "unconnected"
              * (without an ID) vs when it is connected.
+             *
              */
             this.setState(payload);
         } else {
