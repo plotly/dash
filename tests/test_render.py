@@ -2458,7 +2458,7 @@ class Tests(IntegrationTests):
         # two exceptions fired, but only a single exception appeared in the UI:
         # the prevent default was not displayed
         self.wait_for_text_to_equal('.test-devtools-error-count', '1')
-
+        self.percy_snapshot('devtools - prevent update - only a single exception')
 
     def test_devtools_validation_errors_in_place(self):
         app = dash.Dash(__name__)
