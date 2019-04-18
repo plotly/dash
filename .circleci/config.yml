@@ -58,20 +58,11 @@ jobs:
               pip list | grep dash
 
       - run:
-          name: Create artifacts folder
-          command: |
-            mkdir /tmp/artifacts;
-            echo "test artifact files in a dir" > /tmp/artifacts/artifact-2;
-
-      - run:
           name: Run tests
           command: |
               . venv/bin/activate
               python --version
               npm run test:py
-
-      - store_artifacts:
-          path: /tmp/artifacts
 
   "python-3.6":
     <<: *test-template
