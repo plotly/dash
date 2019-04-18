@@ -7,6 +7,7 @@ import paths from './paths';
 import requestQueue from './requestQueue';
 import appLifecycle from './appLifecycle';
 import history from './history';
+import error from './error';
 import hooks from './hooks';
 import * as API from './api';
 import config from './config';
@@ -18,11 +19,13 @@ const reducer = combineReducers({
     paths,
     requestQueue,
     config,
+    history,
+    error,
+    hooks,
     dependenciesRequest: API.dependenciesRequest,
     layoutRequest: API.layoutRequest,
-    history,
-    hooks,
     reloadRequest: API.reloadRequest,
+    loginRequest: API.loginRequest,
 });
 
 function getInputHistoryState(itempath, props, state) {

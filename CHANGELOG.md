@@ -6,6 +6,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fix regression for `children=0` case [#148](https://github.com/plotly/dash-renderer/issues/148)
 
+
+### Added
+
+- Dash Dev Tools [#100](https://github.com/plotly/dash-renderer/pull/100)
+
+    - a simple UI interface, which consolidates both frontend and backend errors into an "error popup" at the top-right corner
+    - callback function visualization through a DAG(Directed Acyclic Graph) [#144](https://github.com/plotly/dash-renderer/pull/144)
+    - free [Component Props check](https://reactjs.org/docs/typechecking-with-proptypes.html) for all Dash React Components inside dash-renderer
+
 ## [0.22.0] - 2019-04-10
 ### Added
 - Added support for clientside callbacks [#143](https://github.com/plotly/dash-renderer/pull/143)

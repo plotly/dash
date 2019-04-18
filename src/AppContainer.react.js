@@ -31,13 +31,13 @@ class UnconnectedAppContainer extends React.Component {
             return <div className="_dash-loading">Loading...</div>;
         }
         return (
-            <div>
+            <React.Fragment>
                 <Toolbar />
                 <APIController />
                 <DocumentTitle />
                 <Loading />
                 <Reloader />
-            </div>
+            </React.Fragment>
         );
     }
 }

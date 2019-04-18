@@ -3,6 +3,7 @@ import {contains, isEmpty, isNil} from 'ramda';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
+import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
 import {
     computeGraphs,
     computePaths,
@@ -79,11 +80,8 @@ class UnconnectedContainer extends Component {
             } catch (err) {
                 errorLoading = true;
             } finally {
-                this.setState(
-                    state =>
-                        state.errorLoading !== errorLoading
-                            ? {errorLoading}
-                            : null
+                this.setState(state =>
+                    state.errorLoading !== errorLoading ? {errorLoading} : null
                 );
             }
         }
@@ -95,6 +93,7 @@ class UnconnectedContainer extends Component {
             dependenciesRequest,
             layoutRequest,
             layout,
+            config,
         } = this.props;
 
         const {errorLoading} = this.state;
@@ -114,12 +113,17 @@ class UnconnectedContainer extends Component {
                     {'Error loading dependencies'}
                 </div>
             );
-        } else if (appLifecycle === getAppState('HYDRATED')) {
+        } else if (
+            appLifecycle === getAppState('HYDRATED') &&
+            config.ui === true
+        ) {
             return (
-                <div id="_dash-app-content">
+                <GlobalErrorContainer>
                     <TreeContainer _dashprivate_layout={layout} />
-                </div>
+                </GlobalErrorContainer>
             );
+        } else if (appLifecycle === getAppState('HYDRATED')) {
+            return <TreeContainer _dashprivate_layout={layout} />;
         }
 
         return <div className="_dash-loading">{'Loading...'}</div>;
@@ -135,7 +139,9 @@ UnconnectedContainer.propTypes = {
     layoutRequest: PropTypes.object,
     layout: PropTypes.object,
     paths: PropTypes.object,
-    history: PropTypes.array,
+    history: PropTypes.any,
+    error: PropTypes.object,
+    config: PropTypes.object,
 };
 
 const Container = connect(
@@ -148,6 +154,8 @@ const Container = connect(
         graphs: state.graphs,
         paths: state.paths,
         history: state.history,
+        error: state.error,
+        config: state.config,
     }),
     dispatch => ({dispatch})
 )(UnconnectedContainer);

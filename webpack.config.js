@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const path = require('path');
 const packagejson = require('./package.json');
 
@@ -57,7 +58,29 @@ module.exports = (env, argv) => {
                         },
                     ],
                 },
+                {
+                    test: /\.svg$/,
+                    use: ['@svgr/webpack']
+                },
+                {
+                    test: /\.txt$/i,
+                    use: 'raw-loader',
+
+                },
             ],
-        }
+        },
+        plugins: [
+            new webpack.NormalModuleReplacementPlugin(
+                /(.*)GlobalErrorContainer.react(\.*)/,
+                function(resource) {
+                    if (mode === 'production') {
+                        resource.request = resource.request.replace(
+                            /GlobalErrorContainer.react/,
+                            'GlobalErrorContainerPassthrough.react'
+                        );
+                    }
+                }
+            ),
+        ],
     };
 };

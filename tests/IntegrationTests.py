@@ -1,5 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 import dash
 import dash_core_components
 import dash_core_components as dcc
@@ -12,24 +10,39 @@ import unittest
 import os
 import sys
 
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
 
 class IntegrationTests(unittest.TestCase):
 
-    def percy_snapshot(cls, name=''):
+    last_timestamp = 0
+
+
+    def percy_snapshot(self, name=''):
         snapshot_name = '{} - py{}.{}'.format(name, sys.version_info.major, sys.version_info.minor)
         print(snapshot_name)
-        cls.percy_runner.snapshot(
+        self.percy_runner.snapshot(
             name=snapshot_name
         )
 
     @classmethod
     def setUpClass(cls):
         super(IntegrationTests, cls).setUpClass()
-        cls.driver = webdriver.Chrome()
 
-        loader = percy.ResourceLoader(
-          webdriver=cls.driver
-        )
+        options = Options()
+        capabilities = DesiredCapabilities.CHROME
+        capabilities['loggingPrefs'] = {'browser': 'SEVERE'}
+
+        if 'DASH_TEST_CHROMEPATH' in os.environ:
+            options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
+
+        cls.driver = webdriver.Chrome(
+            options=options, desired_capabilities=capabilities)
+
+        loader = percy.ResourceLoader(webdriver=cls.driver)
         cls.percy_runner = percy.Runner(loader=loader)
 
         cls.percy_runner.initialize_build()
@@ -41,15 +54,18 @@ class IntegrationTests(unittest.TestCase):
         cls.driver.quit()
         cls.percy_runner.finalize_build()
 
-    def setUp(s):
+    def setUp(self):
         pass
 
-    def tearDown(s):
+    def tearDown(self):
         time.sleep(2)
-        s.server_process.terminate()
+        self.server_process.terminate()
         time.sleep(2)
 
-    def startServer(s, dash, **kwargs):
+        self.clear_log()
+        time.sleep(1)
+
+    def startServer(self, dash, **kwargs):
         def run():
             dash.scripts.config.serve_locally = True
             dash.css.config.serve_locally = True
@@ -63,36 +79,34 @@ class IntegrationTests(unittest.TestCase):
             dash.run_server(**kws)
 
         # Run on a separate process so that it doesn't block
-        s.server_process = multiprocessing.Process(target=run)
-        s.server_process.start()
+        self.server_process = multiprocessing.Process(target=run)
+        self.server_process.start()
         time.sleep(0.5)
 
         # Visit the dash page
-        s.driver.get('http://localhost:8050')
-        time.sleep(0.5)
+        self.driver.implicitly_wait(2)
+        self.driver.get('http://localhost:8050')
 
-        # Inject an error and warning logger
-        logger = '''
-        window.tests = {};
-        window.tests.console = {error: [], warn: [], log: []};
+    def clear_log(self):
+        entries = self.driver.get_log("browser")
+        if entries:
+            self.last_timestamp = entries[-1]["timestamp"]
 
-        var _log = console.log;
-        var _warn = console.warn;
-        var _error = console.error;
+    def get_log(self):
+        entries = self.driver.get_log("browser")
+        return [entry for entry in entries if entry["timestamp"] > self.last_timestamp]
 
-        console.log = function() {
-            window.tests.console.log.push({method: 'log', arguments: arguments});
-            return _log.apply(console, arguments);
-        };
+    def wait_until_get_log(self, timeout=10):
+        logs = None
+        cnt, poll = 0, 0.1
+        while not logs:
+            logs = self.get_log()
+            time.sleep(poll)
+            cnt += 1
+            if cnt * poll >= timeout * 1000:
+                raise TimeoutError('cannot get log in {}'.format(timeout))
 
-        console.warn = function() {
-            window.tests.console.warn.push({method: 'warn', arguments: arguments});
-            return _warn.apply(console, arguments);
-        };
+        return logs
 
-        console.error = function() {
-            window.tests.console.error.push({method: 'error', arguments: arguments});
-            return _error.apply(console, arguments);
-        };
-        '''
-        s.driver.execute_script(logger)
+    def is_console_clean(self):
+        return not self.get_log()

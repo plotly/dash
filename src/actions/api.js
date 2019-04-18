@@ -1,6 +1,7 @@
 /* global fetch: true, document: true */
 import cookie from 'cookie';
 import {merge} from 'ramda';
+import {onError} from '../actions';
 import {urlBase} from '../utils';
 
 function GET(path) {
@@ -69,15 +70,13 @@ function apiThunk(endpoint, method, store, id, body, headers = {}) {
                 });
             })
             .catch(err => {
-                /* eslint-disable no-console */
-                console.error(err);
-                /* eslint-enable no-console */
-                dispatch({
-                    type: store,
-                    payload: {
-                        id,
-                        status: 500,
-                    },
+                err.text().then(text => {
+                    dispatch(
+                        onError({
+                            type: 'backEnd',
+                            errorPage: text,
+                        })
+                    );
                 });
             });
     };

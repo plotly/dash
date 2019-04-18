@@ -8,7 +8,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 
 from .IntegrationTests import IntegrationTests
-from .utils import assert_clean_console, wait_for
+from .utils import wait_for
 
 
 class Tests(IntegrationTests):
@@ -60,7 +60,7 @@ def create_race_conditions_test(endpoints):
             )
         )
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     return test
 

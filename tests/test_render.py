@@ -9,6 +9,7 @@ from dash.development.base_component import Component
 import dash_html_components as html
 import dash_core_components as dcc
 
+from bs4 import BeautifulSoup
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -16,12 +17,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from .IntegrationTests import IntegrationTests
-from .utils import assert_clean_console, wait_for
+from .utils import wait_for
 from multiprocessing import Value
 import time
 import re
 import itertools
 import json
+import string
+import plotly
+import requests
 
 
 TIMEOUT = 20
@@ -31,21 +35,20 @@ class Tests(IntegrationTests):
     def setUp(self):
         pass
 
-    def wait_for_style_to_equal(self, selector, style, assertion_style,
-                                timeout=20):
+    def wait_for_style_to_equal(self, selector, style, assertion_style, timeout=TIMEOUT):
         start = time.time()
         exception = Exception('Time ran out, {} on {} not found'.format(
             assertion_style, selector))
         while time.time() < start + timeout:
             element = self.wait_for_element_by_css_selector(selector)
             try:
-                self.assertEqual(assertion_style,
-                                 element.value_of_css_property(style))
+                self.assertEqual(
+                    assertion_style, element.value_of_css_property(style))
             except Exception as e:
                 exception = e
             else:
                 return
-            time.sleep(0.25)
+            time.sleep(0.1)
 
         raise exception
 
@@ -105,19 +108,21 @@ class Tests(IntegrationTests):
         if expected_length is not None:
             self.assertEqual(len(request_queue), expected_length)
 
+
     def test_initial_state(self):
         app = Dash(__name__)
+        my_class_attrs = {
+            'id': 'p.c.4',
+            'className': 'my-class',
+            'title': 'tooltip',
+            'style': {'color': 'red', 'fontSize': 30},
+        }
         app.layout = html.Div([
             'Basic string',
             3.14,
             True,
             None,
-            html.Div('Child div with basic string',
-                     id='p.c.4',
-                     className="my-class",
-                     title='tooltip',
-                     style={'color': 'red', 'fontSize': 30}
-                     ),
+            html.Div('Child div with basic string', **my_class_attrs),
             html.Div(id='p.c.5'),
             html.Div([
                 html.Div('Grandchild div', id='p.c.6.p.c.0'),
@@ -146,334 +151,64 @@ class Tests(IntegrationTests):
         ])
 
         self.startServer(app)
+        el = self.wait_for_element_by_css_selector('#react-entry-point')
 
-        el = self.wait_for_element_by_css_selector('#_dash-app-content')
+        _dash_app_content_html = os.path.join(
+            os.path.dirname(__file__),
+            'test_assets', 'initial_state_dash_app_content.html')
+        with open(_dash_app_content_html) as fp:
+            rendered_dom = BeautifulSoup(fp.read(), 'lxml')
+        fetched_dom = BeautifulSoup(el.get_attribute('outerHTML'), 'lxml')
 
-        # TODO - Make less fragile with http://lxml.de/lxmlhtml.html#html-diff
-        rendered_dom = '''
-            <div>
-                Basic string
-
-                3.14
-
-                <div PERMUTE>
-                    Child div with basic string
-                </div>
-
-                <div id="p.c.5">
-                </div>
-
-                <div id="p.c.6">
-                    <div id="p.c.6.p.c.0">
-                        Grandchild div
-                    </div>
-
-                    <div id="p.c.6.p.c.1">
-                        <div id="p.c.6.p.c.1.p.c.0">
-                            Great grandchild
-                        </div>
-
-                        3.14159
-
-                        another basic string
-                    </div>
-
-                    <div id="p.c.6.p.c.2">
-                        <div id="p.c.6.p.c.2.p.c.0">
-                            <div id="p.c.6.p.c.2.p.c.0.p.c">
-                                <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0">
-
-                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0">
-                                    </div>
-
-
-                                    <div id="p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2">
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        '''
-        # React wraps text and numbers with e.g. <!-- react-text: 20 -->
-        # Remove those
-        comment_regex = '<!--[^\[](.*?)-->'
-
-        # Somehow the html attributes are unordered.
-        # Try different combinations (they're all valid html)
-        style_permutations = [
-            'style="color: red; font-size: 30px;"',
-            'style="font-size: 30px; color: red;"'
-        ]
-        permutations = itertools.permutations([
-            'id="p.c.4"',
-            'class="my-class"',
-            'title="tooltip"',
-        ], 3)
-        passed = False
-        for permutation in permutations:
-            for style in style_permutations:
-                actual_cleaned = re.sub(comment_regex, '', el.get_attribute('innerHTML'))
-                expected_cleaned = re.sub(
-                    comment_regex,
-                    '',
-                    rendered_dom.replace('\n', '')
-                                .replace('    ', '')
-                                .replace('PERMUTE', ' '.join(list(permutation) + [style]))
-                )
-                passed = passed or (actual_cleaned == expected_cleaned)
-        if not passed:
-            raise Exception(
-                'HTML does not match\nActual:\n{}\n\nExpected:\n{}'.format(
-                    actual_cleaned,
-                    expected_cleaned
-                )
-            )
+        self.assertEqual(
+            fetched_dom.decode(), rendered_dom.decode(),
+            "the fetching rendered dom is expected ")
 
         # Check that no errors or warnings were displayed
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.tests.console.error.length'
-            ),
-            0
-        )
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.tests.console.warn.length'
-            ),
-            0
-        )
+        self.assertTrue(self.is_console_clean())
 
-        # Check the initial stores
-
-        # layout should just be the JSON-ified app.layout
         self.assertEqual(
             self.driver.execute_script(
                 'return JSON.parse(JSON.stringify('
                 'window.store.getState().layout'
                 '))'
             ),
-            {
-                "namespace": "dash_html_components",
-                "props": {
-                  "children": [
-                    "Basic string",
-                    3.14,
-                    True,
-                    None,
-                    {
-                      "namespace": "dash_html_components",
-                      "props": {
-                        "children": "Child div with basic string",
-                        "id": "p.c.4",
-                         'className': "my-class",
-                         'title': 'tooltip',
-                         'style': {
-                            'color': 'red', 'fontSize': 30
-                         }
-                      },
-                      "type": "Div"
-                    },
-                    {
-                      "namespace": "dash_html_components",
-                      "props": {
-                        "children": None,
-                        "id": "p.c.5"
-                      },
-                      "type": "Div"
-                    },
-                    {
-                      "namespace": "dash_html_components",
-                      "props": {
-                        "children": [
-                          {
-                            "namespace": "dash_html_components",
-                            "props": {
-                              "children": "Grandchild div",
-                              "id": "p.c.6.p.c.0"
-                            },
-                            "type": "Div"
-                          },
-                          {
-                            "namespace": "dash_html_components",
-                            "props": {
-                              "children": [
-                                {
-                                  "namespace": "dash_html_components",
-                                  "props": {
-                                    "children": "Great grandchild",
-                                    "id": "p.c.6.p.c.1.p.c.0"
-                                  },
-                                  "type": "Div"
-                                },
-                                3.14159,
-                                "another basic string"
-                              ],
-                              "id": "p.c.6.p.c.1"
-                            },
-                            "type": "Div"
-                          },
-                          {
-                            "namespace": "dash_html_components",
-                            "props": {
-                              "children": [
-                                {
-                                  "namespace": "dash_html_components",
-                                  "props": {
-                                    "children": {
-                                      "namespace": "dash_html_components",
-                                      "props": {
-                                        "children": [
-                                          {
-                                            "namespace": "dash_html_components",
-                                            "props": {
-                                              "children": [
-                                                {
-                                                  "namespace": "dash_html_components",
-                                                  "props": {
-                                                    "children": None,
-                                                    "id": "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0"
-                                                  },
-                                                  "type": "Div"
-                                                },
-                                                "",
-                                                {
-                                                  "namespace": "dash_html_components",
-                                                  "props": {
-                                                    "children": None,
-                                                    "id": "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2"
-                                                  },
-                                                  "type": "Div"
-                                                }
-                                              ],
-                                              "id": "p.c.6.p.c.2.p.c.0.p.c.p.c.0"
-                                            },
-                                            "type": "Div"
-                                          }
-                                        ],
-                                        "id": "p.c.6.p.c.2.p.c.0.p.c"
-                                      },
-                                      "type": "Div"
-                                    },
-                                    "id": "p.c.6.p.c.2.p.c.0"
-                                  },
-                                  "type": "Div"
-                                }
-                              ],
-                              "id": "p.c.6.p.c.2"
-                            },
-                            "type": "Div"
-                          }
-                        ],
-                        "id": "p.c.6"
-                      },
-                      "type": "Div"
-                    }
-                  ]
-                },
-                "type": "Div"
-            }
+            json.loads(json.dumps(app.layout, cls=plotly.utils.PlotlyJSONEncoder)),
+            "the state layout is identical to app.layout"
         )
 
-        # graphs should just be empty since there are no dependencies
+        r = requests.get('http://localhost:8050/_dash-dependencies')
+        self.assertEqual(r.status_code, 200)
         self.assertEqual(
-            self.driver.execute_script(
-                'return JSON.parse(JSON.stringify('
-                'window.store.getState().graphs'
-                '))'
-            ),
-            {
-              "InputGraph": {
-                "nodes": {},
-                "outgoingEdges": {},
-                "incomingEdges": {}
-              },
-              'MultiGraph': {
-                  'incomingEdges': {}, 'nodes': {}, 'outgoingEdges': {}
-              }
-            }
+            r.json(), [],
+            "no dependencies present in app as no callbacks are defined"
+
         )
 
-        # paths is just a lookup table of the components's IDs and their
-        # placement in the tree.
-        # in this case the IDs are just abbreviations of the path to make
-        # things easy to verify.
         self.assertEqual(
             self.driver.execute_script(
                 'return window.store.getState().paths'
             ),
             {
-                "p.c.4": [
-                    "props",  "children",  4
-                ],
-                "p.c.5": [
-                    "props",  "children",  5
-                ],
-                "p.c.6": [
-                    "props",  "children",  6
-                ],
-                "p.c.6.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.1": [
-                    "props",  "children",  6,
-                    "props",  "children",  1
-                ],
-                "p.c.6.p.c.1.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  1,
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.2": [
-                    "props",  "children",  6,
-                    "props",  "children",  2
-                ],
-                "p.c.6.p.c.2.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.2.p.c.0.p.c": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0,
-                    "props",  "children"
-                ],
-                "p.c.6.p.c.2.p.c.0.p.c.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0,
-                    "props",  "children",
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0,
-                    "props",  "children",
-                    "props",  "children",  0,
-                    "props",  "children",  0
-                ],
-                "p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2": [
-                    "props",  "children",  6,
-                    "props",  "children",  2,
-                    "props",  "children",  0,
-                    "props",  "children",
-                    "props",  "children",  0,
-                    "props",  "children",  2
+                abbr: [
+                    int(token) if token in string.digits
+                    else token.replace('p', 'props').replace('c', 'children')
+                    for token in abbr.split('.')
                 ]
-            }
+                for abbr in (
+                    child.get('id')
+                    for child in fetched_dom.find(
+                    id='react-entry-point').findChildren(id=True)
+                )
+            },
+            "paths should refect to the component hierarchy"
         )
 
         self.request_queue_assertions(0)
 
         self.percy_snapshot(name='layout')
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_array_of_falsy_child(self):
         app = Dash(__name__)
@@ -483,7 +218,7 @@ class Tests(IntegrationTests):
 
         self.wait_for_text_to_equal('#nully-wrapper', '0')
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_of_falsy_child(self):
         app = Dash(__name__)
@@ -493,7 +228,7 @@ class Tests(IntegrationTests):
 
         self.wait_for_text_to_equal('#nully-wrapper', '0')
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_simple_callback(self):
         app = Dash(__name__)
@@ -544,12 +279,12 @@ class Tests(IntegrationTests):
             expected_length=1,
             check_rejected=False)
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_callbacks_generating_children(self):
-        """ Modify the DOM tree by adding new
+        ''' Modify the DOM tree by adding new
         components in the callbacks
-        """
+        '''
 
         app = Dash(__name__)
         app.layout = html.Div([
@@ -585,32 +320,24 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        output = self.driver.find_element_by_id('output')
-        output_html = output.get_attribute('innerHTML')
-
         wait_for(lambda: call_count.value == 1)
 
-        # Adding new children to the layout should
-        # call the callbacks immediately to set
-        # the correct initial state
-        wait_for(
-            lambda: (
-                self.driver.find_element_by_id('output')
-                .get_attribute('innerHTML') in ['''
-                    <div>
-                        {}
-                        <div id="sub-output-1">
-                            sub input initial value
-                        </div>
-                    </div>'''.replace('\n', '').replace('  ', '').format(input)
-                    for input in [
-                        # html attributes are unordered, so include both versions
-                        '<input id="sub-input-1" value="sub input initial value">',
-                        '<input value="sub input initial value" id="sub-input-1">'
-                    ]
-                ]
-            )
+        pad_input, pad_div = BeautifulSoup(
+            self.driver.find_element_by_css_selector(
+                '#react-entry-point').get_attribute('innerHTML'),
+            'lxml').select_one('#output > div').contents
+
+        self.assertTrue(
+            pad_input.attrs == {'id': 'sub-input-1', 'value': 'sub input initial value'}
+                and pad_input.name == 'input',
+            "pad input is correctly rendered")
+
+        self.assertTrue(
+            pad_div.text == pad_input.attrs['value']
+                and pad_div.get('id') == 'sub-output-1',
+            "the sub-output-1 content reflects to sub-input-1 value"
         )
+
         self.percy_snapshot(name='callback-generating-function-1')
 
         # the paths should include these new output IDs
@@ -636,17 +363,20 @@ class Tests(IntegrationTests):
 
         # editing the input should modify the sub output
         sub_input = self.driver.find_element_by_id('sub-input-1')
-        sub_input.send_keys('a')
+
+        sub_input.send_keys('deadbeef')
         self.wait_for_text_to_equal(
             '#sub-output-1',
-            'sub input initial valuea')
+            pad_input.attrs['value'] + 'deadbeef')
 
-        self.assertEqual(call_count.value, 2)
+        self.assertEqual(
+            call_count.value, len('deadbeef') + 1,
+            "the total updates is initial one + the text input changes")
 
         self.request_queue_assertions(call_count.value + 1)
         self.percy_snapshot(name='callback-generating-function-2')
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_radio_buttons_callbacks_generating_children(self):
         self.maxDiff = 100 * 1000
@@ -1004,7 +734,7 @@ class Tests(IntegrationTests):
 
         self.request_queue_assertions(2)
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_event_properties(self):
         app = Dash(__name__)
@@ -1099,7 +829,6 @@ class Tests(IntegrationTests):
         state = lambda: self.driver.find_element_by_id('state')
 
         # callback gets called with initial input
-        self.assertEqual(call_count.value, 1)
         self.assertEqual(
             output().text,
             'input="Initial Input", state="Initial State"'
@@ -1140,9 +869,9 @@ class Tests(IntegrationTests):
 
         call_count = Value('i', 0)
 
-        @app.callback(Output('output', 'children'),
-                      inputs=[Input('input', 'value')],
-                      state=[State('state', 'value')])
+        @app.callback(
+            Output('output', 'children'), [Input('input', 'value')],
+            [State('state', 'value')])
         def update_output(input, state):
             call_count.value += 1
             return 'input="{}", state="{}"'.format(input, state)
@@ -1153,7 +882,6 @@ class Tests(IntegrationTests):
         state = lambda: self.driver.find_element_by_id('state')
 
         # callback gets called with initial input
-        self.assertEqual(call_count.value, 1)
         self.assertEqual(
             output().text,
             'input="Initial Input", state="Initial State"'
@@ -1435,7 +1163,7 @@ class Tests(IntegrationTests):
         wait_for(lambda: call_counts['button-output'].value, expected_value=1)
         time.sleep(2)  # liberally wait for the front-end to process request
         chapter2_assertions()
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_rendering_layout_calls_callback_once_per_output(self):
         app = Dash(__name__)
@@ -1637,7 +1365,7 @@ class Tests(IntegrationTests):
         self.assertEqual(call_counts['dropdown_1'].value, 1)
         self.assertEqual(call_counts['dropdown_2'].value, 1)
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_callbacks_triggered_on_generated_output(self):
         app = dash.Dash()
@@ -1703,7 +1431,7 @@ class Tests(IntegrationTests):
         self.assertEqual(call_counts['tab1'].value, 1)
         self.assertEqual(call_counts['tab2'].value, 1)
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_initialization_with_overlapping_outputs(self):
         app = dash.Dash()
@@ -2121,7 +1849,7 @@ class Tests(IntegrationTests):
         self.startServer(
             app,
             dev_tools_hot_reload=True,
-            dev_tools_hot_reload_interval=500,
+            dev_tools_hot_reload_interval=100,
             dev_tools_hot_reload_max_retry=30,
         )
 
@@ -2141,6 +1869,7 @@ class Tests(IntegrationTests):
                 background-color: red;
             }
             '''))
+
         try:
             self.wait_for_style_to_equal(
                 '#hot-reload-content', 'background-color', 'rgba(255, 0, 0, 1)'
@@ -2256,8 +1985,6 @@ class Tests(IntegrationTests):
 
     def test_multi_output_circular_dependencies(self):
         app = dash.Dash(__name__)
-        app.config['suppress_callback_exceptions'] = True
-
         app.layout = html.Div([
             dcc.Input(id='a'),
             dcc.Input(id='b'),
@@ -2268,16 +1995,133 @@ class Tests(IntegrationTests):
         def set_a(b):
             return ((b or '') + 'X')[:100]
 
-        @app.callback([Output('b', 'value'), Output('c', 'children')],
-                      [Input('a', 'value')])
+        @app.callback(
+            [Output('b', 'value'), Output('c', 'children')],
+            [Input('a', 'value')])
         def set_bc(a):
             return [a, a]
 
+        self.startServer(
+            app, debug=True, use_debugger=True,
+            use_reloader=False, dev_tools_hot_reload=False)
+
+        self.assertEqual(
+            'Circular Dependencies',
+            self.driver.find_element_by_css_selector('span.dash-fe-error__title').text,
+            "circular dependencies should be captured by debug menu"
+        )
+
+        self.assertEqual(
+            {'X'},
+            set(self.driver.find_element_by_css_selector('#c').text),
+            "the UI still renders the output triggered by callback"
+        )
+
+    def test_simple_clientside_serverside_callback(self):
+        app = dash.Dash(__name__, assets_folder='test_clientside')
+
+        app.layout = html.Div([
+            dcc.Input(id='input'),
+            html.Div(id='output-clientside'),
+            html.Div(id='output-serverside')
+        ])
+
+
+        @app.callback(
+            Output('output-serverside', 'children'),
+            [Input('input', 'value')])
+        def update_output(value):
+            return 'Server says "{}"'.format(value)
+
+
+        app.clientside_callback(
+            ClientsideFunction(
+                namespace='clientside',
+                function_name='display'
+            ),
+            Output('output-clientside', 'children'),
+            [Input('input', 'value')]
+        )
+
         self.startServer(app)
 
-        # Front-end failed to render.
+        input = self.wait_for_element_by_css_selector('#input')
+        self.wait_for_text_to_equal('#output-serverside', 'Server says "None"')
         self.wait_for_text_to_equal(
-            'body', 'Error loading dependencies', timeout=2
+            '#output-clientside', 'Client says "undefined"'
+        )
+
+        input.send_keys('hello world')
+        self.wait_for_text_to_equal(
+            '#output-serverside', 'Server says "hello world"'
+        )
+        self.wait_for_text_to_equal(
+            '#output-clientside', 'Client says "hello world"'
+        )
+
+    def test_chained_serverside_clientside_callbacks(self):
+        app = dash.Dash(__name__, assets_folder='test_clientside')
+
+        app.layout = html.Div([
+
+            html.Label('x'),
+            dcc.Input(id='x', value=3),
+
+            html.Label('y'),
+            dcc.Input(id='y', value=6),
+
+            # clientside
+            html.Label('x + y (clientside)'),
+            dcc.Input(id='x-plus-y'),
+
+            # server-side
+            html.Label('x+y / 2 (serverside)'),
+            dcc.Input(id='x-plus-y-div-2'),
+
+            # server-side
+            html.Div([
+                html.Label('Display x, y, x+y/2 (serverside)'),
+                dcc.Textarea(id='display-all-of-the-values'),
+            ]),
+
+            # clientside
+            html.Label('Mean(x, y, x+y, x+y/2) (clientside)'),
+            dcc.Input(id='mean-of-all-values'),
+
+        ])
+
+        app.clientside_callback(
+            ClientsideFunction('clientside', 'add'),
+            Output('x-plus-y', 'value'),
+            [Input('x', 'value'),
+             Input('y', 'value')],
+        )
+
+        call_counts = {
+            'divide': Value('i', 0),
+            'display': Value('i', 0)
+        }
+
+        @app.callback(Output('x-plus-y-div-2', 'value'),
+                      [Input('x-plus-y', 'value')])
+        def divide_by_two(value):
+            call_counts['divide'].value += 1
+            return float(value) / 2.0
+
+        @app.callback(Output('display-all-of-the-values', 'value'),
+                      [Input('x', 'value'),
+                       Input('y', 'value'),
+                       Input('x-plus-y', 'value'),
+                       Input('x-plus-y-div-2', 'value')])
+        def display_all(*args):
+            call_counts['display'].value += 1
+            return '\n'.join([str(a) for a in args])
+
+        app.clientside_callback(
+            ClientsideFunction('clientside', 'mean'),
+            Output('mean-of-all-values', 'value'),
+            [Input('x', 'value'), Input('y', 'value'),
+             Input('x-plus-y', 'value'), Input('x-plus-y-div-2', 'value')],
         )
 
     def test_simple_clientside_serverside_callback(self):
@@ -2535,3 +2379,546 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#input', 'hello')
         self.wait_for_text_to_equal('#side-effect', 'side effect')
         self.wait_for_text_to_equal('#output', 'output')
+
+
+    def test_devtools_python_errors(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Button(id='python', children='Python exception', n_clicks=0),
+            html.Div(id='output')
+        ])
+
+        @app.callback(
+            Output('output', 'children'),
+            [Input('python', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks == 1:
+                1/0
+            elif n_clicks == 2:
+                raise Exception('Special 2 clicks exception')
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        self.percy_snapshot('devtools - python exception - start')
+
+        self.wait_for_element_by_css_selector('#python').click()
+        self.wait_for_text_to_equal('.test-devtools-error-count', '1')
+        self.percy_snapshot('devtools - python exception - closed')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - python exception - open')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+
+        self.wait_for_element_by_css_selector('#python').click()
+        self.wait_for_text_to_equal('.test-devtools-error-count', '2')
+        self.percy_snapshot('devtools - python exception - 2 errors')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - python exception - 2 errors open')
+
+
+    def test_devtools_validation_errors_in_place(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Button(id='button', children='update-graph', n_clicks=0),
+            dcc.Graph(id='output', figure={'data': [{'y': [3, 1, 2]}]})
+        ])
+
+        # animate is a bool property
+        @app.callback(
+            Output('output', 'animate'),
+            [Input('button', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks == 1:
+                return n_clicks
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        self.wait_for_element_by_css_selector('#button').click()
+        self.wait_for_text_to_equal('.test-devtools-error-count', '1')
+        self.percy_snapshot('devtools - validation exception - closed')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - validation exception - open')
+
+
+    def test_dev_tools_disable_props_check_config(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.P(id='tcid', children='Hello Props Check'),
+            dcc.Graph(id='broken', animate=3),  # error ignored by disable
+        ])
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+            dev_tools_props_check=False
+        )
+
+        self.wait_for_text_to_equal('#tcid', "Hello Props Check")
+        self.assertTrue(
+            self.driver.find_elements_by_css_selector('#broken svg.main-svg'),
+            "graph should be rendered")
+        self.assertTrue(
+            self.driver.find_elements_by_css_selector('.dash-debug-menu'),
+            "the debug menu icon should show up")
+
+        self.percy_snapshot('devtools - disable props check - Graph should render')
+
+
+    def test_dev_tools_disable_ui_config(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.P(id='tcid', children='Hello Disable UI'),
+            dcc.Graph(id='broken', animate=3),  # error ignored by disable
+        ])
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+            dev_tools_ui=False
+        )
+
+        self.wait_for_text_to_equal('#tcid', "Hello Disable UI")
+        logs = self.wait_until_get_log()
+        self.assertIn(
+            'Invalid argument `animate` passed into Graph', str(logs),
+            "the error should present in the console without DEV tools UI")
+
+        self.assertFalse(
+            self.driver.find_elements_by_css_selector('.dash-debug-menu'),
+            "the debug menu icon should NOT show up")
+
+        self.percy_snapshot('devtools - disable dev tools UI - no debug menu')
+
+    def test_devtools_validation_errors_creation(self):
+        app = dash.Dash(__name__)
+
+        app.layout = html.Div([
+            html.Button(id='button', children='update-graph', n_clicks=0),
+            html.Div(id='output')
+        ])
+
+        # animate is a bool property
+        @app.callback(
+            Output('output', 'children'),
+            [Input('button', 'n_clicks')])
+        def update_output(n_clicks):
+            if n_clicks == 1:
+                return dcc.Graph(
+                    id='output',
+                    animate=0,
+                    figure={'data': [{'y': [3, 1, 2]}]}
+                )
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        self.wait_for_element_by_css_selector('#button').click()
+        self.wait_for_text_to_equal('.test-devtools-error-count', '1')
+        self.percy_snapshot('devtools - validation creation exception - closed')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - validation creation exception - open')
+
+    def test_devtools_multiple_outputs(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.Button(
+                id='multi-output',
+                children='trigger multi output update',
+                n_clicks=0
+            ),
+            html.Div(id='multi-1'),
+            html.Div(id='multi-2'),
+        ])
+
+        @app.callback(
+            [Output('multi-1', 'children'), Output('multi-2', 'children')],
+            [Input('multi-output', 'n_clicks')])
+        def update_outputs(n_clicks):
+            if n_clicks == 0:
+                return [
+                    'Output 1 - {} Clicks'.format(n_clicks),
+                    'Output 2 - {} Clicks'.format(n_clicks),
+                ]
+            else:
+                n_clicks / 0
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        self.wait_for_element_by_css_selector('#multi-output').click()
+        self.wait_for_text_to_equal('.test-devtools-error-count', '1')
+        self.percy_snapshot('devtools - multi output python exception - closed')
+        self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+        self.percy_snapshot('devtools - multi output python exception - open')
+
+
+    def test_devtools_validation_errors(self):
+        app = dash.Dash(__name__)
+
+        test_cases = {
+            'not-boolean': {
+                'fail': True,
+                'name': 'simple "not a boolean" check',
+                'component': dcc.Graph,
+                'props': {
+                    'animate': 0
+                }
+            },
+
+            'missing-required-nested-prop': {
+                'fail': True,
+                'name': 'missing required "value" inside options',
+                'component': dcc.Checklist,
+                'props': {
+                    'options': [{
+                        'label': 'hello'
+                    }],
+                    'values': ['test']
+                }
+            },
+
+            'invalid-nested-prop': {
+                'fail': True,
+                'name': 'invalid nested prop',
+                'component': dcc.Checklist,
+                'props': {
+                    'options': [{
+                        'label': 'hello',
+                        'value': True
+                    }],
+                    'values': ['test']
+                }
+            },
+
+            'invalid-arrayOf': {
+                'fail': True,
+                'name': 'invalid arrayOf',
+                'component': dcc.Checklist,
+                'props': {
+                    'options': 'test',
+                    'values': []
+                }
+            },
+
+            'invalid-oneOf': {
+                'fail': True,
+                'name': 'invalid oneOf',
+                'component': dcc.Input,
+                'props': {
+                    'type': 'test',
+                }
+            },
+
+            'invalid-oneOfType': {
+                'fail': True,
+                'name': 'invalid oneOfType',
+                'component': dcc.Input,
+                'props': {
+                    'max': True,
+                }
+            },
+
+            'invalid-shape-1': {
+                'fail': True,
+                'name': 'invalid key within nested object',
+                'component': dcc.Graph,
+                'props': {
+                    'config': {
+                        'asdf': 'that'
+                    }
+                }
+            },
+
+            'invalid-shape-2': {
+                'fail': True,
+                'name': 'nested object with bad value',
+                'component': dcc.Graph,
+                'props': {
+                    'config': {
+                        'edits': {
+                            'legendPosition': 'asdf'
+                        }
+                    }
+                }
+            },
+
+            'invalid-shape-3': {
+                'fail': True,
+                'name': 'invalid oneOf within nested object',
+                'component': dcc.Graph,
+                'props': {
+                    'config': {
+                        'toImageButtonOptions': {
+                            'format': 'asdf'
+                        }
+                    }
+                }
+            },
+
+            'invalid-shape-4': {
+                'fail': True,
+                'name': 'invalid key within deeply nested object',
+                'component': dcc.Graph,
+                'props': {
+                    'config': {
+                        'toImageButtonOptions': {
+                            'asdf': 'test'
+                        }
+                    }
+                }
+            },
+
+            'invalid-shape-5': {
+                'fail': True,
+                'name': 'invalid not required key',
+                'component': dcc.Dropdown,
+                'props': {
+                    'options': [
+                        {
+                            'label': 'new york',
+                            'value': 'ny',
+                            'typo': 'asdf'
+                        }
+                    ]
+                }
+            },
+
+            'string-not-list': {
+                'fail': True,
+                'name': 'string-not-a-list',
+                'component': dcc.Checklist,
+                'props': {
+                    'options': [{
+                        'label': 'hello',
+                        'value': 'test'
+                    }],
+                    'values': 'test'
+                }
+            },
+
+            'no-properties': {
+                'fail': False,
+                'name': 'no properties',
+                'component': dcc.Graph,
+                'props': {}
+            },
+
+            'nested-children': {
+                'fail': True,
+                'name': 'nested children',
+                'component': html.Div,
+                'props': {'children': [[1]]}
+            },
+
+            'deeply-nested-children': {
+                'fail': True,
+                'name': 'deeply nested children',
+                'component': html.Div,
+                'props': {'children': html.Div([
+                    html.Div([
+                        3,
+                        html.Div([[10]])
+                    ])
+                ])}
+            },
+
+            'dict': {
+                'fail': True,
+                'name': 'returning a dictionary',
+                'component': html.Div,
+                'props': {
+                    'children': {'hello': 'world'}
+                }
+            },
+
+            'nested-prop-failure': {
+                'fail': True,
+                'name': 'nested string instead of number/null',
+                'component': dcc.Graph,
+                'props': {
+                    'figure': {'data': [{}]},
+                    'config': {
+                        'toImageButtonOptions': {
+                            'width': None,
+                            'height': 'test'
+                        }
+                    }
+                }
+            },
+
+            'allow-null': {
+                'fail': False,
+                'name': 'nested null',
+                'component': dcc.Graph,
+                'props': {
+                    'figure': {'data': [{}]},
+                    'config': {
+                        'toImageButtonOptions': {
+                            'width': None,
+                            'height': None
+                        }
+                    }
+                }
+            },
+
+            'allow-null-2': {
+                'fail': False,
+                'name': 'allow null as value',
+                'component': dcc.Dropdown,
+                'props': {
+                    'value': None
+                }
+            },
+
+            'allow-null-3': {
+                'fail': False,
+                'name': 'allow null in properties',
+                'component': dcc.Input,
+                'props': {
+                    'value': None
+                }
+            },
+
+            'allow-null-4': {
+                'fail': False,
+                'name': 'allow null in oneOfType',
+                'component': dcc.Store,
+                'props': {
+                    'id': 'store',
+                    'data': None
+                }
+            },
+
+            'long-property-string': {
+                'fail': True,
+                'name': 'long property string with id',
+                'component': html.Div,
+                'props': {
+                    'id': 'pink div',
+                    'style': 'color: hotpink; ' * 1000
+                }
+            },
+
+            'multiple-wrong-values': {
+                'fail': True,
+                'name': 'multiple wrong props',
+                'component': dcc.Dropdown,
+                'props': {
+                    'id': 'dropdown',
+                    'value': 10,
+                    'options': 'asdf',
+                }
+            },
+
+            'boolean-html-properties': {
+                'fail': True,
+                'name': 'dont allow booleans for dom props',
+                'component': html.Div,
+                'props': {
+                    'contentEditable': True
+                }
+            },
+
+            'allow-exact-with-optional-and-required-1': {
+                'fail': False,
+                'name': 'allow exact with optional and required keys',
+                'component': dcc.Dropdown,
+                'props': {
+                    'options': [{
+                        'label': 'new york',
+                        'value': 'ny',
+                        'disabled': False
+                    }]
+                }
+            },
+
+            'allow-exact-with-optional-and-required-2': {
+                'fail': False,
+                'name': 'allow exact with optional and required keys 2',
+                'component': dcc.Dropdown,
+                'props': {
+                    'options': [{
+                        'label': 'new york',
+                        'value': 'ny'
+                    }]
+                }
+            }
+
+        }
+
+        app.layout = html.Div([
+            html.Div(id='content'),
+            dcc.Location(id='location'),
+        ])
+
+        @app.callback(
+            Output('content', 'children'),
+            [Input('location', 'pathname')])
+        def display_content(pathname):
+            if pathname is None or pathname == '/':
+                return 'Initial state'
+            test_case = test_cases[pathname.strip('/')]
+            return html.Div(
+                id='new-component',
+                children=test_case['component'](**test_case['props'])
+            )
+
+        self.startServer(
+            app,
+            debug=True,
+            use_reloader=False,
+            use_debugger=True,
+            dev_tools_hot_reload=False,
+        )
+
+        for test_case_id in test_cases:
+            self.driver.get('http://localhost:8050/{}'.format(test_case_id))
+            if test_cases[test_case_id]['fail']:
+                try:
+                    self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
+                except Exception as e:
+                    raise Exception('Error popup not shown for {}'.format(test_case_id))
+                self.percy_snapshot(
+                    'devtools validation exception: {}'.format(
+                        test_cases[test_case_id]['name']
+                    )
+                )
+            else:
+                try:
+                    self.wait_for_element_by_css_selector('#new-component')
+                except Exception as e:
+                    raise Exception('Component not rendered in {}'.format(test_case_id))
+                self.percy_snapshot(
+                    'devtools validation no exception: {}'.format(
+                        test_cases[test_case_id]['name']
+                    )
+                )
