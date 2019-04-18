@@ -674,8 +674,13 @@ function updateOutput(
                 // update the status of this request
                 updateRequestQueue(true, res.status);
 
-                // eject into `catch` handler below
-                throw res;
+                /*
+                 * eject into `catch` handler below to display error
+                 * message in ui
+                 */
+                if (res.status !== STATUS.PREVENT_UPDATE) {
+                    throw res;
+                }
             }
 
             /*
