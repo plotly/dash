@@ -30,17 +30,19 @@ export default class DatePickerSingle extends Component {
     propsToState(newProps) {
         /*
          * state includes:
-         * - user modifiable attributes
+         * - if no ID, user modifiable attributes (date)
          * - moment converted attributes
          */
 
         const newState = convertToMoment(newProps, [
-            'date',
             'initial_visible_month',
             'max_date_allowed',
             'min_date_allowed',
         ]);
 
+        if (!newProps.id) {
+            newState.date = newProps.date;
+        }
         this.setState(newState);
     }
 
@@ -62,14 +64,36 @@ export default class DatePickerSingle extends Component {
     }
 
     onDateChange(date) {
-        const {setProps} = this.props;
+        const {id, setProps} = this.props;
+        const payload = {date: date ? date.format('YYYY-MM-DD') : null};
 
-        this.setState({date});
-        setProps({date: date ? date.format('YYYY-MM-DD') : null});
+        if (!id) {
+            /*
+             * dash-renderer will control this component
+             * if the component has an ID.
+             * If it doesn't, then this component needs to
+             * manage its own state.
+             *
+             * In the future, dash-renderer may be able to
+             * handle the state no matter what
+             *
+             * In almost all practical cases, these controls
+             * will have an ID (as they are inputs to callbacks)
+             * but as users are authoring their app's layout,
+             * they may include some controls without IDs
+             * to start. If we don't manage the state, then
+             * the user may be surprised the component reacts
+             * different to user input when it is "unconnected"
+             * (without an ID) vs when it is connected.
+             */
+            this.setState(payload);
+        } else {
+            setProps(payload);
+        }
     }
 
     render() {
-        const {date, focused, initial_visible_month} = this.state;
+        const {focused, initial_visible_month} = this.state;
 
         const {
             calendar_orientation,
@@ -92,6 +116,13 @@ export default class DatePickerSingle extends Component {
             style,
             className,
         } = this.props;
+
+        let date;
+        if (id) {
+            date = convertToMoment(this.props, ['date']).date;
+        } else {
+            date = convertToMoment(this.state, ['date']).date;
+        }
 
         const verticalFlag = calendar_orientation !== 'vertical';
 
