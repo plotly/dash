@@ -80,7 +80,7 @@ Details.propTypes = {
      * Indicates whether the details will be shown on page load.
      */
     'open': PropTypes.oneOfType([
-        PropTypes.oneOf('open', 'OPEN'),
+        PropTypes.oneOf(['open', 'OPEN']),
         PropTypes.bool
      ]),
 
@@ -118,7 +118,7 @@ Details.propTypes = {
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
     'hidden': PropTypes.oneOfType([
-        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.oneOf(['hidden', 'HIDDEN']),
         PropTypes.bool
      ]),
 

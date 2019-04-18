@@ -30,7 +30,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - encType (string; optional): Defines the content type of the form date when the method is POST.
 - method (string; optional): Defines which HTTP method to use when submitting the form. Can be GET (default) or POST.
 - name (string; optional): Name of the element. For example used by the server to identify the fields in form submits.
-- noValidate (boolean; optional): This attribute indicates that the form shouldn't be validated when submitted.
+- noValidate (a value equal to: 'noValidate', 'novalidate', 'NOVALIDATE' | boolean; optional): This attribute indicates that the form shouldn't be validated when submitted.
 - target (string; optional)
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.
 - className (string; optional): Often used with CSS to style elements with common properties.
@@ -38,7 +38,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (a value equal to: 'hidden', 'HIDDEN' | boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

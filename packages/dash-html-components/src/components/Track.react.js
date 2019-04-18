@@ -80,7 +80,7 @@ Track.propTypes = {
      * Indicates that the track should be enabled unless the user's preferences indicate something different.
      */
     'default': PropTypes.oneOfType([
-        PropTypes.oneOf('default', 'DEFAULT'),
+        PropTypes.oneOf(['default', 'DEFAULT']),
         PropTypes.bool
      ]),
 
@@ -138,7 +138,7 @@ Track.propTypes = {
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
     'hidden': PropTypes.oneOfType([
-        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.oneOf(['hidden', 'HIDDEN']),
         PropTypes.bool
      ]),
 

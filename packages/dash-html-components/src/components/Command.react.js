@@ -80,7 +80,7 @@ Command.propTypes = {
      * Indicates whether the element should be checked on page load.
      */
     'checked': PropTypes.oneOfType([
-        PropTypes.oneOf('checked', 'CHECKED'),
+        PropTypes.oneOf(['checked', 'CHECKED']),
         PropTypes.bool
      ]),
 
@@ -88,7 +88,7 @@ Command.propTypes = {
      * Indicates whether the user can interact with the element.
      */
     'disabled': PropTypes.oneOfType([
-        PropTypes.oneOf('disabled', 'DISABLED'),
+        PropTypes.oneOf(['disabled', 'DISABLED']),
         PropTypes.bool
      ]),
 
@@ -141,7 +141,7 @@ Command.propTypes = {
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
     'hidden': PropTypes.oneOfType([
-        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.oneOf(['hidden', 'HIDDEN']),
         PropTypes.bool
      ]),
 

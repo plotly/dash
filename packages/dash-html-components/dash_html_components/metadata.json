@@ -165,8 +165,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -361,8 +369,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -557,8 +573,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -753,8 +777,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -1012,8 +1044,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -1208,8 +1248,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -1404,8 +1452,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -1558,8 +1614,20 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'autoPlay'"
+              "value": [
+                {
+                  "value": "'autoPlay'",
+                  "computed": false
+                },
+                {
+                  "value": "'autoplay'",
+                  "computed": false
+                },
+                {
+                  "value": "'AUTOPLAY'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -1575,8 +1643,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'controls'"
+              "value": [
+                {
+                  "value": "'controls'",
+                  "computed": false
+                },
+                {
+                  "value": "'CONTROLS'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -1599,8 +1675,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'loop'"
+              "value": [
+                {
+                  "value": "'loop'",
+                  "computed": false
+                },
+                {
+                  "value": "'LOOP'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -1616,8 +1700,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'muted'"
+              "value": [
+                {
+                  "value": "'muted'",
+                  "computed": false
+                },
+                {
+                  "value": "'MUTED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -1689,8 +1781,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -1885,8 +1985,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -2095,8 +2203,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -2291,8 +2407,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -2487,8 +2611,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -2683,8 +2815,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -2879,8 +3019,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -3075,8 +3223,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -3278,8 +3434,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -3474,8 +3638,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -3628,8 +3800,20 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'autoFocus'"
+              "value": [
+                {
+                  "value": "'autoFocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'autofocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'AUTOFOCUS'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -3645,8 +3829,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'disabled'"
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -3739,8 +3931,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -3965,8 +4165,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -4161,8 +4369,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -4357,8 +4573,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -4553,8 +4777,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -4749,8 +4981,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -4952,8 +5192,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -5155,8 +5403,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -5309,8 +5565,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'checked'"
+              "value": [
+                {
+                  "value": "'checked'",
+                  "computed": false
+                },
+                {
+                  "value": "'CHECKED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -5326,8 +5590,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'disabled'"
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -5406,8 +5678,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -5602,8 +5882,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -5798,8 +6086,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -5994,8 +6290,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -6190,8 +6494,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -6400,8 +6712,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -6554,8 +6874,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'open'"
+              "value": [
+                {
+                  "value": "'open'",
+                  "computed": false
+                },
+                {
+                  "value": "'OPEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -6613,8 +6941,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -6809,8 +7145,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -7005,8 +7349,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -7201,8 +7553,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -7397,8 +7757,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -7593,8 +7961,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -7789,8 +8165,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -7985,8 +8369,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -8225,8 +8617,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -8379,8 +8779,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'disabled'"
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -8452,8 +8860,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -8648,8 +9064,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -8844,8 +9268,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -9040,8 +9472,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -9236,8 +9676,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -9439,8 +9887,20 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'noValidate'"
+              "value": [
+                {
+                  "value": "'noValidate'",
+                  "computed": false
+                },
+                {
+                  "value": "'novalidate'",
+                  "computed": false
+                },
+                {
+                  "value": "'NOVALIDATE'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -9505,8 +9965,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -9701,8 +10169,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -9897,8 +10373,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -10093,8 +10577,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -10289,8 +10781,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -10485,8 +10985,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -10681,8 +11189,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -10877,8 +11393,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -11073,8 +11597,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -11269,8 +11801,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -11465,8 +12005,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -11661,8 +12209,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -11857,8 +12413,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -12111,8 +12675,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -12379,8 +12951,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -12589,8 +13169,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -12785,8 +13373,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -12981,8 +13577,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -13135,8 +13739,20 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'autoFocus'"
+              "value": [
+                {
+                  "value": "'autoFocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'autofocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'AUTOFOCUS'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -13159,8 +13775,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'disabled'"
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -13239,8 +13863,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -13449,8 +14081,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -13645,8 +14285,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -13848,8 +14496,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -14093,8 +14749,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -14289,8 +14953,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -14485,8 +15157,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -14688,8 +15368,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -14884,8 +15572,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -15038,8 +15734,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'loop'"
+              "value": [
+                {
+                  "value": "'loop'",
+                  "computed": false
+                },
+                {
+                  "value": "'LOOP'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -15097,8 +15801,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -15321,8 +16033,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -15582,8 +16302,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -15778,8 +16506,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -15974,8 +16710,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -16170,8 +16914,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -16366,8 +17118,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -16562,8 +17322,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -16816,8 +17584,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -16970,8 +17746,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'reversed'"
+              "value": [
+                {
+                  "value": "'reversed'",
+                  "computed": false
+                },
+                {
+                  "value": "'REVERSED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -17036,8 +17820,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -17190,8 +17982,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'disabled'"
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -17249,8 +18049,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -17403,8 +18211,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'disabled'"
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -17420,8 +18236,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'selected'"
+              "value": [
+                {
+                  "value": "'selected'",
+                  "computed": false
+                },
+                {
+                  "value": "'SELECTED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -17486,8 +18310,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -17703,8 +18535,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -17899,8 +18739,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -18109,8 +18957,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -18305,8 +19161,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -18501,8 +19365,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -18697,8 +19569,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -18922,8 +19802,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -19125,8 +20013,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -19321,8 +20217,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -19517,8 +20421,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -19713,8 +20625,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -19909,8 +20829,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -20105,8 +21033,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -20301,8 +21237,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -20497,8 +21441,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -20651,8 +21603,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'async'"
+              "value": [
+                {
+                  "value": "'async'",
+                  "computed": false
+                },
+                {
+                  "value": "'ASYNC'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -20682,8 +21642,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'defer'"
+              "value": [
+                {
+                  "value": "'defer'",
+                  "computed": false
+                },
+                {
+                  "value": "'DEFER'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -20762,8 +21730,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -20958,8 +21934,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -21112,8 +22096,20 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'autoFocus'"
+              "value": [
+                {
+                  "value": "'autoFocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'autofocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'AUTOFOCUS'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -21129,8 +22125,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'disabled'"
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -21153,8 +22157,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'multiple'"
+              "value": [
+                {
+                  "value": "'multiple'",
+                  "computed": false
+                },
+                {
+                  "value": "'MULTIPLE'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -21177,8 +22189,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'required'"
+              "value": [
+                {
+                  "value": "'required'",
+                  "computed": false
+                },
+                {
+                  "value": "'REQUIRED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -21251,8 +22271,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -21447,8 +22475,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -21643,8 +22679,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -21839,8 +22883,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -22070,8 +23122,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -22266,8 +23326,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -22462,8 +23530,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -22658,8 +23734,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -22854,8 +23938,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -23050,8 +24142,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -23246,8 +24346,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -23442,8 +24550,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -23645,8 +24761,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -23841,8 +24965,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -24074,8 +25206,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -24270,8 +25410,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -24431,8 +25579,20 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'autoFocus'"
+              "value": [
+                {
+                  "value": "'autoFocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'autofocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'AUTOFOCUS'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -24463,8 +25623,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'disabled'"
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -24538,8 +25706,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'required'"
+              "value": [
+                {
+                  "value": "'required'",
+                  "computed": false
+                },
+                {
+                  "value": "'REQUIRED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -24619,8 +25795,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -24815,8 +25999,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -25055,8 +26247,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -25251,8 +26451,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -25454,8 +26662,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -25650,8 +26866,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -25846,8 +27070,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26000,8 +27232,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'default'"
+              "value": [
+                {
+                  "value": "'default'",
+                  "computed": false
+                },
+                {
+                  "value": "'DEFAULT'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26087,8 +27327,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26283,8 +27531,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26479,8 +27735,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26675,8 +27939,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26829,8 +28101,20 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'autoPlay'"
+              "value": [
+                {
+                  "value": "'autoPlay'",
+                  "computed": false
+                },
+                {
+                  "value": "'autoplay'",
+                  "computed": false
+                },
+                {
+                  "value": "'AUTOPLAY'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26846,8 +28130,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'controls'"
+              "value": [
+                {
+                  "value": "'controls'",
+                  "computed": false
+                },
+                {
+                  "value": "'CONTROLS'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26885,8 +28177,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'loop'"
+              "value": [
+                {
+                  "value": "'loop'",
+                  "computed": false
+                },
+                {
+                  "value": "'LOOP'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26902,8 +28202,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'muted'"
+              "value": [
+                {
+                  "value": "'muted'",
+                  "computed": false
+                },
+                {
+                  "value": "'MUTED'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -26997,8 +28305,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -27193,8 +28509,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"
@@ -27389,8 +28713,16 @@
           "value": [
             {
               "name": "enum",
-              "computed": true,
-              "value": "'hidden'"
+              "value": [
+                {
+                  "value": "'hidden'",
+                  "computed": false
+                },
+                {
+                  "value": "'HIDDEN'",
+                  "computed": false
+                }
+              ]
             },
             {
               "name": "bool"

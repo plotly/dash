@@ -80,7 +80,7 @@ Select.propTypes = {
      * The element should be automatically focused after the page loaded.
      */
     'autoFocus': PropTypes.oneOfType([
-        PropTypes.oneOf('autoFocus', 'autofocus', 'AUTOFOCUS'),
+        PropTypes.oneOf(['autoFocus', 'autofocus', 'AUTOFOCUS']),
         PropTypes.bool
      ]),
 
@@ -88,7 +88,7 @@ Select.propTypes = {
      * Indicates whether the user can interact with the element.
      */
     'disabled': PropTypes.oneOfType([
-        PropTypes.oneOf('disabled', 'DISABLED'),
+        PropTypes.oneOf(['disabled', 'DISABLED']),
         PropTypes.bool
      ]),
 
@@ -101,7 +101,7 @@ Select.propTypes = {
      * Indicates whether multiple values can be entered in an input of the type email or file.
      */
     'multiple': PropTypes.oneOfType([
-        PropTypes.oneOf('multiple', 'MULTIPLE'),
+        PropTypes.oneOf(['multiple', 'MULTIPLE']),
         PropTypes.bool
      ]),
 
@@ -114,7 +114,7 @@ Select.propTypes = {
      * Indicates whether this element is required to fill out or not.
      */
     'required': PropTypes.oneOfType([
-        PropTypes.oneOf('required', 'REQUIRED'),
+        PropTypes.oneOf(['required', 'REQUIRED']),
         PropTypes.bool
      ]),
 
@@ -160,7 +160,7 @@ Select.propTypes = {
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
     'hidden': PropTypes.oneOfType([
-        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.oneOf(['hidden', 'HIDDEN']),
         PropTypes.bool
      ]),
 

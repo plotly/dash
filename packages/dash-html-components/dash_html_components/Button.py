@@ -23,8 +23,8 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - role (string; optional): The ARIA role attribute
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
-- autoFocus (boolean; optional): The element should be automatically focused after the page loaded.
-- disabled (boolean; optional): Indicates whether the user can interact with the element.
+- autoFocus (a value equal to: 'autoFocus', 'autofocus', 'AUTOFOCUS' | boolean; optional): The element should be automatically focused after the page loaded.
+- disabled (a value equal to: 'disabled', 'DISABLED' | boolean; optional): Indicates whether the user can interact with the element.
 - form (string; optional): Indicates the form that is the owner of the element.
 - formAction (string; optional): Indicates the action of the element, overriding the action defined in the <form>.
 - name (string; optional): Name of the element. For example used by the server to identify the fields in form submits.
@@ -36,7 +36,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (a value equal to: 'hidden', 'HIDDEN' | boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

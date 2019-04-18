@@ -23,10 +23,10 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - role (string; optional): The ARIA role attribute
 - data-* (string; optional): A wildcard data attribute
 - aria-* (string; optional): A wildcard aria attribute
-- async (boolean; optional): Indicates that the script should be executed asynchronously.
+- async (a value equal to: 'async', 'ASYNC' | boolean; optional): Indicates that the script should be executed asynchronously.
 - charSet (string; optional): Declares the character encoding of the page or script.
 - crossOrigin (string; optional): How the element handles cross-origin requests
-- defer (boolean; optional): Indicates that the script should be executed after the page has been parsed.
+- defer (a value equal to: 'defer', 'DEFER' | boolean; optional): Indicates that the script should be executed after the page has been parsed.
 - integrity (string; optional): Security Feature that allows browsers to verify what they fetch.
 - src (string; optional): The URL of the embeddable content.
 - type (string; optional): Defines the type of the element.
@@ -36,7 +36,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
 - draggable (string; optional): Defines whether the element can be dragged.
-- hidden (boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+- hidden (a value equal to: 'hidden', 'HIDDEN' | boolean; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
 - spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.

@@ -80,7 +80,7 @@ Ol.propTypes = {
      * Indicates whether the list should be displayed in a descending order instead of a ascending.
      */
     'reversed': PropTypes.oneOfType([
-        PropTypes.oneOf('reversed', 'REVERSED'),
+        PropTypes.oneOf(['reversed', 'REVERSED']),
         PropTypes.bool
      ]),
 
@@ -123,7 +123,7 @@ Ol.propTypes = {
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
      */
     'hidden': PropTypes.oneOfType([
-        PropTypes.oneOf('hidden', 'HIDDEN'),
+        PropTypes.oneOf(['hidden', 'HIDDEN']),
         PropTypes.bool
      ]),
 
