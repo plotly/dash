@@ -6,6 +6,7 @@ import {mount, render} from 'enzyme';
 const defaultProps = {
     start_date_id: 'start-date-id',
     end_date_id: 'end-date-id',
+    id: 'datepicker',
 };
 
 test('DatePickerRange renders', () => {
