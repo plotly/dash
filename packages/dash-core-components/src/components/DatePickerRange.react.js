@@ -62,7 +62,7 @@ export default class DatePickerRange extends Component {
                 'end_date',
             ]);
         } else {
-            oldMomentDates = convertToMoment(this.props, [
+            oldMomentDates = convertToMoment(this.state, [
                 'start_date',
                 'end_date',
             ]);
