@@ -11,7 +11,7 @@ test('DatePickerSingle renders', () => {
 
 describe('Date can be set properly', () => {
     const defaultProps = {
-        id: 'datepicker'
+        id: 'datepicker',
     };
 
     test('null date is not converted by moment', () => {
