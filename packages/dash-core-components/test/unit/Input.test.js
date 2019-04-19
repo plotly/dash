@@ -16,7 +16,7 @@ describe('Props can be set properly', () => {
         className: 'input-class',
         type: 'text',
         autoComplete: 'on',
-        autoFocus: 'on',
+        autoFocus: 'autofocus',
         disabled: true,
         debounce: false,
         inputMode: 'verbatim',
