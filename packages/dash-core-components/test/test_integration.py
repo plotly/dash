@@ -1667,7 +1667,7 @@ class Tests(IntegrationTests):
         sday.click()
         self.wait_for_text_to_equal('#date-picker-range-output', 'None - None')
 
-        eday = self.driver.find_elements_by_xpath("//td[text()='4']")[1]
+        eday = self.driver.find_elements_by_xpath("//td[text()='28']")[1]
         eday.click()
 
         date_tokens = set(start_date.get_attribute('value').split('/'))
