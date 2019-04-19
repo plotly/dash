@@ -61,7 +61,11 @@ export default class DatePickerRange extends Component {
             : convertToMoment(this.state, ['start_date', 'end_date']);
 
         if (start_date && !start_date.isSame(oldMomentDates.start_date)) {
-            payload = {start_date: start_date.format('YYYY-MM-DD')};
+            if (updatemode === 'singledate') {
+                payload = {start_date: start_date.format('YYYY-MM-DD')};
+            } else {
+                this.setState({start_date: start_date.format('YYYY-MM-DD')})
+            }
         }
 
         if (end_date && !end_date.isSame(oldMomentDates.end_date)) {
@@ -69,7 +73,7 @@ export default class DatePickerRange extends Component {
                 payload = {end_date: end_date.format('YYYY-MM-DD')};
             } else if (updatemode === 'bothdates') {
                 payload = {
-                    start_date: start_date.format('YYYY-MM-DD'),
+                    start_date: this.state.start_date,
                     end_date: end_date.format('YYYY-MM-DD'),
                 };
             }

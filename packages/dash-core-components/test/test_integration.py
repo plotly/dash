@@ -44,7 +44,8 @@ from multiprocessing import Value
 # export PERCY_PROJECT=plotly/dash-integration-tests
 # export PERCY_TOKEN=...
 
-TIMEOUT = 20
+
+TIMEOUT = 10
 
 
 class Tests(IntegrationTests):
@@ -1658,19 +1659,28 @@ class Tests(IntegrationTests):
 
         self.wait_for_text_to_equal('#date-picker-range-output', 'None - None')
 
-        # updated only one date, callback shouldn't fire and output should be unchanged
-        dt_length = len(start_date.get_attribute('value'))
-        start_date.send_keys(dt_length * Keys.BACKSPACE)
-        start_date.send_keys("1997-05-03")
+        # using mouse click with fixed day range, this can be improved
+        # once we start refactoring the test structure
+        start_date.click()
+
+        sday = self.driver.find_element_by_xpath("//td[text()='1' and @tabindex='0']")
+        sday.click()
         self.wait_for_text_to_equal('#date-picker-range-output', 'None - None')
 
-        # updated both dates, callback should now fire and update output
-        dt_length = len(end_date.get_attribute('value'))
-        end_date.send_keys(dt_length * Keys.BACKSPACE)
-        end_date.send_keys("1997-05-04")
-        end_date.click()
-        self.wait_for_text_to_equal(
-            '#date-picker-range-output', '1997-05-03 - 1997-05-04')
+        eday = self.driver.find_elements_by_xpath("//td[text()='4']")[1]
+        eday.click()
+
+        date_tokens = set(start_date.get_attribute('value').split('/'))
+        date_tokens.update(end_date.get_attribute('value').split('/'))
+
+        self.assertEqual(
+            set(itertools.chain(*[
+                _.split('-')
+                for _ in self.driver.find_element_by_css_selector(
+                    '#date-picker-range-output').text.split(' - ')])
+            ),
+            date_tokens,
+            "date should match the callback output")
 
     def test_interval(self):
         app = dash.Dash(__name__)
