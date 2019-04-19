@@ -1677,8 +1677,7 @@ class Tests(IntegrationTests):
             set(itertools.chain(*[
                 _.split('-')
                 for _ in self.driver.find_element_by_css_selector(
-                    '#date-picker-range-output').text.split(' - ')])
-            ),
+                    '#date-picker-range-output').text.split(' - ')])),
             date_tokens,
             "date should match the callback output")
 
