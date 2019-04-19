@@ -64,7 +64,7 @@ export default class DatePickerRange extends Component {
             if (updatemode === 'singledate') {
                 payload = {start_date: start_date.format('YYYY-MM-DD')};
             } else {
-                this.setState({start_date: start_date.format('YYYY-MM-DD')})
+                this.setState({start_date: start_date.format('YYYY-MM-DD')});
             }
         }
 
