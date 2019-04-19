@@ -4,7 +4,7 @@
     bottom: 165px;
     right: 16px;
     max-width: 80vw;
-    max-height: 80vh;
+    max-height: calc(100vh - 180px);
     overflow: auto;
     box-sizing: border-box;
     background: #ffffff;
