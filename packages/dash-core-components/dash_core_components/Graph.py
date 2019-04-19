@@ -23,7 +23,7 @@ data from the last point that was hovered over.
 when the user zooms or pans on the plot or other
 layout-level edits. Has the form `{<attr string>: <value>}`
 describing the changes made. Read-only.
-- extendData (dict; optional): Data that should be appended to existing traces. Has the form
+- extendData (list | dict; optional): Data that should be appended to existing traces. Has the form
 `[updateData, traceIndices, maxPoints]`, where `updateData` is an object
 containing the data to extend, `traceIndices` (optional) is an array of
 trace indices that should be extended, and `maxPoints` (optional) is
@@ -38,11 +38,14 @@ Has the form `[edits, indices]`, where `edits` is an object
 `{<attr string>: <value>}` describing the changes made,
 and `indices` is an array of trace indices that were edited.
 Read-only.
-- figure (dict; optional): Plotly `figure` object. See schema:
+- figure (optional): Plotly `figure` object. See schema:
 https://plot.ly/javascript/reference
 Only supports `data` array and `layout` object.
 `config` is set separately by the `config` property,
-and `frames` is not supported.
+and `frames` is not supported.. figure has the following type: dict containing keys 'data', 'layout'.
+Those keys have the following types:
+  - data (list; optional)
+  - layout (dict; optional)
 - style (dict; optional): Generic style overrides on the plot div
 - className (string; optional): className of the parent div
 - animate (boolean; optional): Beta: If true, animate between updates using

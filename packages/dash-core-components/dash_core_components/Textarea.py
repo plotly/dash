@@ -13,28 +13,34 @@ in callbacks. The ID needs to be unique across all of the
 components in an app.
 - value (string; optional): The value of the textarea
 - autoFocus (string; optional): The element should be automatically focused after the page loaded.
-- cols (string; optional): Defines the number of columns in a textarea.
-- disabled (string; optional): Indicates whether the user can interact with the element.
+- cols (string | number; optional): Defines the number of columns in a textarea.
+- disabled (string | boolean; optional): Indicates whether the user can interact with the element.
 - form (string; optional): Indicates the form that is the owner of the element.
-- maxLength (string; optional): Defines the maximum number of characters allowed in the element.
-- minLength (string; optional): Defines the minimum number of characters allowed in the element.
+- maxLength (string | number; optional): Defines the maximum number of characters allowed in the element.
+- minLength (string | number; optional): Defines the minimum number of characters allowed in the element.
 - name (string; optional): Name of the element. For example used by the server to identify the fields in form submits.
 - placeholder (string; optional): Provides a hint to the user of what can be entered in the field.
-- readOnly (string; optional): Indicates whether the element can be edited.
-- required (string; optional): Indicates whether this element is required to fill out or not.
-- rows (string; optional): Defines the number of rows in a text area.
+- readOnly (boolean | a value equal to: 'readOnly', 'readonly', 'READONLY'; optional): Indicates whether the element can be edited.
+readOnly is an HTML boolean attribute - it is enabled by a boolean or
+'readOnly'. Alternative capitalizations `readonly` & `READONLY`
+are also acccepted.
+- required (a value equal to: 'required', 'REQUIRED' | boolean; optional): Indicates whether this element is required to fill out or not.
+required is an HTML boolean attribute - it is enabled by a boolean or
+'required'. Alternative capitalizations `REQUIRED`
+are also acccepted.
+- rows (string | number; optional): Defines the number of rows in a text area.
 - wrap (string; optional): Indicates whether the text should be wrapped.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.
 - className (string; optional): Often used with CSS to style elements with common properties.
-- contentEditable (string; optional): Indicates whether the element's content is editable.
+- contentEditable (string | boolean; optional): Indicates whether the element's content is editable.
 - contextMenu (string; optional): Defines the ID of a <menu> element which will serve as the element's context menu.
 - dir (string; optional): Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
-- draggable (string; optional): Defines whether the element can be dragged.
+- draggable (a value equal to: 'true', 'false' | boolean; optional): Defines whether the element can be dragged.
 - hidden (string; optional): Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
 - lang (string; optional): Defines the language used in the element.
-- spellCheck (string; optional): Indicates whether spell checking is allowed for the element.
+- spellCheck (a value equal to: 'true', 'false' | boolean; optional): Indicates whether spell checking is allowed for the element.
 - style (dict; optional): Defines CSS styles which will override styles previously set.
-- tabIndex (string; optional): Overrides the browser's default tab order and follows the one specified instead.
+- tabIndex (string | number; optional): Overrides the browser's default tab order and follows the one specified instead.
 - title (string; optional): Text to be displayed in a tooltip when hovering over the element.
 - n_blur (number; optional): Number of times the textarea lost focus.
 - n_blur_timestamp (number; optional): Last time the textarea lost focus.

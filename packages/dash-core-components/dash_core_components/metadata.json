@@ -15,17 +15,33 @@
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "shape",
+            "name": "exact",
             "value": {
               "label": {
-                "name": "string",
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
                 "description": "The checkbox's label",
-                "required": false
+                "required": true
               },
               "value": {
-                "name": "string",
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
                 "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
-                "required": false
+                "required": true
               },
               "disabled": {
                 "name": "bool",
@@ -46,7 +62,15 @@
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "string"
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "number"
+              }
+            ]
           }
         },
         "required": false,
@@ -148,22 +172,15 @@
     "displayName": "ConfirmDialog",
     "methods": [
       {
-        "name": "_setStateAndProps",
+        "name": "_update",
         "docblock": null,
         "modifiers": [],
         "params": [
           {
-            "name": "value",
+            "name": "shouldTriggerDisplay",
             "type": null
           }
         ],
-        "returns": null
-      },
-      {
-        "name": "_update",
-        "docblock": null,
-        "modifiers": [],
-        "params": [],
         "returns": null
       }
     ],
@@ -1061,17 +1078,33 @@
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "shape",
+            "name": "exact",
             "value": {
               "label": {
-                "name": "string",
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
                 "description": "The dropdown's label",
-                "required": false
+                "required": true
               },
               "value": {
-                "name": "string",
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
                 "description": "The value of the dropdown. This value\ncorresponds to the items specified in the\n`values` property.",
-                "required": false
+                "required": true
               },
               "disabled": {
                 "name": "bool",
@@ -1095,6 +1128,15 @@
               "name": "arrayOf",
               "value": {
                 "name": "string"
+              }
+            },
+            {
+              "name": "number"
+            },
+            {
+              "name": "arrayOf",
+              "value": {
+                "name": "number"
               }
             }
           ]
@@ -1280,7 +1322,15 @@
       },
       "extendData": {
         "type": {
-          "name": "object"
+          "name": "union",
+          "value": [
+            {
+              "name": "array"
+            },
+            {
+              "name": "object"
+            }
+          ]
         },
         "required": false,
         "description": "Data that should be appended to existing traces. Has the form\n`[updateData, traceIndices, maxPoints]`, where `updateData` is an object\ncontaining the data to extend, `traceIndices` (optional) is an array of\ntrace indices that should be extended, and `maxPoints` (optional) is\neither an integer defining the maximum number of points allowed or an\nobject with key:value pairs matching `updateData`\nReference the Plotly.extendTraces API for full usage:\nhttps://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces",
@@ -1302,7 +1352,20 @@
       },
       "figure": {
         "type": {
-          "name": "object"
+          "name": "exact",
+          "value": {
+            "data": {
+              "name": "arrayOf",
+              "value": {
+                "name": "object"
+              },
+              "required": false
+            },
+            "layout": {
+              "name": "object",
+              "required": false
+            }
+          }
         },
         "required": false,
         "description": "Plotly `figure` object. See schema:\nhttps://plot.ly/javascript/reference\nOnly supports `data` array and `layout` object.\n`config` is set separately by the `config` property,\nand `frames` is not supported.",
@@ -1349,7 +1412,7 @@
       },
       "config": {
         "type": {
-          "name": "shape",
+          "name": "exact",
           "value": {
             "staticPlot": {
               "name": "bool",
@@ -1367,7 +1430,7 @@
               "required": false
             },
             "edits": {
-              "name": "shape",
+              "name": "exact",
               "value": {
                 "annotationPosition": {
                   "name": "bool",
@@ -1540,7 +1603,7 @@
               "required": false
             },
             "toImageButtonOptions": {
-              "name": "shape",
+              "name": "exact",
               "value": {
                 "format": {
                   "name": "enum",
@@ -1763,28 +1826,68 @@
         "required": false,
         "description": "The type of control to render."
       },
-      "autocomplete": {
+      "autoComplete": {
         "type": {
           "name": "string"
         },
         "required": false,
         "description": "This attribute indicates whether the value of the control can be automatically completed by the browser."
       },
-      "autofocus": {
+      "autoFocus": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'autoFocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'autofocus'",
+                  "computed": false
+                },
+                {
+                  "value": "'AUTOFOCUS'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
-        "description": "The element should be automatically focused after the page loaded."
+        "description": "The element should be automatically focused after the page loaded.\nautoFocus is an HTML boolean attribute - it is enabled by a boolean or\n'autoFocus'. Alternative capitalizations `autofocus` & `AUTOFOCUS`\nare also acccepted."
       },
       "disabled": {
         "type": {
-          "name": "bool"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'disabled'",
+                  "computed": false
+                },
+                {
+                  "value": "'DISABLED'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
-        "description": "If true, the input is disabled and can't be clicked on."
+        "description": "If true, the input is disabled and can't be clicked on.\ndisabled is an HTML boolean attribute - it is enabled by a boolean or\n'disabled'. Alternative capitalizations `DISABLED`"
       },
-      "inputmode": {
+      "inputMode": {
         "type": {
           "name": "enum",
           "value": [
@@ -1859,9 +1962,17 @@
         "required": false,
         "description": "The maximum (numeric or date-time) value for this item, which must not be less than its minimum (min attribute) value."
       },
-      "maxlength": {
+      "maxLength": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed."
@@ -1881,9 +1992,17 @@
         "required": false,
         "description": "The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value."
       },
-      "minlength": {
+      "minLength": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored."
@@ -1911,24 +2030,72 @@
       },
       "placeholder": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it."
       },
       "readOnly": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "bool"
+            },
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'readOnly'",
+                  "computed": false
+                },
+                {
+                  "value": "'readonly'",
+                  "computed": false
+                },
+                {
+                  "value": "'READONLY'",
+                  "computed": false
+                }
+              ]
+            }
+          ]
         },
         "required": false,
-        "description": "This attribute indicates that the user cannot modify the value of the control. The value of the attribute is irrelevant. If you need read-write access to the input value, do not add the \"readonly\" attribute. It is ignored if the value of the type attribute is hidden, range, color, checkbox, radio, file, or a button type (such as button or submit)."
+        "description": "This attribute indicates that the user cannot modify the value of the control. The value of the attribute is irrelevant. If you need read-write access to the input value, do not add the \"readonly\" attribute. It is ignored if the value of the type attribute is hidden, range, color, checkbox, radio, file, or a button type (such as button or submit).\nreadOnly is an HTML boolean attribute - it is enabled by a boolean or\n'readOnly'. Alternative capitalizations `readonly` & `READONLY`\nare also acccepted."
       },
       "required": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'required'",
+                  "computed": false
+                },
+                {
+                  "value": "'REQUIRED'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
-        "description": "This attribute specifies that the user must fill in a value before submitting a form. It cannot be used when the type attribute is hidden, image, or a button type (submit, reset, or button). The :optional and :required CSS pseudo-classes will be applied to the field as appropriate."
+        "description": "This attribute specifies that the user must fill in a value before submitting a form. It cannot be used when the type attribute is hidden, image, or a button type (submit, reset, or button). The :optional and :required CSS pseudo-classes will be applied to the field as appropriate.\nrequired is an HTML boolean attribute - it is enabled by a boolean or\n'required'. Alternative capitalizations `REQUIRED`\nare also acccepted."
       },
       "selectionDirection": {
         "type": {
@@ -1960,7 +2127,25 @@
       },
       "spellCheck": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'true'",
+                  "computed": false
+                },
+                {
+                  "value": "'false'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Setting the value of this attribute to true indicates that the element needs to have its spelling and grammar checked. The value default indicates that the element is to act according to a default behavior, possibly based on the parent element's own spellcheck value. The value false indicates that the element should not be checked."
@@ -2645,17 +2830,33 @@
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "shape",
+            "name": "exact",
             "value": {
               "label": {
-                "name": "string",
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
                 "description": "The radio item's label",
-                "required": false
+                "required": true
               },
               "value": {
-                "name": "string",
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
                 "description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`values` property.",
-                "required": false
+                "required": true
               },
               "disabled": {
                 "name": "bool",
@@ -2784,34 +2985,31 @@
       },
       "marks": {
         "type": {
-          "name": "shape",
+          "name": "objectOf",
           "value": {
-            "number": {
-              "name": "union",
-              "value": [
-                {
-                  "name": "string"
-                },
-                {
-                  "name": "shape",
-                  "value": {
-                    "style": {
-                      "name": "object",
-                      "required": false
-                    },
-                    "label": {
-                      "name": "string",
-                      "required": false
-                    }
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "exact",
+                "value": {
+                  "label": {
+                    "name": "string",
+                    "required": false
+                  },
+                  "style": {
+                    "name": "object",
+                    "required": false
                   }
                 }
-              ],
-              "required": false
-            }
+              }
+            ]
           }
         },
         "required": false,
-        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
+        "description": "Marks on the slider.\nThe key determines the position (a number),\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
       },
       "value": {
         "type": {
@@ -2976,34 +3174,31 @@
       },
       "marks": {
         "type": {
-          "name": "shape",
+          "name": "objectOf",
           "value": {
-            "number": {
-              "name": "union",
-              "value": [
-                {
-                  "name": "string"
-                },
-                {
-                  "name": "shape",
-                  "value": {
-                    "style": {
-                      "name": "object",
-                      "required": false
-                    },
-                    "label": {
-                      "name": "string",
-                      "required": false
-                    }
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "exact",
+                "value": {
+                  "label": {
+                    "name": "string",
+                    "required": false
+                  },
+                  "style": {
+                    "name": "object",
+                    "required": false
                   }
                 }
-              ],
-              "required": false
-            }
+              }
+            ]
           }
         },
         "required": false,
-        "description": "Marks on the slider.\nThe key determines the position,\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
+        "description": "Marks on the slider.\nThe key determines the position (a number),\nand the value determines what will show.\nIf you want to set the style of a specific mark point,\nthe value should be an object which\ncontains style and label properties."
       },
       "value": {
         "type": {
@@ -3609,7 +3804,7 @@
       },
       "colors": {
         "type": {
-          "name": "shape",
+          "name": "exact",
           "value": {
             "border": {
               "name": "string",
@@ -3686,14 +3881,30 @@
       },
       "cols": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the number of columns in a textarea."
       },
       "disabled": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
@@ -3707,14 +3918,30 @@
       },
       "maxLength": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the maximum number of characters allowed in the element."
       },
       "minLength": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the minimum number of characters allowed in the element."
@@ -3735,21 +3962,69 @@
       },
       "readOnly": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "bool"
+            },
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'readOnly'",
+                  "computed": false
+                },
+                {
+                  "value": "'readonly'",
+                  "computed": false
+                },
+                {
+                  "value": "'READONLY'",
+                  "computed": false
+                }
+              ]
+            }
+          ]
         },
         "required": false,
-        "description": "Indicates whether the element can be edited."
+        "description": "Indicates whether the element can be edited.\nreadOnly is an HTML boolean attribute - it is enabled by a boolean or\n'readOnly'. Alternative capitalizations `readonly` & `READONLY`\nare also acccepted."
       },
       "required": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'required'",
+                  "computed": false
+                },
+                {
+                  "value": "'REQUIRED'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
-        "description": "Indicates whether this element is required to fill out or not."
+        "description": "Indicates whether this element is required to fill out or not.\nrequired is an HTML boolean attribute - it is enabled by a boolean or\n'required'. Alternative capitalizations `REQUIRED`\nare also acccepted."
       },
       "rows": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Defines the number of rows in a text area."
@@ -3777,7 +4052,15 @@
       },
       "contentEditable": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether the element's content is editable."
@@ -3798,7 +4081,25 @@
       },
       "draggable": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'true'",
+                  "computed": false
+                },
+                {
+                  "value": "'false'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Defines whether the element can be dragged."
@@ -3819,7 +4120,25 @@
       },
       "spellCheck": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'true'",
+                  "computed": false
+                },
+                {
+                  "value": "'false'",
+                  "computed": false
+                }
+              ]
+            },
+            {
+              "name": "bool"
+            }
+          ]
         },
         "required": false,
         "description": "Indicates whether spell checking is allowed for the element."
@@ -3833,7 +4152,15 @@
       },
       "tabIndex": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "Overrides the browser's default tab order and follows the one specified instead."
@@ -3952,13 +4279,15 @@
           "name": "union",
           "value": [
             {
-              "name": "string"
+              "name": "string",
+              "description": "If `multiple` is `false`, then the contents will be a string"
             },
             {
               "name": "arrayOf",
               "value": {
                 "name": "string"
-              }
+              },
+              "description": "If `multiple` is `true`, then the contents will be a list of strings"
             }
           ]
         },
@@ -3970,13 +4299,15 @@
           "name": "union",
           "value": [
             {
-              "name": "string"
+              "name": "string",
+              "description": "If `multiple` is `false`, then the contents will be a string"
             },
             {
               "name": "arrayOf",
               "value": {
                 "name": "string"
-              }
+              },
+              "description": "If `multiple` is `true`, then the contents will be a list of strings"
             }
           ]
         },
@@ -3988,13 +4319,15 @@
           "name": "union",
           "value": [
             {
-              "name": "number"
+              "name": "number",
+              "description": "If `multiple` is `false`, then the contents will be a number"
             },
             {
               "name": "arrayOf",
               "value": {
                 "name": "number"
-              }
+              },
+              "description": "If `multiple` is `true`, then the contents will be a list of numbers"
             }
           ]
         },

@@ -11,16 +11,14 @@ Used for specifying a range of numerical values.
 Keyword arguments:
 - id (string; optional)
 - marks (optional): Marks on the slider.
-The key determines the position,
+The key determines the position (a number),
 and the value determines what will show.
 If you want to set the style of a specific mark point,
 the value should be an object which
-contains style and label properties.. marks has the following type: dict containing keys 'number'.
+contains style and label properties.. marks has the following type: dict with strings as keys and values of type string | dict containing keys 'label', 'style'.
 Those keys have the following types:
-  - number (optional): . number has the following type: string | dict containing keys 'style', 'label'.
-Those keys have the following types:
-  - style (dict; optional)
   - label (string; optional)
+  - style (dict; optional)
 - value (list; optional): The value of the input
 - allowCross (boolean; optional): allowCross could be set as true to allow those handles to cross.
 - className (string; optional): Additional CSS class for the root DOM node

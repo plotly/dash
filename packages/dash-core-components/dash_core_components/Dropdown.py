@@ -17,7 +17,7 @@ which have the benefit of showing the users all of the items at once.
 Keyword arguments:
 - id (string; optional)
 - options (list; optional): An array of options
-- value (string | list; optional): The value of the input. If `multi` is false (the default)
+- value (string | list | number | list; optional): The value of the input. If `multi` is false (the default)
 then value is just a string that corresponds to the values
 provided in the `options` property. If `multi` is true, then
 multiple values can be selected at once, and `value` is an
