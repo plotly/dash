@@ -56,9 +56,9 @@ export default class DatePickerRange extends Component {
         const {setProps, updatemode} = this.props;
         let payload;
 
-        const oldMomentDates = this.props.id ?
-            convertToMoment(this.props, ['start_date', 'end_date']) :
-            convertToMoment(this.state, ['start_date', 'end_date']);
+        const oldMomentDates = this.props.id
+            ? convertToMoment(this.props, ['start_date', 'end_date'])
+            : convertToMoment(this.state, ['start_date', 'end_date']);
 
         if (start_date && !start_date.isSame(oldMomentDates.start_date)) {
             payload = {start_date: start_date.format('YYYY-MM-DD')};
