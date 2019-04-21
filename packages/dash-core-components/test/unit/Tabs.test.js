@@ -4,7 +4,6 @@ import React, {cloneElement} from 'react';
 import {mount, render} from 'enzyme';
 import DashRendererMock from './mocks/DashRendererMock.react.js';
 
-
 test('Tabs render', () => {
     const tabs = render(
         <DashRendererMock>
@@ -62,7 +61,12 @@ describe('Tabs parses inline styles if they are set', () => {
     };
     const mockSetProps = jest.fn(value => value);
     const tabs = render(
-        <Tabs id="tabs" style={testStyle} parent_style={testStyle} setProps={mockSetProps}>
+        <Tabs
+            id="tabs"
+            style={testStyle}
+            parent_style={testStyle}
+            setProps={mockSetProps}
+        >
             <Tab label="test-tab" />
         </Tabs>
     );

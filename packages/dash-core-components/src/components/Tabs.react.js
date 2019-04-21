@@ -136,7 +136,7 @@ export default class Tabs extends Component {
 
         if (!has('value', this.props)) {
             this.props.setProps({
-                value: this.valueOrDefault()
+                value: this.valueOrDefault(),
             });
         }
     }

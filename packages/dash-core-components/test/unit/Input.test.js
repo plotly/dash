@@ -121,15 +121,11 @@ describe('Input with (default) type=text', () => {
     beforeEach(() => {
         mockSetProps = jest.fn();
 
-        input = mount(
-            <Input value="initial value" setProps={mockSetProps} />
-        );
+        input = mount(<Input value="initial value" setProps={mockSetProps} />);
     });
 
     test('Input will call setProps with value updates if provided', () => {
-        input
-            .find('input')
-            .simulate('change', {target: {value: 'new value'}});
+        input.find('input').simulate('change', {target: {value: 'new value'}});
 
         expect(mockSetProps.mock.calls.length).toEqual(1);
         expect(mockSetProps.mock.calls[0][0]).toEqual({value: 'new value'});
@@ -168,18 +164,14 @@ describe('Input with type=number', () => {
             expect(Number(input.find('input').instance().value)).toEqual(0);
         });
         test('Input can not be updated higher than props.max', () => {
-            input
-                .find('input')
-                .simulate('change', {target: {value: `${3}`}});
+            input.find('input').simulate('change', {target: {value: `${3}`}});
             // if the target value is higher than max, don't even call setProps
             expect(mockSetProps.mock.calls.length).toEqual(0);
             // <input/>'s value should remain the same
             expect(Number(input.find('input').instance().value)).toEqual(0);
         });
         test('Input can be updated normally', () => {
-            input
-                .find('input')
-                .simulate('change', {target: {value: `${1}`}});
+            input.find('input').simulate('change', {target: {value: `${1}`}});
             // if the target value is higher than max, don't even call setProps
             expect(mockSetProps.mock.calls.length).toEqual(1);
             // input's value should remain the same
@@ -195,9 +187,7 @@ describe('Input with type=number', () => {
             );
         });
         test('Input can update normally', () => {
-            input
-                .find('input')
-                .simulate('change', {target: {value: '100'}});
+            input.find('input').simulate('change', {target: {value: '100'}});
             expect(mockSetProps.mock.calls.length).toEqual(1);
             expect(mockSetProps.mock.calls[0][0].value).toEqual(100);
         });
