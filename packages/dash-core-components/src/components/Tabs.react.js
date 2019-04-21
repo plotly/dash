@@ -133,6 +133,12 @@ export default class Tabs extends Component {
         this.selectHandler = this.selectHandler.bind(this);
         this.parseChildrenToArray = this.parseChildrenToArray.bind(this);
         this.valueOrDefault = this.valueOrDefault.bind(this);
+
+        if (!has('value', this.props)) {
+            this.props.setProps({
+                value: this.valueOrDefault()
+            });
+        }
     }
 
     valueOrDefault() {
