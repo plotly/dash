@@ -10,11 +10,19 @@ import './css/rc-slider@6.1.2.css';
 export default class Slider extends Component {
     constructor(props) {
         super(props);
-        this.state = {value: props.value};
+        this.propsToState = this.propsToState.bind(this);
+    }
+
+    propsToState(newProps) {
+        this.setState({value: newProps.value});
     }
 
     componentWillReceiveProps(newProps) {
-        this.setState({value: newProps.value});
+        this.propsToState(newProps);
+    }
+
+    componentWillMount() {
+        this.propsToState(this.props);
     }
 
     render() {
@@ -26,7 +34,8 @@ export default class Slider extends Component {
             updatemode,
             vertical,
         } = this.props;
-        const {value} = this.state;
+        const value = this.state.value;
+
         return (
             <div
                 id={id}
@@ -38,18 +47,15 @@ export default class Slider extends Component {
             >
                 <ReactSlider
                     onChange={value => {
-                        this.setState({value});
                         if (updatemode === 'drag') {
-                            if (setProps) {
-                                setProps({value});
-                            }
+                            setProps({value});
+                        } else {
+                            this.setState({value});
                         }
                     }}
                     onAfterChange={value => {
                         if (updatemode === 'mouseup') {
-                            if (setProps) {
-                                setProps({value});
-                            }
+                            setProps({value});
                         }
                     }}
                     value={value}

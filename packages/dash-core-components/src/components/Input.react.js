@@ -12,29 +12,24 @@ import {omit, isEmpty} from 'ramda';
 export default class Input extends Component {
     constructor(props) {
         super(props);
-        if (!props.setProps || props.debounce) {
-            this.state = {value: props.value};
-        }
+        this.propsToState = this.propsToState.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.props.setProps) {
-            this.props = nextProps;
-            if (this.props.debounce) {
-                this.setState({
-                    value: nextProps.value,
-                });
-            }
-        }
+    propsToState(newProps) {
+        this.setState({value: newProps.value});
+    }
+
+    componentWillReceiveProps(newProps) {
+        this.propsToState(newProps);
+    }
+
+    componentWillMount() {
+        this.propsToState(this.props);
     }
 
     render() {
         const {setProps, type, min, max, debounce, loading_state} = this.props;
-        const {value} = setProps
-            ? debounce
-                ? this.state
-                : this.props
-            : this.state;
+        const value = this.state.value;
         return (
             <input
                 data-dash-is-loading={
@@ -48,7 +43,7 @@ export default class Input extends Component {
                     ) {
                         return;
                     }
-                    if (!debounce && setProps) {
+                    if (!debounce) {
                         const castValue =
                             type === 'number' ? Number(newValue) : newValue;
                         setProps({
@@ -59,20 +54,18 @@ export default class Input extends Component {
                     }
                 }}
                 onBlur={() => {
-                    if (setProps) {
-                        const payload = {
-                            n_blur: this.props.n_blur + 1,
-                            n_blur_timestamp: Date.now(),
-                        };
-                        if (debounce) {
-                            payload.value =
-                                type === 'number' ? Number(value) : value;
-                        }
-                        setProps(payload);
+                    const payload = {
+                        n_blur: this.props.n_blur + 1,
+                        n_blur_timestamp: Date.now(),
+                    };
+                    if (debounce) {
+                        payload.value =
+                            type === 'number' ? Number(value) : value;
                     }
+                    setProps(payload);
                 }}
                 onKeyPress={e => {
-                    if (setProps && e.key === 'Enter') {
+                    if (e.key === 'Enter') {
                         const payload = {
                             n_submit: this.props.n_submit + 1,
                             n_submit_timestamp: Date.now(),
