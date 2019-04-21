@@ -117,36 +117,6 @@ describe('Props can be set properly', () => {
 });
 
 describe('Input with (default) type=text', () => {
-    describe('Input without setProps() defined', () => {
-        let input;
-        beforeEach(() => {
-            input = mount(<Input value="initial value" />);
-        });
-        test('Input updates value', () => {
-            expect(input.find('input').instance().value).toEqual(
-                'initial value'
-            );
-
-            input
-                .find('input')
-                .simulate('change', {target: {value: 'new value'}});
-
-            expect(input.find('input').instance().value).toEqual('new value');
-        });
-        test('Input does not change state if it rerenders', () => {
-            // dash-renderer could rerender a component with it's original
-            // props, if dash-renderer is not aware of prop changes (that happen with setState
-            // instead of setProps)
-            input.setProps({value: 'new value'});
-
-            // expect value prop to not be updated on state, and on the node itself
-            expect(input.state().value).toEqual('initial value');
-            expect(input.find('input').instance().value).toEqual(
-                'initial value'
-            );
-        });
-    });
-
     describe('Input with setProps() defined', () => {
         let mockSetProps, input;
         beforeEach(() => {
@@ -155,9 +125,6 @@ describe('Input with (default) type=text', () => {
             input = mount(
                 <Input value="initial value" setProps={mockSetProps} />
             );
-        });
-        test('Input does not use state if setProps is defined, and debounce is false', () => {
-            expect(input.state()).toBeFalsy();
         });
 
         test('Input will call setProps with value updates if provided', () => {
@@ -179,53 +146,6 @@ describe('Input with (default) type=text', () => {
 });
 
 describe('Input with type=number', () => {
-    describe('Without setProps(), using this.state', () => {
-        describe('with min and max props', () => {
-            let input;
-            const props = {
-                value: 0,
-                min: 0,
-                max: 2,
-            };
-            beforeEach(() => {
-                input = mount(<Input type="number" {...props} />);
-            });
-            test('Input can not be updated lower than props.min', () => {
-                input
-                    .find('input')
-                    .simulate('change', {target: {value: `${props.min - 1}`}});
-                expect(Number(input.find('input').instance().value)).toEqual(
-                    props.value
-                );
-            });
-            test('Input can not be updated higher than props.max', () => {
-                input
-                    .find('input')
-                    .simulate('change', {target: {value: `${props.max + 1}`}});
-                expect(Number(input.find('input').instance().value)).toEqual(
-                    props.value
-                );
-            });
-        });
-        describe('without min and max props', () => {
-            let input;
-            beforeEach(() => {
-                input = mount(<Input type="number" value={0} />);
-            });
-            test('Input can be updated', () => {
-                input.find('input').simulate('change', {target: {value: '-1'}});
-                expect(Number(input.find('input').instance().value)).toEqual(
-                    -1
-                );
-                input
-                    .find('input')
-                    .simulate('change', {target: {value: '100'}});
-                expect(Number(input.find('input').instance().value)).toEqual(
-                    100
-                );
-            });
-        });
-    });
     describe('With setProps', () => {
         describe('with min and max props', () => {
             let mockSetProps, input;
