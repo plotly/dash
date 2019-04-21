@@ -117,129 +117,125 @@ describe('Props can be set properly', () => {
 });
 
 describe('Input with (default) type=text', () => {
-    describe('Input with setProps() defined', () => {
-        let mockSetProps, input;
-        beforeEach(() => {
-            mockSetProps = jest.fn();
+    let mockSetProps, input;
+    beforeEach(() => {
+        mockSetProps = jest.fn();
 
-            input = mount(
-                <Input value="initial value" setProps={mockSetProps} />
-            );
-        });
+        input = mount(
+            <Input value="initial value" setProps={mockSetProps} />
+        );
+    });
 
-        test('Input will call setProps with value updates if provided', () => {
-            input
-                .find('input')
-                .simulate('change', {target: {value: 'new value'}});
+    test('Input will call setProps with value updates if provided', () => {
+        input
+            .find('input')
+            .simulate('change', {target: {value: 'new value'}});
 
-            expect(mockSetProps.mock.calls.length).toEqual(1);
-            expect(mockSetProps.mock.calls[0][0]).toEqual({value: 'new value'});
-        });
+        expect(mockSetProps.mock.calls.length).toEqual(1);
+        expect(mockSetProps.mock.calls[0][0]).toEqual({value: 'new value'});
+    });
 
-        test("Input updates it's value on recieving new props", () => {
-            input.setProps({value: 'new value'});
+    test("Input updates it's value on recieving new props", () => {
+        input.setProps({value: 'new value'});
 
-            // expect value prop to not be updated on state, and on the node itself
-            expect(input.find('input').instance().value).toEqual('new value');
-        });
+        // expect value prop to not be updated on state, and on the node itself
+        expect(input.find('input').instance().value).toEqual('new value');
     });
 });
 
 describe('Input with type=number', () => {
-    describe('With setProps', () => {
-        describe('with min and max props', () => {
-            let mockSetProps, input;
-            const props = {
-                value: 0,
-                min: 0,
-                max: 2,
-            };
-            beforeEach(() => {
-                mockSetProps = jest.fn();
-                input = mount(
-                    <Input type="number" {...props} setProps={mockSetProps} />
-                );
-            });
-            test('Input can not be updated lower than props.min', () => {
-                input
-                    .find('input')
-                    .simulate('change', {target: {value: `${props.min - 1}`}});
-
-                // if the target value is lower than min, don't even call setProps
-                expect(mockSetProps.mock.calls.length).toEqual(0);
-                // <input/>'s value should remain the same
-                expect(Number(input.find('input').instance().value)).toEqual(0);
-            });
-            test('Input can not be updated higher than props.max', () => {
-                input
-                    .find('input')
-                    .simulate('change', {target: {value: `${3}`}});
-                // if the target value is higher than max, don't even call setProps
-                expect(mockSetProps.mock.calls.length).toEqual(0);
-                // <input/>'s value should remain the same
-                expect(Number(input.find('input').instance().value)).toEqual(0);
-            });
-            test('Input can be updated normally', () => {
-                input
-                    .find('input')
-                    .simulate('change', {target: {value: `${1}`}});
-                // if the target value is higher than max, don't even call setProps
-                expect(mockSetProps.mock.calls.length).toEqual(1);
-                // input's value should remain the same
-                expect(mockSetProps.mock.calls[0][0].value).toEqual(1);
-            });
+    describe('with min and max props', () => {
+        let mockSetProps, input;
+        const props = {
+            value: 0,
+            min: 0,
+            max: 2,
+        };
+        beforeEach(() => {
+            mockSetProps = jest.fn();
+            input = mount(
+                <Input type="number" {...props} setProps={mockSetProps} />
+            );
         });
-        describe('without min and max props', () => {
-            let mockSetProps, input;
-            beforeEach(() => {
-                mockSetProps = jest.fn();
-                input = mount(
-                    <Input type="number" value={0} setProps={mockSetProps} />
-                );
-            });
-            test('Input can update normally', () => {
+        test('Input can not be updated lower than props.min', () => {
+            input
+                .find('input')
+                .simulate('change', {target: {value: `${props.min - 1}`}});
+
+            // if the target value is lower than min, don't even call setProps
+            expect(mockSetProps.mock.calls.length).toEqual(0);
+            // <input/>'s value should remain the same
+            expect(Number(input.find('input').instance().value)).toEqual(0);
+        });
+        test('Input can not be updated higher than props.max', () => {
+            input
+                .find('input')
+                .simulate('change', {target: {value: `${3}`}});
+            // if the target value is higher than max, don't even call setProps
+            expect(mockSetProps.mock.calls.length).toEqual(0);
+            // <input/>'s value should remain the same
+            expect(Number(input.find('input').instance().value)).toEqual(0);
+        });
+        test('Input can be updated normally', () => {
+            input
+                .find('input')
+                .simulate('change', {target: {value: `${1}`}});
+            // if the target value is higher than max, don't even call setProps
+            expect(mockSetProps.mock.calls.length).toEqual(1);
+            // input's value should remain the same
+            expect(mockSetProps.mock.calls[0][0].value).toEqual(1);
+        });
+    });
+    describe('without min and max props', () => {
+        let mockSetProps, input;
+        beforeEach(() => {
+            mockSetProps = jest.fn();
+            input = mount(
+                <Input type="number" value={0} setProps={mockSetProps} />
+            );
+        });
+        test('Input can update normally', () => {
+            input
+                .find('input')
+                .simulate('change', {target: {value: '100'}});
+            expect(mockSetProps.mock.calls.length).toEqual(1);
+            expect(mockSetProps.mock.calls[0][0].value).toEqual(100);
+        });
+    });
+    describe('with debouncing on', () => {
+        let mockSetProps, input;
+        beforeEach(() => {
+            mockSetProps = jest.fn();
+            input = mount(
+                <Input
+                    type="number"
+                    value={0}
+                    debounce={true}
+                    step={0.01}
+                    setProps={mockSetProps}
+                />
+            );
+        });
+        test('Input debounces update - only fires setProps on submit', () => {
+            // Tests issue #169, where users couldn't input
+            // 0.0 because setProps() would fire immediately, causing
+            // 0.0 to be truncated to 0, making it impossible to input
+            // 0.001 etc
+            // eslint-disable-next-line no-magic-numbers
+            const inputValues = ['0', '0.0', '0.0', '0.001'];
+
+            for (let i = 0; i < inputValues.length; i++) {
                 input
                     .find('input')
-                    .simulate('change', {target: {value: '100'}});
-                expect(mockSetProps.mock.calls.length).toEqual(1);
-                expect(mockSetProps.mock.calls[0][0].value).toEqual(100);
-            });
-        });
-        describe('with debouncing on', () => {
-            let mockSetProps, input;
-            beforeEach(() => {
-                mockSetProps = jest.fn();
-                input = mount(
-                    <Input
-                        type="number"
-                        value={0}
-                        debounce={true}
-                        step={0.01}
-                        setProps={mockSetProps}
-                    />
-                );
-            });
-            test('Input debounces update - only fires setProps on submit', () => {
-                // Tests issue #169, where users couldn't input
-                // 0.0 because setProps() would fire immediately, causing
-                // 0.0 to be truncated to 0, making it impossible to input
-                // 0.001 etc
-                // eslint-disable-next-line no-magic-numbers
-                const inputValues = ['0', '0.0', '0.0', '0.001'];
+                    .simulate('change', {target: {value: inputValues[i]}});
+            }
 
-                for (let i = 0; i < inputValues.length; i++) {
-                    input
-                        .find('input')
-                        .simulate('change', {target: {value: inputValues[i]}});
-                }
+            input.find('input').simulate('keypress', {key: 'Enter'});
 
-                input.find('input').simulate('keypress', {key: 'Enter'});
-
-                expect(mockSetProps.mock.calls.length).toEqual(1);
-                expect(mockSetProps.mock.calls[0][0].value).toEqual(
-                    Number(inputValues[inputValues.length - 1])
-                );
-            });
+            expect(mockSetProps.mock.calls.length).toEqual(1);
+            expect(mockSetProps.mock.calls[0][0].value).toEqual(
+                Number(inputValues[inputValues.length - 1])
+            );
         });
     });
 });
