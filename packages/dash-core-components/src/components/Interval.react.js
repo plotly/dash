@@ -21,7 +21,7 @@ export default class Interval extends Component {
             props.max_intervals === 0 ||
             props.disabled ||
             (props.n_intervals >= props.max_intervals &&
-                props.max_intervals != -1)
+                props.max_intervals !== -1)
         ) {
             // stop existing timer
             if (this.intervalId) {

@@ -1,6 +1,6 @@
 import Tabs from '../../src/components/Tabs.react.js';
 import Tab from '../../src/components/Tab.react.js';
-import React, {cloneElement} from 'react';
+import React from 'react';
 import {mount, render} from 'enzyme';
 import DashRendererMock from './mocks/DashRendererMock.react.js';
 

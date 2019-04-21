@@ -1,4 +1,5 @@
-import React, {Component, cloneElement} from 'react';
+import {Component, cloneElement} from 'react';
+import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
 export default class DashRendererMock extends Component {
@@ -19,4 +20,8 @@ export default class DashRendererMock extends Component {
             setProps: this.setProps,
         });
     }
+}
+
+DashRendererMock.propTypes = {
+    children: PropTypes.any
 }
