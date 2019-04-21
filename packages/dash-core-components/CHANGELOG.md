@@ -15,6 +15,26 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - **Breaking** - `n_blur_timestamp` & `n_submit_timestamp` in `Input` & `Textarea` is now a number instead of a date object/string. This matches the form of `n_clicks_timestamp` as used in `dash_html_components`. [#523](https://github.com/plotly/dash-core-components/pull/523/)
 - Fixed an issue with `ConfirmDialog` that could display multiple confirm popups instead of a single popup in certain contexts. [#523](https://github.com/plotly/dash-core-components/pull/523/)
 
+### Changed
+- `dcc.Interval` will reset its timer when re-enabled. Previously, if the `dcc.Interval` was disabled, it's "clock would keep running": when it was reenabled, it would fire at the next `interval` on the previous clock's schedule, rather than `interval` milliseconds later. For example, previously the schedule might look like this:
+    ```
+    0 seconds: interval started with `interval=5000`
+    5 seconds: `n_intervals=1`
+    7 seconds: callback sets `disabled=True`
+    10 seconds: interval continues to run, but doesn't fire an update
+    13 seconds: callback sets `disabled=False`
+    15 seconds: interval fires an update: `n_intervals=2`
+    ```
+
+    Now, it will look like this:
+    ```
+    0 seconds: interval started with `interval=5000`
+    5 seconds: `n_intervals=1`
+    7 seconds: callback sets `disabled=True`
+    10 seconds: interval continues to run, but doesn't fire an update
+    13 seconds: callback sets `disabled=False` - clock resets
+    17 seconds: interval fires an update: `n_intervals=2`
+    ```
 
 ## [0.46.0] - 2019-04-10
 ### Added
