@@ -53,7 +53,7 @@ export default class Interval extends Component {
     }
 
     reportInterval() {
-        const {setProps, n_intervals} = this.setProps;
+        const {setProps, n_intervals} = this.props;
         setProps({n_intervals: n_intervals + 1});
     }
 
