@@ -5,7 +5,7 @@ import DefaultSpinner from '../fragments/Loading/spinners/DefaultSpinner.jsx';
 import CubeSpinner from '../fragments/Loading/spinners/CubeSpinner.jsx';
 import CircleSpinner from '../fragments/Loading/spinners/CircleSpinner.jsx';
 import DotSpinner from '../fragments/Loading/spinners/DotSpinner.jsx';
-import R from 'ramda';
+import {type} from 'ramda';
 
 function getSpinner(type) {
     switch (type) {
@@ -52,8 +52,8 @@ export default class Loading extends Component {
         }
 
         if (
-            R.type(this.props.children) !== 'Object' ||
-            R.type(this.props.children) !== 'Function'
+            type(this.props.children) !== 'Object' ||
+            type(this.props.children) !== 'Function'
         ) {
             return <div className={className}>{this.props.children}</div>;
         }

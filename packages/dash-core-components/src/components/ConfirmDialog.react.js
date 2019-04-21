@@ -8,10 +8,6 @@ import {Component} from 'react';
  * is performing an action that should require an extra step of verification.
  */
 export default class ConfirmDialog extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     componentDidUpdate(prevProps) {
         this._update(!prevProps.displayed && this.props.displayed);
     }

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import R, {omit} from 'ramda';
+import {isNil, pluck, omit, type} from 'ramda';
 import React, {Component} from 'react';
 import ReactDropdown from 'react-virtualized-select';
 import createFilterOptions from 'react-select-fast-filter-options';
@@ -64,7 +64,7 @@ export default class Dropdown extends Component {
         } = this.props;
         const {filterOptions} = this.state;
         let selectedValue;
-        if (R.type(value) === 'array') {
+        if (type(value) === 'array') {
             selectedValue = value.join(DELIMETER);
         } else {
             selectedValue = value;
@@ -84,7 +84,7 @@ export default class Dropdown extends Component {
                     onChange={selectedOption => {
                         if (multi) {
                             let value;
-                            if (R.isNil(selectedOption)) {
+                            if (isNil(selectedOption)) {
                                 value = [];
                             } else {
                                 value = pluck('value', selectedOption);
@@ -92,7 +92,7 @@ export default class Dropdown extends Component {
                             setProps({value});
                         } else {
                             let value;
-                            if (R.isNil(selectedOption)) {
+                            if (isNil(selectedOption)) {
                                 value = null;
                             } else {
                                 value = selectedOption.value;
