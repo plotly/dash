@@ -22,6 +22,7 @@ export default class DatePickerRange extends Component {
         this.propsToState = this.propsToState.bind(this);
         this.onDatesChange = this.onDatesChange.bind(this);
         this.isOutsideRange = this.isOutsideRange.bind(this);
+        this.state = {focused: false};        
     }
 
     propsToState(newProps) {

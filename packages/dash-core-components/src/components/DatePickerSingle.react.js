@@ -24,6 +24,7 @@ export default class DatePickerSingle extends Component {
         super();
         this.isOutsideRange = this.isOutsideRange.bind(this);
         this.onDateChange = this.onDateChange.bind(this);
+        this.state = {focused: false};
     }
 
     isOutsideRange(date) {
