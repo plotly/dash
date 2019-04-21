@@ -275,12 +275,20 @@ describe('Usage of disabled = true', () => {
         });
 
         describe('After 3 intervals elapsed', () => {
+            /*
+             * Timeline:
+             * 0 - Timer set
+             * 40 - n_intervals = 1  (intervalLength)
+             * 70 - timer disabled   (intervalLength * 2 - intervalNegligibleMargin)
+             * 110 - timer re-enabled
+             * 150 - n_intervals = 2  (... + intervalLength * 2)
+             */
             test('n_intervals = 2', done => {
                 const {results} = makeSut(handleInterval);
                 setTimeout(() => {
                     expect(results.nIntervals).toEqual(2);
                     done();
-                }, intervalLength * 3 + intervalNegligibleMargin);
+                }, intervalLength * 2 - intervalNegligibleMargin + intervalLength * 2 + intervalNegligibleMargin);
             });
         });
     });
