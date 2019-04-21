@@ -23,7 +23,7 @@ export default class Interval extends Component {
             props.n_intervals >= props.max_intervals
         ) {
             // stop existing timer
-            if (this.intervalId()) {
+            if (this.intervalId) {
                 this.clearTimer();
             }
             // and don't start a timer
