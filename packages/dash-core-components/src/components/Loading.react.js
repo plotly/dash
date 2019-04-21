@@ -7,8 +7,8 @@ import CircleSpinner from '../fragments/Loading/spinners/CircleSpinner.jsx';
 import DotSpinner from '../fragments/Loading/spinners/DotSpinner.jsx';
 import {type} from 'ramda';
 
-function getSpinner(type) {
-    switch (type) {
+function getSpinner(spinnerType) {
+    switch (spinnerType) {
         case 'graph':
             return GraphSpinner;
         case 'cube':
@@ -34,11 +34,11 @@ export default class Loading extends Component {
             style,
             fullscreen,
             debug,
-            type,
+            type: spinnerType,
         } = this.props;
 
         if (loading_state && loading_state.is_loading) {
-            const Spinner = getSpinner(type);
+            const Spinner = getSpinner(spinnerType);
             return (
                 <Spinner
                     className={className}

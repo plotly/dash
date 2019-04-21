@@ -41,7 +41,6 @@ export default class DatePickerRange extends Component {
 
     onDatesChange({startDate: start_date, endDate: end_date}) {
         const {setProps, updatemode} = this.props;
-        let payload;
 
         const oldMomentDates = this.props.id
             ? convertToMoment(this.props, ['start_date', 'end_date'])

@@ -1,6 +1,6 @@
 import {Component} from 'react';
 import PropTypes from 'prop-types';
-import R from 'ramda';
+import {type} from 'ramda';
 /* global window:true */
 
 /**
@@ -34,8 +34,8 @@ export default class Location extends Component {
             const propVal = props[fieldName];
 
             if (
-                (R.type(propVal) === 'Undefined' || propVal === null) &&
-                R.type(window.location[fieldName]) !== 'Undefined'
+                (type(propVal) === 'Undefined' || propVal === null) &&
+                type(window.location[fieldName]) !== 'Undefined'
             ) {
                 // propVal is undefined or null, but window.location has this fieldName defined
                 propsToSet[fieldName] = window.location[fieldName];
@@ -62,10 +62,7 @@ export default class Location extends Component {
         const searchUpdated = checkExistsUpdateWindowLocation('search');
 
         // propsToSet has been updated -- batch update to Dash
-        if (
-            R.type(setProps) === 'Function' &&
-            Object.keys(propsToSet).length > 0
-        ) {
+        if (Object.keys(propsToSet).length > 0) {
             setProps(propsToSet);
         }
 
@@ -74,8 +71,8 @@ export default class Location extends Component {
             window.history.pushState({}, '', href);
         } else if (pathnameUpdated || hashUpdated || searchUpdated) {
             // Otherwise, we can mash everything together
-            const searchVal = R.type(search) !== 'Undefined' ? search : '';
-            const hashVal = R.type(hash) !== 'Undefined' ? hash : '';
+            const searchVal = type(search) !== 'Undefined' ? search : '';
+            const hashVal = type(hash) !== 'Undefined' ? hash : '';
             window.history.pushState(
                 {},
                 '',
