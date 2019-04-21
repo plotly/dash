@@ -11,23 +11,40 @@ export default class Interval extends Component {
     constructor(props) {
         super(props);
         this.intervalId = null;
-        this.handleInterval = this.handleInterval.bind(this);
+        this.reportInterval = this.reportInterval.bind(this);
+        this.handleTimer = this.handleTimer.bind(this);
     }
 
-    startTimer(props) {
-        if (this.intervalId) {
-            throw new Error('startTimer() invoked when timer already started');
+    handleTimer(props) {
+        // Check if timer should stop or shouldn't even start
+        if (
+            props.max_intervals === 0 ||
+            props.disabled ||
+            props.n_intervals >= props.max_intervals
+        ) {
+            // stop existing timer
+            if (this.intervalId()) {
+                this.clearTimer();
+            }
+            // and don't start a timer
+            return;
         }
 
+        // keep the existing timer running
+        if (this.intervalId) {
+            return;
+        }
+
+        // it hasn't started yet (& it should start)
         this.intervalId = window.setInterval(
-            this.handleInterval,
+            this.reportInterval,
             props.interval
         );
     }
 
     resetTimer(props) {
         this.clearTimer();
-        this.startTimer(props);
+        this.handleTimer(props);
     }
 
     clearTimer() {
@@ -35,34 +52,20 @@ export default class Interval extends Component {
         this.intervalId = null;
     }
 
-    handleInterval() {
-        const {disabled, max_intervals, n_intervals, setProps} = this.props;
-        const withinMaximum =
-            max_intervals === -1 || n_intervals < max_intervals;
-        if (disabled || !withinMaximum) {
-            return;
-        }
-        if (setProps) {
-            setProps({n_intervals: n_intervals + 1});
-        }
+    reportInterval() {
+        const {setProps, n_intervals} = this.setProps;
+        setProps({n_intervals: n_intervals + 1});
     }
 
     componentDidMount() {
-        if (this.canStartTimer(this.props)) {
-            this.startTimer(this.props);
-        }
-    }
-
-    canStartTimer(props) {
-        return props.setProps;
+        this.handleTimer(this.props);
     }
 
     componentWillReceiveProps(nextProps) {
-        // If we couldn't start the timer before, and we can now, start it.
-        if (!this.canStartTimer(this.props) && this.canStartTimer(nextProps)) {
-            this.startTimer(nextProps);
-        } else if (this.props.interval !== nextProps.interval) {
+        if (nextProps.interval !== this.props.interval) {
             this.resetTimer(nextProps);
+        } else {
+            this.handleTimer(nextProps);
         }
     }
 
