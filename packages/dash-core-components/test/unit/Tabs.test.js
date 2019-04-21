@@ -1,13 +1,17 @@
 import Tabs from '../../src/components/Tabs.react.js';
 import Tab from '../../src/components/Tab.react.js';
-import React from 'react';
+import React, {cloneElement} from 'react';
 import {mount, render} from 'enzyme';
+import DashRendererMock from './mocks/DashRendererMock.react.js';
+
 
 test('Tabs render', () => {
     const tabs = render(
-        <Tabs>
-            <Tab label="test-tab" />
-        </Tabs>
+        <DashRendererMock>
+            <Tabs>
+                <Tab label="test-tab" />
+            </Tabs>
+        </DashRendererMock>
     );
 
     expect(tabs.html()).toBeDefined();
@@ -25,27 +29,29 @@ describe('All props can be set properly', () => {
             background: 'blue',
         },
     };
-    const tabs = mount(
-        <Tabs {...defaultProps}>
-            <Tab value="tab-one" />
-        </Tabs>
+    const app = mount(
+        <DashRendererMock>
+            <Tabs {...defaultProps}>
+                <Tab value="tab-one" />
+            </Tabs>
+        </DashRendererMock>
     );
     test('props.id =>', () => {
-        expect(tabs.props().id).toEqual(defaultProps.id);
+        expect(app.find(Tabs).props().id).toEqual(defaultProps.id);
     });
     test('props.value =>', () => {
-        expect(tabs.props().value).toEqual(defaultProps.value);
+        expect(app.find(Tabs).props().value).toEqual(defaultProps.value);
     });
     test('props.vertical =>', () => {
-        expect(tabs.props().vertical).toEqual(defaultProps.vertical);
+        expect(app.find(Tabs).props().vertical).toEqual(defaultProps.vertical);
     });
     test('props.mobile_breakpoint =>', () => {
-        expect(tabs.props().mobile_breakpoint).toEqual(
+        expect(app.find(Tabs).props().mobile_breakpoint).toEqual(
             defaultProps.mobile_breakpoint
         );
     });
     test('props.colors=>', () => {
-        expect(tabs.props().colors).toEqual(defaultProps.colors);
+        expect(app.find(Tabs).props().colors).toEqual(defaultProps.colors);
     });
 });
 
@@ -54,8 +60,9 @@ describe('Tabs parses inline styles if they are set', () => {
     const testStyle = {
         backgroundColor: testColor,
     };
+    const mockSetProps = jest.fn(value => value);
     const tabs = render(
-        <Tabs id="tabs" style={testStyle} parent_style={testStyle}>
+        <Tabs id="tabs" style={testStyle} parent_style={testStyle} setProps={mockSetProps}>
             <Tab label="test-tab" />
         </Tabs>
     );
@@ -106,56 +113,64 @@ describe('Tabs correctly appends classes', () => {
 describe('Tabs render content correctly', () => {
     test('Tabs render Tab.children in content div', () => {
         const tabs = render(
-            <Tabs id="tabs" value="tab-1">
-                <Tab id="tab-1" value="tab-1" label="Tab 1">
-                    <div>Tab 1 child</div>
-                </Tab>
-                <Tab id="tab-2" value="tab-2" label="Tab 2">
-                    <div>Tab 2 child</div>
-                </Tab>
-            </Tabs>
+            <DashRendererMock>
+                <Tabs id="tabs" value="tab-1">
+                    <Tab id="tab-1" value="tab-1" label="Tab 1">
+                        <div>Tab 1 child</div>
+                    </Tab>
+                    <Tab id="tab-2" value="tab-2" label="Tab 2">
+                        <div>Tab 2 child</div>
+                    </Tab>
+                </Tabs>
+            </DashRendererMock>
         );
         const renderedContent = tabs.find('.tab-content').html();
         expect(renderedContent).toEqual('<div>Tab 1 child</div>');
     });
     test('Tabs render correct Tab.children as selected in Tabs.props.value in content div', () => {
         const tabs = render(
-            <Tabs id="tabs" value="tab-2">
-                <Tab id="tab-1" value="tab-1" label="Tab 1">
-                    <div>Tab 1 child</div>
-                </Tab>
-                <Tab id="tab-2" value="tab-2" label="Tab 2">
-                    <div>Tab 2 child</div>
-                </Tab>
-            </Tabs>
+            <DashRendererMock>
+                <Tabs id="tabs" value="tab-2">
+                    <Tab id="tab-1" value="tab-1" label="Tab 1">
+                        <div>Tab 1 child</div>
+                    </Tab>
+                    <Tab id="tab-2" value="tab-2" label="Tab 2">
+                        <div>Tab 2 child</div>
+                    </Tab>
+                </Tabs>
+            </DashRendererMock>
         );
         const renderedContent = tabs.find('.tab-content').html();
         expect(renderedContent).toEqual('<div>Tab 2 child</div>');
     });
     test('Tabs render Tab.children in content div, even if no Tabs.props.value is given', () => {
         const tabs = render(
-            <Tabs id="tabs">
-                <Tab id="tab-1" value="tab-1" label="Tab 1">
-                    <div>Tab 1 child</div>
-                </Tab>
-                <Tab id="tab-2" value="tab-2" label="Tab 2">
-                    <div>Tab 2 child</div>
-                </Tab>
-            </Tabs>
+            <DashRendererMock>
+                <Tabs id="tabs">
+                    <Tab id="tab-1" value="tab-1" label="Tab 1">
+                        <div>Tab 1 child</div>
+                    </Tab>
+                    <Tab id="tab-2" value="tab-2" label="Tab 2">
+                        <div>Tab 2 child</div>
+                    </Tab>
+                </Tabs>
+            </DashRendererMock>
         );
         const renderedContent = tabs.find('.tab-content').html();
         expect(renderedContent).toEqual('<div>Tab 1 child</div>');
     });
     test('Tabs render Tab.children in content div, even if no Tabs.props.value is given, and Tab components have empty values', () => {
         const tabs = render(
-            <Tabs>
-                <Tab>
-                    <div>Tab 1 child</div>
-                </Tab>
-                <Tab>
-                    <div>Tab 2 child</div>
-                </Tab>
-            </Tabs>
+            <DashRendererMock>
+                <Tabs>
+                    <Tab>
+                        <div>Tab 1 child</div>
+                    </Tab>
+                    <Tab>
+                        <div>Tab 2 child</div>
+                    </Tab>
+                </Tabs>
+            </DashRendererMock>
         );
         const renderedContent = tabs.find('.tab-content').html();
         expect(renderedContent).toEqual('<div>Tab 1 child</div>');
@@ -165,14 +180,16 @@ describe('Tabs handle Tab selection logic', () => {
     let tabs;
     beforeEach(() => {
         tabs = mount(
-            <Tabs id="tabs" value="tab-1">
-                <Tab id="tab-1" value="tab-1" label="Tab 1">
-                    <div>Tab 1 child</div>
-                </Tab>
-                <Tab id="tab-2" value="tab-2" label="Tab 2">
-                    <div>Tab 2 child</div>
-                </Tab>
-            </Tabs>
+            <DashRendererMock>
+                <Tabs id="tabs" value="tab-1">
+                    <Tab id="tab-1" value="tab-1" label="Tab 1">
+                        <div>Tab 1 child</div>
+                    </Tab>
+                    <Tab id="tab-2" value="tab-2" label="Tab 2">
+                        <div>Tab 2 child</div>
+                    </Tab>
+                </Tabs>
+            </DashRendererMock>
         );
     });
     test('Tab can be clicked and will display its content', () => {
@@ -201,38 +218,20 @@ describe('Tabs can be used 2 ways', () => {
         expect(mockSetProps.mock.results[1].value.value).toEqual(
             'custom-tab-2'
         );
-        // expect state to not be updated (default is tab-1)
-        expect(tabs.state().selected).toEqual('tab-1');
 
         tabs.find('[value="custom-tab-1"]').simulate('click');
         expect(mockSetProps).toBeCalledTimes(3);
         expect(mockSetProps.mock.results[2].value.value).toEqual(
             'custom-tab-1'
         );
-        // expect state to not be updated (default is tab-1)
-        expect(tabs.state().selected).toEqual('tab-1');
-    });
-    test('Without Dash callbacks, using internal state', () => {
-        const tabs = mount(
-            <Tabs id="tabs">
-                <Tab value="custom-tab-1" id="tab-1" label="Tab 1">
-                    <div>Tab 1 child</div>
-                </Tab>
-                <Tab value="custom-tab-2" id="tab-2" label="Tab 2">
-                    <div>Tab 2 child</div>
-                </Tab>
-            </Tabs>
-        );
-
-        tabs.find('[value="custom-tab-2"]').simulate('click');
-        expect(tabs.state().selected).toEqual('custom-tab-2');
-
-        tabs.find('[value="custom-tab-1"]').simulate('click');
-        expect(tabs.state().selected).toEqual('custom-tab-1');
     });
 });
 describe('Tabs can have null children', () => {
     test('Try to create a Tabs with null children', () => {
-        mount(<Tabs id="tabs" />);
+        mount(
+            <DashRendererMock>
+                <Tabs id="tabs" />
+            </DashRendererMock>
+        );
     });
 });
