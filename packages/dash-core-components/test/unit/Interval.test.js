@@ -25,9 +25,7 @@ class IntervalWrapper extends Component {
                 n_intervals,
             },
             () => {
-                if (this.props.setProps) {
-                    this.props.setProps({n_intervals});
-                }
+                this.props.setProps({n_intervals});
             }
         );
     }
@@ -76,97 +74,6 @@ describe('Basic interval usage', () => {
             </IntervalWrapper>
         );
         const interval = wrapper.childAt(0);
-
-        return {interval, results};
-    };
-
-    test('props.id =>', () => {
-        const {interval} = makeSut();
-        expect(interval.props().id).toEqual('test-interval');
-    });
-
-    describe('t = 0', () => {
-        test('n_intervals = 0', () => {
-            const {results} = makeSut();
-            expect(results.nIntervals).toEqual(0);
-        });
-    });
-
-    describe('After 1 interval elapsed', () => {
-        test('n_intervals = 1', done => {
-            const {results} = makeSut();
-            setTimeout(() => {
-                expect(results.nIntervals).toEqual(1);
-                done();
-            }, intervalLength + intervalNegligibleMargin);
-        });
-    });
-
-    describe('After 2 intervals elapsed', () => {
-        test('n_intervals = 2', done => {
-            const {results} = makeSut();
-            setTimeout(() => {
-                expect(results.nIntervals).toEqual(2);
-                done();
-            }, intervalLength * 2 + intervalNegligibleMargin);
-        });
-    });
-});
-
-describe('Delayed setProps provisioning', () => {
-    class DelayedSetPropsWrapper extends Component {
-        constructor(props) {
-            super(props);
-            this.state = {
-                setPropsProvided: false,
-            };
-        }
-
-        componentDidMount() {
-            this.setState({
-                setPropsProvided: true,
-            });
-        }
-
-        render() {
-            return cloneElement(this.props.children, {
-                ...omit(['children'], this.props),
-                setProps: this.state.setPropsProvided
-                    ? this.props.setProps
-                    : null,
-            });
-        }
-    }
-
-    DelayedSetPropsWrapper.propTypes = {
-        children: PropTypes.node,
-        setProps: PropTypes.func,
-    };
-
-    const makeSut = () => {
-        const results = {
-            nIntervals: 0,
-        };
-
-        const setProps = props => {
-            if ('n_intervals' in props) {
-                results.nIntervals = props.n_intervals;
-            }
-        };
-
-        const defaultProps = {
-            id: 'test-interval',
-            interval: intervalLength,
-        };
-
-        const wrapper = mount(
-            <DelayedSetPropsWrapper setProps={setProps}>
-                <IntervalWrapper>
-                    <Interval {...defaultProps} />
-                </IntervalWrapper>
-            </DelayedSetPropsWrapper>
-        );
-        const interval = wrapper.childAt(0).childAt(0);
 
         return {interval, results};
     };
