@@ -9,15 +9,6 @@ import React, {Component} from 'react';
  * Each checkbox is rendered as an input with a surrounding label.
  */
 export default class Checklist extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {values: props.values};
-    }
-
-    componentWillReceiveProps(newProps) {
-        this.setState({values: newProps.values});
-    }
-
     render() {
         const {
             className,
@@ -30,8 +21,8 @@ export default class Checklist extends Component {
             setProps,
             style,
             loading_state,
+            values,
         } = this.props;
-        const {values} = this.state;
 
         return (
             <div
@@ -61,10 +52,7 @@ export default class Checklist extends Component {
                                 } else {
                                     newValues = append(option.value, values);
                                 }
-                                this.setState({values: newValues});
-                                if (setProps) {
-                                    setProps({values: newValues});
-                                }
+                                setProps({values: newValues});
                             }}
                         />
                         {option.label}

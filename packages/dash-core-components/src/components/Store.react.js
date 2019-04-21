@@ -156,15 +156,13 @@ export default class Store extends React.Component {
         if (isNil(old) && data) {
             // Initial data mount
             this._backstore.setItem(id, data);
-            if (setProps) {
-                setProps({
-                    modified_timestamp: this._backstore.getModified(id),
-                });
-            }
+            setProps({
+                modified_timestamp: this._backstore.getModified(id),
+            });
             return;
         }
 
-        if (setProps && dataChanged(old, data)) {
+        if (dataChanged(old, data)) {
             setProps({
                 data: old,
                 modified_timestamp: this._backstore.getModified(id),
@@ -182,24 +180,20 @@ export default class Store extends React.Component {
         const {data, id, clear_data, setProps} = this.props;
         if (clear_data) {
             this._backstore.removeItem(id);
-            if (setProps) {
-                setProps({
-                    clear_data: false,
-                    data: null,
-                    modified_timestamp: this._backstore.getModified(id),
-                });
-            }
+            setProps({
+                clear_data: false,
+                data: null,
+                modified_timestamp: this._backstore.getModified(id),
+            });
             return;
         }
         const old = this._backstore.getItem(id);
         // Only set the data if it's not the same data.
         if (dataChanged(data, old)) {
             this._backstore.setItem(id, data);
-            if (setProps) {
-                setProps({
-                    modified_timestamp: this._backstore.getModified(id),
-                });
-            }
+            setProps({
+                modified_timestamp: this._backstore.getModified(id),
+            });
         }
     }
 

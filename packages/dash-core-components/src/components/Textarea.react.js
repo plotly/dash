@@ -7,18 +7,8 @@ import {omit} from 'ramda';
  *
  */
 export default class Textarea extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {value: props.value};
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({value: nextProps.value});
-    }
-
     render() {
-        const {setProps, loading_state} = this.props;
-        const {value} = this.state;
+        const {setProps, loading_state, value} = this.props;
 
         return (
             <textarea
@@ -27,26 +17,19 @@ export default class Textarea extends Component {
                 }
                 value={value}
                 onChange={e => {
-                    this.setState({value: e.target.value});
-                    if (setProps) {
-                        setProps({value: e.target.value});
-                    }
+                    setProps({value: e.target.value});
                 }}
                 onBlur={() => {
-                    if (setProps) {
-                        setProps({
-                            n_blur: this.props.n_blur + 1,
-                            n_blur_timestamp: Date.now(),
-                        });
-                    }
+                    setProps({
+                        n_blur: this.props.n_blur + 1,
+                        n_blur_timestamp: Date.now(),
+                    });
                 }}
                 onClick={() => {
-                    if (setProps) {
-                        setProps({
-                            n_clicks: this.props.n_clicks + 1,
-                            n_clicks_timestamp: Date.now(),
-                        });
-                    }
+                    setProps({
+                        n_clicks: this.props.n_clicks + 1,
+                        n_clicks_timestamp: Date.now(),
+                    });
                 }}
                 {...omit(['setProps', 'value'], this.props)}
             />

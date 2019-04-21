@@ -132,30 +132,20 @@ export default class Tabs extends Component {
 
         this.selectHandler = this.selectHandler.bind(this);
         this.parseChildrenToArray = this.parseChildrenToArray.bind(this);
+        this.valueOrDefault = this.valueOrDefault.bind(this);
+    }
 
-        if (!this.props.value) {
-            // if no value specified on Tabs component, set it to the first child's (which should be a Tab component) value
-
+    valueOrDefault() {
+        if (has('value', this.props)) {
+            return this.props.value;
+        } else {
             const children = this.parseChildrenToArray();
             let value;
             if (children && children[0].props.children) {
-                value = children[0].props.children.props.value || 'tab-1';
+                return children[0].props.children.props.value || 'tab-1';
             } else {
-                value = 'tab-1';
+                return 'tab-1';
             }
-            this.state = {
-                selected: value,
-            };
-            if (this.props.setProps) {
-                // updating the prop in Dash is necessary so that callbacks work
-                this.props.setProps({
-                    value: value,
-                });
-            }
-        } else {
-            this.state = {
-                selected: this.props.value,
-            };
         }
     }
     parseChildrenToArray() {
@@ -167,21 +157,7 @@ export default class Tabs extends Component {
         return this.props.children;
     }
     selectHandler(value) {
-        if (this.props.setProps) {
-            this.props.setProps({value: value});
-        } else {
-            this.setState({
-                selected: value,
-            });
-        }
-    }
-    componentWillReceiveProps(newProps) {
-        const value = newProps.value;
-        if (typeof value !== 'undefined' && this.props.value !== value) {
-            this.setState({
-                selected: value,
-            });
-        }
+        this.props.setProps({value: value});
     }
     render() {
         let EnhancedTabs;
@@ -219,7 +195,7 @@ export default class Tabs extends Component {
                 }
 
                 // check if this child/Tab is currently selected
-                if (childProps.value === this.state.selected) {
+                if (childProps.value === this.valueOrDefault()) {
                     selectedTab = child;
                 }
 
@@ -228,7 +204,7 @@ export default class Tabs extends Component {
                         key={index}
                         id={childProps.id}
                         label={childProps.label}
-                        selected={this.state.selected === childProps.value}
+                        selected={this.valueOrDefault() === childProps.value}
                         selectHandler={this.selectHandler}
                         className={childProps.className}
                         style={childProps.style}

@@ -88,14 +88,12 @@ export default class Location extends Component {
         const listener = () => {
             return () => {
                 const {setProps} = this.props;
-                if (setProps) {
-                    setProps({
-                        pathname: window.location.pathname,
-                        href: window.location.href,
-                        hash: window.location.hash,
-                        search: window.location.search,
-                    });
-                }
+                setProps({
+                    pathname: window.location.pathname,
+                    href: window.location.href,
+                    hash: window.location.hash,
+                    search: window.location.search,
+                });
             };
         };
         window.addEventListener('onpopstate', listener());

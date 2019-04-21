@@ -34,7 +34,6 @@ export default class Dropdown extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: props.value,
             filterOptions: createFilterOptions({
                 options: props.options,
                 tokenizer: TOKENIZER,
@@ -43,7 +42,6 @@ export default class Dropdown extends Component {
     }
 
     componentWillReceiveProps(newProps) {
-        this.setState({value: newProps.value});
         if (newProps.options !== this.props.options) {
             this.setState({
                 filterOptions: createFilterOptions({
@@ -55,8 +53,16 @@ export default class Dropdown extends Component {
     }
 
     render() {
-        const {id, multi, options, setProps, style, loading_state} = this.props;
-        const {filterOptions, value} = this.state;
+        const {
+            id,
+            multi,
+            options,
+            setProps,
+            style,
+            loading_state,
+            value,
+        } = this.props;
+        const {filterOptions} = this.state;
         let selectedValue;
         if (R.type(value) === 'array') {
             selectedValue = value.join(DELIMETER);
@@ -81,12 +87,9 @@ export default class Dropdown extends Component {
                             if (R.isNil(selectedOption)) {
                                 value = [];
                             } else {
-                                value = R.pluck('value', selectedOption);
+                                value = pluck('value', selectedOption);
                             }
-                            this.setState({value});
-                            if (setProps) {
-                                setProps({value});
-                            }
+                            setProps({value});
                         } else {
                             let value;
                             if (R.isNil(selectedOption)) {
@@ -94,10 +97,7 @@ export default class Dropdown extends Component {
                             } else {
                                 value = selectedOption.value;
                             }
-                            this.setState({value});
-                            if (setProps) {
-                                setProps({value});
-                            }
+                            setProps({value});
                         }
                     }}
                     {...omit(['setProps', 'value'], this.props)}

@@ -18,26 +18,24 @@ export default class Upload extends Component {
         files.forEach(file => {
             const reader = new FileReader();
             reader.onload = () => {
-                if (setProps) {
-                    /*
-                     * I'm not sure if reader.onload will be executed in order.
-                     * For example, if the 1st file is larger than the 2nd one,
-                     * the 2nd file might load first.
-                     */
-                    newProps.contents.push(reader.result);
-                    newProps.filename.push(file.name);
-                    // eslint-disable-next-line no-magic-numbers
-                    newProps.last_modified.push(file.lastModified / 1000);
-                    if (newProps.contents.length === files.length) {
-                        if (multiple) {
-                            setProps(newProps);
-                        } else {
-                            setProps({
-                                contents: newProps.contents[0],
-                                filename: newProps.filename[0],
-                                last_modified: newProps.last_modified[0],
-                            });
-                        }
+                /*
+                 * I'm not sure if reader.onload will be executed in order.
+                 * For example, if the 1st file is larger than the 2nd one,
+                 * the 2nd file might load first.
+                 */
+                newProps.contents.push(reader.result);
+                newProps.filename.push(file.name);
+                // eslint-disable-next-line no-magic-numbers
+                newProps.last_modified.push(file.lastModified / 1000);
+                if (newProps.contents.length === files.length) {
+                    if (multiple) {
+                        setProps(newProps);
+                    } else {
+                        setProps({
+                            contents: newProps.contents[0],
+                            filename: newProps.filename[0],
+                            last_modified: newProps.last_modified[0],
+                        });
                     }
                 }
             };

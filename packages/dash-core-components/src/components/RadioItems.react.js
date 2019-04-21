@@ -10,15 +10,6 @@ import './css/react-select@1.0.0-rc.3.min.css';
  */
 
 export default class RadioItems extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {value: props.value};
-    }
-
-    componentWillReceiveProps(newProps) {
-        this.setState({value: newProps.value});
-    }
-
     render() {
         const {
             id,
@@ -31,8 +22,8 @@ export default class RadioItems extends Component {
             options,
             setProps,
             loading_state,
+            value,
         } = this.props;
-        const {value} = this.state;
 
         let ids = {};
         if (id) {
@@ -60,10 +51,7 @@ export default class RadioItems extends Component {
                             style={inputStyle}
                             type="radio"
                             onChange={() => {
-                                this.setState({value: option.value});
-                                if (setProps) {
-                                    setProps({value: option.value});
-                                }
+                                setProps({value: option.value});
                             }}
                         />
                         {option.label}
