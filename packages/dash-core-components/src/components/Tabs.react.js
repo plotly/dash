@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {is, isNil} from 'ramda';
+import {has, is, isNil} from 'ramda';
 
 // EnhancedTab is defined here instead of in Tab.react.js because if exported there,
 // it will mess up the Python imports and metadata.json
@@ -138,15 +138,12 @@ export default class Tabs extends Component {
     valueOrDefault() {
         if (has('value', this.props)) {
             return this.props.value;
-        } else {
-            const children = this.parseChildrenToArray();
-            let value;
-            if (children && children[0].props.children) {
-                return children[0].props.children.props.value || 'tab-1';
-            } else {
-                return 'tab-1';
-            }
         }
+        const children = this.parseChildrenToArray();
+        if (children && children[0].props.children) {
+            return children[0].props.children.props.value || 'tab-1';
+        }
+        return 'tab-1';
     }
 
     parseChildrenToArray() {
