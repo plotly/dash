@@ -30,10 +30,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     ```
     0 seconds: interval started with `interval=5000`
     5 seconds: `n_intervals=1`
-    7 seconds: callback sets `disabled=True`
-    10 seconds: interval continues to run, but doesn't fire an update
+    7 seconds: callback sets `disabled=True` - interval stops
     13 seconds: callback sets `disabled=False` - clock resets
-    17 seconds: interval fires an update: `n_intervals=2`
+    18 seconds: interval fires an update: `n_intervals=2`
     ```
 
 ## [0.46.0] - 2019-04-10
