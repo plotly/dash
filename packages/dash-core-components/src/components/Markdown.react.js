@@ -6,7 +6,8 @@ import Markdown from 'react-markdown';
 // eslint-disable-next-line valid-jsdoc
 /**
  * A component that renders Markdown text as specified by the
- * CommonMark spec.
+ * GitHub Markdown spec. These component uses
+ * [react-markdown](https://rexxars.github.io/react-markdown/) under the hood.
  */
 function DashMarkdown(props) {
     if (type(props.children) === 'Array') {

@@ -68,8 +68,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - `restyleData` prop for `Graph` component [#483](https://github.com/plotly/dash-core-components/pull/483)
 
-### Updated
-- Upgraded `react-markdown` third party library from 2.4.5 to [4.0.6](https://github.com/rexxars/react-markdown/blob/master/CHANGELOG.md#406---2019-01-04)
+### Changed
+- `dcc.Markdown` now uses GitHub-flavored markdown instead of CommonMark markdown. This was done as part of upgrading `react-markdown` third party library from 2.4.5 to [4.0.6](https://github.com/rexxars/react-markdown/blob/master/CHANGELOG.md#406---2019-01-04). Compare the differences in these online editors: [CommonMark editor](https://spec.commonmark.org/dingus/), [GitHub Markdown Editor](https://rexxars.github.io/react-markdown/). Notable changes:
+    - A line break is now needed between paragraphs and lists.
+    - Links are automatically rendered.
+    - Many more features are supported like tables and strikethrough.
 
 ### Fixed
 - Fix Vertical Slider regression [#479](https://github.com/plotly/dash/issues/479)
