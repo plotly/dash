@@ -927,12 +927,22 @@ class Tests(IntegrationTests):
             dcc.Markdown('''
                 #### Dash and Markdown
 
-                Dash supports [Markdown](http://commonmark.org/help).
+                Dash supports [Markdown](https://rexxars.github.io/react-markdown/).
 
                 Markdown is a simple way to write and format text.
                 It includes a syntax for things like **bold text** and *italics*,
-                [links](http://commonmark.org/help), inline `code` snippets, lists,
+                [links](https://rexxars.github.io/react-markdown/), inline `code` snippets, lists,
                 quotes, and more.
+
+                1. Links are auto-rendered: https://dash.plot.ly.
+                2. This uses ~commonmark~ GitHub flavored markdown.
+
+                Tables are also supported:
+
+                | First Header  | Second Header |
+                | ------------- | ------------- |
+                | Content Cell  | Content Cell  |
+                | Content Cell  | Content Cell  |
 
                 北京
             '''.replace('    ', '')),
