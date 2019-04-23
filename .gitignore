@@ -20,4 +20,12 @@ dist
 npm-debug*
 /.tox
 .idea
+dash_renderer/bundle.js
+dash_renderer/bundle.js.map
+simple*
+/.tox
+
+*.csv
+.idea/
+.vscode
 .mypy_cache/
