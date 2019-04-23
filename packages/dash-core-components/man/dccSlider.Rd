@@ -17,7 +17,7 @@ dccSlider(id=NULL, marks=NULL, value=NULL, className=NULL, disabled=NULL, dots=N
 \item{id}{}
 
 \item{marks}{Marks on the slider.
-The key determines the position,
+The key determines the position (a number),
 and the value determines what will show.
 If you want to set the style of a specific mark point,
 the value should be an object which

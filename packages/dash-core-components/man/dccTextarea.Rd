@@ -36,9 +36,15 @@ components in an app.}
 
 \item{placeholder}{Provides a hint to the user of what can be entered in the field.}
 
-\item{readOnly}{Indicates whether the element can be edited.}
+\item{readOnly}{Indicates whether the element can be edited.
+readOnly is an HTML boolean attribute - it is enabled by a boolean or
+'readOnly'. Alternative capitalizations `readonly` & `READONLY`
+are also acccepted.}
 
-\item{required}{Indicates whether this element is required to fill out or not.}
+\item{required}{Indicates whether this element is required to fill out or not.
+required is an HTML boolean attribute - it is enabled by a boolean or
+'required'. Alternative capitalizations `REQUIRED`
+are also acccepted.}
 
 \item{rows}{Defines the number of rows in a text area.}
 

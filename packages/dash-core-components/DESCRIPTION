@@ -1,6 +1,6 @@
 Package: dashCoreComponents
 Title: Core component suite for Dash
-Version: 0.45.0
+Version: 0.46.0
 Authors @R: as.person(c(Chris Parmer <chris@plot.ly>))
 Description: Core component suite for Dash
 Depends: R (>= 3.0.2)

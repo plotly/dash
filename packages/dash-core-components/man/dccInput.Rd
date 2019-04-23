@@ -10,7 +10,7 @@ A basic HTML input control for entering text, numbers, or passwords.  Note that 
 }
 
 \usage{
-dccInput(id=NULL, value=NULL, style=NULL, className=NULL, debounce=NULL, type=NULL, autocomplete=NULL, autofocus=NULL, disabled=NULL, inputmode=NULL, list=NULL, max=NULL, maxlength=NULL, min=NULL, minlength=NULL, multiple=NULL, name=NULL, pattern=NULL, placeholder=NULL, readOnly=NULL, required=NULL, selectionDirection=NULL, selectionEnd=NULL, selectionStart=NULL, size=NULL, spellCheck=NULL, step=NULL, n_submit=NULL, n_submit_timestamp=NULL, n_blur=NULL, n_blur_timestamp=NULL, loading_state=NULL)
+dccInput(id=NULL, value=NULL, style=NULL, className=NULL, debounce=NULL, type=NULL, autoComplete=NULL, autoFocus=NULL, disabled=NULL, inputMode=NULL, list=NULL, max=NULL, maxLength=NULL, min=NULL, minLength=NULL, multiple=NULL, name=NULL, pattern=NULL, placeholder=NULL, readOnly=NULL, required=NULL, selectionDirection=NULL, selectionEnd=NULL, selectionStart=NULL, size=NULL, spellCheck=NULL, step=NULL, n_submit=NULL, n_submit_timestamp=NULL, n_blur=NULL, n_blur_timestamp=NULL, loading_state=NULL)
 }
 
 \arguments{
@@ -29,13 +29,18 @@ If it's false, it will sent the value back on every change.}
 
 \item{type}{The type of control to render.}
 
-\item{autocomplete}{This attribute indicates whether the value of the control can be automatically completed by the browser.}
+\item{autoComplete}{This attribute indicates whether the value of the control can be automatically completed by the browser.}
 
-\item{autofocus}{The element should be automatically focused after the page loaded.}
+\item{autoFocus}{The element should be automatically focused after the page loaded.
+autoFocus is an HTML boolean attribute - it is enabled by a boolean or
+'autoFocus'. Alternative capitalizations `autofocus` & `AUTOFOCUS`
+are also acccepted.}
 
-\item{disabled}{If true, the input is disabled and can't be clicked on.}
+\item{disabled}{If true, the input is disabled and can't be clicked on.
+disabled is an HTML boolean attribute - it is enabled by a boolean or
+'disabled'. Alternative capitalizations `DISABLED`}
 
-\item{inputmode}{}
+\item{inputMode}{}
 
 \item{list}{Identifies a list of pre-defined options to suggest to the user.
 The value must be the id of a <datalist> element in the same document.
@@ -46,11 +51,11 @@ hidden, checkbox, radio, file, or a button type.}
 
 \item{max}{The maximum (numeric or date-time) value for this item, which must not be less than its minimum (min attribute) value.}
 
-\item{maxlength}{If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed.}
+\item{maxLength}{If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the maximum number of characters (in UTF-16 code units) that the user can enter. For other control types, it is ignored. It can exceed the value of the size attribute. If it is not specified, the user can enter an unlimited number of characters. Specifying a negative number results in the default behavior (i.e. the user can enter an unlimited number of characters). The constraint is evaluated only when the value of the attribute has been changed.}
 
 \item{min}{The minimum (numeric or date-time) value for this item, which must not be greater than its maximum (max attribute) value.}
 
-\item{minlength}{If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored.}
+\item{minLength}{If the value of the type attribute is text, email, search, password, tel, or url, this attribute specifies the minimum number of characters (in Unicode code points) that the user can enter. For other control types, it is ignored.}
 
 \item{multiple}{This Boolean attribute indicates whether the user can enter more than one value. This attribute applies when the type attribute is set to email or file, otherwise it is ignored.}
 
@@ -60,9 +65,15 @@ hidden, checkbox, radio, file, or a button type.}
 
 \item{placeholder}{A hint to the user of what can be entered in the control . The placeholder text must not contain carriage returns or line-feeds. Note: Do not use the placeholder attribute instead of a <label> element, their purposes are different. The <label> attribute describes the role of the form element (i.e. it indicates what kind of information is expected), and the placeholder attribute is a hint about the format that the content should take. There are cases in which the placeholder attribute is never displayed to the user, so the form must be understandable without it.}
 
-\item{readOnly}{This attribute indicates that the user cannot modify the value of the control. The value of the attribute is irrelevant. If you need read-write access to the input value, do not add the "readonly" attribute. It is ignored if the value of the type attribute is hidden, range, color, checkbox, radio, file, or a button type (such as button or submit).}
+\item{readOnly}{This attribute indicates that the user cannot modify the value of the control. The value of the attribute is irrelevant. If you need read-write access to the input value, do not add the "readonly" attribute. It is ignored if the value of the type attribute is hidden, range, color, checkbox, radio, file, or a button type (such as button or submit).
+readOnly is an HTML boolean attribute - it is enabled by a boolean or
+'readOnly'. Alternative capitalizations `readonly` & `READONLY`
+are also acccepted.}
 
-\item{required}{This attribute specifies that the user must fill in a value before submitting a form. It cannot be used when the type attribute is hidden, image, or a button type (submit, reset, or button). The :optional and :required CSS pseudo-classes will be applied to the field as appropriate.}
+\item{required}{This attribute specifies that the user must fill in a value before submitting a form. It cannot be used when the type attribute is hidden, image, or a button type (submit, reset, or button). The :optional and :required CSS pseudo-classes will be applied to the field as appropriate.
+required is an HTML boolean attribute - it is enabled by a boolean or
+'required'. Alternative capitalizations `REQUIRED`
+are also acccepted.}
 
 \item{selectionDirection}{The direction in which selection occurred. This is "forward" if the selection was made from left-to-right in an LTR locale or right-to-left in an RTL locale, or "backward" if the selection was made in the opposite direction. On platforms on which it's possible this value isn't known, the value can be "none"; for example, on macOS, the default direction is "none", then as the user begins to modify the selection using the keyboard, this will change to reflect the direction in which the selection is expanding.}
 
