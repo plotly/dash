@@ -68,11 +68,18 @@ jobs:
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
 
       - run:
-          name: Run dummy tests
+          name: Run unit tests
           command: |
-              . venv/bin/activate
-              python --version
-              pytest dash/tests/test_configs.py
+            . venv/bin/activate
+            mkdir test-reports
+            pytest --junitxml=test-reports/junit.xml tests/unit
+
+      - store_test_results:
+          path: test-reports
+
+      - store_artifacts:
+          path: test-reports
+
 
   # "python-3.6":
   #   <<: *test-template

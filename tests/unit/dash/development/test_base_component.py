@@ -497,7 +497,7 @@ class TestComponent(unittest.TestCase):
 
 class TestGenerateClassFile(unittest.TestCase):
     def setUp(self):
-        json_path = os.path.join('tests', 'development', 'metadata_test.json')
+        json_path = os.path.join('tests', 'unit', 'dash', 'development', 'metadata_test.json')
         with open(json_path) as data_file:
             json_string = data_file.read()
             data = json\
@@ -537,7 +537,7 @@ class TestGenerateClassFile(unittest.TestCase):
 
         # The expected result for both class string and class file generation
         expected_string_path = os.path.join(
-            'tests', 'development', 'metadata_test.py'
+            'tests', 'unit', 'dash', 'development', 'metadata_test.py'
         )
         with open(expected_string_path, 'r') as f:
             self.expected_class_string = f.read()
@@ -566,7 +566,7 @@ class TestGenerateClassFile(unittest.TestCase):
 
 class TestGenerateClass(unittest.TestCase):
     def setUp(self):
-        path = os.path.join('tests', 'development', 'metadata_test.json')
+        path = os.path.join('tests', 'unit', 'dash', 'development', 'metadata_test.json')
         with open(path) as data_file:
             json_string = data_file.read()
             data = json\
@@ -582,7 +582,7 @@ class TestGenerateClass(unittest.TestCase):
         )
 
         path = os.path.join(
-            'tests', 'development', 'metadata_required_test.json'
+            'tests', 'unit', 'dash', 'development', 'metadata_required_test.json'
         )
         with open(path) as data_file:
             json_string = data_file.read()
@@ -753,7 +753,7 @@ class TestGenerateClass(unittest.TestCase):
 
 class TestMetaDataConversions(unittest.TestCase):
     def setUp(self):
-        path = os.path.join('tests', 'development', 'metadata_test.json')
+        path = os.path.join('tests', 'unit', 'dash', 'development', 'metadata_test.json')
         with open(path) as data_file:
             json_string = data_file.read()
             data = json\
@@ -936,7 +936,7 @@ def assert_docstring(assertEqual, docstring):
 
 class TestFlowMetaDataConversions(unittest.TestCase):
     def setUp(self):
-        path = os.path.join('tests', 'development', 'flow_metadata_test.json')
+        path = os.path.join('tests', 'unit', 'dash', 'development', 'flow_metadata_test.json')
         with open(path) as data_file:
             json_string = data_file.read()
             data = json\
