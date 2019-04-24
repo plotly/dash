@@ -39,12 +39,20 @@ jobs:
               python -m venv venv || virtualenv venv
               . venv/bin/activate
               pip install -r $REQUIREMENTS_FILE --force-reinstall --quiet
-              echo "current project" && ls -la
-              # cd dash && echo "inside dash" && ls -la
               echo "install dash"
               pip install -e .
-              cd dash-renderer && npm install --ignore-scripts && cd ..
-              ls -la
+
+      - run:
+          name: Build Renderer
+          command: |
+              . venv/bin/activate
+              cd dash-renderer
+              npm install --ignore-scripts
+              npm run build
+              npm run build:dev
+              pip install -e . --quiet
+              pip list | grep dash
+              cd ..
 
       - run:
           name: Install dependencies (dash)
@@ -59,15 +67,6 @@ jobs:
               cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
 
-      - run:
-          name: Build Renderer
-          command: |
-              . venv/bin/activate
-              cd dash-renderer
-              npm run build
-              npm run build:dev
-              pip install -e . --quiet
-              pip list | grep dash
 
       - run:
           name: Run dummy tests
