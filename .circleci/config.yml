@@ -1,0 +1,88 @@
+version: 2
+
+jobs:
+  "python-2.7": &test-template
+    docker:
+      - image: circleci/python:2.7-stretch-node-browsers
+        environment:
+          REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
+          PYLINTRC: .pylintrc
+
+    steps:
+      - checkout
+
+      - run:
+          name: Write deps cache key
+          command: |
+            cat "$REQUIREMENTS_FILE" > reqs.txt
+
+      - run:
+          name: Write job name
+          command: echo $CIRCLE_JOB > circlejob.txt
+
+      - run:
+          name: Install dependencies
+          command: |
+              sudo pip install --upgrade virtualenv
+              python -m venv venv || virtualenv venv
+              . venv/bin/activate
+              pip install -r $REQUIREMENTS_FILE --force-reinstall --quiet
+              pip install -e ./dash --quiet
+              cd dash-renderer && npm install --ignore-scripts && cd ..
+
+      - run:
+          name: Install dependencies (dash)
+          command: |
+              git clone git@github.com:plotly/dash-core-components.git
+              git clone git@github.com:plotly/dash-html-components.git
+              git clone git@github.com:plotly/dash-table.git
+              git clone git@github.com:plotly/dash-renderer-test-components
+              . venv/bin/activate
+              # npm run build && pip install -e . && cd ..
+              cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+
+      - run:
+          name: Build Renderer
+          command: |
+              . venv/bin/activate
+              cd dash-renderer
+              npm run build
+              npm run build:dev
+              pip install -e . --quiet
+              pip list | grep dash
+
+      - run:
+          name: Run dummy tests
+          command: |
+              . venv/bin/activate
+              python --version
+              pytest dash/tests/test_configs.py
+
+  # "python-3.6":
+  #   <<: *test-template
+  #   docker:
+  #     - image: circleci/python:3.6-stretch-node-browsers
+  #       environment:
+  #         REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
+  #         PYLINTRC: .pylintrc
+  #         PERCY_ENABLE: 0
+
+  # "python-3.7":
+  #   <<: *test-template
+  #   docker:
+  #     - image: circleci/python:3.7-stretch-node-browsers
+  #       environment:
+  #         REQUIREMENTS_FILE: .circleci/requirements/dev-requirements-py37.txt
+  #         PYLINTRC: .pylintrc37
+  #         PERCY_ENABLE: 0
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - "python-2.7"
+      # - "python-3.6"
+      # - "python-3.7"
