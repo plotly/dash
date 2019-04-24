@@ -27,7 +27,7 @@ jobs:
               python -m venv venv || virtualenv venv
               . venv/bin/activate
               pip install -r $REQUIREMENTS_FILE --force-reinstall --quiet
-              pip install -e ./dash --quiet
+              cd dash && pip install -e . --quiet && cd ..
               cd dash-renderer && npm install --ignore-scripts && cd ..
 
       - run:
