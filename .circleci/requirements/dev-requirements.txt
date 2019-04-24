@@ -3,7 +3,6 @@ dash-dangerously-set-inner-html
 percy
 pytest
 pytest-sugar
-pytest-picked
 pytest-xdist
 selenium
 mock
