@@ -9,6 +9,18 @@ jobs:
           PYLINTRC: .pylintrc
 
     steps:
+
+      - run:
+          name: Show some of the CircleCI runtime env vars
+          command: |-
+            echo "TRIGGERER: ${CIRCLE_USERNAME}"
+            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
+            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
+            echo "BRANCH: ${CIRCLE_BRANCH}"
+            echo "RUNNING JOB: ${CIRCLE_JOB}"
+            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+
       - checkout
 
       - run:
@@ -27,16 +39,19 @@ jobs:
               python -m venv venv || virtualenv venv
               . venv/bin/activate
               pip install -r $REQUIREMENTS_FILE --force-reinstall --quiet
-              cd dash && pip install -e . --quiet && cd ..
-              cd dash-renderer && npm install --ignore-scripts && cd ..
+              echo "current project" && ls -la
+              # cd dash && echo "inside dash" && ls -la
+              pip install -e . && cd ..
+              cd dash-renderer && npm install --ignore-scripts && cd .. & cd ..
+              ls -la
 
       - run:
           name: Install dependencies (dash)
           command: |
-              git clone git@github.com:plotly/dash-core-components.git
-              git clone git@github.com:plotly/dash-html-components.git
-              git clone git@github.com:plotly/dash-table.git
-              git clone git@github.com:plotly/dash-renderer-test-components
+              git clone https://github.com/plotly/dash-core-components.git
+              git clone https://github.com/plotly/dash-html-components.git
+              git clone https://github.com/plotly/dash-table.git
+              git clone https://github.com/plotly/dash-renderer-test-components
               . venv/bin/activate
               # npm run build && pip install -e . && cd ..
               cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
