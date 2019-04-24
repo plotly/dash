@@ -54,6 +54,7 @@ class Tests(unittest.TestCase):
                 app.scripts.get_all_scripts()
             )
 
+        print(resource)
         self.assertEqual(resource, [
             'https://external_javascript.js',
             'https://external_css.css',
@@ -76,6 +77,7 @@ class Tests(unittest.TestCase):
                     app.scripts.get_all_scripts()
                 )
 
+        print(resource)
         self.assertEqual(resource, [
             '/_dash-component-suites/'
             'dash_core_components/external_javascript.js?v=1&m=1',
