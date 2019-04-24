@@ -26,7 +26,7 @@ function DashMarkdown(props) {
             <Markdown
                 source={props.children}
                 escapeHtml={!props.dangerously_allow_html}
-                {...omit(['containerProps', props)}
+                {...omit(['containerProps'], props)}
             />
         </div>
     );
