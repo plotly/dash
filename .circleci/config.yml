@@ -41,8 +41,9 @@ jobs:
               pip install -r $REQUIREMENTS_FILE --force-reinstall --quiet
               echo "current project" && ls -la
               # cd dash && echo "inside dash" && ls -la
-              pip install -e . && cd ..
-              cd dash-renderer && npm install --ignore-scripts && cd .. & cd ..
+              echo "install dash"
+              pip install -e .
+              cd dash-renderer && npm install --ignore-scripts && cd ..
               ls -la
 
       - run:
