@@ -1,7 +1,9 @@
-## Unreleased
+## [0.42.0] - 2019-04-25
 
 ### Added
-- Added `dev_tools_props_check` config flag in `app.run_server` to enable or explicitly disable the forthcoming Component Validation in Dash's front-end /(dash-renderer). Note this will only be effective with dash version bumping to React 16 [#687](https://github.com/plotly/dash/pull/687)
+- [#687](https://github.com/plotly/dash/pull/687) Dev Tools support. A new UI in the application that automatically display JavaScript & Python error messages, validates your component's properties, and displays a graph of your callback's dependencies. Only enabled in debug mode. Turn this on and off with two new config flags in `app.run_server`:
+    - `dev_tools_props_check` - turn on/off property validation.
+    - `dev_tools_ui` - turn on/off the UI.
 
 ## [0.41.0] - 2019-04-10
 ### Added
