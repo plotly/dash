@@ -11450,7 +11450,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".dash-callback-dag--container {\n    border-radius: 4px;\n    position: fixed;\n    bottom: 165px;\n    right: 16px;\n    max-width: 80vw;\n    max-height: 80vh;\n    overflow: auto;\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n}\n", ""]);
+exports.push([module.i, ".dash-callback-dag--container {\n    border-radius: 4px;\n    position: fixed;\n    bottom: 165px;\n    right: 16px;\n    max-width: 80vw;\n    max-height: calc(100vh - 180px);\n    overflow: auto;\n    box-sizing: border-box;\n    background: #ffffff;\n    display: inline-block;\n    /* shadow-1 */\n    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),\n        0px 2px 6px rgba(80, 103, 132, 0.12),\n        0px 0px 1px rgba(80, 103, 132, 0.32);\n}\n", ""]);
 
 // exports
 
@@ -36889,10 +36889,16 @@ var UnconnectedContainer = function (_Component) {
                 return React.createElement(
                     GlobalErrorContainer,
                     null,
-                    React.createElement(TreeContainer, { _dashprivate_layout: layout })
+                    React.createElement(TreeContainer, {
+                        _dashprivate_layout: layout,
+                        _dashprivate_path: []
+                    })
                 );
             } else if (appLifecycle === getAppState('HYDRATED')) {
-                return React.createElement(TreeContainer, { _dashprivate_layout: layout });
+                return React.createElement(TreeContainer, {
+                    _dashprivate_layout: layout,
+                    _dashprivate_path: []
+                });
             }
 
             return React.createElement(
@@ -37225,7 +37231,9 @@ var connect = _reactRedux.connect;
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
+var addIndex = _ramda.addIndex;
 var any = _ramda.any;
+var concat = _ramda.concat;
 var contains = _ramda.contains;
 var filter = _ramda.filter;
 var forEach = _ramda.forEach;
@@ -37277,10 +37285,11 @@ function validateComponent(componentDefinition) {
     }
 }
 
-var createContainer = function createContainer(component) {
+var createContainer = function createContainer(component, path) {
     return isSimpleComponent(component) ? component : React.createElement(AugmentedTreeContainer, {
         key: component && component.props && component.props.id,
-        _dashprivate_layout: component
+        _dashprivate_layout: component,
+        _dashprivate_path: path
     });
 };
 
@@ -37320,16 +37329,21 @@ var TreeContainer = function (_Component) {
 
     _createClass(TreeContainer, [{
         key: 'getChildren',
-        value: function getChildren(components) {
+        value: function getChildren(components, path) {
             if (isNil(components)) {
                 return null;
             }
 
-            return Array.isArray(components) ? map(createContainer, components) : createContainer(components);
+            return Array.isArray(components) ? addIndex(map)(function (component, i) {
+                return createContainer(component, concat(path, ['props', 'children', i]));
+            }, components) : createContainer(components, concat(path, ['props', 'children']));
         }
     }, {
         key: 'getComponent',
         value: function getComponent(_dashprivate_layout, children, loading_state, setProps) {
+            var _dashprivate_config = this.props._dashprivate_config;
+
+
             if (isEmpty(_dashprivate_layout)) {
                 return null;
             }
@@ -37343,7 +37357,7 @@ var TreeContainer = function (_Component) {
 
             var props = omit(['children'], _dashprivate_layout.props);
 
-            return React.createElement(
+            return _dashprivate_config.props_check ? React.createElement(
                 ComponentErrorBoundary,
                 {
                     componentType: _dashprivate_layout.type,
@@ -37357,6 +37371,14 @@ var TreeContainer = function (_Component) {
                     extraProps: { loading_state: loading_state, setProps: setProps },
                     type: _dashprivate_layout.type
                 })
+            ) : React.createElement(
+                ComponentErrorBoundary,
+                {
+                    componentType: _dashprivate_layout.type,
+                    componentId: _dashprivate_layout.props.id,
+                    key: element && element.props && element.props.id
+                },
+                React.createElement.apply(React, [element, mergeAll([props, { loading_state: loading_state, setProps: setProps }])].concat(_toConsumableArray(Array.isArray(children) ? children : [children])))
             );
         }
     }, {
@@ -37368,7 +37390,7 @@ var TreeContainer = function (_Component) {
                 var _props = _this2.props,
                     _dashprivate_dependencies = _props._dashprivate_dependencies,
                     _dashprivate_dispatch = _props._dashprivate_dispatch,
-                    _dashprivate_paths = _props._dashprivate_paths;
+                    _dashprivate_path = _props._dashprivate_path;
 
 
                 var id = _this2.getLayoutProps().id;
@@ -37387,8 +37409,7 @@ var TreeContainer = function (_Component) {
                 // Always update this component's props
                 _dashprivate_dispatch(updateProps({
                     props: newProps,
-                    id: id,
-                    itempath: _dashprivate_paths[id]
+                    itempath: _dashprivate_path
                 }));
 
                 // Only dispatch changes to Dash if a watched prop changed
@@ -37419,12 +37440,13 @@ var TreeContainer = function (_Component) {
             var _props2 = this.props,
                 _dashprivate_dispatch = _props2._dashprivate_dispatch,
                 _dashprivate_layout = _props2._dashprivate_layout,
-                _dashprivate_loadingState = _props2._dashprivate_loadingState;
+                _dashprivate_loadingState = _props2._dashprivate_loadingState,
+                _dashprivate_path = _props2._dashprivate_path;
 
 
             var layoutProps = this.getLayoutProps();
 
-            var children = this.getChildren(layoutProps.children);
+            var children = this.getChildren(layoutProps.children, _dashprivate_path);
             var setProps = this.getSetProps(_dashprivate_dispatch);
 
             return this.getComponent(_dashprivate_layout, children, _dashprivate_loadingState, setProps);
@@ -37439,8 +37461,9 @@ TreeContainer.propTypes = {
     _dashprivate_dispatch: PropTypes.func,
     _dashprivate_layout: PropTypes.object,
     _dashprivate_loadingState: PropTypes.object,
-    _dashprivate_paths: PropTypes.any,
-    _dashprivate_requestQueue: PropTypes.any
+    _dashprivate_requestQueue: PropTypes.any,
+    _dashprivate_config: PropTypes.object,
+    _dashprivate_path: PropTypes.array
 };
 
 function isLoadingComponent(layout) {
@@ -37517,8 +37540,8 @@ function getLoadingState(layout, requestQueue) {
 var AugmentedTreeContainer = exports.AugmentedTreeContainer = connect(function (state) {
     return {
         dependencies: state.dependenciesRequest.content,
-        paths: state.paths,
-        requestQueue: state.requestQueue
+        requestQueue: state.requestQueue,
+        config: state.config
     };
 }, function (dispatch) {
     return { dispatch: dispatch };
@@ -37527,9 +37550,10 @@ var AugmentedTreeContainer = exports.AugmentedTreeContainer = connect(function (
         _dashprivate_dependencies: stateProps.dependencies,
         _dashprivate_dispatch: dispatchProps.dispatch,
         _dashprivate_layout: ownProps._dashprivate_layout,
+        _dashprivate_path: ownProps._dashprivate_path,
         _dashprivate_loadingState: getLoadingState(ownProps._dashprivate_layout, stateProps.requestQueue),
-        _dashprivate_paths: stateProps.paths,
-        _dashprivate_requestQueue: stateProps.requestQueue
+        _dashprivate_requestQueue: stateProps.requestQueue,
+        _dashprivate_config: stateProps.config
     };
 })(TreeContainer);
 
@@ -38344,8 +38368,13 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
             // update the status of this request
             updateRequestQueue(true, res.status);
 
-            // eject into `catch` handler below
-            throw res;
+            /*
+             * eject into `catch` handler below to display error
+             * message in ui
+             */
+            if (res.status !== STATUS.PREVENT_UPDATE) {
+                throw res;
+            }
         }
 
         /*
@@ -38733,7 +38762,15 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _ramda = __webpack_require__(/*! ramda */ "./node_modules/ramda/index.js");
 
-var R = _interopRequireDefault(_ramda).default;
+var comparator = _ramda.comparator;
+var equals = _ramda.equals;
+var forEach = _ramda.forEach;
+var has = _ramda.has;
+var isEmpty = _ramda.isEmpty;
+var lt = _ramda.lt;
+var path = _ramda.path;
+var pathOr = _ramda.pathOr;
+var sort = _ramda.sort;
 
 var _react = __webpack_require__(/*! react */ "react");
 
@@ -38774,7 +38811,6 @@ var Reloader = function (_React$Component) {
                 max_retry = _props$config$hot_rel.max_retry;
 
             _this.state = {
-                hash: null,
                 interval: interval,
                 disabled: false,
                 intervalId: null,
@@ -38788,108 +38824,113 @@ var Reloader = function (_React$Component) {
         }
         _this._retry = 0;
         _this._head = document.querySelector('head');
+        _this.clearInterval = _this.clearInterval.bind(_this);
         return _this;
     }
 
     _createClass(Reloader, [{
+        key: 'clearInterval',
+        value: function clearInterval() {
+            window.clearInterval(this.state.intervalId);
+            this.setState({ intervalId: null });
+        }
+    }, {
         key: 'componentDidUpdate',
-        value: function componentDidUpdate() {
-            var _this2 = this;
+        value: function componentDidUpdate(prevProps, prevState) {
+            var reloadRequest = this.state.reloadRequest;
+            var dispatch = this.props.dispatch;
 
-            var _props = this.props,
-                reloadRequest = _props.reloadRequest,
-                dispatch = _props.dispatch;
+            // In the beginning, reloadRequest won't be defined
 
-            if (reloadRequest.status === 200) {
-                if (this.state.hash === null) {
-                    this.setState({
-                        hash: reloadRequest.content.reloadHash,
-                        packages: reloadRequest.content.packages
-                    });
-                    return;
-                }
-                if (reloadRequest.content.reloadHash !== this.state.hash) {
-                    if (reloadRequest.content.hard || reloadRequest.content.packages.length !== this.state.packages.length || !R.all(R.map(function (x) {
-                        return R.contains(x, _this2.state.packages);
-                    }, reloadRequest.content.packages))) {
-                        // Look if it was a css file.
-                        var was_css = false;
-                        var _iteratorNormalCompletion = true;
-                        var _didIteratorError = false;
-                        var _iteratorError = undefined;
+            if (!reloadRequest) {
+                return;
+            }
 
+            /*
+             * When reloadRequest is first defined, prevState won't be defined
+             * for one render loop.
+             * The first reloadRequest defines the initial/baseline hash -
+             * it doesn't require a reload
+             */
+            if (!has('reloadRequest', prevState)) {
+                return;
+            }
+
+            if (reloadRequest.status === 200 && path(['content', 'reloadHash'], reloadRequest) !== path(['reloadRequest', 'content', 'reloadHash'], prevState)) {
+                // Check for CSS (!content.hard) or new package assets
+                if (reloadRequest.content.hard || !equals(reloadRequest.content.packages.length, pathOr([], ['reloadRequest', 'content', 'packages'], prevState).length) || !equals(sort(comparator(lt), reloadRequest.content.packages), sort(comparator(lt), pathOr([], ['reloadRequest', 'content', 'packages'], prevState)))) {
+                    // Look if it was a css file.
+                    var was_css = false;
+                    // eslint-disable-next-line prefer-const
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = reloadRequest.content.files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var a = _step.value;
+
+                            if (a.is_css) {
+                                was_css = true;
+                                var nodesToDisable = [];
+
+                                // Search for the old file by xpath.
+                                var it = document.evaluate('//link[contains(@href, "' + a.url + '")]', this._head);
+                                var node = it.iterateNext();
+
+                                while (node) {
+                                    nodesToDisable.push(node);
+                                    node = it.iterateNext();
+                                }
+
+                                forEach(function (n) {
+                                    return n.setAttribute('disabled', 'disabled');
+                                }, nodesToDisable);
+
+                                if (a.modified > 0) {
+                                    var link = document.createElement('link');
+                                    link.href = a.url + '?m=' + a.modified;
+                                    link.type = 'text/css';
+                                    link.rel = 'stylesheet';
+                                    this._head.appendChild(link);
+                                    // Else the file was deleted.
+                                }
+                            } else {
+                                // If there's another kind of file here do a hard reload.
+                                was_css = false;
+                                break;
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
                         try {
-                            for (var _iterator = reloadRequest.content.files[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                                var a = _step.value;
-
-                                if (a.is_css) {
-                                    was_css = true;
-                                    var nodesToDisable = [];
-
-                                    // Search for the old file by xpath.
-                                    var it = document.evaluate('//link[contains(@href, "' + a.url + '")]', this._head);
-                                    var node = it.iterateNext();
-
-                                    while (node) {
-                                        nodesToDisable.push(node);
-                                        node = it.iterateNext();
-                                    }
-
-                                    R.forEach(function (n) {
-                                        return n.setAttribute('disabled', 'disabled');
-                                    }, nodesToDisable);
-
-                                    if (a.modified > 0) {
-                                        var link = document.createElement('link');
-                                        link.href = a.url + '?m=' + a.modified;
-                                        link.type = 'text/css';
-                                        link.rel = 'stylesheet';
-                                        this._head.appendChild(link);
-                                        // Else the file was deleted.
-                                    }
-                                } else {
-                                    // If there's another kind of file here do a hard reload.
-                                    was_css = false;
-                                    break;
-                                }
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
                             }
-                        } catch (err) {
-                            _didIteratorError = true;
-                            _iteratorError = err;
                         } finally {
-                            try {
-                                if (!_iteratorNormalCompletion && _iterator.return) {
-                                    _iterator.return();
-                                }
-                            } finally {
-                                if (_didIteratorError) {
-                                    throw _iteratorError;
-                                }
+                            if (_didIteratorError) {
+                                throw _iteratorError;
                             }
                         }
-
-                        if (!was_css) {
-                            // Assets file have changed
-                            // or a component lib has been added/removed
-                            window.top.location.reload();
-                        } else {
-                            // Since it's only a css reload,
-                            // we just change the hash.
-                            this.setState({
-                                hash: reloadRequest.content.reloadHash
-                            });
-                        }
-                    } else {
-                        // Soft reload
-                        window.clearInterval(this.state.intervalId);
-                        dispatch({ type: 'RELOAD' });
                     }
+
+                    if (!was_css) {
+                        // Assets file have changed
+                        // or a component lib has been added/removed -
+                        // Must do a hard reload
+                        window.top.location.reload();
+                    }
+                } else {
+                    // Backend code changed - can do a soft reload in place
+                    dispatch({ type: 'RELOAD' });
                 }
             } else if (reloadRequest.status === 500) {
                 if (this._retry > this.state.max_retry) {
-                    window.clearInterval(this.state.intervalId);
+                    this.clearInterval();
                     // Integrate with dev tools ui?!
-                    window.alert('\n                    Reloader failed after ' + this._retry + ' times.\n                    Please check your application for errors. \n                    ');
+                    window.alert('\n                    Reloader failed after ' + this._retry + ' times.\n                    Please check your application for errors.\n                    ');
                 }
                 this._retry++;
             }
@@ -38897,14 +38938,20 @@ var Reloader = function (_React$Component) {
     }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
+            var _this2 = this;
+
             var dispatch = this.props.dispatch;
             var _state = this.state,
                 disabled = _state.disabled,
                 interval = _state.interval;
 
             if (!disabled && !this.state.intervalId) {
-                var intervalId = setInterval(function () {
-                    dispatch(getReloadHash());
+                var intervalId = window.setInterval(function () {
+                    // Prevent requests from piling up - reloading can take
+                    // many seconds (10-30) and the interval is 3s by default
+                    if (_this2.props.reloadRequest.status !== 'loading') {
+                        dispatch(getReloadHash());
+                    }
                 }, interval);
                 this.setState({ intervalId: intervalId });
             }
@@ -38913,12 +38960,27 @@ var Reloader = function (_React$Component) {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
             if (!this.state.disabled && this.state.intervalId) {
-                window.clearInterval(this.state.intervalId);
+                this.clearInterval();
             }
         }
     }, {
         key: 'render',
         value: function render() {
+            return null;
+        }
+    }], [{
+        key: 'getDerivedStateFromProps',
+        value: function getDerivedStateFromProps(props) {
+            /*
+             * Save the non-loading requests in the state in order to compare
+             * current hashes with previous hashes.
+             * Note that if there wasn't a "loading" state for the requests,
+             * then we  could simply compare `props` with `prevProps` in
+             * `componentDidUpdate`.
+             */
+            if (!isEmpty(props.reloadRequest) && props.reloadRequest.status !== 'loading') {
+                return { reloadRequest: props.reloadRequest };
+            }
             return null;
         }
     }]);
@@ -40752,6 +40814,7 @@ var OAUTH_COOKIE_NAME = exports.OAUTH_COOKIE_NAME = 'plotly_oauth_token';
 
 var STATUS = exports.STATUS = {
     OK: 200,
+    PREVENT_UPDATE: 204,
     CLIENTSIDE_ERROR: 'CLIENTSIDE_ERROR'
 };
 
