@@ -32,7 +32,7 @@ export default class HeaderFactory {
     public createHeaders() {
         const props = this.props;
 
-        let {
+        const {
             columns,
             merge_duplicate_headers,
             pagination_mode,
@@ -40,7 +40,7 @@ export default class HeaderFactory {
             row_selectable,
             setProps,
             sorting,
-            sorting_settings,
+            sort_by,
             sorting_type,
             style_cell,
             style_cell_conditional,
@@ -85,7 +85,7 @@ export default class HeaderFactory {
             labelsAndIndices,
             sorting,
             sorting_type,
-            sorting_settings,
+            sort_by,
             pagination_mode,
             setProps,
             props

@@ -47,7 +47,7 @@ function doSort(columnId: ColumnId, sortSettings: SortSettings, sortType: Sortin
             multiUpdateSettings;
 
         setProps({
-            sorting_settings: sortingStrategy(
+            sort_by: sortingStrategy(
                 sortSettings,
                 { column_id: columnId, direction }
             )

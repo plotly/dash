@@ -18,6 +18,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [#397](https://github.com/plotly/dash-table/pull/397)
 - Rename `filtering_settings` to `filter`
 
+[#412](https://github.com/plotly/dash-table/pull/412)
+- Rename `sorting_settings` to `sort_by`
+
 ## [3.6.0] - 2019-03-04
 ### Fixed
 [#189](https://github.com/plotly/dash-table/issues/189)

@@ -46,7 +46,7 @@ export const defaultProps = {
     filtering_types: ['basic'],
     sorting: false,
     sorting_type: 'single',
-    sorting_settings: [],
+    sort_by: [],
     style_as_list_view: false,
 
     derived_viewport_data: [],
@@ -831,7 +831,7 @@ export const propTypes = {
      * with the `fe` (or True) setting or via a callback in your
      * python "back-end" with the `be` setting.
      * Clicking on the sort arrows will update the
-     * `sorting_settings` property.
+     * `sort_by` property.
      */
     sorting: PropTypes.oneOf(['fe', 'be', true, false]),
 
@@ -848,7 +848,7 @@ export const propTypes = {
     sorting_type: PropTypes.oneOf(['single', 'multi']),
 
     /**
-     * `sorting_settings` describes the current state
+     * `sort_by` describes the current state
      * of the sorting UI.
      * That is, if the user clicked on the sort arrow
      * of a column, then this property will be updated
@@ -858,7 +858,7 @@ export const propTypes = {
      * sorting parameters, in the order in which they were
      * clicked.
      */
-    sorting_settings: PropTypes.arrayOf(
+    sort_by: PropTypes.arrayOf(
         // .exact
         PropTypes.shape({
             column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

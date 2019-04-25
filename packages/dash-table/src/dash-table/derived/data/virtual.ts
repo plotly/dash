@@ -16,7 +16,7 @@ const getter = (
     filtering: Filtering,
     filter: string,
     sorting: Sorting,
-    sorting_settings: SortSettings = [],
+    sort_by: SortSettings = [],
     sorting_treat_empty_string_as_none: boolean
 ): IDerivedData => {
     const map = new Map<Datum, number>();
@@ -37,7 +37,7 @@ const getter = (
         undefined;
 
     if (sorting === 'fe' || sorting === true) {
-        data = sort(data, sorting_settings, isNully);
+        data = sort(data, sort_by, isNully);
     }
 
     // virtual_indices

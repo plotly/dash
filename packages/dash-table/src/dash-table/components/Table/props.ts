@@ -281,7 +281,7 @@ interface IProps {
     selected_rows?: Indices;
     setProps?: SetProps;
     sorting?: Sorting;
-    sorting_settings?: SortSettings;
+    sort_by?: SortSettings;
     sorting_type?: SortingType;
     sorting_treat_empty_string_as_none?: boolean;
     style_as_list_view?: boolean;
@@ -322,7 +322,7 @@ interface IDefaultProps {
     selected_cells: SelectedCells;
     selected_rows: number[];
     sorting: Sorting;
-    sorting_settings: SortSettings;
+    sort_by: SortSettings;
     sorting_type: SortingType;
     sorting_treat_empty_string_as_none: boolean;
     style_as_list_view: boolean;

@@ -64,9 +64,9 @@ app.layout = html.Div(
 
 @app.callback(Output("table", "data"), [
     Input("table", "pagination_settings"),
-    Input("table", "sorting_settings")
+    Input("table", "sort_by")
 ])
-def updateData(pagination_settings, sorting_settings):
+def updateData(pagination_settings, sort_by):
     print(pagination_settings)
 
     current_page = pagination_settings["current_page"]
@@ -75,14 +75,14 @@ def updateData(pagination_settings, sorting_settings):
     start_index = current_page * page_size
     end_index = start_index + page_size
     print(str(start_index) + "," + str(end_index))
-    print(sorting_settings)
+    print(sort_by)
 
-    if (sorting_settings is None or len(sorting_settings) == 0):
+    if (sort_by is None or len(sort_by) == 0):
         sorted_df = df.values
     else:
         sorted_df = df.sort_index(
-            axis=sorting_settings[0]['column_id'],
-            ascending=(sorting_settings[0]['direction'] == 'asc')
+            axis=sort_by[0]['column_id'],
+            ascending=(sort_by[0]['direction'] == 'asc')
         ).values
 
     return sorted_df[start_index:end_index]

@@ -76,7 +76,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
             pagination_settings,
             selected_rows,
             sorting,
-            sorting_settings,
+            sort_by,
             sorting_treat_empty_string_as_none,
             uiCell,
             uiHeaders,
@@ -89,7 +89,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
             filtering,
             filter,
             sorting,
-            sorting_settings,
+            sort_by,
             sorting_treat_empty_string_as_none
         );
 
@@ -151,7 +151,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
             pagination_mode,
             pagination_settings,
             sorting,
-            sorting_settings,
+            sort_by,
             viewport,
             viewport_selected_rows,
             virtual,
@@ -168,7 +168,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
 
         const invalidatedFilter = this.filterCache(filter);
         const invalidatedPagination = this.paginationCache(pagination_settings);
-        const invalidatedSort = this.sortCache(sorting_settings);
+        const invalidatedSort = this.sortCache(sort_by);
 
         const invalidateSelection =
             (!invalidatedFilter.cached && !invalidatedFilter.first && filtering === 'be') ||

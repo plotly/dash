@@ -537,7 +537,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             editable,
             filter,
             setProps,
-            sorting_settings,
+            sort_by,
             viewport
         } = this.props;
 
@@ -552,7 +552,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             columns,
             data,
             true,
-            !sorting_settings.length || !filter.length
+            !sort_by.length || !filter.length
         );
 
         if (result) {

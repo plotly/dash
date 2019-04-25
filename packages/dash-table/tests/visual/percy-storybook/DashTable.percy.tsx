@@ -208,7 +208,7 @@ storiesOf('DashTable/Sorting', module)
         data={sparseData}
         columns={mergedColumns}
         sorting={true}
-        sorting_settings={[{ column_id: 'a', direction: 'asc' }]}
+        sort_by={[{ column_id: 'a', direction: 'asc' }]}
         style_data_conditional={style_data_conditional}
     />))
     .add('"a" descending', () => (<DataTable
@@ -217,7 +217,7 @@ storiesOf('DashTable/Sorting', module)
         data={sparseData}
         columns={mergedColumns}
         sorting={true}
-        sorting_settings={[{ column_id: 'a', direction: 'desc' }]}
+        sort_by={[{ column_id: 'a', direction: 'desc' }]}
         style_data_conditional={style_data_conditional}
     />))
     .add('"a" ascending -- empty string override', () => (<DataTable
@@ -226,7 +226,7 @@ storiesOf('DashTable/Sorting', module)
         data={sparseData}
         columns={mergedColumns}
         sorting={true}
-        sorting_settings={[{ column_id: 'a', direction: 'asc' }]}
+        sort_by={[{ column_id: 'a', direction: 'asc' }]}
         sorting_treat_empty_string_as_none={true}
         style_data_conditional={style_data_conditional}
     />))
@@ -236,7 +236,7 @@ storiesOf('DashTable/Sorting', module)
         data={sparseData}
         columns={mergedColumns}
         sorting={true}
-        sorting_settings={[{ column_id: 'a', direction: 'desc' }]}
+        sort_by={[{ column_id: 'a', direction: 'desc' }]}
         sorting_treat_empty_string_as_none={true}
         style_data_conditional={style_data_conditional}
     />));

@@ -77,7 +77,7 @@ def layout():
 
                 sorting='be',
                 sorting_type='single',
-                sorting_settings=[]
+                sort_by=[]
             ),
 
             section_title('Backend Paging with Multi Column Sorting'),
@@ -104,7 +104,7 @@ def layout():
 
                 sorting='be',
                 sorting_type='multi',
-                sorting_settings=[]
+                sort_by=[]
             ),
 
             section_title('Backend Paging with Filtering'),
@@ -162,7 +162,7 @@ def layout():
 
                 sorting='be',
                 sorting_type='multi',
-                sorting_settings=[]
+                sort_by=[]
             ),
 
             section_title('Connecting Backend Paging with a Graph'),
@@ -192,7 +192,7 @@ def layout():
 
                             sorting='be',
                             sorting_type='multi',
-                            sorting_settings=[]
+                            sort_by=[]
                         ),
                         style={'height': 750, 'overflowY': 'scroll'},
                         className='six columns'
@@ -221,13 +221,13 @@ def update_graph(pagination_settings):
 @app.callback(
     Output(IDS["table-sorting"], "data"),
     [Input(IDS["table-sorting"], "pagination_settings"),
-     Input(IDS["table-sorting"], "sorting_settings")])
-def update_graph(pagination_settings, sorting_settings):
-    print(sorting_settings)
-    if len(sorting_settings):
+     Input(IDS["table-sorting"], "sort_by")])
+def update_graph(pagination_settings, sort_by):
+    print(sort_by)
+    if len(sort_by):
         dff = df.sort_values(
-            sorting_settings[0]['columnId'],
-            ascending=sorting_settings[0]['direction'] == 'asc',
+            sort_by[0]['columnId'],
+            ascending=sort_by[0]['direction'] == 'asc',
             inplace=False
         )
     else:
@@ -244,15 +244,15 @@ def update_graph(pagination_settings, sorting_settings):
 @app.callback(
     Output(IDS["table-multi-sorting"], "data"),
     [Input(IDS["table-multi-sorting"], "pagination_settings"),
-     Input(IDS["table-multi-sorting"], "sorting_settings")])
-def update_graph(pagination_settings, sorting_settings):
-    print(sorting_settings)
-    if len(sorting_settings):
+     Input(IDS["table-multi-sorting"], "sort_by")])
+def update_graph(pagination_settings, sort_by):
+    print(sort_by)
+    if len(sort_by):
         dff = df.sort_values(
-            [col['columnId'] for col in sorting_settings],
+            [col['columnId'] for col in sort_by],
             ascending=[
                 col['direction'] == 'asc'
-                for col in sorting_settings
+                for col in sort_by
             ],
             inplace=False
         )
@@ -297,9 +297,9 @@ def update_graph(pagination_settings, filter):
 @app.callback(
     Output(IDS["table-sorting-filtering"], "data"),
     [Input(IDS["table-sorting-filtering"], "pagination_settings"),
-     Input(IDS["table-sorting-filtering"], "sorting_settings"),
+     Input(IDS["table-sorting-filtering"], "sort_by"),
      Input(IDS["table-sorting-filtering"], "filter")])
-def update_graph(pagination_settings, sorting_settings, filter):
+def update_graph(pagination_settings, sort_by, filter):
     filtering_expressions = filter.split(' && ')
     dff = df
     for filter in filtering_expressions:
@@ -316,12 +316,12 @@ def update_graph(pagination_settings, sorting_settings, filter):
             filter_value = float(filter.split(' < ')[1])
             dff = dff.loc[dff[col_name] < filter_value]
 
-    if len(sorting_settings):
+    if len(sort_by):
         dff = dff.sort_values(
-            [col['columnId'] for col in sorting_settings],
+            [col['columnId'] for col in sort_by],
             ascending=[
                 col['direction'] == 'asc'
-                for col in sorting_settings
+                for col in sort_by
             ],
             inplace=False
         )
@@ -335,9 +335,9 @@ def update_graph(pagination_settings, sorting_settings, filter):
 @app.callback(
     Output(IDS["table-paging-with-graph"], "data"),
     [Input(IDS["table-paging-with-graph"], "pagination_settings"),
-     Input(IDS["table-paging-with-graph"], "sorting_settings"),
+     Input(IDS["table-paging-with-graph"], "sort_by"),
      Input(IDS["table-paging-with-graph"], "filter")])
-def update_table(pagination_settings, sorting_settings, filter):
+def update_table(pagination_settings, sort_by, filter):
     filtering_expressions = filter.split(' && ')
     dff = df
     for filter in filtering_expressions:
@@ -354,12 +354,12 @@ def update_table(pagination_settings, sorting_settings, filter):
             filter_value = float(filter.split(' < ')[1])
             dff = dff.loc[dff[col_name] < filter_value]
 
-    if len(sorting_settings):
+    if len(sort_by):
         dff = dff.sort_values(
-            [col['columnId'] for col in sorting_settings],
+            [col['columnId'] for col in sort_by],
             ascending=[
                 col['direction'] == 'asc'
-                for col in sorting_settings
+                for col in sort_by
             ],
             inplace=False
         )
