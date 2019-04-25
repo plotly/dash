@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.16.0] - 2019-04-25
+### Fixed
+- [#110](https://github.com/plotly/dash-html-components/pull/110), [#111](https://github.com/plotly/dash-html-components/pull/111) Improved the property definitions in advance of the Dev Tools property validation.
+    In particular:
+    - Boolean properties like `hidden` accept a bool or a case insensitive string with the same name (e.g. `'hidden'` or `'HIDDEN'`)
+    - Numeric properties like `rows`, `max`, `min`  allow a stringified number or a number
+
+
 ## [0.15.0] - 2019-03-25
 ### Changed
 - Remove undefined `setProps` handling [#103](https://github.com/plotly/dash-html-components/pull/103)
