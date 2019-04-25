@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.47.0] - 2019-04-25
 ### Fixed
 - Fixed style regression in DatePickerSingle and DatePickerRange [#518](https://github.com/plotly/dash-core-components/issues/518)
 - **Breaking** - In `dcc.Input`, fixed several HTML properties that weren't properly camel cased and therefore were not actually applied in the DOM [#523](https://github.com/plotly/dash-core-components/pull/523/):

@@ -6,7 +6,8 @@ from dash.development.base_component import Component, _explicitize_args
 class Markdown(Component):
     """A Markdown component.
 A component that renders Markdown text as specified by the
-CommonMark spec.
+GitHub Markdown spec. These component uses
+[react-markdown](https://rexxars.github.io/react-markdown/) under the hood.
 
 Keyword arguments:
 - children (string | list; optional): A markdown string (or array of strings) that adhreres to the CommonMark spec
