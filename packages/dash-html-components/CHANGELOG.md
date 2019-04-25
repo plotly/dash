@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - Boolean properties like `hidden` accept a bool or a case insensitive string with the same name (e.g. `'hidden'` or `'HIDDEN'`)
     - Numeric properties like `rows`, `max`, `min`  allow a stringified number or a number
 
+### Added
+- Added `formNoValidate` & `inputMode` properties.
 
 ## [0.15.0] - 2019-03-25
 ### Changed

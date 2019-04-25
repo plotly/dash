@@ -77,6 +77,11 @@ Data.propTypes = {
     'aria-*': PropTypes.string,
 
     /**
+     * Defines a default value which will be displayed in the element on page load.
+     */
+    'value': PropTypes.string,
+
+    /**
      * Defines a keyboard shortcut to activate or add focus to the element.
      */
     'accessKey': PropTypes.string,

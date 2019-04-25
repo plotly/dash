@@ -243,6 +243,12 @@
             ],
             "description": "Indicates the action of the element, overriding the action defined in the <form>."
         },
+        "formNoValidate": {
+            "elements": [
+                "button"
+            ],
+            "description": "If the button is a submit button (type=\"submit\"), this Boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner."
+        },
         "headers": {
             "elements": [
                 "td",
@@ -260,7 +266,7 @@
                 "object",
                 "video"
             ],
-            "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.\t\t\t\t\t\tNote: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
+            "description": "Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead."
         },
         "hidden": {
             "elements": [
@@ -314,7 +320,14 @@
                 "link",
                 "script"
             ],
-            "description": "Security Feature that allows browsers to verify what they fetch."
+            "description": "Specifies a Subresource Integrity value that allows browsers to verify what they fetch."
+        },
+        "inputMode": {
+            "elements": [
+                "textarea",
+                "contenteditable"
+            ],
+            "description": "Provides a hint as to the type of data that might be entered by the user while editing the element or its contents. The attribute can be used with form controls (such as the value of textarea elements), or in elements in an editing host (e.g., using contenteditable attribute)."
         },
         "keyType": {
             "elements": [
@@ -365,7 +378,7 @@
             "elements": [
                 "html"
             ],
-            "description": "Specifies the URL of the document's cache manifest."
+            "description": "Specifies the URL of the document's cache manifest.    Note: This attribute is obsolete, use <link rel=\"manifest\"> instead."
         },
         "max": {
             "elements": [
@@ -698,10 +711,11 @@
         "value": {
             "elements": [
                 "button",
-                "option",
+                "data",
                 "input",
                 "li",
                 "meter",
+                "option",
                 "progress",
                 "param"
             ],
@@ -717,7 +731,7 @@
                 "object",
                 "video"
             ],
-            "description": "For the elements listed here, this establishes the element's width.\t\t\t\t\t\tNote: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
+            "description": "For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead."
         },
         "wrap": {
             "elements": [
@@ -821,6 +835,7 @@
             "cols",
             "disabled",
             "form",
+            "inputMode",
             "maxLength",
             "minLength",
             "name",
@@ -835,6 +850,7 @@
             "disabled",
             "form",
             "formAction",
+            "formNoValidate",
             "name",
             "type",
             "value"
@@ -1009,6 +1025,9 @@
             "href",
             "target"
         ],
+        "contenteditable": [
+            "inputMode"
+        ],
         "bgsound": [
             "loop"
         ],
@@ -1055,6 +1074,9 @@
         ],
         "menu": [
             "type"
+        ],
+        "data": [
+            "value"
         ],
         "li": [
             "value"

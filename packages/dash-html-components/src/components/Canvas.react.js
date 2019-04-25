@@ -77,7 +77,7 @@ Canvas.propTypes = {
     'aria-*': PropTypes.string,
 
     /**
-     * Specifies the height of elements listed here. For all other elements, use the CSS height property.						Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
+     * Specifies the height of elements listed here. For all other elements, use the CSS height property.        Note: In some instances, such as <div>, this is a legacy attribute, in which case the CSS height property should be used instead.
      */
     'height': PropTypes.oneOfType([
         PropTypes.string,
@@ -85,7 +85,7 @@ Canvas.propTypes = {
      ]),
 
     /**
-     * For the elements listed here, this establishes the element's width.						Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.
+     * For the elements listed here, this establishes the element's width.        Note: For all other instances, such as <div>, this is a legacy attribute, in which case the CSS width property should be used instead.
      */
     'width': PropTypes.oneOfType([
         PropTypes.string,

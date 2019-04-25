@@ -103,7 +103,7 @@ Script.propTypes = {
      ]),
 
     /**
-     * Security Feature that allows browsers to verify what they fetch.
+     * Specifies a Subresource Integrity value that allows browsers to verify what they fetch.
      */
     'integrity': PropTypes.string,
 

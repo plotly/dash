@@ -103,6 +103,14 @@ Button.propTypes = {
     'formAction': PropTypes.string,
 
     /**
+     * If the button is a submit button (type="submit"), this Boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner.
+     */
+    'formNoValidate': PropTypes.oneOfType([
+        PropTypes.oneOf(['formNoValidate', 'formnovalidate', 'FORMNOVALIDATE']),
+        PropTypes.bool
+     ]),
+
+    /**
      * Name of the element. For example used by the server to identify the fields in form submits.
      */
     'name': PropTypes.string,

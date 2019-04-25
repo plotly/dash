@@ -27,7 +27,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - charSet (string; optional): Declares the character encoding of the page or script.
 - crossOrigin (string; optional): How the element handles cross-origin requests
 - defer (a value equal to: 'defer', 'DEFER' | boolean; optional): Indicates that the script should be executed after the page has been parsed.
-- integrity (string; optional): Security Feature that allows browsers to verify what they fetch.
+- integrity (string; optional): Specifies a Subresource Integrity value that allows browsers to verify what they fetch.
 - src (string; optional): The URL of the embeddable content.
 - type (string; optional): Defines the type of the element.
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.

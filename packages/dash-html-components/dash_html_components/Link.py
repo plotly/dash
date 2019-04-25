@@ -26,7 +26,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - crossOrigin (string; optional): How the element handles cross-origin requests
 - href (string; optional): The URL of a linked resource.
 - hrefLang (string; optional): Specifies the language of the linked resource.
-- integrity (string; optional): Security Feature that allows browsers to verify what they fetch.
+- integrity (string; optional): Specifies a Subresource Integrity value that allows browsers to verify what they fetch.
 - media (string; optional): Specifies a hint of the media for which the linked resource was designed.
 - rel (string; optional): Specifies the relationship of the target object to the link object.
 - sizes (string; optional)
