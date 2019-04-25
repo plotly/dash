@@ -1,13 +1,26 @@
+import { RequiredPluck, OptionalPluck } from 'core/type';
 import SyntaxTree from 'core/syntax-tree';
 import { ILexemeResult, ILexerResult } from 'core/syntax-tree/lexer';
 import { LexemeType, boundLexeme } from 'core/syntax-tree/lexicon';
 
-import { ColumnId } from 'dash-table/components/Table/props';
+import { ColumnType, IVisibleColumn } from 'dash-table/components/Table/props';
 
-import operand from './lexeme/operand';
-import { equal } from './lexeme/relational';
+import { fieldExpression } from './lexeme/expression';
+import { equal, RelationalOperator } from './lexeme/relational';
 
 import columnLexicon from './lexicon/column';
+
+function getDefaultRelationalOperator(type: ColumnType = ColumnType.Any): RelationalOperator {
+    switch (type) {
+        case ColumnType.Any:
+        case ColumnType.Text:
+            return RelationalOperator.Contains;
+        case ColumnType.Datetime:
+            return RelationalOperator.DateStartsWith;
+        case ColumnType.Numeric:
+            return RelationalOperator.Equal;
+    }
+}
 
 function isBinary(lexemes: ILexemeResult[]) {
     return lexemes.length === 2;
@@ -23,20 +36,23 @@ function isUnary(lexemes: ILexemeResult[]) {
         lexemes[0].lexeme.type === LexemeType.UnaryOperator;
 }
 
-export function modifyLex(key: ColumnId, res: ILexerResult) {
+export function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
     if (!res.valid) {
         return res;
     }
 
     if (isBinary(res.lexemes) || isUnary(res.lexemes)) {
         res.lexemes = [
-            { lexeme: boundLexeme(operand), value: `{${key}}` },
+            { lexeme: boundLexeme(fieldExpression), value: `{${config.id}}` },
             ...res.lexemes
         ];
     } else if (isExpression(res.lexemes)) {
         res.lexemes = [
-            { lexeme: boundLexeme(operand), value: `{${key}}` },
-            { lexeme: boundLexeme(equal), value: 'eq' },
+            { lexeme: boundLexeme(fieldExpression), value: `{${config.id}}` },
+            {
+                lexeme: boundLexeme(equal),
+                value: getDefaultRelationalOperator(config.type)
+            },
             ...res.lexemes
         ];
     }
@@ -44,8 +60,14 @@ export function modifyLex(key: ColumnId, res: ILexerResult) {
     return res;
 }
 
+export type SingleColumnConfig = RequiredPluck<IVisibleColumn, 'id'> & OptionalPluck<IVisibleColumn, 'type'>;
+
 export default class SingleColumnSyntaxTree extends SyntaxTree {
-    constructor(key: ColumnId, query: string) {
-        super(columnLexicon, query, modifyLex.bind(undefined, key));
+    constructor(query: string, config: SingleColumnConfig) {
+        super(
+            columnLexicon,
+            query,
+            modifyLex.bind(undefined, config)
+        );
     }
 }

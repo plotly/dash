@@ -1,4 +1,4 @@
-import { IDatetimeColumn } from 'dash-table/components/Table/props';
+import { IDatetimeColumn, IDateValidation } from 'dash-table/components/Table/props';
 import { reconcileNull } from './null';
 import { IReconciliation } from './reconcile';
 
@@ -13,7 +13,7 @@ const DATETIME_REGEXP = /^\s*(-?\d{4}|\d{2})(-(\d{1,2})(-(\d{1,2})([ Tt]([01]?\d
 // Please don't use 2-digit years!
 const YFIRST = new Date().getFullYear() - 70;
 
-export function normalizeDate(value: any, options: IDatetimeColumn | undefined): string | null {
+export function normalizeDate(value: any, options?: IDateValidation): string | null {
     // unlike plotly.js, do not accept year as a number - only strings.
     if (typeof value !== 'string') {
         return null;
@@ -27,7 +27,7 @@ export function normalizeDate(value: any, options: IDatetimeColumn | undefined):
     const yearMatch = match[1];
     const YY = yearMatch.length === 2;
 
-    if (YY && !(options && options.validation && options.validation.allow_YY)) {
+    if (YY && !(options && options.allow_YY)) {
         return null;
     }
 
@@ -81,7 +81,7 @@ export function normalizeDate(value: any, options: IDatetimeColumn | undefined):
 }
 
 export function coerce(value: any, options: IDatetimeColumn | undefined): IReconciliation {
-    const normalizedDate = normalizeDate(value, options);
+    const normalizedDate = normalizeDate(value, options && options.validation);
     return normalizedDate !== null ?
         {
             success: true,
@@ -91,7 +91,7 @@ export function coerce(value: any, options: IDatetimeColumn | undefined): IRecon
 }
 
 export function validate(value: any, options: IDatetimeColumn | undefined): IReconciliation {
-    return (typeof value === 'string') && (normalizeDate(value, options) !== null) ?
+    return (typeof value === 'string') && (normalizeDate(value, options && options.validation) !== null) ?
         { success: true, value: value.trim() } :
         reconcileNull(value, options);
 }

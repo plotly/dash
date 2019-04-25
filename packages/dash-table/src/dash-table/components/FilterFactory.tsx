@@ -48,14 +48,14 @@ export default class FilterFactory {
 
     }
 
-    private onChange = (columnId: ColumnId, setFilter: SetFilter, ev: any) => {
-        Logger.debug('Filter -- onChange', columnId, ev.target.value && ev.target.value.trim());
+    private onChange = (column: IVisibleColumn, setFilter: SetFilter, ev: any) => {
+        Logger.debug('Filter -- onChange', column.id, ev.target.value && ev.target.value.trim());
 
         const value = ev.target.value.trim();
-        const safeColumnId = columnId.toString();
+        const safeColumnId = column.id.toString();
 
         if (value && value.length) {
-            this.ops.set(safeColumnId, new SingleColumnSyntaxTree(safeColumnId, value));
+            this.ops.set(safeColumnId, new SingleColumnSyntaxTree(value, column));
         } else {
             this.ops.delete(safeColumnId);
         }
@@ -65,26 +65,26 @@ export default class FilterFactory {
 
         const rawGlobalFilter = R.map(
             ast => ast.query || '',
-            R.filter(ast => Boolean(ast), asts)
+            R.filter<SingleColumnSyntaxTree>(ast => Boolean(ast), asts)
         ).join(' && ');
 
         setFilter(globalFilter, rawGlobalFilter);
     }
 
-    private getEventHandler = (fn: Function, columnId: ColumnId, setFilter: SetFilter): any => {
+    private getEventHandler = (fn: Function, column: IVisibleColumn, setFilter: SetFilter): any => {
         const fnHandler = (this.handlers.get(fn) || this.handlers.set(fn, new Map()).get(fn));
-        const columnIdHandler = (fnHandler.get(columnId) || fnHandler.set(columnId, new Map()).get(columnId));
+        const columnIdHandler = (fnHandler.get(column.id) || fnHandler.set(column.id, new Map()).get(column.id));
 
         return (
             columnIdHandler.get(setFilter) ||
-            (columnIdHandler.set(setFilter, fn.bind(this, columnId, setFilter)).get(setFilter))
+            (columnIdHandler.set(setFilter, fn.bind(this, column, setFilter)).get(setFilter))
         );
     }
 
-    private updateOps = memoizeOne((query: string) => {
+    private updateOps = memoizeOne((query: string, columns: IVisibleColumn[]) => {
         const multiQuery = new MultiColumnsSyntaxTree(query);
 
-        const newOps = getSingleColumnMap(multiQuery);
+        const newOps = getSingleColumnMap(multiQuery, columns);
         if (!newOps) {
             return;
         }
@@ -109,7 +109,7 @@ export default class FilterFactory {
     });
 
     private filter = memoizerCache<[ColumnId, number]>()((
-        column: ColumnId,
+        column: IVisibleColumn,
         index: number,
         ast: SingleColumnSyntaxTree | undefined,
         setFilter: SetFilter
@@ -117,7 +117,7 @@ export default class FilterFactory {
         return (<ColumnFilter
             key={`column-${index}`}
             classes={`dash-filter column-${index}`}
-            columnId={column}
+            columnId={column.id}
             isValid={!ast || ast.isValid}
             setFilter={this.getEventHandler(this.onChange, column, setFilter)}
             value={ast && ast.query}
@@ -143,7 +143,7 @@ export default class FilterFactory {
             return [];
         }
 
-        this.updateOps(filter);
+        this.updateOps(filter, columns);
 
         if (filtering_type === FilteringType.Basic) {
             const filterStyles = this.relevantStyles(
@@ -160,7 +160,7 @@ export default class FilterFactory {
 
             const filters = R.addIndex<IVisibleColumn, JSX.Element>(R.map)((column, index) => {
                 return this.filter.get(column.id, index)(
-                    column.id,
+                    column,
                     index,
                     this.ops.get(column.id.toString()),
                     setFilter

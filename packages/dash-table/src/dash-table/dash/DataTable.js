@@ -992,18 +992,15 @@ export const propTypes = {
      *   - 'relational-operator'
      *   - 'unary-operator'
      *   - 'expression'
-     *   - 'operand'
      * - subType (string; optional)
      *   - 'open-block': '()'
      *   - 'logical-operator': '&&', '||'
      *   - 'relational-operator': '=', '>=', '>', '<=', '<', '!=', 'contains'
      *   - 'unary-operator': '!', 'is bool', 'is even', 'is nil', 'is num', 'is object', 'is odd', 'is prime', 'is str'
      *   - 'expression': 'value', 'field'
-     *   - 'operand': 'field'
      * - value (any)
      *   - 'expression, value': passed value
      *   - 'expression, field': the field/prop name
-     *   - 'operand, field': the field/prop name
      *
      * - block (nested query structure; optional)
      * - left (nested query structure; optional)

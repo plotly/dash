@@ -3,7 +3,6 @@ import {
     stringExpression,
     valueExpression
 } from 'dash-table/syntax-tree/lexeme/expression';
-import operand from 'dash-table/syntax-tree/lexeme/operand';
 import { ISyntaxTree } from 'core/syntax-tree/syntaxer';
 
 describe('expression', () => {
@@ -92,26 +91,6 @@ describe('expression', () => {
             expect(valueExpression.resolve.bind(undefined, {}, { value: `'` } as ISyntaxTree)).to.throw(Error);
             expect(valueExpression.resolve.bind(undefined, {}, { value: '{' } as ISyntaxTree)).to.throw(Error);
             expect(valueExpression.resolve.bind(undefined, {}, { value: '}' } as ISyntaxTree)).to.throw(Error);
-        }
-    });
-});
-
-describe('operand', () => {
-    it('resolves values', () => {
-        expect(!!operand.resolve).to.equal(true);
-        expect(typeof operand.resolve).to.equal('function');
-
-        if (operand.resolve) {
-            expect(operand.resolve.bind(undefined, {}, { value: 'abc' } as ISyntaxTree)).to.throw(Error);
-            expect(operand.resolve.bind(undefined, {}, { value: '123' } as ISyntaxTree)).to.throw(Error);
-            expect(operand.resolve.bind(undefined, {}, { value: '{abc' } as ISyntaxTree)).to.throw(Error);
-            expect(operand.resolve.bind(undefined, {}, { value: 'abc}' } as ISyntaxTree)).to.throw(Error);
-            expect(operand.resolve.bind(undefined, {}, { value: '{{abc}}' } as ISyntaxTree)).to.throw(Error);
-
-            expect(operand.resolve({ abc: 3 }, { value: '{abc}' } as ISyntaxTree)).to.equal(3);
-            expect(operand.resolve({ ['a bc']: 3 }, { value: '{a bc}' } as ISyntaxTree)).to.equal(3);
-            expect(operand.resolve({ ['{abc}']: 3 }, { value: '{\\{abc\\}}' } as ISyntaxTree)).to.equal(3);
-            expect(operand.resolve({ ['"abc"']: 3 }, { value: '{"abc"}' } as ISyntaxTree)).to.equal(3);
         }
     });
 });

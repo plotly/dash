@@ -1,8 +1,11 @@
+import isNumeric from 'fast-isnumeric';
 import * as R from 'ramda';
 
 import Logger from 'core/Logger';
 import { LexemeType, IUnboundedLexeme } from 'core/syntax-tree/lexicon';
 import { ISyntaxTree } from 'core/syntax-tree/syntaxer';
+import { normalizeDate } from 'dash-table/type/date';
+import { IDateValidation } from 'dash-table/components/Table/props';
 
 function evaluator(
     target: any,
@@ -31,6 +34,7 @@ function relationalEvaluator(
 
 export enum RelationalOperator {
     Contains = 'contains',
+    DateStartsWith = 'datestartswith',
     Equal = '=',
     GreaterOrEqual = '>=',
     GreaterThan = '>',
@@ -47,16 +51,21 @@ const LEXEME_BASE = {
 
 export const contains: IUnboundedLexeme = R.merge({
     evaluate: relationalEvaluator(([op, exp]) =>
-        typeof op === 'string' &&
-        typeof exp === 'string' &&
-        op.indexOf(exp) !== -1
+        !R.isNil(exp) &&
+        !R.isNil(op) &&
+        (R.type(exp) === 'String' || R.type(op) === 'String') &&
+        op.toString().indexOf(exp.toString()) !== -1
     ),
     subType: RelationalOperator.Contains,
     regexp: /^(contains)/i
 }, LEXEME_BASE);
 
 export const equal: IUnboundedLexeme = R.merge({
-    evaluate: relationalEvaluator(([op, exp]) => op === exp),
+    evaluate: relationalEvaluator(([op, exp]) =>
+        (isNumeric(op) && isNumeric(exp)) ?
+            +op === +exp :
+            op === exp
+    ),
     subType: RelationalOperator.Equal,
     regexp: /^(=|eq)/i
 }, LEXEME_BASE);
@@ -71,6 +80,24 @@ export const greaterThan: IUnboundedLexeme = R.merge({
     evaluate: relationalEvaluator(([op, exp]) => op > exp),
     subType: RelationalOperator.GreaterThan,
     regexp: /^(>|gt)/i
+}, LEXEME_BASE);
+
+const DATE_OPTIONS: IDateValidation = {
+    allow_YY: true
+};
+
+export const dateStartsWith: IUnboundedLexeme = R.merge({
+    evaluate: relationalEvaluator(([op, exp]) => {
+        const normalizedOp = normalizeDate(op, DATE_OPTIONS);
+        const normalizedExp = normalizeDate(exp, DATE_OPTIONS);
+
+        return !R.isNil(normalizedOp) &&
+            !R.isNil(normalizedExp) &&
+            // IE11 does not support `startsWith`
+            normalizedOp.indexOf(normalizedExp) === 0;
+    }),
+    subType: RelationalOperator.DateStartsWith,
+    regexp: /^(datestartswith)/i
 }, LEXEME_BASE);
 
 export const lessOrEqual: IUnboundedLexeme = R.merge({

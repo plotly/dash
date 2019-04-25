@@ -5,6 +5,7 @@ import { LexemeType } from 'core/syntax-tree/lexicon';
 import { ISyntaxTree } from 'core/syntax-tree/syntaxer';
 
 import columnMultiLexicon from './lexicon/columnMulti';
+import { ILexemeResult } from 'core/syntax-tree/lexer';
 
 export default class MultiColumnsSyntaxTree extends SyntaxTree {
     constructor(query: string) {
@@ -39,7 +40,13 @@ export default class MultiColumnsSyntaxTree extends SyntaxTree {
         return statements;
     }
     private respectsBasicSyntax() {
-        const fields = R.map(item => item.value, R.filter(i => i.lexeme.type === LexemeType.Operand, this.lexerResult.lexemes));
+        const fields = R.map(
+            (item: ILexemeResult) => item.value,
+            R.filter(
+                i => i.lexeme.type === LexemeType.Expression && i.lexeme.subType === 'field',
+                this.lexerResult.lexemes
+            )
+        );
         const uniqueFields = R.uniq(fields);
         return fields.length === uniqueFields.length;
     }

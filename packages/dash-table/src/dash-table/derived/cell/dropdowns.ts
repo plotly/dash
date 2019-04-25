@@ -96,7 +96,7 @@ class Dropdowns {
             ...(staticDropdown ? [staticDropdown] : []),
             ...R.map(
                 ([cd]) => cd.dropdown,
-                R.filter(
+                R.filter<[IConditionalDropdown, number]>(
                     ([cd, i]) => this.evaluation.get(column.id, i)(
                         this.ast.get(column.id, i)(cd.condition),
                         datum

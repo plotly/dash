@@ -42,14 +42,20 @@ export default function lexer(lexicon: Lexicon, query: string): ILexerResult {
         query = query.substring(value.length);
     }
 
-    const last = result.slice(-1)[0];
+    const [terminalPrevious, last] = [
+        undefined,
+        undefined,
+        ...result
+    ].slice(-2);
 
-    const terminal: boolean = last && (typeof last.lexeme.terminal === 'function' ?
-        last.lexeme.terminal(result, last) :
-        last.lexeme.terminal);
+    const terminal: boolean = !last ||
+        (typeof last.lexeme.terminal === 'function' ?
+            last.lexeme.terminal(result, terminalPrevious) :
+            last.lexeme.terminal
+        );
 
     return {
         lexemes: result,
-        valid: !last || terminal
+        valid: terminal
     };
 }

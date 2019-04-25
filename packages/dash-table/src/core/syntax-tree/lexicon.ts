@@ -7,8 +7,7 @@ export enum LexemeType {
     LogicalOperator = 'logical-operator',
     RelationalOperator = 'relational-operator',
     UnaryOperator = 'unary-operator',
-    Expression = 'expression',
-    Operand = 'operand'
+    Expression = 'expression'
 }
 
 export interface IUnboundedLexeme {
@@ -25,8 +24,8 @@ export interface IUnboundedLexeme {
 }
 
 export interface ILexeme extends IUnboundedLexeme {
-    terminal: boolean | ((lexemes: ILexemeResult[], previous: ILexemeResult) => boolean);
-    if: (string | undefined)[] | ((lexemes: ILexemeResult[], previous: ILexemeResult) => boolean);
+    terminal: boolean | ((lexemes: ILexemeResult[], previous: ILexemeResult | undefined) => boolean);
+    if: (string | undefined)[] | ((lexemes: ILexemeResult[], previous: ILexemeResult | undefined) => boolean);
 }
 
 export function boundLexeme(lexeme: IUnboundedLexeme) {

@@ -17,7 +17,7 @@ function getter(
     return R.map(idx => R.map(column => {
         const relevantStyles = R.map(
             s => s.style,
-            R.filter(
+            R.filter<IConvertedStyle>(
                 style =>
                     style.matchesColumn(column) &&
                     style.matchesRow(idx),

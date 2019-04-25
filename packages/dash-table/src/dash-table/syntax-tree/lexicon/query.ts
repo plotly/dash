@@ -1,5 +1,8 @@
 import * as R from 'ramda';
 
+import { ILexemeResult } from 'core/syntax-tree/lexer';
+import { LexemeType, ILexeme } from 'core/syntax-tree/lexicon';
+
 import {
     blockClose,
     blockOpen
@@ -13,9 +16,9 @@ import {
     and,
     or
 } from '../lexeme/logical';
-import operand from '../lexeme/operand';
 import {
     contains,
+    dateStartsWith,
     equal,
     greaterOrEqual,
     greaterThan,
@@ -35,89 +38,46 @@ import {
     not
 } from '../lexeme/unary';
 
-import { ILexemeResult } from 'core/syntax-tree/lexer';
-import { LexemeType, ILexeme } from 'core/syntax-tree/lexicon';
+import {
+    ifBlockClose,
+    ifBlockOpen,
+    ifExpression,
+    ifLogicalOperator,
+    ifRelationalOperator,
+    ifUnaryOperator,
+    isTerminal,
+    isTerminalExpression
+} from '.';
 
-const nestingReducer = R.reduce<ILexemeResult, number>(
-    (nesting, l) => nesting + (l.lexeme.nesting || 0)
-);
-
-const isTerminal = (lexemes: ILexemeResult[], previous: ILexemeResult) =>
-    previous && nestingReducer(0, lexemes) === 0;
-
-const ifExpression = (_: ILexemeResult[], previous: ILexemeResult) =>
-    previous && R.contains(
-        previous.lexeme.type,
-        [LexemeType.RelationalOperator]
-    );
-
-const ifLogicalOperator = (_: ILexemeResult[], previous: ILexemeResult) =>
-    previous && R.contains(
+const ifNotUnaryOperator = (_: ILexemeResult[], previous: ILexemeResult | undefined) =>
+    !previous || R.contains(
         previous.lexeme.type,
         [
-            LexemeType.BlockClose,
-            LexemeType.Expression,
+            LexemeType.LogicalOperator,
             LexemeType.UnaryOperator
         ]
     );
 
-const ifOperator = (_: ILexemeResult[], previous: ILexemeResult) =>
-    previous && R.contains(
-        previous.lexeme.type,
-        [LexemeType.Operand]
-    );
-
 const lexicon: ILexeme[] = [
-    {
-        ...and,
+    ...[and,
+        or
+    ].map(op => ({
+        ...op,
         if: ifLogicalOperator,
         terminal: false
-    },
-    {
-        ...or,
-        if: ifLogicalOperator,
-        terminal: false
-    },
+    })),
     {
         ...blockClose,
-        if: (lexemes: ILexemeResult[], previous: ILexemeResult) =>
-            previous && R.contains(
-                previous.lexeme.type,
-                [
-                    LexemeType.BlockClose,
-                    LexemeType.BlockOpen,
-                    LexemeType.Expression,
-                    LexemeType.UnaryOperator
-                ]
-            ) && nestingReducer(0, lexemes) > 0,
+        if: ifBlockClose,
         terminal: isTerminal
     },
     {
         ...blockOpen,
-        if: (_: ILexemeResult[], previous: ILexemeResult) =>
-            !previous || R.contains(
-                previous.lexeme.type,
-                [
-                    LexemeType.BlockOpen,
-                    LexemeType.LogicalOperator,
-                    LexemeType.UnaryOperator
-                ]
-            ),
-        terminal: false
-    },
-    {
-        ...operand,
-        if: (_: ILexemeResult[], previous: ILexemeResult) =>
-            !previous || R.contains(
-                previous.lexeme.type,
-                [
-                    LexemeType.BlockOpen,
-                    LexemeType.LogicalOperator
-                ]
-            ),
+        if: ifBlockOpen,
         terminal: false
     },
     ...[contains,
+        dateStartsWith,
         equal,
         greaterOrEqual,
         greaterThan,
@@ -126,7 +86,7 @@ const lexicon: ILexeme[] = [
         notEqual
     ].map(op => ({
         ...op,
-        if: ifOperator,
+        if: ifRelationalOperator,
         terminal: false
     })),
     ...[isBool,
@@ -139,19 +99,12 @@ const lexicon: ILexeme[] = [
         isStr
     ].map(op => ({
         ...op,
-        if: ifOperator,
+        if: ifUnaryOperator,
         terminal: isTerminal
     })),
     {
         ...not,
-        if: (_: ILexemeResult[], previous: ILexemeResult) =>
-            !previous || R.contains(
-                previous.lexeme.type,
-                [
-                    LexemeType.LogicalOperator,
-                    LexemeType.UnaryOperator
-                ]
-            ),
+        if: ifNotUnaryOperator,
         terminal: false
     },
     ...[
@@ -161,7 +114,7 @@ const lexicon: ILexeme[] = [
     ].map(exp => ({
         ...exp,
         if: ifExpression,
-        terminal: isTerminal
+        terminal: isTerminalExpression
     }))
 ];
 

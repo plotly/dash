@@ -4,14 +4,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-[#397](https://github.com/plotly/dash-table/pull/397)
+[#397](https://github.com/plotly/dash-table/pull/397), [#410](https://github.com/plotly/dash-table/pull/410)
 - Improve filtering syntax and capabilities
     - new field syntax `{myField}`
     - short form by-column filter
-        - implicit column and `eq` operator (e.g `"value"`)
-        - implicit column (e.g `ne "value"`)
-        - explicit form (e.g `{field} ne "value"`)
+        - implicit column and default operator based on column type
+            - Text and Any columns default to `contains`
+            - Numeric columns default to `eq`
+            - Date columns default to `datestartswith`
+        - implicit column (e.g `ne "value"` becomes `{my-column} ne "value"`)
     - new `contains` relational operator for strings
+    - new `datestartswith` relational operator for dates
+    - new `eq` behavior (will attempt to convert and compare numeric values if possible)
     - new readonly `derived_filter_structure` prop exposing the query structure in a programmatically friendlier way
 
 ### Changed

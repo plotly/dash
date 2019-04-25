@@ -1,6 +1,6 @@
-import * as R from 'ramda';
-
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
+
+import { processCases } from './dash_table_queries_test';
 
 describe('Query Syntax Tree', () => {
     const data0 = { a: '0', b: '0', c: 0, d: null, '\\{': 0, 'a.dot': '0.dot', 'a-dot': '0-dot', a_dot: '0_dot', 'a+dot': '0+dot', 'a dot': '0 dot', 'a:dot': '0:dot', '_-6.:+** *@$': '0*dot', '{a:dot}': '0*dot*', '\'""\'': '0\'"dot' };
@@ -9,41 +9,32 @@ describe('Query Syntax Tree', () => {
     const data3 = { a: '3', b: '1', c: 3, d: false, '\\{': 3, 'a.dot': '3.dot', 'a-dot': '3-dot', a_dot: '3_dot', 'a+dot': '3+dot', 'a dot': '3 dot', 'a:dot': '3:dot', '_-6.:+** *@$': '3*dot', '{a:dot}': '3*dot*', '\'""\'': '3\'"dot' };
 
     describe('special whitespace characters are valid', () => {
-        const cases = [
-            { name: 'suports new line', query: '{a}\neq\n"0"' },
-            { name: 'suports carriage return', query: '{a}\req\r"0"' },
-            { name: 'suports new line ad carriage return combination', query: '{a}\r\neq\r\n"0"' },
-            { name: 'supports tab', query: '{a}\teq\t"0"' },
+        processCases((query: string) => new QuerySyntaxTree(query), [
+            { name: 'suports new line', query: '{a}\neq\n"0"', target: data0, valid: true, evaluate: true },
+            { name: 'suports carriage return', query: '{a}\req\r"0"', target: data0, valid: true, evaluate: true },
+            { name: 'suports new line ad carriage return combination', target: data0, query: '{a}\r\neq\r\n"0"', valid: true, evaluate: true },
+            { name: 'supports tab', query: '{a}\teq\t"0"', target: data0, valid: true, evaluate: true },
             // some random non-standard whitespace character from https://en.wikipedia.org/wiki/Whitespace_character
-            { name: 'supports ogham space mark', query: '{a}\u1680eq\u1680"0"' },
-            { name: 'supports all', query: '{a}\r\n\t\u1680eq\r\n\t\u1680"0"' }
-        ];
-
-        R.forEach(c => {
-            it(c.name, () => {
-                const tree = new QuerySyntaxTree(c.query);
-
-                expect(tree.isValid).to.equal(true);
-                expect(tree.evaluate(data0)).to.equal(true);
-            });
-        }, cases);
+            { name: 'supports ogham space mark', query: '{a}\u1680eq\u1680"0"', target: data0, valid: true, evaluate: true },
+            { name: 'supports all', query: '{a}\r\n\t\u1680eq\r\n\t\u1680"0"', target: data0, valid: true, evaluate: true }
+        ]);
     });
 
-    describe('operands', () => {
-        it('does not support badly formed operands', () => {
+    describe('expressions', () => {
+        it('does not support badly formed lhs', () => {
             expect(new QuerySyntaxTree(`{myField} eq 0`).isValid).to.equal(true);
             expect(new QuerySyntaxTree(`{'myField'} eq 0`).isValid).to.equal(true);
             expect(new QuerySyntaxTree(`{"myField"} eq 0`).isValid).to.equal(true);
             expect(new QuerySyntaxTree('{`myField`} eq 0').isValid).to.equal(true);
             expect(new QuerySyntaxTree('{\\{myField\\}} eq 0').isValid).to.equal(true);
+            expect(new QuerySyntaxTree(`myField eq 0`).isValid).to.equal(true);
             expect(new QuerySyntaxTree('{{myField}} eq 0').isValid).to.equal(false);
             expect(new QuerySyntaxTree(`{myField eq 0`).isValid).to.equal(false);
             expect(new QuerySyntaxTree(`myField} eq 0`).isValid).to.equal(false);
-            expect(new QuerySyntaxTree(`myField eq 0`).isValid).to.equal(false);
             expect(new QuerySyntaxTree('{\\\\{myField\\\\}} eq 0').isValid).to.equal(false);
         });
 
-        it('does not support badly formed expression', () => {
+        it('does not support badly formed rhs', () => {
             expect(new QuerySyntaxTree(`{myField} eq 'value'`).isValid).to.equal(true);
             expect(new QuerySyntaxTree(`{myField} eq "value"`).isValid).to.equal(true);
             expect(new QuerySyntaxTree('{myField} eq `value`').isValid).to.equal(true);
@@ -244,12 +235,12 @@ describe('Query Syntax Tree', () => {
             expect(tree.evaluate({ field: 2 })).to.equal(true);
         });
 
-        it('can compare string to number and return false', () => {
+        it('can compare string to number', () => {
             const tree = new QuerySyntaxTree('{a} eq 1');
 
             expect(tree.isValid).to.equal(true);
             expect(tree.evaluate(data0)).to.equal(false);
-            expect(tree.evaluate(data1)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
             expect(tree.evaluate(data2)).to.equal(false);
             expect(tree.evaluate(data3)).to.equal(false);
         });
@@ -264,12 +255,12 @@ describe('Query Syntax Tree', () => {
             expect(tree.evaluate(data3)).to.equal(false);
         });
 
-        it('can compare string to number and return false', () => {
+        it('can compare string to number', () => {
             const tree = new QuerySyntaxTree('{c} eq "1"');
 
             expect(tree.isValid).to.equal(true);
             expect(tree.evaluate(data0)).to.equal(false);
-            expect(tree.evaluate(data1)).to.equal(false);
+            expect(tree.evaluate(data1)).to.equal(true);
             expect(tree.evaluate(data2)).to.equal(false);
             expect(tree.evaluate(data3)).to.equal(false);
         });

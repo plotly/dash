@@ -16,7 +16,7 @@ function getter(
     return R.addIndex<any, Style[]>(R.map)((datum, index) => R.map(column => {
         const relevantStyles = R.map(
             s => s.style,
-            R.filter(
+            R.filter<IConvertedStyle>(
                 style =>
                     style.matchesColumn(column) &&
                     style.matchesRow(index + offset.rows) &&

@@ -95,6 +95,24 @@ describe('filter', () => {
         DashTable.getFilterById('eee').should('have.class', 'invalid');
     });
 
+    it('filters `Text` columns with `contains` without operator', () => {
+        DashTable.getFilterById('bbb').click();
+        DOM.focused.type('Tr');
+        DashTable.getFilterById('ccc').click();
+
+        DashTable.getFilterById('bbb').within(() => cy.get('input').should('have.value', 'Tr'));
+        DashTable.getCellById(0, 'bbb-readonly').within(() => cy.get('.dash-cell-value').should('have.html', 'Tropical Beaches'));
+    });
+
+    it('filters `Numeric` columns with `equal` without operator', () => {
+        DashTable.getFilterById('ccc').click();
+        DOM.focused.type('100');
+        DashTable.getFilterById('bbb').click();
+
+        DashTable.getFilterById('ccc').within(() => cy.get('input').should('have.value', '100'));
+        DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '100'));
+    });
+
     it('reset updates results and filter fields', () => {
         let cell_0;
         let cell_1;
