@@ -36,7 +36,7 @@ function isUnary(lexemes: ILexemeResult[]) {
         lexemes[0].lexeme.type === LexemeType.UnaryOperator;
 }
 
-export function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
+function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
     if (!res.valid) {
         return res;
     }
@@ -60,7 +60,7 @@ export function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
     return res;
 }
 
-export type SingleColumnConfig = RequiredPluck<IVisibleColumn, 'id'> & OptionalPluck<IVisibleColumn, 'type'>;
+type SingleColumnConfig = RequiredPluck<IVisibleColumn, 'id'> & OptionalPluck<IVisibleColumn, 'type'>;
 
 export default class SingleColumnSyntaxTree extends SyntaxTree {
     constructor(query: string, config: SingleColumnConfig) {
