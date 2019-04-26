@@ -1,7 +1,11 @@
-import { ActiveCell } from 'dash-table/components/Table/props';
+import { ICellCoordinates } from 'dash-table/components/Table/props';
 
 export default (
-    activeCell: ActiveCell,
+    activeCell: ICellCoordinates | undefined,
     row: number,
     column: number
-) => activeCell[0] === row && activeCell[1] === column;
+) => (
+    !!activeCell &&
+    activeCell.row === row &&
+    activeCell.column === column
+);

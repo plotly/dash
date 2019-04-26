@@ -43,12 +43,16 @@ export function deleteColumn(column, columns, headerRowIndex, props) {
         // inconsistencies. In an ideal world, we would probably only
         // update them if they contained one of the columns that we're
         // trying to delete
-        active_cell: [],
-        end_cell: [],
-        selected_cells: [],
-        start_cell: [0]
+        ...clearSelection
     };
 }
+
+export const clearSelection = {
+    active_cell: undefined,
+    start_cell: undefined,
+    end_cell: undefined,
+    selected_cells: []
+};
 
 export function editColumnName(column, columns, headerRowIndex, props) {
     const { groupIndexFirst, groupIndexLast } = getGroupedColumnIndices(

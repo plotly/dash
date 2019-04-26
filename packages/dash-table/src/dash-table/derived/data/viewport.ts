@@ -1,4 +1,5 @@
 import { memoizeOneFactory } from 'core/memoizer';
+import { lastPage } from 'dash-table/derived/paginator';
 
 import {
     Data,
@@ -13,10 +14,7 @@ function getNoPagination(data: Data, indices: Indices): IDerivedData {
 }
 
 function getFrontEndPagination(settings: IPaginationSettings, data: Data, indices: Indices): IDerivedData {
-    let currentPage = Math.min(
-        settings.current_page,
-        Math.floor(data.length / settings.page_size)
-    );
+    let currentPage = Math.min(settings.current_page, lastPage(data, settings));
 
     const firstIndex = settings.page_size * currentPage;
     const lastIndex = Math.min(

@@ -3,7 +3,7 @@ import React, { MouseEvent } from 'react';
 
 import { memoizeOne } from 'core/memoizer';
 import memoizerCache from 'core/cache/memoizer';
-import { Data, IVisibleColumn, VisibleColumns, ActiveCell, SelectedCells, Datum, ColumnId, IViewportOffset, Presentation, ICellFactoryProps } from 'dash-table/components/Table/props';
+import { Data, IVisibleColumn, VisibleColumns, ICellCoordinates, SelectedCells, Datum, ColumnId, IViewportOffset, Presentation, ICellFactoryProps } from 'dash-table/components/Table/props';
 import Cell from 'dash-table/components/Cell';
 import derivedCellEventHandlerProps, { Handler } from 'dash-table/derived/cell/eventHandlerProps';
 import isActiveCell from 'dash-table/derived/cell/isActive';
@@ -23,7 +23,7 @@ class Wrappers {
      * Returns the wrapper for each cell in the table.
      */
     get = memoizeOne((
-        activeCell: ActiveCell,
+        activeCell: ICellCoordinates | undefined,
         columns: VisibleColumns,
         data: Data,
         offset: IViewportOffset,

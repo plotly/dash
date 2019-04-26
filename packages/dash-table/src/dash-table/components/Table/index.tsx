@@ -185,25 +185,38 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
         if (!virtualCached) {
             newProps.derived_virtual_data = virtual.data;
             newProps.derived_virtual_indices = virtual.indices;
+            newProps.derived_virtual_row_ids = R.pluck('id', virtual.data);
         }
 
         if (!viewportCached) {
             newProps.derived_viewport_data = viewport.data;
             newProps.derived_viewport_indices = viewport.indices;
+            newProps.derived_viewport_row_ids = R.pluck('id', viewport.data);
         }
 
         if (!virtualSelectedRowsCached) {
             newProps.derived_virtual_selected_rows = virtual_selected_rows;
+            newProps.derived_virtual_selected_row_ids = R.map(
+                i => virtual.data[i].id,
+                virtual_selected_rows
+            );
         }
 
         if (!viewportSelectedRowsCached) {
             newProps.derived_viewport_selected_rows = viewport_selected_rows;
+            newProps.derived_viewport_selected_row_ids = R.map(
+                i => viewport.data[i].id,
+                viewport_selected_rows
+            );
         }
 
         if (invalidateSelection) {
             newProps.active_cell = undefined;
-            newProps.selected_cells = undefined;
-            newProps.selected_rows = undefined;
+            newProps.selected_cells = [];
+            newProps.start_cell = undefined;
+            newProps.end_cell = undefined;
+            newProps.selected_rows = [];
+            newProps.selected_row_ids = [];
         }
 
         if (!R.keys(newProps).length) {

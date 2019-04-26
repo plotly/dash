@@ -1,6 +1,8 @@
-import * as R from 'ramda';
+import { merge } from 'ramda';
 
 import { memoizeOneFactory } from 'core/memoizer';
+
+import { clearSelection } from 'dash-table/utils/actions';
 
 import {
     Data,
@@ -14,6 +16,10 @@ export interface IPaginator {
     loadPrevious(): void;
 }
 
+export function lastPage(data: Data, settings: IPaginationSettings) {
+    return Math.max(Math.ceil(data.length / settings.page_size) - 1, 0);
+}
+
 function getBackEndPagination(
     pagination_settings: IPaginationSettings,
     setProps: SetProps
@@ -21,7 +27,7 @@ function getBackEndPagination(
     return {
         loadNext: () => {
             pagination_settings.current_page++;
-            setProps({ pagination_settings });
+            setProps({ pagination_settings, ...clearSelection });
         },
         loadPrevious: () => {
             if (pagination_settings.current_page <= 0) {
@@ -29,7 +35,7 @@ function getBackEndPagination(
             }
 
             pagination_settings.current_page--;
-            setProps({ pagination_settings });
+            setProps({ pagination_settings, ...clearSelection });
         }
     };
 }
@@ -41,28 +47,28 @@ function getFrontEndPagination(
 ) {
     return {
         loadNext: () => {
-            let maxPageIndex = Math.floor(data.length / pagination_settings.page_size);
+            const maxPageIndex = lastPage(data, pagination_settings);
 
             if (pagination_settings.current_page >= maxPageIndex) {
                 return;
             }
 
-            pagination_settings = R.merge(pagination_settings, {
+            pagination_settings = merge(pagination_settings, {
                 current_page: pagination_settings.current_page + 1
             });
 
-            setProps({ pagination_settings });
+            setProps({ pagination_settings, ...clearSelection });
         },
         loadPrevious: () => {
             if (pagination_settings.current_page <= 0) {
                 return;
             }
 
-            pagination_settings = R.merge(pagination_settings, {
+            pagination_settings = merge(pagination_settings, {
                 current_page: pagination_settings.current_page - 1
             });
 
-            setProps({ pagination_settings });
+            setProps({ pagination_settings, ...clearSelection });
         }
     };
 }

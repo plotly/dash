@@ -4,15 +4,15 @@ import SheetClip from 'sheetclip';
 import Clipboard from 'core/Clipboard';
 import Logger from 'core/Logger';
 
-import { ActiveCell, Columns, Data, SelectedCells } from 'dash-table/components/Table/props';
+import { ICellCoordinates, Columns, Data, SelectedCells } from 'dash-table/components/Table/props';
 import applyClipboardToData from './applyClipboardToData';
 
 export default class TableClipboardHelper {
     private static lastLocalCopy: any[][] = [[]];
 
     public static toClipboard(e: any, selectedCells: SelectedCells, columns: Columns, data: Data) {
-        const selectedRows = R.uniq(R.pluck(0, selectedCells).sort((a, b) => a - b));
-        const selectedCols: any = R.uniq(R.pluck(1, selectedCells).sort((a, b) => a - b));
+        const selectedRows = R.uniq(R.pluck('row', selectedCells).sort((a, b) => a - b));
+        const selectedCols: any = R.uniq(R.pluck('column', selectedCells).sort((a, b) => a - b));
 
         const df = R.slice(
             R.head(selectedRows) as any,
@@ -32,7 +32,7 @@ export default class TableClipboardHelper {
 
     public static fromClipboard(
         ev: ClipboardEvent,
-        activeCell: ActiveCell,
+        activeCell: ICellCoordinates,
         derived_viewport_indices: number[],
         columns: Columns,
         data: Data,

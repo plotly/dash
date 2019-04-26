@@ -12,6 +12,7 @@ describe('dash basic', () => {
         DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', '0'));
 
         cy.get('button.next-page').click();
+        DashTable.getCell(0, 0).click();
         DashTable.getCell(0, 0).within(() => cy.get('input').should('have.value', '250'));
     });
 

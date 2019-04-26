@@ -2,13 +2,13 @@ import * as R from 'ramda';
 
 import Logger from 'core/Logger';
 
-import { ActiveCell, Columns, Data, ColumnType } from 'dash-table/components/Table/props';
+import { ICellCoordinates, Columns, Data, ColumnType } from 'dash-table/components/Table/props';
 import reconcile from 'dash-table/type/reconcile';
 import isEditable from 'dash-table/derived/cell/isEditable';
 
 export default (
     values: any[][],
-    activeCell: ActiveCell,
+    activeCell: ICellCoordinates,
     derived_viewport_indices: number[],
     columns: Columns,
     data: Data,
@@ -27,10 +27,10 @@ export default (
     let newData = R.clone(data);
     const newColumns = R.clone(columns);
 
-    if (overflowColumns && values[0].length + (activeCell as any)[1] >= columns.length) {
+    if (overflowColumns && values[0].length + (activeCell as any).column >= columns.length) {
         for (
             let i = columns.length;
-            i < values[0].length + (activeCell as any)[1];
+            i < values[0].length + (activeCell as any).column;
             i++
         ) {
             newColumns.push({
@@ -42,7 +42,7 @@ export default (
         }
     }
 
-    const realActiveRow = derived_viewport_indices[(activeCell as any)[0]];
+    const realActiveRow = derived_viewport_indices[(activeCell as any).row];
     if (overflowRows && values.length + realActiveRow >= data.length) {
         const emptyRow: any = {};
         columns.forEach(c => (emptyRow[c.id] = ''));
@@ -60,7 +60,7 @@ export default (
 
     for (let [i, row] of values.entries()) {
         for (let [j, value] of row.entries()) {
-            const viewportIndex = (activeCell as any)[0] + i;
+            const viewportIndex = (activeCell as any).row + i;
 
             let iRealCell: number | undefined = viewportSize > viewportIndex ?
                 derived_viewport_indices[viewportIndex] :
@@ -72,7 +72,7 @@ export default (
                 continue;
             }
 
-            const jOffset = (activeCell as any)[1] + j;
+            const jOffset = (activeCell as any).column + j;
             const col = newColumns[jOffset];
             if (!col || !isEditable(true, col.editable)) {
                 continue;

@@ -1,4 +1,3 @@
-from enum import Enum
 from .Format import Format, Group, Scheme, Sign, Symbol
 
 

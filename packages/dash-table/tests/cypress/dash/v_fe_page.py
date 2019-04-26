@@ -1,23 +1,31 @@
 # pylint: disable=global-statement
-import dash
-from dash.dependencies import Input, Output
-import dash_html_components as html
+import json
 import os
 import pandas as pd
 import sys
 
+import dash
+from dash.dependencies import Input, Output
+import dash_html_components as html
+
 sys.path.append(
     os.path.abspath(
-        os.path.join(os.path.dirname(sys.argv[0]), os.pardir, os.pardir, os.pardir)
+        os.path.join(os.path.dirname(sys.argv[0]),
+                     os.pardir, os.pardir, os.pardir)
     )
 )
 module_names = ["dash_table"]
 modules = [__import__(module) for module in module_names]
 dash_table = modules[0]
 
-url = "https://github.com/plotly/datasets/raw/master/" "26k-consumer-complaints.csv"
+url = ("https://github.com/plotly/datasets/raw/master/"
+       "26k-consumer-complaints.csv")
 df = pd.read_csv(url, nrows=1000)
-df = df.values
+# add IDs that don't match but are easily derivable from row #s
+data = [
+    {k: v for k, v in list(enumerate(row)) + [('id', i + 3000)]}
+    for i, row in enumerate(df.values)
+]
 
 app = dash.Dash()
 app.css.config.serve_locally = True
@@ -25,11 +33,9 @@ app.scripts.config.serve_locally = True
 
 app.layout = html.Div(
     [
-        html.Div(id="derived_virtual_selected_rows_container", children="undefined"),
-        html.Div(id="derived_viewport_selected_rows_container", children="undefined"),
         dash_table.DataTable(
             id="table",
-            data=df,
+            data=data,
             pagination_mode="fe",
             pagination_settings={
                 "current_page": 0,
@@ -60,23 +66,32 @@ app.layout = html.Div(
             filtering=True,
             editable=True,
         ),
+        html.Div(id="props_container")
     ]
 )
 
-@app.callback(
-    Output("derived_virtual_selected_rows_container", "children"),
-    [Input("table", "derived_virtual_selected_rows")]
-)
-def exposeDerivedVirtualSelectedRows(rows):
-    return str(rows);
+props = [
+    'active_cell', 'start_cell', 'end_cell', 'selected_cells',
+    'selected_rows', 'selected_row_ids',
+    'derived_viewport_selected_rows', 'derived_viewport_selected_row_ids',
+    'derived_virtual_selected_rows', 'derived_virtual_selected_row_ids',
+    'derived_viewport_indices', 'derived_viewport_row_ids',
+    'derived_virtual_indices', 'derived_virtual_row_ids'
+]
 
 
 @app.callback(
-    Output("derived_viewport_selected_rows_container", "children"),
-    [Input("table", "derived_viewport_selected_rows")]
+    Output("props_container", "children"),
+    [Input("table", prop) for prop in props]
 )
-def exposeDerivedViewportSelectedRows(rows):
-    return str(rows);
+def show_props(*args):
+    return html.Table([
+        html.Tr([
+            html.Td(prop),
+            html.Td(json.dumps(val), id=prop + '_container')
+        ])
+        for prop, val in zip(props, args)
+    ])
 
 
 if __name__ == "__main__":

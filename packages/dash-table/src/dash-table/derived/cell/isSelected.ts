@@ -6,4 +6,4 @@ export default (
     selectedCells: SelectedCells,
     row: number,
     column: number
-) => R.contains([row, column], selectedCells);
+) => R.any(cell => cell.row === row && cell.column === column, selectedCells);

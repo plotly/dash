@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import React from 'react';
 
 import {
-    ActiveCell,
+    ICellCoordinates,
     Data,
     Datum,
     DropdownValues,
@@ -57,7 +57,7 @@ class Contents {
     }
 
     get = memoizeOne((
-        activeCell: ActiveCell,
+        activeCell: ICellCoordinates | undefined,
         columns: VisibleColumns,
         data: Data,
         offset: IViewportOffset,

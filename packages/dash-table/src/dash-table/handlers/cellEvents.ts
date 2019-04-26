@@ -1,55 +1,78 @@
-import * as R from 'ramda';
-import { SelectedCells, ICellFactoryProps } from 'dash-table/components/Table/props';
+import { min, max, set, lensPath } from 'ramda';
+import { ICellFactoryProps } from 'dash-table/components/Table/props';
 import isActive from 'dash-table/derived/cell/isActive';
+import isSelected from 'dash-table/derived/cell/isSelected';
+import { makeCell, makeSelection } from 'dash-table/derived/cell/cellProps';
 import reconcile from 'dash-table/type/reconcile';
-
-function isCellSelected(selectedCells: SelectedCells, idx: number, i: number) {
-    return selectedCells && R.contains([idx, i], selectedCells);
-}
 
 export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: number, e: any) => {
     const {
         selected_cells,
+        active_cell,
         setProps,
-        virtualized
+        virtualized,
+        columns,
+        viewport
     } = propsFn();
 
-    const selected = isCellSelected(selected_cells, idx, i);
+    const row = idx + virtualized.offset.rows;
+    const col = i + virtualized.offset.columns;
 
-    // don't update if already selected
-    if (selected) {
+    const clickedCell = makeCell(row, col, columns, viewport);
+
+    // clicking again on the already-active cell: ignore
+    if (active_cell && row === active_cell.row && col === active_cell.column) {
         return;
     }
 
     e.preventDefault();
-    const cellLocation: [number, number] = [
-        idx + virtualized.offset.rows,
-        i + virtualized.offset.columns
-    ];
+
+    /*
+     * In some cases this will initiate browser text selection.
+     * We've hijacked copying, so while it might be nice to allow copying part
+     * of a cell, currently you'll always get the whole cell regardless of what
+     * the browser thinks is selected.
+     * And when you've selected multiple cells the browser selection is
+     * completely wrong.
+     */
+    const browserSelection = window.getSelection();
+    if (browserSelection) {
+        browserSelection.removeAllRanges();
+    }
+
+    const selected = isSelected(selected_cells, row, col);
+
+    // if clicking on a *different* already-selected cell (NOT shift-clicking,
+    // not the active cell), don't alter the selection,
+    // just move the active cell
+    if (selected && !e.shiftKey) {
+        setProps({
+            is_focused: false,
+            active_cell: clickedCell
+        });
+        return;
+    }
 
     const newProps: Partial<ICellFactoryProps> = {
         is_focused: false,
-        active_cell: cellLocation
+        end_cell: clickedCell
     };
 
-    const selectedRows = R.uniq(R.pluck(0, selected_cells)).sort((a, b) => a - b);
-    const selectedCols = R.uniq(R.pluck(1, selected_cells)).sort((a, b) => a - b);
-    const minRow = selectedRows[0];
-    const minCol = selectedCols[0];
-
-    if (e.shiftKey) {
-        newProps.selected_cells = R.xprod(
-            R.range(
-                R.min(minRow, cellLocation[0]),
-                R.max(minRow, cellLocation[0]) + 1
-            ),
-            R.range(
-                R.min(minCol, cellLocation[1]),
-                R.max(minCol, cellLocation[1]) + 1
-            )
-        ) as any;
+    if (e.shiftKey && active_cell) {
+        newProps.selected_cells = makeSelection(
+            {
+                minRow: min(row, active_cell.row),
+                maxRow: max(row, active_cell.row),
+                minCol: min(col, active_cell.column),
+                maxCol: max(col, active_cell.column)
+            },
+            columns,
+            viewport
+        );
     } else {
-        newProps.selected_cells = [cellLocation];
+        newProps.active_cell = clickedCell;
+        newProps.start_cell = clickedCell;
+        newProps.selected_cells = [clickedCell];
     }
 
     setProps(newProps);
@@ -60,23 +83,28 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number,
         editable,
         is_focused,
         setProps,
-        virtualized
+        virtualized,
+        columns,
+        viewport
     } = propsFn();
 
     if (!editable) {
         return;
     }
 
-    const cellLocation: [number, number] = [
+    const newCell = makeCell(
         idx + virtualized.offset.rows,
-        i + virtualized.offset.columns
-    ];
+        i + virtualized.offset.columns,
+        columns, viewport
+    );
 
     if (!is_focused) {
         e.preventDefault();
         const newProps = {
-            selected_cells: [cellLocation],
-            active_cell: cellLocation,
+            selected_cells: [newCell],
+            active_cell: newCell,
+            start_cell: newCell,
+            end_cell: newCell,
             is_focused: true
         };
         setProps(newProps);
@@ -105,8 +133,8 @@ export const handleChange = (propsFn: () => ICellFactoryProps, idx: number, i: n
         return;
     }
 
-    const newData = R.set(
-        R.lensPath([realIdx, c.id]),
+    const newData = set(
+        lensPath([realIdx, c.id]),
         result.value,
         data
     );

@@ -1,13 +1,19 @@
 import * as R from 'ramda';
 
-export function selectionCycle(nextCell, selected_cells) {
-    const selectedRows = R.uniq(R.pluck(0, selected_cells)).sort((a, b) => a - b);
-    const selectedCols = R.uniq(R.pluck(1, selected_cells)).sort((a, b) => a - b);
+export function selectionBounds(selected_cells) {
+    const selectedRows = R.pluck('row', selected_cells);
+    const selectedCols = R.pluck('column', selected_cells);
 
-    const minRow = selectedRows[0];
-    const minCol = selectedCols[0];
-    const maxRow = selectedRows[selectedRows.length - 1];
-    const maxCol = selectedCols[selectedCols.length - 1];
+    return {
+        minRow: R.reduce(R.min, Infinity, selectedRows),
+        minCol: R.reduce(R.min, Infinity, selectedCols),
+        maxRow: R.reduce(R.max, 0, selectedRows),
+        maxCol: R.reduce(R.max, 0, selectedCols)
+    };
+}
+
+export function selectionCycle(nextCell, selected_cells) {
+    const {minRow, minCol, maxRow, maxCol} = selectionBounds(selected_cells);
 
     const [nextRow, nextCol] = nextCell;
     const adjustedCell = [nextRow, nextCol];

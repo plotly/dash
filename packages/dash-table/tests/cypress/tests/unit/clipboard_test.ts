@@ -7,7 +7,7 @@ describe('clipboard', () => {
         it('pastes one line at [0, 0] in one line df', () => {
             const res = applyClipboardToData(
                 R.range(0, 1).map(value => [`${value}`]),
-                [0, 0],
+                {row: 0, column: 0, column_id: ''},
                 R.range(0, 1),
                 ['c1'].map(id => ({ id: id, name: id })),
                 R.range(0, 1).map(() => ({ c1: 'c1' })),
@@ -26,7 +26,7 @@ describe('clipboard', () => {
         it('pastes two lines at [0, 0] in one line df', () => {
             const res = applyClipboardToData(
                 R.range(0, 2).map(value => [`${value}`]),
-                [0, 0],
+                {row: 0, column: 0, column_id: ''},
                 R.range(0, 1),
                 ['c1'].map(id => ({ id: id, name: id })),
                 R.range(0, 1).map(() => ({ c1: 'c1' })),
@@ -46,7 +46,7 @@ describe('clipboard', () => {
         it('pastes ten lines at [0, 0] in three line df', () => {
             const res = applyClipboardToData(
                 R.range(0, 10).map(value => [`${value}`]),
-                [0, 0],
+                {row: 0, column: 0, column_id: ''},
                 R.range(0, 3),
                 ['c1'].map(id => ({ id: id, name: id })),
                 R.range(0, 3).map(() => ({ c1: 'c1' })),
@@ -67,7 +67,7 @@ describe('clipboard', () => {
         it('pastes ten lines at [1, 0] in three line df', () => {
             const res = applyClipboardToData(
                 R.range(0, 10).map(value => [`${value}`]),
-                [1, 0],
+                {row: 1, column: 0, column_id: ''},
                 R.range(0, 3),
                 ['c1'].map(id => ({ id: id, name: id })),
                 R.range(0, 3).map(() => ({ c1: 'c1' })),
@@ -91,7 +91,7 @@ describe('clipboard', () => {
         it('pastes one line at [0, 0] in one line df', () => {
             const res = applyClipboardToData(
                 R.range(0, 1).map(value => [`${value}`]),
-                [0, 0],
+                {row: 0, column: 0, column_id: ''},
                 R.range(0, 1),
                 ['c1'].map(id => ({ id: id, name: id })),
                 R.range(0, 1).map(() => ({ c1: 'c1' })),
@@ -110,7 +110,7 @@ describe('clipboard', () => {
         it('pastes two lines at [0, 0] in one line df', () => {
             const res = applyClipboardToData(
                 R.range(0, 2).map(value => [`${value}`]),
-                [0, 0],
+                {row: 0, column: 0, column_id: ''},
                 R.range(0, 1),
                 ['c1'].map(id => ({ id: id, name: id })),
                 R.range(0, 1).map(() => ({ c1: 'c1' })),
@@ -129,7 +129,7 @@ describe('clipboard', () => {
         it('pastes ten lines at [0, 0] in three line df', () => {
             const res = applyClipboardToData(
                 R.range(0, 10).map(value => [`${value}`]),
-                [0, 0],
+                {row: 0, column: 0, column_id: ''},
                 R.range(0, 3),
                 ['c1'].map(id => ({ id: id, name: id })),
                 R.range(0, 3).map(() => ({ c1: 'c1' })),
@@ -150,7 +150,7 @@ describe('clipboard', () => {
         it('pastes ten lines at [1, 0] in three line df', () => {
             const res = applyClipboardToData(
                 R.range(0, 10).map(value => [`${value}`]),
-                [1, 0],
+                {row: 1, column: 0, column_id: ''},
                 R.range(0, 3),
                 ['c1'].map(id => ({ id: id, name: id })),
                 R.range(0, 3).map(() => ({ c1: 'c1' })),

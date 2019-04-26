@@ -50,7 +50,6 @@ export default class CellFactory {
         } = this.props;
 
         const operations = this.cellOperations(
-            active_cell,
             data,
             virtualized.data,
             virtualized.indices,

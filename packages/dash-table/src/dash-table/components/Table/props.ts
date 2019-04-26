@@ -52,18 +52,24 @@ export enum ContentStyle {
     Grow = 'grow'
 }
 
-export type ActiveCell = CellCoordinates | [];
-export type CellCoordinates = [number, number];
+export interface ICellCoordinates {
+    row: number;
+    column: number;
+    row_id?: RowId;
+    column_id: ColumnId;
+}
+
 export type ColumnId = string | number;
 export type Columns = IColumn[];
 export type Data = Datum[];
 export type Datum =  IDatumObject | any;
 export type Filtering = 'fe' | 'be' | boolean;
 export type Indices = number[];
+export type RowId = string | number;
 export type Navigation = 'page';
 export type PaginationMode = 'fe' | 'be' | boolean;
 export type RowSelection = 'single' | 'multi' | false;
-export type SelectedCells = CellCoordinates[];
+export type SelectedCells = ICellCoordinates[];
 export type SetProps = (...args: any[]) => void;
 export type SetState = (state: Partial<IState>) => void;
 export type Sorting = 'fe' | 'be' | boolean;
@@ -242,12 +248,12 @@ export interface IState {
 
 export type StandaloneState = IState & Partial<PropsWithDefaultsAndDerived>;
 
-interface IProps {
+export interface IProps {
     data_previous?: any[];
     data_timestamp?: number;
-    end_cell?: [number, number];
+    end_cell?: ICellCoordinates;
     is_focused?: boolean;
-    start_cell?: [number, number];
+    start_cell?: ICellCoordinates;
 
     id: string;
 
@@ -257,7 +263,7 @@ interface IProps {
     column_static_tooltip: ITableStaticTooltips;
     column_conditional_tooltips: ConditionalTooltip[];
 
-    active_cell?: ActiveCell;
+    active_cell?: ICellCoordinates;
     columns?: Columns;
     column_conditional_dropdowns?: IConditionalColumnDropdown[];
     column_static_dropdown?: IColumnDropdown[];
@@ -279,6 +285,7 @@ interface IProps {
     row_selectable?: RowSelection;
     selected_cells?: SelectedCells;
     selected_rows?: Indices;
+    selected_row_ids?: RowId[];
     setProps?: SetProps;
     sorting?: Sorting;
     sort_by?: SortSettings;
@@ -302,7 +309,7 @@ interface IProps {
 }
 
 interface IDefaultProps {
-    active_cell: ActiveCell;
+    active_cell: ICellCoordinates;
     columns: Columns;
     column_conditional_dropdowns: IConditionalColumnDropdown[];
     column_static_dropdown: IColumnDropdown[];
@@ -320,7 +327,10 @@ interface IDefaultProps {
     row_deletable: boolean;
     row_selectable: RowSelection;
     selected_cells: SelectedCells;
-    selected_rows: number[];
+    start_cell: ICellCoordinates;
+    end_cell: ICellCoordinates;
+    selected_rows: Indices;
+    selected_row_ids: RowId[];
     sorting: Sorting;
     sort_by: SortSettings;
     sorting_type: SortingType;
@@ -348,10 +358,14 @@ interface IDerivedProps {
     derived_filter_structure: object | null;
     derived_viewport_data: Data;
     derived_viewport_indices: Indices;
+    derived_viewport_row_ids: RowId[];
     derived_viewport_selected_rows: Indices;
+    derived_viewport_selected_row_ids: RowId[];
     derived_virtual_data: Data;
     derived_virtual_indices: Indices;
+    derived_virtual_row_ids: RowId[];
     derived_virtual_selected_rows: Indices;
+    derived_virtual_selected_row_ids: RowId[];
 }
 
 export type PropsWithDefaults = IProps & IDefaultProps;
@@ -372,7 +386,7 @@ export type ControlledTableProps = PropsWithDefaults & IState & {
 };
 
 export interface ICellFactoryProps {
-    active_cell: ActiveCell;
+    active_cell: ICellCoordinates;
     columns: VisibleColumns;
     column_conditional_dropdowns: IConditionalColumnDropdown[];
     column_conditional_tooltips: ConditionalTooltip[];
@@ -389,7 +403,9 @@ export interface ICellFactoryProps {
     row_deletable: boolean;
     row_selectable: RowSelection;
     selected_cells: SelectedCells;
-    selected_rows: number[];
+    start_cell: ICellCoordinates;
+    end_cell: ICellCoordinates;
+    selected_rows: Indices;
     setProps: SetProps;
     setState: SetState;
     style_cell: Style;

@@ -5,10 +5,11 @@ import { memoizeOne } from 'core/memoizer';
 import CellFactory from 'dash-table/components/CellFactory';
 import FilterFactory from 'dash-table/components/FilterFactory';
 import HeaderFactory from 'dash-table/components/HeaderFactory';
+import { clearSelection } from 'dash-table/utils/actions';
 import { ControlledTableProps, SetProps, SetState } from 'dash-table/components/Table/props';
 
 const handleSetFilter = (setProps: SetProps, setState: SetState, filter: string, rawFilterQuery: string) => {
-    setProps({ filter });
+    setProps({ filter, ...clearSelection });
     setState({ rawFilterQuery });
 };
 

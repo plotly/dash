@@ -8,7 +8,8 @@ import {
     isCtrlDown,
     isNavKey
 } from 'dash-table/utils/unicode';
-import { selectionCycle } from 'dash-table/utils/navigation';
+import { selectionBounds, selectionCycle } from 'dash-table/utils/navigation';
+import { makeCell, makeSelection } from 'dash-table/derived/cell/cellProps';
 
 import getScrollbarWidth from 'core/browser/scrollbarWidth';
 import Logger from 'core/Logger';
@@ -17,7 +18,7 @@ import { memoizeOne } from 'core/memoizer';
 import lexer from 'core/syntax-tree/lexer';
 
 import TableClipboardHelper from 'dash-table/utils/TableClipboardHelper';
-import { ControlledTableProps } from 'dash-table/components/Table/props';
+import { ControlledTableProps, ICellFactoryProps } from 'dash-table/components/Table/props';
 import dropdownHelper from 'dash-table/components/dropdownHelper';
 
 import derivedTable from 'dash-table/derived/table';
@@ -30,8 +31,6 @@ import { IStyle } from 'dash-table/derived/style/props';
 import TableTooltip from './fragments/TableTooltip';
 
 import queryLexicon from 'dash-table/syntax-tree/lexicon/query';
-
-const sortNumerical = R.sort<number>((a, b) => a - b);
 
 const DEFAULT_STYLE = {
     width: '100%'
@@ -108,7 +107,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         } = this.props;
 
         if (selected_cells.length &&
-            active_cell.length &&
+            active_cell &&
             !R.contains(active_cell, selected_cells)
         ) {
             setProps({ active_cell: selected_cells[0] });
@@ -320,6 +319,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             active_cell,
             columns,
             selected_cells,
+            start_cell,
+            end_cell,
             setProps,
             viewport
         } = this.props;
@@ -329,6 +330,14 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         // continue to use it for at least the case we are navigating with
         // TAB
         event.preventDefault();
+
+        if (!active_cell) {
+            // there should always be an active_cell if we got here...
+            // but if for some reason there isn't, bail out rather than
+            // doing something unexpected
+            Logger.warning('Trying to change cell, but no cell is active.');
+            return;
+        }
 
         // If we are moving yank focus away from whatever input may still have
         // focus.
@@ -363,69 +372,88 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             setProps({
                 is_focused: false,
                 selected_cells: [nextCell],
-                active_cell: nextCell
+                active_cell: nextCell,
+                start_cell: nextCell,
+                end_cell: nextCell
             });
             return;
         }
 
         // else we are navigating with arrow keys and extending selection
         // with shift.
-        let targetCells: any[] = [];
-        let removeCells: any[] = [];
-        const selectedRows = sortNumerical(R.uniq(R.pluck(0, selected_cells)));
-        const selectedCols = sortNumerical(R.uniq(R.pluck(1, selected_cells)));
 
-        const minRow = selectedRows[0];
-        const minCol = selectedCols[0];
-        const maxRow = selectedRows[selectedRows.length - 1];
-        const maxCol = selectedCols[selectedCols.length - 1];
-
+        let {minRow, minCol, maxRow, maxCol} = selectionBounds(selected_cells);
         const selectingDown =
             e.keyCode === KEY_CODES.ARROW_DOWN || e.keyCode === KEY_CODES.ENTER;
         const selectingUp = e.keyCode === KEY_CODES.ARROW_UP;
         const selectingRight =
             e.keyCode === KEY_CODES.ARROW_RIGHT || e.keyCode === KEY_CODES.TAB;
         const selectingLeft = e.keyCode === KEY_CODES.ARROW_LEFT;
+        let startRow = start_cell && start_cell.row;
+        let startCol = start_cell && start_cell.column;
+        let endRow = end_cell && end_cell.row;
+        let endCol = end_cell && end_cell.column;
 
-        // If there are selections above the active cell and we are
-        // selecting down then pull down the top selection towards
-        // the active cell.
-        if (selectingDown && (active_cell as any)[0] > minRow) {
-            removeCells = selectedCols.map(col => [minRow, col]);
-        } else if (selectingDown && maxRow !== viewport.data.length - 1) {
-            // Otherwise if we are selecting down select the next row if possible.
-            targetCells = selectedCols.map(col => [maxRow + 1, col]);
-        } else if (selectingUp && (active_cell as any)[0] < maxRow) {
-            // If there are selections below the active cell and we are selecting
-            // up remove lower row.
-            removeCells = selectedCols.map(col => [maxRow, col]);
-        } else if (selectingUp && minRow > 0) {
-            // Otherwise if we are selecting up select next row if possible.
-            targetCells = selectedCols.map(col => [minRow - 1, col]);
-        } else if (selectingLeft && (active_cell as any)[1] < maxCol) {
-            // If there are selections to the right of the active cell and
-            // we are selecting left, move the right side closer to active_cell
-            removeCells = selectedRows.map(row => [row, maxCol]);
-        } else if (selectingLeft && minCol > 0) {
-            // Otherwise increase the selection left if possible
-            targetCells = selectedRows.map(row => [row, minCol - 1]);
-        } else if (selectingRight && (active_cell as any)[1] > minCol) {
-            // If there are selections to the left of the active cell and
-            // we are selecting right, move the left side closer to active_cell
-            removeCells = selectedRows.map(row => [row, minCol]);
-        } else if (selectingRight && maxCol + 1 <= columns.length - 1) {
-            // Otherwise move selection right if possible
-            targetCells = selectedRows.map(row => [row, maxCol + 1]);
+        if (selectingDown) {
+            if (active_cell.row > minRow) {
+                minRow++;
+                endRow = minRow;
+            } else if (maxRow < viewport.data.length - 1) {
+                maxRow++;
+                endRow = maxRow;
+            }
+        } else if (selectingUp) {
+            if (active_cell.row < maxRow) {
+                maxRow--;
+                endRow = maxRow;
+            } else if (minRow > 0) {
+                minRow--;
+                endRow = minRow;
+            }
+        } else if (selectingRight) {
+            if (active_cell.column > minCol) {
+                minCol++;
+                endCol = minCol;
+            } else if (maxCol < columns.length - 1) {
+                maxCol++;
+                endCol = maxCol;
+            }
+        } else if (selectingLeft) {
+            if (active_cell.column < maxCol) {
+                maxCol--;
+                endCol = maxCol;
+            } else if (minCol > 0) {
+                minCol--;
+                endCol = minCol;
+            }
+        } else {
+            return;
         }
 
-        const newSelectedCell = R.without(
-            removeCells,
-            R.uniq(R.concat(targetCells, selected_cells))
+        const finalSelected = makeSelection(
+            {minRow, maxRow, minCol, maxCol},
+            columns, viewport
         );
-        setProps({
+
+        const newProps: Partial<ICellFactoryProps> = {
             is_focused: false,
-            selected_cells: newSelectedCell
-        });
+            end_cell: makeCell(endRow, endCol, columns, viewport),
+            selected_cells: finalSelected
+        };
+
+        const newStartRow = endRow === minRow ? maxRow : minRow;
+        const newStartCol = endCol === minCol ? maxCol : minCol;
+
+        if (startRow !== newStartRow || startCol !== newStartCol) {
+            newProps.start_cell = makeCell(
+                newStartRow,
+                newStartCol,
+                columns,
+                viewport
+            );
+        }
+
+        setProps(newProps);
     }
 
     deleteCell = (event: any) => {
@@ -443,7 +471,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         let newData = data;
 
         const realCells: [number, number][] = R.map(
-            cell => [viewport.indices[cell[0]], cell[1]] as [number, number],
+            cell => [viewport.indices[cell.row], cell.column] as [number, number],
             selected_cells
         );
 
@@ -467,55 +495,42 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         const e = event;
 
+        const {row, column} = currentCell;
+        let nextCoords;
+
         switch (e.keyCode) {
             case KEY_CODES.ARROW_LEFT:
-                return restrictToSelection
-                    ? selectionCycle(
-                        [currentCell[0], currentCell[1] - 1],
-                        selected_cells
-                    )
-                    : [
-                        currentCell[0],
-                        R.max(0, currentCell[1] - 1)
-                    ];
+                nextCoords = restrictToSelection
+                    ? selectionCycle([row, column - 1], selected_cells)
+                    : [row, R.max(0, column - 1)];
+                break;
 
             case KEY_CODES.ARROW_RIGHT:
             case KEY_CODES.TAB:
-                return restrictToSelection
-                    ? selectionCycle(
-                        [currentCell[0], currentCell[1] + 1],
-                        selected_cells
-                    )
-                    : [
-                        currentCell[0],
-                        R.min(columns.length - 1, currentCell[1] + 1)
-                    ];
+                nextCoords = restrictToSelection
+                    ? selectionCycle([row, column + 1], selected_cells)
+                    : [row, R.min(columns.length - 1, column + 1)];
+                break;
 
             case KEY_CODES.ARROW_UP:
-                return restrictToSelection
-                    ? selectionCycle(
-                        [currentCell[0] - 1, currentCell[1]],
-                        selected_cells
-                    )
-                    : [R.max(0, currentCell[0] - 1), currentCell[1]];
+                nextCoords = restrictToSelection
+                    ? selectionCycle([row - 1, column], selected_cells)
+                    : [R.max(0, row - 1), column];
+                break;
 
             case KEY_CODES.ARROW_DOWN:
             case KEY_CODES.ENTER:
-                return restrictToSelection
-                    ? selectionCycle(
-                        [currentCell[0] + 1, currentCell[1]],
-                        selected_cells
-                    )
-                    : [
-                        R.min(viewport.data.length - 1, currentCell[0] + 1),
-                        currentCell[1]
-                    ];
+                nextCoords = restrictToSelection
+                    ? selectionCycle([row + 1, column], selected_cells)
+                    : [R.min(viewport.data.length - 1, row + 1), column];
+                break;
 
             default:
                 throw new Error(
                     `Table.getNextCell: unknown navigation keycode ${e.keyCode}`
                 );
         }
+        return makeCell(nextCoords[0], nextCoords[1], columns, viewport);
     }
 
     onCopy = (e: any) => {
@@ -541,7 +556,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             viewport
         } = this.props;
 
-        if (!editable) {
+        if (!editable || !active_cell) {
             return;
         }
 

@@ -18,12 +18,26 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - new `eq` behavior (will attempt to convert and compare numeric values if possible)
     - new readonly `derived_filter_structure` prop exposing the query structure in a programmatically friendlier way
 
+[#412](https://github.com/plotly/dash-table/pull/412)
+- Add support for row IDs, based on the `'id'` attribute of each row of `data`
+    - IDs will not be displayed unless there is a column with `id='id'`
+    - `active_cell`, `start_cell`, `end_cell`, and items in `selected_cells` contain row and column IDs: All are now dicts  `{'row', 'column', 'row_id' and 'column_id'}` rather than arrays `[row, column]`.
+    - Added new props mirroring all existing row indices props:
+        - `selected_row_ids` mirrors `selected_rows`
+        - `derived_viewport_row_ids` mirrors `derived_viewport_indices`
+        - `derived_virtual_row_ids` mirrors `derived_virtual_indices`
+        - `derived_viewport_selected_row_ids` mirrors `derived_viewport_selected_rows`
+        - `derived_virtual_selected_row_ids` mirrors `derived_virtual_selected_rows`
+
 ### Changed
 [#397](https://github.com/plotly/dash-table/pull/397)
 - Rename `filtering_settings` to `filter`
 
-[#412](https://github.com/plotly/dash-table/pull/412)
+[#417](https://github.com/plotly/dash-table/pull/417)
 - Rename `sorting_settings` to `sort_by`
+
+[#412](https://github.com/plotly/dash-table/pull/412)
+- `active_cell` and `selected_cells` items are dicts `{'row', 'column', 'row_id' and 'column_id'}` instead of arrays `[row, column]`
 
 ## [3.6.0] - 2019-03-04
 ### Fixed

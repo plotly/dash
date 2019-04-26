@@ -51,10 +51,14 @@ export const defaultProps = {
 
     derived_viewport_data: [],
     derived_viewport_indices: [],
+    derived_viewport_row_ids: [],
     derived_viewport_selected_rows: [],
+    derived_viewport_selected_row_ids: [],
     derived_virtual_data: [],
     derived_virtual_indices: [],
+    derived_virtual_row_ids: [],
     derived_virtual_selected_rows: [],
+    derived_virtual_selected_row_ids: [],
 
     column_conditional_dropdowns: [],
     column_static_dropdown: [],
@@ -67,9 +71,9 @@ export const defaultProps = {
     data: [],
     columns: [],
     editable: false,
-    active_cell: [],
-    selected_cells: [[]],
+    selected_cells: [],
     selected_rows: [],
+    selected_row_ids: [],
     row_selectable: false,
 
     style_table: {},
@@ -81,10 +85,14 @@ export const defaultProps = {
 
 export const propTypes = {
     /**
-     * The [row, column] index of which cell is currently
-     * active.
+     * The row and column indices and IDs of the currently active cell.
      */
-    active_cell: PropTypes.array,
+    active_cell: PropTypes.exact({
+        row: PropTypes.number,
+        column: PropTypes.number,
+        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    }),
 
     /**
      * Columns describes various aspects about each individual column.
@@ -367,6 +375,10 @@ export const propTypes = {
     /**
      * The contents of the table.
      * The keys of each item in data should match the column IDs.
+     * Each item can also have an 'id' key, whose value is its row ID. If there
+     * is a column with ID='id' this will display the row ID, otherwise it is
+     * just used to reference the row for selections, filtering, etc.
+     *
      * Example:
      *
      * [
@@ -411,11 +423,16 @@ export const propTypes = {
     /**
      * When selecting multiple cells
      * (via clicking on a cell and then shift-clicking on another cell),
-     * `end_cell` represents the [row, column] coordinates of the cell
+     * `end_cell` represents the row / column coordinates and IDs of the cell
      * in one of the corners of the region.
      * `start_cell` represents the coordinates of the other corner.
      */
-    end_cell: PropTypes.arrayOf(PropTypes.number),
+    end_cell: PropTypes.exact({
+        row: PropTypes.number,
+        column: PropTypes.number,
+        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    }),
 
     /**
      * The ID of the table.
@@ -485,24 +502,34 @@ export const propTypes = {
     row_selectable: PropTypes.oneOf(['single', 'multi', false]),
 
     /**
-     * `selected_cells` represents the set of cells that are selected.
-     * This is similar to `active_cell` except that it contains multiple
-     * cells. Multiple cells can be selected by holding down shift and
+     * `selected_cells` represents the set of cells that are selected,
+     * as an array of objects, each item similar to `active_cell`.
+     * Multiple cells can be selected by holding down shift and
      * clicking on a different cell or holding down shift and navigating
      * with the arrow keys.
-     *
-     * NOTE - This property may change in the future, subscribe to
-     * [https://github.com/plotly/dash-table/issues/177](https://github.com/plotly/dash-table/issues/177)
-     * for more details.
      */
-    selected_cells: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+    selected_cells: PropTypes.arrayOf(PropTypes.exact({
+        row: PropTypes.number,
+        column: PropTypes.number,
+        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    })),
 
     /**
-     * `selected_rows` contains the indices of the rows that
+     * `selected_rows` contains the indices of rows that
      * are selected via the UI elements that appear when
      * `row_selectable` is `'single'` or `'multi'`.
      */
     selected_rows: PropTypes.arrayOf(PropTypes.number),
+
+    /**
+     * `selected_row_ids` contains the ids of rows that
+     * are selected via the UI elements that appear when
+     * `row_selectable` is `'single'` or `'multi'`.
+     */
+    selected_row_ids: PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    ),
 
     setProps: PropTypes.func,
 
@@ -513,7 +540,12 @@ export const propTypes = {
      * in one of the corners of the region.
      * `end_cell` represents the coordinates of the other corner.
      */
-    start_cell: PropTypes.arrayOf(PropTypes.number),
+    start_cell: PropTypes.exact({
+        row: PropTypes.number,
+        column: PropTypes.number,
+        row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    }),
 
     /**
      * If True, then the table will be styled like a list view
@@ -1022,15 +1054,33 @@ export const propTypes = {
      * `derived_viewport_indices` indicates the order in which the original
      * rows appear after being filtered, sorted, and/or paged.
      * `derived_viewport_indices` contains indices for the current page,
-     * while `derived_virtual_indices` contains indices for across all pages.
+     * while `derived_virtual_indices` contains indices across all pages.
      */
     derived_viewport_indices: PropTypes.arrayOf(PropTypes.number),
 
     /**
+     * `derived_viewport_row_ids` lists row IDs in the order they appear
+     * after being filtered, sorted, and/or paged.
+     * `derived_viewport_row_ids` contains IDs for the current page,
+     * while `derived_virtual_row_ids` contains IDs across all pages.
+     */
+    derived_viewport_row_ids: PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    ),
+
+    /**
      * `derived_viewport_selected_rows` represents the indices of the
-     *  `selected_rows` from the perspective of the `derived_viewport_indices`.
+     * `selected_rows` from the perspective of the `derived_viewport_indices`.
      */
     derived_viewport_selected_rows: PropTypes.arrayOf(PropTypes.number),
+
+    /**
+     * `derived_viewport_selected_row_ids` represents the IDs of the
+     * `selected_rows` on the currently visible page.
+     */
+    derived_viewport_selected_row_ids: PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    ),
 
     /**
      * This property represents the visible state of `data`
@@ -1040,18 +1090,37 @@ export const propTypes = {
     derived_virtual_data: PropTypes.arrayOf(PropTypes.object),
 
     /**
-     * `derived_viewport_indices` indicates the order in which the original
-     * rows appear after being filtered, sorted, and/or paged.
+     * `derived_virtual_indices` indicates the order in which the original
+     * rows appear after being filtered and sorted.
      * `derived_viewport_indices` contains indices for the current page,
-     * while `derived_virtual_indices` contains indices for across all pages.
+     * while `derived_virtual_indices` contains indices across all pages.
      */
     derived_virtual_indices: PropTypes.arrayOf(PropTypes.number),
+
+    /**
+     * `derived_virtual_row_ids` indicates the row IDs in the order in which
+     * they appear after being filtered and sorted.
+     * `derived_viewport_row_ids` contains IDs for the current page,
+     * while `derived_virtual_row_ids` contains IDs across all pages.
+     */
+    derived_virtual_row_ids: PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    ),
 
     /**
      * `derived_virtual_selected_rows` represents the indices of the
      *  `selected_rows` from the perspective of the `derived_virtual_indices`.
      */
     derived_virtual_selected_rows: PropTypes.arrayOf(PropTypes.number),
+
+    /**
+     * `derived_virtual_selected_row_ids` represents the IDs of the
+     * `selected_rows` as they appear after filtering and sorting,
+     * across all pages.
+     */
+    derived_virtual_selected_row_ids: PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    ),
 
     /**
      * DEPRECATED

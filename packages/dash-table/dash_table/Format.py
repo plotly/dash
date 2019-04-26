@@ -1,6 +1,4 @@
 import collections
-import inspect
-import sys
 
 
 def get_named_tuple(name, dict):
@@ -26,23 +24,23 @@ Padding = get_named_tuple('padding', {
 })
 
 Prefix = get_named_tuple('prefix', {
-    'yocto': 10**-24,
-    'zepto': 10**-21,
-    'atto': 10**-18,
-    'femto': 10**-15,
-    'pico': 10**-12,
-    'nano': 10**-9,
-    'micro': 10**-6,
-    'milli': 10**-3,
+    'yocto': 10 ** -24,
+    'zepto': 10 ** -21,
+    'atto': 10 ** -18,
+    'femto': 10 ** -15,
+    'pico': 10 ** -12,
+    'nano': 10 ** -9,
+    'micro': 10 ** -6,
+    'milli': 10 ** -3,
     'none': None,
-    'kilo': 10**3,
-    'mega': 10**6,
-    'giga': 10**9,
-    'tera': 10**12,
-    'peta': 10**15,
-    'exa': 10**18,
-    'zetta': 10**21,
-    'yotta': 10**24
+    'kilo': 10 ** 3,
+    'mega': 10 ** 6,
+    'giga': 10 ** 9,
+    'tera': 10 ** 12,
+    'peta': 10 ** 15,
+    'exa': 10 ** 18,
+    'zetta': 10 ** 21,
+    'yotta': 10 ** 24
 })
 
 Scheme = get_named_tuple('scheme', {
@@ -102,11 +100,17 @@ class Format():
             'type': Scheme.default
         }
 
-        valid_methods = [m for m in dir(self.__class__) if m[0] != '_' and m != 'to_plotly_json']
+        valid_methods = [
+            m for m in dir(self.__class__)
+            if m[0] != '_' and m != 'to_plotly_json'
+        ]
 
         for kw, val in kwargs.items():
             if kw not in valid_methods:
-                raise TypeError('{0} is not a format method. Expected one of'.format(kw), str(list(valid_methods)))
+                raise TypeError(
+                    '{0} is not a format method. Expected one of'.format(kw),
+                    str(list(valid_methods))
+                )
 
             getattr(self, kw)(val)
 
@@ -128,7 +132,8 @@ class Format():
 
     def _validate_named(self, value, named_values):
         if value not in named_values:
-            raise TypeError('expected value to be one of', str(list(named_values)))
+            raise TypeError('expected value to be one of',
+                            str(list(named_values)))
 
     def _validate_string(self, value):
         if not isinstance(value, (str, u''.__class__)):
@@ -174,7 +179,9 @@ class Format():
     def precision(self, value):
         self._validate_non_negative_integer_or_none(value)
 
-        self._specifier['precision'] = '.{0}'.format(value) if value is not None else ''
+        self._specifier['precision'] = (
+            '.{0}'.format(value) if value is not None else ''
+        )
         return self
 
     def scheme(self, value):
@@ -238,13 +245,20 @@ class Format():
         return self
 
     def groups(self, groups):
-        groups = groups if isinstance(groups, list) else [groups] if isinstance(groups, int) else None
+        groups = (
+            groups if isinstance(groups, list) else
+            [groups] if isinstance(groups, int) else None
+        )
 
         if not isinstance(groups, list):
-            raise TypeError('expected groups to be an integer or a list of integers')
-
+            raise TypeError(
+                'expected groups to be an integer or a list of integers'
+            )
         if len(groups) == 0:
-            raise ValueError('expected groups to be an integer or a list of one or more integers')
+            raise ValueError(
+                'expected groups to be an integer or a list of '
+                'one or more integers'
+            )
 
         for group in groups:
             if not isinstance(group, int):
@@ -273,8 +287,9 @@ class Format():
         f['locale'] = self._locale.copy()
         f['nully'] = self._nully
         f['prefix'] = self._prefix
+        aligned = self._specifier['align'] != Align.default
         f['specifier'] = '{}{}{}{}{}{}{}{}{}{}'.format(
-            self._specifier['fill'] if self._specifier['align'] != Align.default else '',
+            self._specifier['fill'] if aligned else '',
             self._specifier['align'],
             self._specifier['sign'],
             self._specifier['symbol'],
