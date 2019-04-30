@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+### Added
+
+- `figure` prop in `dcc.Graph` now accepts a `frames` key
+
 ### Removed
 
 - Removed unused `key` prop from `dcc.ConfirmDialog`
