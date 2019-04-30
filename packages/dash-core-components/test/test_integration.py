@@ -1865,7 +1865,6 @@ class Tests(IntegrationTests):
                 return dcc.ConfirmDialog(
                     displayed=True,
                     id='confirm',
-                    key='confirm-{}'.format(time.time()),
                     message='Please confirm.')
 
         self.startServer(app)

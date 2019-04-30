@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Removed
+
+- Removed unused `key` prop from `dcc.ConfirmDialog`
+
+
 ## [0.47.0] - 2019-04-25
 ### Fixed
 - Fixed style regression in DatePickerSingle and DatePickerRange [#518](https://github.com/plotly/dash-core-components/issues/518)
