@@ -1,12 +1,12 @@
 import React, {Fragment} from 'react';
 import PropTypes from 'prop-types';
 
-const Tab = ({children}) => <Fragment>{children}</Fragment>;
-
 /**
  * Part of dcc.Tabs - this is the child Tab component used to render a tabbed page.
  * Its children will be set as the content of that tab, which if clicked will become visible.
  */
+const Tab = ({children}) => <Fragment>{children}</Fragment>;
+
 Tab.propTypes = {
     /**
      * The ID of this component, used to identify dash components

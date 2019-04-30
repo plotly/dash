@@ -2,6 +2,9 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import Dropzone from 'react-dropzone';
 
+/**
+ * Upload components allow your app to accept user-uploaded files via drag'n'drop
+ */
 export default class Upload extends Component {
     constructor() {
         super();
@@ -96,8 +99,9 @@ export default class Upload extends Component {
 
 Upload.propTypes = {
     /**
-     * ID of the component. Used to identify component
-     * in Dash callback functions.
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
      */
     id: PropTypes.string,
 

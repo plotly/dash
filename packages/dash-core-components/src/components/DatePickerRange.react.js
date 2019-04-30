@@ -178,6 +178,11 @@ export default class DatePickerRange extends Component {
 }
 
 DatePickerRange.propTypes = {
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
     id: PropTypes.string,
 
     /**
@@ -187,7 +192,16 @@ DatePickerRange.propTypes = {
      */
     start_date: PropTypes.string,
 
+    /**
+     * The HTML element ID of the start date input field.
+     * Not used by Dash, only by CSS.
+     */
     start_date_id: PropTypes.string,
+
+    /**
+     * The HTML element ID of the end date input field.
+     * Not used by Dash, only by CSS.
+     */
     end_date_id: PropTypes.string,
 
     /**

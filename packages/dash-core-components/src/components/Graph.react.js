@@ -75,6 +75,12 @@ function generateId() {
     );
 }
 
+/**
+ * Graph can be used to render any plotly.js-powered data visualization.
+ *
+ * You can define callbacks based on user interaction with Graphs such as
+ * hovering, clicking or selecting
+ */
 const GraphWithDefaults = props => {
     const id = props.id ? props.id : generateId();
     return <PlotlyGraph {...props} id={id} />;

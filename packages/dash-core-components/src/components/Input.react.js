@@ -178,6 +178,10 @@ Input.propTypes = {
         PropTypes.bool,
     ]),
 
+    /**
+     * Provides a hint to the browser as to the type of data that might be
+     * entered by the user while editing the element or its contents.
+     */
     inputMode: PropTypes.oneOf([
         /**
          * Alphanumeric, non-prose content such as usernames and passwords.

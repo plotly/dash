@@ -102,6 +102,9 @@ LogoutButton.propTypes = {
      * CSS class for the button.
      */
     className: PropTypes.string,
+    /**
+     * Dash-assigned callback that gets fired when the value changes.
+     */
     setProps: PropTypes.func,
 
     /**

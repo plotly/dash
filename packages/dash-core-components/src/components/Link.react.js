@@ -27,6 +27,12 @@ function CustomEvent(event, params) {
 }
 CustomEvent.prototype = window.Event.prototype;
 
+/**
+ * Link allows you to create a clickable link within a multi-page app.
+ *
+ * For links with destinations outside the current app, `html.A` is a better
+ * component to use.
+ */
 export default class Link extends Component {
     constructor(props) {
         super(props);
@@ -72,11 +78,31 @@ export default class Link extends Component {
 }
 
 Link.propTypes = {
-    href: PropTypes.string,
-    refresh: PropTypes.bool,
-    className: PropTypes.string,
-    style: PropTypes.object,
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
     id: PropTypes.string,
+    /**
+     * The URL of a linked resource.
+     */
+    href: PropTypes.string,
+    /**
+     * Controls whether or not the page will refresh when the link is clicked
+     */
+    refresh: PropTypes.bool,
+    /**
+     * Often used with CSS to style elements with common properties.
+     */
+    className: PropTypes.string,
+    /**
+     * Defines CSS styles which will override styles previously set.
+     */
+    style: PropTypes.object,
+    /**
+     * The children of this component
+     */
     children: PropTypes.node,
     /**
      * Object that holds the loading state object coming from dash-renderer

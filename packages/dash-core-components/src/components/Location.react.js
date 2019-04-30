@@ -111,6 +111,11 @@ export default class Location extends Component {
 }
 
 Location.propTypes = {
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
     id: PropTypes.string.isRequired,
 
     /** pathname in window.location - e.g., "/my/full/pathname" */
@@ -125,6 +130,9 @@ Location.propTypes = {
     /** Refresh the page when the location is updated? */
     refresh: PropTypes.bool,
 
+    /**
+     * Dash-assigned callback that gets fired when the value changes.
+     */
     setProps: PropTypes.func,
 };
 

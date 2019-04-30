@@ -108,6 +108,11 @@ export default class Dropdown extends Component {
 }
 
 Dropdown.propTypes = {
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
     id: PropTypes.string,
 
     /**
@@ -188,6 +193,9 @@ Dropdown.propTypes = {
      */
     setProps: PropTypes.func,
 
+    /**
+     * Defines CSS styles which will override styles previously set.
+     */
     style: PropTypes.object,
 
     /**
