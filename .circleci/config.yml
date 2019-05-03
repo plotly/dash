@@ -9,10 +9,10 @@ jobs:
           PYLINTRC: .pylintrc
 
     steps:
-
+      - checkout
       - run:
-          name: Circle CI Context
-          command: |-
+          name: context
+          command: |
             echo "TRIGGERER: ${CIRCLE_USERNAME}"
             echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
             echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
@@ -20,30 +20,27 @@ jobs:
             echo "RUNNING JOB: ${CIRCLE_JOB}"
             echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
             echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-
-      - checkout
-
-      - run:
-          name: Write deps cache key
-          command: |
             cat "$REQUIREMENTS_FILE" > reqs.txt
+            echo $CIRCLE_JOB > circlejob.txt
+
+      - restore_cache:
+          key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
 
       - run:
-          name: Write job name
-          command: echo $CIRCLE_JOB > circlejob.txt
-
-      - run:
-          name: Install Dash
+          name: pip install
           command: |
               sudo pip install --upgrade virtualenv
               python -m venv venv || virtualenv venv
               . venv/bin/activate
-              pip install -r $REQUIREMENTS_FILE --force-reinstall --quiet
-              echo "install dash"
-              pip install -e .
+              pip install -r $REQUIREMENTS_FILE --quiet
+
+      - save_cache:
+          key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+              - "venv"
 
       - run:
-          name: Build Renderer
+          name: build renderer
           command: |
               . venv/bin/activate
               cd dash-renderer
@@ -54,13 +51,13 @@ jobs:
               pip list | grep dash
 
       - run:
-          name: Install dependencies from latest master commit
+          name: install dependencies from latest master commit
           command: |
               pwd && ls -la
-              git clone https://github.com/plotly/dash-core-components.git
-              git clone https://github.com/plotly/dash-html-components.git
-              git clone https://github.com/plotly/dash-table.git
-              git clone https://github.com/plotly/dash-renderer-test-components
+              git clone --depth 1 https://github.com/plotly/dash-core-components.git
+              git clone --depth 1 https://github.com/plotly/dash-html-components.git
+              git clone --depth 1 https://github.com/plotly/dash-table.git
+              git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
               . venv/bin/activate
               cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..

@@ -21,7 +21,6 @@ from flask import Flask, Response
 from flask_compress import Compress
 
 import plotly
-import dash_renderer
 
 from .dependencies import Input, Output, State
 from .resources import Scripts, Css
@@ -55,6 +54,7 @@ _default_index = '''<!DOCTYPE html>
     </body>
 </html>'''
 
+
 _app_entry = '''
 <div id="react-entry-point">
     <div class="_dash-loading">
@@ -62,6 +62,8 @@ _app_entry = '''
     </div>
 </div>
 '''
+
+
 
 _re_index_entry = re.compile(r'{%app_entry%}')
 _re_index_config = re.compile(r'{%config%}')
@@ -198,40 +200,22 @@ class Dash(object):
 
         self.registered_paths = collections.defaultdict(set)
 
-        # urls
+        # collect routes for `_dash-routes`
         self.routes = []
 
-        prefix = self.config['routes_pathname_prefix']
+        _resource_url = '_dash-component-suites/<string:package_name>' \
+            '/<path:path_in_package_dist>'
 
-        self._add_url('{}_dash-layout'.format(prefix), self.serve_layout)
-
-        self._add_url('{}_dash-dependencies'.format(prefix), self.dependencies)
-
-        self._add_url(
-            '{}_dash-update-component'.format(prefix),
-            self.dispatch,
-            ['POST'])
-
-        self._add_url(
-            (
-                '{}_dash-component-suites'
-                '/<string:package_name>'
-                '/<path:path_in_package_dist>'
-            ).format(prefix),
-            self.serve_component_suites)
-
-        self._add_url('{}_dash-routes'.format(prefix), self.serve_routes)
-
-        self._add_url(prefix, self.index)
-
-        self._add_url('{}_reload-hash'.format(prefix), self.serve_reload_hash)
-
+        self._add_url('_dash-layout', self.serve_layout)
+        self._add_url('_dash-dependencies', self.dependencies)
+        self._add_url('_dash-update-component', self.dispatch, ['POST'])
+        self._add_url(_resource_url, self.serve_component_suites)
+        self._add_url('_dash-routes', self.serve_routes)
+        self._add_url('', self.index)
+        self._add_url('_reload-hash', self.serve_reload_hash)
         # catch-all for front-end routes, used by dcc.Location
-        self._add_url('{}<path:path>'.format(prefix), self.index)
-
-        self._add_url(
-            '{}_favicon.ico'.format(prefix),
-            self._serve_default_favicon)
+        self._add_url('<path:path>', self.index)
+        self._add_url('_favicon.ico', self._serve_default_favicon)
 
         self.server.before_first_request(self._setup_server)
 
@@ -264,15 +248,13 @@ class Dash(object):
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
     def _add_url(self, name, view_func, methods=('GET',)):
+        route = '{}{}'.format(self.config['routes_pathname_prefix'], name)
         self.server.add_url_rule(
-            name,
-            view_func=view_func,
-            endpoint=name,
-            methods=list(methods))
+            route, view_func=view_func, endpoint=name, methods=list(methods))
 
-        # record the url in Dash.routes so that it can be accessed later
+        # record the route in Dash.routes so that it can be accessed later
         # e.g. for adding authentication with flask_login
-        self.routes.append(name)
+        self.routes.append(route)
 
     @property
     def layout(self):
@@ -371,24 +353,23 @@ class Dash(object):
         # template in the necessary component suite JS bundles
         # add the version number of the package as a query parameter
         # for cache busting
+        print(resources)
         def _relative_url_path(relative_package_path='', namespace=''):
-
             module_path = os.path.join(
                 os.path.dirname(sys.modules[namespace].__file__),
                 relative_package_path)
-
-            modified = int(os.stat(module_path).st_mtime)
 
             return '{}_dash-component-suites/{}/{}?v={}&m={}'.format(
                 self.config['requests_pathname_prefix'],
                 namespace,
                 relative_package_path,
                 importlib.import_module(namespace).__version__,
-                modified
+                int(os.stat(module_path).st_mtime)
             )
 
         srcs = []
         for resource in resources:
+            print('resource => ', resource)
             is_dynamic_resource = resource.get('dynamic', False)
 
             if 'relative_package_path' in resource:
@@ -396,8 +377,7 @@ class Dash(object):
                 paths = [paths] if isinstance(paths, str) else paths
 
                 for rel_path in paths:
-                    self.registered_paths[resource['namespace']]\
-                        .add(rel_path)
+                    self.registered_paths[resource['namespace']].add(rel_path)
 
                     if not is_dynamic_resource:
                         srcs.append(_relative_url_path(
@@ -434,6 +414,44 @@ class Dash(object):
         ])
 
     def _generate_scripts_html(self):
+
+        renderer_dependencies = [{
+            'external_url': [
+                'https://unpkg.com/react@16.8.6/umd/react.production.min.js',
+                (
+                    'https://unpkg.com/react-dom@16.8.6/umd/'
+                    'react-dom.production.min.js'
+                )
+            ],
+            'relative_pacakge_path': [
+                'react@16.8.6.min.js',
+                'react-dom@16.8.6.min.js',
+            ],
+            'namespace': 'dash_renderer'
+        }]
+
+        renderer_bundles = [
+            {
+                'relative_package_path': 'dash_renderer.min.js',
+                'dev_package_path': 'dash_renderer.dev.js',
+                "external_url": (
+                    'https://unpkg.com/dash-renderer@0.23.0'
+                    '/dash_renderer/dash_renderer.min.js'
+                ),
+                'namespace': 'dash_renderer'
+            },
+            {
+                'relative_package_path': 'dash_renderer.min.js.map',
+                'dev_package_path': 'dash_renderer.dev.js.map',
+                "external_url": (
+                    'https://unpkg.com/dash-renderer@0.23.0'
+                    '/dash_renderer/dash_renderer.min.js.map'
+                ),
+                'namespace': 'dash_renderer',
+                'dynamic': True
+            }
+        ]
+
         # Dash renderer has dependencies like React which need to be rendered
         # before every other script. However, the dash renderer bundle
         # itself needs to be rendered after all of the component's
@@ -441,23 +459,33 @@ class Dash(object):
         # The rest of the scripts can just be loaded after React but before
         # dash renderer.
         # pylint: disable=protected-access
-        srcs = self._collect_and_register_resources(
-            self.scripts._resources._filter_resources(
-                dash_renderer._js_dist_dependencies,
-                dev_bundles=self._dev_tools.serve_dev_bundles
-            )) + self._external_scripts + self._collect_and_register_resources(
-                self.scripts.get_all_scripts(
-                    dev_bundles=self._dev_tools.serve_dev_bundles) +
+        srcs = [
+            self._collect_and_register_resources(
                 self.scripts._resources._filter_resources(
-                    dash_renderer._js_dist,
+                    renderer_dependencies,
                     dev_bundles=self._dev_tools.serve_dev_bundles
-                ))
-
+                )
+            ),  # react dependencies must be loaded first
+            self._external_scripts,
+            self._collect_and_register_resources(
+                self.scripts.get_all_scripts(
+                    dev_bundles=self._dev_tools.serve_dev_bundles)
+            ),
+            self._collect_and_register_resources(itertools.chain.from_iterable([
+                self.scripts.get_all_scripts(
+                    dev_bundles=self._dev_tools.serve_dev_bundles),
+                self.scripts._resources._filter_resources(
+                    renderer_bundles,
+                    dev_bundles=self._dev_tools.serve_dev_bundles
+                )
+            ])),
+            # ["/_dash-component-suites/dash_renderer/dash_renderer.min.js?v=0.23.0&m=1556729881",],
+        ]
         return '\n'.join([
             _format_tag('script', src)
             if isinstance(src, dict)
             else '<script src="{}"></script>'.format(src)
-            for src in srcs
+            for src in itertools.chain.from_iterable(srcs)
         ])
 
     def _generate_config_html(self):
@@ -515,74 +543,73 @@ class Dash(object):
                 )
             )
 
-        mimetype = ({
+        mimetypes = {
             'js': 'application/JavaScript',
             'css': 'text/css',
             'map': 'application/json'
-        })[path_in_package_dist.split('.')[-1]]
-
-        headers = {
-            'Cache-Control': 'public, max-age={}'.format(
-                self.config.components_cache_max_age)
         }
 
+        # pkgutil approach will have issue once switching to pure python3 with package namespace
+        # https://docs.python.org/3/library/pkgutil.html
         return Response(
             pkgutil.get_data(package_name, path_in_package_dist),
-            mimetype=mimetype,
-            headers=headers
+            mimetype=mimetypes[path_in_package_dist.split('.')[-1]],
+            headers={
+                'Cache-Control': 'public, max-age={}'.format(
+                    self.config.components_cache_max_age)
+            }
         )
 
     def index(self, *args, **kwargs):  # pylint: disable=unused-argument
-        scripts = self._generate_scripts_html()
-        css = self._generate_css_dist_html()
-        config = self._generate_config_html()
-        metas = self._generate_meta_html()
-        renderer = self._generate_renderer()
-        title = getattr(self, 'title', 'Dash')
 
-        if self._favicon:
-            favicon_mod_time = os.path.getmtime(
+        favicon_url = '{}?m={}'.format(
+            self.get_asset_url(self._favicon),
+            os.path.getmtime(
                 os.path.join(self._assets_folder, self._favicon))
-            favicon_url = self.get_asset_url(self._favicon) + '?m={}'.format(
-                favicon_mod_time
-            )
-        else:
-            favicon_url = '{}_favicon.ico'.format(
+            ) if self._favicon else '{}_favicon.ico'.format(
                 self.config.requests_pathname_prefix)
 
-        favicon = _format_tag('link', {
-            'rel': 'icon',
-            'type': 'image/x-icon',
-            'href': favicon_url
-        }, opened=True)
+        favicon = _format_tag(
+            'link',
+            {'rel': 'icon', 'type': 'image/x-icon', 'href': favicon_url},
+            opened=True
+        )
 
-        index = self.interpolate_index(
-            metas=metas, title=title, css=css, config=config,
-            scripts=scripts, app_entry=_app_entry, favicon=favicon,
-            renderer=renderer)
+        params = {
+            'metas': self._generate_meta_html(),
+            'title': getattr(self, 'title', 'Dash'),
+            'css': self._generate_css_dist_html(),
+            'config': self._generate_config_html(),
+            'scripts': self._generate_scripts_html(),
+            'renderer': self._generate_renderer(),
+            'app_entry': _app_entry,
+            'favicon': favicon
+        }
 
+        index = self.interpolate_index(**params)
+
+        # sanity check for index.html
         checks = (
             (_re_index_entry_id.search(index), '#react-entry-point'),
             (_re_index_config_id.search(index), '#_dash-configs'),
-            (_re_index_scripts_id.search(index), 'dash-renderer'),
+            # (_re_index_scripts_id.search(index), 'dash-renderer'),
             (_re_renderer_scripts_id.search(index), 'new DashRenderer'),
         )
-        missing = [missing for check, missing in checks if not check]
 
+        missing = [missing for check, missing in checks if not check]
         if missing:
-            plural = 's' if len(missing) > 1 else ''
             raise exceptions.InvalidIndexException(
-                'Missing element{pl} {ids} in index.'.format(
-                    ids=', '.join(missing),
-                    pl=plural
+                'Missing element{plural} {ids} in index.'.format(
+                plural='s' if len(missing) > 1 else '',
+                ids=', '.join(missing)
                 )
             )
 
         return index
 
-    def interpolate_index(self,
-                          metas='', title='', css='', config='',
-                          scripts='', app_entry='', favicon='', renderer=''):
+    def interpolate_index(
+            self, metas='', title='', css='', config='',
+            scripts='', app_entry='', favicon='', renderer=''):
         """
         Called to create the initial HTML string that is loaded on page.
         Override this method to provide you own custom HTML.
@@ -639,7 +666,8 @@ class Dash(object):
                 'inputs': v['inputs'],
                 'state': v['state'],
                 'clientside_function': v.get('clientside_function', None)
-            } for k, v in self.callback_map.items()
+            }
+            for k, v in self.callback_map.items()
         ])
 
     def _validate_callback(self, output, inputs, state):
@@ -1238,13 +1266,11 @@ class Dash(object):
         )
 
     def get_asset_url(self, path):
-        asset = _get_asset_path(
+        return _get_asset_path(
             self.config.requests_pathname_prefix,
             path,
             self._assets_url_path.lstrip('/')
         )
-
-        return asset
 
     def enable_dev_tools(self,
                          debug=False,
@@ -1353,12 +1379,11 @@ class Dash(object):
             self._reload_hash = _generate_hash()
 
             component_packages_dist = [
-                os.path.dirname(package.path)
-                if hasattr(package, 'path')
+                os.path.dirname(package.path) if hasattr(package, 'path')
                 else package.filename
                 for package in (
-                    pkgutil.find_loader(x) for x in
-                    list(ComponentRegistry.registry) + ['dash_renderer']
+                    pkgutil.find_loader(x)
+                    for x in list(ComponentRegistry.registry)
                 )
             ]
 
