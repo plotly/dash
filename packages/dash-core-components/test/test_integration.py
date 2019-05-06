@@ -842,8 +842,7 @@ class Tests(IntegrationTests):
             ),
 
             html.Label('Text Input'),
-            dcc.Input(value='', placeholder='type here', type='text',
-                      id='textinput'),
+            dcc.Input(value='', placeholder='type here', id='textinput'),
             html.Label('Disabled Text Input'),
             dcc.Input(value='disabled', type='text',
                       id='disabled-textinput', disabled=True),
@@ -968,6 +967,12 @@ class Tests(IntegrationTests):
         self.snapshot('gallery - chinese character')
 
         text_input = self.driver.find_element_by_id('textinput')
+        # verify that type has the right default
+        # Can't use text_input.get_attribute('type') - that pulls the
+        # default value even if none is specified.
+        get_type = ('return document.getElementById("textinput")'
+                    '.getAttribute("type");')
+        self.assertEqual(self.driver.execute_script(get_type), 'text')
         disabled_text_input = self.driver.find_element_by_id(
             'disabled-textinput')
         text_input.send_keys('HODOR')

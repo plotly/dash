@@ -100,6 +100,7 @@ export default class Input extends Component {
 }
 
 Input.defaultProps = {
+    type: 'text',
     n_blur: 0,
     n_blur_timestamp: -1,
     n_submit: 0,
