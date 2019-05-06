@@ -85,6 +85,27 @@ class _NoUpdate(object):
 no_update = _NoUpdate()
 
 
+_resource_url = '_dash-component-suites/<string:package_name>' \
+    '/<path:path_in_package_dist>'
+
+
+ROUTES_MAP = (
+
+    {'endpoint': '_dash-layout', 'view_func': 'serve_layout'},
+    {'endpoint': '_dash-dependencies', 'view_func': 'dependencies'},
+    {
+        'endpoint': '_dash-update-component',
+        'view_func': 'dispatch', 'methods': ['POST']
+    },
+    {'endpoint': _resource_url, 'view_func': 'serve_component_suites'},
+    {'endpoint': '_dash-routes', 'view_func': 'serve_routes'},
+    {'endpoint': '', 'view_func': 'index'},
+    # catch-all for front-end routes, used by dcc.Location
+    {'endpoint': '<path:path>', 'view_func': 'index'},
+    {'endpoint': _favicon.ico', 'view_func': '_serve_default_favicon'},
+)
+
+
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
@@ -201,21 +222,15 @@ class Dash(object):
         self.registered_paths = collections.defaultdict(set)
 
         # collect routes for `_dash-routes`
+        # record the route in Dash.routes so that it can be accessed later
+        # e.g. for adding authentication with flask_login
         self.routes = []
 
-        _resource_url = '_dash-component-suites/<string:package_name>' \
-            '/<path:path_in_package_dist>'
-
-        self._add_url('_dash-layout', self.serve_layout)
-        self._add_url('_dash-dependencies', self.dependencies)
-        self._add_url('_dash-update-component', self.dispatch, ['POST'])
-        self._add_url(_resource_url, self.serve_component_suites)
-        self._add_url('_dash-routes', self.serve_routes)
-        self._add_url('', self.index)
-        self._add_url('_reload-hash', self.serve_reload_hash)
-        # catch-all for front-end routes, used by dcc.Location
-        self._add_url('<path:path>', self.index)
-        self._add_url('_favicon.ico', self._serve_default_favicon)
+        for route in ROUTES_MAP:
+            rule = '{}{}'.format(
+                self.config['routes_pathname_prefix'], route['endpoint'])
+            self.server.add_url_rule(rule, **route)
+            self.routes.append(route)
 
         self.server.before_first_request(self._setup_server)
 
@@ -246,15 +261,6 @@ class Dash(object):
 
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
-
-    def _add_url(self, name, view_func, methods=('GET',)):
-        route = '{}{}'.format(self.config['routes_pathname_prefix'], name)
-        self.server.add_url_rule(
-            route, view_func=view_func, endpoint=name, methods=list(methods))
-
-        # record the route in Dash.routes so that it can be accessed later
-        # e.g. for adding authentication with flask_login
-        self.routes.append(route)
 
     @property
     def layout(self):
