@@ -10,3 +10,5 @@ plotly==3.7.1
 requests[security]
 flake8
 pylint==1.9.4
+pytest
+pytest-sugar
