@@ -10,61 +10,86 @@ jobs:
 
     steps:
       - checkout
-
       - run:
-          name: Write deps cache key
-          command: cat "$REQUIREMENTS_FILE" > reqs.txt
-
-      - run:
-          name: Write job name
-          command: echo $CIRCLE_JOB > circlejob.txt
-
-      - run:
-          name: Install dependencies
+          name: context
           command: |
-              sudo pip install virtualenv
-              virtualenv venv
-              . venv/bin/activate
-              pip install -r $REQUIREMENTS_FILE --force-reinstall
+            echo "TRIGGERER: ${CIRCLE_USERNAME}"
+            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
+            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
+            echo "BRANCH: ${CIRCLE_BRANCH}"
+            echo "RUNNING JOB: ${CIRCLE_JOB}"
+            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+            cat "$REQUIREMENTS_FILE" > reqs.txt
+            echo $CIRCLE_JOB > circlejob.txt
+      - restore_cache:
+          key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
 
       - run:
-          name: Install dependencies (dash)
+          name: pip install
           command: |
-              git clone git@github.com:plotly/dash-renderer.git
-              git clone git@github.com:plotly/dash-core-components.git
-              git clone git@github.com:plotly/dash-html-components.git
-              git clone git@github.com:plotly/dash-table.git
+              sudo pip install --upgrade virtualenv
+              python -m venv venv || virtualenv venv
               . venv/bin/activate
+              pip install -r $REQUIREMENTS_FILE --quiet
+      - save_cache:
+          key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
+          paths:
+              - "venv"
+
+      - run:
+          name: build renderer
+          command: |
+              . venv/bin/activate
+              cd dash-renderer
+              npm install --ignore-scripts
+              npm run build
+              npm run build:dev
               pip install -e . --quiet
-              cd dash-renderer && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              pip list | grep dash
+      - run:
+          name: install dependencies from latest master commit
+          command: |
+              pwd && ls -la
+              git clone --depth 1 https://github.com/plotly/dash-core-components.git
+              git clone --depth 1 https://github.com/plotly/dash-html-components.git
+              git clone --depth 1 https://github.com/plotly/dash-table.git
+              git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
+              . venv/bin/activate
               cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-
+              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
       - run:
-          name: Run tests
+          name: Run unit tests
           command: |
-              . venv/bin/activate
-              python --version
-              ./test.sh
+            . venv/bin/activate
+            mkdir test-reports
+            pytest --junitxml=test-reports/junit.xml tests/unit
+      - store_test_results:
+          path: test-reports
 
-  "python-3.6":
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.6-stretch-node-browsers
-        environment:
-          REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
-          PYLINTRC: .pylintrc
-          PERCY_ENABLE: 0
+      - store_artifacts:
+          path: test-reports
 
-  "python-3.7":
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.7-stretch-node-browsers
-        environment:
-          REQUIREMENTS_FILE: .circleci/requirements/dev-requirements-py37.txt
-          PYLINTRC: .pylintrc37
-          PERCY_ENABLE: 0
+
+  # "python-3.6":
+  #   <<: *test-template
+  #   docker:
+  #     - image: circleci/python:3.6-stretch-node-browsers
+  #       environment:
+  #         REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
+  #         PYLINTRC: .pylintrc
+  #         PERCY_ENABLE: 0
+
+  # "python-3.7":
+  #   <<: *test-template
+  #   docker:
+  #     - image: circleci/python:3.7-stretch-node-browsers
+  #       environment:
+  #         REQUIREMENTS_FILE: .circleci/requirements/dev-requirements-py37.txt
+  #         PYLINTRC: .pylintrc37
+  #         PERCY_ENABLE: 0
 
 
 workflows:
@@ -72,5 +97,5 @@ workflows:
   build:
     jobs:
       - "python-2.7"
-      - "python-3.6"
-      - "python-3.7"
+      # - "python-3.6"
+      # - "python-3.7"

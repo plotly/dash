@@ -1,0 +1,27 @@
+{
+    "env": {
+        "node": true,
+        "browser": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:react/recommended"
+    ],
+    "plugins": [
+        "import", "react"
+    ],
+    "parserOptions": {
+        "ecmaVersion": "2015",
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true,
+            "experimentalObjectRestSpread": true
+        }
+    },
+    "rules": {
+        "import/no-commonjs": 0,
+        "import/no-nodejs-modules": 0
+    }
+}
