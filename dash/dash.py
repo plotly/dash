@@ -102,7 +102,7 @@ ROUTES_MAP = (
     {'endpoint': '', 'view_func': 'index'},
     # catch-all for front-end routes, used by dcc.Location
     {'endpoint': '<path:path>', 'view_func': 'index'},
-    {'endpoint': _favicon.ico', 'view_func': '_serve_default_favicon'},
+    {'endpoint': '_favicon.ico', 'view_func': '_serve_default_favicon'},
 )
 
 
