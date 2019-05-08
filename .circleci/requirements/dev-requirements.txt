@@ -12,3 +12,6 @@ flake8
 pylint==1.9.4
 pytest
 pytest-sugar
+lxml
+requests
+beautifulsoup4

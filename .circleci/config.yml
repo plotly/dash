@@ -47,17 +47,16 @@ jobs:
             flake8 dash setup.py
             flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
             pylint dash setup.py --rcfile=$PYLINTRC
-            pylint tests -d all -e C0410,C0411,C0412,C0413,W0109
+            pylint tests/unit -d all -e C0410,C0411,C0412,C0413,W0109
 
       - run:
-          name: ✔️ Run unit tests
+          name: ⛑ Run unit tests
           command: |
             . venv/bin/activate
             mkdir test-reports
             pytest --junitxml=test-reports/junit.xml tests/unit
       - store_test_results:
           path: test-reports
-
       - store_artifacts:
           path: test-reports
 
@@ -82,23 +81,23 @@ jobs:
       #         cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
       #         cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
 
-  # "python-3.6":
-  #   <<: *test-template
-  #   docker:
-  #     - image: circleci/python:3.6-stretch-node-browsers
-  #       environment:
-  #         REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
-  #         PYLINTRC: .pylintrc
-  #         PERCY_ENABLE: 0
+  "python-3.6":
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.6-stretch-node-browsers
+        environment:
+          REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
+          PYLINTRC: .pylintrc
+          PERCY_ENABLE: 0
 
-  # "python-3.7":
-  #   <<: *test-template
-  #   docker:
-  #     - image: circleci/python:3.7-stretch-node-browsers
-  #       environment:
-  #         REQUIREMENTS_FILE: .circleci/requirements/dev-requirements-py37.txt
-  #         PYLINTRC: .pylintrc37
-  #         PERCY_ENABLE: 0
+  "python-3.7":
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.7-stretch-node-browsers
+        environment:
+          REQUIREMENTS_FILE: .circleci/requirements/dev-requirements-py37.txt
+          PYLINTRC: .pylintrc37
+          PERCY_ENABLE: 0
 
 
 workflows:
@@ -106,5 +105,5 @@ workflows:
   build:
     jobs:
       - "python-2.7"
-      # - "python-3.6"
-      # - "python-3.7"
+      - "python-3.6"
+      - "python-3.7"
