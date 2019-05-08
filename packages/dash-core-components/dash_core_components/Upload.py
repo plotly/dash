@@ -5,12 +5,13 @@ from dash.development.base_component import Component, _explicitize_args
 
 class Upload(Component):
     """A Upload component.
-
+Upload components allow your app to accept user-uploaded files via drag'n'drop
 
 Keyword arguments:
 - children (a list of or a singular dash component, string or number | string; optional): Contents of the upload component
-- id (string; optional): ID of the component. Used to identify component
-in Dash callback functions.
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - contents (string | list; optional): The contents of the uploaded file as a binary string
 - filename (string | list; optional): The name of the file(s) that was(were) uploaded.
 Note that this does not include the path of the file

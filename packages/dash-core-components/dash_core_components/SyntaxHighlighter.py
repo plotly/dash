@@ -9,7 +9,9 @@ A component for pretty printing code.
 
 Keyword arguments:
 - children (string | list; optional): The text to display and highlight
-- id (string; optional)
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - language (string; optional): the language to highlight code in.
 - theme (a value equal to: 'light', 'dark'; optional): theme: light or dark
 - customStyle (dict; optional): prop that will be combined with the top level style on the pre tag, styles here will overwrite earlier styles.

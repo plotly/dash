@@ -11,7 +11,9 @@ Data can be in memory, localStorage or sessionStorage.
 The data will be kept with the id as key.
 
 Keyword arguments:
-- id (string; required): The key of the storage.
+- id (string; required): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - storage_type (a value equal to: 'local', 'session', 'memory'; optional): The type of the web storage.
 
 memory: only kept in memory, reset on page refresh.

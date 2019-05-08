@@ -16,7 +16,9 @@ This component is based off of Airbnb's react-dates react component
 which can be found here: https://github.com/airbnb/react-dates
 
 Keyword arguments:
-- id (string; optional)
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - date (string; optional): Specifies the starting date for the component, best practice is to pass
 value via datetime object
 - min_date_allowed (string; optional): Specifies the lowest selectable date for the component.

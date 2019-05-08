@@ -18,7 +18,9 @@ dcc.ConfirmDialogProvider(
 
 Keyword arguments:
 - children (boolean | number | string | dict | list; optional): The children to hijack clicks from and display the popup.
-- id (string; optional)
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - message (string; optional): Message to show in the popup.
 - submit_n_clicks (number; optional): Number of times the submit was clicked
 - submit_n_clicks_timestamp (number; optional): Last time the submit button was clicked.

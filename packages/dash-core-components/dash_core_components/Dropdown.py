@@ -15,8 +15,11 @@ constrained for space. Otherwise, you can use RadioItems or a Checklist,
 which have the benefit of showing the users all of the items at once.
 
 Keyword arguments:
-- id (string; optional)
-- options (list; optional): An array of options
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
+- options (list; optional): An array of options {lable: [string|number], value: [string|number]},
+an optional disabled field can be used for each option
 - value (string | list | number | list; optional): The value of the input. If `multi` is false (the default)
 then value is just a string that corresponds to the values
 provided in the `options` property. If `multi` is true, then
@@ -31,7 +34,7 @@ the selected value.
 - multi (boolean; optional): If true, the user can select multiple values
 - placeholder (string; optional): The grey, default text shown when no option is selected
 - searchable (boolean; optional): Whether to enable the searching feature or not
-- style (dict; optional)
+- style (dict; optional): Defines CSS styles which will override styles previously set.
 - loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not

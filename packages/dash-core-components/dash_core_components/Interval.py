@@ -11,7 +11,9 @@ Interval is good for triggering a component on a recurring basis.
 The time delay is set with the property "interval" in milliseconds.
 
 Keyword arguments:
-- id (string; optional)
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - interval (number; optional): This component will increment the counter `n_intervals` every
 `interval` milliseconds
 - disabled (boolean; optional): If True, the counter will no longer update

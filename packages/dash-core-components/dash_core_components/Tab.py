@@ -5,7 +5,8 @@ from dash.development.base_component import Component, _explicitize_args
 
 class Tab(Component):
     """A Tab component.
-
+Part of dcc.Tabs - this is the child Tab component used to render a tabbed page.
+Its children will be set as the content of that tab, which if clicked will become visible.
 
 Keyword arguments:
 - children (a list of or a singular dash component, string or number; optional): The content of the tab - will only be displayed if this tab is selected

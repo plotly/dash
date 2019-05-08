@@ -9,7 +9,9 @@ A double slider with two handles.
 Used for specifying a range of numerical values.
 
 Keyword arguments:
-- id (string; optional)
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - marks (optional): Marks on the slider.
 The key determines the position (a number),
 and the value determines what will show.

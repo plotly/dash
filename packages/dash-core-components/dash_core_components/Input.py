@@ -29,7 +29,8 @@ are also acccepted.
 - disabled (a value equal to: 'disabled', 'DISABLED' | boolean; optional): If true, the input is disabled and can't be clicked on.
 disabled is an HTML boolean attribute - it is enabled by a boolean or
 'disabled'. Alternative capitalizations `DISABLED`
-- inputMode (a value equal to: "verbatim", "latin", "latin-name", "latin-prose", "full-width-latin", "kana", "katakana", "numeric", "tel", "email", "url"; optional)
+- inputMode (a value equal to: "verbatim", "latin", "latin-name", "latin-prose", "full-width-latin", "kana", "katakana", "numeric", "tel", "email", "url"; optional): Provides a hint to the browser as to the type of data that might be
+entered by the user while editing the element or its contents.
 - list (string; optional): Identifies a list of pre-defined options to suggest to the user.
 The value must be the id of a <datalist> element in the same document.
 The browser displays only options that are valid values for this

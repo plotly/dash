@@ -11,7 +11,9 @@ property and the seleced item is specified with the `value` property.
 Each radio item is rendered as an input with a surrounding label.
 
 Keyword arguments:
-- id (string; optional)
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - options (list; optional): An array of options
 - value (string; optional): The currently selected value
 - style (dict; optional): The style of the container (div)

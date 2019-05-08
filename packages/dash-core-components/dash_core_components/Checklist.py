@@ -11,7 +11,9 @@ property and the checked items are specified with the `values` property.
 Each checkbox is rendered as an input with a surrounding label.
 
 Keyword arguments:
-- id (string; optional)
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - options (list; optional): An array of options
 - values (list; optional): The currently selected value
 - className (string; optional): The class of the container (div)

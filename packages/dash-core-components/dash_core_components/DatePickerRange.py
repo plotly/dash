@@ -16,12 +16,16 @@ This component is based off of Airbnb's react-dates react component
 which can be found here: https://github.com/airbnb/react-dates
 
 Keyword arguments:
-- id (string; optional)
+- id (string; optional): The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.
 - start_date (string; optional): Specifies the starting date for the component.
 Accepts datetime.datetime objects or strings
 in the format 'YYYY-MM-DD'
-- start_date_id (string; optional)
-- end_date_id (string; optional)
+- start_date_id (string; optional): The HTML element ID of the start date input field.
+Not used by Dash, only by CSS.
+- end_date_id (string; optional): The HTML element ID of the end date input field.
+Not used by Dash, only by CSS.
 - end_date (string; optional): Specifies the ending date for the component.
 Accepts datetime.datetime objects or strings
 in the format 'YYYY-MM-DD'
