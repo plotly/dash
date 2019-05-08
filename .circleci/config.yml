@@ -12,7 +12,7 @@ jobs:
       - checkout
 
       - run:
-          name: context
+          name: ℹ️ CI Context
           command: |
             echo "TRIGGERER: ${CIRCLE_USERNAME}"
             echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
@@ -39,7 +39,7 @@ jobs:
               - "venv"
 
       - run:
-          name: linting
+          name: 🌸 linting
           command: |
             . venv/bin/activate
             flake8 dash setup.py
@@ -48,7 +48,7 @@ jobs:
             pylint tests -d all -e C0410,C0411,C0412,C0413,W0109
 
       - run:
-          name: Run unit tests
+          name: ✔️ Run unit tests
           command: |
             . venv/bin/activate
             pip install -e .

@@ -6,6 +6,7 @@ mock
 tox
 tox-pyenv
 six
+flask
 plotly==3.7.1
 requests[security]
 flake8
