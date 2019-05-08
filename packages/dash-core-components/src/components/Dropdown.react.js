@@ -116,7 +116,8 @@ Dropdown.propTypes = {
     id: PropTypes.string,
 
     /**
-     * An array of options
+     * An array of options {lable: [string|number], value: [string|number]},
+     * an optional disabled field can be used for each option
      */
     options: PropTypes.arrayOf(
         PropTypes.exact({
