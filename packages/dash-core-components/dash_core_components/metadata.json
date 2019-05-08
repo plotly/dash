@@ -1096,7 +1096,7 @@
           }
         },
         "required": false,
-        "description": "An array of options {lable: [string|number], value: [string|number]},\nan optional disabled field can be used for each option"
+        "description": "An array of options {label: [string|number], value: [string|number]},\nan optional disabled field can be used for each option"
       },
       "value": {
         "type": {

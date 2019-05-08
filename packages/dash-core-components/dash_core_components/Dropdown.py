@@ -18,7 +18,7 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- options (list; optional): An array of options {lable: [string|number], value: [string|number]},
+- options (list; optional): An array of options {label: [string|number], value: [string|number]},
 an optional disabled field can be used for each option
 - value (string | list | number | list; optional): The value of the input. If `multi` is false (the default)
 then value is just a string that corresponds to the values
