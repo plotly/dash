@@ -1,8 +1,3 @@
-import dash
-import dash_core_components
-import dash_core_components as dcc
-import dash_html_components as html
-import importlib
 import multiprocessing
 import percy
 import time
@@ -11,7 +6,6 @@ import os
 import sys
 
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
@@ -19,7 +13,6 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 class IntegrationTests(unittest.TestCase):
 
     last_timestamp = 0
-
 
     def percy_snapshot(self, name=''):
         snapshot_name = '{} - py{}.{}'.format(name, sys.version_info.major, sys.version_info.minor)
@@ -46,7 +39,6 @@ class IntegrationTests(unittest.TestCase):
         cls.percy_runner = percy.Runner(loader=loader)
 
         cls.percy_runner.initialize_build()
-
 
     @classmethod
     def tearDownClass(cls):
@@ -94,9 +86,21 @@ class IntegrationTests(unittest.TestCase):
 
     def get_log(self):
         entries = self.driver.get_log("browser")
-        return [entry for entry in entries if entry["timestamp"] > self.last_timestamp]
+        return [
+            entry
+            for entry in entries
+            if entry["timestamp"] > self.last_timestamp
+        ]
 
     def wait_until_get_log(self, timeout=10):
+
+        # Python 2 compatibility.
+        try:
+            TimeoutError
+        except NameError:
+            import socket
+            TimeoutError = socket.timeout
+
         logs = None
         cnt, poll = 0, 0.1
         while not logs:

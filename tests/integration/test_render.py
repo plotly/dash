@@ -53,7 +53,6 @@ class Tests(IntegrationTests):
 
         raise exception
 
-
     def wait_for_element_by_css_selector(self, selector, timeout=TIMEOUT):
         return WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, selector)),
@@ -66,10 +65,10 @@ class Tests(IntegrationTests):
             lambda *args: (
                 (str(self.wait_for_element_by_css_selector(selector).text)
                  == assertion_text) or
-                 (str(self.wait_for_element_by_css_selector(selector).get_attribute('value'))
-                  == assertion_text)
+                (str(self.wait_for_element_by_css_selector(
+                    selector).get_attribute('value')) == assertion_text)
             ),
-            "Element '{}' text was supposed to equal '{}' but it didn't".format(
+            "Element '{}' text expects to equal '{}' but it didn't".format(
                 selector,
                 assertion_text
             )
@@ -108,7 +107,6 @@ class Tests(IntegrationTests):
 
         if expected_length is not None:
             self.assertEqual(len(request_queue), expected_length)
-
 
     def test_initial_state(self):
         app = Dash(__name__)
@@ -174,7 +172,8 @@ class Tests(IntegrationTests):
                 'window.store.getState().layout'
                 '))'
             ),
-            json.loads(json.dumps(app.layout, cls=plotly.utils.PlotlyJSONEncoder)),
+            json.loads(
+                json.dumps(app.layout, cls=plotly.utils.PlotlyJSONEncoder)),
             "the state layout is identical to app.layout"
         )
 
@@ -199,7 +198,7 @@ class Tests(IntegrationTests):
                 for abbr in (
                     child.get('id')
                     for child in fetched_dom.find(
-                    id='react-entry-point').findChildren(id=True)
+                        id='react-entry-point').findChildren(id=True)
                 )
             },
             "paths should refect to the component hierarchy"
@@ -329,13 +328,14 @@ class Tests(IntegrationTests):
             'lxml').select_one('#output > div').contents
 
         self.assertTrue(
-            pad_input.attrs == {'id': 'sub-input-1', 'value': 'sub input initial value'}
-                and pad_input.name == 'input',
+            pad_input.attrs == {
+                'id': 'sub-input-1', 'value': 'sub input initial value'}
+            and pad_input.name == 'input',
             "pad input is correctly rendered")
 
         self.assertTrue(
-            pad_div.text == pad_input.attrs['value']
-                and pad_div.get('id') == 'sub-output-1',
+            pad_div.text == pad_input.attrs['value'] and
+            pad_div.get('id') == 'sub-output-1',
             "the sub-output-1 content reflects to sub-input-1 value"
         )
 
@@ -469,13 +469,13 @@ class Tests(IntegrationTests):
             def callback(value):
                 call_counts[counterId].value += 1
                 return {
-                        'data': [{
-                            'x': ['Call Counter'],
-                            'y': [call_counts[counterId].value],
-                            'type': 'bar'
-                        }],
-                        'layout': {'title': value}
-                    }
+                    'data': [{
+                        'x': ['Call Counter'],
+                        'y': [call_counts[counterId].value],
+                        'type': 'bar'
+                    }],
+                    'layout': {'title': value}
+                }
             return callback
 
         def generate_label_callback(id):
@@ -1012,7 +1012,6 @@ class Tests(IntegrationTests):
         self.assertEqual(input2().get_attribute('value'), '<<input 1x>>y')
         self.assertEqual(output().text, 'input 1x + <<input 1x>>y')
 
-
     def test_chained_dependencies_branched_lineage(self):
         app = Dash(__name__)
         app.layout = html.Div([
@@ -1467,8 +1466,10 @@ class Tests(IntegrationTests):
             outputid = 'output-{}'.format(i)
             app.callback(
                 Output(outputid, 'children'),
-                [Input('input-{}'.format(i), 'children'),
-                 Input('input-{}'.format(i+1), 'children')]
+                [
+                    Input('input-{}'.format(i), 'children'),
+                    Input('input-{}'.format(i + 1), 'children')
+                ]
             )(generate_callback(outputid))
 
         self.startServer(app)
@@ -1481,7 +1482,7 @@ class Tests(IntegrationTests):
             self.assertEqual(call_counts[outputid].value, 1)
             self.wait_for_text_to_equal(
                 '#{}'.format(outputid),
-                "input-{}, input-{}".format(i, i+1)
+                "input-{}, input-{}".format(i, i + 1)
             )
 
     def test_generate_overlapping_outputs(self):
@@ -1531,7 +1532,7 @@ class Tests(IntegrationTests):
             app.callback(
                 Output(outputid, 'children'),
                 [Input('input-{}'.format(i), 'children'),
-                 Input('input-{}'.format(i+1), 'children')]
+                 Input('input-{}'.format(i + 1), 'children')]
             )(generate_callback(outputid))
 
         self.startServer(app)
@@ -1545,7 +1546,7 @@ class Tests(IntegrationTests):
             self.assertEqual(call_counts[outputid].value, 1)
             self.wait_for_text_to_equal(
                 '#{}'.format(outputid),
-                "input-{}, input-{}".format(i, i+1)
+                "input-{}, input-{}".format(i, i + 1)
             )
         self.assertEqual(call_counts['container'].value, 1)
 
@@ -1584,7 +1585,6 @@ class Tests(IntegrationTests):
         app.layout = _test_component
 
         self.startServer(app)
-
 
     def test_multiple_properties_update_at_same_time_on_same_component(self):
         call_count = Value('i', 0)
@@ -1625,7 +1625,7 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#container', '1, 0')
         self.assertTrue(
             timestamp_1.value >
-            ((time.time()  - (24 * 60 * 60)) * 1000))
+            ((time.time() - (24 * 60 * 60)) * 1000))
         self.assertEqual(timestamp_2.value, -1)
         self.assertEqual(call_count.value, 2)
         self.percy_snapshot('button-1 click')
@@ -1637,7 +1637,7 @@ class Tests(IntegrationTests):
         self.assertEqual(timestamp_1.value, prev_timestamp_1)
         self.assertTrue(
             timestamp_2.value >
-            ((time.time()  - 24 * 60 * 60) * 1000))
+            ((time.time() - 24 * 60 * 60) * 1000))
         self.assertEqual(call_count.value, 3)
         self.percy_snapshot('button-2 click')
         prev_timestamp_2 = timestamp_2.value
@@ -1776,7 +1776,6 @@ class Tests(IntegrationTests):
             html.Pre(id='graph1_info'),
         ]
 
-
         tab2_layout = [
             html.Div([dcc.Graph(id='graph2',
                                 figure={
@@ -1790,15 +1789,16 @@ class Tests(IntegrationTests):
             html.Pre(id='graph2_info'),
         ]
 
-        @app.callback(Output(component_id='graph1_info', component_property='children'),
-                    [Input(component_id='graph1', component_property='clickData')])
+        @app.callback(
+            Output(component_id='graph1_info', component_property='children'),
+            [Input(component_id='graph1', component_property='clickData')])
         def display_hover_data(hover_data):
             return json.dumps(hover_data)
 
-
-        @app.callback(Output(component_id='graph2_info', component_property='children'),
-                    [Input(component_id='graph2', component_property='clickData')])
-        def display_hover_data(hover_data):
+        @app.callback(
+            Output(component_id='graph2_info', component_property='children'),
+            [Input(component_id='graph2', component_property='clickData')])
+        def display_hover_data_2(hover_data):
             return json.dumps(hover_data)
 
         @app.callback(Output("tab_content", "children"), [Input("tabs", "value")])
@@ -1897,7 +1897,7 @@ class Tests(IntegrationTests):
                 raise PreventUpdate
 
             call_count.value += 1
-            return ['{}={}'.format(i, i+n_clicks) for i in range(N_OUTPUTS)]
+            return ['{}={}'.format(i, i + n_clicks) for i in range(N_OUTPUTS)]
 
         self.startServer(app)
 
@@ -1908,7 +1908,7 @@ class Tests(IntegrationTests):
 
             for i in range(N_OUTPUTS):
                 self.wait_for_text_to_equal(
-                    '#output-{}'.format(i), '{}={}'.format(i, i+click))
+                    '#output-{}'.format(i), '{}={}'.format(i, i + click))
 
             self.assertEqual(call_count.value, click)
 
@@ -2027,120 +2027,11 @@ class Tests(IntegrationTests):
             html.Div(id='output-serverside')
         ])
 
-
         @app.callback(
             Output('output-serverside', 'children'),
             [Input('input', 'value')])
         def update_output(value):
             return 'Server says "{}"'.format(value)
-
-
-        app.clientside_callback(
-            ClientsideFunction(
-                namespace='clientside',
-                function_name='display'
-            ),
-            Output('output-clientside', 'children'),
-            [Input('input', 'value')]
-        )
-
-        self.startServer(app)
-
-        input = self.wait_for_element_by_css_selector('#input')
-        self.wait_for_text_to_equal('#output-serverside', 'Server says "None"')
-        self.wait_for_text_to_equal(
-            '#output-clientside', 'Client says "undefined"'
-        )
-
-        input.send_keys('hello world')
-        self.wait_for_text_to_equal(
-            '#output-serverside', 'Server says "hello world"'
-        )
-        self.wait_for_text_to_equal(
-            '#output-clientside', 'Client says "hello world"'
-        )
-
-    def test_chained_serverside_clientside_callbacks(self):
-        app = dash.Dash(__name__, assets_folder='test_clientside')
-
-        app.layout = html.Div([
-
-            html.Label('x'),
-            dcc.Input(id='x', value=3),
-
-            html.Label('y'),
-            dcc.Input(id='y', value=6),
-
-            # clientside
-            html.Label('x + y (clientside)'),
-            dcc.Input(id='x-plus-y'),
-
-            # server-side
-            html.Label('x+y / 2 (serverside)'),
-            dcc.Input(id='x-plus-y-div-2'),
-
-            # server-side
-            html.Div([
-                html.Label('Display x, y, x+y/2 (serverside)'),
-                dcc.Textarea(id='display-all-of-the-values'),
-            ]),
-
-            # clientside
-            html.Label('Mean(x, y, x+y, x+y/2) (clientside)'),
-            dcc.Input(id='mean-of-all-values'),
-
-        ])
-
-        app.clientside_callback(
-            ClientsideFunction('clientside', 'add'),
-            Output('x-plus-y', 'value'),
-            [Input('x', 'value'),
-             Input('y', 'value')],
-        )
-
-        call_counts = {
-            'divide': Value('i', 0),
-            'display': Value('i', 0)
-        }
-
-        @app.callback(Output('x-plus-y-div-2', 'value'),
-                      [Input('x-plus-y', 'value')])
-        def divide_by_two(value):
-            call_counts['divide'].value += 1
-            return float(value) / 2.0
-
-        @app.callback(Output('display-all-of-the-values', 'value'),
-                      [Input('x', 'value'),
-                       Input('y', 'value'),
-                       Input('x-plus-y', 'value'),
-                       Input('x-plus-y-div-2', 'value')])
-        def display_all(*args):
-            call_counts['display'].value += 1
-            return '\n'.join([str(a) for a in args])
-
-        app.clientside_callback(
-            ClientsideFunction('clientside', 'mean'),
-            Output('mean-of-all-values', 'value'),
-            [Input('x', 'value'), Input('y', 'value'),
-             Input('x-plus-y', 'value'), Input('x-plus-y-div-2', 'value')],
-        )
-
-    def test_simple_clientside_serverside_callback(self):
-        app = dash.Dash(__name__, assets_folder='test_clientside')
-
-        app.layout = html.Div([
-            dcc.Input(id='input'),
-            html.Div(id='output-clientside'),
-            html.Div(id='output-serverside')
-        ])
-
-
-        @app.callback(
-            Output('output-serverside', 'children'),
-            [Input('input', 'value')])
-        def update_output(value):
-            return 'Server says "{}"'.format(value)
-
 
         app.clientside_callback(
             ClientsideFunction(
@@ -2240,7 +2131,7 @@ class Tests(IntegrationTests):
             ['#x-plus-y', '9'],
             ['#x-plus-y-div-2', '4.5'],
             ['#display-all-of-the-values', '3\n6\n9\n4.5'],
-            ['#mean-of-all-values', str((3+6+9+4.5) / 4.0)],
+            ['#mean-of-all-values', str((3 + 6 + 9 + 4.5) / 4.0)],
         ]
         for test_case in test_cases:
             self.wait_for_text_to_equal(test_case[0], test_case[1])
@@ -2257,14 +2148,13 @@ class Tests(IntegrationTests):
             ['#x-plus-y', '37'],
             ['#x-plus-y-div-2', '18.5'],
             ['#display-all-of-the-values', '31\n6\n37\n18.5'],
-            ['#mean-of-all-values', str((31+6+37+18.5) / 4.0)],
+            ['#mean-of-all-values', str((31 + 6 + 37 + 18.5) / 4.0)],
         ]
         for test_case in test_cases:
             self.wait_for_text_to_equal(test_case[0], test_case[1])
 
         self.assertEqual(call_counts['display'].value, 2)
         self.assertEqual(call_counts['divide'].value, 2)
-
 
     def test_clientside_exceptions_halt_subsequent_updates(self):
         app = dash.Dash(__name__, assets_folder='test_clientside')
@@ -2322,7 +2212,6 @@ class Tests(IntegrationTests):
         for test_case in test_cases:
             self.wait_for_text_to_equal(test_case[0], test_case[1])
 
-
     def test_clientside_multiple_outputs(self):
         app = dash.Dash(__name__, assets_folder='test_clientside')
 
@@ -2344,21 +2233,25 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
-        for test_case in [['#input', '1'],
-                ['#output-1', '2'],
-                ['#output-2', '3'],
-                ['#output-3', '4'],
-                ['#output-4', '5']]:
+        for test_case in [
+            ['#input', '1'],
+            ['#output-1', '2'],
+            ['#output-2', '3'],
+            ['#output-3', '4'],
+            ['#output-4', '5']
+        ]:
             self.wait_for_text_to_equal(test_case[0], test_case[1])
 
         input = self.wait_for_element_by_css_selector('#input')
         input.send_keys('1')
 
-        for test_case in [['#input', '11'],
-                ['#output-1', '12'],
-                ['#output-2', '13'],
-                ['#output-3', '14'],
-                ['#output-4', '15']]:
+        for test_case in [
+            ['#input', '11'],
+            ['#output-1', '12'],
+            ['#output-2', '13'],
+            ['#output-3', '14'],
+            ['#output-4', '15']
+        ]:
             self.wait_for_text_to_equal(test_case[0], test_case[1])
 
     def test_clientside_fails_when_returning_a_promise(self):
@@ -2381,7 +2274,6 @@ class Tests(IntegrationTests):
         self.wait_for_text_to_equal('#side-effect', 'side effect')
         self.wait_for_text_to_equal('#output', 'output')
 
-
     def test_devtools_python_errors(self):
         app = dash.Dash(__name__)
 
@@ -2395,7 +2287,7 @@ class Tests(IntegrationTests):
             [Input('python', 'n_clicks')])
         def update_output(n_clicks):
             if n_clicks == 1:
-                1/0
+                1 / 0
             elif n_clicks == 2:
                 raise Exception('Special 2 clicks exception')
 
@@ -2425,7 +2317,6 @@ class Tests(IntegrationTests):
     def test_devtools_prevent_update(self):
         # raising PreventUpdate shouldn't display the error message
         app = dash.Dash(__name__)
-
 
         app.layout = html.Div([
             html.Button(id='python', children='Prevent update', n_clicks=0),
@@ -2491,7 +2382,6 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - validation exception - open')
 
-
     def test_dev_tools_disable_props_check_config(self):
         app = dash.Dash(__name__)
         app.layout = html.Div([
@@ -2517,7 +2407,6 @@ class Tests(IntegrationTests):
             "the debug menu icon should show up")
 
         self.percy_snapshot('devtools - disable props check - Graph should render')
-
 
     def test_dev_tools_disable_ui_config(self):
         app = dash.Dash(__name__)
@@ -2618,7 +2507,6 @@ class Tests(IntegrationTests):
         self.percy_snapshot('devtools - multi output python exception - closed')
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - multi output python exception - open')
-
 
     def test_devtools_validation_errors(self):
         app = dash.Dash(__name__)

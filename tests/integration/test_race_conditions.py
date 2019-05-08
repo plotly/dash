@@ -15,6 +15,7 @@ class Tests(IntegrationTests):
     def setUp(self):
         pass
 
+
 DELAY_TIME = 1
 
 
@@ -49,7 +50,7 @@ def create_race_conditions_test(endpoints):
 
         total_delay = 0
         for i in routes:
-            total_delay += DELAY_TIME*2 + DELAY_TIME
+            total_delay += DELAY_TIME * 2 + DELAY_TIME
         time.sleep(total_delay + DELAY_TIME)
 
         wait_for(
@@ -63,6 +64,7 @@ def create_race_conditions_test(endpoints):
         self.assertTrue(self.is_console_clean())
 
     return test
+
 
 routes = [
     'layout',

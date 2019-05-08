@@ -10,6 +10,7 @@ jobs:
 
     steps:
       - checkout
+
       - run:
           name: context
           command: |
@@ -22,20 +23,29 @@ jobs:
             echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
             cat "$REQUIREMENTS_FILE" > reqs.txt
             echo $CIRCLE_JOB > circlejob.txt
+
       - restore_cache:
           key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
-
       - run:
           name: pip install
           command: |
-              sudo pip install --upgrade virtualenv
-              python -m venv venv || virtualenv venv
-              . venv/bin/activate
-              pip install -r $REQUIREMENTS_FILE --quiet
+            sudo pip install --upgrade virtualenv
+            python -m venv venv || virtualenv venv
+            . venv/bin/activate
+            pip install -r $REQUIREMENTS_FILE --quiet
       - save_cache:
           key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
           paths:
               - "venv"
+
+      - run:
+          name: linting
+          command: |
+            . venv/bin/activate
+            flake8 dash setup.py
+            flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
+            pylint dash setup.py --rcfile=$PYLINTRC
+            pylint tests -d all -e C0410,C0411,C0412,C0413,W0109
 
       - run:
           name: Run unit tests
