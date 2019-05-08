@@ -10,6 +10,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
+class SeleniumDriverTimeout(Exception):
+    pass
+
+
 class IntegrationTests(unittest.TestCase):
 
     last_timestamp = 0
@@ -94,13 +98,6 @@ class IntegrationTests(unittest.TestCase):
 
     def wait_until_get_log(self, timeout=10):
 
-        # Python 2 compatibility.
-        try:
-            TimeoutError
-        except NameError:
-            import socket
-            TimeoutError = socket.timeout
-
         logs = None
         cnt, poll = 0, 0.1
         while not logs:
@@ -108,7 +105,8 @@ class IntegrationTests(unittest.TestCase):
             time.sleep(poll)
             cnt += 1
             if cnt * poll >= timeout * 1000:
-                raise TimeoutError('cannot get log in {}'.format(timeout))
+                raise SeleniumDriverTimeout(
+                    'cannot get log in {}'.format(timeout))
 
         return logs
 
