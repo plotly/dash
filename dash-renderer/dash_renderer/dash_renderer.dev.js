@@ -38387,6 +38387,7 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
             return;
         }
 
+        console.log(res);
         res.json().then(function handleJson(data) {
             /*
              * Even if the `res` was received in the correct order,

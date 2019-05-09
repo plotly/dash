@@ -1,23 +1,96 @@
-import multiprocessing
+import os
 import sys
 import time
 import unittest
-import percy
+import multiprocessing
 
+import percy
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 TIMEOUT = 20
 
 
+class SeleniumDriverTimeout(Exception):
+    pass
+
+
 class IntegrationTests(unittest.TestCase):
 
-    def percy_snapshot(cls, name=''):
-        snapshot_name = '{} - py{}.{}'.format(name, sys.version_info.major, sys.version_info.minor)
+    last_timestamp = 0
+
+    @classmethod
+    def setUpClass(cls):
+        super(IntegrationTests, cls).setUpClass()
+
+        options = Options()
+        capabilities = DesiredCapabilities.CHROME
+        capabilities['loggingPrefs'] = {'browser': 'SEVERE'}
+
+        if 'DASH_TEST_CHROMEPATH' in os.environ:
+            options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
+
+        cls.driver = webdriver.Chrome(
+            options=options, desired_capabilities=capabilities)
+
+        cls.percy_runner = percy.Runner(
+            loader=percy.ResourceLoader(
+                webdriver=cls.driver,
+                base_url='/assets', root_dir='tests/assets'))
+
+        cls.percy_runner.initialize_build()
+
+    @classmethod
+    def tearDownClass(cls):
+        super(IntegrationTests, cls).tearDownClass()
+        cls.driver.quit()
+        cls.percy_runner.finalize_build()
+
+    def setUp(self):
+        self.server_process = None
+
+    def tearDown(self):
+        try:
+            time.sleep(1)
+            self.server_process.terminate()
+            time.sleep(1.5)
+        except AttributeError:
+            pass
+        finally:
+            self.clear_log()
+            time.sleep(1)
+
+    def startServer(self, dash, **kwargs):
+        def run():
+            dash.scripts.config.serve_locally = True
+            dash.css.config.serve_locally = True
+            kws = dict(
+                port=8050,
+                debug=False,
+                processes=4,
+                threaded=False
+            )
+            kws.update(kwargs)
+            dash.run_server(**kws)
+
+        # Run on a separate process so that it doesn't block
+        self.server_process = multiprocessing.Process(target=run)
+        self.server_process.start()
+        time.sleep(0.5)
+
+        # Visit the dash page
+        self.driver.implicitly_wait(2)
+        self.driver.get('http://localhost:8050')
+
+    def percy_snapshot(self, name=''):
+        snapshot_name = '{} - py{}.{}'.format(
+            name, sys.version_info.major, sys.version_info.minor)
         print(snapshot_name)
-        cls.percy_runner.snapshot(
+        self.percy_runner.snapshot(
             name=snapshot_name
         )
 
@@ -40,76 +113,32 @@ class IntegrationTests(unittest.TestCase):
             )
         )
 
-    @classmethod
-    def setUpClass(cls):
-        super(IntegrationTests, cls).setUpClass()
-        cls.driver = webdriver.Chrome()
+    def clear_log(self):
+        entries = self.driver.get_log("browser")
+        if entries:
+            self.last_timestamp = entries[-1]["timestamp"]
 
-        loader = percy.ResourceLoader(
-            webdriver=cls.driver,
-            base_url='/assets',
-            root_dir='tests/assets'
-        )
-        cls.percy_runner = percy.Runner(loader=loader)
+    def get_log(self):
+        entries = self.driver.get_log("browser")
+        return [
+            entry
+            for entry in entries
+            if entry["timestamp"] > self.last_timestamp
+        ]
 
-        cls.percy_runner.initialize_build()
+    def wait_until_get_log(self, timeout=10):
 
-    @classmethod
-    def tearDownClass(cls):
-        super(IntegrationTests, cls).tearDownClass()
-        cls.driver.quit()
-        cls.percy_runner.finalize_build()
+        logs = None
+        cnt, poll = 0, 0.1
+        while not logs:
+            logs = self.get_log()
+            time.sleep(poll)
+            cnt += 1
+            if cnt * poll >= timeout * 1000:
+                raise SeleniumDriverTimeout(
+                    'cannot get log in {}'.format(timeout))
 
-    def setUp(s):
-        pass
+        return logs
 
-    def tearDown(s):
-        if hasattr(s, 'server_process'):
-            time.sleep(2)
-            s.server_process.terminate()
-            time.sleep(2)
-
-    def startServer(s, dash):
-        def run():
-            dash.scripts.config.serve_locally = True
-            dash.run_server(
-                port=8050,
-                debug=False,
-                processes=4,
-                threaded=False
-            )
-
-        # Run on a separate process so that it doesn't block
-        s.server_process = multiprocessing.Process(target=run)
-        s.server_process.start()
-        time.sleep(0.5)
-
-        # Visit the dash page
-        s.driver.get('http://localhost:8050')
-        time.sleep(0.5)
-
-        # Inject an error and warning logger
-        logger = '''
-        window.tests = {};
-        window.tests.console = {error: [], warn: [], log: []};
-
-        var _log = console.log;
-        var _warn = console.warn;
-        var _error = console.error;
-
-        console.log = function() {
-            window.tests.console.log.push({method: 'log', arguments: arguments});
-            return _log.apply(console, arguments);
-        };
-
-        console.warn = function() {
-            window.tests.console.warn.push({method: 'warn', arguments: arguments});
-            return _warn.apply(console, arguments);
-        };
-
-        console.error = function() {
-            window.tests.console.error.push({method: 'error', arguments: arguments});
-            return _error.apply(console, arguments);
-        };
-        '''
-        s.driver.execute_script(logger)
+    def is_console_clean(self):
+        return not self.get_log()

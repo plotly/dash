@@ -64,13 +64,14 @@ class Tests(IntegrationTests):
 
         input1 = self.wait_for_element_by_id('input')
 
-        chain = (ActionChains(self.driver)
-                 .click(input1)
-                 .send_keys(Keys.HOME)
-                 .key_down(Keys.SHIFT)
-                 .send_keys(Keys.END)
-                 .key_up(Keys.SHIFT)
-                 .send_keys(Keys.DELETE))
+        chain = (
+            ActionChains(self.driver)
+            .click(input1)
+            .send_keys(Keys.HOME)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.END)
+            .key_up(Keys.SHIFT)
+            .send_keys(Keys.DELETE))
         chain.perform()
 
         input1.send_keys('hello world')
@@ -87,7 +88,7 @@ class Tests(IntegrationTests):
             len('hello world')
         )
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_wildcard_callback(self):
         app = Dash(__name__)
@@ -147,7 +148,7 @@ class Tests(IntegrationTests):
             len('hello world')
         )
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_aborted_callback(self):
         """
@@ -199,7 +200,7 @@ class Tests(IntegrationTests):
         self.assertEqual(output1.text, initial_output)
         self.assertEqual(output2.text, initial_output)
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
         self.percy_snapshot(name='aborted')
 
@@ -259,7 +260,7 @@ class Tests(IntegrationTests):
                 )
             )
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_no_props_component(self):
         app = Dash()
@@ -269,7 +270,7 @@ class Tests(IntegrationTests):
             ''')
         ])
         self.startServer(app)
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
         self.percy_snapshot(name='no-props-component')
 
     def test_flow_component(self):
@@ -943,7 +944,7 @@ class Tests(IntegrationTests):
         # cookie gets json encoded
         self.assertEqual(cookie['value'], '"abcd - cookie"')
 
-        assert_clean_console(self)
+        self.assertTrue(self.is_console_clean())
 
     def test_late_component_register(self):
         app = Dash()
