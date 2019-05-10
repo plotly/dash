@@ -675,17 +675,17 @@ function updateOutput(
                 updateRequestQueue(true, res.status);
 
                 /*
+                 * This is a 204 response code, there's no content to process.
+                 */
+                if (res.status === STATUS.PREVENT_UPDATE) {
+                    return;
+                }
+
+                /*
                  * eject into `catch` handler below to display error
                  * message in ui
                  */
-                if (res.status !== STATUS.PREVENT_UPDATE) {
-                    throw res;
-                } else {
-                    /*
-                     * This is a 204 response code, there's no content to process.
-                     */
-                    return;
-                }
+                throw res;
             }
 
             /*
