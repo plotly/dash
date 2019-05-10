@@ -1,6 +1,8 @@
-module.exports = require('./.config/webpack/base.js')(
-    {
+const options = {
+    preprocessor: {
         definitions: ['DEV']
     },
-    'development'
-);
+    mode: 'development'
+};
+
+module.exports = require('./.config/webpack/base.js')(options);

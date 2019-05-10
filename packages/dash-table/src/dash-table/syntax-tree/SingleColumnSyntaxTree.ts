@@ -60,7 +60,7 @@ function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
     return res;
 }
 
-type SingleColumnConfig = RequiredPluck<IVisibleColumn, 'id'> & OptionalPluck<IVisibleColumn, 'type'>;
+export type SingleColumnConfig = RequiredPluck<IVisibleColumn, 'id'> & OptionalPluck<IVisibleColumn, 'type'>;
 
 export default class SingleColumnSyntaxTree extends SyntaxTree {
     constructor(query: string, config: SingleColumnConfig) {

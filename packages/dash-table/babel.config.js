@@ -10,7 +10,7 @@ const presets = [
             ]
         },
         useBuiltIns: 'usage',
-        corejs: 2
+        corejs: 3
     }],
     '@babel/preset-react'
 ];

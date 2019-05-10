@@ -1,6 +1,15 @@
 import dataEdges from 'dash-table/derived/edges/data';
 import Environment from 'core/environment';
 
+const converter = {
+    checksColumn: () => true,
+    checksFilter: () => true,
+    checksRow: () => true,
+    matchesColumn: () => true,
+    matchesFilter: () => true,
+    matchesRow: () => true
+};
+
 describe('data edges', () => {
     const edgesFn = dataEdges();
 
@@ -134,9 +143,7 @@ describe('data edges', () => {
             ],
             [{
                 style: { border: '1px solid green' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }],
             [
                 { id: 1, name: 'a' },
@@ -181,9 +188,7 @@ describe('data edges', () => {
             ],
             [{
                 style: { borderLeft: '1px solid green', borderTop: '1px solid darkgreen' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }],
             [
                 { id: 1, name: 'a' },
@@ -234,14 +239,10 @@ describe('data edges', () => {
             ],
             [{
                 style: { borderLeft: '1px solid green' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }, {
                 style: { borderRight: '1px solid darkgreen' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }],
             [
                 { id: 1, name: 'a' }
@@ -271,14 +272,10 @@ describe('data edges', () => {
             ],
             [{
                 style: { borderRight: '1px solid darkgreen' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }, {
                 style: { borderLeft: '1px solid green' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }],
             [
                 { id: 1, name: 'a' }
@@ -308,14 +305,10 @@ describe('data edges', () => {
             ],
             [{
                 style: { borderLeft: '1px solid darkgreen' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }, {
                 style: { border: '1px solid green' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }],
             [
                 { id: 1, name: 'a' }
@@ -357,14 +350,10 @@ describe('data edges', () => {
             ],
             [{
                 style: { border: '1px solid green' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }, {
                 style: { borderLeft: '1px solid darkgreen' },
-                matchesColumn: () => true,
-                matchesFilter: () => true,
-                matchesRow: () => true
+                ...converter
             }],
             [
                 { id: 1, name: 'a' }

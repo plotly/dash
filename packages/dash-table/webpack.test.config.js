@@ -1,14 +1,13 @@
-const config = require('./.config/webpack/base.js')(
-    {
+const options = {
+    ts: {
+        transpileOnly: true
+    },
+    preprocessor: {
         definitions: ['TEST', 'TEST_COPY_PASTE']
     },
-    'development'
-);
+    mode: 'development'
+};
 
-config.module.rules.forEach(rule => {
-    if (rule.loader) {
-        rule.loader = rule.loader.replace('ts-loader', `ts-loader?${JSON.stringify({ transpileOnly: true })}`);
-    }
-});
+const config = require('./.config/webpack/base.js')(options);
 
 module.exports = config;
