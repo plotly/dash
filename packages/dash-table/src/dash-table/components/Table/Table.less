@@ -1,183 +1,5 @@
 @import (reference) '~dash-table/style/reset.less';
 
-.inset-shadow(@color, @left, @top, @right, @bottom) {
-    box-shadow: inset @left 0px 0px 0px @color,
-        inset 0px @top 0px 0px @color,
-        inset @right 0px 0px @color,
-        inset 0px @bottom 0px 0px @color;
-}
-
-.outline-shadow(@color, @left, @top, @right, @bottom) {
-    box-shadow: @left 0px 0px 0px @color,
-        0px @top 0px 0px @color,
-        @right 0px 0px @color,
-        0px @bottom 0px 0px @color;
-}
-
-.top-left-cells(@isListView) {
-    .left-cells(@isListView);
-    .top-cells(@isListView);
-
-    tr:first-of-type {
-        td:first-of-type,
-        th:first-of-type {
-            & when (@isListView = True) {
-                .inset-shadow(var(--border), 0px, 1px, 0px, -1px);
-
-                &.focused {
-                    .inset-shadow(var(--accent), 0px, 0px, 0px, -1px);
-                }
-            }
-
-            & when (@isListView = False) {
-                .inset-shadow(var(--border), 1px, 1px, -1px, -1px);
-
-                &.focused {
-                    box-shadow: inset 0 0 0 1px var(--accent)
-                }
-            }
-        }
-    }
-}
-
-.top-cells(@isListView) {
-    tr:first-of-type {
-        td, th {
-            & when (@isListView = True) {
-                .inset-shadow(var(--border), 0px, 1px, 0px, -1px);
-
-                &.focused {
-                    .inset-shadow(var(--accent), 0px, 0px, 0px, -1px);
-                }
-            }
-
-            & when (@isListView = False) {
-                .inset-shadow(var(--border), 0px, 1px, -1px, -1px);
-
-                &.focused {
-                    box-shadow: inset 0 0 0 1px var(--accent)
-                }
-            }
-        }
-    }
-}
-
-.left-cells(@isListView) {
-    tr {
-        td:first-of-type,
-        th:first-of-type {
-            & when (@isListView = True) {
-                .inset-shadow(var(--border), 0px, 0px, 0px, -1px);
-
-                &.focused {
-                    .inset-shadow(var(--accent), 0px, 0px, 0px, -1px);
-                }
-            }
-
-            & when (@isListView = False) {
-                .inset-shadow(var(--border), 1px, 0px, -1px, -1px);
-
-                &.focused {
-                    box-shadow: inset 0 0 0 1px var(--accent)
-                }
-            }
-
-        }
-    }
-}
-
-.dash-borders(@isListView) {
-        &:not(.dash-freeze-top):not(.dash-freeze-left) {
-            .cell-1-1 {
-                .top-left-cells(@isListView);
-            }
-        }
-
-        &:not(.dash-freeze-top).dash-freeze-left {
-            .cell-1-0 {
-                .top-left-cells(@isListView);
-            }
-
-            .cell-1-1 {
-                .top-cells(@isListView);
-            }
-        }
-
-        &.dash-freeze-top:not(.dash-freeze-left) {
-            .cell-0-1 {
-                .top-left-cells(@isListView);
-            }
-
-            .cell-1-1 {
-                .left-cells(@isListView);
-            }
-        }
-
-        &.dash-freeze-top.dash-freeze-left {
-            .cell-0-0 {
-                .top-left-cells(@isListView);
-            }
-
-            .cell-0-1 {
-                .top-cells(@isListView);
-            }
-
-            .cell-1-0 {
-                .left-cells(@isListView);
-            }
-        }
-
-        td, th {
-            & when (@isListView = True) {
-                .inset-shadow(var(--border), 0px, 0px, 0px, -1px);
-            }
-
-            & when (@isListView = False) {
-                .inset-shadow(var(--border), 0px, 0px, -1px, -1px);
-            }
-
-            &:focus {
-                outline: none;
-            }
-        }
-
-        td.focused {
-            & when (@isListView = True) {
-                .inset-shadow(var(--accent), 0px, 0px, 0px, -1px);
-            }
-
-            & when (@isListView = False) {
-                box-shadow: inset 0 0 0 1px var(--accent)
-            }
-        }
-
-        .dash-filter {
-            input::placeholder {
-                color: inherit;
-                font-size: 0.8em;
-                padding-right: 5px;
-            }
-
-            & + .dash-filter {
-                &:not(:hover):not(:focus-within) {
-                    input::placeholder {
-                        color: transparent;
-                    }
-                }
-            }
-
-            &.invalid {
-                & when (@isListView = True) {
-                    .inset-shadow(red, 0px, 0px, 0px, -1px);
-                }
-
-                & when (@isListView = False) {
-                    .inset-shadow(red, 1px, 1px, -1px, -1px);
-                }
-            }
-        }
-}
-
 .fit-content-polyfill() {
     width: auto; // MS Edge, IE
     width: fit-content; // Chrome
@@ -334,6 +156,48 @@
             }
         }
 
+        .dash-filter {
+            input::placeholder {
+                color: inherit;
+                font-size: 0.8em;
+                padding-right: 5px;
+            }
+
+            & + .dash-filter {
+                &:not(:hover):not(:focus-within) {
+                    input::placeholder {
+                        color: transparent;
+                    }
+                }
+            }
+
+            &.invalid {
+                background-color: pink;
+            }
+        }
+
+        &:not(.dash-empty-11) {
+            .row-0 {
+                tr:last-of-type {
+                    td, th {
+                        border-bottom: none !important;
+                    }
+                }
+            }
+        }
+
+        &:not(.dash-empty-01) {
+            .cell-0-0,
+            .cell-1-0 {
+                tr {
+                    td:last-of-type,
+                    th:last-of-type {
+                        border-right: none !important;
+                    }
+                }
+            }
+        }
+
         &.dash-freeze-left,
         &.dash-freeze-top,
         &.dash-virtualized {
@@ -348,7 +212,7 @@
             .row-1 {
                 display: flex;
                 flex-direction: row;
-                overflow: scroll;
+                overflow: auto;
             }
 
             .cell-0-0,
@@ -378,18 +242,6 @@
             table {
                 width: 100%;
             }
-        }
-
-        &:not(.dash-list-view) {
-            .dash-borders(False);
-        }
-
-        &.dash-list-view {
-            .dash-borders(True);
-        }
-
-        .dash-filter.invalid {
-            background-color: pink;
         }
 
         .selected-row {
@@ -550,11 +402,6 @@
         overflow-x: visible;
     }
 
-    .dash-spreadsheet-inner th {
-        box-shadow: inset 1px 0px 0px 0px var(--border),
-            inset 0px 1px 0px 0px var(--border);
-    }
-
     .dash-spreadsheet-inner :not(.cell--selected) tr:hover,
     tr:hover input :not(.cell--selected) {
         background-color: var(--hover);
@@ -578,7 +425,6 @@
     }
 
     .expanded-row--empty-cell {
-        box-shadow: none;
         background-color: transparent;
     }
 
@@ -631,12 +477,6 @@
 
     .dash-spreadsheet-inner tr:hover .toggle-row {
         color: var(--accent);
-    }
-
-    .expanded-row {
-        box-shadow: inset 2px 0px 0px 0px var(--accent),
-            inset -1px 0px 0px 0px var(--border);
-        /* inset 0px 1px 0px 0px var(--border); */
     }
 
     .dash-spreadsheet-inner .dash-delete-cell,

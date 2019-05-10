@@ -33,7 +33,7 @@ export default [
             editable: true,
             css: [{
                 selector: '.dash-spreadsheet.dash-freeze-top',
-                rule: 'height: 100px;'
+                rule: 'height: 110px;'
             }]
         }
     },

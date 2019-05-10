@@ -1,15 +1,17 @@
+import * as R from 'ramda';
 import React from 'react';
+
+import { matrixMap2, matrixMap3 } from 'core/math/matrixZipMap';
+import { arrayMap2 } from 'core/math/arrayZipMap';
 
 import { ICellFactoryProps } from 'dash-table/components/Table/props';
 import derivedCellWrappers from 'dash-table/derived/cell/wrappers';
 import derivedCellContents from 'dash-table/derived/cell/contents';
 import derivedCellOperations from 'dash-table/derived/cell/operations';
-import derivedCellStyles from 'dash-table/derived/cell/wrapperStyles';
+import derivedCellStyles, { derivedDataOpStyles } from 'dash-table/derived/cell/wrapperStyles';
 import derivedDropdowns from 'dash-table/derived/cell/dropdowns';
 import { derivedRelevantCellStyles } from 'dash-table/derived/style';
-
-import { matrixMap3 } from 'core/math/matrixZipMap';
-import { arrayMap } from 'core/math/arrayZipMap';
+import { IEdgesMatrices } from 'dash-table/derived/edges/type';
 
 export default class CellFactory {
 
@@ -23,11 +25,12 @@ export default class CellFactory {
         private readonly cellDropdowns = derivedDropdowns(),
         private readonly cellOperations = derivedCellOperations(),
         private readonly cellStyles = derivedCellStyles(),
+        private readonly dataOpStyles = derivedDataOpStyles(),
         private readonly cellWrappers = derivedCellWrappers(propsFn),
         private readonly relevantStyles = derivedRelevantCellStyles()
     ) { }
 
-    public createCells() {
+    public createCells(dataEdges: IEdgesMatrices | undefined, dataOpEdges: IEdgesMatrices | undefined) {
         const {
             active_cell,
             columns,
@@ -49,16 +52,6 @@ export default class CellFactory {
             virtualized
         } = this.props;
 
-        const operations = this.cellOperations(
-            data,
-            virtualized.data,
-            virtualized.indices,
-            row_selectable,
-            row_deletable,
-            selected_rows,
-            setProps
-        );
-
         const relevantStyles = this.relevantStyles(
             style_cell,
             style_data,
@@ -66,8 +59,15 @@ export default class CellFactory {
             style_data_conditional
         );
 
-        const wrapperStyles = this.cellStyles(
+        const cellStyles = this.cellStyles(
             columns,
+            relevantStyles,
+            virtualized.data,
+            virtualized.offset
+        );
+
+        const dataOpStyles = this.dataOpStyles(
+            (row_selectable ? 1 : 0) + (row_deletable ? 1 : 0),
             relevantStyles,
             virtualized.data,
             virtualized.offset
@@ -82,7 +82,17 @@ export default class CellFactory {
             dropdown_properties
         );
 
-        const wrappers = this.cellWrappers(
+        const operations = this.cellOperations(
+            data,
+            virtualized.data,
+            virtualized.indices,
+            row_selectable,
+            row_deletable,
+            selected_rows,
+            setProps
+        );
+
+        const cellWrappers = this.cellWrappers(
             active_cell,
             columns,
             virtualized.data,
@@ -90,7 +100,7 @@ export default class CellFactory {
             selected_cells
         );
 
-        const contents = this.cellContents(
+        const cellContents = this.cellContents(
             active_cell,
             columns,
             virtualized.data,
@@ -100,15 +110,33 @@ export default class CellFactory {
             dropdowns
         );
 
-        const cells = matrixMap3(
-            wrappers,
-            wrapperStyles,
-            contents,
-            (w, s, c) => React.cloneElement(w, { children: [c], style: s })
+        const ops = matrixMap2(
+            operations,
+            dataOpStyles,
+            (o, s, i, j) => React.cloneElement(o, {
+                style: R.mergeAll([
+                    dataOpEdges && dataOpEdges.getStyle(i, j),
+                    s,
+                    o.props.style
+                ])
+            })
         );
 
-        return arrayMap(
-            operations,
+        const cells = matrixMap3(
+            cellWrappers,
+            cellStyles,
+            cellContents,
+            (w, s, c, i, j) => React.cloneElement(w, {
+                children: [c],
+                style: R.mergeAll([
+                    s,
+                    dataEdges && dataEdges.getStyle(i, j)
+                ])
+            })
+        );
+
+        return arrayMap2(
+            ops,
             cells,
             (o, c) => Array.prototype.concat(o, c)
         );

@@ -1,8 +1,8 @@
 import * as R from 'ramda';
 import React from 'react';
 
-import { arrayMap } from 'core/math/arrayZipMap';
-import { matrixMap3 } from 'core/math/matrixZipMap';
+import { arrayMap2 } from 'core/math/arrayZipMap';
+import { matrixMap2, matrixMap3 } from 'core/math/matrixZipMap';
 
 import { ControlledTableProps } from 'dash-table/components/Table/props';
 import derivedHeaderContent from 'dash-table/derived/header/content';
@@ -12,12 +12,15 @@ import getLabels from 'dash-table/derived/header/labels';
 import derivedHeaderOperations from 'dash-table/derived/header/operations';
 import derivedHeaderWrappers from 'dash-table/derived/header/wrappers';
 import { derivedRelevantHeaderStyles } from 'dash-table/derived/style';
-import derivedHeaderStyles from 'dash-table/derived/header/wrapperStyles';
+import derivedHeaderStyles, { derivedHeaderOpStyles } from 'dash-table/derived/header/wrapperStyles';
+
+import { IEdgesMatrices } from 'dash-table/derived/edges/type';
 
 export default class HeaderFactory {
     private readonly headerContent = derivedHeaderContent();
     private readonly headerOperations = derivedHeaderOperations();
     private readonly headerStyles = derivedHeaderStyles();
+    private readonly headerOpStyles = derivedHeaderOpStyles();
     private readonly headerWrappers = derivedHeaderWrappers();
     private readonly relevantStyles = derivedRelevantHeaderStyles();
 
@@ -29,7 +32,7 @@ export default class HeaderFactory {
 
     }
 
-    public createHeaders() {
+    public createHeaders(headerEdges: IEdgesMatrices | undefined, headerOpEdges: IEdgesMatrices | undefined) {
         const props = this.props;
 
         const {
@@ -55,12 +58,6 @@ export default class HeaderFactory {
 
         const labelsAndIndices = R.zip(labels, indices);
 
-        const operations = this.headerOperations(
-            headerRows,
-            row_selectable,
-            row_deletable
-        );
-
         const relevantStyles = this.relevantStyles(
             style_cell,
             style_header,
@@ -68,9 +65,21 @@ export default class HeaderFactory {
             style_header_conditional
         );
 
+        const operations = this.headerOperations(
+            headerRows,
+            row_selectable,
+            row_deletable
+        );
+
         const wrapperStyles = this.headerStyles(
             columns,
             headerRows,
+            relevantStyles
+        );
+
+        const opStyles = this.headerOpStyles(
+            headerRows,
+            (row_selectable ? 1 : 0) + (row_deletable ? 1 : 0),
             relevantStyles
         );
 
@@ -91,12 +100,30 @@ export default class HeaderFactory {
             props
         );
 
+        const ops = matrixMap2(
+            operations,
+            opStyles,
+            (o, s, i, j) => React.cloneElement(o, {
+                style: R.mergeAll([
+                    headerOpEdges && headerOpEdges.getStyle(i, j),
+                    s,
+                    o.props.style
+                ])
+            })
+        );
+
         const headers = matrixMap3(
             wrappers,
             wrapperStyles,
             content,
-            (w, s, c) => React.cloneElement(w, { children: [c], style: s }));
+            (w, s, c, i, j) => React.cloneElement(w, {
+                children: [c],
+                style: R.mergeAll([
+                    s,
+                    headerEdges && headerEdges.getStyle(i, j)
+                ])
+            }));
 
-        return arrayMap(operations, headers, (o, h) => Array.prototype.concat(o, h));
+        return arrayMap2(ops, headers, (o, h) => Array.prototype.concat(o, h));
     }
 }

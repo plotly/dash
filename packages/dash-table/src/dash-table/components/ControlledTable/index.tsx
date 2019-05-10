@@ -644,7 +644,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
                 this.stylesheet.setRule(
                     `.dash-fixed-row:not(.dash-fixed-column) th:nth-of-type(${index + 1})`,
-                    `width: ${width}; min-width: ${width}; max-width: ${width};`
+                    `width: ${width} !important; min-width: ${width} !important; max-width: ${width} !important;`
                 );
             });
         }
@@ -657,7 +657,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
                 this.stylesheet.setRule(
                     `.dash-fixed-column.dash-fixed-row th:nth-of-type(${index + 1})`,
-                    `width: ${width}; min-width: ${width}; max-width: ${width};`
+                    `width: ${width} !important; min-width: ${width} !important; max-width: ${width} !important;`
                 );
             });
         }
@@ -683,9 +683,11 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     render() {
         const {
             id,
+            columns,
             column_conditional_tooltips,
             column_static_tooltip,
             content_style,
+            filtering,
             n_fixed_columns,
             n_fixed_rows,
             scrollbarWidth,
@@ -703,26 +705,6 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             virtualization
         } = this.props;
 
-        const containerClasses = [
-            'dash-spreadsheet',
-            'dash-spreadsheet-container',
-            ...(virtualization ? ['dash-virtualized'] : []),
-            ...(n_fixed_rows ? ['dash-freeze-top'] : []),
-            ...(n_fixed_columns ? ['dash-freeze-left'] : []),
-            ...(style_as_list_view ? ['dash-list-view'] : []),
-            [`dash-${content_style}`]
-        ];
-
-        const classes = [
-            'dash-spreadsheet',
-            'dash-spreadsheet-inner',
-            ...(virtualization ? ['dash-virtualized'] : []),
-            ...(n_fixed_rows ? ['dash-freeze-top'] : []),
-            ...(n_fixed_columns ? ['dash-freeze-left'] : []),
-            ...(style_as_list_view ? ['dash-list-view'] : []),
-            [`dash-${content_style}`]
-        ];
-
         const fragmentClasses = [
             [
                 n_fixed_rows && n_fixed_columns ? 'dash-fixed-row dash-fixed-column' : '',
@@ -735,12 +717,29 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         ];
 
         const rawTable = this.tableFn();
-        const grid = derivedTableFragments(
+        const { grid, empty } = derivedTableFragments(
             n_fixed_columns,
             n_fixed_rows,
             rawTable,
             virtualized.offset.rows
         );
+
+        const classes = [
+            'dash-spreadsheet',
+            ...(virtualization ? ['dash-virtualized'] : []),
+            ...(n_fixed_rows ? ['dash-freeze-top'] : []),
+            ...(n_fixed_columns ? ['dash-freeze-left'] : []),
+            ...(style_as_list_view ? ['dash-list-view'] : []),
+            ...(empty[0][1] ? ['dash-empty-01'] : []),
+            ...(empty[1][1] ? ['dash-empty-11'] : []),
+            ...(columns.length ? [] : ['dash-no-columns']),
+            ...(virtualized.data.length ? [] : ['dash-no-data']),
+            ...(filtering ? [] : ['dash-no-filter']),
+            [`dash-${content_style}`]
+        ];
+
+        const containerClasses = ['dash-spreadsheet-container', ...classes];
+        const innerClasses = ['dash-spreadsheet-inner', ...classes];
 
         const tableStyle = this.calculateTableStyle(style_table);
         const gridStyle = derivedTableFragmentStyles(
@@ -780,7 +779,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             <div className={containerClasses.join(' ')} style={tableStyle}>
                 <div
                     ref='table'
-                    className={classes.join(' ')}
+                    className={innerClasses.join(' ')}
                     style={tableStyle}
                 >
                     {grid.map((row, rowIndex) => (<div

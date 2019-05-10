@@ -113,6 +113,17 @@ describe('filter', () => {
         DashTable.getCellById(0, 'ccc').within(() => cy.get('.dash-cell-value').should('have.html', '100'));
     });
 
+    it('typing invalid followed by valid query fragment does not reset invalid', () => {
+        DashTable.getFilterById('ccc').click();
+        DOM.focused.type(`gt`);
+        DashTable.getFilterById('ddd').click();
+        DOM.focused.type('lt 20000');
+        DashTable.getFilterById('eee').click();
+
+        DashTable.getFilterById('ccc').within(() => cy.get('input').should('have.value', 'gt'));
+        DashTable.getFilterById('ddd').within(() => cy.get('input').should('have.value', 'lt 20000'));
+    });
+
     it('reset updates results and filter fields', () => {
         let cell_0;
         let cell_1;

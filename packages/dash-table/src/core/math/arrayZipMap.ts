@@ -2,7 +2,16 @@ import * as R from 'ramda';
 
 type Array<T> = T[];
 
-export function arrayMap<T1, T2, TR>(
+export function arrayMap<T1, TR>(
+    a1: Array<T1>,
+    cb: (d1: T1, i: number) => TR
+) {
+    const mapArray = R.addIndex<T1, TR>(R.map);
+
+    return mapArray((iValue, i) => cb(iValue, i), a1);
+}
+
+export function arrayMap2<T1, T2, TR>(
     a1: Array<T1>,
     a2: Array<T2>,
     cb: (d1: T1, d2: T2, i: number) => TR

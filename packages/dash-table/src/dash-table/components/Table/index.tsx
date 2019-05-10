@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import * as R from 'ramda';
 
+/*#if DEV*/
+import Logger from 'core/Logger';
+/*#endif*/
+
 import { memoizeOne, memoizeOneWithFlag } from 'core/memoizer';
 
 import ControlledTable from 'dash-table/components/ControlledTable';
@@ -27,9 +31,8 @@ import 'react-select/dist/react-select.css';
 import './Table.less';
 import './Dropdown.css';
 import { isEqual } from 'core/comparer';
-/*#if DEV*/
-import Logger from 'core/Logger';
-/*#endif*/
+import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
+import derivedFilterMap from 'dash-table/derived/filter/map';
 
 const DERIVED_REGEX = /^derived_/;
 
@@ -39,9 +42,39 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
 
         this.state = {
             forcedResizeOnly: false,
+            workFilter: {
+                value: props.filter,
+                map: this.filterMap(
+                    new Map<string, SingleColumnSyntaxTree>(),
+                    props.filter,
+                    props.columns
+                )
+            },
             rawFilterQuery: '',
             scrollbarWidth: 0
         };
+    }
+
+    componentWillReceiveProps(nextProps: PropsWithDefaultsAndDerived) {
+        if (nextProps.filter === this.props.filter) {
+            return;
+        }
+
+        this.setState(state => {
+            const { workFilter: { map: currentMap, value } } = state;
+
+            if (value !== nextProps.filter) {
+                const map = this.filterMap(
+                    currentMap,
+                    nextProps.filter,
+                    nextProps.columns
+                );
+
+                return map !== currentMap ? { workFilter: { map, value} } : null;
+            } else {
+                return null;
+            }
+        });
     }
 
     shouldComponentUpdate(nextProps: any, nextState: any) {
@@ -267,6 +300,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
 
     private readonly __setState = memoizeOne(() => (state: Partial<IState>) => this.setState(state as IState));
 
+    private readonly filterMap = derivedFilterMap();
     private readonly paginator = derivedPaginator();
     private readonly viewport = derivedViewportData();
     private readonly viewportSelectedRows = derivedSelectedRows();

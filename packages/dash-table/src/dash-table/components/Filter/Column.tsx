@@ -15,7 +15,11 @@ interface IColumnFilterProps {
     value?: string;
 }
 
-export default class ColumnFilter extends PureComponent<IColumnFilterProps> {
+interface IState {
+    value?: string;
+}
+
+export default class ColumnFilter extends PureComponent<IColumnFilterProps, IState> {
     constructor(props: IColumnFilterProps) {
         super(props);
 

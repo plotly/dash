@@ -77,8 +77,9 @@ export const defaultProps = {
     row_selectable: false,
 
     style_table: {},
-    style_data_conditional: [],
     style_cell_conditional: [],
+    style_data_conditional: [],
+    style_filter_conditional: [],
     style_header_conditional: [],
     virtualization: false
 };

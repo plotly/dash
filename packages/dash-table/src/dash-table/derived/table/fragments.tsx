@@ -18,12 +18,17 @@ function renderFragment(cells: any[][] | null, offset: number = 0) {
         null;
 }
 
+const isEmpty = (cells: JSX.Element[][] | null) =>
+    !cells ||
+    cells.length === 0 ||
+    cells[0].length === 0;
+
 export default (
     fixedColumns: number,
     fixedRows: number,
     cells: JSX.Element[][],
     offset: number
-): (JSX.Element | null)[][] => {
+): { grid: (JSX.Element | null)[][], empty: boolean[][] } => {
     // slice out fixed columns
     const fixedColumnCells = fixedColumns ?
         R.map(row =>
@@ -50,8 +55,14 @@ export default (
         fixedColumnCells.splice(0, fixedRows) :
         null;
 
-    return [
-        [renderFragment(fixedRowAndColumnCells), renderFragment(fixedRowCells)],
-        [renderFragment(fixedColumnCells), renderFragment(cells, offset)]
-    ];
+    return {
+        grid: [
+            [renderFragment(fixedRowAndColumnCells), renderFragment(fixedRowCells)],
+            [renderFragment(fixedColumnCells), renderFragment(cells, offset)]
+        ],
+        empty: [
+            [isEmpty(fixedRowAndColumnCells), isEmpty(fixedRowCells)],
+            [isEmpty(fixedColumnCells), isEmpty(cells)]
+        ]
+    };
 };

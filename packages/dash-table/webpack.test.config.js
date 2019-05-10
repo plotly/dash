@@ -1,6 +1,6 @@
 const config = require('./.config/webpack/base.js')(
     {
-        definitions: ['TEST_COPY_PASTE']
+        definitions: ['TEST', 'TEST_COPY_PASTE']
     },
     'development'
 );

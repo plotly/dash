@@ -29,6 +29,26 @@ This project adheres to [Semantic Versioning](http://semver.org/).
         - `derived_viewport_selected_row_ids` mirrors `derived_viewport_selected_rows`
         - `derived_virtual_selected_row_ids` mirrors `derived_virtual_selected_rows`
 
+[#424](https://github.com/plotly/dash-table/pull/424)
+- Customizable cell borders through `style_**` props
+    - cell borders now no longer use `box-shadow` and use `border` instead
+    - Supports CSS shorthands:
+        border, border_bottom, border_left, border_right, border_top
+    - style_** props will ignore the following CSS rules:
+        border_bottom_color, border_bottom_left_radius, border_bottom_right_radius, border_bottom_style, border_bottom_width, border_collapse, border_color, border_corner_shape, border_image_source, border_image_width, border_left_color, border_left_style, border_left_width, border_right_color, border_right_style, border_right_width, border_spacing, border_style, border_top_color, border_top_left_radius, border_top_right_radius, border_top_style, border_top_width, border_width
+    - Styles priority:
+        1. Props priority in decreasing order
+            style_data_conditional
+            style_data
+            style_filter_conditional
+            style_filter
+            style_header_conditional
+            style_header
+            style_cell_conditional
+            style_cell
+        2. Within each props, higher index rules win over lower index rules
+        3. Previously applied styles of equal priority win over later ones (applied top to bottom, left to right)
+
 ### Changed
 [#397](https://github.com/plotly/dash-table/pull/397)
 - Rename `filtering_settings` to `filter`
