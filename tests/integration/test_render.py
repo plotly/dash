@@ -329,7 +329,8 @@ class Tests(IntegrationTests):
 
         self.assertTrue(
             pad_input.attrs == {
-                'id': 'sub-input-1', 'value': 'sub input initial value'}
+                'type': 'text', 'id': 'sub-input-1',
+                'value': 'sub input initial value'}
             and pad_input.name == 'input',
             "pad input is correctly rendered")
 
@@ -1160,7 +1161,7 @@ class Tests(IntegrationTests):
         chapter2_assertions()
         self.assertEqual(call_counts['button-output'].value, 0)
         time.sleep(5)
-        wait_for(lambda: call_counts['button-output'].value, expected_value=1)
+        wait_for(lambda: call_counts['button-output'].value)
         time.sleep(2)  # liberally wait for the front-end to process request
         chapter2_assertions()
         self.assertTrue(self.is_console_clean())
