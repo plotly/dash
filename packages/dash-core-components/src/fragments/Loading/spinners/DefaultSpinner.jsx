@@ -15,7 +15,7 @@ const DefaultSpinner = ({
     let debugTitle;
     if (debug) {
         debugTitle = (
-            <h3 className="dash-default-spinner .dash-loading-title">
+            <h3 className="dash-loading-title">
                 Loading {status.component_name}
                 's {status.prop_name}
             </h3>
