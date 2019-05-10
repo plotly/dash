@@ -25,23 +25,19 @@ jobs:
             echo $CIRCLE_JOB > circlejob.txt
 
       - restore_cache:
-          key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
+          key: py-{{ checksum "reqs.txt" }}
       - run:
           name: 🚧 pip dev requirements
           command: |
-            sudo pip install --upgrade virtualenv
-            python -m venv venv || virtualenv venv
-            . venv/bin/activate
             pip install -r $REQUIREMENTS_FILE --quiet
       - save_cache:
-          key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
+          key: py-{{ checksum "reqs.txt" }}
           paths:
-              - "venv"
+              - "pyenv"
 
       - run:
           name: 🌸 linting
           command: |
-            . venv/bin/activate
             pip install -e . --quiet
             pip list | grep dash
             flake8 dash setup.py
@@ -53,7 +49,6 @@ jobs:
       - run:
           name: ⛑ Run unit tests
           command: |
-            . venv/bin/activate
             mkdir test-reports
             pytest --junitxml=test-reports/junit.xml tests/unit
       - store_test_results:
@@ -64,7 +59,6 @@ jobs:
       - run:
           name: 🚧 build renderer
           command: |
-              . venv/bin/activate
               cd dash-renderer
               npm install --ignore-scripts && npm run build:dev && npm run build
               pip install -e . --quiet
@@ -76,7 +70,6 @@ jobs:
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
               git clone --depth 1 https://github.com/plotly/dash-table.git
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              . venv/bin/activate
               cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
