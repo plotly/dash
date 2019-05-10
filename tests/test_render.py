@@ -329,7 +329,7 @@ class Tests(IntegrationTests):
             'lxml').select_one('#output > div').contents
 
         self.assertTrue(
-            pad_input.attrs == {'id': 'sub-input-1', 'value': 'sub input initial value'}
+            pad_input.attrs == {'type': 'text', 'id': 'sub-input-1', 'value': 'sub input initial value'}
                 and pad_input.name == 'input',
             "pad input is correctly rendered")
 

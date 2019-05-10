@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixed
+- Fix regression on handling PreventUpdate (204 NO CONTENT) [#170](https://github.com/plotly/dash-renderer/pull/170)
+
 ## [0.23.0] - 2019-04-25
 ### Fixed
 - Fix regression for `children=0` case [#148](https://github.com/plotly/dash-renderer/issues/148)
