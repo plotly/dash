@@ -27,7 +27,7 @@ jobs:
       - restore_cache:
           key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
       - run:
-          name: pip install
+          name: 🚧 pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv
@@ -48,9 +48,7 @@ jobs:
             flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
             pylint dash setup.py --rcfile=$PYLINTRC
             pylint tests/unit -d all -e C0410,C0411,C0412,C0413,W0109
-            cd dash-renderer
-            npm run lint:test
-            npm run format:test
+            cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
 
       - run:
           name: ⛑ Run unit tests
@@ -85,7 +83,7 @@ jobs:
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
 
       - run:
-          name: run integration test
+          name: ⚙️ run integration test
           command: |
             pytest tests/integration/test_integration.py
 
