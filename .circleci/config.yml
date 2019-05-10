@@ -85,9 +85,9 @@ jobs:
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
 
       - run:
-        name: run integration test
-        command: |
-          pytest tests/integration/test_integration.py
+          name: run integration test
+          command: |
+            pytest tests/integration/test_integration.py
 
   "python-3.6":
     <<: *test-template
