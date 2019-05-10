@@ -40,7 +40,7 @@ class IntegrationTests(unittest.TestCase):
         cls.percy_runner = percy.Runner(
             loader=percy.ResourceLoader(
                 webdriver=cls.driver,
-                base_url='/assets', root_dir='tests/assets'))
+                base_url='/assets', root_dir='tests/integration/assets'))
 
         cls.percy_runner.initialize_build()
 

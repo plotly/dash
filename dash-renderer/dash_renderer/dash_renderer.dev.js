@@ -38374,6 +38374,11 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
              */
             if (res.status !== STATUS.PREVENT_UPDATE) {
                 throw res;
+            } else {
+                /*
+                 * This is a 204 response code, there's no content to process.
+                 */
+                return;
             }
         }
 
@@ -38387,7 +38392,6 @@ function updateOutput(outputIdAndProp, getState, requestUid, dispatch, changedPr
             return;
         }
 
-        console.log(res);
         res.json().then(function handleJson(data) {
             /*
              * Even if the `res` was received in the correct order,

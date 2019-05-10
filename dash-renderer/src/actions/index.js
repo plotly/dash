@@ -680,6 +680,11 @@ function updateOutput(
                  */
                 if (res.status !== STATUS.PREVENT_UPDATE) {
                     throw res;
+                } else {
+                    /*
+                     * This is a 204 response code, there's no content to process.
+                     */
+                    return;
                 }
             }
 

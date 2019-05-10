@@ -418,6 +418,8 @@ class Tests(IntegrationTests):
 
         self.startServer(app)
 
+        # time.sleep(3600)
+
         body = self.driver.find_element_by_tag_name('body')
 
         body_margin = body.value_of_css_property('margin')
@@ -436,8 +438,8 @@ class Tests(IntegrationTests):
 
         self.assertEqual(len(order), len(tested))
 
-        for i in range(len(tested)):
-            self.assertEqual(order[i], tested[i])
+        for idx, _ in enumerate(tested):
+            self.assertEqual(order[idx], tested[idx])
 
         self.percy_snapshot('test assets includes')
 
@@ -501,9 +503,8 @@ class Tests(IntegrationTests):
             }
         ]
 
-        app = Dash(__name__,
-                   external_scripts=js_files,
-                   external_stylesheets=css_files)
+        app = Dash(
+            __name__, external_scripts=js_files, external_stylesheets=css_files)
 
         app.index_string = '''
         <!DOCTYPE html>
