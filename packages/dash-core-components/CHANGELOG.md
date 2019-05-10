@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - `figure` prop in `dcc.Graph` now accepts a `frames` key
 - Improved the `Dropdown` options description for dash-docs #547
+- Added `optionHeight` prop to `Dropdown` #552
 
 ### Removed
 

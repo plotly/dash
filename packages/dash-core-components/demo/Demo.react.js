@@ -132,10 +132,11 @@ const properties = {
         {'label': 'Melons', 'value': 'melons', 'disabled': false},
         {'label': 'Apples', 'value': 'apples'},
         {'label': 'Oranges', 'value': 'oranges', 'disabled': true}
-    ]
+    ],
+    optionHeight: 50
 };
 
-ReactDOM.render(<Dropdown {...properties}/>, mountNode);`
+ReactDOM.render(<Dropdown {...properties} />, mountNode);`
 
 const GraphExample = `const properties = {
     animate: true,

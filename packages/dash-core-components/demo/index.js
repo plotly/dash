@@ -7,7 +7,7 @@ import LoadingDemo from './LoadingDemo.react';
 
 ReactDOM.render(
     <div>
-        <Tabs>
+        <Tabs value={'tab-2'}>
             <Tab value="tab-1" label='Loading Demo'>
                 <LoadingDemo />
             </Tab>

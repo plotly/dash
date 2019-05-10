@@ -158,6 +158,11 @@ Dropdown.propTypes = {
     ]),
 
     /**
+     * height of each option. Can be increased when label lengths would wrap around
+     */
+    optionHeight: PropTypes.number,
+
+    /**
      * className of the dropdown element
      */
     className: PropTypes.string,
@@ -223,4 +228,5 @@ Dropdown.defaultProps = {
     disabled: false,
     multi: false,
     searchable: true,
+    optionHeight: 35,
 };
