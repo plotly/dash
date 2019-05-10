@@ -1161,7 +1161,7 @@ class Tests(IntegrationTests):
         chapter2_assertions()
         self.assertEqual(call_counts['button-output'].value, 0)
         time.sleep(5)
-        wait_for(lambda: call_counts['button-output'].value)
+        wait_for(lambda: call_counts['button-output'].value == 1)
         time.sleep(2)  # liberally wait for the front-end to process request
         chapter2_assertions()
         self.assertTrue(self.is_console_clean())
