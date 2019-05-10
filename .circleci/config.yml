@@ -48,6 +48,9 @@ jobs:
             flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
             pylint dash setup.py --rcfile=$PYLINTRC
             pylint tests/unit -d all -e C0410,C0411,C0412,C0413,W0109
+            cd dash-renderer
+            npm run lint:test
+            npm run format:test
 
       - run:
           name: ⛑ Run unit tests
@@ -60,26 +63,31 @@ jobs:
       - store_artifacts:
           path: test-reports
 
-      # - run:
-      #     name: build renderer
-      #     command: |
-      #         . venv/bin/activate
-      #         cd dash-renderer
-      #         npm install --ignore-scripts
-      #         npm run build
-      #         npm run build:dev
-      #         pip install -e . --quiet
-      # - run:
-      #     name: install dependencies from latest master commit
-      #     command: |
-      #         git clone --depth 1 https://github.com/plotly/dash-core-components.git
-      #         git clone --depth 1 https://github.com/plotly/dash-html-components.git
-      #         git clone --depth 1 https://github.com/plotly/dash-table.git
-      #         git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-      #         cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-      #         cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-      #         cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-      #         cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
+      - run:
+          name: 🚧 build renderer
+          command: |
+              . venv/bin/activate
+              cd dash-renderer
+              npm install --ignore-scripts && npm run build:dev && npm run build
+              pip install -e . --quiet
+
+      - run:
+          name: 🚧 install dependencies from latest master commit
+          command: |
+              git clone --depth 1 https://github.com/plotly/dash-core-components.git
+              git clone --depth 1 https://github.com/plotly/dash-html-components.git
+              git clone --depth 1 https://github.com/plotly/dash-table.git
+              git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
+              . venv/bin/activate
+              cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
+
+      - run:
+        name: run integration test
+        command: |
+          pytest tests/integration/test_integration.py
 
   "python-3.6":
     <<: *test-template
