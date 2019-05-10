@@ -40,7 +40,7 @@ class IntegrationTests(unittest.TestCase):
         cls.percy_runner = percy.Runner(
             loader=percy.ResourceLoader(
                 webdriver=cls.driver,
-                base_url='/assets', root_dir='tests/integration/assets'))
+                base_url='/assets', root_dir='tests/assets'))
 
         cls.percy_runner.initialize_build()
 
@@ -55,9 +55,9 @@ class IntegrationTests(unittest.TestCase):
 
     def tearDown(self):
         try:
-            time.sleep(2)
+            time.sleep(1)
             self.server_process.terminate()
-            time.sleep(2)
+            time.sleep(1.5)
         except AttributeError:
             pass
         finally:
