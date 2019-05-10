@@ -7,6 +7,7 @@ from dash import Dash
 from tests.integration.IntegrationTests import IntegrationTests
 from tests.integration.utils import wait_for, invincible
 
+
 class TestAssets(IntegrationTests):
 
     def setUp(self):
