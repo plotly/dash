@@ -21,7 +21,7 @@ from dash.exceptions import (
     MissingCallbackContextException, InvalidCallbackReturnValue
 )
 from .IntegrationTests import IntegrationTests
-from .utils import assert_clean_console, invincible, wait_for
+from .utils import invincible, wait_for
 
 
 class Tests(IntegrationTests):
