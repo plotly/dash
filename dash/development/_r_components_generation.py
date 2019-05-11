@@ -300,11 +300,11 @@ def write_help_file(name, props, description, prefix):
     writes an R help file to the man directory for the generated R package
 
     """
-    if prefix is not None and len(prefix) > 0:
+    if prefix:
         file_name = "{}{}.Rd".format(prefix, name)
     else:
         file_name = "{}.Rd".format(name[0].lower() + name[1:])
-    
+
     default_argtext = ''
     item_text = ''
 
@@ -372,7 +372,7 @@ def write_class_file(name,
         prefix
     )
 
-    if prefix is not None and len(prefix) > 0:
+    if prefix:
         file_name = "{}{}.R".format(prefix, name)
     else:
         file_name = "{}.R".format(name[0].lower() + name[1:])
@@ -582,10 +582,10 @@ def generate_exports(project_shortname,
         if not component.endswith('-*') and \
                 str(component) not in r_keywords and \
                 str(component) not in ['setProps', 'children', 'dashEvents']:
-            if prefix is not None and len(prefix) > 0:
-               export_string += 'export({}{})\n'.format(prefix, component)
+            if prefix:
+                export_string += 'export({}{})\n'.format(prefix, component)
             else:
-               export_string +=\
+                export_string +=\
                    'export({})\n'.format(component[0].lower() + component[1:])
 
     # now, bundle up the package information and create all the requisite
