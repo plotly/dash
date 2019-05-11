@@ -32,7 +32,7 @@ def generate_components(components_source, project_shortname,
 
     project_shortname = project_shortname.replace('-', '_').rstrip('/\\')
 
-    if rprefix:
+    if rprefix is not None:
         prefix = rprefix
 
     is_windows = sys.platform == 'win32'
@@ -74,7 +74,7 @@ def generate_components(components_source, project_shortname,
 
     generator_methods = [generate_class_file]
 
-    if rprefix:
+    if rprefix is not None:
         if not os.path.exists('man'):
             os.makedirs('man')
         if not os.path.exists('R'):
@@ -93,7 +93,7 @@ def generate_components(components_source, project_shortname,
 
     generate_imports(project_shortname, components)
 
-    if rprefix:
+    if rprefix is not None:
         with open('package.json', 'r') as f:
             jsondata_unicode = json.load(f, object_pairs_hook=OrderedDict)
             if sys.version_info[0] >= 3:

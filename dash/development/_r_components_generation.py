@@ -14,7 +14,7 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-r_component_string = '''{prefix}{name} <- function({default_argtext}{wildcards}) {{
+r_component_string = '''{funcname} <- function({default_argtext}{wildcards}) {{
     {wildcard_declaration}
     component <- list(
         props = list({default_paramtext}{wildcards}),
@@ -54,9 +54,9 @@ return(deps_metadata)
 }'''
 
 help_string = '''% Auto-generated: do not edit by hand
-\\name{{{prefix}{name}}}
+\\name{{{funcname}}}
 
-\\alias{{{prefix}{name}}}
+\\alias{{{funcname}}}
 
 \\title{{{name} component}}
 
@@ -65,7 +65,7 @@ help_string = '''% Auto-generated: do not edit by hand
 }}
 
 \\usage{{
-{prefix}{name}({default_argtext})
+{funcname}({default_argtext})
 }}
 
 \\arguments{{
@@ -208,7 +208,7 @@ def generate_class_string(name, props, project_shortname, prefix):
         for p in prop_keys
     )
 
-    return r_component_string.format(prefix=prefix,
+    return r_component_string.format(funcname=format_function_name(prefix, name),
                                      name=name,
                                      default_argtext=default_argtext,
                                      wildcards=wildcards,
@@ -300,8 +300,11 @@ def write_help_file(name, props, description, prefix):
     writes an R help file to the man directory for the generated R package
 
     """
-    file_name = '{}{}.Rd'.format(prefix, name)
-
+    if prefix is not None and len(prefix) > 0:
+        file_name = "{}{}.Rd".format(prefix, name)
+    else:
+        file_name = "{}.Rd".format(name[0].lower() + name[1:])
+    
     default_argtext = ''
     item_text = ''
 
@@ -333,7 +336,7 @@ def write_help_file(name, props, description, prefix):
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
         f.write(help_string.format(
-            prefix=prefix,
+            funcname=format_function_name(prefix, name),
             name=name,
             default_argtext=default_argtext,
             item_text=item_text,
@@ -368,7 +371,11 @@ def write_class_file(name,
         project_shortname,
         prefix
     )
-    file_name = "{}{}.R".format(prefix, name)
+
+    if prefix is not None and len(prefix) > 0:
+        file_name = "{}{}.R".format(prefix, name)
+    else:
+        file_name = "{}.R".format(name[0].lower() + name[1:])
 
     file_path = os.path.join('R', file_name)
     with open(file_path, 'w') as f:
@@ -553,6 +560,16 @@ def snake_case_to_camel_case(namestring):
     return s[0] + ''.join(w.capitalize() for w in s[1:])
 
 
+# this logic will permit passing blank R prefixes to
+# dash-generate-components, while also enforcing
+# camelCase for the resulting functions; if a prefix
+# is supplied, leave it as-is
+def format_function_name(prefix, name):
+    if prefix == '':
+        return snake_case_to_camel_case(name[0].lower() + name[1:])
+    return prefix + name
+
+
 # pylint: disable=unused-argument
 def generate_exports(project_shortname,
                      components,
@@ -565,7 +582,11 @@ def generate_exports(project_shortname,
         if not component.endswith('-*') and \
                 str(component) not in r_keywords and \
                 str(component) not in ['setProps', 'children', 'dashEvents']:
-            export_string += 'export({}{})\n'.format(prefix, component)
+            if prefix is not None and len(prefix) > 0:
+               export_string += 'export({}{})\n'.format(prefix, component)
+            else:
+               export_string +=\
+                   'export({})\n'.format(component[0].lower() + component[1:])
 
     # now, bundle up the package information and create all the requisite
     # elements of an R package, so that the end result is installable either
