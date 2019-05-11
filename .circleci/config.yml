@@ -86,7 +86,7 @@ jobs:
           name: ⚙️ run integration test
           command: |
             . venv/bin/activate
-            pytest --junitxml=test-reports/junit_intg.xml tests/integration || pytest --lf --junitxml=test-reports/junit_intg.xml
+            pytest --junitxml=test-reports/junit_intg.xml tests/integration || pytest --lf tests/integration
       - store_test_results:
           path: test-reports
       - store_artifacts:
