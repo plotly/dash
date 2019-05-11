@@ -208,7 +208,7 @@ def generate_class_string(name, props, project_shortname, prefix):
         for p in prop_keys
     )
 
-    return r_component_string.format(funcname=format_function_name(prefix, name),
+    return r_component_string.format(funcname=format_fn_name(prefix, name),
                                      name=name,
                                      default_argtext=default_argtext,
                                      wildcards=wildcards,
@@ -336,7 +336,7 @@ def write_help_file(name, props, description, prefix):
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
         f.write(help_string.format(
-            funcname=format_function_name(prefix, name),
+            funcname=format_fn_name(prefix, name),
             name=name,
             default_argtext=default_argtext,
             item_text=item_text,
@@ -564,7 +564,7 @@ def snake_case_to_camel_case(namestring):
 # dash-generate-components, while also enforcing
 # camelCase for the resulting functions; if a prefix
 # is supplied, leave it as-is
-def format_function_name(prefix, name):
+def format_fn_name(prefix, name):
     if prefix == '':
         return snake_case_to_camel_case(name[0].lower() + name[1:])
     return prefix + name
