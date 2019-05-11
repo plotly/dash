@@ -106,7 +106,7 @@
 .dash-spreadsheet .Select-clear {
     color: transparent;
 }
-.Select:hover .Select-clear {
+.dash-spreadsheet .Select:hover .Select-clear {
     color: var(--accent);
 }
 
