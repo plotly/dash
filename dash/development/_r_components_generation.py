@@ -565,9 +565,9 @@ def snake_case_to_camel_case(namestring):
 # camelCase for the resulting functions; if a prefix
 # is supplied, leave it as-is
 def format_fn_name(prefix, name):
-    if prefix == '':
-        return snake_case_to_camel_case(name[0].lower() + name[1:])
-    return prefix + name
+    if prefix:
+        return prefix + name
+    return snake_case_to_camel_case(name[0].lower() + name[1:])
 
 
 # pylint: disable=unused-argument
