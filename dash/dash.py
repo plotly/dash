@@ -106,6 +106,7 @@ class Dash(object):
             external_stylesheets=None,
             suppress_callback_exceptions=None,
             components_cache_max_age=None,
+            plugins=None,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -262,6 +263,10 @@ class Dash(object):
 
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+
+        if isinstance(plugins, _patch_collections_abc('Iterable')):
+            for plugin in plugins:
+                plugin.plug(self)
 
     def _add_url(self, name, view_func, methods=('GET',)):
         self.server.add_url_rule(
