@@ -11,19 +11,19 @@
 
 #### *Dash is a Python framework for building analytical web applications. No JavaScript required*.
 
-Build on top of Plotly.js, React and Flask, Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical python code. Read our tutorial proudly crafted ❤️ by dash itself.
+Built on top of Plotly.js, React and Flask, Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical python code. Read our tutorial proudly crafted ❤️ as a dash app itself.
 
 - [User Guide](https://dash.plot.ly/getting-started)
 
 - [Offline (PDF) Documentation](https://github.com/plotly/dash-docs/blob/master/pdf-docs/Dash_User_Guide_and_Documentation.pdf)
 
-- [Dash Docs on Heroku](http://dash-docs.herokuapp.com/) (for corporate network that cannot access plot.ly)
+- [Dash Docs on Heroku](http://dash-docs.herokuapp.com/) (for corporate networks that cannot access plot.ly)
 
 
-### App Samples
+### What Dash can do ?
 
-| App | Description |
-|--- | :---: |
+|  | |
+|--- | :--- |
 | ![Sample Dash App](https://user-images.githubusercontent.com/1280389/30086128-9bb4a28e-9267-11e7-8fe4-bbac7d53f2b0.gif) | Here’s a simple example of a Dash App that ties a Dropdown to a D3.js Plotly Graph. As the user selects a value in the Dropdown, the application code dynamically exports data from Google Finance into a Pandas DataFrame. This app was written in just **43** lines of code ([view the source](https://gist.github.com/chriddyp/3d2454905d8f01886d651f207e2419f0)). |
 |![crossfiltering dash app](https://user-images.githubusercontent.com/1280389/30086123-97c58bde-9267-11e7-98a0-7f626de5199a.gif)|Dash app code is declarative and reactive, which makes it easy to build complex apps that contain many interactive elements. Here’s an example with 5 inputs, 3 outputs, and cross filtering. This app was composed in just 160 lines of code, all of which were Python.|
 |  ![Dash app with Mapbox map showing walmart store openings](https://user-images.githubusercontent.com/1280389/30086299-768509d0-9268-11e7-8e6b-626ac9ca512c.gif)| Dash uses [Plotly.js](https://github.com/plotly/plotly.js) for charting. Over 35 chart types are supported, including maps. |
