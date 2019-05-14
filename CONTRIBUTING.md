@@ -2,52 +2,104 @@
 
 ## Getting Started
 
-Fork and clone the dash [repo](https://github.com/plotly/dash).
+Glad that you decided to make your contribution in Dash, to set up your development environment, run the following commands:
 
-To set up your development environment, run the following commands:
 ```bash
-# Move into the clone
+# in your working directory
+$ git clone https://github.com/plotly/dash
 $ cd dash
-# Create a virtualenv
+# create a virtualenv
 $ python3 -m venv venv
-# Activate the virtualenv
+# activate the virtualenv (on windows venv\scripts\activate)
 $ . venv/bin/activate
-# (On Windows, the above would be: venv\scripts\activate)
 # Install the dev dependencies
 $ pip install -r .circleci/requirements/dev-requirements.txt
 ```
+## Git
 
-## Coding Style
+Use the [GitHub flow][] when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the **dev** branch).
 
-Please lint any additions to Python code with `pylint` and `flake8`.
+### Organize your commits
 
-## Pull Request Guidelines
+For pull request with notable file changes or a big feature developmennt, we highly recommend to organize the commits in a logical manner, so it
 
-Use the [GitHub flow][] when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the dev branch).
+- makes a code review experience much more pleasant
+- facilitates a possible cherry picking with granular commits
 
-## Organizing your commits
+*an intutive [example](https://github.com/plotly/dash-core-components/pull/548) is worth a thousand words.*
 
-It's highly recommended to organize your commit using a desktop application:
+#### Git Desktop
 
-- it facilitates a possible cherry picking by commit
-- it makes a Pull Request experience much more pleasant
+Git command veterans might argue that a simple terminal and cherry switch powered keyboard is the most elegant solution. But in general, a desktop tool makes the task easier.
 
-example
-https://github.com/plotly/dash-html-components/pull/111
+1. https://www.gitkraken.com/git-client
+2. https://desktop.github.com/
+
+### Emoji
+
+Plotlyers love to use emoji as an effective communication medium for
+
+**Commit Messages**
+
+Emojis make the commit messages :cherry_blossom:. If you have no idea about what to add ? Here is a nice [cheatsheet](https://gitmoji.carloscuesta.me/) and just be creative!
+
+**Code Review Comments**
+
+- :dancer: `:dancer:` - used to indicate you can merge!  Equivalent to GitHub's :squirrel:
+- :cow2: `:cow2:` cow tip - minor coding style or code flow point
+- :tiger2: `:tiger2:` testing tiger - something needs more tests, or tests need to be improved
+- :snake: `:snake:` security snake - known or suspected security flaw
+- :goat: `:goat:` grammar goat
+- :smile_cat: `:smile_cat:` happy cat - for bits of code that you really like!
+- :dolls: `:dolls:` documentation dolls
+- :pill: `:pill:` performance enhancing pill
+- :hocho: `:hocho:` removal of large chunks of code (obsolete stuff, or feature removals)
+- :bug: `:bug:` - a bug of some kind. 8 legged or 6. Sometimes poisonous.
+- :camel: :palm_tree: `:camel:` `:palm_tree:` - The Don't Repeat Yourself (DRY) camel or palm tree.
+- :space_invader: `:space_invader:` - Too much space or too little.
+- :spaghetti: `:spaghetti:` - copy-pasta, used to signal code that was copy-pasted without being updated
+
+## Testing before your first push
+
+You can use [circleci local cli](https://circleci.com/docs/2.0/local-cli/) to **locally** test your branch before pushing it to origin `plotly/dash`, doing so leaves no chance of making an embarrasing public exposé.
+
+```bash
+# install the cli (first time only)
+$ curl -fLSs https://circle.ci/cli | bash && circleci version
+
+# trigger a local circleci container session
+# you should run at least one python version locally
+# note: the current config requires all tests pass on python 2.7, 3.6 and 3.7.
+$ circleci local execute --job python-3.6
+```
+### Coding Style
+
+We use both `flake8` and `pylint` for basic linting check, please refer to the relevant steps in `.circleci/config.yml`.
+
+## Tests
+
+We started migrating to [pytest](https://docs.pytest.org/en/latest/) from `unittest` as our test automation framework. You will see more testing enhancements in the near future.
+
+### Unit Tests
+
+For simple API changes, please add adequate unit tests under `/tests/unit`
+
+Note: *You might find out that we have more integration tests than unit tests in Dash. This doesn't mean unit tests are not important, the [test pyramid](https://martinfowler.com/articles/practical-test-pyramid.html) is still valid. Dash project has its unique traits which needs more integration coverage than typical software project, another reason was that dash was a quick prototype crafted by chris in a lovely montreal summer.*
+
+### Integration Tests
+
+We create various miminal dash apps to cover feature scenario. A server is launched in mutli-thread or multi-process flavor and the test steps are executed in browsers driving by selenium webdrivers.
+
+Any reasonable test scenario is encouraged to be added along with the same PR.
+
+### Visual regression with Percy
+
+Testing graph-intensive-application is a challenging job. We use [percy](https://percy.io/) to mitigate the pain, please pay attention if percy reports visual differences. If you are not sure whether the change is expected, leave a comment, and don't blind-approve it.
 
 
-https://www.gitkraken.com/git-client
-https://desktop.github.com/
-
-https://gitmoji.carloscuesta.me/
-
-
-## Running the Tests
-
-We encourage you run the tests locally before pushing
-
-## Local configuration
+## Test variable tips
 You can configure the test server with the following variables:
+
 ### DASH_TEST_CHROMEPATH
 If you run a special chrome, set the path to your chrome binary with this environment variable.
 
@@ -55,80 +107,11 @@ If you run a special chrome, set the path to your chrome binary with this enviro
 If you encounter errors about Multi-server + Multi-processing when running under Python 3, try running the tests with the number of server processes set to 1.
 
 ### Example: single test run with configuration
+
+```bash
+DASH_TEST_CHROMEPATH=/bin/google-chrome-beta DASH_TEST_PROCESSES=1
+pytest -k test_no_callback_context
 ```
-DASH_TEST_CHROMEPATH=/bin/google-chrome-beta DASH_TEST_PROCESSES=1 python -m unittest -v tests.test_integration.Tests.test_no_callback_context
-```
-
-## Making a contribution
-_For larger features, your contribution will have a higher likelihood of getting merged if you create an issue to discuss the changes that you'd like to make before you create a pull request._
-
-1. Create a pull request and tag the Plotly team (`@plotly/dash`) and tag.
-2. After a review has been done and your changes have been approved, create a prerelease and comment in the PR. Version numbers should follow [semantic versioning][]. To create a prerelease:
-    * Add `rc1` to `version.py` (`./dash/version.py`) e.g. `0.13.0rc1`
-        - If needed, ask @chriddyp to get PyPi package publishing access.
-    * Run `python setup.py sdist` to build a distribution zip.
-    * Check the `dist` folder for a `tar.gz` file ending with your selected version number. Double check that this version number ends with `rc#`, as to not mistakenly publish the package.
-    * Run `twine upload dist/<package_name>`.
-3. Comment in the PR with the prerelease version
-4. Update the top-level comment to include info about how to install, a summary of the changes, and a simple example.
-    * This makes it easier for a community member to come in and try it out. As more folks review, it's harder to find the installation instructions deep in the PR
-    * Keep this top-level comment updated with installation instructions (e.g. the `pip install` command)
-5. Make a post in the [Dash Community Forum][]
-    * Title it `":mega: Announcement! New <Your Feature> - Feedback Welcome"`
-    * In the description, link to the PR and any relevant issue(s)
-    * Pin the topic so that it appears at the top of the forum for two weeks
-
-## [Checklists](http://rs.io/unreasonable-effectiveness-of-checklists/)
-**Beginner tip:** _Copy and paste this section as a comment in your PR, then check off the boxes as you go!_
-### Pre-Merge checklist
-
-- [ ] If changes are significant, a release candidate has been created and posted to Slack, the Plotly forums, and at the very top of the pull request.
-- [ ] You have updated the `dash/version.py` file and the top of `CHANGELOG.md`. For larger additions, your `CHANGELOG.md` entry includes sample code about how the feature works. The entry should also link to the original pull request(s).
-- [ ] Two people have :dancer:'d the pull request. You can be one of these people if you are a Dash core contributor.
-
-### Post-Merge checklist
-- [ ] You have tagged the release using `git tag v<version_number>` _(for the contributor merging the PR)_.
-- [ ] You have pushed this tag using `git push <tag_name>` _(for the contributor merging the PR)_.
-- [ ] You have deleted the branch.
-
-### Pre-Release checklist
-- [ ] Everything in the Pre-Merge checklist is completed. (Except the last two if this is a release candidate).
-- [ ] `git remote show origin` shows you are in the correct repository.
-- [ ] `git branch` shows that you are on the expected branch.
-- [ ] `git status` shows that there are no unexpected changes.
-- [ ] `dash/version.py` is at the correct version.
-
-### Release Step
-- `python setup.py sdist` to build.
-- `twine upload dist/<the_version_you_just_built>` to upload to PyPi.
-
-### Post-Release checklist
-- [ ] You have closed all issues that this pull request solves, and commented the new version number users should install.
-- [ ] If significant enough, you have created an issue about documenting the new feature or change and you have added it to the [Documentation] project.
-- [ ] You have created a pull request in [Dash Docs] with the new release of your feature by editing that project's [`requirements.txt` file](https://github.com/plotly/dash-docs/blob/master/requirements.txt) and you have assigned `@chriddyp` to review.
-
-## Versioning Policy
-This repository adheres to [semver](https://semver.org/). The following policy is in effect for `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer`:
-1. Matching major version numbers are guarenteed to work together.
-2. Any change to the public API (breaking change) will increase a major version.
-
-1 and 2 imply that when any core `dash*` repo introduces a breaking change all `dash*` repos will increment their major versions to match. This process is called a **major release candidate window** and is outlined below.
-
-### Major Release Candidate Window
-1. The major release candidate window will be announced internally at Plotly and through our popular community channels.
-2. `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0-rc1` on the same day and published for testing.
-3. Pull requests especially those containing breaking changes will be merged.
-4. Per repo tests will be updated to target the latest `rc` versions.
-5. [dash-docs](https://github.com/plotly/dash-docs), some apps in the [dash gallery](https://dash.plot.ly/gallery) and Plotly internal projects will be updated to target the latest `rc` versions.
-6. steps 3-5 will continue until all breaking changes have been merged.
-7. A major release candidate freeze will go into effect. During this time steps 3-5 will continue but only bug fixes will be merged.
-8. Once testing and Q/A is complete `dash`, `dash-core-components`, `dash-html-components` and `dash-renderer` master branches will be reversioned as `N.0.0` and published ending the major release candidate window.
-
-### Backporting fixes
-During and after the major release candidate window bug fixes that can apply to pre-major release candidate releases should be backported. This is accomplished by:
-1. If a pre-major release branch does not exist then check out a branch at the tag defining the last published release before the previous major release candidate window began. For example if we are in the `1.x` series and the last pre-`1.x` series release is `v0.18.1` checkout a branch at `v0.18.1` called `0.18-release`. If the branch does exist check it out.
-2. Cherry-pick or otherwise reapply the fix to the pre-major release branch and update the patch version. In the example above the new version and tag will be `v0.18.2` on the `0.18-release` branch.
-3. Publish.
 
 ## Financial Contributions
 
