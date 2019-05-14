@@ -7,11 +7,13 @@ assignees: ''
 
 ---
 
-Thank you so much for helping Dash in quality! 
-We are doing our bests in release stage but community tests could bring us to the next level of maturity.
+Thank you so much for helping improve the quality of Dash!
+
+We do our best to catch bugs during the release process, but we rely on your help to find the ones that slip through.
+
 
 **Describe your context**
-Please provide us your environment so we can easily reproduce the issue. 
+Please provide us your environment so we can easily reproduce the issue.
 
 -  replace the result of `pip list | grep dash` below
 ```
@@ -28,10 +30,13 @@ dash-table           3.6.0
     - Version [e.g. 22]
 
 **Describe the bug**
+
 A clear and concise description of what the bug is.
 
 **Expected behavior**
+
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
+
 If applicable, add screenshots or screen recording to help explain your problem.
