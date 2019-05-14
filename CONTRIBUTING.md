@@ -23,20 +23,28 @@ Please lint any additions to Python code with `pylint` and `flake8`.
 
 ## Pull Request Guidelines
 
-Use the [GitHub flow][] when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the master branch).
+Use the [GitHub flow][] when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the dev branch).
+
+## Organizing your commits
+
+It's highly recommended to organize your commit using a desktop application:
+
+- it facilitates a possible cherry picking by commit
+- it makes a Pull Request experience much more pleasant
+
+example
+https://github.com/plotly/dash-html-components/pull/111
+
+
+https://www.gitkraken.com/git-client
+https://desktop.github.com/
+
+https://gitmoji.carloscuesta.me/
+
 
 ## Running the Tests
 
-**Warning:** _Tests do not currently run on Windows. Track our progress: [#409](https://github.com/plotly/dash/issues/409)._
-
-To run the tests, you can use Python's `unittest` module, or a test runner like `nose2`.
-For example, `python -m unittest tests.test_integration` will run the integration tests.
-
-To run all of the tests:
-`python -m unittest discover tests`
-
-Or:
-`nose2 -v`
+We encourage you run the tests locally before pushing
 
 ## Local configuration
 You can configure the test server with the following variables:
@@ -54,7 +62,7 @@ DASH_TEST_CHROMEPATH=/bin/google-chrome-beta DASH_TEST_PROCESSES=1 python -m uni
 ## Making a contribution
 _For larger features, your contribution will have a higher likelihood of getting merged if you create an issue to discuss the changes that you'd like to make before you create a pull request._
 
-1. Create a pull request and tag the Plotly team (`@plotly/dash`) and tag / request review from [@rmarren1](https://github.com/rmarren1) and [@T4rk1n](https://github.com/T4rk1n).
+1. Create a pull request and tag the Plotly team (`@plotly/dash`) and tag.
 2. After a review has been done and your changes have been approved, create a prerelease and comment in the PR. Version numbers should follow [semantic versioning][]. To create a prerelease:
     * Add `rc1` to `version.py` (`./dash/version.py`) e.g. `0.13.0rc1`
         - If needed, ask @chriddyp to get PyPi package publishing access.
@@ -73,8 +81,7 @@ _For larger features, your contribution will have a higher likelihood of getting
 ## [Checklists](http://rs.io/unreasonable-effectiveness-of-checklists/)
 **Beginner tip:** _Copy and paste this section as a comment in your PR, then check off the boxes as you go!_
 ### Pre-Merge checklist
-- [ ] All tests on CircleCI have passed.
-- [ ] All visual regression differences have been approved.
+
 - [ ] If changes are significant, a release candidate has been created and posted to Slack, the Plotly forums, and at the very top of the pull request.
 - [ ] You have updated the `dash/version.py` file and the top of `CHANGELOG.md`. For larger additions, your `CHANGELOG.md` entry includes sample code about how the feature works. The entry should also link to the original pull request(s).
 - [ ] Two people have :dancer:'d the pull request. You can be one of these people if you are a Dash core contributor.
@@ -133,12 +140,8 @@ Dash, and many of Plotly's open source products, have been funded through direct
 [Dash Component Biolerplate]: https://github.com/plotly/dash-component-boilerplate
 [issues]: https://github.com/plotly/dash-core-components/issues
 [GitHub flow]: https://guides.github.com/introduction/flow/
-[eslintrc-react.json]: https://github.com/plotly/dash-components-archetype/blob/master/config/eslint/eslintrc-react.json
-[contributors]: https://github.com/plotly/dash-core-components/graphs/contributors
 [semantic versioning]: https://semver.org/
 [Dash Community Forum]: https://community.plot.ly/c/dash
-[Confirmation Modal component]: https://github.com/plotly/dash-core-components/pull/211#issue-195280462
-[Confirmation Modal announcement]: https://community.plot.ly/t/announcing-dash-confirmation-modal-feedback-welcome/11627
 [Get in touch]: https://plot.ly/products/consulting-and-oem
 [Documentation]: https://github.com/orgs/plotly/projects/8
 [Dash Docs]: https://github.com/plotly/dash-docs
