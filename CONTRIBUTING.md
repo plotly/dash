@@ -1,4 +1,4 @@
-# Contributing to dash
+# Contributor Guide
 
 ## Getting Started
 
