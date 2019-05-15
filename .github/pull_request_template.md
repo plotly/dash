@@ -6,7 +6,11 @@
    -  [ ] task 1
    -  [ ] task 2
 - [ ] I have passed with at least one python version with `circleci local execute`
+- [ ] I have verified all the required circleci jobs are passed without warnings
 - [ ] I have gotten :dancer: from my reviewer(s)
+
+## Post-merge Checklist
+- [ ] I have clicked the `Delete Branch` button after merge
 
 ### optionals
 
