@@ -8,8 +8,12 @@ class DataTable(Component):
 
 
 Keyword arguments:
-- active_cell (list; optional): The [row, column] index of which cell is currently
-active.
+- active_cell (optional): The row and column indices and IDs of the currently active cell.. active_cell has the following type: dict containing keys 'row', 'column', 'row_id', 'column_id'.
+Those keys have the following types:
+  - row (number; optional)
+  - column (number; optional)
+  - row_id (string | number; optional)
+  - column_id (string | number; optional)
 - columns (list; optional): Columns describes various aspects about each individual column.
 `name` and `id` are the only required parameters.
 - locale_format (optional): The localization specific formatting information applied to all columns in the table.
@@ -54,6 +58,10 @@ Example:
 ]
 - data (list; optional): The contents of the table.
 The keys of each item in data should match the column IDs.
+Each item can also have an 'id' key, whose value is its row ID. If there
+is a column with ID='id' this will display the row ID, otherwise it is
+just used to reference the row for selections, filtering, etc.
+
 Example:
 
 [
@@ -79,11 +87,16 @@ If False, then the data in all of the cells is uneditable.
 When `editable` is False, particular columns can be made
 editable by setting `editable` to `True` inside the `columns`
 property.
-- end_cell (list; optional): When selecting multiple cells
+- end_cell (optional): When selecting multiple cells
 (via clicking on a cell and then shift-clicking on another cell),
-`end_cell` represents the [row, column] coordinates of the cell
+`end_cell` represents the row / column coordinates and IDs of the cell
 in one of the corners of the region.
-`start_cell` represents the coordinates of the other corner.
+`start_cell` represents the coordinates of the other corner.. end_cell has the following type: dict containing keys 'row', 'column', 'row_id', 'column_id'.
+Those keys have the following types:
+  - row (number; optional)
+  - column (number; optional)
+  - row_id (string | number; optional)
+  - column_id (string | number; optional)
 - id (string; optional): The ID of the table.
 - is_focused (boolean; optional): If True, then the `active_cell` is in a focused state.
 - merge_duplicate_headers (boolean; optional): If True, then column headers that have neighbors with duplicate names
@@ -123,23 +136,27 @@ and no additional UI elements will appear.
 
 When a row is selected, its index will be contained
 in `selected_rows`.
-- selected_cells (list; optional): `selected_cells` represents the set of cells that are selected.
-This is similar to `active_cell` except that it contains multiple
-cells. Multiple cells can be selected by holding down shift and
+- selected_cells (list; optional): `selected_cells` represents the set of cells that are selected,
+as an array of objects, each item similar to `active_cell`.
+Multiple cells can be selected by holding down shift and
 clicking on a different cell or holding down shift and navigating
 with the arrow keys.
-
-NOTE - This property may change in the future, subscribe to
-[https://github.com/plotly/dash-table/issues/177](https://github.com/plotly/dash-table/issues/177)
-for more details.
-- selected_rows (list; optional): `selected_rows` contains the indices of the rows that
+- selected_rows (list; optional): `selected_rows` contains the indices of rows that
 are selected via the UI elements that appear when
 `row_selectable` is `'single'` or `'multi'`.
-- start_cell (list; optional): When selecting multiple cells
+- selected_row_ids (list; optional): `selected_row_ids` contains the ids of rows that
+are selected via the UI elements that appear when
+`row_selectable` is `'single'` or `'multi'`.
+- start_cell (optional): When selecting multiple cells
 (via clicking on a cell and then shift-clicking on another cell),
 `start_cell` represents the [row, column] coordinates of the cell
 in one of the corners of the region.
-`end_cell` represents the coordinates of the other corner.
+`end_cell` represents the coordinates of the other corner.. start_cell has the following type: dict containing keys 'row', 'column', 'row_id', 'column_id'.
+Those keys have the following types:
+  - row (number; optional)
+  - column (number; optional)
+  - row_id (string | number; optional)
+  - column_id (string | number; optional)
 - style_as_list_view (boolean; optional): If True, then the table will be styled like a list view
 and not have borders between the columns.
 - pagination_mode (a value equal to: 'fe', 'be', true, false; optional): "pagination" refers to a mode of the table where
@@ -289,6 +306,12 @@ during which the tooltip will be displayed when hovering a cell. If
 set to `null`, the tooltip will not disappear.
 
 Defaults to 2000.
+- filter (string; optional): If `filtering` is enabled, then the current filtering
+string is represented in this `filter`
+property.
+NOTE: The shape and structure of this property will
+likely change in the future.
+Stay tuned in [https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)
 - filtering (a value equal to: 'fe', 'be', true, false; optional): The `filtering` property controls the behavior of the `filtering` UI.
 If `False`, then the filtering UI is not displayed
 If `fe` or True, then the filtering UI is displayed and the filtering
@@ -296,18 +319,12 @@ happens in the "front-end". That is, it is performed on the data
 that exists in the `data` property.
 If `be`, then the filtering UI is displayed but it is the
 responsibility of the developer to program the filtering
-through a callback (where `filtering_settings` would be the input
+through a callback (where `filter` would be the input
 and `data` would be the output).
 
 NOTE - Several aspects of filtering may change in the future,
 including the naming of this property.
 Tune in to [https://github.com/plotly/dash-table/issues/167](https://github.com/plotly/dash-table/issues/167)
-- filtering_settings (string; optional): If `filtering` is enabled, then the current filtering
-string is represented in this `filtering_settings`
-property.
-NOTE: The shape and structure of this property will
-likely change in the future.
-Stay tuned in [https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)
 - filtering_type (a value equal to: 'basic'; optional): UNSTABLE
 In the future, there may be several modes of the
 filtering UI like `basic`, `advanced`, etc.
@@ -330,7 +347,7 @@ Sorting can be performed in the "front-end"
 with the `fe` (or True) setting or via a callback in your
 python "back-end" with the `be` setting.
 Clicking on the sort arrows will update the
-`sorting_settings` property.
+`sort_by` property.
 - sorting_type (a value equal to: 'single', 'multi'; optional): Sorting can be performed across multiple columns
 (e.g. sort by country, sort within each country,
  sort by year) or by a single column.
@@ -339,7 +356,7 @@ NOTE - With multi-column sort, it's currently
 not possible to determine the order in which
 the columns were sorted through the UI.
 See [https://github.com/plotly/dash-table/issues/170](https://github.com/plotly/dash-table/issues/170)
-- sorting_settings (list; optional): `sorting_settings` describes the current state
+- sort_by (list; optional): `sort_by` describes the current state
 of the sorting UI.
 That is, if the user clicked on the sort arrow
 of a column, then this property will be updated
@@ -388,34 +405,72 @@ Assumptions are that:
 - the width of the columns is fixed
 - the height of the rows is always the same
 - runtime styling changes will not affect width and height vs. first rendering
+- derived_filter_structure (dict; optional): This property represents the current structure of
+`filter` as a tree structure. Each node of the
+query structure have:
+- type (string; required)
+  - 'open-block'
+  - 'logical-operator'
+  - 'relational-operator'
+  - 'unary-operator'
+  - 'expression'
+- subType (string; optional)
+  - 'open-block': '()'
+  - 'logical-operator': '&&', '||'
+  - 'relational-operator': '=', '>=', '>', '<=', '<', '!=', 'contains'
+  - 'unary-operator': '!', 'is bool', 'is even', 'is nil', 'is num', 'is object', 'is odd', 'is prime', 'is str'
+  - 'expression': 'value', 'field'
+- value (any)
+  - 'expression, value': passed value
+  - 'expression, field': the field/prop name
+
+- block (nested query structure; optional)
+- left (nested query structure; optional)
+- right (nested query structure; optional)
+
+If the query is invalid or empty, the `derived_filter_structure` will
+be null.
 - derived_viewport_data (list; optional): This property represents the current state of `data`
 on the current page. This property will be updated
 on paging, sorting, and filtering.
 - derived_viewport_indices (list; optional): `derived_viewport_indices` indicates the order in which the original
 rows appear after being filtered, sorted, and/or paged.
 `derived_viewport_indices` contains indices for the current page,
-while `derived_virtual_indices` contains indices for across all pages.
+while `derived_virtual_indices` contains indices across all pages.
+- derived_viewport_row_ids (list; optional): `derived_viewport_row_ids` lists row IDs in the order they appear
+after being filtered, sorted, and/or paged.
+`derived_viewport_row_ids` contains IDs for the current page,
+while `derived_virtual_row_ids` contains IDs across all pages.
 - derived_viewport_selected_rows (list; optional): `derived_viewport_selected_rows` represents the indices of the
- `selected_rows` from the perspective of the `derived_viewport_indices`.
+`selected_rows` from the perspective of the `derived_viewport_indices`.
+- derived_viewport_selected_row_ids (list; optional): `derived_viewport_selected_row_ids` represents the IDs of the
+`selected_rows` on the currently visible page.
 - derived_virtual_data (list; optional): This property represents the visible state of `data`
 across all pages after the front-end sorting and filtering
 as been applied.
-- derived_virtual_indices (list; optional): `derived_viewport_indices` indicates the order in which the original
-rows appear after being filtered, sorted, and/or paged.
+- derived_virtual_indices (list; optional): `derived_virtual_indices` indicates the order in which the original
+rows appear after being filtered and sorted.
 `derived_viewport_indices` contains indices for the current page,
-while `derived_virtual_indices` contains indices for across all pages.
+while `derived_virtual_indices` contains indices across all pages.
+- derived_virtual_row_ids (list; optional): `derived_virtual_row_ids` indicates the row IDs in the order in which
+they appear after being filtered and sorted.
+`derived_viewport_row_ids` contains IDs for the current page,
+while `derived_virtual_row_ids` contains IDs across all pages.
 - derived_virtual_selected_rows (list; optional): `derived_virtual_selected_rows` represents the indices of the
  `selected_rows` from the perspective of the `derived_virtual_indices`.
+- derived_virtual_selected_row_ids (list; optional): `derived_virtual_selected_row_ids` represents the IDs of the
+`selected_rows` as they appear after filtering and sorting,
+across all pages.
 - dropdown_properties (boolean | number | string | dict | list; optional): DEPRECATED
 Subscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
 for updates on the dropdown API."""
     @_explicitize_args
-    def __init__(self, active_cell=Component.UNDEFINED, columns=Component.UNDEFINED, locale_format=Component.UNDEFINED, content_style=Component.UNDEFINED, css=Component.UNDEFINED, data=Component.UNDEFINED, data_previous=Component.UNDEFINED, data_timestamp=Component.UNDEFINED, editable=Component.UNDEFINED, end_cell=Component.UNDEFINED, id=Component.UNDEFINED, is_focused=Component.UNDEFINED, merge_duplicate_headers=Component.UNDEFINED, n_fixed_columns=Component.UNDEFINED, n_fixed_rows=Component.UNDEFINED, row_deletable=Component.UNDEFINED, row_selectable=Component.UNDEFINED, selected_cells=Component.UNDEFINED, selected_rows=Component.UNDEFINED, start_cell=Component.UNDEFINED, style_as_list_view=Component.UNDEFINED, pagination_mode=Component.UNDEFINED, pagination_settings=Component.UNDEFINED, navigation=Component.UNDEFINED, column_conditional_dropdowns=Component.UNDEFINED, column_static_dropdown=Component.UNDEFINED, column_static_tooltip=Component.UNDEFINED, column_conditional_tooltips=Component.UNDEFINED, tooltips=Component.UNDEFINED, tooltip_delay=Component.UNDEFINED, tooltip_duration=Component.UNDEFINED, filtering=Component.UNDEFINED, filtering_settings=Component.UNDEFINED, filtering_type=Component.UNDEFINED, filtering_types=Component.UNDEFINED, sorting=Component.UNDEFINED, sorting_type=Component.UNDEFINED, sorting_settings=Component.UNDEFINED, sorting_treat_empty_string_as_none=Component.UNDEFINED, style_table=Component.UNDEFINED, style_cell=Component.UNDEFINED, style_data=Component.UNDEFINED, style_filter=Component.UNDEFINED, style_header=Component.UNDEFINED, style_cell_conditional=Component.UNDEFINED, style_data_conditional=Component.UNDEFINED, style_filter_conditional=Component.UNDEFINED, style_header_conditional=Component.UNDEFINED, virtualization=Component.UNDEFINED, derived_viewport_data=Component.UNDEFINED, derived_viewport_indices=Component.UNDEFINED, derived_viewport_selected_rows=Component.UNDEFINED, derived_virtual_data=Component.UNDEFINED, derived_virtual_indices=Component.UNDEFINED, derived_virtual_selected_rows=Component.UNDEFINED, dropdown_properties=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['active_cell', 'columns', 'locale_format', 'content_style', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'id', 'is_focused', 'merge_duplicate_headers', 'n_fixed_columns', 'n_fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'start_cell', 'style_as_list_view', 'pagination_mode', 'pagination_settings', 'navigation', 'column_conditional_dropdowns', 'column_static_dropdown', 'column_static_tooltip', 'column_conditional_tooltips', 'tooltips', 'tooltip_delay', 'tooltip_duration', 'filtering', 'filtering_settings', 'filtering_type', 'filtering_types', 'sorting', 'sorting_type', 'sorting_settings', 'sorting_treat_empty_string_as_none', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_selected_rows', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_selected_rows', 'dropdown_properties']
+    def __init__(self, active_cell=Component.UNDEFINED, columns=Component.UNDEFINED, locale_format=Component.UNDEFINED, content_style=Component.UNDEFINED, css=Component.UNDEFINED, data=Component.UNDEFINED, data_previous=Component.UNDEFINED, data_timestamp=Component.UNDEFINED, editable=Component.UNDEFINED, end_cell=Component.UNDEFINED, id=Component.UNDEFINED, is_focused=Component.UNDEFINED, merge_duplicate_headers=Component.UNDEFINED, n_fixed_columns=Component.UNDEFINED, n_fixed_rows=Component.UNDEFINED, row_deletable=Component.UNDEFINED, row_selectable=Component.UNDEFINED, selected_cells=Component.UNDEFINED, selected_rows=Component.UNDEFINED, selected_row_ids=Component.UNDEFINED, start_cell=Component.UNDEFINED, style_as_list_view=Component.UNDEFINED, pagination_mode=Component.UNDEFINED, pagination_settings=Component.UNDEFINED, navigation=Component.UNDEFINED, column_conditional_dropdowns=Component.UNDEFINED, column_static_dropdown=Component.UNDEFINED, column_static_tooltip=Component.UNDEFINED, column_conditional_tooltips=Component.UNDEFINED, tooltips=Component.UNDEFINED, tooltip_delay=Component.UNDEFINED, tooltip_duration=Component.UNDEFINED, filter=Component.UNDEFINED, filtering=Component.UNDEFINED, filtering_type=Component.UNDEFINED, filtering_types=Component.UNDEFINED, sorting=Component.UNDEFINED, sorting_type=Component.UNDEFINED, sort_by=Component.UNDEFINED, sorting_treat_empty_string_as_none=Component.UNDEFINED, style_table=Component.UNDEFINED, style_cell=Component.UNDEFINED, style_data=Component.UNDEFINED, style_filter=Component.UNDEFINED, style_header=Component.UNDEFINED, style_cell_conditional=Component.UNDEFINED, style_data_conditional=Component.UNDEFINED, style_filter_conditional=Component.UNDEFINED, style_header_conditional=Component.UNDEFINED, virtualization=Component.UNDEFINED, derived_filter_structure=Component.UNDEFINED, derived_viewport_data=Component.UNDEFINED, derived_viewport_indices=Component.UNDEFINED, derived_viewport_row_ids=Component.UNDEFINED, derived_viewport_selected_rows=Component.UNDEFINED, derived_viewport_selected_row_ids=Component.UNDEFINED, derived_virtual_data=Component.UNDEFINED, derived_virtual_indices=Component.UNDEFINED, derived_virtual_row_ids=Component.UNDEFINED, derived_virtual_selected_rows=Component.UNDEFINED, derived_virtual_selected_row_ids=Component.UNDEFINED, dropdown_properties=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['active_cell', 'columns', 'locale_format', 'content_style', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'id', 'is_focused', 'merge_duplicate_headers', 'n_fixed_columns', 'n_fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'selected_row_ids', 'start_cell', 'style_as_list_view', 'pagination_mode', 'pagination_settings', 'navigation', 'column_conditional_dropdowns', 'column_static_dropdown', 'column_static_tooltip', 'column_conditional_tooltips', 'tooltips', 'tooltip_delay', 'tooltip_duration', 'filter', 'filtering', 'filtering_type', 'filtering_types', 'sorting', 'sorting_type', 'sort_by', 'sorting_treat_empty_string_as_none', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_filter_structure', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_row_ids', 'derived_viewport_selected_rows', 'derived_viewport_selected_row_ids', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_row_ids', 'derived_virtual_selected_rows', 'derived_virtual_selected_row_ids', 'dropdown_properties']
         self._type = 'DataTable'
         self._namespace = 'dash_table'
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['active_cell', 'columns', 'locale_format', 'content_style', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'id', 'is_focused', 'merge_duplicate_headers', 'n_fixed_columns', 'n_fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'start_cell', 'style_as_list_view', 'pagination_mode', 'pagination_settings', 'navigation', 'column_conditional_dropdowns', 'column_static_dropdown', 'column_static_tooltip', 'column_conditional_tooltips', 'tooltips', 'tooltip_delay', 'tooltip_duration', 'filtering', 'filtering_settings', 'filtering_type', 'filtering_types', 'sorting', 'sorting_type', 'sorting_settings', 'sorting_treat_empty_string_as_none', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_selected_rows', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_selected_rows', 'dropdown_properties']
+        self.available_properties = ['active_cell', 'columns', 'locale_format', 'content_style', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'id', 'is_focused', 'merge_duplicate_headers', 'n_fixed_columns', 'n_fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'selected_row_ids', 'start_cell', 'style_as_list_view', 'pagination_mode', 'pagination_settings', 'navigation', 'column_conditional_dropdowns', 'column_static_dropdown', 'column_static_tooltip', 'column_conditional_tooltips', 'tooltips', 'tooltip_delay', 'tooltip_duration', 'filter', 'filtering', 'filtering_type', 'filtering_types', 'sorting', 'sorting_type', 'sort_by', 'sorting_treat_empty_string_as_none', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_filter_structure', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_row_ids', 'derived_viewport_selected_rows', 'derived_viewport_selected_row_ids', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_row_ids', 'derived_virtual_selected_rows', 'derived_virtual_selected_row_ids', 'dropdown_properties']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')

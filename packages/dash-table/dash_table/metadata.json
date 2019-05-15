@@ -6,14 +6,44 @@
     "props": {
       "active_cell": {
         "type": {
-          "name": "array"
+          "name": "exact",
+          "value": {
+            "row": {
+              "name": "number",
+              "required": false
+            },
+            "column": {
+              "name": "number",
+              "required": false
+            },
+            "row_id": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                }
+              ],
+              "required": false
+            },
+            "column_id": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                }
+              ],
+              "required": false
+            }
+          }
         },
         "required": false,
-        "description": "The [row, column] index of which cell is currently\nactive.",
-        "defaultValue": {
-          "value": "[]",
-          "computed": false
-        }
+        "description": "The row and column indices and IDs of the currently active cell."
       },
       "columns": {
         "type": {
@@ -388,7 +418,7 @@
           }
         },
         "required": false,
-        "description": "The contents of the table.\nThe keys of each item in data should match the column IDs.\nExample:\n\n[\n     {'column-1': 4.5, 'column-2': 'montreal', 'column-3': 'canada'},\n     {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}\n]",
+        "description": "The contents of the table.\nThe keys of each item in data should match the column IDs.\nEach item can also have an 'id' key, whose value is its row ID. If there\nis a column with ID='id' this will display the row ID, otherwise it is\njust used to reference the row for selections, filtering, etc.\n\nExample:\n\n[\n     {'column-1': 4.5, 'column-2': 'montreal', 'column-3': 'canada'},\n     {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}\n]",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -424,13 +454,44 @@
       },
       "end_cell": {
         "type": {
-          "name": "arrayOf",
+          "name": "exact",
           "value": {
-            "name": "number"
+            "row": {
+              "name": "number",
+              "required": false
+            },
+            "column": {
+              "name": "number",
+              "required": false
+            },
+            "row_id": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                }
+              ],
+              "required": false
+            },
+            "column_id": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                }
+              ],
+              "required": false
+            }
           }
         },
         "required": false,
-        "description": "When selecting multiple cells\n(via clicking on a cell and then shift-clicking on another cell),\n`end_cell` represents the [row, column] coordinates of the cell\nin one of the corners of the region.\n`start_cell` represents the coordinates of the other corner."
+        "description": "When selecting multiple cells\n(via clicking on a cell and then shift-clicking on another cell),\n`end_cell` represents the row / column coordinates and IDs of the cell\nin one of the corners of the region.\n`start_cell` represents the coordinates of the other corner."
       },
       "id": {
         "type": {
@@ -503,16 +564,47 @@
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "arrayOf",
+            "name": "exact",
             "value": {
-              "name": "number"
+              "row": {
+                "name": "number",
+                "required": false
+              },
+              "column": {
+                "name": "number",
+                "required": false
+              },
+              "row_id": {
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
+                "required": false
+              },
+              "column_id": {
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ],
+                "required": false
+              }
             }
           }
         },
         "required": false,
-        "description": "`selected_cells` represents the set of cells that are selected.\nThis is similar to `active_cell` except that it contains multiple\ncells. Multiple cells can be selected by holding down shift and\nclicking on a different cell or holding down shift and navigating\nwith the arrow keys.\n\nNOTE - This property may change in the future, subscribe to\n[https://github.com/plotly/dash-table/issues/177](https://github.com/plotly/dash-table/issues/177)\nfor more details.",
+        "description": "`selected_cells` represents the set of cells that are selected,\nas an array of objects, each item similar to `active_cell`.\nMultiple cells can be selected by holding down shift and\nclicking on a different cell or holding down shift and navigating\nwith the arrow keys.",
         "defaultValue": {
-          "value": "[[]]",
+          "value": "[]",
           "computed": false
         }
       },
@@ -524,7 +616,29 @@
           }
         },
         "required": false,
-        "description": "`selected_rows` contains the indices of the rows that\nare selected via the UI elements that appear when\n`row_selectable` is `'single'` or `'multi'`.",
+        "description": "`selected_rows` contains the indices of rows that\nare selected via the UI elements that appear when\n`row_selectable` is `'single'` or `'multi'`.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "selected_row_ids": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "number"
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "`selected_row_ids` contains the ids of rows that\nare selected via the UI elements that appear when\n`row_selectable` is `'single'` or `'multi'`.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -539,9 +653,40 @@
       },
       "start_cell": {
         "type": {
-          "name": "arrayOf",
+          "name": "exact",
           "value": {
-            "name": "number"
+            "row": {
+              "name": "number",
+              "required": false
+            },
+            "column": {
+              "name": "number",
+              "required": false
+            },
+            "row_id": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                }
+              ],
+              "required": false
+            },
+            "column_id": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "number"
+                }
+              ],
+              "required": false
+            }
           }
         },
         "required": false,
@@ -921,6 +1066,17 @@
           "computed": false
         }
       },
+      "filter": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "If `filtering` is enabled, then the current filtering\nstring is represented in this `filter`\nproperty.\nNOTE: The shape and structure of this property will\nlikely change in the future.\nStay tuned in [https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)",
+        "defaultValue": {
+          "value": "''",
+          "computed": false
+        }
+      },
       "filtering": {
         "type": {
           "name": "enum",
@@ -944,20 +1100,9 @@
           ]
         },
         "required": false,
-        "description": "The `filtering` property controls the behavior of the `filtering` UI.\nIf `False`, then the filtering UI is not displayed\nIf `fe` or True, then the filtering UI is displayed and the filtering\nhappens in the \"front-end\". That is, it is performed on the data\nthat exists in the `data` property.\nIf `be`, then the filtering UI is displayed but it is the\nresponsibility of the developer to program the filtering\nthrough a callback (where `filtering_settings` would be the input\nand `data` would be the output).\n\nNOTE - Several aspects of filtering may change in the future,\nincluding the naming of this property.\nTune in to [https://github.com/plotly/dash-table/issues/167](https://github.com/plotly/dash-table/issues/167)",
+        "description": "The `filtering` property controls the behavior of the `filtering` UI.\nIf `False`, then the filtering UI is not displayed\nIf `fe` or True, then the filtering UI is displayed and the filtering\nhappens in the \"front-end\". That is, it is performed on the data\nthat exists in the `data` property.\nIf `be`, then the filtering UI is displayed but it is the\nresponsibility of the developer to program the filtering\nthrough a callback (where `filter` would be the input\nand `data` would be the output).\n\nNOTE - Several aspects of filtering may change in the future,\nincluding the naming of this property.\nTune in to [https://github.com/plotly/dash-table/issues/167](https://github.com/plotly/dash-table/issues/167)",
         "defaultValue": {
           "value": "false",
-          "computed": false
-        }
-      },
-      "filtering_settings": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "If `filtering` is enabled, then the current filtering\nstring is represented in this `filtering_settings`\nproperty.\nNOTE: The shape and structure of this property will\nlikely change in the future.\nStay tuned in [https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)",
-        "defaultValue": {
-          "value": "''",
           "computed": false
         }
       },
@@ -1021,7 +1166,7 @@
           ]
         },
         "required": false,
-        "description": "The `sorting` property enables data to be\nsorted on a per-column basis.\nEnabling `sorting` will display a UI element\non each of the columns (up and down arrows).\n\nSorting can be performed in the \"front-end\"\nwith the `fe` (or True) setting or via a callback in your\npython \"back-end\" with the `be` setting.\nClicking on the sort arrows will update the\n`sorting_settings` property.",
+        "description": "The `sorting` property enables data to be\nsorted on a per-column basis.\nEnabling `sorting` will display a UI element\non each of the columns (up and down arrows).\n\nSorting can be performed in the \"front-end\"\nwith the `fe` (or True) setting or via a callback in your\npython \"back-end\" with the `be` setting.\nClicking on the sort arrows will update the\n`sort_by` property.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -1048,7 +1193,7 @@
           "computed": false
         }
       },
-      "sorting_settings": {
+      "sort_by": {
         "type": {
           "name": "arrayOf",
           "value": {
@@ -1084,7 +1229,7 @@
           }
         },
         "required": false,
-        "description": "`sorting_settings` describes the current state\nof the sorting UI.\nThat is, if the user clicked on the sort arrow\nof a column, then this property will be updated\nwith the column ID and the direction\n(`asc` or `desc`) of the sort.\nFor multi-column sorting, this will be a list of\nsorting parameters, in the order in which they were\nclicked.",
+        "description": "`sort_by` describes the current state\nof the sorting UI.\nThat is, if the user clicked on the sort arrow\nof a column, then this property will be updated\nwith the column ID and the direction\n(`asc` or `desc`) of the sort.\nFor multi-column sorting, this will be a list of\nsorting parameters, in the order in which they were\nclicked.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1171,6 +1316,10 @@
                       {
                         "value": "'text'",
                         "computed": false
+                      },
+                      {
+                        "value": "'datetime'",
+                        "computed": false
                       }
                     ],
                     "required": false
@@ -1222,6 +1371,10 @@
                       },
                       {
                         "value": "'text'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'datetime'",
                         "computed": false
                       }
                     ],
@@ -1301,6 +1454,10 @@
                       {
                         "value": "'text'",
                         "computed": false
+                      },
+                      {
+                        "value": "'datetime'",
+                        "computed": false
                       }
                     ],
                     "required": false
@@ -1312,7 +1469,11 @@
           }
         },
         "required": false,
-        "description": "Conditional CSS styles for the filter cells.\n\nThis can be used to apply styles to filter cells on a per-column basis."
+        "description": "Conditional CSS styles for the filter cells.\n\nThis can be used to apply styles to filter cells on a per-column basis.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
       },
       "style_header_conditional": {
         "type": {
@@ -1348,6 +1509,10 @@
                       },
                       {
                         "value": "'text'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'datetime'",
                         "computed": false
                       }
                     ],
@@ -1399,6 +1564,13 @@
           "computed": false
         }
       },
+      "derived_filter_structure": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "This property represents the current structure of\n`filter` as a tree structure. Each node of the\nquery structure have:\n- type (string; required)\n  - 'open-block'\n  - 'logical-operator'\n  - 'relational-operator'\n  - 'unary-operator'\n  - 'expression'\n- subType (string; optional)\n  - 'open-block': '()'\n  - 'logical-operator': '&&', '||'\n  - 'relational-operator': '=', '>=', '>', '<=', '<', '!=', 'contains'\n  - 'unary-operator': '!', 'is bool', 'is even', 'is nil', 'is num', 'is object', 'is odd', 'is prime', 'is str'\n  - 'expression': 'value', 'field'\n- value (any)\n  - 'expression, value': passed value\n  - 'expression, field': the field/prop name\n\n- block (nested query structure; optional)\n- left (nested query structure; optional)\n- right (nested query structure; optional)\n\nIf the query is invalid or empty, the `derived_filter_structure` will\nbe null."
+      },
       "derived_viewport_data": {
         "type": {
           "name": "arrayOf",
@@ -1421,7 +1593,29 @@
           }
         },
         "required": false,
-        "description": "`derived_viewport_indices` indicates the order in which the original\nrows appear after being filtered, sorted, and/or paged.\n`derived_viewport_indices` contains indices for the current page,\nwhile `derived_virtual_indices` contains indices for across all pages.",
+        "description": "`derived_viewport_indices` indicates the order in which the original\nrows appear after being filtered, sorted, and/or paged.\n`derived_viewport_indices` contains indices for the current page,\nwhile `derived_virtual_indices` contains indices across all pages.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "derived_viewport_row_ids": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "number"
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "`derived_viewport_row_ids` lists row IDs in the order they appear\nafter being filtered, sorted, and/or paged.\n`derived_viewport_row_ids` contains IDs for the current page,\nwhile `derived_virtual_row_ids` contains IDs across all pages.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1435,7 +1629,29 @@
           }
         },
         "required": false,
-        "description": "`derived_viewport_selected_rows` represents the indices of the\n `selected_rows` from the perspective of the `derived_viewport_indices`.",
+        "description": "`derived_viewport_selected_rows` represents the indices of the\n`selected_rows` from the perspective of the `derived_viewport_indices`.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "derived_viewport_selected_row_ids": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "number"
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "`derived_viewport_selected_row_ids` represents the IDs of the\n`selected_rows` on the currently visible page.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1463,7 +1679,29 @@
           }
         },
         "required": false,
-        "description": "`derived_viewport_indices` indicates the order in which the original\nrows appear after being filtered, sorted, and/or paged.\n`derived_viewport_indices` contains indices for the current page,\nwhile `derived_virtual_indices` contains indices for across all pages.",
+        "description": "`derived_virtual_indices` indicates the order in which the original\nrows appear after being filtered and sorted.\n`derived_viewport_indices` contains indices for the current page,\nwhile `derived_virtual_indices` contains indices across all pages.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "derived_virtual_row_ids": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "number"
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "`derived_virtual_row_ids` indicates the row IDs in the order in which\nthey appear after being filtered and sorted.\n`derived_viewport_row_ids` contains IDs for the current page,\nwhile `derived_virtual_row_ids` contains IDs across all pages.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1478,6 +1716,28 @@
         },
         "required": false,
         "description": "`derived_virtual_selected_rows` represents the indices of the\n `selected_rows` from the perspective of the `derived_virtual_indices`.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "derived_virtual_selected_row_ids": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "number"
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "`derived_virtual_selected_row_ids` represents the IDs of the\n`selected_rows` as they appear after filtering and sorting,\nacross all pages.",
         "defaultValue": {
           "value": "[]",
           "computed": false
