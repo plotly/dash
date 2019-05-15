@@ -562,7 +562,6 @@ class Tests(IntegrationTests):
 
     def test_multi_output(self):
         app = Dash(__name__)
-        app.scripts.config.serve_locally = True
 
         app.layout = html.Div([
             html.Button('OUTPUT', id='output-btn'),
@@ -663,7 +662,6 @@ class Tests(IntegrationTests):
 
     def test_multi_output_no_update(self):
         app = Dash(__name__)
-        app.scripts.config.serve_locally = True
 
         app.layout = html.Div([
             html.Button('B', 'btn'),
@@ -696,7 +694,6 @@ class Tests(IntegrationTests):
 
     def test_no_update_chains(self):
         app = Dash(__name__)
-        app.scripts.config.serve_locally = True
 
         app.layout = html.Div([
             dcc.Input(id='a_in', value='a'),

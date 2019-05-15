@@ -69,10 +69,9 @@ class IntegrationTests(unittest.TestCase):
             s.server_process.terminate()
             time.sleep(2)
 
-    def startServer(s, dash):
+    def startServer(s, app):
         def run():
-            dash.scripts.config.serve_locally = True
-            dash.run_server(
+            app.run_server(
                 port=8050,
                 debug=False,
                 processes=4,
