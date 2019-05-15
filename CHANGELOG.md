@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.24.0] - 2019-05-15
 ### Fixed
 - Fix regression on handling PreventUpdate (204 NO CONTENT) [#170](https://github.com/plotly/dash-renderer/pull/170)
 
