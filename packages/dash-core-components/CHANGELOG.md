@@ -2,18 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
-
+## [0.48.0] - 2019-05-15
 ### Added
-
 - `figure` prop in `dcc.Graph` now accepts a `frames` key
 - Improved the `Dropdown` options description for dash-docs #547
 - Added `optionHeight` prop to `Dropdown` #552
 
 ### Removed
-
 - Removed unused `key` prop from `dcc.ConfirmDialog`
-
 
 ## [0.47.0] - 2019-04-25
 ### Fixed
