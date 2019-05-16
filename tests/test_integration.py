@@ -190,7 +190,7 @@ class Tests(IntegrationTests):
         output2 = self.wait_for_element_by_id('output2')
 
         # callback1 runs 4x (initial page load and 3x through send_keys)
-        self.assertEqual(callback1_count.value, 4)
+        wait_for(lambda: callback1_count.value == 4)
 
         # callback2 is never triggered, even on initial load
         self.assertEqual(callback2_count.value, 0)
