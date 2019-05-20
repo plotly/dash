@@ -109,7 +109,6 @@ class Tests(IntegrationTests):
         if expected_length is not None:
             self.assertEqual(len(request_queue), expected_length)
 
-
     def test_initial_state(self):
         app = Dash(__name__)
         my_class_attrs = {
@@ -158,7 +157,7 @@ class Tests(IntegrationTests):
             os.path.dirname(__file__),
             'test_assets', 'initial_state_dash_app_content.html')
         with open(_dash_app_content_html) as fp:
-            rendered_dom = BeautifulSoup(fp.read(), 'lxml')
+            rendered_dom = BeautifulSoup(fp.read().strip(), 'lxml')
         fetched_dom = BeautifulSoup(el.get_attribute('outerHTML'), 'lxml')
 
         self.assertEqual(
@@ -328,10 +327,9 @@ class Tests(IntegrationTests):
                 '#react-entry-point').get_attribute('innerHTML'),
             'lxml').select_one('#output > div').contents
 
-        self.assertTrue(
-            pad_input.attrs == {'type': 'text', 'id': 'sub-input-1', 'value': 'sub input initial value'}
-                and pad_input.name == 'input',
-            "pad input is correctly rendered")
+        self.assertEqual(pad_input.attrs['value'], 'sub input initial value')
+        self.assertEqual(pad_input.attrs['id'], 'sub-input-1')
+        self.assertEqual(pad_input.name, 'input')
 
         self.assertTrue(
             pad_div.text == pad_input.attrs['value']
