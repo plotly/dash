@@ -27,7 +27,9 @@ r_component_string = '''{prefix}{name} <- function({default_argtext}{wildcards})
     component$props <- filter_null(component$props)
 
     structure(component, class = c('dash_component', 'list'))
-}}'''  # noqa:E501
+}}
+
+'''  # noqa:E501
 
 # the following strings represent all the elements in an object
 # of the html_dependency class, which will be propagated by
@@ -51,7 +53,9 @@ all_files = FALSE), class = "html_dependency")'''  # noqa:E501
 
 frame_close_template = ''')
 return(deps_metadata)
-}'''
+}
+
+'''
 
 help_string = '''% Auto-generated: do not edit by hand
 \\name{{{prefix}{name}}}
@@ -71,6 +75,7 @@ help_string = '''% Auto-generated: do not edit by hand
 \\arguments{{
 {item_text}
 }}
+
 '''
 
 description_template = '''Package: {package_name}
@@ -78,9 +83,9 @@ Title: {package_description}
 Version: {package_version}
 Authors @R: as.person(c({package_author}))
 Description: {package_description}
-Depends: R (>= 3.0.2)
-Imports: dashR
-Suggests: testthat, roxygen2
+Depends: R (>= 3.0.2){package_depends}
+Imports: dashR{package_imports}
+Suggests: {package_suggests}
 License: {package_license}
 URL: {package_url}
 BugReports: {package_issues}
@@ -139,6 +144,7 @@ Useful links:
 \\author{{
 \\strong{{Maintainer}}: {package_author}
 }}
+
 '''
 
 
@@ -425,7 +431,10 @@ def write_js_metadata(pkg_data, project_shortname):
 # pylint: disable=R0914
 def generate_rpkg(pkg_data,
                   project_shortname,
-                  export_string):
+                  export_string,
+                  package_depends,
+                  package_imports,
+                  package_suggests):
     """
     Generate documents for R package creation
 
@@ -447,6 +456,16 @@ def generate_rpkg(pkg_data,
     lib_name = pkg_data.get('name')
     package_description = pkg_data.get('description', '')
     package_version = pkg_data.get('version', '0.0.1')
+
+    # remove leading and trailing commas
+    if package_depends:
+       package_depends = ', ' + package_depends.strip(',').lstrip() 
+
+    if package_imports:
+       package_imports = ', ' + package_imports.strip(',').lstrip()  
+    
+    if package_suggests:
+       package_suggests = package_suggests.strip(',').lstrip()
 
     if 'bugs' in pkg_data.keys():
         package_issues = pkg_data['bugs'].get('url', '')
@@ -526,6 +545,9 @@ is on GitHub: plotly/dash-core-components."
         package_description=package_description,
         package_version=package_version,
         package_author=package_author,
+        package_depends=package_depends,
+        package_imports=package_imports,
+        package_suggests=package_suggests,
         package_license=package_license,
         package_url=package_url,
         package_issues=package_issues,
@@ -559,6 +581,9 @@ def generate_exports(project_shortname,
                      metadata,
                      pkg_data,
                      prefix,
+                     package_depends,
+                     package_imports,
+                     package_suggests,
                      **kwargs):
     export_string = ''
     for component in components:
@@ -573,5 +598,8 @@ def generate_exports(project_shortname,
     generate_rpkg(
         pkg_data,
         project_shortname,
-        export_string
+        export_string,
+        package_depends,
+        package_imports,
+        package_suggests
     )

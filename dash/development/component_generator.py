@@ -28,7 +28,10 @@ class _CombinedFormatter(argparse.ArgumentDefaultsHelpFormatter,
 def generate_components(components_source, project_shortname,
                         package_info_filename='package.json',
                         ignore='^_',
-                        rprefix=None):
+                        rprefix=None,
+                        rdepends='',
+                        rimports='',
+                        rsuggests=''):
 
     project_shortname = project_shortname.replace('-', '_').rstrip('/\\')
 
@@ -102,7 +105,8 @@ def generate_components(components_source, project_shortname,
                 pkg_data = byteify(jsondata_unicode)
 
         generate_exports(
-            project_shortname, components, metadata, pkg_data, prefix
+            project_shortname, components, metadata, pkg_data, prefix, \
+            rdepends, rimports, rsuggests
         )
 
 
@@ -131,16 +135,37 @@ def cli():
     )
     parser.add_argument(
         '--r-prefix',
-        help='Experimental: specify a prefix for DashR component names, write'
+        help='Specify a prefix for DashR component names, write '
              'DashR components to R dir, create R package.'
     )
-
+    parser.add_argument(
+        '--r-depends',
+        default='',
+        help='Specify a comma-separated list of R packages to be '
+             'inserted into the Depends field of the DESCRIPTION file.'
+    )
+    parser.add_argument(
+        '--r-imports',
+        default='', 
+        help='Specify a comma-separated list of R packages to be '
+             'inserted into the Imports field of the DESCRIPTION file.'
+    )
+    parser.add_argument(
+        '--r-suggests',
+        default='',
+        help='Specify a comma-separated list of R packages to be '
+             'inserted into the Suggests field of the DESCRIPTION file.'
+    )
+    
     args = parser.parse_args()
     generate_components(
         args.components_source, args.project_shortname,
         package_info_filename=args.package_info_filename,
         ignore=args.ignore,
-        rprefix=args.r_prefix)
+        rprefix=args.r_prefix,
+        rdepends=args.r_depends,
+        rimports=args.r_imports,
+        rsuggests=args.r_suggests)
 
 
 # pylint: disable=undefined-variable
