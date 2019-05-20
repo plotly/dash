@@ -153,6 +153,7 @@ class Tests(IntegrationTests):
         self.startServer(app)
         el = self.wait_for_element_by_css_selector('#react-entry-point')
 
+        # Note: this .html file shows there's no undo/redo button by default
         _dash_app_content_html = os.path.join(
             os.path.dirname(__file__),
             'test_assets', 'initial_state_dash_app_content.html')
@@ -209,6 +210,44 @@ class Tests(IntegrationTests):
         self.percy_snapshot(name='layout')
 
         self.assertTrue(self.is_console_clean())
+
+    def click_undo(self):
+        undo_selector = '._dash-undo-redo span:first-child'
+        undo = self.wait_for_element_by_css_selector(undo_selector)
+        self.wait_for_text_to_equal(undo_selector, '↺\nundo')
+        undo.click()
+
+    def click_redo(self):
+        redo_selector = '._dash-undo-redo span:last-child'
+        self.wait_for_text_to_equal(redo_selector, '↻\nredo')
+        redo = self.wait_for_element_by_css_selector(redo_selector)
+        redo.click()
+
+    def test_undo_redo(self):
+        app = Dash(__name__, show_undo_redo=True)
+        app.layout = html.Div([dcc.Input(id='a'), html.Div(id='b')])
+
+        @app.callback(Output('b', 'children'), [Input('a', 'value')])
+        def set_b(a):
+            return a
+
+        self.startServer(app)
+
+        a = self.wait_for_element_by_css_selector('#a')
+        a.send_keys('xyz')
+
+        self.wait_for_text_to_equal('#b', 'xyz')
+
+        self.click_undo()
+        self.wait_for_text_to_equal('#b', 'xy')
+
+        self.click_undo()
+        self.wait_for_text_to_equal('#b', 'x')
+
+        self.click_redo()
+        self.wait_for_text_to_equal('#b', 'xy')
+
+        self.percy_snapshot(name='undo-redo')
 
     def test_array_of_falsy_child(self):
         app = Dash(__name__)
