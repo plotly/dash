@@ -106,6 +106,7 @@ class Dash(object):
             external_stylesheets=None,
             suppress_callback_exceptions=None,
             components_cache_max_age=None,
+            show_undo_redo=False,
             plugins=None,
             **kwargs):
 
@@ -149,7 +150,8 @@ class Dash(object):
             'components_cache_max_age': int(get_combined_config(
                 'components_cache_max_age',
                 components_cache_max_age,
-                2678400))
+                2678400)),
+            'show_undo_redo': show_undo_redo
         })
 
         assets_blueprint_name = '{}{}'.format(
@@ -342,6 +344,7 @@ class Dash(object):
             'requests_pathname_prefix': self.config.requests_pathname_prefix,
             'ui': self._dev_tools.ui,
             'props_check': self._dev_tools.props_check,
+            'show_undo_redo': self.config.show_undo_redo
         }
         if self._dev_tools.hot_reload:
             config['hot_reload'] = {
@@ -1376,9 +1379,12 @@ class Dash(object):
             self._watch_thread.daemon = True
             self._watch_thread.start()
 
-        if debug and self._dev_tools.serve_dev_bundles:
+        if (debug and self._dev_tools.serve_dev_bundles and
+                not self.scripts.config.serve_locally):
             # Dev bundles only works locally.
             self.scripts.config.serve_locally = True
+            print('WARNING: dev bundles requested with serve_locally=False.\n'
+                  'This is not supported, switching to serve_locally=True')
 
         return debug
 

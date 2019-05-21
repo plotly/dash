@@ -66,10 +66,17 @@ class Resources:
         return self._filter_resources(all_resources, dev_bundles)
 
 
+# pylint: disable=too-few-public-methods
+class _Config:
+    def __init__(self, infer_from_layout, serve_locally):
+        self.infer_from_layout = infer_from_layout
+        self.serve_locally = serve_locally
+
+
 class Css:
     def __init__(self, layout=None):
         self._resources = Resources('_css_dist', layout)
-        self._resources.config = self.config
+        self._resources.config = self.config = _Config(True, True)
 
     def _update_layout(self, layout):
         self._resources.layout = layout
@@ -80,16 +87,11 @@ class Css:
     def get_all_css(self):
         return self._resources.get_all_resources()
 
-    # pylint: disable=no-init, too-few-public-methods
-    class config:
-        infer_from_layout = True
-        serve_locally = False
-
 
 class Scripts:
     def __init__(self, layout=None):
         self._resources = Resources('_js_dist', layout)
-        self._resources.config = self.config
+        self._resources.config = self.config = _Config(True, True)
 
     def _update_layout(self, layout):
         self._resources.layout = layout
@@ -99,8 +101,3 @@ class Scripts:
 
     def get_all_scripts(self, dev_bundles=False):
         return self._resources.get_all_resources(dev_bundles)
-
-    # pylint: disable=no-init, too-few-public-methods
-    class config:
-        infer_from_layout = True
-        serve_locally = False
