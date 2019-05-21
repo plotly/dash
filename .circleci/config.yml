@@ -86,7 +86,8 @@ jobs:
           name: ⚙️ run integration test
           command: |
             . venv/bin/activate
-            pytest --junitxml=test-reports/junit_intg.xml tests/integration || pytest --lf tests/integration
+            pytest --junitxml=test-reports/junit_intg.xml tests/integration/test_render.py
+            pytest --junitxml=test-reports/junit_intg.xml tests/integration/test_race_conditions.py tests/integration/test_integration.py tests/integration/dash_assets
           no_output_timeout: 30m
       - store_test_results:
           path: test-reports
