@@ -213,14 +213,14 @@ class Tests(IntegrationTests):
         self.assertTrue(self.is_console_clean())
 
     def click_undo(self):
-        undo_selector = '._dash-undo-redo span:first-child'
+        undo_selector = '._dash-undo-redo span:first-child div:last-child'
         undo = self.wait_for_element_by_css_selector(undo_selector)
-        self.wait_for_text_to_equal(undo_selector, '↺\nundo')
+        self.wait_for_text_to_equal(undo_selector, 'undo')
         undo.click()
 
     def click_redo(self):
-        redo_selector = '._dash-undo-redo span:last-child'
-        self.wait_for_text_to_equal(redo_selector, '↻\nredo')
+        redo_selector = '._dash-undo-redo span:last-child div:last-child'
+        self.wait_for_text_to_equal(redo_selector, 'redo')
         redo = self.wait_for_element_by_css_selector(redo_selector)
         redo.click()
 
