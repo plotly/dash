@@ -310,19 +310,19 @@ def write_help_file(name, props, description, prefix):
     has_wildcards = any('-*' in key for key in prop_keys)
 
     # Filter props to remove those we don't want to expose
-    for item in prop_keys[:]:
-        if item.endswith('-*') \
-                or item in r_keywords \
-                or item == 'setProps':
-            prop_keys.remove(item)
+    for p in prop_keys:
+        if props[p]["type"]:
+            props[p]["type"] = js_to_r_type(props[p]["type"]).capitalize()
+            props[p]["type"] += ". "
+        if props[p]["type"] == ". ":
+            props[p]["type"] = ""
 
-    default_argtext += ", ".join(
-        '{}=NULL'.format(p)
-        for p in prop_keys
-    )
+    default_argtext += ", ".join("{}=NULL".format(p) for p in prop_keys)
 
     item_text += "\n\n".join(
-        '\\item{{{}}}{{{}}}'.format(p, props[p]['description'])
+        "\\item{{{}}}{{{}{}}}".format(p,
+                                      props[p]["type"],
+                                      props[p]["description"])
         for p in prop_keys
     )
 
@@ -348,18 +348,6 @@ def write_class_file(name,
                      prefix=None):
     props = reorder_props(props=props)
 
-    # generate the R help pages for each of the Dash components that we
-    # are transpiling -- this is done to avoid using Roxygen2 syntax,
-    # we may eventually be able to generate similar documentation using
-    # doxygen and an R plugin, but for now we'll just do it on our own
-    # from within Python
-    write_help_file(
-        name,
-        props,
-        description,
-        prefix
-    )
-
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string(
@@ -374,6 +362,18 @@ def write_class_file(name,
     with open(file_path, 'w') as f:
         f.write(import_string)
         f.write(class_string)
+
+    # generate the R help pages for each of the Dash components that we
+    # are transpiling -- this is done to avoid using Roxygen2 syntax,
+    # we may eventually be able to generate similar documentation using
+    # doxygen and an R plugin, but for now we'll just do it on our own
+    # from within Python
+    write_help_file(
+        name,
+        props,
+        description,
+        prefix
+    )
 
     print('Generated {}'.format(file_name))
 
@@ -575,3 +575,209 @@ def generate_exports(project_shortname,
         project_shortname,
         export_string
     )
+
+
+def map_js_to_r_types_prop_types(type_object):
+    """Mapping from the PropTypes js type object to the R type"""
+
+    def shape_or_exact():
+        return "list containing keys {}.\n{}".format(
+            ", ".join("'{}'".format(t)
+                      for t in list(type_object["value"].keys())),
+            "Those keys have the following types:\n{}".format(
+                "\n".join(
+                    create_prop_docstring_r(
+                        prop_name=prop_name,
+                        type_object=prop,
+                        required=prop["required"],
+                        description=prop.get("description", ""),
+                        indent_num=1,
+                    )
+                    for prop_name, prop in list(type_object["value"].items())
+                )
+            ),
+        )
+
+    return dict(
+        array=lambda: "list",
+        bool=lambda: "logical",
+        number=lambda: "number",
+        string=lambda: "character",
+        object=lambda: "list",
+        any=lambda: "logical | number | character | list",
+        element=lambda: "dash component",
+        node=lambda: "a list of or a singular dash " "component, string or number",  # noqa:E501
+        # React's PropTypes.oneOf
+        enum=lambda: "a value equal to: {}".format(
+            ", ".join("{}".format(str(t["value"]))
+                      for t in type_object["value"])
+        ),
+        # React's PropTypes.oneOfType
+        union=lambda: "{}".format(
+            " | ".join(
+                "{}".format(js_to_r_type(subType))
+                for subType in type_object["value"]
+                if js_to_r_type(subType) != ""
+            )
+        ),
+        # React's PropTypes.arrayOf
+        arrayOf=lambda: "list".format(  # pylint: disable=too-many-format-args
+            " of {}s".format(js_to_r_type(type_object["value"]))
+            if js_to_r_type(type_object["value"]) != ""
+            else ""
+        ),
+        # React's PropTypes.objectOf
+        objectOf=lambda: ("dict with strings as keys and values of type {}").format(  # noqa:E501
+            js_to_r_type(type_object["value"])
+        ),
+        # React's PropTypes.shape
+        shape=shape_or_exact,
+        # React's PropTypes.exact
+        exact=shape_or_exact,
+    )
+
+
+def map_js_to_r_types_flow_types(type_object):
+    """Mapping from the Flow js types to the R type"""
+
+    return dict(
+        array=lambda: "list",
+        boolean=lambda: "logical",
+        number=lambda: "number",
+        string=lambda: "character",
+        Object=lambda: "list",
+        any=lambda: "logical | number | character | list",
+        Element=lambda: "dash component",
+        Node=lambda: "a list of or a singular dash " "component, string or number",  # noqa:E501
+        # React's PropTypes.oneOfType
+        union=lambda: "{}".format(
+            " | ".join(
+                "{}".format(js_to_r_type(subType))
+                for subType in type_object["elements"]
+                if js_to_r_type(subType) != ""
+            )
+        ),
+        # Flow's Array type
+        Array=lambda: "list{}".format(
+            " of {}s".format(js_to_r_type(type_object["elements"][0]))
+            if js_to_r_type(type_object["elements"][0]) != ""
+            else ""
+        ),
+        # React's PropTypes.shape
+        signature=lambda indent_num: "list containing keys {}.\n{}".format(
+            ", ".join(
+                "'{}'".format(d["key"])
+                for d in type_object["signature"]["properties"]
+            ),
+            "{}Those keys have the following types:\n{}".format(
+                "  " * indent_num,
+                "\n".join(
+                    create_prop_docstring_r(
+                        prop_name=prop["key"],
+                        type_object=prop["value"],
+                        required=prop["value"]["required"],
+                        description=prop["value"].get("description", ""),
+                        indent_num=indent_num,
+                        is_flow_type=True,
+                    )
+                    for prop in type_object["signature"]["properties"]
+                ),
+            ),
+        ),
+    )
+
+
+def js_to_r_type(type_object, is_flow_type=False, indent_num=0):
+    """
+    Convert JS types to R types for the component definition
+    Parameters
+    ----------
+    type_object: dict
+        react-docgen-generated prop type dictionary
+    is_flow_type: bool
+        Does the prop use Flow types? Otherwise, uses PropTypes
+    indent_num: int
+        Number of indents to use for the docstring for the prop
+    Returns
+    -------
+    str
+        Python type string
+    """
+    js_type_name = type_object["name"]
+    js_to_r_types = (
+        map_js_to_r_types_flow_types(type_object=type_object)
+        if is_flow_type
+        else map_js_to_r_types_prop_types(type_object=type_object)
+    )
+
+    if (
+            "computed" in type_object
+            and type_object["computed"]
+            or type_object.get("type", "") == "function"
+    ):
+        return ""
+    elif js_type_name in js_to_r_types:
+        if js_type_name == "signature":  # This is a Flow object w/ signature
+            return js_to_r_types[js_type_name](indent_num)
+        # All other types
+        return js_to_r_types[js_type_name]()
+    return ""
+
+
+# pylint: disable=too-many-arguments
+def create_prop_docstring_r(
+        prop_name,
+        type_object,
+        required,
+        description,
+        indent_num,
+        is_flow_type=False
+):
+    """
+    Create the Dash component prop docstring
+    Parameters
+    ----------
+    prop_name: str
+        Name of the Dash component prop
+    type_object: dict
+        react-docgen-generated prop type dictionary
+    required: bool
+        Component is required?
+    description: str
+        Dash component description
+    indent_num: int
+        Number of indents to use for the context block
+        (creates 2 spaces for every indent)
+    is_flow_type: bool
+        Does the prop use Flow types? Otherwise, uses PropTypes
+    Returns
+    -------
+    str
+        Dash component prop docstring
+    """
+    r_type_name = js_to_r_type(
+        type_object=type_object,
+        is_flow_type=is_flow_type,
+        indent_num=indent_num + 1
+    )
+
+    indent_spacing = "  " * indent_num
+    if "\n" in r_type_name:
+        return (
+            "{indent_spacing}- {name} ({is_required}): {description}. "
+            "{name} has the following type: {type}".format(
+                indent_spacing=indent_spacing,
+                name=prop_name,
+                type=r_type_name,
+                description=description,
+                is_required="required" if required else "optional",
+            )
+        )
+    return "{indent_spacing}- {name} ({type}" "{is_required}){description}".format(  # noqa:E501
+        indent_spacing=indent_spacing,
+        name=prop_name,
+        type="{}; ".format(r_type_name) if r_type_name else "",
+        description=(": {}".format(description) if description != "" else ""),
+        is_required="required" if required else "optional",
+    )
+
