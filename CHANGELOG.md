@@ -1,3 +1,7 @@
+## [UNRELEASED]
+### Changed
+- Undo/redo toolbar is removed by default, you can enable it with `app=Dash(show_undo_redo=true)`. The CSS hack `._dash-undo-redo:{display:none;}` is no longer needed [#724](https://github.com/plotly/dash/pull/724)
+
 ## [0.43.0] - 2019-04-25
 ### Changed
 - Bumped dash-core-components version from 0.47.0 to [0.48.0](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0480---2019-05-15)
