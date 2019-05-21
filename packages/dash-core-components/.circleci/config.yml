@@ -32,7 +32,7 @@ jobs:
                     . venv/bin/activate
                     pip install -e ./dash --quiet
                     cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-                    cd dash-renderer && npm install --ignore-scripts && npm run build && npm run build:dev && pip install -e . && cd ..
+                    cd dash-renderer && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
             - run:
                   name: Build
                   command: |

@@ -1,16 +1,19 @@
 from setuptools import setup
+import json
 
-main_ns = {}
-exec(open('dash_core_components/version.py').read(), main_ns)
+with open('package.json') as f:
+    package = json.load(f)
+
+package_name = str(package["name"].replace(" ", "_").replace("-", "_"))
 
 setup(
     name='dash_core_components',
-    version=main_ns['__version__'],
-    author='Chris Parmer',
+    version=package["version"],
+    author=package['author'],
     author_email='chris@plot.ly',
-    packages=['dash_core_components'],
+    packages=[package_name],
     include_package_data=True,
-    license='MIT',
-    description='Dash UI core component suite',
+    license=package['license'],
+    description=package['description'] if 'description' in package else package_name,
     install_requires=[]
 )

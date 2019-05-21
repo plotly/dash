@@ -10,7 +10,7 @@
     "url": "https://github.com/plotly/dash-core-components/issues"
   },
   "homepage": "https://github.com/plotly/dash-core-components",
-  "main": "src/index.js",
+  "main": "dash_core_components/dash_core_components.min.js",
   "scripts": {
     "prepare": "npm run build",
     "publish-all": "node scripts/publish.js",
@@ -25,11 +25,8 @@
     "format:test": "prettier --config .prettierrc src/**/*.js test/unit/*.js --list-different",
     "uninstall-local": "pip uninstall dash-core-components -y",
     "build:js": "webpack --mode production",
-    "build:js-dev": "webpack --mode development",
-    "build:py": "dash-generate-components ./src/components dash_core_components",
-    "build:r": "dash-generate-components ./src/components dash_core_components --r-prefix 'dcc'",
-    "build": "npm run build:js && npm run build:js-dev && npm run build:py",
-    "build-dev": "npm run build:js-dev && npm run build:py",
+    "build:py_and_r": "dash-generate-components ./src/components dash_core_components -p package-info.json --r-prefix 'dcc'",
+    "build": "npm run build:js && npm run build:py_and_r",
     "build:watch": "watch 'npm run build' src"
   },
   "author": "Chris Parmer <chris@plot.ly>",
@@ -78,6 +75,9 @@
     "webpack-cli": "^3.3.0",
     "webpack-serve": "^2.0.3"
   },
+  "files": [
+    "/dash_core_components/*{.js,.map}"
+  ],
   "peerDependencies": {
     "react": "^16.0.0",
     "react-dom": "^16.0.0"
