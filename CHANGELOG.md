@@ -1,5 +1,7 @@
-## [UNRELEASED]
+## Unreleased
 ### Changed
+- [#722](https://github.com/plotly/dash/pull/722) Assets are served locally by default. Both JS scripts and CSS files are affected. This improves robustness and flexibility in numerous situations, but in certain cases initial loading could be slowed. To restore the previous CDN serving, set `app.scripts.config.serve_locally = False` (and similarly with `app.css`, but this is generally less important).
+
 - Undo/redo toolbar is removed by default, you can enable it with `app=Dash(show_undo_redo=true)`. The CSS hack `._dash-undo-redo:{display:none;}` is no longer needed [#724](https://github.com/plotly/dash/pull/724)
 
 ## [0.43.0] - 2019-04-25

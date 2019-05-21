@@ -190,7 +190,7 @@ class Tests(IntegrationTests):
         output2 = self.wait_for_element_by_id('output2')
 
         # callback1 runs 4x (initial page load and 3x through send_keys)
-        self.assertEqual(callback1_count.value, 4)
+        wait_for(lambda: callback1_count.value == 4)
 
         # callback2 is never triggered, even on initial load
         self.assertEqual(callback2_count.value, 0)
@@ -562,7 +562,6 @@ class Tests(IntegrationTests):
 
     def test_multi_output(self):
         app = Dash(__name__)
-        app.scripts.config.serve_locally = True
 
         app.layout = html.Div([
             html.Button('OUTPUT', id='output-btn'),
@@ -663,7 +662,6 @@ class Tests(IntegrationTests):
 
     def test_multi_output_no_update(self):
         app = Dash(__name__)
-        app.scripts.config.serve_locally = True
 
         app.layout = html.Div([
             html.Button('B', 'btn'),
@@ -696,7 +694,6 @@ class Tests(IntegrationTests):
 
     def test_no_update_chains(self):
         app = Dash(__name__)
-        app.scripts.config.serve_locally = True
 
         app.layout = html.Div([
             dcc.Input(id='a_in', value='a'),

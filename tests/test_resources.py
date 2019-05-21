@@ -67,7 +67,9 @@ class Tests(unittest.TestCase):
             assets_ignore='load_after.+.js'
         )
         app.layout = dcc.Markdown()
-        app.scripts.config.serve_locally = True
+
+        self.assertEqual(app.scripts.config.serve_locally, True)
+        self.assertEqual(app.css.config.serve_locally, True)
 
         with mock.patch('dash.dash.os.stat', return_value=StatMock()):
             with mock.patch('dash.dash.importlib.import_module',

@@ -1379,9 +1379,12 @@ class Dash(object):
             self._watch_thread.daemon = True
             self._watch_thread.start()
 
-        if debug and self._dev_tools.serve_dev_bundles:
+        if (debug and self._dev_tools.serve_dev_bundles and
+                not self.scripts.config.serve_locally):
             # Dev bundles only works locally.
             self.scripts.config.serve_locally = True
+            print('WARNING: dev bundles requested with serve_locally=False.\n'
+                  'This is not supported, switching to serve_locally=True')
 
         return debug
 
