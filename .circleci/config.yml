@@ -30,7 +30,7 @@ jobs:
       - run:
           name: Install dependencies (dash)
           command: |
-              git clone -b hide-undo-redo git@github.com:plotly/dash-renderer.git
+              git clone git@github.com:plotly/dash-renderer.git
               git clone git@github.com:plotly/dash-core-components.git
               git clone git@github.com:plotly/dash-html-components.git
               git clone git@github.com:plotly/dash-table.git
