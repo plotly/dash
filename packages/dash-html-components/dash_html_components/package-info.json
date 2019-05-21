@@ -22,10 +22,8 @@
     "publish-all": "node scripts/publish.js",
     "lint": "eslint src scripts",
     "build:js": "webpack --mode production",
-    "build:js-dev": "webpack --mode development",
-    "build:py": "dash-generate-components ./src/components dash_html_components",
-    "build:r": "dash-generate-components ./src/components dash_html_components --r-prefix 'html'",
-    "build": "npm run build:js && npm run build:js-dev && npm run build:py",
+    "build:py_and_r": "dash-generate-components ./src/components dash_html_components -p package-info.json --r-prefix 'html'",
+    "build": "npm run build:js && npm run build:py_and_r",
     "build:watch": "watch 'npm run build' src",
     "test:import": "python -m unittest tests.test_dash_import",
     "test:py": "python -m unittest tests.test_dash_html_components tests.test_integration",
@@ -58,6 +56,9 @@
     "request": "^2.72.0",
     "string": "^3.3.1"
   },
+  "files": [
+    "/dash_html_components/*{.js,.map}"
+  ],
   "peerDependencies": {
     "react": "^15.4.0 || ^16.0.0",
     "react-dom": "^15.4.0 || ^16.0.0"

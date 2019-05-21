@@ -2,11 +2,18 @@
 
 from __future__ import print_function as _
 
+import json
 import os as _os
 import sys as _sys
 import dash as _dash
 
-from .version import __version__
+_basepath = _os.path.dirname(__file__)
+_filepath = _os.path.abspath(_os.path.join(_basepath, 'package-info.json'))
+with open(_filepath) as f:
+    package = json.load(f)
+
+package_name = package['name'].replace(' ', '_').replace('-', '_')
+__version__ = package['version']
 
 # Module imports trigger a dash.development import, need to check this first
 if not hasattr(_dash, 'development'):
@@ -37,12 +44,20 @@ _this_module = _sys.modules[__name__]
 _js_dist = [
     {
         "relative_package_path": '{}.min.js'.format(__name__),
-        "dev_package_path": '{}.dev.js'.format(__name__),
         "external_url": (
             "https://unpkg.com/dash-html-components@{}"
             "/dash_html_components/dash_html_components.min.js"
         ).format(__version__),
         "namespace": "dash_html_components"
+    },
+    {
+        'relative_package_path': '{}.min.js.map'.format(__name__),
+        'external_url': (
+            'https://unpkg.com/dash-html-components@{}'
+            '/dash_html_components/dash_html_components.min.js.map'
+        ).format(__version__),
+        'namespace': 'dash_html_components',
+        'dynamic': True
     }
 ]
 
