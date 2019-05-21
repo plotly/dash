@@ -131,34 +131,20 @@ export function redo() {
     };
 }
 
+const UNDO = createAction('UNDO')();
 export function undo() {
-    return function(dispatch, getState) {
-        const history = getState().history;
-        dispatch(createAction('UNDO')());
-        const previous = history.past[history.past.length - 1];
-
-        // Update props
-        dispatch(
-            createAction('UNDO_PROP_CHANGE')({
-                itempath: getState().paths[previous.id],
-                props: previous.props,
-            })
-        );
-
-        // Notify observers
-        dispatch(
-            notifyObservers({
-                id: previous.id,
-                props: previous.props,
-            })
-        );
-    };
+    return undo_revert(UNDO);
 }
 
+const REVERT = createAction('REVERT')();
 export function revert() {
+    return undo_revert(REVERT);
+}
+
+function undo_revert(undo_or_revert) {
     return function(dispatch, getState) {
         const history = getState().history;
-        dispatch(createAction('REVERT')());
+        dispatch(undo_or_revert);
         const previous = history.past[history.past.length - 1];
 
         // Update props

@@ -30,9 +30,10 @@ class UnconnectedAppContainer extends React.Component {
         if (type(config) === 'Null') {
             return <div className="_dash-loading">Loading...</div>;
         }
+        const {show_undo_redo} = config;
         return (
             <React.Fragment>
-                <Toolbar />
+                {show_undo_redo ? <Toolbar /> : null}
                 <APIController />
                 <DocumentTitle />
                 <Loading />
