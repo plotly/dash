@@ -48,7 +48,6 @@ class Tests(unittest.TestCase):
         )
         app.layout = dcc.Markdown()
         app.scripts.config.serve_locally = False
-        app.scripts.config.xxx = 123
 
         with mock.patch('dash.dash.os.stat', return_value=StatMock()):
             resource = app._collect_and_register_resources(
