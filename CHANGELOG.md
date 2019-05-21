@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [UNRELEASED]
+### Changed
+- Undo/redo toolbar is removed by default, unless `config.show_undo_redo=true` is provided. The CSS hack `._dash-undo-redo:{display:none;}` is no longer needed [#175](https://github.com/plotly/dash-renderer/pull/175)
+
 ## [0.24.0] - 2019-05-15
 ### Fixed
 - Fix regression on handling PreventUpdate (204 NO CONTENT) [#170](https://github.com/plotly/dash-renderer/pull/170)
