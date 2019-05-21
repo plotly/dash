@@ -14,7 +14,7 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-r_component_string = """{prefix}{name} <- function({default_argtext}{wildcards}) {{
+r_component_string = '''{prefix}{name} <- function({default_argtext}{wildcards}) {{
     {wildcard_declaration}
     component <- list(
         props = list({default_paramtext}{wildcards}),
@@ -27,33 +27,33 @@ r_component_string = """{prefix}{name} <- function({default_argtext}{wildcards})
     component$props <- filter_null(component$props)
 
     structure(component, class = c('dash_component', 'list'))
-}}"""  # noqa:E501
+}}'''  # noqa:E501
 
 # the following strings represent all the elements in an object
 # of the html_dependency class, which will be propagated by
 # iterating over _js_dist in __init__.py
-frame_open_template = """.{rpkgname}_js_metadata <- function() {{
-deps_metadata <- list("""
+frame_open_template = '''.{rpkgname}_js_metadata <- function() {{
+deps_metadata <- list('''
 
-frame_element_template = """`{dep_name}` = structure(list(name = "{dep_name}",
+frame_element_template = '''`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")"""
+all_files = FALSE), class = "html_dependency")'''
 
-frame_body_template = """`{project_shortname}` = structure(list(name = "{project_shortname}",
+frame_body_template = '''`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = "{dep_rpp}",
 stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")"""  # noqa:E501
+all_files = FALSE), class = "html_dependency")'''  # noqa:E501
 
-frame_close_template = """)
+frame_close_template = ''')
 return(deps_metadata)
-}"""
+}'''
 
-help_string = """% Auto-generated: do not edit by hand
+help_string = '''% Auto-generated: do not edit by hand
 \\name{{{prefix}{name}}}
 
 \\alias{{{prefix}{name}}}
@@ -71,9 +71,9 @@ help_string = """% Auto-generated: do not edit by hand
 \\arguments{{
 {item_text}
 }}
-"""
+'''
 
-description_template = """Package: {package_name}
+description_template = '''Package: {package_name}
 Title: {package_description}
 Version: {package_version}
 Authors @R: as.person(c({package_author}))
@@ -88,9 +88,9 @@ Encoding: UTF-8
 LazyData: true
 Author: {package_author_no_email}
 Maintainer: {package_author}
-"""
+'''
 
-rbuild_ignore_string = r"""# ignore JS config files/folders
+rbuild_ignore_string = r'''# ignore JS config files/folders
 node_modules/
 coverage/
 src/
@@ -119,9 +119,9 @@ test/
 LICENSE.txt
 ^.*\.Rproj$
 ^\.Rproj\.user$
-"""
+'''
 
-pkghelp_stub = """% Auto-generated: do not edit by hand
+pkghelp_stub = '''% Auto-generated: do not edit by hand
 \\docType{{package}}
 \\name{{{package_name}-package}}
 \\alias{{{package_name}}}
@@ -139,7 +139,7 @@ Useful links:
 \\author{{
 \\strong{{Maintainer}}: {package_author}
 }}
-"""
+'''
 
 
 # pylint: disable=R0914
@@ -152,62 +152,72 @@ def generate_class_string(name, props, project_shortname, prefix):
 
     prop_keys = list(props.keys())
 
-    wildcards = ""
-    wildcard_declaration = ""
-    wildcard_names = ""
+    wildcards = ''
+    wildcard_declaration = ''
+    wildcard_names = ''
 
-    if any("-*" in key for key in prop_keys):
-        wildcards = ", ..."
-        wildcard_declaration = (
-            "\n    wildcard_names = names(assert_valid_wildcards(...))\n"
-        )
-        wildcard_names = ", wildcard_names"
+    if any('-*' in key for key in prop_keys):
+        wildcards = ', ...'
+        wildcard_declaration =\
+            '\n    wildcard_names = names(assert_valid_wildcards(...))\n'
+        wildcard_names = ', wildcard_names'
 
-    default_paramtext = ""
-    default_argtext = ""
-    default_wildcards = ""
+    default_paramtext = ''
+    default_argtext = ''
+    default_wildcards = ''
 
     # Produce a string with all property names other than WCs
     prop_names = ", ".join(
-        "'{}'".format(p)
-        for p in prop_keys if "*" not in p and p not in ["setProps"]
+        '\'{}\''.format(p)
+        for p in prop_keys
+        if '*' not in p and
+        p not in ['setProps']
     )
 
     # in R, we set parameters with no defaults to NULL
     # Here we'll do that if no default value exists
-    default_wildcards += ", ".join("'{}'".format(p)
-                                   for p in prop_keys if "*" in p)
+    default_wildcards += ", ".join(
+        '\'{}\''.format(p)
+        for p in prop_keys
+        if '*' in p
+    )
 
-    if default_wildcards == "":
-        default_wildcards = "NULL"
+    if default_wildcards == '':
+        default_wildcards = 'NULL'
     else:
-        default_wildcards = "c({})".format(default_wildcards)
+        default_wildcards = 'c({})'.format(default_wildcards)
 
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
-        if item.endswith("-*") or item in r_keywords or item == "setProps":
+        if item.endswith('-*') \
+                or item in r_keywords \
+                or item == 'setProps':
             prop_keys.remove(item)
 
-    default_argtext += ", ".join("{}=NULL".format(p) for p in prop_keys)
-
-    # pylint: disable=C0301
-    default_paramtext += ", ".join(
-        "{0}={0}".format(p) if p != "children" else "{}=children".format(p)
+    default_argtext += ", ".join(
+        '{}=NULL'.format(p)
         for p in prop_keys
     )
 
-    return r_component_string.format(
-        prefix=prefix,
-        name=name,
-        default_argtext=default_argtext,
-        wildcards=wildcards,
-        wildcard_declaration=wildcard_declaration,
-        default_paramtext=default_paramtext,
-        project_shortname=project_shortname,
-        prop_names=prop_names,
-        wildcard_names=wildcard_names,
-        package_name=package_name,
+    # pylint: disable=C0301
+    default_paramtext += ", ".join(
+        '{0}={0}'.format(p)
+        if p != "children" else
+        '{}=children'
+        .format(p)
+        for p in prop_keys
     )
+
+    return r_component_string.format(prefix=prefix,
+                                     name=name,
+                                     default_argtext=default_argtext,
+                                     wildcards=wildcards,
+                                     wildcard_declaration=wildcard_declaration,
+                                     default_paramtext=default_paramtext,
+                                     project_shortname=project_shortname,
+                                     prop_names=prop_names,
+                                     wildcard_names=wildcard_names,
+                                     package_name=package_name)
 
 
 # pylint: disable=R0914
@@ -229,8 +239,8 @@ def generate_js_metadata(pkg_data, project_shortname):
     # import component library module into sys
     mod = sys.modules[project_shortname]
 
-    jsdist = getattr(mod, "_js_dist", [])
-    project_ver = pkg_data.get("version")
+    jsdist = getattr(mod, '_js_dist', [])
+    project_ver = pkg_data.get('version')
 
     rpkgname = snake_case_to_camel_case(project_shortname)
 
@@ -247,32 +257,29 @@ def generate_js_metadata(pkg_data, project_shortname):
     # pylint: disable=consider-using-enumerate
     if len(jsdist) > 1:
         for dep in range(len(jsdist)):
-            if "dash_" in jsdist[dep]["relative_package_path"]:
-                dep_name = jsdist[dep]["relative_package_path"].split(".")[0]
+            if 'dash_' in jsdist[dep]['relative_package_path']:
+                dep_name = jsdist[dep]['relative_package_path'].split('.')[0]
             else:
-                dep_name = "{}_{}".format(project_shortname, str(dep))
+                dep_name = '{}_{}'.format(project_shortname, str(dep))
                 project_ver = str(dep)
-            function_frame += [
-                frame_element_template.format(
-                    dep_name=dep_name,
-                    project_ver=project_ver,
-                    rpkgname=rpkgname,
-                    project_shortname=project_shortname,
-                    dep_rpp=jsdist[dep]["relative_package_path"],
-                )
-            ]
-            function_frame_body = ",\n".join(function_frame)
+            function_frame += [frame_element_template.format(
+                dep_name=dep_name,
+                project_ver=project_ver,
+                rpkgname=rpkgname,
+                project_shortname=project_shortname,
+                dep_rpp=jsdist[dep]['relative_package_path']
+            )]
+            function_frame_body = ',\n'.join(function_frame)
     elif len(jsdist) == 1:
-        function_frame_body = frame_body_template.format(
-            project_shortname=project_shortname,
-            project_ver=project_ver,
-            rpkgname=rpkgname,
-            dep_rpp=jsdist[0]["relative_package_path"],
-        )
+        function_frame_body = frame_body_template. \
+            format(project_shortname=project_shortname,
+                   project_ver=project_ver,
+                   rpkgname=rpkgname,
+                   dep_rpp=jsdist[0]['relative_package_path'])
 
-    function_string = "".join(
-        [function_frame_open, function_frame_body, frame_close_template]
-    )
+    function_string = ''.join([function_frame_open,
+                               function_frame_body,
+                               frame_close_template])
 
     return function_string
 
@@ -293,54 +300,52 @@ def write_help_file(name, props, description, prefix):
     writes an R help file to the man directory for the generated R package
 
     """
-    file_name = "{}{}.Rd".format(prefix, name)
+    file_name = '{}{}.Rd'.format(prefix, name)
 
-    default_argtext = ""
-    item_text = ""
+    default_argtext = ''
+    item_text = ''
 
     prop_keys = list(props.keys())
 
-    has_wildcards = any("-*" in key for key in prop_keys)
+    has_wildcards = any('-*' in key for key in prop_keys)
 
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
-        if item.endswith("-*") or item in r_keywords or item == "setProps":
+        if item.endswith('-*') \
+                or item in r_keywords \
+                or item == 'setProps':
             prop_keys.remove(item)
 
-    for p in prop_keys:
-        if props[p]["type"]:
-            props[p]["type"] = js_to_r_type(props[p]["type"]).capitalize()
-            props[p]["type"] += ". "
-        if props[p]["type"] == ". ":
-            props[p]["type"] = ""
-
-    default_argtext += ", ".join("{}=NULL".format(p) for p in prop_keys)
+    default_argtext += ", ".join(
+        '{}=NULL'.format(p)
+        for p in prop_keys
+    )
 
     item_text += "\n\n".join(
-        "\\item{{{}}}{{{}{}}}".format(p,
-                                      props[p]["type"],
-                                      props[p]["description"])
+        '\\item{{{}}}{{{}}}'.format(p, props[p]['description'])
         for p in prop_keys
     )
 
     if has_wildcards:
-        item_text += "\n\n\\item{...}{wildcards: `data-*` or `aria-*`}"
-        default_argtext += ", ..."
+        item_text += '\n\n\\item{...}{wildcards: `data-*` or `aria-*`}'
+        default_argtext += ', ...'
 
-    file_path = os.path.join("man", file_name)
-    with open(file_path, "w") as f:
-        f.write(
-            help_string.format(
-                prefix=prefix,
-                name=name,
-                default_argtext=default_argtext,
-                item_text=item_text,
-                description=description.replace("\n", " "),
-            )
-        )
+    file_path = os.path.join('man', file_name)
+    with open(file_path, 'w') as f:
+        f.write(help_string.format(
+            prefix=prefix,
+            name=name,
+            default_argtext=default_argtext,
+            item_text=item_text,
+            description=description.replace('\n', ' ')
+        ))
 
 
-def write_class_file(name, props, description, project_shortname, prefix=None):
+def write_class_file(name,
+                     props,
+                     description,
+                     project_shortname,
+                     prefix=None):
     props = reorder_props(props=props)
 
     # generate the R help pages for each of the Dash components that we
@@ -348,21 +353,29 @@ def write_class_file(name, props, description, project_shortname, prefix=None):
     # we may eventually be able to generate similar documentation using
     # doxygen and an R plugin, but for now we'll just do it on our own
     # from within Python
-    write_help_file(name, props, description, prefix)
+    write_help_file(
+        name,
+        props,
+        description,
+        prefix
+    )
 
-    import_string = "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
-    class_string = generate_class_string(name,
-                                         props,
-                                         project_shortname,
-                                         prefix)
+    import_string =\
+        "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
+    class_string = generate_class_string(
+        name,
+        props,
+        project_shortname,
+        prefix
+    )
     file_name = "{}{}.R".format(prefix, name)
 
-    file_path = os.path.join("R", file_name)
-    with open(file_path, "w") as f:
+    file_path = os.path.join('R', file_name)
+    with open(file_path, 'w') as f:
         f.write(import_string)
         f.write(class_string)
 
-    print("Generated {}".format(file_name))
+    print('Generated {}'.format(file_name))
 
 
 def write_js_metadata(pkg_data, project_shortname):
@@ -379,37 +392,40 @@ def write_js_metadata(pkg_data, project_shortname):
 
     """
     function_string = generate_js_metadata(
-        pkg_data=pkg_data, project_shortname=project_shortname
+        pkg_data=pkg_data,
+        project_shortname=project_shortname
     )
     file_name = "internal.R"
 
     # the R source directory for the package won't exist on first call
     # create the R directory if it is missing
-    if not os.path.exists("R"):
-        os.makedirs("R")
+    if not os.path.exists('R'):
+        os.makedirs('R')
 
-    file_path = os.path.join("R", file_name)
-    with open(file_path, "w") as f:
+    file_path = os.path.join('R', file_name)
+    with open(file_path, 'w') as f:
         f.write(function_string)
 
     # now copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
     # create this directory if it is missing
-    if not os.path.exists("inst/deps"):
-        os.makedirs("inst/deps")
+    if not os.path.exists('inst/deps'):
+        os.makedirs('inst/deps')
 
-    for javascript in glob.glob("{}/*.js".format(project_shortname)):
-        shutil.copy(javascript, "inst/deps/")
+    for javascript in glob.glob('{}/*.js'.format(project_shortname)):
+        shutil.copy(javascript, 'inst/deps/')
 
-    for css in glob.glob("{}/*.css".format(project_shortname)):
-        shutil.copy(css, "inst/deps/")
+    for css in glob.glob('{}/*.css'.format(project_shortname)):
+        shutil.copy(css, 'inst/deps/')
 
-    for sourcemap in glob.glob("{}/*.map".format(project_shortname)):
-        shutil.copy(sourcemap, "inst/deps/")
+    for sourcemap in glob.glob('{}/*.map'.format(project_shortname)):
+        shutil.copy(sourcemap, 'inst/deps/')
 
 
 # pylint: disable=R0914
-def generate_rpkg(pkg_data, project_shortname, export_string):
+def generate_rpkg(pkg_data,
+                  project_shortname,
+                  export_string):
     """
     Generate documents for R package creation
 
@@ -428,55 +444,59 @@ def generate_rpkg(pkg_data, project_shortname, export_string):
     # does not exist in package.json
 
     package_name = snake_case_to_camel_case(project_shortname)
-    lib_name = pkg_data.get("name")
-    package_description = pkg_data.get("description", "")
-    package_version = pkg_data.get("version", "0.0.1")
+    lib_name = pkg_data.get('name')
+    package_description = pkg_data.get('description', '')
+    package_version = pkg_data.get('version', '0.0.1')
 
-    if "bugs" in pkg_data.keys():
-        package_issues = pkg_data["bugs"].get("url", "")
+    if 'bugs' in pkg_data.keys():
+        package_issues = pkg_data['bugs'].get('url', '')
     else:
-        package_issues = ""
+        package_issues = ''
         print(
-            "Warning: a URL for bug reports was "
-            "not provided. Empty string inserted.",
-            file=sys.stderr,
+            'Warning: a URL for bug reports was '
+            'not provided. Empty string inserted.',
+            file=sys.stderr
         )
 
-    if "homepage" in pkg_data.keys():
-        package_url = pkg_data.get("homepage", "")
+    if 'homepage' in pkg_data.keys():
+        package_url = pkg_data.get('homepage', '')
     else:
-        package_url = ""
+        package_url = ''
         print(
-            "Warning: a homepage URL was not provided. Empty string inserted.",
-            file=sys.stderr,
+            'Warning: a homepage URL was not provided. Empty string inserted.',
+            file=sys.stderr
         )
 
-    package_author = pkg_data.get("author")
+    package_author = pkg_data.get('author')
 
-    package_author_no_email = package_author.split(" <")[0] + " [aut]"
+    package_author_no_email = package_author.split(" <")[0] + ' [aut]'
 
-    if not (os.path.isfile("LICENSE") or os.path.isfile("LICENSE.txt")):
-        package_license = pkg_data.get("license", "")
+    if not (os.path.isfile('LICENSE') or os.path.isfile('LICENSE.txt')):
+        package_license = pkg_data.get('license', '')
     else:
-        package_license = pkg_data.get("license", "") + " + file LICENSE"
+        package_license = pkg_data.get('license', '') + ' + file LICENSE'
         # R requires that the LICENSE.txt file be named LICENSE
-        if not os.path.isfile("LICENSE"):
+        if not os.path.isfile('LICENSE'):
             os.symlink("LICENSE.txt", "LICENSE")
 
-    import_string = "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
+    import_string =\
+        '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
 
-    pkghelp_stub_path = os.path.join("man", package_name + "-package.Rd")
+    pkghelp_stub_path = os.path.join('man', package_name + '-package.Rd')
 
     # generate the internal (not exported to the user) functions which
     # supply the JavaScript dependencies to the dashR package.
     # this avoids having to generate an RData file from within Python.
-    write_js_metadata(pkg_data=pkg_data, project_shortname=project_shortname)
+    write_js_metadata(
+        pkg_data=pkg_data,
+        project_shortname=project_shortname
+    )
 
-    with open("NAMESPACE", "w") as f:
+    with open('NAMESPACE', 'w') as f:
         f.write(import_string)
         f.write(export_string)
 
-    with open(".Rbuildignore", "w") as f2:
+    with open('.Rbuildignore', 'w') as f2:
         f2.write(rbuild_ignore_string)
 
     # Write package stub files for R online help, generate if
@@ -484,7 +504,7 @@ def generate_rpkg(pkg_data, project_shortname, export_string):
     # for R users to bring up main package help page
     pkg_help_header = ""
 
-    if package_name in ["dashHtmlComponents"]:
+    if package_name in ['dashHtmlComponents']:
         pkg_help_header = "Vanilla HTML Components for Dash"
         pkg_help_desc = "Dash is a web application framework that\n\
 provides pure Python and R abstraction around HTML, CSS, and\n\
@@ -493,7 +513,7 @@ templating engine, you compose your layout using R\n\
 functions within the dashHtmlComponents package. The\n\
 source for this package is on GitHub:\n\
 plotly/dash-html-components."
-    if package_name in ["dashCoreComponents"]:
+    if package_name in ['dashCoreComponents']:
         pkg_help_header = "Core Interactive UI Components for Dash"
         pkg_help_desc = "Dash ships with supercharged components for\n\
 interactive user interfaces. A core set of components,\n\
@@ -509,21 +529,19 @@ is on GitHub: plotly/dash-core-components."
         package_license=package_license,
         package_url=package_url,
         package_issues=package_issues,
-        package_author_no_email=package_author_no_email,
+        package_author_no_email=package_author_no_email
     )
 
-    with open("DESCRIPTION", "w") as f3:
+    with open('DESCRIPTION', 'w') as f3:
         f3.write(description_string)
 
     if pkg_help_header != "":
-        pkghelp = pkghelp_stub.format(
-            package_name=package_name,
-            pkg_help_header=pkg_help_header,
-            pkg_help_desc=pkg_help_desc,
-            lib_name=lib_name,
-            package_author=package_author,
-        )
-        with open(pkghelp_stub_path, "w") as f4:
+        pkghelp = pkghelp_stub.format(package_name=package_name,
+                                      pkg_help_header=pkg_help_header,
+                                      pkg_help_desc=pkg_help_desc,
+                                      lib_name=lib_name,
+                                      package_author=package_author)
+        with open(pkghelp_stub_path, 'w') as f4:
             f4.write(pkghelp)
 
 
@@ -531,231 +549,29 @@ is on GitHub: plotly/dash-core-components."
 # Not required for R package name to be in camel case,
 # but probably more conventional this way
 def snake_case_to_camel_case(namestring):
-    s = namestring.split("_")
-    return s[0] + "".join(w.capitalize() for w in s[1:])
+    s = namestring.split('_')
+    return s[0] + ''.join(w.capitalize() for w in s[1:])
 
 
 # pylint: disable=unused-argument
-def generate_exports(
-        project_shortname, components, metadata, pkg_data, prefix, **kwargs
-):
-    export_string = ""
+def generate_exports(project_shortname,
+                     components,
+                     metadata,
+                     pkg_data,
+                     prefix,
+                     **kwargs):
+    export_string = ''
     for component in components:
-        if (
-                not component.endswith("-*")
-                and str(component) not in r_keywords
-                and str(component) not in ["setProps",
-                                           "children",
-                                           "dashEvents"]
-        ):
-            export_string += "export({}{})\n".format(prefix, component)
+        if not component.endswith('-*') and \
+                str(component) not in r_keywords and \
+                str(component) not in ['setProps', 'children', 'dashEvents']:
+            export_string += 'export({}{})\n'.format(prefix, component)
 
     # now, bundle up the package information and create all the requisite
     # elements of an R package, so that the end result is installable either
     # locally or directly from GitHub
-    generate_rpkg(pkg_data, project_shortname, export_string)
-
-
-def map_js_to_r_types_prop_types(type_object):
-    """Mapping from the PropTypes js type object to the R type"""
-
-    def shape_or_exact():
-        return "list containing keys {}.\n{}".format(
-            ", ".join("'{}'".format(t)
-                      for t in list(type_object["value"].keys())),
-            "Those keys have the following types:\n{}".format(
-                "\n".join(
-                    create_prop_docstring_r(
-                        prop_name=prop_name,
-                        type_object=prop,
-                        required=prop["required"],
-                        description=prop.get("description", ""),
-                        indent_num=1,
-                    )
-                    for prop_name, prop in list(type_object["value"].items())
-                )
-            ),
-        )
-
-    return dict(
-        array=lambda: "list",
-        bool=lambda: "logical",
-        number=lambda: "number",
-        string=lambda: "character",
-        object=lambda: "list",
-        any=lambda: "logical | number | character | list",
-        element=lambda: "dash component",
-        node=lambda: "a list of or a singular dash " "component, string or number",  # noqa:E501
-        # React's PropTypes.oneOf
-        enum=lambda: "a value equal to: {}".format(
-            ", ".join("{}".format(str(t["value"]))
-                      for t in type_object["value"])
-        ),
-        # React's PropTypes.oneOfType
-        union=lambda: "{}".format(
-            " | ".join(
-                "{}".format(js_to_r_type(subType))
-                for subType in type_object["value"]
-                if js_to_r_type(subType) != ""
-            )
-        ),
-        # React's PropTypes.arrayOf
-        arrayOf=lambda: "list".format(  # pylint: disable=too-many-format-args
-            " of {}s".format(js_to_r_type(type_object["value"]))
-            if js_to_r_type(type_object["value"]) != ""
-            else ""
-        ),
-        # React's PropTypes.objectOf
-        objectOf=lambda: ("dict with strings as keys and values of type {}").format(  # noqa:E501
-            js_to_r_type(type_object["value"])
-        ),
-        # React's PropTypes.shape
-        shape=shape_or_exact,
-        # React's PropTypes.exact
-        exact=shape_or_exact,
-    )
-
-
-def map_js_to_r_types_flow_types(type_object):
-    """Mapping from the Flow js types to the R type"""
-
-    return dict(
-        array=lambda: "list",
-        boolean=lambda: "logical",
-        number=lambda: "number",
-        string=lambda: "character",
-        Object=lambda: "list",
-        any=lambda: "logical | number | character | list",
-        Element=lambda: "dash component",
-        Node=lambda: "a list of or a singular dash " "component, string or number",  # noqa:E501
-        # React's PropTypes.oneOfType
-        union=lambda: "{}".format(
-            " | ".join(
-                "{}".format(js_to_r_type(subType))
-                for subType in type_object["elements"]
-                if js_to_r_type(subType) != ""
-            )
-        ),
-        # Flow's Array type
-        Array=lambda: "list{}".format(
-            " of {}s".format(js_to_r_type(type_object["elements"][0]))
-            if js_to_r_type(type_object["elements"][0]) != ""
-            else ""
-        ),
-        # React's PropTypes.shape
-        signature=lambda indent_num: "list containing keys {}.\n{}".format(
-            ", ".join(
-                "'{}'".format(d["key"])
-                for d in type_object["signature"]["properties"]
-            ),
-            "{}Those keys have the following types:\n{}".format(
-                "  " * indent_num,
-                "\n".join(
-                    create_prop_docstring_r(
-                        prop_name=prop["key"],
-                        type_object=prop["value"],
-                        required=prop["value"]["required"],
-                        description=prop["value"].get("description", ""),
-                        indent_num=indent_num,
-                        is_flow_type=True,
-                    )
-                    for prop in type_object["signature"]["properties"]
-                ),
-            ),
-        ),
-    )
-
-
-def js_to_r_type(type_object, is_flow_type=False, indent_num=0):
-    """
-    Convert JS types to R types for the component definition
-    Parameters
-    ----------
-    type_object: dict
-        react-docgen-generated prop type dictionary
-    is_flow_type: bool
-        Does the prop use Flow types? Otherwise, uses PropTypes
-    indent_num: int
-        Number of indents to use for the docstring for the prop
-    Returns
-    -------
-    str
-        Python type string
-    """
-    js_type_name = type_object["name"]
-    js_to_r_types = (
-        map_js_to_r_types_flow_types(type_object=type_object)
-        if is_flow_type
-        else map_js_to_r_types_prop_types(type_object=type_object)
-    )
-
-    if (
-            "computed" in type_object
-            and type_object["computed"]
-            or type_object.get("type", "") == "function"
-    ):
-        return ""
-    elif js_type_name in js_to_r_types:
-        if js_type_name == "signature":  # This is a Flow object w/ signature
-            return js_to_r_types[js_type_name](indent_num)
-        # All other types
-        return js_to_r_types[js_type_name]()
-    return ""
-
-
-# pylint: disable=too-many-arguments
-def create_prop_docstring_r(
-        prop_name,
-        type_object,
-        required,
-        description,
-        indent_num,
-        is_flow_type=False
-):
-    """
-    Create the Dash component prop docstring
-    Parameters
-    ----------
-    prop_name: str
-        Name of the Dash component prop
-    type_object: dict
-        react-docgen-generated prop type dictionary
-    required: bool
-        Component is required?
-    description: str
-        Dash component description
-    indent_num: int
-        Number of indents to use for the context block
-        (creates 2 spaces for every indent)
-    is_flow_type: bool
-        Does the prop use Flow types? Otherwise, uses PropTypes
-    Returns
-    -------
-    str
-        Dash component prop docstring
-    """
-    r_type_name = js_to_r_type(
-        type_object=type_object,
-        is_flow_type=is_flow_type,
-        indent_num=indent_num + 1
-    )
-
-    indent_spacing = "  " * indent_num
-    if "\n" in r_type_name:
-        return (
-            "{indent_spacing}- {name} ({is_required}): {description}. "
-            "{name} has the following type: {type}".format(
-                indent_spacing=indent_spacing,
-                name=prop_name,
-                type=r_type_name,
-                description=description,
-                is_required="required" if required else "optional",
-            )
-        )
-    return "{indent_spacing}- {name} ({type}" "{is_required}){description}".format(  # noqa:E501
-        indent_spacing=indent_spacing,
-        name=prop_name,
-        type="{}; ".format(r_type_name) if r_type_name else "",
-        description=(": {}".format(description) if description != "" else ""),
-        is_required="required" if required else "optional",
+    generate_rpkg(
+        pkg_data,
+        project_shortname,
+        export_string
     )
