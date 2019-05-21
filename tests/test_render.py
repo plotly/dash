@@ -224,6 +224,15 @@ class Tests(IntegrationTests):
         redo = self.wait_for_element_by_css_selector(redo_selector)
         redo.click()
 
+    def check_undo_redo_exist(self, has_undo, has_redo):
+        selector = '._dash-undo-redo span div:last-child'
+        els = self.driver.find_elements_by_css_selector(selector)
+        texts = (['undo'] if has_undo else []) + (['redo'] if has_redo else [])
+
+        self.assertEqual(len(els), len(texts))
+        for el, text in zip(els, texts):
+            self.assertEqual(el.text, text)
+
     def test_undo_redo(self):
         app = Dash(__name__, show_undo_redo=True)
         app.layout = html.Div([dcc.Input(id='a'), html.Div(id='b')])
@@ -238,17 +247,43 @@ class Tests(IntegrationTests):
         a.send_keys('xyz')
 
         self.wait_for_text_to_equal('#b', 'xyz')
+        self.check_undo_redo_exist(True, False)
 
         self.click_undo()
         self.wait_for_text_to_equal('#b', 'xy')
+        self.check_undo_redo_exist(True, True)
 
         self.click_undo()
         self.wait_for_text_to_equal('#b', 'x')
+        self.check_undo_redo_exist(True, True)
 
         self.click_redo()
         self.wait_for_text_to_equal('#b', 'xy')
+        self.check_undo_redo_exist(True, True)
 
         self.percy_snapshot(name='undo-redo')
+
+        self.click_undo()
+        self.click_undo()
+        self.wait_for_text_to_equal('#b', '')
+        self.check_undo_redo_exist(False, True)
+
+    def test_no_undo_redo(self):
+        app = Dash(__name__)
+        app.layout = html.Div([dcc.Input(id='a'), html.Div(id='b')])
+
+        @app.callback(Output('b', 'children'), [Input('a', 'value')])
+        def set_b(a):
+            return a
+
+        self.startServer(app)
+
+        a = self.wait_for_element_by_css_selector('#a')
+        a.send_keys('xyz')
+
+        self.wait_for_text_to_equal('#b', 'xyz')
+        toolbar = self.driver.find_elements_by_css_selector('._dash-undo-redo')
+        self.assertEqual(len(toolbar), 0)
 
     def test_array_of_falsy_child(self):
         app = Dash(__name__)
