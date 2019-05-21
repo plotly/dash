@@ -414,7 +414,7 @@ def generate_rpkg(
         export_string,
         package_depends,
         package_imports,
-        package_suggests,
+        package_suggests
 ):
     """
     Generate documents for R package creation
