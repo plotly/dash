@@ -480,6 +480,14 @@ def generate_rpkg(
             os.symlink("LICENSE.txt", "LICENSE")
 
     import_string = "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
+    packages_string = ''
+
+    rpackage_list = package_depends.split(', ') + package_imports.split(', ')
+    rpackage_list = filter(bool, rpackage_list)
+
+    if rpackage_list:
+        for rpackage in rpackage_list:
+            packages_string += "\nimport({})\n".format(rpackage)
 
     pkghelp_stub_path = os.path.join("man", package_name + "-package.Rd")
 
@@ -491,6 +499,7 @@ def generate_rpkg(
     with open("NAMESPACE", "w") as f:
         f.write(import_string)
         f.write(export_string)
+        f.write(packages_string)
 
     with open(".Rbuildignore", "w") as f2:
         f2.write(rbuild_ignore_string)
