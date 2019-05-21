@@ -20,7 +20,7 @@ setup(
         'Flask>=0.12',
         'flask-compress',
         'plotly',
-        'dash_renderer==0.23.0',
+        'dash_renderer==0.24.0',
         'dash-core-components==0.48.0',
         'dash-html-components==0.16.0',
         'dash-table==3.7.0'
