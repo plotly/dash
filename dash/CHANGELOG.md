@@ -1,5 +1,10 @@
-## [0.42.0] - 2019-04-25
+## [0.43.0] - 2019-04-25
+### Changed
+- Bumped dash-core-components version from 0.47.0 to [0.48.0](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0480---2019-05-15)
+- Bumped dash-renderer version from 0.23.0 to [0.24.0](https://github.com/plotly/dash-renderer/blob/master/CHANGELOG.md#0240---2019-05-15)
+- Bumped dash-table version from 3.6.0 to [3.7.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#370---2019-05-15)
 
+## [0.42.0] - 2019-04-25
 ### Added
 - [#687](https://github.com/plotly/dash/pull/687) Dev Tools support. A new UI in the application that automatically display JavaScript & Python error messages, validates your component's properties, and displays a graph of your callback's dependencies. Only enabled in debug mode. Turn this on and off with two new config flags in `app.run_server`:
     - `dev_tools_props_check` - turn on/off property validation.
