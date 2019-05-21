@@ -780,4 +780,3 @@ def create_prop_docstring_r(
         description=(": {}".format(description) if description != "" else ""),
         is_required="required" if required else "optional",
     )
-
