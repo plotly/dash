@@ -16,3 +16,4 @@ requests
 beautifulsoup4
 pytest
 pytest-sugar
+pytest-mock
