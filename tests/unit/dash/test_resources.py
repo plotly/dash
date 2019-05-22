@@ -58,6 +58,7 @@ def test_external(mocker):
         'https://component_library.bundle.js'
     ]
 
+
 def test_internal(mocker):
     mocker.patch('dash_core_components._js_dist')
     dcc._js_dist = _monkey_patched_js_dist  # noqa: W0212,
