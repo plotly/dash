@@ -28,6 +28,8 @@ class IntegrationTests(unittest.TestCase):
         super(IntegrationTests, cls).setUpClass()
 
         options = Options()
+        options.add_argument('--no-sandbox')
+
         capabilities = DesiredCapabilities.CHROME
         capabilities['loggingPrefs'] = {'browser': 'SEVERE'}
 
@@ -35,7 +37,9 @@ class IntegrationTests(unittest.TestCase):
             options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
 
         cls.driver = webdriver.Chrome(
-            options=options, desired_capabilities=capabilities)
+            chrome_options=options, desired_capabilities=capabilities,
+            service_args=["--verbose", "--log-path=chrome.log"]
+            )
 
         cls.percy_runner = percy.Runner(
             loader=percy.ResourceLoader(
@@ -55,9 +59,9 @@ class IntegrationTests(unittest.TestCase):
 
     def tearDown(self):
         try:
-            time.sleep(2)
+            time.sleep(1.5)
             self.server_process.terminate()
-            time.sleep(2)
+            time.sleep(1)
         except AttributeError:
             pass
         finally:

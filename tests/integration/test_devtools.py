@@ -28,11 +28,14 @@ import json
 import string
 import plotly
 import requests
+import pytest
 
 
 TIMEOUT = 20
 
 
+@pytest.mark.skip(
+    reason="flakey with circleci, will readdressing after pytest fixture")
 class Tests(IntegrationTests):
     def setUp(self):
         pass
