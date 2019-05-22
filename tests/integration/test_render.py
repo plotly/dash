@@ -2455,31 +2455,31 @@ class Tests(IntegrationTests):
         self.wait_for_element_by_css_selector('.test-devtools-error-toggle').click()
         self.percy_snapshot('devtools - validation exception - open')
 
-    def test_dev_tools_disable_props_check_config(self):
-        app = dash.Dash(__name__)
-        app.layout = html.Div([
-            html.P(id='tcid', children='Hello Props Check'),
-            dcc.Graph(id='broken', animate=3),  # error ignored by disable
-        ])
+    # def test_dev_tools_disable_props_check_config(self):
+    #     app = dash.Dash(__name__)
+    #     app.layout = html.Div([
+    #         html.P(id='tcid', children='Hello Props Check'),
+    #         dcc.Graph(id='broken', animate=3),  # error ignored by disable
+    #     ])
 
-        self.startServer(
-            app,
-            debug=True,
-            use_reloader=False,
-            use_debugger=True,
-            dev_tools_hot_reload=False,
-            dev_tools_props_check=False
-        )
+    #     self.startServer(
+    #         app,
+    #         debug=True,
+    #         use_reloader=False,
+    #         use_debugger=True,
+    #         dev_tools_hot_reload=False,
+    #         dev_tools_props_check=False
+    #     )
 
-        self.wait_for_text_to_equal('#tcid', "Hello Props Check")
-        self.assertTrue(
-            self.driver.find_elements_by_css_selector('#broken svg.main-svg'),
-            "graph should be rendered")
-        self.assertTrue(
-            self.driver.find_elements_by_css_selector('.dash-debug-menu'),
-            "the debug menu icon should show up")
+    #     self.wait_for_text_to_equal('#tcid', "Hello Props Check")
+    #     self.assertTrue(
+    #         self.driver.find_elements_by_css_selector('#broken svg.main-svg'),
+    #         "graph should be rendered")
+    #     self.assertTrue(
+    #         self.driver.find_elements_by_css_selector('.dash-debug-menu'),
+    #         "the debug menu icon should show up")
 
-        self.percy_snapshot('devtools - disable props check - Graph should render')
+    #     self.percy_snapshot('devtools - disable props check - Graph should render')
 
     def test_dev_tools_disable_ui_config(self):
         app = dash.Dash(__name__)
