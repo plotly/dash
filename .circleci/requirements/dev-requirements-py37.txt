@@ -11,3 +11,9 @@ requests[security]
 flake8
 pylint==2.3.1
 astroid==2.2.5
+lxml
+requests
+beautifulsoup4
+pytest
+pytest-sugar
+pytest-mock

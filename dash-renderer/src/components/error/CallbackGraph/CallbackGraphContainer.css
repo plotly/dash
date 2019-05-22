@@ -1,0 +1,16 @@
+.dash-callback-dag--container {
+    border-radius: 4px;
+    position: fixed;
+    bottom: 165px;
+    right: 16px;
+    max-width: 80vw;
+    max-height: calc(100vh - 180px);
+    overflow: auto;
+    box-sizing: border-box;
+    background: #ffffff;
+    display: inline-block;
+    /* shadow-1 */
+    box-shadow: 0px 6px 16px rgba(80, 103, 132, 0.165),
+        0px 2px 6px rgba(80, 103, 132, 0.12),
+        0px 0px 1px rgba(80, 103, 132, 0.32);
+}

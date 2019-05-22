@@ -1,0 +1,4 @@
+include README.md
+include LICENSE
+include dash/favicon.ico
+include dash/extract-meta.js
