@@ -55,9 +55,9 @@ class IntegrationTests(unittest.TestCase):
 
     def tearDown(self):
         try:
-            time.sleep(1)
+            time.sleep(2)
             self.server_process.terminate()
-            time.sleep(1.5)
+            time.sleep(2)
         except AttributeError:
             pass
         finally:

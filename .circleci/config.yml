@@ -56,10 +56,10 @@ jobs:
             . venv/bin/activate
             mkdir test-reports
             pytest --junitxml=test-reports/junit.xml tests/unit
-      - store_test_results:
-          path: test-reports
-      - store_artifacts:
-          path: test-reports
+      # - store_test_results:
+      #     path: test-reports
+      # - store_artifacts:
+      #     path: test-reports
 
       - run:
           name: 🚧 build renderer
@@ -87,6 +87,18 @@ jobs:
           command: |
             . venv/bin/activate
             pytest --junitxml=test-reports/junit_intg1.xml tests/integration/test_render.py
+
+      - run:
+          name: ⚙️ run integration test 1.1
+          command: |
+            . venv/bin/activate
+            pytest --junitxml=test-reports/junit_intg11.xml tests/integration/test_devtools.py
+
+      - run:
+          name: ⚙️ run integration test 1.2
+          command: |
+            . venv/bin/activate
+            pytest --junitxml=test-reports/junit_intg12.xml tests/integration/test_clientside.py
 
       - run:
           name: ⚙️ run integration test 2
