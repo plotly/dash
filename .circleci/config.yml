@@ -83,14 +83,33 @@ jobs:
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
 
       - run:
-          name: ⚙️ run integration test
+          name: ⚙️ run integration test 1
           command: |
             . venv/bin/activate
-            pytest --junitxml=test-reports/junit_intg.xml tests/integration/
-      - store_test_results:
-          path: test-reports
-      - store_artifacts:
-          path: test-reports
+            pytest --junitxml=test-reports/junit_intg1.xml tests/integration/test_render.py
+
+      - run:
+          name: ⚙️ run integration test 2
+          command: |
+            . venv/bin/activate
+            pytest --junitxml=test-reports/junit_intg2.xml tests/integration/test_integration.py
+
+      - run:
+          name: ⚙️ run integration test 3
+          command: |
+            . venv/bin/activate
+            pytest --junitxml=test-reports/junit_intg3.xml tests/integration/test_race_conditions.py
+
+      - run:
+          name: ⚙️ run integration test 4
+          command: |
+            . venv/bin/activate
+            pytest --junitxml=test-reports/junit_intg4.xml tests/integration/dash_assets
+
+      # - store_test_results:
+      #     path: test-reports
+      # - store_artifacts:
+      #     path: test-reports
 
 
   "python-3.6":
