@@ -1,0 +1,24 @@
+{
+  "extends": [
+    "config:base",
+    "group:all"
+  ],
+  "pipenv": {
+    "enabled": true
+  },
+  "pip_requirements": {
+    "fileMatch": ["requirements.txt", "dev-requirements.txt", "dev-requirements-py37.txt"] 
+  },
+  "pip_setup": {
+    "enabled": true 
+  },
+  "packageRules": [{
+    "packageNames": [
+      "pylint"
+    ],
+    "paths": [
+      "dev-requirements.txt" 
+    ],
+    "allowedVersions": "<2.0.0"
+  }]
+}
