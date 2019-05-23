@@ -1,0 +1,276 @@
+{
+  "description": "This is a description of the component.\nIt's multiple lines long.",
+  "methods": [],
+  "props": {
+    "optionalArray": {
+      "type": {
+        "name": "array"
+      },
+      "required": false,
+      "description": "Description of optionalArray"
+    },
+    "optionalBool": {
+      "type": {
+        "name": "bool"
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalFunc": {
+      "type": {
+        "name": "func"
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalNumber": {
+      "type": {
+        "name": "number"
+      },
+      "required": false,
+      "description": "",
+      "defaultValue": {
+        "value": "42",
+        "computed": false
+      }
+    },
+    "optionalObject": {
+      "type": {
+        "name": "object"
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalString": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": "",
+      "defaultValue": {
+        "value": "'hello world'",
+        "computed": false
+      }
+    },
+    "optionalSymbol": {
+      "type": {
+        "name": "symbol"
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalNode": {
+      "type": {
+        "name": "node"
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalElement": {
+      "type": {
+        "name": "element"
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalMessage": {
+      "type": {
+        "name": "instanceOf",
+        "value": "Message"
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalEnum": {
+      "type": {
+        "name": "enum",
+        "value": [
+          {
+            "value": "'News'",
+            "computed": false
+          },
+          {
+            "value": "'Photos'",
+            "computed": false
+          }
+        ]
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalUnion": {
+      "type": {
+        "name": "union",
+        "value": [
+          {
+            "name": "string"
+          },
+          {
+            "name": "number"
+          },
+          {
+            "name": "instanceOf",
+            "value": "Message"
+          }
+        ]
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalArrayOf": {
+      "type": {
+        "name": "arrayOf",
+        "value": {
+          "name": "number"
+        }
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalObjectOf": {
+      "type": {
+        "name": "objectOf",
+        "value": {
+          "name": "number"
+        }
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalObjectWithExactAndNestedDescription": {
+      "type": {
+        "name": "exact",
+        "value": {
+          "color": {
+            "name": "string",
+            "required": false
+          },
+          "fontSize": {
+            "name": "number",
+            "required": false
+          },
+          "figure": {
+            "name": "shape",
+            "value": {
+              "data": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "object"
+                },
+                "description": "data is a collection of traces",
+                "required": false
+              },
+              "layout": {
+                "name": "object",
+                "description": "layout describes the rest of the figure",
+                "required": false
+              }
+            },
+            "description": "Figure is a plotly graph object",
+            "required": false
+          }
+        }
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalObjectWithShapeAndNestedDescription": {
+      "type": {
+        "name": "shape",
+        "value": {
+          "color": {
+            "name": "string",
+            "required": false
+          },
+          "fontSize": {
+            "name": "number",
+            "required": false
+          },
+          "figure": {
+            "name": "shape",
+            "value": {
+              "data": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "object"
+                },
+                "description": "data is a collection of traces",
+                "required": false
+              },
+              "layout": {
+                "name": "object",
+                "description": "layout describes the rest of the figure",
+                "required": false
+              }
+            },
+            "description": "Figure is a plotly graph object",
+            "required": false
+          }
+        }
+      },
+      "required": false,
+      "description": ""
+    },
+    "optionalAny": {
+      "type": {
+        "name": "any"
+      },
+      "required": false,
+      "description": ""
+    },
+    "customProp": {
+      "type": {
+        "name": "custom",
+        "raw": "function(props, propName, componentName) {\n    if (!/matchme/.test(props[propName])) {\n        return new Error(\n        'Invalid prop `' + propName + '` supplied to' +\n        ' `' + componentName + '`. Validation failed.'\n        );\n    }\n}"
+      },
+      "required": false,
+      "description": ""
+    },
+    "customArrayProp": {
+      "type": {
+        "name": "arrayOf",
+        "value": {
+          "name": "custom",
+          "raw": "function(propValue, key, componentName, location, propFullName) {\n    if (!/matchme/.test(propValue[key])) {\n        return new Error(\n        'Invalid prop `' + propFullName + '` supplied to' +\n        ' `' + componentName + '`. Validation failed.'\n        );\n    }\n}"
+        }
+      },
+      "required": false,
+      "description": ""
+    },
+    "children": {
+      "type": {
+        "name": "node"
+      },
+      "required": false,
+      "description": ""
+    },
+    "data-*": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    },
+    "aria-*": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    },
+    "in": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    },
+    "id": {
+      "type": {
+        "name": "string"
+      },
+      "required": false,
+      "description": ""
+    }
+  }
+}
