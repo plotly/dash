@@ -1,7 +1,0 @@
-percy
-selenium
-mock
-six
-beautifulsoup4
-lxml
-requests
