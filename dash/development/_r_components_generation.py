@@ -599,12 +599,12 @@ def map_js_to_r_types_prop_types(type_object):
         )
 
     return dict(
-        array=lambda: "list",
+        array=lambda: "unnamed list",
         bool=lambda: "logical",
-        number=lambda: "number",
+        number=lambda: "numeric",
         string=lambda: "character",
-        object=lambda: "list",
-        any=lambda: "logical | number | character | list",
+        object=lambda: "named list",
+        any=lambda: 'logical | numeric | character | named list | unnamed list',
         element=lambda: "dash component",
         node=lambda: "a list of or a singular dash " "component, string or number",  # noqa:E501
         # React's PropTypes.oneOf
@@ -641,12 +641,12 @@ def map_js_to_r_types_flow_types(type_object):
     """Mapping from the Flow js types to the R type"""
 
     return dict(
-        array=lambda: "list",
+        array=lambda: "unnamed list",
         boolean=lambda: "logical",
-        number=lambda: "number",
+        number=lambda: "numeric",
         string=lambda: "character",
-        Object=lambda: "list",
-        any=lambda: "logical | number | character | list",
+        Object=lambda: "named list",
+        any=lambda: 'logical | num | char | named list | unnamed list',
         Element=lambda: "dash component",
         Node=lambda: "a list of or a singular dash " "component, string or number",  # noqa:E501
         # React's PropTypes.oneOfType
