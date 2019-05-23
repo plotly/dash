@@ -604,7 +604,7 @@ def map_js_to_r_types_prop_types(type_object):
         number=lambda: "numeric",
         string=lambda: "character",
         object=lambda: "named list",
-        any=lambda: 'logical | numeric | character | named list | unnamed list',
+        any=lambda: 'logical | numeric | character | named list | unnamed list',  # noqa:E501
         element=lambda: "dash component",
         node=lambda: "a list of or a singular dash " "component, string or number",  # noqa:E501
         # React's PropTypes.oneOf
