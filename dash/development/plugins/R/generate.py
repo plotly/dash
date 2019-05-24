@@ -58,7 +58,7 @@ def generate(project_shortname, metadata, prefix, root):
     component_help(bound_compile, prefix, man_path)
     description(get_description, root)
     global_help(get_help, get_package_name, man_path)
-    internal(get_internal, root)
+    internal(get_internal, r_path)
     js_artefacts('dist/js', inst_deps_path)
     license(package_data, root)
     namespace(bound_compile, prefix, root)
