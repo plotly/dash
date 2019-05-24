@@ -320,9 +320,9 @@ def write_help_file(name, props, description, prefix):
 
     item_text += "\n\n".join(
         "\\item{{{}}}{{{}{}}}".format(p,
-                                      get_r_type(
+                                      print_r_type(
                                           props[p]["type"]
-                                      ).capitalize(),
+                                      ),
                                       props[p]["description"])
         for p in prop_keys
     )
@@ -688,8 +688,7 @@ def get_r_type(type_object, is_flow_type=False, indent_num=0):
     ----------
     type_object: dict
         react-docgen-generated prop type dictionary
-    is_flow_type: bool
-        Does the prop use Flow types? Otherwise, uses PropTypes
+
     indent_num: int
         Number of indents to use for the docstring for the prop
     Returns
@@ -699,7 +698,6 @@ def get_r_type(type_object, is_flow_type=False, indent_num=0):
     """
     js_type_name = type_object["name"]
     js_to_r_types = get_r_prop_types(type_object=type_object)
-
     if (
             "computed" in type_object
             and type_object["computed"]
@@ -707,8 +705,12 @@ def get_r_type(type_object, is_flow_type=False, indent_num=0):
     ):
         return ""
     elif js_type_name in js_to_r_types:
-        if js_type_name == "signature":  # This is a Flow object w/ signature
-            return js_to_r_types[js_type_name](indent_num) + ". "
-        # All other types
-        return js_to_r_types[js_type_name]() + ". "
+        prop_type = js_to_r_types[js_type_name]()
+        return prop_type
     return ""
+
+def print_r_type(typedata):
+    typestring = get_r_type(typedata).capitalize()
+    if typestring:
+       typestring += ". "
+    return typestring
