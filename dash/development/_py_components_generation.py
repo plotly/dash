@@ -110,7 +110,7 @@ def generate_class_string(typename, props, description, namespace):
     )
 
 
-def generate_class_file(typename, props, description, namespace):
+def generate_component_wrapper(typename, props, description, namespace):
     """
     Generate a python class file (.py) given a class string
 
@@ -129,49 +129,24 @@ def generate_class_file(typename, props, description, namespace):
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n" + \
         "from dash.development.base_component import " + \
         "Component, _explicitize_args\n\n\n"
+
     class_string = generate_class_string(
         typename,
         props,
         description,
         namespace
     )
-    file_name = "{:s}.py".format(typename)
 
-    file_path = os.path.join(namespace, file_name)
-    with open(file_path, 'w') as f:
-        f.write(import_string)
-        f.write(class_string)
-
-    print('Generated {}'.format(file_name))
+    return import_string + class_string
 
 
 def generate_imports(project_shortname, components):
-    with open(os.path.join(project_shortname, '_imports_.py'), 'w') as f:
-        imports_string = '{}\n\n{}'.format(
-            '\n'.join(
-                'from .{0} import {0}'.format(x) for x in components),
-            '__all__ = [\n{}\n]'.format(
-                ',\n'.join('    "{}"'.format(x) for x in components))
-        )
-
-        f.write(imports_string)
-
-
-def generate_classes_files(project_shortname, metadata, *component_generators):
-    components = []
-    for component_path, component_data in metadata.items():
-        component_name = component_path.split('/')[-1].split('.')[0]
-        components.append(component_name)
-
-        for generator in component_generators:
-            generator(
-                component_name,
-                component_data['props'],
-                component_data['description'],
-                project_shortname
-            )
-
-    return components
+    return '{}\n\n{}'.format(
+        '\n'.join(
+            'from .{0} import {0}'.format(x) for x in components),
+        '__all__ = [\n{}\n]'.format(
+            ',\n'.join('    "{}"'.format(x) for x in components))
+    )
 
 
 def generate_class(typename, props, description, namespace):

@@ -90,36 +90,6 @@ Author: {package_author_no_email}
 Maintainer: {package_author}
 '''
 
-rbuild_ignore_string = r'''# ignore JS config files/folders
-node_modules/
-coverage/
-src/
-lib/
-.babelrc
-.builderrc
-.eslintrc
-.npmignore
-
-# demo folder has special meaning in R
-# this should hopefully make it still
-# allow for the possibility to make R demos
-demo/.*\.js
-demo/.*\.html
-demo/.*\.css
-
-# ignore python files/folders
-setup.py
-usage.py
-setup.py
-requirements.txt
-MANIFEST.in
-CHANGELOG.md
-test/
-# CRAN has weird LICENSE requirements
-LICENSE.txt
-^.*\.Rproj$
-^\.Rproj\.user$
-'''
 
 pkghelp_stub = '''% Auto-generated: do not edit by hand
 \\docType{{package}}
@@ -277,14 +247,21 @@ def generate_js_metadata(pkg_data, project_shortname):
                    rpkgname=rpkgname,
                    dep_rpp=jsdist[0]['relative_package_path'])
 
-    function_string = ''.join([function_frame_open,
-                               function_frame_body,
-                               frame_close_template])
-
-    return function_string
+    return function_frame_open + ''.join(function_frame_body) + frame_close_template
 
 
-def write_help_file(name, props, description, prefix):
+def generate_help_file(name,
+                    props,
+                    description,
+                    project_shortname,
+                    prefix=None):
+    # generate the R help pages for each of the Dash components that we
+    # are transpiling -- this is done to avoid using Roxygen2 syntax,
+    # we may eventually be able to generate similar documentation using
+    # doxygen and an R plugin, but for now we'll just do it on our own
+    # from within Python
+    props = reorder_props(props=props)
+
     """
     Write R documentation file (.Rd) given component name and properties
 
@@ -300,8 +277,6 @@ def write_help_file(name, props, description, prefix):
     writes an R help file to the man directory for the generated R package
 
     """
-    file_name = '{}{}.Rd'.format(prefix, name)
-
     default_argtext = ''
     item_text = ''
 
@@ -330,35 +305,21 @@ def write_help_file(name, props, description, prefix):
         item_text += '\n\n\\item{...}{wildcards: `data-*` or `aria-*`}'
         default_argtext += ', ...'
 
-    file_path = os.path.join('man', file_name)
-    with open(file_path, 'w') as f:
-        f.write(help_string.format(
-            prefix=prefix,
-            name=name,
-            default_argtext=default_argtext,
-            item_text=item_text,
-            description=description.replace('\n', ' ')
-        ))
+    return help_string.format(
+        prefix=prefix,
+        name=name,
+        default_argtext=default_argtext,
+        item_text=item_text,
+        description=description.replace('\n', ' ')
+    )
 
 
-def write_class_file(name,
+def generate_component_wrapper(name,
                      props,
                      description,
                      project_shortname,
                      prefix=None):
     props = reorder_props(props=props)
-
-    # generate the R help pages for each of the Dash components that we
-    # are transpiling -- this is done to avoid using Roxygen2 syntax,
-    # we may eventually be able to generate similar documentation using
-    # doxygen and an R plugin, but for now we'll just do it on our own
-    # from within Python
-    write_help_file(
-        name,
-        props,
-        description,
-        prefix
-    )
 
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
@@ -368,64 +329,13 @@ def write_class_file(name,
         project_shortname,
         prefix
     )
-    file_name = "{}{}.R".format(prefix, name)
 
-    file_path = os.path.join('R', file_name)
-    with open(file_path, 'w') as f:
-        f.write(import_string)
-        f.write(class_string)
-
-    print('Generated {}'.format(file_name))
-
-
-def write_js_metadata(pkg_data, project_shortname):
-    """
-    Write an internal (not exported) R function to return all JS
-    dependencies as required by dashR.
-
-    Parameters
-    ----------
-    project_shortname = hyphenated string, e.g. dash-html-components
-
-    Returns
-    -------
-
-    """
-    function_string = generate_js_metadata(
-        pkg_data=pkg_data,
-        project_shortname=project_shortname
-    )
-    file_name = "internal.R"
-
-    # the R source directory for the package won't exist on first call
-    # create the R directory if it is missing
-    if not os.path.exists('R'):
-        os.makedirs('R')
-
-    file_path = os.path.join('R', file_name)
-    with open(file_path, 'w') as f:
-        f.write(function_string)
-
-    # now copy over all JS dependencies from the (Python) components dir
-    # the inst/lib directory for the package won't exist on first call
-    # create this directory if it is missing
-    if not os.path.exists('inst/deps'):
-        os.makedirs('inst/deps')
-
-    for javascript in glob.glob('{}/*.js'.format(project_shortname)):
-        shutil.copy(javascript, 'inst/deps/')
-
-    for css in glob.glob('{}/*.css'.format(project_shortname)):
-        shutil.copy(css, 'inst/deps/')
-
-    for sourcemap in glob.glob('{}/*.map'.format(project_shortname)):
-        shutil.copy(sourcemap, 'inst/deps/')
-
+    return import_string + class_string
 
 # pylint: disable=R0914
-def generate_rpkg(pkg_data,
+def generate_description(pkg_data,
                   project_shortname,
-                  export_string):
+                  package_license):
     """
     Generate documents for R package creation
 
@@ -471,33 +381,10 @@ def generate_rpkg(pkg_data,
 
     package_author_no_email = package_author.split(" <")[0] + ' [aut]'
 
-    if not (os.path.isfile('LICENSE') or os.path.isfile('LICENSE.txt')):
-        package_license = pkg_data.get('license', '')
-    else:
-        package_license = pkg_data.get('license', '') + ' + file LICENSE'
-        # R requires that the LICENSE.txt file be named LICENSE
-        if not os.path.isfile('LICENSE'):
-            os.symlink("LICENSE.txt", "LICENSE")
-
-    import_string =\
-        '# AUTO GENERATED FILE - DO NOT EDIT\n\n'
 
     pkghelp_stub_path = os.path.join('man', package_name + '-package.Rd')
 
-    # generate the internal (not exported to the user) functions which
-    # supply the JavaScript dependencies to the dashR package.
-    # this avoids having to generate an RData file from within Python.
-    write_js_metadata(
-        pkg_data=pkg_data,
-        project_shortname=project_shortname
-    )
 
-    with open('NAMESPACE', 'w') as f:
-        f.write(import_string)
-        f.write(export_string)
-
-    with open('.Rbuildignore', 'w') as f2:
-        f2.write(rbuild_ignore_string)
 
     # Write package stub files for R online help, generate if
     # dashHtmlComponents or dashCoreComponents; makes it easy
@@ -532,17 +419,16 @@ is on GitHub: plotly/dash-core-components."
         package_author_no_email=package_author_no_email
     )
 
-    with open('DESCRIPTION', 'w') as f3:
-        f3.write(description_string)
+    pkghelp = None if pkg_help_header == '' else pkghelp_stub.format(
+        package_name=package_name,
+        pkg_help_header=pkg_help_header,
+        pkg_help_desc=pkg_help_desc,
+        lib_name=lib_name,
+        package_author=package_author
+    )
 
-    if pkg_help_header != "":
-        pkghelp = pkghelp_stub.format(package_name=package_name,
-                                      pkg_help_header=pkg_help_header,
-                                      pkg_help_desc=pkg_help_desc,
-                                      lib_name=lib_name,
-                                      package_author=package_author)
-        with open(pkghelp_stub_path, 'w') as f4:
-            f4.write(pkghelp)
+    return description_string, pkghelp, package_name
+
 
 
 # This converts a string from snake case to camel case
@@ -551,27 +437,3 @@ is on GitHub: plotly/dash-core-components."
 def snake_case_to_camel_case(namestring):
     s = namestring.split('_')
     return s[0] + ''.join(w.capitalize() for w in s[1:])
-
-
-# pylint: disable=unused-argument
-def generate_exports(project_shortname,
-                     components,
-                     metadata,
-                     pkg_data,
-                     prefix,
-                     **kwargs):
-    export_string = ''
-    for component in components:
-        if not component.endswith('-*') and \
-                str(component) not in r_keywords and \
-                str(component) not in ['setProps', 'children', 'dashEvents']:
-            export_string += 'export({}{})\n'.format(prefix, component)
-
-    # now, bundle up the package information and create all the requisite
-    # elements of an R package, so that the end result is installable either
-    # locally or directly from GitHub
-    generate_rpkg(
-        pkg_data,
-        project_shortname,
-        export_string
-    )
