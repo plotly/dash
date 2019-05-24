@@ -1,3 +1,4 @@
+import functools
 import os
 import shutil
 
@@ -12,13 +13,17 @@ from ..._r_components_generation import (
 from ..helpers import glob_js
 
 def component_adapters(compile, prefix, path):
-    for component, adapter in compile(adapter_compiler):
+    decorated_adapter_compiler = functools.partial(adapter_compiler, prefix=prefix)
+
+    for component, adapter in compile(decorated_adapter_compiler):
         component_path = os.path.join(path, '{}{}.R'.format(prefix, component))
         with open(component_path, 'w') as f:
             f.write(adapter)
 
 def component_help(compile, prefix, path):
-    for component, wrapper in compile(help_generator):
+    decorated_help_generator = functools.partial(help_generator, prefix=prefix)
+
+    for component, wrapper in compile(decorated_help_generator):
         component_path = os.path.join(path, '{}{}.Rd'.format(prefix, component))
         with open(component_path, 'w') as f:
             f.write(wrapper)
@@ -52,7 +57,7 @@ def js_artefacts(source, target):
 def license(package_data, path):
     license_path = get_license_path(path)
 
-    if has_license(path):
+    if has_license(path) and license_path != 'LICENSE':
         shutil.copyfile('LICENSE', license_path)
 
 def namespace(compile, prefix, path):
