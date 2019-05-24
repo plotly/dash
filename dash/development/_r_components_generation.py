@@ -375,7 +375,7 @@ def write_class_file(name, props, description, project_shortname, prefix=None):
         props,
         description,
         prefix
-    ) 
+    )
 
     print("Generated {}".format(file_name))
 
