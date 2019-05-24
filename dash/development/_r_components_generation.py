@@ -310,7 +310,7 @@ def write_help_file(name, props, description, prefix):
     prop_keys = list(props.keys())
 
     has_wildcards = any("-*" in key for key in prop_keys)
-    
+
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
         if item.endswith("-*") or item in r_keywords or item == "setProps":
@@ -326,14 +326,14 @@ def write_help_file(name, props, description, prefix):
                                       props[p]["description"])
         for p in prop_keys
     )
-    
+
     if has_wildcards:
         item_text += '\n\n\\item{...}{wildcards: `data-*` or `aria-*`}'
         default_argtext += ', ...'
 
     # in R, the online help viewer does not properly wrap lines for
     # the usage string -- we will hard wrap at 80 characters using
-    # textwrap.fill, starting from the beginning of the usage string 
+    # textwrap.fill, starting from the beginning of the usage string
     argtext = prefix + name + "({})".format(default_argtext)
 
     file_path = os.path.join('man', file_name)
@@ -348,7 +348,7 @@ def write_help_file(name, props, description, prefix):
             description=description.replace('\n', ' ')
         ))
 
-        
+
 def write_class_file(name, props, description, project_shortname, prefix=None):
     props = reorder_props(props=props)
 
