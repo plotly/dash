@@ -184,9 +184,7 @@ class ProcessRunner(BaseDashRunner):
         logger.debug("start dash process with %s", args)
         try:
             self.proc = subprocess.Popen(
-                args,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
         except (OSError, ValueError):
             self.started = False
@@ -206,7 +204,8 @@ class ProcessRunner(BaseDashRunner):
         except _except:
             logger.warning(
                 "subprocess terminate timeout %s reached, trying to kill "
-                "the subprocess in a safe manner", self.stop_timeout
+                "the subprocess in a safe manner",
+                self.stop_timeout,
             )
             self.proc.kill()
             return self.proc.communicate()
