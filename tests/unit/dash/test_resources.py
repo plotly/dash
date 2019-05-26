@@ -50,11 +50,11 @@ def test_external(mocker):
             app.scripts.get_all_scripts()
         )
 
-    assert resource == [
+    assert set(resource) == {
         "https://external_javascript.js",
         "https://external_css.css",
         "https://component_library.bundle.js",
-    ]
+    }
 
 
 def test_internal(mocker):
@@ -75,13 +75,13 @@ def test_internal(mocker):
                 app.scripts.get_all_scripts()
             )
 
-    assert resource == [
+    assert set(resource) == {
         "/_dash-component-suites/"
         "dash_core_components/external_javascript.js?v=1&m=1",
         "/_dash-component-suites/"
         "dash_core_components/external_css.css?v=1&m=1",
         "/_dash-component-suites/" "dash_core_components/fake_dcc.js?v=1&m=1",
-    ]
+    }
 
     assert (
         "fake_dcc.min.js.map" in app.registered_paths["dash_core_components"]
