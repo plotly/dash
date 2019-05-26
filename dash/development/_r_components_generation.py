@@ -10,7 +10,7 @@ import textwrap
 import re
 
 from ._all_keywords import r_keywords
-from ._py_components_generation import reorder_props
+from ._py_components_generation import reorder_props, create_prop_docstring
 
 
 # Declaring longer string templates as globals to improve
@@ -646,6 +646,23 @@ def generate_exports(
 def get_r_prop_types(type_object):
     """Mapping from the PropTypes js type object to the R type"""
 
+    def shape_or_exact():
+        return 'list containing elements {}.\n{}'.format(
+            ', '.join(
+                "'{}'".format(t) for t in list(type_object['value'].keys())
+            ),
+            'Those elements have the following types:\n{}'.format(
+                '\n'.join(
+                    create_prop_docstring(
+                        prop_name=prop_name,
+                        type_object=prop,
+                        required=prop['required'],
+                        description=prop.get('description', ''),
+                        indent_num=1
+                    ) for prop_name, prop in
+                    list(type_object['value'].items())))
+            )
+
     return dict(
         array=lambda: "unnamed list",
         bool=lambda: "logical",
@@ -678,10 +695,15 @@ def get_r_prop_types(type_object):
         ),
         # React's PropTypes.objectOf
         objectOf=lambda: (
-            "dict with strings as keys and values of type {}"
+            "list with named elements and values of type {}"
             ).format(
                 get_r_type(type_object["value"])
-            )
+            ),
+
+        # React's PropTypes.shape
+        shape=shape_or_exact,
+        # React's PropTypes.exact
+        exact=shape_or_exact,
     )
 
 
