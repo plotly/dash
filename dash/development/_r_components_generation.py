@@ -652,9 +652,11 @@ def get_r_prop_types(type_object):
         number=lambda: "numeric",
         string=lambda: "character",
         object=lambda: "named list",
-        any=lambda: 'logical | numeric | character | named list | unnamed list',  # noqa:E501
+        any=lambda: "logical | numeric | character | "
+                    "named list | unnamed list",
         element=lambda: "dash component",
-        node=lambda: "a list of or a singular dash " "component, string or number",  # noqa:E501
+        node=lambda: "a list of or a singular dash "
+                     "component, string or number",
         # React's PropTypes.oneOf
         enum=lambda: "a value equal to: {}".format(
             ", ".join("{}".format(str(t["value"]))
@@ -675,9 +677,11 @@ def get_r_prop_types(type_object):
             else ""
         ),
         # React's PropTypes.objectOf
-        objectOf=lambda: ("dict with strings as keys and values of type {}").format(  # noqa:E501
-            get_r_type(type_object["value"])
-        )
+        objectOf=lambda: (
+            "dict with strings as keys and values of type {}"
+            ).format(
+                get_r_type(type_object["value"])
+            )
     )
 
 
@@ -709,8 +713,9 @@ def get_r_type(type_object, is_flow_type=False, indent_num=0):
         return prop_type
     return ""
 
+
 def print_r_type(typedata):
     typestring = get_r_type(typedata).capitalize()
     if typestring:
-       typestring += ". "
+        typestring += ". "
     return typestring
