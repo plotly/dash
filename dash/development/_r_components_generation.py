@@ -647,7 +647,7 @@ def get_r_prop_types(type_object):
     """Mapping from the PropTypes js type object to the R type"""
 
     def shape_or_exact():
-        return 'list containing elements {}.\n{}'.format(
+        return 'lists containing elements {}.\n{}'.format(
             ', '.join(
                 "'{}'".format(t) for t in list(type_object['value'].keys())
             ),
