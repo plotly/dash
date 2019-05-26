@@ -114,3 +114,7 @@ class DashAppLoadingError(DashTestingError):
 
 class ServerCloseError(DashTestingError):
     """The server cannot be closed"""
+
+
+class TestingTimeoutError(DashTestingError):
+    """"all timeout error about dash testing"""

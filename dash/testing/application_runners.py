@@ -5,20 +5,20 @@ import uuid
 import shlex
 import threading
 import subprocess
+import logging
 
-import six
 import runpy
+import six
 import flask
 import requests
 
 from dash.exceptions import (
     NoAppFoundError,
-    # DashAppLoadingError,
+    TestingTimeoutError,
     ServerCloseError,
 )
 import dash.testing.wait as wait
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,7 @@ class BaseDashRunner(object):
             try:
                 logger.info("killing the app runner")
                 self.stop()
-            except TimeoutError:
+            except TestingTimeoutError:
                 raise ServerCloseError(
                     "Cannot stop server within {} timeout".format(
                         self.stop_timeout
@@ -195,11 +195,11 @@ class ProcessRunner(BaseDashRunner):
         self.proc.terminate()
         try:
             if six.PY3:
-                _except = subprocess.TimeoutExpired
+                _except = subprocess.TimeoutExpired  # pylint:disable=no-member
                 return self.proc.communicate(timeout=self.stop_timeout)
-            else:
-                _except = OSError
-                return self.proc.communicate()
+
+            _except = OSError
+            return self.proc.communicate()
 
         except _except:
             logger.warning(

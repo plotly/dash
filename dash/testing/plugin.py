@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 import pytest
 
 from selenium import webdriver

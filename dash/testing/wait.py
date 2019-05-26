@@ -1,5 +1,6 @@
 """Utils methods for pytest-dash such wait_for wrappers"""
 import time
+from dash.exceptions import TestingTimeoutError
 
 
 def until(
@@ -12,7 +13,7 @@ def until(
     while wait_cond():
         time.sleep(poll)
         if time.time() > end_time:
-            raise TimeoutError(msg)
+            raise TestingTimeoutError(msg)
 
 
 def until_not(
@@ -22,4 +23,4 @@ def until_not(
     while not wait_cond():
         time.sleep(poll)
         if time.time() > end_time:
-            raise TimeoutError(msg)
+            raise TestingTimeoutError(msg)
