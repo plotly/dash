@@ -89,7 +89,7 @@ class Dash(object):
     def __init__(
             self,
             name='__main__',
-            server=None,
+            server=True,
             static_folder='static',
             assets_folder='assets',
             assets_url_path='/assets',
@@ -129,14 +129,17 @@ class Dash(object):
         )
         self._assets_url_path = assets_url_path
 
-        # allow users to supply their own flask server
-        if server:
-            if isinstance(server, Flask):
-                self.server = server
-            else:
+        # We have 3 cases: server is either True (we create the server), False (defer server creation) or a Flask app
+        # instance (we use their server)
+        if isinstance(server, bool):
+            if server:
                 self.server = Flask(name, static_folder=static_folder)
+            else:
+                self.server = None
+        elif isinstance(server, Flask):
+            self.server = server
         else:
-            self.server = None
+            raise ValueError('server must be a Flask app, or a boolean')
 
         url_base_pathname, routes_pathname_prefix, requests_pathname_prefix = \
             pathname_configs(
