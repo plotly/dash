@@ -3,8 +3,6 @@ dash-dangerously-set-inner-html
 percy
 selenium
 mock
-tox
-tox-pyenv
 six
 plotly==3.7.1
 requests[security]
