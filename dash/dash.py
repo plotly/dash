@@ -108,7 +108,6 @@ class Dash(object):
             components_cache_max_age=None,
             show_undo_redo=False,
             plugins=None,
-            defer_app=False,
             **kwargs):
 
         # Store some flask-related parameters for use in init_app()
@@ -131,7 +130,13 @@ class Dash(object):
         self._assets_url_path = assets_url_path
 
         # allow users to supply their own flask server
-        self.server = server or Flask(name, static_folder=static_folder)
+        if server:
+            if isinstance(server, Flask):
+                self.server = server
+            else:
+                self.server = Flask(name, static_folder=static_folder)
+        else:
+            self.server = None
 
         url_base_pathname, routes_pathname_prefix, requests_pathname_prefix = \
             pathname_configs(
@@ -212,7 +217,7 @@ class Dash(object):
             for plugin in plugins:
                 plugin.plug(self)
 
-        if not defer_app:
+        if self.server is not None:
             self.init_app()
 
     def init_app(self, app=None):
