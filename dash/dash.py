@@ -129,8 +129,8 @@ class Dash(object):
         )
         self._assets_url_path = assets_url_path
 
-        # We have 3 cases: server is either True (we create the server), False (defer server creation) or a Flask app
-        # instance (we use their server)
+        # We have 3 cases: server is either True (we create the server), False
+        # (defer server creation) or a Flask app instance (we use their server)
         if isinstance(server, bool):
             if server:
                 self.server = Flask(name, static_folder=static_folder)
