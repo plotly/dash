@@ -1,4 +1,0 @@
-git+git://github.com/plotly/dash@master#egg=dash
-git+git://github.com/plotly/dash-core-components@master#egg=dash_core_components
-git+git://github.com/plotly/dash-html-components@master#egg=dash_html_components
-git+git://github.com/plotly/dash-renderer@master#egg=dash_renderer
