@@ -59,7 +59,7 @@ export default class EdgeFactory {
             )) {
                 hTarget.setEdge(iTarget, j, hPrevious.getEdge(iPrevious, j), Infinity, true);
             }
-            hPrevious.setEdge(iPrevious, j, undefined, -Infinity, true);
+            hPrevious.setEdge(iPrevious, j, 'none', -Infinity, true);
         }, R.range(0, hPrevious.columns));
     }
 
@@ -82,7 +82,7 @@ export default class EdgeFactory {
             )) {
                 hTarget.setEdge(i, jTarget, hPrevious.getEdge(i, jPrevious), Infinity, true);
             }
-            hPrevious.setEdge(i, jPrevious, undefined, -Infinity, true);
+            hPrevious.setEdge(i, jPrevious, 'none', -Infinity, true);
         }, R.range(0, hPrevious.rows));
     }
 
@@ -102,7 +102,7 @@ export default class EdgeFactory {
                 hTarget.getWeight(iTarget, j),
                 hNext.getWeight(iNext, j),
                 cutoffWeight
-            ) && hTarget.setEdge(iTarget, j, undefined, -Infinity, true),
+            ) && hTarget.setEdge(iTarget, j, 'none', -Infinity, true),
             R.range(0, hTarget.columns)
         );
     }
@@ -123,7 +123,7 @@ export default class EdgeFactory {
                 vTarget.getWeight(i, jTarget),
                 vNext.getWeight(i, jNext),
                 cutoffWeight
-            ) && vTarget.setEdge(i, jTarget, undefined, -Infinity, true),
+            ) && vTarget.setEdge(i, jTarget, 'none', -Infinity, true),
             R.range(0, vTarget.rows)
         );
     }

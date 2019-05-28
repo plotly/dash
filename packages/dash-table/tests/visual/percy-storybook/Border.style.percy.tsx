@@ -176,6 +176,30 @@ const scenarios: ITest[] = [
             },
             style_as_list_view: true
         }
+    }, {
+        name: 'hoizontal border between header and first row should be blue',
+        props: {
+            css: [{selector: 'th', rule: 'border: 1px solid pink'}],
+            style_data: {border: '1px solid blue'}
+        }
+    }, {
+        name: 'horizontal border between header and filter should be purple',
+        props: {
+            filtering: true,
+            css: [{selector: 'th', rule: 'border: 1px solid pink'}],
+            style_filter: {border: '1px solid purple'}
+        }
+    }, {
+        name: 'horizontal border between active cell (0, 0) and header should be pink',
+        props: {
+            css: [{selector: 'th', rule: 'border: 1px solid red'}],
+            active_cell: {
+                column: 0,
+                column_id: 'a',
+                row: 0,
+                row_id: null
+            }
+        }
     }
 ];
 
@@ -289,6 +313,35 @@ const ops_scenarios: ITest[] = [
                 backgroundColor: 'pink',
                 border: '1px solid red'
             }]
+        }
+    }, {
+        name: 'vertical border between column A and column B should be blue',
+        props: {
+            css: [{ selector: 'td[data-dash-column="a"]', rule: 'border: 1px solid green'}],
+            style_data_conditional: [{
+                if: { column_id: 'b' },
+                border: '1px solid blue'
+            }]
+        }
+    }, {
+        name: 'horizontal border between header and column A should be dash green ',
+        props: {
+            css: [{ selector: 'th', rule: 'border: 1px solid red'}],
+            style_data_conditional: [{
+                if: { column_id: 'a' },
+                border: '1px dashed blue'
+            }]
+        }
+    }, {
+        name: 'vertical border between active cell (0, 0) and cell on column B should be pink',
+        props: {
+            css: [{ selector: 'td[data-dash-column="b"]', rule: 'border: 1px solid blue'}],
+            active_cell: {
+                column: 0,
+                column_id: 'a',
+                row: 0,
+                row_id: null
+            }
         }
     }
 ];
