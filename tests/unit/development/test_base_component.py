@@ -6,7 +6,6 @@ import os
 import shutil
 import unittest
 import plotly
-import pytest
 from dash.development.base_component import Component
 from dash.development._py_components_generation import generate_class_string, generate_class_file, generate_class, \
     create_docstring, prohibit_events, js_to_py_type
