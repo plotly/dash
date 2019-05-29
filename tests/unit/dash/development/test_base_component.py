@@ -7,6 +7,7 @@ import unittest
 import plotly
 
 from dash.development.base_component import Component
+from dash.development.component_generator import forbidden_props
 from dash.development._py_components_generation import (
     generate_class_string,
     generate_class_file,
@@ -737,6 +738,23 @@ class TestGenerateClass(unittest.TestCase):
             self.ComponentClassRequired(id='test', lahlah='test')
         with self.assertRaises(Exception):
             self.ComponentClassRequired(children='test')
+
+    def test_attrs_match_forbidden_props(self):
+        # props are not added as attrs unless explicitly provided
+        # except for children, which is always set if it's a prop at all.
+        c = self.ComponentClass()
+        base_attrs = dir(c)
+        extra_attrs = [a for a in base_attrs if a[0] != '_']
+        self.assertEqual(set(extra_attrs), set(forbidden_props + ['children']))
+
+        # setting props causes them to show up as attrs
+        c2 = self.ComponentClass('children', id='c2', optionalArray=[1])
+        prop_attrs = dir(c2)
+        self.assertEqual(set(base_attrs) - set(prop_attrs), set([]))
+        self.assertEqual(
+            set(prop_attrs) - set(base_attrs),
+            set(['id', 'optionalArray'])
+        )
 
 
 class TestMetaDataConversions(unittest.TestCase):

@@ -19,6 +19,15 @@ from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
 
 
+forbidden_props = [
+    'UNDEFINED',
+    'REQUIRED',
+    'to_plotly_json',
+    'available_properties',
+    'available_wildcard_properties'
+]
+
+
 class _CombinedFormatter(
         argparse.ArgumentDefaultsHelpFormatter,
         argparse.RawDescriptionHelpFormatter
@@ -47,9 +56,15 @@ def generate_components(
 
     extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
 
+    forbid_patterns = '|'.join(
+        '^{}$'.format(p) for p in forbidden_props + ['_.*']
+    )
+
     os.environ["NODE_PATH"] = "node_modules"
     cmd = shlex.split(
-        "node {} {} {}".format(extract_path, ignore, components_source),
+        "node {} {} {} {}".format(
+            extract_path, ignore, forbid_patterns, components_source
+        ),
         posix=not is_windows,
     )
 
@@ -138,8 +153,8 @@ def cli():
         "-p",
         "--package-info-filename",
         default="package.json",
-        help="The filename of the copied `package.json` \
-to `project_shortname`",
+        help="The filename of the copied `package.json` "
+        "to `project_shortname`",
     )
     parser.add_argument(
         "-i",
