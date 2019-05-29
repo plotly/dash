@@ -188,10 +188,10 @@ class ProcessRunner(BaseDashRunner):
                 if six.PY3:
                     # pylint:disable=no-member
                     _except = subprocess.TimeoutExpired
-                    return self.proc.communicate(timeout=self.stop_timeout)
+                    self.proc.communicate(timeout=self.stop_timeout)
 
                 _except = OSError
-                return self.proc.communicate()
+                self.proc.communicate()
 
             except _except:
                 logger.warning(
@@ -200,4 +200,4 @@ class ProcessRunner(BaseDashRunner):
                     self.stop_timeout,
                 )
                 self.proc.kill()
-                return self.proc.communicate()
+                self.proc.communicate()
