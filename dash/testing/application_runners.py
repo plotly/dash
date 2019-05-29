@@ -161,51 +161,43 @@ class ProcessRunner(BaseDashRunner):
 
     # pylint: disable=arguments-differ
     def start(self, app_module, application_name="app", port=8050):
-        """
-        Start the waitress-serve process.
-
-        .. seealso:: :py:func:`~.plugin.dash_subprocess`
-
-        :param app_module: Dot notation path to the app file.
-        :type app_module: str
-        :param application_name: Variable name of the dash instance.
-        :type application_name: str
-        :param port: Port to serve the application.
-        :type port: int
-        :return:
-        """
+        """Start the server with waitress-serve in process flavor """
         entrypoint = "{}:{}.server".format(app_module, application_name)
         self.port = port
 
         args = shlex.split(
-            "waitress-serve --listen=127.0.0.1:{} {}".format(port, entrypoint),
+            "waitress-serve --listen=0.0.0.0:{} {}".format(port, entrypoint),
             posix=sys.platform != "win32",
         )
         logger.debug("start dash process with %s", args)
         try:
+            # print('start ......')
             self.proc = subprocess.Popen(
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
         except (OSError, ValueError):
+            logger.exception("subprocess error")
             self.started = False
 
         self.started = True
 
     def stop(self):
-        self.proc.terminate()
-        try:
-            if six.PY3:
-                _except = subprocess.TimeoutExpired  # pylint:disable=no-member
-                return self.proc.communicate(timeout=self.stop_timeout)
+        if self.proc:
+            self.proc.terminate()
+            try:
+                if six.PY3:
+                    # pylint:disable=no-member
+                    _except = subprocess.TimeoutExpired
+                    return self.proc.communicate(timeout=self.stop_timeout)
 
-            _except = OSError
-            return self.proc.communicate()
+                _except = OSError
+                return self.proc.communicate()
 
-        except _except:
-            logger.warning(
-                "subprocess terminate timeout %s reached, trying to kill "
-                "the subprocess in a safe manner",
-                self.stop_timeout,
-            )
-            self.proc.kill()
-            return self.proc.communicate()
+            except _except:
+                logger.warning(
+                    "subprocess terminate timeout %s reached, trying to kill "
+                    "the subprocess in a safe manner",
+                    self.stop_timeout,
+                )
+                self.proc.kill()
+                return self.proc.communicate()
