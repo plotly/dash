@@ -1,5 +1,4 @@
 import mock
-import pytest
 import dash_core_components as dcc
 import dash
 
@@ -34,9 +33,9 @@ class StatMock(object):
     st_mtime = 1
 
 
-@pytest.mark.skip("tmp")
 def test_external(mocker):
     mocker.patch("dash_core_components._js_dist")
+    mocker.patch("dash_html_components._js_dist")
     dcc._js_dist = _monkey_patched_js_dist  # noqa: W0212
     dcc.__version__ = 1
 
@@ -46,10 +45,9 @@ def test_external(mocker):
     app.layout = dcc.Markdown()
     app.scripts.config.serve_locally = False
 
-    with mock.patch("dash.dash.os.stat", return_value=StatMock()):
-        resource = app._collect_and_register_resources(
-            app.scripts.get_all_scripts()
-        )
+    resource = app._collect_and_register_resources(
+        app.scripts.get_all_scripts()
+    )
 
     assert resource == [
         "https://external_javascript.js",
@@ -58,9 +56,9 @@ def test_external(mocker):
     ]
 
 
-@pytest.mark.skip("tmp")
 def test_internal(mocker):
     mocker.patch("dash_core_components._js_dist")
+    mocker.patch("dash_html_components._js_dist")
     dcc._js_dist = _monkey_patched_js_dist  # noqa: W0212,
     dcc.__version__ = 1
 
@@ -72,7 +70,7 @@ def test_internal(mocker):
     assert app.scripts.config.serve_locally and app.css.config.serve_locally
 
     with mock.patch("dash.dash.os.stat", return_value=StatMock()):
-        with mock.patch("dash.importlib.import_module", return_value=dcc):
+        with mock.patch("dash.dash.importlib.import_module", return_value=dcc):
             resource = app._collect_and_register_resources(
                 app.scripts.get_all_scripts()
             )
