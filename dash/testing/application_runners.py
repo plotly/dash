@@ -46,6 +46,7 @@ def import_app(app_file, application_name="app"):
         app_module = runpy.run_module(app_file)
         app = app_module[application_name]
     except KeyError:
+        logger.exception("the app name cannot be found")
         raise NoAppFoundError(
             "No dash `app` instance was found in {}".format(app_file)
         )
@@ -138,6 +139,7 @@ class ThreadedRunner(BaseDashRunner):
         try:
             self.thread.start()
         except RuntimeError:  # multiple call on same thread
+            logger.exception("threaded server failed to start")
             self.started = False
 
         self.started = self.thread.is_alive()
@@ -170,13 +172,13 @@ class ProcessRunner(BaseDashRunner):
             posix=sys.platform != "win32",
         )
         logger.debug("start dash process with %s", args)
+
         try:
-            # print('start ......')
             self.proc = subprocess.Popen(
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
         except (OSError, ValueError):
-            logger.exception("subprocess error")
+            logger.exception("process server has encountered an error")
             self.started = False
 
         self.started = True
@@ -193,10 +195,9 @@ class ProcessRunner(BaseDashRunner):
                     _except = OSError
                     self.proc.communicate()
             except _except:
-                logger.warning(
-                    "subprocess terminate timeout %s reached, trying to kill "
-                    "the subprocess in a safe manner",
-                    self.stop_timeout,
+                logger.exception(
+                    "subprocess terminate not success, trying to kill "
+                    "the subprocess in a safe manner"
                 )
                 self.proc.kill()
                 self.proc.communicate()
