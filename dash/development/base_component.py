@@ -208,12 +208,12 @@ class Component(object):
         """Delete items by ID in the tree of children."""
         return self._get_set_or_delete(id, 'delete')
 
-    def traverse(self):
+    def _traverse(self):
         """Yield each item in the tree."""
-        for t in self.traverse_with_paths():
+        for t in self._traverse_with_paths():
             yield t[1]
 
-    def traverse_with_paths(self):
+    def _traverse_with_paths(self):
         """Yield each item with its path in the tree."""
         children = getattr(self, 'children', None)
         children_type = type(children).__name__
@@ -224,7 +224,7 @@ class Component(object):
         # children is just a component
         if isinstance(children, Component):
             yield "[*] " + children_string, children
-            for p, t in children.traverse_with_paths():
+            for p, t in children._traverse_with_paths():
                 yield "\n".join(["[*] " + children_string, p]), t
 
         # children is a list of components
@@ -238,12 +238,12 @@ class Component(object):
                 yield list_path, i
 
                 if isinstance(i, Component):
-                    for p, t in i.traverse_with_paths():
+                    for p, t in i._traverse_with_paths():
                         yield "\n".join([list_path, p]), t
 
     def __iter__(self):
         """Yield IDs in the tree of children."""
-        for t in self.traverse():
+        for t in self._traverse():
             if (isinstance(t, Component) and
                     getattr(t, 'id', None) is not None):
 
