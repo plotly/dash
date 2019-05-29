@@ -22,7 +22,7 @@ def test_threaded_server_smoke(thread_server):
 
 
 def test_process_server_smoke(process_server):
-    process_server('tests.simple_app')
+    process_server('simple_app')
     time.sleep(2.5)
     r = requests.get(process_server.url)
     assert r.status_code == 200, "the server is reachable"

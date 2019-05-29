@@ -39,24 +39,24 @@ jobs:
           paths:
               - "venv"
 
-      # - run:
-      #     name: 🌸 linting
-      #     command: |
-      #       . venv/bin/activate
-      #       pip install -e . --quiet
-      #       pip list | grep dash
-      #       flake8 dash setup.py
-      #       flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
-      #       pylint dash setup.py --rcfile=$PYLINTRC
-      #       pylint tests/unit -d all -e C0410,C0411,C0412,C0413,W0109
-      #       cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
+      - run:
+          name: 🌸 linting
+          command: |
+            . venv/bin/activate
+            pip install -e . --quiet
+            pip list | grep dash
+            flake8 dash setup.py
+            flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
+            pylint dash setup.py --rcfile=$PYLINTRC
+            pylint tests/unit -d all -e C0410,C0411,C0412,C0413,W0109
+            cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
 
       - run:
           name: ⛑ Run unit tests
           command: |
             . venv/bin/activate
             mkdir test-reports
-            PYTHONPATH=~/dash pytest --junitxml=test-reports/junit.xml tests/unit
+            PYTHONPATH=~/dash/tests/assets pytest --junitxml=test-reports/junit.xml tests/unit
       - store_test_results:
           path: test-reports
       - store_artifacts:
