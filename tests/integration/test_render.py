@@ -2,9 +2,10 @@
 import os
 import textwrap
 
+import pytest
 import dash
 from dash import Dash
-from dash.dependencies import Input, Output, State, ClientsideFunction
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash.development.base_component import Component
 import dash_html_components as html
@@ -22,8 +23,6 @@ from .IntegrationTests import IntegrationTests
 from .utils import wait_for
 from multiprocessing import Value
 import time
-import re
-import itertools
 import json
 import string
 import plotly
@@ -933,6 +932,7 @@ class Tests(IntegrationTests):
             output().text,
             'input="Initial Inputx", state="Initial Statex"')
 
+    @pytest.mark.flakey
     def test_state_and_inputs(self):
         app = Dash(__name__)
         app.layout = html.Div([
@@ -956,6 +956,7 @@ class Tests(IntegrationTests):
         state = lambda: self.driver.find_element_by_id('state')
 
         # callback gets called with initial input
+        time.sleep(0.5)
         self.assertEqual(
             output().text,
             'input="Initial Input", state="Initial State"'

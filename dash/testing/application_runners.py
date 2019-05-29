@@ -98,7 +98,7 @@ class ThreadedRunner(BaseDashRunner):
     this is the default flavor to use in dash integration tests
     """
 
-    def __init__(self, keep_open=False, stop_timeout=1):
+    def __init__(self, keep_open=False, stop_timeout=3):
         super(ThreadedRunner, self).__init__(
             keep_open=keep_open, stop_timeout=stop_timeout
         )
@@ -155,7 +155,7 @@ class ProcessRunner(BaseDashRunner):
     this flavor is closer to production environment but slower
     """
 
-    def __init__(self, keep_open=False, stop_timeout=1):
+    def __init__(self, keep_open=False, stop_timeout=3):
         super(ProcessRunner, self).__init__(
             keep_open=keep_open, stop_timeout=stop_timeout
         )
