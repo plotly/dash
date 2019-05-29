@@ -1,5 +1,4 @@
 from collections import OrderedDict
-import collections
 import inspect
 import json
 import os
@@ -8,8 +7,14 @@ import unittest
 import plotly
 
 from dash.development.base_component import Component
-from dash.development._py_components_generation import generate_class_string, generate_class_file, generate_class, \
-    create_docstring, prohibit_events, js_to_py_type
+from dash.development._py_components_generation import (
+    generate_class_string,
+    generate_class_file,
+    generate_class,
+    create_docstring,
+    prohibit_events,
+    js_to_py_type
+)
 
 Component._prop_names = ('id', 'a', 'children', 'style', )
 Component._type = 'TestComponent'
@@ -85,8 +90,9 @@ class TestComponent(unittest.TestCase):
 
     def test_get_item_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c, c1, c2, c3, c4, c5 = nested_tree()
+        keys = [k for k in c]
         self.assertEqual(
-            list(c.keys()),
+            keys,
             [
                 '0.0',
                 '0.1',
@@ -135,7 +141,8 @@ class TestComponent(unittest.TestCase):
 
     def test_del_item_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
-        for key in reversed(list(c.keys())):
+        keys = reversed([k for k in c])
+        for key in keys:
             c[key]
             del c[key]
             with self.assertRaises(KeyError):
@@ -158,13 +165,6 @@ class TestComponent(unittest.TestCase):
             elements,
             list(c.children) + [c3] + [c2] + list(c2.children)
         )
-
-    def test_iter_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
-        c = nested_tree()[0]
-        keys = list(c.keys())
-        # get a list of ids that __iter__ provides
-        iter_keys = [i for i in c]
-        self.assertEqual(keys, iter_keys)
 
     def test_to_plotly_json_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
@@ -243,17 +243,6 @@ class TestComponent(unittest.TestCase):
         c3 = Component(children='string with no id')
         with self.assertRaises(KeyError):
             c3['0']
-
-    def test_equality(self):
-        # TODO - Why is this the case? How is == being performed?
-        # __eq__ only needs __getitem__, __iter__, and __len__
-        self.assertTrue(Component() == Component())
-        self.assertTrue(Component() is not Component())
-
-        c1 = Component(id='1')
-        c2 = Component(id='2', children=[Component()])
-        self.assertTrue(c1 == c2)
-        self.assertTrue(c1 is not c2)
 
     def test_set_item(self):
         c1a = Component(id='1', children='Hello world')
@@ -450,6 +439,9 @@ class TestComponent(unittest.TestCase):
         ])), 3)
 
     def test_iter(self):
+        # The mixin methods from MutableMapping were cute but probably never
+        # used - at least not by us. Test that they're gone
+
         # keys, __contains__, items, values, and more are all mixin methods
         # that we get for free by inheriting from the MutableMapping
         # and behave as according to our implementation of __iter__
@@ -469,30 +461,28 @@ class TestComponent(unittest.TestCase):
                 Component(children=[Component(id='8')]),
             ]
         )
-        # test keys()
-        keys = [k for k in list(c.keys())]
-        self.assertEqual(keys, ['2', '3', '4', '5', '6', '7', '8'])
-        self.assertEqual([i for i in c], keys)
 
-        # test values()
-        components = [i for i in list(c.values())]
-        self.assertEqual(components, [c[k] for k in keys])
+        mixins = ['clear', 'get', 'items', 'keys', 'pop', 'popitem',
+                  'setdefault', 'update', 'values']
 
-        # test __iter__()
+        for m in mixins:
+            self.assertFalse(hasattr(c, m), m)
+
+        keys = ['2', '3', '4', '5', '6', '7', '8']
+
         for k in keys:
             # test __contains__()
             self.assertTrue(k in c)
+            # test __getitem__()
+            self.assertEqual(c[k].id, k)
 
-        # test __items__
-        items = [i for i in list(c.items())]
-        self.assertEqual(list(zip(keys, components)), items)
+        # test __iter__()
+        keys2 = []
+        for k in c:
+            keys2.append(k)
+            self.assertIn(k, keys)
 
-    def test_pop(self):
-        c2 = Component(id='2')
-        c = Component(id='1', children=c2)
-        c2_popped = c.pop('2')
-        self.assertTrue('2' not in c)
-        self.assertTrue(c2_popped is c2)
+        self.assertEqual(len(keys), len(keys2))
 
 
 class TestGenerateClassFile(unittest.TestCase):
@@ -502,7 +492,7 @@ class TestGenerateClassFile(unittest.TestCase):
         with open(json_path) as data_file:
             json_string = data_file.read()
             data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .JSONDecoder(object_pairs_hook=OrderedDict)\
                 .decode(json_string)
             self.data = data
 
@@ -572,7 +562,7 @@ class TestGenerateClass(unittest.TestCase):
         with open(path) as data_file:
             json_string = data_file.read()
             data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .JSONDecoder(object_pairs_hook=OrderedDict)\
                 .decode(json_string)
             self.data = data
 
@@ -590,7 +580,7 @@ class TestGenerateClass(unittest.TestCase):
         with open(path) as data_file:
             json_string = data_file.read()
             required_data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .JSONDecoder(object_pairs_hook=OrderedDict)\
                 .decode(json_string)
             self.required_data = required_data
 
@@ -761,7 +751,7 @@ class TestMetaDataConversions(unittest.TestCase):
         with open(path) as data_file:
             json_string = data_file.read()
             data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .JSONDecoder(object_pairs_hook=OrderedDict)\
                 .decode(json_string)
             self.data = data
 
@@ -945,7 +935,7 @@ class TestFlowMetaDataConversions(unittest.TestCase):
         with open(path) as data_file:
             json_string = data_file.read()
             data = json\
-                .JSONDecoder(object_pairs_hook=collections.OrderedDict)\
+                .JSONDecoder(object_pairs_hook=OrderedDict)\
                 .decode(json_string)
             self.data = data
 

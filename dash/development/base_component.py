@@ -59,7 +59,7 @@ def _check_if_has_indexable_children(item):
 
 
 @six.add_metaclass(ComponentMeta)
-class Component(patch_collections_abc('MutableMapping')):
+class Component(object):
     class _UNDEFINED(object):
         def __repr__(self):
             return 'undefined'
@@ -184,7 +184,7 @@ class Component(patch_collections_abc('MutableMapping')):
         # If we were in a list, then this exception will get caught
         raise KeyError(id)
 
-    # Supply ABC methods for a MutableMapping:
+    # Magic methods for a mapping interface:
     # - __getitem__
     # - __setitem__
     # - __delitem__
