@@ -183,16 +183,15 @@ class ProcessRunner(BaseDashRunner):
 
     def stop(self):
         if self.proc:
-            self.proc.terminate()
             try:
+                self.proc.terminate()
                 if six.PY3:
                     # pylint:disable=no-member
                     _except = subprocess.TimeoutExpired
                     self.proc.communicate(timeout=self.stop_timeout)
-
-                _except = OSError
-                self.proc.communicate()
-
+                else:
+                    _except = OSError
+                    self.proc.communicate()
             except _except:
                 logger.warning(
                     "subprocess terminate timeout %s reached, trying to kill "
