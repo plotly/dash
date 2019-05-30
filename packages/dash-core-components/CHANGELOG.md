@@ -2,11 +2,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Changed
+- Changed `dcc.Checklist` prop `values` to `value`, to match all the other input components [#558](https://github.com/plotly/dash-core-components/pull/558). Also improved prop types for `Dropdown` and `RadioItems` `value` props to consistently accept both strings and numbers.
+
 ## [0.48.0] - 2019-05-15
 ### Added
 - `figure` prop in `dcc.Graph` now accepts a `frames` key
-- Improved the `Dropdown` options description for dash-docs #547
-- Added `optionHeight` prop to `Dropdown` #552
+- Improved the `Dropdown` options description for dash-docs [#547](https://github.com/plotly/dash-core-components/pull/547)
+- Added `optionHeight` prop to `Dropdown` [#552](https://github.com/plotly/dash-core-components/pull/552)
 
 ### Removed
 - Removed unused `key` prop from `dcc.ConfirmDialog`
