@@ -19,12 +19,13 @@ from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
 
 
-forbidden_props = [
+reserved_words = [
     'UNDEFINED',
     'REQUIRED',
     'to_plotly_json',
     'available_properties',
-    'available_wildcard_properties'
+    'available_wildcard_properties',
+    '_.*'
 ]
 
 
@@ -56,14 +57,12 @@ def generate_components(
 
     extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
 
-    forbid_patterns = '|'.join(
-        '^{}$'.format(p) for p in forbidden_props + ['_.*']
-    )
+    reserved_patterns = '|'.join('^{}$'.format(p) for p in reserved_words)
 
     os.environ["NODE_PATH"] = "node_modules"
     cmd = shlex.split(
         "node {} {} {} {}".format(
-            extract_path, ignore, forbid_patterns, components_source
+            extract_path, ignore, reserved_patterns, components_source
         ),
         posix=not is_windows,
     )

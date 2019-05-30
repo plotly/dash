@@ -7,7 +7,7 @@ import unittest
 import plotly
 
 from dash.development.base_component import Component
-from dash.development.component_generator import forbidden_props
+from dash.development.component_generator import reserved_words
 from dash.development._py_components_generation import (
     generate_class_string,
     generate_class_file,
@@ -740,21 +740,25 @@ class TestGenerateClass(unittest.TestCase):
             self.ComponentClassRequired(children='test')
 
     def test_attrs_match_forbidden_props(self):
+        assert '_.*' in reserved_words, 'props cannot have leading underscores'
+
         # props are not added as attrs unless explicitly provided
         # except for children, which is always set if it's a prop at all.
+        expected_attrs = set(reserved_words + ['children']) - set(['_.*'])
         c = self.ComponentClass()
-        base_attrs = dir(c)
-        extra_attrs = [a for a in base_attrs if a[0] != '_']
-        assert set(extra_attrs) == set(forbidden_props + ['children']), \
+        base_attrs = set(dir(c))
+        extra_attrs = set(a for a in base_attrs if a[0] != '_')
+
+        assert extra_attrs == expected_attrs, \
             'component has only underscored and reserved word attrs'
 
         # setting props causes them to show up as attrs
         c2 = self.ComponentClass('children', id='c2', optionalArray=[1])
-        prop_attrs = dir(c2)
-        assert set(base_attrs) - set(prop_attrs) == set([]), \
-            'no attrs were removed'
+        prop_attrs = set(dir(c2))
+
+        assert base_attrs - prop_attrs == set([]), 'no attrs were removed'
         assert (
-            set(prop_attrs) - set(base_attrs) == set(['id', 'optionalArray'])
+            prop_attrs - base_attrs == set(['id', 'optionalArray'])
         ), 'explicit props were added as attrs'
 
 

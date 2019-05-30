@@ -6,7 +6,7 @@ const reactDocs = require('react-docgen');
 
 const componentPaths = process.argv.slice(4);
 const ignorePattern = new RegExp(process.argv[2]);
-const forbiddenProps = process.argv[3].split('|').map(part => new RegExp(part));
+const reservedPatterns = process.argv[3].split('|').map(part => new RegExp(part));
 
 let failed = false;
 
@@ -65,11 +65,11 @@ function docstringWarning(doc) {
 
 function propError(doc) {
     for(const propName in doc.props) {
-        forbiddenProps.forEach(forbiddenPattern => {
-            if (forbiddenPattern.test(propName)) {
+        reservedPatterns.forEach(reservedPattern => {
+            if (reservedPattern.test(propName)) {
                 process.stderr.write(
-                    `\nERROR: "${propName}" matches forbidden prop name ` +
-                    `pattern: ${forbiddenPattern.toString()}\n`
+                    `\nERROR: "${propName}" matches reserved word ` +
+                    `pattern: ${reservedPattern.toString()}\n`
                 );
                 failed = true;
             }
