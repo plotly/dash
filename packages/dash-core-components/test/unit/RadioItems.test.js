@@ -3,7 +3,6 @@ import React from 'react';
 import {mount, render} from 'enzyme';
 import {validate} from './utils';
 
-
 test('RadioItems renders', () => {
     const dd = render(<RadioItems />);
 
@@ -16,7 +15,7 @@ describe('Props can be set properly', () => {
         options: [
             {label: 'A', value: 'a'},
             {label: 1, value: 2},
-            {label: 'Disabled', value: 'x', disabled: true}
+            {label: 'Disabled', value: 'x', disabled: true},
         ],
         value: 2,
         style: {backgroundColor: 'hotpink'},

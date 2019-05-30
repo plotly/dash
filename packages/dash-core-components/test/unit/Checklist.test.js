@@ -3,7 +3,6 @@ import React from 'react';
 import {mount, render} from 'enzyme';
 import {validate} from './utils';
 
-
 test('Checklist renders', () => {
     const dd = render(<Checklist />);
 
@@ -16,7 +15,7 @@ describe('Props can be set properly', () => {
         options: [
             {label: 'A', value: 'a'},
             {label: 1, value: 2},
-            {label: 'Disabled', value: 'x', disabled: true}
+            {label: 'Disabled', value: 'x', disabled: true},
         ],
         style: {backgroundColor: 'hotpink'},
         className: 'radio-class',
@@ -34,7 +33,7 @@ describe('Props can be set properly', () => {
     const testProps = Object.assign({}, testPropsNoValue, {value: ['a', 2]});
 
     const checklist = mount(<Checklist {...testProps} />);
-    const checklistNoValue = mount(<Checklist {...testPropsNoValue} />)
+    const checklistNoValue = mount(<Checklist {...testPropsNoValue} />);
 
     test('props are being set', () => {
         validate(Checklist, testProps);
@@ -45,8 +44,9 @@ describe('Props can be set properly', () => {
     test('it works with options but no value supplied', () => {
         validate(Checklist, testPropsNoValue);
         expect(checklistNoValue.props()).toBeDefined();
-        expect(checklistNoValue.props())
-            .toEqual(Object.assign({}, testPropsNoValue, {value: []}));
+        expect(checklistNoValue.props()).toEqual(
+            Object.assign({}, testPropsNoValue, {value: []})
+        );
     });
 
     test('props.id is set as the outer element id', () => {

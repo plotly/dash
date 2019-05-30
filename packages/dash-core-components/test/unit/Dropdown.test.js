@@ -3,7 +3,6 @@ import React from 'react';
 import {mount, render} from 'enzyme';
 import {validate} from './utils';
 
-
 test('Dropdown renders', () => {
     const dd = render(<Dropdown />);
 
@@ -16,7 +15,7 @@ describe('Props can be set properly', () => {
         options: [
             {label: 'A', value: 'a'},
             {label: 1, value: 2},
-            {label: 'Disabled', value: 'x', disabled: true}
+            {label: 'Disabled', value: 'x', disabled: true},
         ],
         value: 2,
         optionHeight: 50,
@@ -36,7 +35,7 @@ describe('Props can be set properly', () => {
 
     const multiProps = Object.assign({}, singleProps, {
         multi: true,
-        value: ['a', 2]
+        value: ['a', 2],
     });
     const singleDD = mount(<Dropdown {...singleProps} />);
     const multiDD = mount(<Dropdown {...multiProps} />);
