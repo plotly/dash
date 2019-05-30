@@ -130,13 +130,13 @@ Dropdown.propTypes = {
             /**
              * The value of the dropdown. This value
              * corresponds to the items specified in the
-             * `values` property.
+             * `value` property.
              */
             value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
                 .isRequired,
 
             /**
-             * If true, this dropdown is disabled and items can't be selected.
+             * If true, this option is disabled and cannot be selected.
              */
             disabled: PropTypes.bool,
         })
@@ -152,9 +152,10 @@ Dropdown.propTypes = {
      */
     value: PropTypes.oneOfType([
         PropTypes.string,
-        PropTypes.arrayOf(PropTypes.string),
         PropTypes.number,
-        PropTypes.arrayOf(PropTypes.number),
+        PropTypes.arrayOf(
+            PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        ),
     ]),
 
     /**
@@ -175,7 +176,7 @@ Dropdown.propTypes = {
     clearable: PropTypes.bool,
 
     /**
-     * If true, the option is disabled
+     * If true, this dropdown is disabled and the selection cannot be changed.
      */
     disabled: PropTypes.bool,
 

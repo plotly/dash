@@ -84,7 +84,7 @@ RadioItems.propTypes = {
             /**
              * The value of the radio item. This value
              * corresponds to the items specified in the
-             * `values` property.
+             * `value` property.
              */
             value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
                 .isRequired,
@@ -99,7 +99,7 @@ RadioItems.propTypes = {
     /**
      * The currently selected value
      */
-    value: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 
     /**
      * The style of the container (div)
