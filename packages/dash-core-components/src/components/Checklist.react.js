@@ -166,4 +166,5 @@ Checklist.defaultProps = {
     labelStyle: {},
     labelClassName: '',
     options: [],
+    values: [],
 };
