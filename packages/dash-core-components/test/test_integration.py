@@ -838,7 +838,7 @@ class Tests(IntegrationTests):
                     {'label': 'San Francisco', 'value': 'SF'},
                     {'label': u'北京', 'value': u'北京'}
                 ],
-                values=['MTL', 'SF']
+                value=['MTL', 'SF']
             ),
 
             html.Label('Text Input'),

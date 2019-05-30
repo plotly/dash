@@ -4,8 +4,8 @@ import React, {Component} from 'react';
 
 /**
  * Checklist is a component that encapsulates several checkboxes.
- * The values and labels of the checklist is specified in the `options`
- * property and the checked items are specified with the `values` property.
+ * The values and labels of the checklist are specified in the `options`
+ * property and the checked items are specified with the `value` property.
  * Each checkbox is rendered as an input with a surrounding label.
  */
 export default class Checklist extends Component {
@@ -21,7 +21,7 @@ export default class Checklist extends Component {
             setProps,
             style,
             loading_state,
-            values,
+            value,
         } = this.props;
 
         return (
@@ -40,19 +40,19 @@ export default class Checklist extends Component {
                         className={labelClassName}
                     >
                         <input
-                            checked={contains(option.value, values)}
+                            checked={contains(option.value, value)}
                             className={inputClassName}
                             disabled={Boolean(option.disabled)}
                             style={inputStyle}
                             type="checkbox"
                             onChange={() => {
-                                let newValues;
-                                if (contains(option.value, values)) {
-                                    newValues = without([option.value], values);
+                                let newValue;
+                                if (contains(option.value, value)) {
+                                    newValue = without([option.value], value);
                                 } else {
-                                    newValues = append(option.value, values);
+                                    newValue = append(option.value, value);
                                 }
-                                setProps({values: newValues});
+                                setProps({value: newValue});
                             }}
                         />
                         {option.label}
@@ -85,7 +85,7 @@ Checklist.propTypes = {
             /**
              * The value of the checkbox. This value
              * corresponds to the items specified in the
-             * `values` property.
+             * `value` property.
              */
             value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
                 .isRequired,
@@ -100,7 +100,7 @@ Checklist.propTypes = {
     /**
      * The currently selected value
      */
-    values: PropTypes.arrayOf(
+    value: PropTypes.arrayOf(
         PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     ),
 
@@ -166,5 +166,5 @@ Checklist.defaultProps = {
     labelStyle: {},
     labelClassName: '',
     options: [],
-    values: [],
+    value: [],
 };

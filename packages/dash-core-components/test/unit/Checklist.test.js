@@ -31,7 +31,7 @@ describe('Props can be set properly', () => {
         },
     };
 
-    const testProps = Object.assign({}, testPropsNoValue, {values: ['a', 2]});
+    const testProps = Object.assign({}, testPropsNoValue, {value: ['a', 2]});
 
     const checklist = mount(<Checklist {...testProps} />);
     const checklistNoValue = mount(<Checklist {...testPropsNoValue} />)
@@ -46,7 +46,7 @@ describe('Props can be set properly', () => {
         validate(Checklist, testPropsNoValue);
         expect(checklistNoValue.props()).toBeDefined();
         expect(checklistNoValue.props())
-            .toEqual(Object.assign({}, testPropsNoValue, {values: []}));
+            .toEqual(Object.assign({}, testPropsNoValue, {value: []}));
     });
 
     test('props.id is set as the outer element id', () => {
