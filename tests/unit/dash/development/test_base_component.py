@@ -469,23 +469,23 @@ class TestComponent(unittest.TestCase):
                   'setdefault', 'update', 'values']
 
         for m in mixins:
-            self.assertFalse(hasattr(c, m), m)
+            assert not hasattr(c, m), 'should not have method ' + m
 
         keys = ['2', '3', '4', '5', '6', '7', '8']
 
         for k in keys:
             # test __contains__()
-            self.assertTrue(k in c)
+            assert k in c, 'should find key ' + k
             # test __getitem__()
-            self.assertEqual(c[k].id, k)
+            assert c[k].id == k, 'key {} points to the right item'.format(k)
 
         # test __iter__()
         keys2 = []
         for k in c:
             keys2.append(k)
-            self.assertIn(k, keys)
+            assert k in keys, 'iteration produces key ' + k
 
-        self.assertEqual(len(keys), len(keys2))
+        assert len(keys) == len(keys2), 'iteration produces no extra keys'
 
 
 class TestGenerateClassFile(unittest.TestCase):
@@ -745,16 +745,17 @@ class TestGenerateClass(unittest.TestCase):
         c = self.ComponentClass()
         base_attrs = dir(c)
         extra_attrs = [a for a in base_attrs if a[0] != '_']
-        self.assertEqual(set(extra_attrs), set(forbidden_props + ['children']))
+        assert set(extra_attrs) == set(forbidden_props + ['children']), \
+            'component has only underscored and reserved word attrs'
 
         # setting props causes them to show up as attrs
         c2 = self.ComponentClass('children', id='c2', optionalArray=[1])
         prop_attrs = dir(c2)
-        self.assertEqual(set(base_attrs) - set(prop_attrs), set([]))
-        self.assertEqual(
-            set(prop_attrs) - set(base_attrs),
-            set(['id', 'optionalArray'])
-        )
+        assert set(base_attrs) - set(prop_attrs) == set([]), \
+            'no attrs were removed'
+        assert (
+            set(prop_attrs) - set(base_attrs) == set(['id', 'optionalArray'])
+        ), 'explicit props were added as attrs'
 
 
 class TestMetaDataConversions(unittest.TestCase):
