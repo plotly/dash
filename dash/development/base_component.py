@@ -224,6 +224,7 @@ class Component(object):
         # children is just a component
         if isinstance(children, Component):
             yield "[*] " + children_string, children
+            # pylint: disable=protected-access
             for p, t in children._traverse_with_paths():
                 yield "\n".join(["[*] " + children_string, p]), t
 
@@ -238,6 +239,7 @@ class Component(object):
                 yield list_path, i
 
                 if isinstance(i, Component):
+                    # pylint: disable=protected-access
                     for p, t in i._traverse_with_paths():
                         yield "\n".join([list_path, p]), t
 
