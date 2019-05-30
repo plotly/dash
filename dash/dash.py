@@ -914,7 +914,8 @@ class Dash(object):
         def _validate_value(val, index=None):
             # val is a Component
             if isinstance(val, Component):
-                for p, j in val.traverse_with_paths():
+                # pylint: disable=protected-access
+                for p, j in val._traverse_with_paths():
                     # check each component value in the tree
                     if not _value_is_valid(j):
                         _raise_invalid(
@@ -1194,7 +1195,8 @@ class Dash(object):
         layout_id = getattr(self.layout, 'id', None)
 
         component_ids = {layout_id} if layout_id else set()
-        for component in to_validate.traverse():
+        # pylint: disable=protected-access
+        for component in to_validate._traverse():
             component_id = getattr(component, 'id', None)
             if component_id and component_id in component_ids:
                 raise exceptions.DuplicateIdError(
