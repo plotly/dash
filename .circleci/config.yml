@@ -1,6 +1,7 @@
 version: 2
 
 jobs:
+
   "python-2.7": &test-template
     working_directory: ~/dash
     docker:
