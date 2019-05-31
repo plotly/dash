@@ -24,3 +24,17 @@ def until_not(
         time.sleep(poll)
         if time.time() > end_time:
             raise TestingTimeoutError(msg)
+
+
+class text_to_equal(object):
+    def __init__(self, selector, text):
+        self.selector = selector
+        self.text = text
+
+    def __call__(self, driver):
+        elem = driver.find_element_by_css_selector(self.selector)
+        return (
+            str(elem.text) == self.text
+            or str(elem.get_attribute("value")) == self.text
+        )
+

@@ -34,6 +34,12 @@ import pytest
 TIMEOUT = 20
 
 
+def test_wdr001_simple_br_dash_docs(br):
+    br.server_url = 'https://dash.plot.ly/'
+    br.wait_for_element_by_css_selector('#wait-for-layout')
+    assert not br.get_logs(), "no console errors"
+
+
 @pytest.mark.skip(
     reason="flakey with circleci, will readdressing after pytest fixture")
 class Tests(IntegrationTests):
