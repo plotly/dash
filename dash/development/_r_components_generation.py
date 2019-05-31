@@ -300,10 +300,7 @@ def write_help_file(name, props, description, prefix):
     writes an R help file to the man directory for the generated R package
 
     """
-    if prefix:
-        file_name = "{}{}.Rd".format(prefix, name)
-    else:
-        file_name = "{}.Rd".format(name[0].lower() + name[1:])
+    file_name = format_filename(prefix, name, "Rd")
 
     default_argtext = ''
     item_text = ''
@@ -372,10 +369,7 @@ def write_class_file(name,
         prefix
     )
 
-    if prefix:
-        file_name = "{}{}.R".format(prefix, name)
-    else:
-        file_name = "{}.R".format(name[0].lower() + name[1:])
+    file_name = format_filename(prefix, name, "R")
 
     file_path = os.path.join('R', file_name)
     with open(file_path, 'w') as f:
@@ -568,6 +562,14 @@ def format_fn_name(prefix, name):
     if prefix:
         return prefix + name
     return snake_case_to_camel_case(name[0].lower() + name[1:])
+
+
+def format_filename(prefix, name, ext):
+    if prefix:
+        file_name = "{}{}.{}".format(prefix.lower(), name.capitalize(), ext)
+    else:
+        file_name = "{}.{}".format(name[0].lower() + name[1:], ext)
+    return file_name
 
 
 # pylint: disable=unused-argument
