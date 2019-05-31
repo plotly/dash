@@ -15,7 +15,7 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-r_component_string = '''{funcname} <- function({default_argtext}{wildcards}) {{
+r_component_string = """{funcname} <- function({default_argtext}{wildcards}) {{
     {wildcard_declaration}
     component <- list(
         props = list({default_paramtext}{wildcards}),
