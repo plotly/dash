@@ -89,7 +89,7 @@ class Dash(object):
     def __init__(
             self,
             name='__main__',
-            server=None,
+            server=True,
             static_folder='static',
             assets_folder='assets',
             assets_url_path='/assets',
@@ -110,6 +110,10 @@ class Dash(object):
             plugins=None,
             **kwargs):
 
+        # Store some flask-related parameters for use in init_app()
+        self.compress = compress
+        self.name = name
+
         # pylint-disable: too-many-instance-attributes
         if 'csrf_protect' in kwargs:
             warnings.warn('''
@@ -125,8 +129,17 @@ class Dash(object):
         )
         self._assets_url_path = assets_url_path
 
-        # allow users to supply their own flask server
-        self.server = server or Flask(name, static_folder=static_folder)
+        # We have 3 cases: server is either True (we create the server), False
+        # (defer server creation) or a Flask app instance (we use their server)
+        if isinstance(server, bool):
+            if server:
+                self.server = Flask(name, static_folder=static_folder)
+            else:
+                self.server = None
+        elif isinstance(server, Flask):
+            self.server = server
+        else:
+            raise ValueError('server must be a Flask app, or a boolean')
 
         url_base_pathname, routes_pathname_prefix, requests_pathname_prefix = \
             pathname_configs(
@@ -154,22 +167,6 @@ class Dash(object):
             'show_undo_redo': show_undo_redo
         })
 
-        assets_blueprint_name = '{}{}'.format(
-            self.config.routes_pathname_prefix.replace('/', '_'),
-            'dash_assets'
-        )
-
-        self.server.register_blueprint(
-            flask.Blueprint(
-                assets_blueprint_name, name,
-                static_folder=self._assets_folder,
-                static_url_path='{}{}'.format(
-                    self.config.routes_pathname_prefix,
-                    assets_url_path.lstrip('/')
-                )
-            )
-        )
-
         # list of dependencies
         self.callback_map = {}
 
@@ -180,15 +177,6 @@ class Dash(object):
 
         # default renderer string
         self.renderer = 'var renderer = new DashRenderer();'
-
-        if compress:
-            # gzip
-            Compress(self.server)
-
-        @self.server.errorhandler(exceptions.PreventUpdate)
-        def _handle_error(_):
-            """Handle a halted callback and return an empty 204 response"""
-            return '', 204
 
         # static files from the packages
         self.css = Css()
@@ -204,7 +192,78 @@ class Dash(object):
         # urls
         self.routes = []
 
+        self._layout = None
+        self._cached_layout = None
+        self._dev_tools = _AttributeDict({
+            'serve_dev_bundles': False,
+            'hot_reload': False,
+            'hot_reload_interval': 3000,
+            'hot_reload_watch_interval': 0.5,
+            'hot_reload_max_retry': 8,
+            'ui': False,
+            'props_check': False,
+        })
+
+        self._assets_files = []
+
+        # hot reload
+        self._reload_hash = None
+        self._hard_reload = False
+        self._lock = threading.RLock()
+        self._watch_thread = None
+        self._changed_assets = []
+
+        self.logger = logging.getLogger(name)
+        self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+
+        if isinstance(plugins, _patch_collections_abc('Iterable')):
+            for plugin in plugins:
+                plugin.plug(self)
+
+        if self.server is not None:
+            self.init_app()
+
+    def init_app(self, app=None):
+        """
+        Initialize the parts of Dash that require a flask app
+        """
+
+        if app is not None:
+            self.server = app
+
+        assets_blueprint_name = '{}{}'.format(
+            self.config.routes_pathname_prefix.replace('/', '_'),
+            'dash_assets'
+        )
+
+        self.server.register_blueprint(
+            flask.Blueprint(
+                assets_blueprint_name,
+                self.name,
+                static_folder=self._assets_folder,
+                static_url_path='{}{}'.format(
+                    self.config.routes_pathname_prefix,
+                    self._assets_url_path.lstrip('/')
+                )
+            )
+        )
+
+        if self.compress:
+            # gzip
+            Compress(self.server)
+
+        @self.server.errorhandler(exceptions.PreventUpdate)
+        def _handle_error(_):
+            """Handle a halted callback and return an empty 204 response"""
+            return '', 204
+
         prefix = self.config['routes_pathname_prefix']
+
+        self.server.before_first_request(self._setup_server)
+
+        # add a handler for components suites errors to return 404
+        self.server.errorhandler(exceptions.InvalidResourceError)(
+            self._invalid_resources_handler)
 
         self._add_url('{}_dash-layout'.format(prefix), self.serve_layout)
 
@@ -235,40 +294,6 @@ class Dash(object):
         self._add_url(
             '{}_favicon.ico'.format(prefix),
             self._serve_default_favicon)
-
-        self.server.before_first_request(self._setup_server)
-
-        self._layout = None
-        self._cached_layout = None
-        self._dev_tools = _AttributeDict({
-            'serve_dev_bundles': False,
-            'hot_reload': False,
-            'hot_reload_interval': 3000,
-            'hot_reload_watch_interval': 0.5,
-            'hot_reload_max_retry': 8,
-            'ui': False,
-            'props_check': False,
-        })
-
-        # add a handler for components suites errors to return 404
-        self.server.errorhandler(exceptions.InvalidResourceError)(
-            self._invalid_resources_handler)
-
-        self._assets_files = []
-
-        # hot reload
-        self._reload_hash = None
-        self._hard_reload = False
-        self._lock = threading.RLock()
-        self._watch_thread = None
-        self._changed_assets = []
-
-        self.logger = logging.getLogger(name)
-        self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
-
-        if isinstance(plugins, _patch_collections_abc('Iterable')):
-            for plugin in plugins:
-                plugin.plug(self)
 
     def _add_url(self, name, view_func, methods=('GET',)):
         self.server.add_url_rule(
@@ -889,7 +914,8 @@ class Dash(object):
         def _validate_value(val, index=None):
             # val is a Component
             if isinstance(val, Component):
-                for p, j in val.traverse_with_paths():
+                # pylint: disable=protected-access
+                for p, j in val._traverse_with_paths():
                     # check each component value in the tree
                     if not _value_is_valid(j):
                         _raise_invalid(
@@ -1169,7 +1195,8 @@ class Dash(object):
         layout_id = getattr(self.layout, 'id', None)
 
         component_ids = {layout_id} if layout_id else set()
-        for component in to_validate.traverse():
+        # pylint: disable=protected-access
+        for component in to_validate._traverse():
             component_id = getattr(component, 'id', None)
             if component_id and component_id in component_ids:
                 raise exceptions.DuplicateIdError(

@@ -8,7 +8,7 @@ tests/*  @byronz
 
 _r_*     @rpkyle
 
-*.md     @alexcjohnson @chriddyp
+*.md     @alexcjohnson
 
 *.py     @alexcjohnson @byronz
 
