@@ -3,11 +3,15 @@ dash-dangerously-set-inner-html
 percy
 selenium
 mock
-tox
-tox-pyenv
 six
 plotly==3.7.1
 requests[security]
 flake8
 pylint==2.3.1
 astroid==2.2.5
+lxml
+requests
+beautifulsoup4
+pytest
+pytest-sugar
+pytest-mock
