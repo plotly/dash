@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 import os
 import sys
 import logging
@@ -56,7 +57,7 @@ class Browser:
         snapshot_name = "{} - py{}.{}".format(
             name, sys.version_info.major, sys.version_info.minor
         )
-        logger.info("taking snapshot name => {}".format(snapshot_name))
+        logger.info("taking snapshot name => %s", snapshot_name)
         self.percy_runner.snapshot(name=snapshot_name)
 
     def _wait_for(self, method, args, timeout, msg):
@@ -94,7 +95,7 @@ class Browser:
             )
         except TimeoutException:
             logger.exception(
-                "dash server is not loaded within {} seconds".format(timeout)
+                "dash server is not loaded within %s seconds", timeout
             )
             raise DashAppLoadingError(
                 "the expected Dash react entry point cannot be loaded"
@@ -118,7 +119,8 @@ class Browser:
             )
         )
 
-    def _get_chrome(self):
+    @staticmethod
+    def _get_chrome():
         options = Options()
         options.add_argument("--no-sandbox")
 
@@ -134,7 +136,8 @@ class Browser:
         chrome.set_window_position(0, 0)
         return chrome
 
-    def _get_firefox(self):
+    @staticmethod
+    def _get_firefox():
 
         capabilities = DesiredCapabilities.FIREFOX
         capabilities["loggingPrefs"] = {"browser": "SEVERE"}
@@ -165,7 +168,7 @@ class Browser:
         )
 
     def reset_log_timestamp(self):
-        '''reset_log_timestamp only work with chrome webdrier'''
+        """reset_log_timestamp only work with chrome webdrier"""
         if self.driver.name == "chrome":
             entries = self.driver.get_log("browser")
             if entries:

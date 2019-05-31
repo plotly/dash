@@ -13,15 +13,12 @@ WEBDRIVERS = {
 }
 
 
-# pylint: disable=missing-docstring
 def pytest_addoption(parser):
-
     # Add options to the pytest parser, either on the commandline or ini
     # TODO add more options for the selenium driver.
     dash = parser.getgroup("Dash", "Dash Integration Tests")
 
     dash.addoption(
-        "-w",
         "--webdriver",
         choices=tuple(WEBDRIVERS.keys()),
         default="Chrome",

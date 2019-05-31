@@ -26,7 +26,7 @@ def until_not(
             raise TestingTimeoutError(msg)
 
 
-class text_to_equal(object):
+class text_to_equal(object):  # pylint: disable=too-few-public-methods
     def __init__(self, selector, text):
         self.selector = selector
         self.text = text
@@ -37,4 +37,3 @@ class text_to_equal(object):
             str(elem.text) == self.text
             or str(elem.get_attribute("value")) == self.text
         )
-
