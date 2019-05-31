@@ -33,9 +33,7 @@ class Wrappers {
             (column, columnIndex) => {
                 const active = isActiveCell(activeCell, rowIndex + offset.rows, columnIndex + offset.columns);
                 const selected = isSelectedCell(selectedCells, rowIndex + offset.rows, columnIndex + offset.columns);
-
                 const isDropdown = column.presentation === Presentation.Dropdown;
-
                 const classes =
                     'dash-cell' +
                     ` column-${columnIndex}` +

@@ -300,9 +300,6 @@ snakes.forEach(([snake, camel]) => map.set(snake, camel));
 kebabs.forEach(([kebab, camel]) => map.set(kebab, camel));
 camels.forEach(([camel]) => map.set(camel, camel));
 
-map.forEach((value, key) => console.log(value, key));
-console.log(map.size);
-
 const fs = require('fs');
 
 var stream1 = fs.createWriteStream("src/dash-table/derived/style/py2jsCssProperties.ts");

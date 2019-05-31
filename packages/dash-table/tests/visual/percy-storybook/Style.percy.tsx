@@ -134,5 +134,42 @@ storiesOf('DashTable/Style type condition', module)
             if: { column_id: 'Humidity', filter: '{Humidity} eq 20' },
             background_color: 'yellow'
         }]}
-
+    />))
+    .add('single selected cells on dark themes', () => (<DataTable
+        id='styling-11'
+        data={data}
+        selected_cells={[{row: 1, column: 1, column_id: 'Region'}]}
+        active_cell={{row: 1, column: 1}}
+        columns={R.map(
+            i => ({ name: i, id: i }),
+            R.keysIn(data[0]))
+        }
+        content_style='grow'
+        style_table={{
+            width: '100%'
+        }}
+        style_data_conditional={[{
+            background_color: 'rgb(50, 50, 50)',
+            color: 'white',
+            font_family: 'arial'
+        }]}
+    />))
+    .add('multiple selected cells on dark themes', () => (<DataTable
+        id='styling-12'
+        data={data}
+        selected_cells={[{row: 1, column: 1, column_id: 'Region'}, {row: 1, column: 2, column_id: 'Temperature'}, {row: 2, column: 1, column_id: 'Region'}, {row: 2, column: 2, column_id: 'Temperature'}]}
+        active_cell={{row: 1, column: 1}}
+        columns={R.map(
+            i => ({ name: i, id: i }),
+            R.keysIn(data[0]))
+        }
+        content_style='grow'
+        style_table={{
+            width: '100%'
+        }}
+        style_data_conditional={[{
+            background_color: 'rgb(50, 50, 50)',
+            color: 'white',
+            font_family: 'arial'
+        }]}
     />));

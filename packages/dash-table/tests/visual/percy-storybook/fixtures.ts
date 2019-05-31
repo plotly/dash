@@ -410,6 +410,7 @@ export default [
             id: 'table',
             editable: true,
             selected_cells: [[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]],
+            active_cell: [1, 1],
             columns: [
                 {
                     name: 'Column 1',
@@ -444,6 +445,7 @@ export default [
             id: 'table',
             editable: true,
             selected_cells: [[1, 1], [1, 2], [1, 3], [2, 1], [2, 2], [2, 3], [3, 1], [3, 2], [3, 3]],
+            active_cell: [1, 1],
             merge_duplicate_headers: true,
             columns: [
                 {

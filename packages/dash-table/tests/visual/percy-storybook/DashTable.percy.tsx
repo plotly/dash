@@ -229,6 +229,7 @@ storiesOf('DashTable/Hidden Columns', module)
         id='table'
         data={dataA2J}
         columns={hiddenColumns}
+        active_cell={makeCell(1, 1, dataA2J, hiddenColumns)}
         selected_cells={makeSelection([[1, 1], [1, 2], [2, 1], [2, 2]], dataA2J, hiddenColumns)}
         style_data_conditional={style_data_conditional}
     />));

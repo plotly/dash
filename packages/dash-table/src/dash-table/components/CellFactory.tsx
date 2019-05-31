@@ -63,7 +63,8 @@ export default class CellFactory {
             columns,
             relevantStyles,
             virtualized.data,
-            virtualized.offset
+            virtualized.offset,
+            selected_cells
         );
 
         const dataOpStyles = this.dataOpStyles(
