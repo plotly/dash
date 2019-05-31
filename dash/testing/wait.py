@@ -37,4 +37,3 @@ class text_to_equal(object):
             str(elem.text) == self.text
             or str(elem.get_attribute("value")) == self.text
         )
-
