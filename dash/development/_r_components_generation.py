@@ -59,7 +59,7 @@ return(deps_metadata)
 """
 
 help_string = """% Auto-generated: do not edit by hand
-\\name{{{prefix}{name}}}
+\\name{{{funcname}}}
 
 \\alias{{{funcname}}}
 
