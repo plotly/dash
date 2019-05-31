@@ -4,8 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const reactDocs = require('react-docgen');
 
-const componentPaths = process.argv.slice(3);
+const componentPaths = process.argv.slice(4);
 const ignorePattern = new RegExp(process.argv[2]);
+const reservedPatterns = process.argv[3].split('|').map(part => new RegExp(part));
+
+let failed = false;
 
 const excludedDocProps = [
     'setProps', 'id', 'className', 'style'
@@ -20,13 +23,18 @@ const metadata = Object.create(null);
 componentPaths.forEach(componentPath =>
     collectMetadataRecursively(componentPath)
 );
-writeOut(metadata);
+if (failed) {
+    console.error('\nextract-meta failed.\n');
+}
+else {
+    writeOut(metadata);
+}
 
 function help() {
     console.error('usage: ');
     console.error(
-        'extract-meta path/to/component(s) ' +
-            ' [path/to/more/component(s), ...] > metadata.json'
+        'extract-meta ^fileIgnorePattern ^forbidden$|^props$|^patterns$' +
+        ' path/to/component(s) [path/to/more/component(s) ...] > metadata.json'
     );
 }
 
@@ -55,6 +63,20 @@ function docstringWarning(doc) {
     );
 }
 
+function propError(doc) {
+    for(const propName in doc.props) {
+        reservedPatterns.forEach(reservedPattern => {
+            if (reservedPattern.test(propName)) {
+                process.stderr.write(
+                    `\nERROR: "${propName}" matches reserved word ` +
+                    `pattern: ${reservedPattern.toString()}\n`
+                );
+                failed = true;
+            }
+        });
+    }
+}
+
 
 function parseFile(filepath) {
     const urlpath = filepath.split(path.sep).join('/');
@@ -68,6 +90,7 @@ function parseFile(filepath) {
         src = fs.readFileSync(filepath);
         const doc = metadata[urlpath] = reactDocs.parse(src);
         docstringWarning(doc);
+        propError(doc);
     } catch (error) {
         writeError(error, filepath);
     }

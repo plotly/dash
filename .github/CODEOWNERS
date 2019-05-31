@@ -1,0 +1,16 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence
+* @alexcjohnson @byronz @Marc-Andre-Rivet 
+
+tests/*  @byronz
+
+*.js     @Marc-Andre-Rivet  @alexcjohnson
+
+_r_*     @rpkyle
+
+*.md     @alexcjohnson
+
+*.py     @alexcjohnson @byronz
+
+
+
