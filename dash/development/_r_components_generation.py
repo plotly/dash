@@ -691,8 +691,8 @@ def get_r_prop_types(type_object):
         arrayOf=lambda: (
             "list" + ((" of {}s").format(
                 get_r_type(type_object["value"]))
-            if get_r_type(type_object["value"]) != ""
-            else "")
+                      if get_r_type(type_object["value"]) != ""
+                      else "")
         ),
         # React's PropTypes.objectOf
         objectOf=lambda: (
