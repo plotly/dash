@@ -19,7 +19,7 @@ from dash.testing.errors import DashAppLoadingError
 logger = logging.getLogger(__name__)
 
 
-class Browser:
+class Browser(object):
     def __init__(self, browser, remote=None, wait_timeout=10):
         self._browser = browser.lower()
         self._wait_timeout = wait_timeout
@@ -70,8 +70,16 @@ class Browser:
         )
         return _wait.until(method(*args), msg)
 
+    def find_element(self, css_selector):
+        """wrapper for find_element_by_css_selector from driver"""
+        return self.driver.find_element_by_css_selector(css_selector)
+
+    def find_elements(self, css_selector):
+        """wrapper for find_elements_by_css_selector from driver"""
+        return self.driver.find_elements_by_css_selector(css_selector)
+
     def wait_for_element(self, css_selector, timeout=None):
-        self.wait_for_element_by_css_selector(css_selector, timeout)
+        return self.wait_for_element_by_css_selector(css_selector, timeout)
 
     # keep these two wait_for API for easy migration
     def wait_for_element_by_css_selector(self, selector, timeout=None):
@@ -101,13 +109,14 @@ class Browser:
             logger.exception(
                 "dash server is not loaded within %s seconds", timeout
             )
+            logger.debug(self.get_logs())
             raise DashAppLoadingError(
                 "the expected Dash react entry point cannot be loaded"
                 " in browser\n HTML => {}\n Console Logs => {}\n".format(
                     self.driver.find_element_by_tag_name("body").get_property(
                         "innerHTML"
                     ),
-                    "\n".join(self.get_logs()),
+                    "\n".join([]),
                 )
             )
 
@@ -161,23 +170,20 @@ class Browser:
 
     def get_logs(self):
         """get_logs works only with chrome webdriver"""
-        if self.driver.name == 'Chrome':
-            return (
-                [
-                    entry
-                    for entry in self.driver.get_log("browser")
-                    if entry["timestamp"] > self._last_ts
-                ]
-            )
+        if self.driver.name.lower() == "chrome":
+            return [
+                entry
+                for entry in self.driver.get_log("browser")
+                if entry["timestamp"] > self._last_ts
+            ]
         warnings.warn(
-            "get_logs always return None with your webdriver {}".format(
-                self.driver.name
-            ))
+            "get_logs always return None with webdrivers other than Chrome"
+        )
         return None
 
     def reset_log_timestamp(self):
         """reset_log_timestamp only work with chrome webdrier"""
-        if self.driver.name == "chrome":
+        if self.driver.name.lower() == "chrome":
             entries = self.driver.get_log("browser")
             if entries:
                 self._last_ts = entries[-1]["timestamp"]

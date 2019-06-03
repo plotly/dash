@@ -131,11 +131,12 @@ class ThreadedRunner(BaseDashRunner):
             app.css.config.serve_locally = True
             if "port" not in kwargs:
                 kwargs["port"] = self.port
+            else:
+                self.port = kwargs["port"]
             app.run_server(threaded=True, **kwargs)
 
         self.thread = threading.Thread(target=run)
         self.thread.daemon = True
-
         try:
             self.thread.start()
         except RuntimeError:  # multiple call on same thread
@@ -143,6 +144,16 @@ class ThreadedRunner(BaseDashRunner):
             self.started = False
 
         self.started = self.thread.is_alive()
+
+        def accessible():
+            try:
+                requests.get(self.url)
+            except requests.exceptions.RequestException:
+                return False
+            return True
+
+        # wait until server is able to answer http request
+        wait.until(accessible, timeout=1)
 
     def stop(self):
         requests.get("{}{}".format(self.url, self.stop_route))
