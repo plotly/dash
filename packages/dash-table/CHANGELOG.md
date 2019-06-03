@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [#434](https://github.com/plotly/dash-table/issues/434)
 - Fix CSS borders propeties overwrite style_* borders properties. 
 
-[#435](https://github.com/plotly/dash-table/issues/434)
+[#435](https://github.com/plotly/dash-table/issues/435)
 - selected_cells background color is set through styling pipeline / derivations. 
 
 ## [3.7.0] - 2019-05-15
