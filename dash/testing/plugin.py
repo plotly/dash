@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,redefined-outer-name
 import pytest
 
 from selenium import webdriver
