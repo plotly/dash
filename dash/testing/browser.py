@@ -16,6 +16,7 @@ from selenium.common.exceptions import WebDriverException, TimeoutException
 from dash.testing.wait import text_to_equal
 from dash.testing.errors import DashAppLoadingError
 
+
 logger = logging.getLogger(__name__)
 
 

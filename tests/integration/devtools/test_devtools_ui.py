@@ -2,6 +2,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash
 
+import dash.testing.wait as wait
+
 
 def test_dev020_disable_props_check_config(dash_duo):
     app = dash.Dash(__name__)
@@ -54,8 +56,9 @@ def test_dev021_disable_ui_config(dash_duo):
     )
 
     dash_duo.wait_for_text_to_equal("#tcid", "Hello Disable UI")
-    assert "Invalid argument `animate` passed into Graph" in str(
-        dash_duo.get_logs()
+    logs = str(wait.until(dash_duo.get_logs, timeout=1))
+    assert (
+        "Invalid argument `animate` passed into Graph" in logs
     ), "the error should present in the console without DEV tools UI"
 
     assert not dash_duo.find_elements(

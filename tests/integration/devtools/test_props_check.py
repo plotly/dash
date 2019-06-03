@@ -3,6 +3,8 @@ import dash_html_components as html
 import dash
 from dash.dependencies import Input, Output
 
+from selenium.common.exceptions import TimeoutException
+
 
 def test_dev100_prop_check_errors_with_path(dash_duo):
     app = dash.Dash(__name__)
@@ -190,8 +192,7 @@ def test_dev100_prop_check_errors_with_path(dash_duo):
         },
     }
 
-    app.layout = html.Div(
-        [html.Div(id="content"), dcc.Location(id="location")])
+    app.layout = html.Div([html.Div(id="content"), dcc.Location(id="location")])
 
     @app.callback(
         Output("content", "children"), [Input("location", "pathname")]
@@ -216,26 +217,14 @@ def test_dev100_prop_check_errors_with_path(dash_duo):
     for tcid in test_cases:
         dash_duo.driver.get("{}/{}".format(dash_duo.server_url, tcid))
         if test_cases[tcid]["fail"]:
-            try:
-                dash_duo.wait_for_element(
-                    ".test-devtools-error-toggle"
-                ).click()
-            except Exception as e:
-                raise Exception(
-                    "Error popup not shown for {}".format(tcid)
-                )
+            dash_duo.wait_for_element(".test-devtools-error-toggle").click()
             dash_duo.percy_snapshot(
                 "devtools validation exception: {}".format(
                     test_cases[tcid]["name"]
                 )
             )
         else:
-            try:
-                dash_duo.wait_for_element("#new-component")
-            except Exception as e:
-                raise Exception(
-                    "Component not rendered in {}".format(tcid)
-                )
+            dash_duo.wait_for_element("#new-component")
             dash_duo.percy_snapshot(
                 "devtools validation no exception: {}".format(
                     test_cases[tcid]["name"]
