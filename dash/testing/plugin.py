@@ -5,6 +5,7 @@ from selenium import webdriver
 
 from dash.testing.application_runners import ThreadedRunner, ProcessRunner
 from dash.testing.browser import Browser
+from dash.testing.composite import DashComposite
 
 WEBDRIVERS = {
     "Chrome": webdriver.Chrome,
@@ -25,26 +26,35 @@ def pytest_addoption(parser):
         help="Name of the selenium driver to use",
     )
 
+
 ###############################################################################
 # Fixtures
 ###############################################################################
 
 
 @pytest.fixture
-def thread_server():
+def dash_thread_server():
     """Start a local dash server in a new thread"""
     with ThreadedRunner() as starter:
         yield starter
 
 
 @pytest.fixture
-def process_server():
+def dash_process_server():
     """Start a Dash server with subprocess.Popen and waitress-serve"""
     with ProcessRunner() as starter:
         yield starter
 
 
 @pytest.fixture
-def br(request):
+def dash_br(request):
     with Browser(request.config.getoption("webdriver")) as browser:
         yield browser
+
+
+@pytest.fixture
+def dash_duo(request, dash_thread_server):
+    with DashComposite(
+        dash_thread_server, request.config.getoption("webdriver")
+    ) as dc:
+        yield dc
