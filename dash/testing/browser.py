@@ -2,6 +2,7 @@
 import os
 import sys
 import logging
+import warnings
 import percy
 
 from selenium import webdriver
@@ -13,7 +14,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import WebDriverException, TimeoutException
 
 from dash.testing.wait import text_to_equal
-from dash.exceptions import DashAppLoadingError
+from dash.testing.errors import DashAppLoadingError
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +70,9 @@ class Browser:
         )
         return _wait.until(method(*args), msg)
 
+    def wait_for_element(self, css_selector, timeout=None):
+        self.wait_for_element_by_css_selector(css_selector, timeout)
+
     # keep these two wait_for API for easy migration
     def wait_for_element_by_css_selector(self, selector, timeout=None):
         return self._wait_for(
@@ -86,7 +90,7 @@ class Browser:
             "cannot wait until element contains expected text {}".format(text),
         )
 
-    def wait_until_server_is_ready(self, timeout=10):
+    def wait_for_page(self, timeout=10):
 
         self.driver.get(self.server_url)
         try:
@@ -157,15 +161,17 @@ class Browser:
 
     def get_logs(self):
         """get_logs works only with chrome webdriver"""
-        return (
-            [
-                entry
-                for entry in self.driver.get_log("browser")
-                if entry["timestamp"] > self._last_ts
-            ]
-            if self.driver.name == "chrome"
-            else []
-        )
+        if self.driver.name == 'Chrome':
+            return (
+                [
+                    entry
+                    for entry in self.driver.get_log("browser")
+                    if entry["timestamp"] > self._last_ts
+                ]
+            )
+        else:
+            warnings.warn("get_logs always return None with your webdriver")
+            return None
 
     def reset_log_timestamp(self):
         """reset_log_timestamp only work with chrome webdrier"""
@@ -194,4 +200,4 @@ class Browser:
         for selenium testing
         """
         self._url = value
-        self.wait_until_server_is_ready()
+        self.wait_for_page()

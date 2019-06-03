@@ -12,7 +12,7 @@ import six
 import flask
 import requests
 
-from dash.exceptions import (
+from dash.testing.errors import (
     NoAppFoundError,
     TestingTimeoutError,
     ServerCloseError,
@@ -191,6 +191,7 @@ class ProcessRunner(BaseDashRunner):
                 if six.PY3:
                     # pylint:disable=no-member
                     _except = subprocess.TimeoutExpired
+                    # pylint: disable=unexpected-keyword-arg
                     self.proc.communicate(timeout=self.stop_timeout)
                 else:
                     _except = OSError

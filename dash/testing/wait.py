@@ -1,6 +1,6 @@
 """Utils methods for pytest-dash such wait_for wrappers"""
 import time
-from dash.exceptions import TestingTimeoutError
+from dash.testing.errors import TestingTimeoutError
 
 
 def until(
@@ -11,9 +11,9 @@ def until(
 ):  # noqa: C0330
     end_time = time.time() + timeout
     while wait_cond():
-        time.sleep(poll)
         if time.time() > end_time:
             raise TestingTimeoutError(msg)
+        time.sleep(poll)
 
 
 def until_not(
@@ -21,9 +21,9 @@ def until_not(
 ):  # noqa: C0330
     end_time = time.time() + timeout
     while not wait_cond():
-        time.sleep(poll)
         if time.time() > end_time:
             raise TestingTimeoutError(msg)
+        time.sleep(poll)
 
 
 class text_to_equal(object):  # pylint: disable=too-few-public-methods
