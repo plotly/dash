@@ -169,9 +169,11 @@ class Browser:
                     if entry["timestamp"] > self._last_ts
                 ]
             )
-        else:
-            warnings.warn("get_logs always return None with your webdriver")
-            return None
+        warnings.warn(
+            "get_logs always return None with your webdriver {}".format(
+                self.driver.name
+            ))
+        return None
 
     def reset_log_timestamp(self):
         """reset_log_timestamp only work with chrome webdrier"""
