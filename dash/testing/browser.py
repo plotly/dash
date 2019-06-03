@@ -116,7 +116,7 @@ class Browser(object):
                     self.driver.find_element_by_tag_name("body").get_property(
                         "innerHTML"
                     ),
-                    "\n".join([]),
+                    "\n".join((str(log) for log in self.get_logs())),
                 )
             )
 
