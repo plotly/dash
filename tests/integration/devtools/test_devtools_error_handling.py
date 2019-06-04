@@ -117,7 +117,8 @@ def test_dev003_validation_errors_in_place(dash_duo):
         dev_tools_hot_reload=False,
     )
 
-    dash_duo.wait_for_element("#button").click()
+    dash_duo.find_element("#button").click()
+    # assert dash_duo.dev_tools_error_counts == 1,
     dash_duo.wait_for_text_to_equal(".test-devtools-error-count", "1")
     dash_duo.percy_snapshot("devtools - validation exception - closed")
 

@@ -2,6 +2,7 @@
 """Utils methods for pytest-dash such wait_for wrappers"""
 import time
 import logging
+from selenium.common.exceptions import StaleElementReferenceException
 from dash.testing.errors import TestingTimeoutError
 
 
@@ -59,8 +60,15 @@ class text_to_equal(object):
         self.text = text
 
     def __call__(self, driver):
-        elem = driver.find_element_by_css_selector(self.selector)
-        return (
-            str(elem.text) == self.text
-            or str(elem.get_attribute("value")) == self.text
-        )
+        try:
+            elem = driver.find_element_by_css_selector(self.selector)
+            logger.debug(
+                "text to equal {%s} => expected %s", elem.text, self.text
+            )
+            return (
+                str(elem.text) == self.text
+                or str(elem.get_attribute("value")) == self.text
+            )
+        except StaleElementReferenceException:
+            logger.warning("text_to_equal, element is still stale")
+            return False

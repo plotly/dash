@@ -14,13 +14,14 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import WebDriverException, TimeoutException
 
 from dash.testing.wait import text_to_equal
+from dash.testing.locators import DashLocatorsMixin
 from dash.testing.errors import DashAppLoadingError
 
 
 logger = logging.getLogger(__name__)
 
 
-class Browser(object):
+class Browser(DashLocatorsMixin):
     def __init__(self, browser, remote=None, wait_timeout=10):
         self._browser = browser.lower()
         self._wait_timeout = wait_timeout
@@ -28,9 +29,7 @@ class Browser(object):
         self._driver = self.get_webdriver(remote)
         self._driver.implicitly_wait(2)
 
-        self._wd_wait = WebDriverWait(
-            driver=self.driver, timeout=wait_timeout, poll_frequency=0.2
-        )
+        self._wd_wait = WebDriverWait(self.driver, wait_timeout, 0.2)
         self._last_ts = 0
         self._url = None
 
@@ -62,15 +61,6 @@ class Browser(object):
         logger.info("taking snapshot name => %s", snapshot_name)
         self.percy_runner.snapshot(name=snapshot_name)
 
-    def _wait_for(self, method, args, timeout, msg):
-        """abstract generic pattern for explicit webdriver wait"""
-        _wait = (
-            self._wd_wait
-            if timeout is None
-            else WebDriverWait(self.driver, timeout)
-        )
-        return _wait.until(method(*args), msg)
-
     def find_element(self, css_selector):
         """wrapper for find_element_by_css_selector from driver"""
         return self.driver.find_element_by_css_selector(css_selector)
@@ -78,6 +68,20 @@ class Browser(object):
     def find_elements(self, css_selector):
         """wrapper for find_elements_by_css_selector from driver"""
         return self.driver.find_elements_by_css_selector(css_selector)
+
+    def _wait_for(self, method, args, timeout, msg):
+        """abstract generic pattern for explicit webdriver wait"""
+        _wait = (
+            self._wd_wait
+            if timeout is None
+            else WebDriverWait(self.driver, timeout)
+        )
+        logger.debug(
+            "WebdriverWait timeout => %s, poll => %s",
+            _wait._timeout,
+            _wait._poll,
+        )
+        return _wait.until(method(*args), msg)
 
     def wait_for_element(self, css_selector, timeout=None):
         return self.wait_for_element_by_css_selector(css_selector, timeout)
