@@ -383,7 +383,7 @@ class Tests(IntegrationTests):
         call_count = Value('i', 0)
 
         # these components don't exist in the initial render
-        app.config.supress_callback_exceptions = True
+        app.config.suppress_callback_exceptions = True
 
         @app.callback(
             Output('sub-output-1', 'children'),
@@ -536,7 +536,7 @@ class Tests(IntegrationTests):
             call_counts['body'].value += 1
             return chapters[toc_value]
 
-        app.config.supress_callback_exceptions = True
+        app.config.suppress_callback_exceptions = True
 
         def generate_graph_callback(counterId):
             def callback(value):
@@ -779,7 +779,7 @@ class Tests(IntegrationTests):
 
         # callback for component that doesn't yet exist in the dom
         # in practice, it might get added by some other callback
-        app.config.supress_callback_exceptions = True
+        app.config.suppress_callback_exceptions = True
         output_2_call_count = Value('i', 0)
 
         @app.callback(
@@ -994,7 +994,7 @@ class Tests(IntegrationTests):
             script['namespace'] = 'dash_core_components'
             app.scripts.append_script(script)
 
-        app.config.supress_callback_exceptions = True
+        app.config.suppress_callback_exceptions = True
         call_counts = {
             ids['input-output']: Value('i', 0),
             ids['button-output']: Value('i', 0)
@@ -1164,7 +1164,7 @@ class Tests(IntegrationTests):
             ),
             html.Div(id='body')
         ])
-        app.config.supress_callback_exceptions = True
+        app.config.suppress_callback_exceptions = True
 
         call_counts = {
             'body': Value('i', 0),

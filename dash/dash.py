@@ -707,9 +707,7 @@ class Dash(object):
                     )
                 )
 
-        if (layout is None and
-                not self.config.first('suppress_callback_exceptions',
-                                      'supress_callback_exceptions')):
+        if (layout is None and not self.config.suppress_callback_exceptions):
             # Without a layout, we can't do validation on the IDs and
             # properties of the elements in the callback.
             raise exceptions.LayoutIsNotDefined('''
@@ -751,8 +749,7 @@ class Dash(object):
                         invalid_characters
                     ))
 
-                if (not self.config.first('suppress_callback_exceptions',
-                                          'supress_callback_exceptions') and
+                if (not self.config.suppress_callback_exceptions and
                         arg.component_id not in layout and
                         arg.component_id != getattr(layout, 'id', None)):
                     raise exceptions.NonExistentIdException('''
@@ -775,9 +772,7 @@ class Dash(object):
                         )
                     ).replace('    ', ''))
 
-                if not self.config.first('suppress_callback_exceptions',
-                                         'supress_callback_exceptions'):
-
+                if not self.config.suppress_callback_exceptions:
                     if getattr(layout, 'id', None) == arg.component_id:
                         component = layout
                     else:
