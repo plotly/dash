@@ -313,11 +313,6 @@ class Dash(object):
 
         self._layout = value
 
-        layout_value = self._layout_value()
-        # pylint: disable=protected-access
-        self.css._update_layout(layout_value)
-        self.scripts._update_layout(layout_value)
-
     @property
     def index_string(self):
         return self._index_string
