@@ -106,7 +106,20 @@ class Dash(object):
             external_stylesheets=None,
             suppress_callback_exceptions=None,
             show_undo_redo=False,
-            plugins=None):
+            plugins=None,
+            **kwargs):
+
+        for key in kwargs:
+            if key in ['components_cache_max_age', 'static_folder']:
+                raise exceptions.ObsoleteKwargException(
+                    key + ' is no longer a valid keyword argument in Dash '
+                    'since v1.0. See https://dash.plot.ly for details.'
+                )
+            else:
+                # any other kwarg mimic the built-in exception
+                raise TypeError(
+                    "Dash() got an unexpected keyword argument '" + key + "'"
+                )
 
         # Store some flask-related parameters for use in init_app()
         self.compress = compress
