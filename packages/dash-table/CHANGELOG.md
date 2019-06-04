@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+[#456](https://github.com/plotly/dash-table/issues/456)
+- Support for dash-table is now available for R users of Dash.
+
 ### Fixed
 [#434](https://github.com/plotly/dash-table/issues/434)
 - Fix CSS borders propeties overwrite style_* borders properties. 

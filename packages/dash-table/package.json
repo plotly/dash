@@ -2,6 +2,14 @@
   "name": "dash-table",
   "version": "3.7.0",
   "description": "Dash table",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:plotly/dash-table.git"
+  },
+  "bugs": {
+    "url": "https://github.com/plotly/dash-table/issues"
+  },
+  "homepage": "https://github.com/plotly/dash-table",
   "main": "dash_table/bundle.js",
   "scripts": {
     "preprivate::opentests": "run-s private::wait*",
@@ -39,7 +47,7 @@
     "test.visual-local": "build-storybook",
     "test.watch": "run-p --race \"private::build:js-test-watch\" --race private::host* private::opentests"
   },
-  "author": "Chris P <chris@plot.ly",
+  "author": "Chris P <chris@plot.ly>",
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {

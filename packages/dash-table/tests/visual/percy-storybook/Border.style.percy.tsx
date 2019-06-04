@@ -324,7 +324,7 @@ const ops_scenarios: ITest[] = [
             }]
         }
     }, {
-        name: 'horizontal border between header and column A should be dash green ',
+        name: 'horizontal border between header and column A should be dashed blue',
         props: {
             css: [{ selector: 'th', rule: 'border: 1px solid red'}],
             style_data_conditional: [{

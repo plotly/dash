@@ -1,0 +1,15 @@
+Package: dashTable
+Title: Dash table
+Version: 3.7.0
+Authors @R: as.person(c(Chris P <chris@plot.ly>))
+Description: Dash table
+Depends: R (>= 3.0.2)
+Imports: dashR
+Suggests: 
+License: MIT + file LICENSE
+URL: https://github.com/plotly/dash-table
+BugReports: https://github.com/plotly/dash-table/issues
+Encoding: UTF-8
+LazyData: true
+Author: Chris P [aut]
+Maintainer: Chris P <chris@plot.ly>

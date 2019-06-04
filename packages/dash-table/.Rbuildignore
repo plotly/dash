@@ -1,0 +1,28 @@
+# ignore JS config files/folders
+node_modules/
+coverage/
+src/
+lib/
+generator/
+datasets/
+.babelrc
+.builderrc
+.eslintrc
+.npmignore
+
+# demo folder has special meaning in R
+# this should hopefully make it still
+# allow for the possibility to make R demos
+demo/.*\.js
+demo/.*\.html
+demo/.*\.css
+
+# ignore python files/folders
+setup.py
+requirements.txt
+MANIFEST.in
+CHANGELOG.md
+tests/
+.pylintrc
+^.*\.Rproj$
+^\.Rproj\.user$
