@@ -89,7 +89,6 @@ class Dash(object):
             self,
             name='__main__',
             server=True,
-            static_folder='static',
             assets_folder='assets',
             assets_url_path='/assets',
             assets_ignore='',
@@ -122,7 +121,7 @@ class Dash(object):
         # (defer server creation) or a Flask app instance (we use their server)
         if isinstance(server, bool):
             if server:
-                self.server = Flask(name, static_folder=static_folder)
+                self.server = Flask(name)
             else:
                 self.server = None
         elif isinstance(server, Flask):
