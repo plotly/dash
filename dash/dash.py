@@ -9,7 +9,6 @@ import importlib
 import json
 import pkgutil
 import threading
-import warnings
 import re
 import logging
 import pprint
@@ -107,21 +106,11 @@ class Dash(object):
             suppress_callback_exceptions=None,
             components_cache_max_age=None,
             show_undo_redo=False,
-            plugins=None,
-            **kwargs):
+            plugins=None):
 
         # Store some flask-related parameters for use in init_app()
         self.compress = compress
         self.name = name
-
-        # pylint-disable: too-many-instance-attributes
-        if 'csrf_protect' in kwargs:
-            warnings.warn('''
-                `csrf_protect` is no longer used,
-                CSRF protection has been removed as it is no longer
-                necessary.
-                See https://github.com/plotly/dash/issues/141 for details.
-                ''', DeprecationWarning)
 
         self._assets_folder = os.path.join(
             flask.helpers.get_root_path(name),
