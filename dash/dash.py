@@ -35,6 +35,7 @@ from . import _watch
 from ._utils import get_asset_path as _get_asset_path
 from ._utils import create_callback_id as _create_callback_id
 from ._configs import (get_combined_config, pathname_configs)
+from .version import __version__
 
 _default_index = '''<!DOCTYPE html>
 <html>
@@ -103,7 +104,6 @@ class Dash(object):
             external_scripts=None,
             external_stylesheets=None,
             suppress_callback_exceptions=None,
-            components_cache_max_age=None,
             show_undo_redo=False,
             plugins=None):
 
@@ -148,10 +148,6 @@ class Dash(object):
                 'include_assets_files', include_assets_files, True),
             'assets_external_path': get_combined_config(
                 'assets_external_path', assets_external_path, ''),
-            'components_cache_max_age': int(get_combined_config(
-                'components_cache_max_age',
-                components_cache_max_age,
-                2678400)),
             'show_undo_redo': show_undo_redo
         })
 
@@ -542,15 +538,9 @@ class Dash(object):
             'map': 'application/json'
         })[path_in_package_dist.split('.')[-1]]
 
-        headers = {
-            'Cache-Control': 'public, max-age={}'.format(
-                self.config.components_cache_max_age)
-        }
-
         return Response(
             pkgutil.get_data(package_name, path_in_package_dist),
-            mimetype=mimetype,
-            headers=headers
+            mimetype=mimetype
         )
 
     def index(self, *args, **kwargs):  # pylint: disable=unused-argument
@@ -568,8 +558,9 @@ class Dash(object):
                 favicon_mod_time
             )
         else:
-            favicon_url = '{}_favicon.ico'.format(
-                self.config.requests_pathname_prefix)
+            favicon_url = '{}_favicon.ico?v={}'.format(
+                self.config.requests_pathname_prefix,
+                __version__)
 
         favicon = _format_tag('link', {
             'rel': 'icon',
@@ -1245,13 +1236,8 @@ class Dash(object):
         return err.args[0], 404
 
     def _serve_default_favicon(self):
-        headers = {
-            'Cache-Control': 'public, max-age={}'.format(
-                self.config.components_cache_max_age)
-        }
         return flask.Response(
             pkgutil.get_data('dash', 'favicon.ico'),
-            headers=headers,
             content_type='image/x-icon',
         )
 
