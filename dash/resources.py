@@ -72,9 +72,9 @@ class _Config:
 
 
 class Css:
-    def __init__(self):
+    def __init__(self, serve_locally):
         self._resources = Resources('_css_dist')
-        self._resources.config = self.config = _Config(True)
+        self._resources.config = self.config = _Config(serve_locally)
 
     def append_css(self, stylesheet):
         self._resources.append_resource(stylesheet)
@@ -84,9 +84,9 @@ class Css:
 
 
 class Scripts:
-    def __init__(self):
+    def __init__(self, serve_locally):
         self._resources = Resources('_js_dist')
-        self._resources.config = self.config = _Config(True)
+        self._resources.config = self.config = _Config(serve_locally)
 
     def append_script(self, script):
         self._resources.append_resource(script)

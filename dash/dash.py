@@ -98,6 +98,7 @@ class Dash(object):
             assets_external_path=None,
             requests_pathname_prefix=None,
             routes_pathname_prefix=None,
+            serve_locally=True,
             compress=True,
             meta_tags=None,
             index_string=_default_index,
@@ -163,8 +164,8 @@ class Dash(object):
         self.renderer = 'var renderer = new DashRenderer();'
 
         # static files from the packages
-        self.css = Css()
-        self.scripts = Scripts()
+        self.css = Css(serve_locally)
+        self.scripts = Scripts(serve_locally)
 
         self._external_scripts = external_scripts or []
         self._external_stylesheets = external_stylesheets or []
