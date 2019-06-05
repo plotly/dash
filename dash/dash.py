@@ -1393,8 +1393,8 @@ class Dash(object):
         served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
 
-        If an argument is not provided, it can be set with environment
-        variables.
+        All parameters can be set by environment variables as listed.
+        Values provided here take precedence over environment variables.
 
         Available dev_tools environment variables:
 
@@ -1408,37 +1408,49 @@ class Dash(object):
             - DASH_HOT_RELOAD_MAX_RETRY
             - DASH_SILENCE_ROUTES_LOGGING
 
-        :param debug: If True, then activate all the tools unless specifically
-            disabled by the arguments or by environ variables. Available as
-            `DASH_DEBUG` environment variable.
+        :param debug: Enable/disable all the dev tools unless overridden by the
+            arguments or environment variables. Default is ``True`` when
+            ``enable_dev_tools`` is called directly, and ``False`` when called
+            via ``run_server``. env: ``DASH_DEBUG``
         :type debug: bool
-        :param dev_tools_ui: Switch the dev tools UI in debugger mode
+
+        :param dev_tools_ui: Show the dev tools UI. env: ``DASH_UI``
         :type dev_tools_ui: bool
-        :param dev_tools_props_check: Validate the properties of
-            the Dash components
+
+        :param dev_tools_props_check: Validate the types and values of Dash
+            component props. env: ``DASH_PROPS_CHECK``
         :type dev_tools_props_check: bool
-        :param dev_tools_serve_dev_bundles: Serve the dev bundles. Available
-            as `DASH_SERVE_DEV_BUNDLES` environment variable.
+
+        :param dev_tools_serve_dev_bundles: Serve the dev bundles. Production
+            bundles do not necessarily include all the dev tools code.
+            env: ``DASH_SERVE_DEV_BUNDLES``
         :type dev_tools_serve_dev_bundles: bool
-        :param dev_tools_hot_reload: Activate the hot reloading. Available as
-            `DASH_HOT_RELOAD` environment variable.
+
+        :param dev_tools_hot_reload: Activate hot reloading when app, assets,
+            and component files change. env: ``DASH_HOT_RELOAD``
         :type dev_tools_hot_reload: bool
-        :param dev_tools_hot_reload_interval: Interval at which the client will
-            request the reload hash. Available as `DASH_HOT_RELOAD_INTERVAL`
-            environment variable.
-        :type dev_tools_hot_reload_interval: int
-        :param dev_tools_hot_reload_watch_interval: Interval at which the
-            assets folder are walked for changes. Available as
-            `DASH_HOT_RELOAD_WATCH_INTERVAL` environment variable.
+
+        :param dev_tools_hot_reload_interval: Interval in seconds for the
+            client to request the reload hash. Default 3.
+            env: ``DASH_HOT_RELOAD_INTERVAL``
+        :type dev_tools_hot_reload_interval: float
+
+        :param dev_tools_hot_reload_watch_interval: Interval in seconds for the
+            server to check asset and component folders for changes.
+            Default 0.5. env: ``DASH_HOT_RELOAD_WATCH_INTERVAL``
         :type dev_tools_hot_reload_watch_interval: float
-        :param dev_tools_hot_reload_max_retry: Maximum amount of retries before
-            failing and display a pop up. Default 30. Available as
-            `DASH_HOT_RELOAD_MAX_RETRY` environment variable.
+
+        :param dev_tools_hot_reload_max_retry: Maximum number of failed reload
+            hash requests before failing and displaying a pop up. Default 8.
+            env: ``DASH_HOT_RELOAD_MAX_RETRY``
         :type dev_tools_hot_reload_max_retry: int
+
         :param dev_tools_silence_routes_logging: Silence the `werkzeug` logger,
-            will remove all routes logging. Available as
-            `DASH_SILENCE_ROUTES_LOGGING` environment variable.
+            will remove all routes logging. Enabled with debugging by default
+            because hot reload hash checks generate a lot of requests.
+            env: ``DASH_SILENCE_ROUTES_LOGGING``
         :type dev_tools_silence_routes_logging: bool
+
         :return: debug
         """
         debug = debug or get_combined_config('debug', None, debug)
@@ -1558,45 +1570,78 @@ class Dash(object):
 
         self._lock.release()
 
-    def run_server(self,
-                   port=8050,
-                   debug=False,
-                   dev_tools_ui=None,
-                   dev_tools_props_check=None,
-                   dev_tools_serve_dev_bundles=None,
-                   dev_tools_hot_reload=None,
-                   dev_tools_hot_reload_interval=None,
-                   dev_tools_hot_reload_watch_interval=None,
-                   dev_tools_hot_reload_max_retry=None,
-                   dev_tools_silence_routes_logging=None,
-                   **flask_run_options):
+    def run_server(
+            self,
+            port=8050,
+            debug=False,
+            dev_tools_ui=None,
+            dev_tools_props_check=None,
+            dev_tools_serve_dev_bundles=None,
+            dev_tools_hot_reload=None,
+            dev_tools_hot_reload_interval=None,
+            dev_tools_hot_reload_watch_interval=None,
+            dev_tools_hot_reload_max_retry=None,
+            dev_tools_silence_routes_logging=None,
+            **flask_run_options):
         """
         Start the flask server in local mode, you should not run this on a
-        production server and use gunicorn/waitress instead.
+        production server, use gunicorn/waitress instead.
 
-        :param port: Port the application
+        If a parameter can be set by an environment variable, that is listed
+        too. Values provided here take precedence over environment variables.
+
+        :param port: Port used to serve the application
         :type port: int
-        :param debug: Set the debug mode of flask and enable the dev tools.
+
+        :param debug: Set Flask debug mode and enable dev tools.
+            env: ``DASH_DEBUG``
         :type debug: bool
-        :param dev_tools_ui: Switch the dev tools UI in debugger mode
+
+        :param debug: Enable/disable all the dev tools unless overridden by the
+            arguments or environment variables. Default is ``True`` when
+            ``enable_dev_tools`` is called directly, and ``False`` when called
+            via ``run_server``. env: ``DASH_DEBUG``
+        :type debug: bool
+
+        :param dev_tools_ui: Show the dev tools UI. env: ``DASH_UI``
         :type dev_tools_ui: bool
-        :param dev_tools_props_check: Validate the properties of
-            the Dash components
+
+        :param dev_tools_props_check: Validate the types and values of Dash
+            component props. env: ``DASH_PROPS_CHECK``
         :type dev_tools_props_check: bool
-        :param dev_tools_serve_dev_bundles: Serve the dev bundles of components
+
+        :param dev_tools_serve_dev_bundles: Serve the dev bundles. Production
+            bundles do not necessarily include all the dev tools code.
+            env: ``DASH_SERVE_DEV_BUNDLES``
         :type dev_tools_serve_dev_bundles: bool
-        :param dev_tools_hot_reload: Enable the hot reload.
+
+        :param dev_tools_hot_reload: Activate hot reloading when app, assets,
+            and component files change. env: ``DASH_HOT_RELOAD``
         :type dev_tools_hot_reload: bool
-        :param dev_tools_hot_reload_interval: Reload request interval.
-        :type dev_tools_hot_reload_interval: int
-        :param dev_tools_hot_reload_watch_interval:
+
+        :param dev_tools_hot_reload_interval: Interval in seconds for the
+            client to request the reload hash. Default 3.
+            env: ``DASH_HOT_RELOAD_INTERVAL``
+        :type dev_tools_hot_reload_interval: float
+
+        :param dev_tools_hot_reload_watch_interval: Interval in seconds for the
+            server to check asset and component folders for changes.
+            Default 0.5. env: ``DASH_HOT_RELOAD_WATCH_INTERVAL``
         :type dev_tools_hot_reload_watch_interval: float
-        :param dev_tools_hot_reload_max_retry: The number of times the reloader
-            requests can fail before displaying an alert.
+
+        :param dev_tools_hot_reload_max_retry: Maximum number of failed reload
+            hash requests before failing and displaying a pop up. Default 8.
+            env: ``DASH_HOT_RELOAD_MAX_RETRY``
         :type dev_tools_hot_reload_max_retry: int
-        :param dev_tools_silence_routes_logging: Silence the routes logs.
+
+        :param dev_tools_silence_routes_logging: Silence the `werkzeug` logger,
+            will remove all routes logging. Enabled with debugging by default
+            because hot reload hash checks generate a lot of requests.
+            env: ``DASH_SILENCE_ROUTES_LOGGING``
         :type dev_tools_silence_routes_logging: bool
+
         :param flask_run_options: Given to `Flask.run`
+
         :return:
         """
         debug = self.enable_dev_tools(
