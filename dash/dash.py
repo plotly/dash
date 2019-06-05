@@ -1377,7 +1377,7 @@ class Dash(object):
         return asset
 
     def enable_dev_tools(self,
-                         debug=False,
+                         debug=True,
                          dev_tools_ui=None,
                          dev_tools_props_check=None,
                          dev_tools_serve_dev_bundles=None,
