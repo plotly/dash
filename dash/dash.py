@@ -86,6 +86,123 @@ no_update = _NoUpdate()
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
+    """
+    Dash is a framework for building analytical web applications.
+    No JavaScript required.
+
+    If a parameter can be set by an environment variable, that is listed too.
+    Values provided here take precedence over environment variables.
+
+    :param name: The name Flask should use for your app. Even if you provide
+        your own ``server``, ``name`` will be used to help find assets.
+        Typically ``__name__`` (the magic global var, not a string) is the
+        best value to use. Default ``'__main__'``, env: ``DASH_APP_NAME``
+    :type name: string
+
+    :param server: Sets the Flask server for your app. There are three options:
+        ``True`` (default): Dash will create a new server
+        ``False``: The server will be added later via ``app.init_app(server)``
+            where ``server`` is a ``flask.Flask`` instance.
+        ``flask.Flask``: use this pre-existing Flask server.
+    :type server: boolean or flask.Flask
+
+    :param assets_folder: a path, relative to the current working directory,
+        for extra files to be used in the browser. Default ``'assets'`` By
+        default all .js and .css will be loaded immediately, and other files
+        such as images will be served if requested.
+    :type assets_folder: string
+
+    :param assets_url_path: The local urls for assets will be:
+        ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
+        where ``asset_path`` is the path to a file inside ``assets_folder``.
+        Default ``'assets'``.
+    :type asset_url_path: string
+
+    :param assets_ignore: A regexp, as a string to pass to ``re.compile``, for
+        assets to omit from immediate loading. Ignored files will still be
+        served if specifically requested. You cannot use this to prevent access
+        to sensitive files.
+    :type assets_ignore: string
+
+    :param assets_external_path: an absolute URL from which to load assets.
+        Use with ``serve_locally=False``. Dash can still find js and css to
+        automatically load if you also keep local copies in your assets
+        folder that Dash can index, but external serving can improve
+        performance and reduce load on the Dash server.
+        env: ``DASH_ASSETS_EXTERNAL_PATH``
+    :type assets_external_path: string
+
+    :param include_assets_files: Default ``True``, set to ``False`` to prevent
+        immediate loading of any assets. Assets will still be served if
+        specifically requested. You cannot use this to prevent access
+        to sensitive files. env: ``DASH_INCLUDE_ASSETS_FILES``
+    :type include_assets_files: boolean
+
+    :param url_base_pathname: A local URL prefix to use app-wide.
+        Default ``'/'``. Both `requests_pathname_prefix` and
+        `routes_pathname_prefix` default to `url_base_pathname`.
+        env: ``DASH_URL_BASE_PATHNAME``
+    :type url_base_pathname: string
+
+    :param requests_pathname_prefix: A local URL prefix for file requests.
+        Defaults to `url_base_pathname`, and must end with
+        `routes_pathname_prefix`. env: ``DASH_REQUESTS_PATHNAME_PREFIX``
+    :type requests_pathname_prefix: string
+
+    :param routes_pathname_prefix: A local URL prefix for JSON requests.
+        Defaults to ``url_base_pathname``, and must start and end
+        with ``'/'``. env: ``DASH_ROUTES_PATHNAME_PREFIX``
+    :type routes_pathname_prefix: string
+
+    :param serve_locally: If ``True`` (default), assets and dependencies
+        (Dash and Component js and css) will be served from local URLs.
+        If ``False`` we will use CDN links where available.
+    :type serve_locally: boolean
+
+    :param compress: Use gzip to compress files and data served by Flask.
+        Default ``True``
+    :type compress: boolean
+
+    :param meta_tags: html <meta> tags to be added to the index page.
+        Each dict should have the attributes and values for one tag, eg:
+        ``{'name': 'description', 'content': 'My App'}``
+    :type meta_tags: list of dicts
+
+    :param index_string: Override the standard Dash index page.
+        Must contain the correct insertion markers to interpolate various
+        content into it depending on the app config and components used.
+        See https://dash.plot.ly/external-resources for details.
+    :type index_string: string
+
+    :param external_scripts: Additional JS files to load with the page.
+        Each entry can be a string (the URL) or a dict with ``src`` (the URL)
+        and optionally other ``<script>`` tag attributes such as ``integrity``
+        and ``crossorigin``.
+    :type external_scripts: list of strings or dicts
+
+    :param external_stylesheets: Additional CSS files to load with the page.
+        Each entry can be a string (the URL) or a dict with ``href`` (the URL)
+        and optionally other ``<link>`` tag attributes such as ``rel``,
+        ``integrity`` and ``crossorigin``.
+    :type external_stylesheets: list of strings or dicts
+
+    :param suppress_callback_exceptions: Default ``False``: check callbacks to
+        ensure referenced IDs exist and props are valid. Set to ``True``
+        if your layout is dynamic, to bypass these checks.
+        env: ``DASH_SUPPRESS_CALLBACK_EXCEPTIONS``
+    :type suppress_callback_exceptions: boolean
+
+    :param show_undo_redo: Default ``False``, set to ``True`` to enable undo
+        and redo buttons for stepping through the history of the app state.
+    :type show_undo_redo: boolean
+
+    :param plugins: Extend Dash functionality by passing a list of objects
+        with a ``plug`` method, taking a single argument: this app, which will
+        be called after the Flask server is attached.
+    :type plugins: list of objects
+
+    :param **kwargs: Do not use. Gives error messages for obsolete arguments.
+    """
     def __init__(
             self,
             name='__main__',
@@ -93,9 +210,9 @@ class Dash(object):
             assets_folder='assets',
             assets_url_path='assets',
             assets_ignore='',
+            assets_external_path=None,
             include_assets_files=True,
             url_base_pathname=None,
-            assets_external_path=None,
             requests_pathname_prefix=None,
             routes_pathname_prefix=None,
             serve_locally=True,
