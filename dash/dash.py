@@ -309,15 +309,7 @@ class Dash(object):
 
         self._layout = None
         self._cached_layout = None
-        self._dev_tools = _AttributeDict({
-            'serve_dev_bundles': False,
-            'hot_reload': False,
-            'hot_reload_interval': 3,
-            'hot_reload_watch_interval': 0.5,
-            'hot_reload_max_retry': 8,
-            'ui': False,
-            'props_check': False,
-        })
+        self._make_dev_tools_config()
 
         self._assets_files = []
 
@@ -1378,8 +1370,36 @@ class Dash(object):
 
         return asset
 
+    def _make_dev_tools_config(self, **kwargs):
+        debug = kwargs.get('debug', False)
+        dev_tools = self._dev_tools = _AttributeDict()
+
+        for attr in (
+            'ui',
+            'props_check',
+            'serve_dev_bundles',
+            'hot_reload',
+            'silence_routes_logging'
+        ):
+            dev_tools[attr] = get_combined_config(
+                attr, kwargs.get(attr, None), default=debug
+            )
+
+        for attr, _type, default in (
+            ('hot_reload_interval', float, 3),
+            ('hot_reload_watch_interval', float, 0.5),
+            ('hot_reload_max_retry', int, 8)
+        ):
+            dev_tools[attr] = _type(
+                get_combined_config(
+                    attr, kwargs.get(attr, None), default=default
+                )
+            )
+
+        return dev_tools
+
     def enable_dev_tools(self,
-                         debug=True,
+                         debug=None,
                          dev_tools_ui=None,
                          dev_tools_props_check=None,
                          dev_tools_serve_dev_bundles=None,
@@ -1453,47 +1473,26 @@ class Dash(object):
 
         :return: debug
         """
-        debug = debug or get_combined_config('debug', None, debug)
+        if debug is None:
+            debug = get_combined_config('debug', None, True)
 
-        self._dev_tools['ui'] = get_combined_config(
-            'ui', dev_tools_ui, default=debug
-        )
-        self._dev_tools['props_check'] = get_combined_config(
-            'props_check', dev_tools_props_check, default=debug
-        )
-        self._dev_tools['serve_dev_bundles'] = get_combined_config(
-            'serve_dev_bundles', dev_tools_serve_dev_bundles, default=debug)
-
-        self._dev_tools['hot_reload'] = get_combined_config(
-            'hot_reload', dev_tools_hot_reload, default=debug)
-        self._dev_tools['hot_reload_interval'] = get_combined_config(
-            'hot_reload_interval', dev_tools_hot_reload_interval, default=3
-        )
-        self._dev_tools['hot_reload_watch_interval'] = float(
-            get_combined_config(
-                'hot_reload_watch_interval',
-                dev_tools_hot_reload_watch_interval,
-                default=0.5
-            )
-        )
-        self._dev_tools['hot_reload_max_retry'] = int(
-            get_combined_config(
-                'hot_reload_max_retry',
-                dev_tools_hot_reload_max_retry,
-                default=8
-            )
-        )
-        self._dev_tools['silence_routes_logging'] = get_combined_config(
-            'silence_routes_logging',
-            dev_tools_silence_routes_logging,
-            default=debug,
+        dev_tools = self._make_dev_tools_config(
+            debug=debug,
+            ui=dev_tools_ui,
+            props_check=dev_tools_props_check,
+            serve_dev_bundles=dev_tools_serve_dev_bundles,
+            hot_reload=dev_tools_hot_reload,
+            hot_reload_interval=dev_tools_hot_reload_interval,
+            hot_reload_watch_interval=dev_tools_hot_reload_watch_interval,
+            hot_reload_max_retry=dev_tools_hot_reload_max_retry,
+            silence_routes_logging=dev_tools_silence_routes_logging
         )
 
-        if self._dev_tools.silence_routes_logging:
+        if dev_tools.silence_routes_logging:
             logging.getLogger('werkzeug').setLevel(logging.ERROR)
             self.logger.setLevel(logging.INFO)
 
-        if self._dev_tools.hot_reload:
+        if dev_tools.hot_reload:
             self._reload_hash = _generate_hash()
 
             component_packages_dist = [
@@ -1510,12 +1509,12 @@ class Dash(object):
                 target=lambda: _watch.watch(
                     [self._assets_folder] + component_packages_dist,
                     self._on_assets_change,
-                    sleep_time=self._dev_tools.hot_reload_watch_interval)
+                    sleep_time=dev_tools.hot_reload_watch_interval)
             )
             self._watch_thread.daemon = True
             self._watch_thread.start()
 
-        if (debug and self._dev_tools.serve_dev_bundles and
+        if (debug and dev_tools.serve_dev_bundles and
                 not self.scripts.config.serve_locally):
             # Dev bundles only works locally.
             self.scripts.config.serve_locally = True
