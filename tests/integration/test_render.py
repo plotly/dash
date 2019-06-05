@@ -1923,7 +1923,7 @@ class Tests(IntegrationTests):
         self.startServer(
             app,
             dev_tools_hot_reload=True,
-            dev_tools_hot_reload_interval=100,
+            dev_tools_hot_reload_interval=0.1,
             dev_tools_hot_reload_max_retry=30,
         )
 

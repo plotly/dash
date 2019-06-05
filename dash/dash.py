@@ -312,7 +312,7 @@ class Dash(object):
         self._dev_tools = _AttributeDict({
             'serve_dev_bundles': False,
             'hot_reload': False,
-            'hot_reload_interval': 3000,
+            'hot_reload_interval': 3,
             'hot_reload_watch_interval': 0.5,
             'hot_reload_max_retry': 8,
             'ui': False,
@@ -474,6 +474,7 @@ class Dash(object):
         )
 
     def _config(self):
+        # pieces of config needed by the front end
         config = {
             'url_base_pathname': self.url_base_pathname,
             'requests_pathname_prefix': self.config.requests_pathname_prefix,
@@ -483,7 +484,8 @@ class Dash(object):
         }
         if self._dev_tools.hot_reload:
             config['hot_reload'] = {
-                'interval': self._dev_tools.hot_reload_interval,
+                # convert from seconds to msec as used by js `setInterval`
+                'interval': int(self._dev_tools.hot_reload_interval * 1000),
                 'max_retry': self._dev_tools.hot_reload_max_retry
             }
         return config
@@ -1452,9 +1454,9 @@ class Dash(object):
 
         self._dev_tools['hot_reload'] = get_combined_config(
             'hot_reload', dev_tools_hot_reload, default=debug)
-        self._dev_tools['hot_reload_interval'] = int(get_combined_config(
-            'hot_reload_interval', dev_tools_hot_reload_interval, default=3000
-        ))
+        self._dev_tools['hot_reload_interval'] = get_combined_config(
+            'hot_reload_interval', dev_tools_hot_reload_interval, default=3
+        )
         self._dev_tools['hot_reload_watch_interval'] = float(
             get_combined_config(
                 'hot_reload_watch_interval',
