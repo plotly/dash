@@ -1,3 +1,4 @@
+# pylint: disable=too-few-public-methods
 class DashLocatorsMixin(object):
     def dev_tools_error_counts(self):
         return int(

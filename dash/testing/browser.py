@@ -11,7 +11,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.common.exceptions import WebDriverException, TimeoutException
+from selenium.webdriver.common.action_chains import ActionChains
+
+from selenium.common.exceptions import (
+    WebDriverException,
+    TimeoutException,
+    NoSuchElementException,
+)
 
 from dash.testing.wait import text_to_equal
 from dash.testing.locators import DashLocatorsMixin
@@ -29,7 +35,7 @@ class Browser(DashLocatorsMixin):
         self._driver = self.get_webdriver(remote)
         self._driver.implicitly_wait(2)
 
-        self._wd_wait = WebDriverWait(self.driver, wait_timeout, 0.2)
+        self._wd_wait = WebDriverWait(self.driver, wait_timeout)
         self._last_ts = 0
         self._url = None
 
@@ -61,6 +67,23 @@ class Browser(DashLocatorsMixin):
         logger.info("taking snapshot name => %s", snapshot_name)
         self.percy_runner.snapshot(name=snapshot_name)
 
+    def take_snapshot(self, name):
+        """method used by hook to take snapshot while selenium test fails"""
+        target = (
+            "/tmp/dash_artifacts"
+            if not self._is_windows()
+            else os.getenv("TEMP")
+        )
+        if not os.path.exists(target):
+            try:
+                os.mkdir(target)
+            except OSError:
+                logger.exception("cannot make artifacts")
+
+        self.driver.save_screenshot(
+            "{}/{}_{}.png".format(target, name, self.session_id)
+        )
+
     def find_element(self, css_selector):
         """wrapper for find_element_by_css_selector from driver"""
         return self.driver.find_element_by_css_selector(css_selector)
@@ -77,10 +100,12 @@ class Browser(DashLocatorsMixin):
             else WebDriverWait(self.driver, timeout)
         )
         logger.debug(
-            "WebdriverWait timeout => %s, poll => %s",
-            _wait._timeout,
-            _wait._poll,
+            "method, timeout, poll => %s %s %s",
+            method,
+            _wait.timeout,  # pylint: disable=protected-access
+            _wait._poll,  # pylint: disable=protected-access
         )
+
         return _wait.until(method(*args), msg)
 
     def wait_for_element(self, css_selector, timeout=None):
@@ -97,10 +122,10 @@ class Browser(DashLocatorsMixin):
 
     def wait_for_text_to_equal(self, selector, text, timeout=None):
         return self._wait_for(
-            text_to_equal,
-            (selector, text),
-            timeout,
-            "cannot wait until element contains expected text {}".format(text),
+            method=text_to_equal,
+            args=(selector, text),
+            timeout=timeout,
+            msg="text -> {} not found within {}s".format(text, timeout),
         )
 
     def wait_for_page(self, timeout=10):
@@ -173,6 +198,21 @@ class Browser(DashLocatorsMixin):
 
         return webdriver.Firefox(fp, capabilities=capabilities)
 
+    @staticmethod
+    def _is_windows():
+        return sys.platform == "win32"
+
+    def js_click(self, elem):
+        """click in native javascript way
+        note: this is NOT the recommended way to click"""
+        self.driver.execute_script("arguments[0].click();", elem)
+
+    def mouse_click(self, elem):
+        try:
+            ActionChains(self.driver).click(elem).perform()
+        except NoSuchElementException:
+            logger.exception("mouse_click on wrong element")
+
     def get_logs(self):
         """get_logs works only with chrome webdriver"""
         if self.driver.name.lower() == "chrome":
@@ -208,8 +248,7 @@ class Browser(DashLocatorsMixin):
     @server_url.setter
     def server_url(self, value):
         """property setter for server_url
-
-        Note: set server_url will implicitly check the server is ready
+        Note: set server_url will implicitly check if the server is ready
         for selenium testing
         """
         self._url = value

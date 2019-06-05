@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 import dash_html_components as html
 import dash_core_components as dcc
-
 import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -118,7 +117,6 @@ def test_dev003_validation_errors_in_place(dash_duo):
     )
 
     dash_duo.find_element("#button").click()
-    # assert dash_duo.dev_tools_error_counts == 1,
     dash_duo.wait_for_text_to_equal(".test-devtools-error-count", "1")
     dash_duo.percy_snapshot("devtools - validation exception - closed")
 

@@ -27,6 +27,22 @@ def pytest_addoption(parser):
     )
 
 
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):  # pylint: disable=unused-argument
+    # execute all other hooks to obtain the report object
+    outcome = yield
+    rep = outcome.get_result()
+
+    # we only look at actual failing test calls, not setup/teardown
+    if rep.when == "call" and rep.failed:
+        for name, fixture in item.funcargs.items():
+            try:
+                if name in {"dash_duo", "dash_br"}:
+                    fixture.take_snapshot(item.name)
+            except Exception as e:  # pylint: disable=broad-except
+                print(e)
+
+
 ###############################################################################
 # Fixtures
 ###############################################################################

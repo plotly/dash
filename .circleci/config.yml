@@ -89,11 +89,12 @@ jobs:
           command: |
             . venv/bin/activate
             pytest --junitxml=test-reports/junit_intg.xml tests/integration/
-
+      - store_artifacts:
+          path: test-reports
       - store_test_results:
           path: test-reports
       - store_artifacts:
-          path: test-reports
+          path: /tmp/dash_artifacts
 
 
   "python-3.6":
