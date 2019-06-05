@@ -91,7 +91,7 @@ class Dash(object):
             name='__main__',
             server=True,
             assets_folder='assets',
-            assets_url_path='/assets',
+            assets_url_path='assets',
             assets_ignore='',
             include_assets_files=True,
             url_base_pathname=None,
