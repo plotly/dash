@@ -268,19 +268,19 @@ class Dash(object):
             )
 
         self.url_base_pathname = url_base_pathname
-        self.config = _AttributeDict({
-            'suppress_callback_exceptions': get_combined_config(
+        self.config = _AttributeDict(
+            suppress_callback_exceptions=get_combined_config(
                 'suppress_callback_exceptions',
                 suppress_callback_exceptions,
                 False),
-            'routes_pathname_prefix': routes_pathname_prefix,
-            'requests_pathname_prefix': requests_pathname_prefix,
-            'include_assets_files': get_combined_config(
+            routes_pathname_prefix=routes_pathname_prefix,
+            requests_pathname_prefix=requests_pathname_prefix,
+            include_assets_files=get_combined_config(
                 'include_assets_files', include_assets_files, True),
-            'assets_external_path': get_combined_config(
+            assets_external_path=get_combined_config(
                 'assets_external_path', assets_external_path, ''),
-            'show_undo_redo': show_undo_redo
-        })
+            show_undo_redo=show_undo_redo
+        )
 
         # list of dependencies
         self.callback_map = {}
@@ -1656,7 +1656,7 @@ class Dash(object):
         )
 
         if self._dev_tools.silence_routes_logging:
-            # Since it's silenced, the address don't show anymore.
+            # Since it's silenced, the address doesn't show anymore.
             host = flask_run_options.get('host', '127.0.0.1')
             ssl_context = flask_run_options.get('ssl_context')
             self.logger.info(
