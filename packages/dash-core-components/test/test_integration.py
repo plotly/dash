@@ -894,12 +894,16 @@ class Tests(IntegrationTests):
                 html.Label('DatePickerRange'),
                 dcc.DatePickerRange(
                     id='date-picker-range',
+                    start_date_id='startDate',
+                    end_date_id='endDate',
                     start_date=datetime(1997, 5, 3),
                     end_date_placeholder_text='Select a date!'
                 ),
                 html.Div([
                     html.Label('DatePickerRange - empty input'),
                     dcc.DatePickerRange(
+                        start_date_id='startDate',
+                        end_date_id='endDate',
                         start_date_placeholder_text='Start date',
                         end_date_placeholder_text='End date'
                     ),
@@ -908,6 +912,8 @@ class Tests(IntegrationTests):
                 html.Div([
                     html.Label('DatePickerRange - initial visible month (May 97)'),
                     dcc.DatePickerRange(
+                        start_date_id='startDate',
+                        end_date_id='endDate',
                         start_date_placeholder_text='Start date',
                         end_date_placeholder_text='End date',
                         initial_visible_month=datetime(1997, 5, 10)
@@ -1650,6 +1656,8 @@ class Tests(IntegrationTests):
         app.layout = html.Div([
             dcc.DatePickerRange(
                 id='date-picker-range',
+                start_date_id='startDate',
+                end_date_id='endDate',
                 start_date_placeholder_text='Select a start date!',
                 end_date_placeholder_text='Select an end date!',
                 updatemode='bothdates'

@@ -2,6 +2,7 @@ import 'react-dates/initialize';
 import {DateRangePicker} from 'react-dates';
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
+import uniqid from 'uniqid';
 
 import convertToMoment from '../utils/convertToMoment';
 
@@ -22,7 +23,11 @@ export default class DatePickerRange extends Component {
         this.propsToState = this.propsToState.bind(this);
         this.onDatesChange = this.onDatesChange.bind(this);
         this.isOutsideRange = this.isOutsideRange.bind(this);
-        this.state = {focused: false};
+        this.state = {
+            focused: false,
+            start_date_id: props.start_date_id || uniqid(),
+            end_date_id: props.end_date_id || uniqid(),
+        };
     }
 
     propsToState(newProps) {
@@ -69,7 +74,7 @@ export default class DatePickerRange extends Component {
     }
 
     isOutsideRange(date) {
-        const {min_date_allowed, max_date_allowed} = this.state;
+        const {min_date_allowed, max_date_allowed} = this.props;
 
         return (
             (min_date_allowed && date.isBefore(min_date_allowed)) ||
@@ -169,8 +174,8 @@ export default class DatePickerRange extends Component {
                         with_full_screen_portal && verticalFlag
                     }
                     withPortal={with_portal && verticalFlag}
-                    startDateId={start_date_id}
-                    endDateId={end_date_id}
+                    startDateId={start_date_id || this.state.start_date_id}
+                    endDateId={end_date_id || this.state.end_date_id}
                 />
             </div>
         );

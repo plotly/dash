@@ -44,7 +44,8 @@
     "react-markdown": "^4.0.6",
     "react-select-fast-filter-options": "^0.2.3",
     "react-syntax-highlighter": "^5.0.0",
-    "react-virtualized-select": "^3.1.3"
+    "react-virtualized-select": "^3.1.3",
+    "uniqid": "^5.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",

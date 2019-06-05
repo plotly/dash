@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Playground from 'component-playground';
 import {
     Checklist,
+    DatePickerRange,
     Dropdown,
     Graph,
     Input,
@@ -297,6 +298,34 @@ class Controller extends Component {
 ReactDOM.render(<Controller/>, mountNode);`
 
 
+const DatePickerRangeExample = `
+const properties = {
+    id: 'my date',
+    start_date_id: 'start',
+    end_date_id: 'end'
+};
+
+class Controller extends Component {
+
+    render() {
+        // Use last 7, next 7 days as allowed range
+        const today = new Date();
+        const min_date_allowed = new Date();
+        const max_date_allowed = new Date();
+        min_date_allowed.setDate(today.getDate() - 7);
+        max_date_allowed.setDate(today.getDate() + 7);
+
+        return (<DatePickerRange
+            // split on time to get YYYY-MM-DD
+            min_date_allowed={min_date_allowed.toISOString().split('T')[0]}
+            max_date_allowed={max_date_allowed.toISOString().split('T')[0]}
+            {...properties}
+        />);
+    }
+}
+
+ReactDOM.render(<Controller/>, mountNode);`
+
 
 const examples = [
     {name: 'Upload', code: UploadExample},
@@ -309,7 +338,8 @@ const examples = [
     {name: 'Dropdown', code: DropdownExample},
     {name: 'Slider', code: SliderExample},
     {name: 'RangeSlider', code: RangeSliderExample},
-    {name: 'Input', code: InputExample}
+    {name: 'Input', code: InputExample},
+    {name: 'DatePickerRange', code: DatePickerRangeExample}
 ];
 
 class Demo extends Component {
@@ -317,14 +347,13 @@ class Demo extends Component {
         return (
             <div style={{'fontFamily': 'Sans-Serif'}}>
                 <h1>Dash Core Component Suite Demo</h1>
-
                 {examples.map((example, index) =>
                     <div key={index}>
                         <div style={{'marginBottom': 150}}>
                             <h3>{example.name}</h3>
                             <Playground
                                 codeText={example.code}
-                                scope={{Component, React, ReactDOM, Checklist, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter, Interval, Markdown, Upload}}
+                                scope={{Component, React, ReactDOM, Checklist, DatePickerRange, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter, Interval, Markdown, Upload}}
                                 noRender={false}
                                 theme={'xq-light'}
                             />
