@@ -18,7 +18,8 @@ from dash import Dash, callback_context, no_update
 from dash.dependencies import Input, Output, State
 from dash.exceptions import (
     PreventUpdate, DuplicateCallbackOutput, CallbackException,
-    MissingCallbackContextException, InvalidCallbackReturnValue
+    MissingCallbackContextException, InvalidCallbackReturnValue,
+    IncorrectTypeException
 )
 from .IntegrationTests import IntegrationTests
 from .utils import invincible, wait_for
@@ -870,6 +871,40 @@ class Tests(IntegrationTests):
             'Same output and input: input-output.children',
             context.exception.args[0]
         )
+
+    def test_callback_dep_types(self):
+        app = Dash(__name__)
+        app.layout = html.Div([
+            html.Div('child', id='in'),
+            html.Div('state', id='state'),
+            html.Div(id='out')
+        ])
+
+        with self.assertRaises(IncorrectTypeException):
+            @app.callback([[Output('out', 'children')]],  # extra nesting
+                          [Input('in', 'children')])
+            def f(i):
+                return i
+
+        with self.assertRaises(IncorrectTypeException):
+            @app.callback(Output('out', 'children'),
+                          Input('in', 'children'))  # no nesting
+            def f2(i):
+                return i
+
+        with self.assertRaises(IncorrectTypeException):
+            @app.callback(Output('out', 'children'),
+                          [Input('in', 'children')],
+                          State('state', 'children'))  # no nesting
+            def f3(i):
+                return i
+
+        # all OK with tuples
+        @app.callback((Output('out', 'children'),),
+                      (Input('in', 'children'),),
+                      (State('state', 'children'),))
+        def f4(i):
+            return i
 
     def test_callback_return_validation(self):
         app = Dash(__name__)

@@ -766,33 +766,6 @@ class Dash(object):
         layout = self._cached_layout or self._layout_value()
         is_multi = isinstance(output, (list, tuple))
 
-        for i in inputs:
-            bad = None
-            if is_multi:
-                for o in output:
-                    if o == i:
-                        bad = o
-            else:
-                if output == i:
-                    bad = output
-            if bad:
-                raise exceptions.SameInputOutputException(
-                    'Same output and input: {}'.format(bad)
-                )
-
-        if is_multi:
-            if len(set(output)) != len(output):
-                raise exceptions.DuplicateCallbackOutput(
-                    'Same output was used in a'
-                    ' multi output callback!\n Duplicates:\n {}'.format(
-                        ',\n'.join(
-                            k for k, v in
-                            ((str(x), output.count(x)) for x in output)
-                            if v > 1
-                        )
-                    )
-                )
-
         if (layout is None and not self.config.suppress_callback_exceptions):
             # Without a layout, we can't do validation on the IDs and
             # properties of the elements in the callback.
@@ -804,17 +777,15 @@ class Dash(object):
                 `app.config['suppress_callback_exceptions']=True`
             '''.replace('    ', ''))
 
-        for args, obj, name in [(output if isinstance(output, (list, tuple))
-                                 else [output],
-                                 (Output, list, tuple),
-                                 'Output'),
+        outputs = output if is_multi else [output]
+        for args, obj, name in [(outputs, Output, 'Output'),
                                 (inputs, Input, 'Input'),
                                 (state, State, 'State')]:
 
-            if not isinstance(args, list):
+            if not isinstance(args, (list, tuple)):
                 raise exceptions.IncorrectTypeException(
-                    'The {} argument `{}` is '
-                    'not a list of `dash.dependencies.{}`s.'.format(
+                    'The {} argument `{}` must be '
+                    'a list or tuple of `dash.dependencies.{}`s.'.format(
                         name.lower(), str(args), name
                     ))
 
@@ -901,6 +872,33 @@ class Dash(object):
                 len(state),
                 'elements' if len(state) > 1 else 'element'
             ).replace('    ', ''))
+
+        for i in inputs:
+            bad = None
+            if is_multi:
+                for o in output:
+                    if o == i:
+                        bad = o
+            else:
+                if output == i:
+                    bad = output
+            if bad:
+                raise exceptions.SameInputOutputException(
+                    'Same output and input: {}'.format(bad)
+                )
+
+        if is_multi:
+            if len(set(output)) != len(output):
+                raise exceptions.DuplicateCallbackOutput(
+                    'Same output was used more than once in a '
+                    'multi output callback!\n Duplicates:\n {}'.format(
+                        ',\n'.join(
+                            k for k, v in
+                            ((str(x), output.count(x)) for x in output)
+                            if v > 1
+                        )
+                    )
+                )
 
         callback_id = _create_callback_id(output)
 
