@@ -238,56 +238,50 @@ class Dash(object):
                     "Dash() got an unexpected keyword argument '" + key + "'"
                 )
 
-        # Store some flask-related parameters for use in init_app()
-        self.compress = compress
-        self.name = name
-
-        self._assets_folder = os.path.join(
-            flask.helpers.get_root_path(name),
-            assets_folder,
-        )
-        self._assets_url_path = assets_url_path
-
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
         if isinstance(server, bool):
-            if server:
-                self.server = Flask(name)
-            else:
-                self.server = None
+            self.server = Flask(name) if server else None
         elif isinstance(server, Flask):
             self.server = server
         else:
-            raise ValueError('server must be a Flask app, or a boolean')
+            raise ValueError('server must be a Flask app or a boolean')
 
-        url_base_pathname, routes_pathname_prefix, requests_pathname_prefix = \
-            pathname_configs(
-                url_base_pathname,
-                routes_pathname_prefix,
-                requests_pathname_prefix
-            )
+        base_prefix, routes_prefix, requests_prefix = pathname_configs(
+            url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
+        )
 
-        self.url_base_pathname = url_base_pathname
         self.config = _AttributeDict(
+            name=name,
+            assets_folder=os.path.join(
+                flask.helpers.get_root_path(name), assets_folder),
+            assets_url_path=assets_url_path,
+            assets_ignore=assets_ignore,
+            assets_external_path=get_combined_config(
+                'assets_external_path', assets_external_path, ''),
+            include_assets_files=get_combined_config(
+                'include_assets_files', include_assets_files, True),
+            url_base_pathname=base_prefix,
+            routes_pathname_prefix=routes_prefix,
+            requests_pathname_prefix=requests_prefix,
+            serve_locally=serve_locally,
+            compress=compress,
+            meta_tags=meta_tags or [],
+            external_scripts=external_scripts or [],
+            external_stylesheets=external_stylesheets or [],
             suppress_callback_exceptions=get_combined_config(
                 'suppress_callback_exceptions',
                 suppress_callback_exceptions,
                 False),
-            routes_pathname_prefix=routes_pathname_prefix,
-            requests_pathname_prefix=requests_pathname_prefix,
-            include_assets_files=get_combined_config(
-                'include_assets_files', include_assets_files, True),
-            assets_external_path=get_combined_config(
-                'assets_external_path', assets_external_path, ''),
             show_undo_redo=show_undo_redo
         )
 
         # list of dependencies
         self.callback_map = {}
 
+        # index_string has special setter so can't go in config
         self._index_string = ''
         self.index_string = index_string
-        self._meta_tags = meta_tags or []
         self._favicon = None
 
         # default renderer string
@@ -297,11 +291,6 @@ class Dash(object):
         self.css = Css(serve_locally)
         self.scripts = Scripts(serve_locally)
 
-        self._external_scripts = external_scripts or []
-        self._external_stylesheets = external_stylesheets or []
-
-        self.assets_ignore = assets_ignore
-
         self.registered_paths = collections.defaultdict(set)
 
         # urls
@@ -309,16 +298,10 @@ class Dash(object):
 
         self._layout = None
         self._cached_layout = None
-        self._make_dev_tools_config()
+
+        self._setup_dev_tools()
 
         self._assets_files = []
-
-        # hot reload
-        self._reload_hash = None
-        self._hard_reload = False
-        self._lock = threading.RLock()
-        self._watch_thread = None
-        self._changed_assets = []
 
         self.logger = logging.getLogger(name)
         self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
@@ -334,28 +317,29 @@ class Dash(object):
         """
         Initialize the parts of Dash that require a flask app
         """
+        config = self.config
 
         if app is not None:
             self.server = app
 
         assets_blueprint_name = '{}{}'.format(
-            self.config.routes_pathname_prefix.replace('/', '_'),
+            config.routes_pathname_prefix.replace('/', '_'),
             'dash_assets'
         )
 
         self.server.register_blueprint(
             flask.Blueprint(
                 assets_blueprint_name,
-                self.name,
-                static_folder=self._assets_folder,
+                config.name,
+                static_folder=self.config.assets_folder,
                 static_url_path='{}{}'.format(
-                    self.config.routes_pathname_prefix,
-                    self._assets_url_path.lstrip('/')
+                    config.routes_pathname_prefix,
+                    self.config.assets_url_path.lstrip('/')
                 )
             )
         )
 
-        if self.compress:
+        if config.compress:
             # gzip
             Compress(self.server)
 
@@ -364,7 +348,7 @@ class Dash(object):
             """Handle a halted callback and return an empty 204 response"""
             return '', 204
 
-        prefix = self.config['routes_pathname_prefix']
+        prefix = config.routes_pathname_prefix
 
         self.server.before_first_request(self._setup_server)
 
@@ -468,7 +452,7 @@ class Dash(object):
     def _config(self):
         # pieces of config needed by the front end
         config = {
-            'url_base_pathname': self.url_base_pathname,
+            'url_base_pathname': self.config.url_base_pathname,
             'requests_pathname_prefix': self.config.requests_pathname_prefix,
             'ui': self._dev_tools.ui,
             'props_check': self._dev_tools.props_check,
@@ -517,7 +501,7 @@ class Dash(object):
             modified = int(os.stat(module_path).st_mtime)
 
             return '{}_dash-component-suites/{}/{}?v={}&m={}'.format(
-                self.config['requests_pathname_prefix'],
+                self.config.requests_pathname_prefix,
                 namespace,
                 relative_package_path,
                 importlib.import_module(namespace).__version__,
@@ -560,7 +544,7 @@ class Dash(object):
         return srcs
 
     def _generate_css_dist_html(self):
-        links = self._external_stylesheets + \
+        links = self.config.external_stylesheets + \
             self._collect_and_register_resources(self.css.get_all_css())
 
         return '\n'.join([
@@ -578,17 +562,21 @@ class Dash(object):
         # The rest of the scripts can just be loaded after React but before
         # dash renderer.
         # pylint: disable=protected-access
-        srcs = self._collect_and_register_resources(
-            self.scripts._resources._filter_resources(
-                dash_renderer._js_dist_dependencies,
-                dev_bundles=self._dev_tools.serve_dev_bundles
-            )) + self._external_scripts + self._collect_and_register_resources(
-                self.scripts.get_all_scripts(
-                    dev_bundles=self._dev_tools.serve_dev_bundles) +
+        dev = self._dev_tools.serve_dev_bundles
+        srcs = (
+            self._collect_and_register_resources(
                 self.scripts._resources._filter_resources(
-                    dash_renderer._js_dist,
-                    dev_bundles=self._dev_tools.serve_dev_bundles
-                ))
+                    dash_renderer._js_dist_dependencies, dev_bundles=dev
+                )
+            ) +
+            self.config.external_scripts +
+            self._collect_and_register_resources(
+                self.scripts.get_all_scripts(dev_bundles=dev) +
+                self.scripts._resources._filter_resources(
+                    dash_renderer._js_dist, dev_bundles=dev
+                )
+            )
+        )
 
         return '\n'.join([
             _format_tag('script', src)
@@ -612,10 +600,11 @@ class Dash(object):
         ).format(self.renderer)
 
     def _generate_meta_html(self):
+        meta_tags = self.config.meta_tags
         has_ie_compat = any(
-            x.get('http-equiv', '') == 'X-UA-Compatible'
-            for x in self._meta_tags)
-        has_charset = any('charset' in x for x in self._meta_tags)
+            x.get('http-equiv', '') == 'X-UA-Compatible' for x in meta_tags
+        )
+        has_charset = any('charset' in x for x in meta_tags)
 
         tags = []
         if not has_ie_compat:
@@ -625,9 +614,7 @@ class Dash(object):
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
 
-        tags = tags + [
-            _format_tag('meta', x, opened=True) for x in self._meta_tags
-        ]
+        tags += [_format_tag('meta', x, opened=True) for x in meta_tags]
 
         return '\n      '.join(tags)
 
@@ -673,7 +660,7 @@ class Dash(object):
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
-                os.path.join(self._assets_folder, self._favicon))
+                os.path.join(self.config.assets_folder, self._favicon))
             favicon_url = self.get_asset_url(self._favicon) + '?m={}'.format(
                 favicon_mod_time
             )
@@ -1316,10 +1303,10 @@ class Dash(object):
         return res
 
     def _walk_assets_directory(self):
-        walk_dir = self._assets_folder
+        walk_dir = self.config.assets_folder
         slash_splitter = re.compile(r'[\\/]+')
-        ignore_filter = re.compile(self.assets_ignore) \
-            if self.assets_ignore else None
+        ignore_str = self.config.assets_ignore
+        ignore_filter = re.compile(ignore_str) if ignore_str else None
 
         for current, _, files in os.walk(walk_dir):
             if current == walk_dir:
@@ -1332,14 +1319,13 @@ class Dash(object):
                 else:
                     base = splitted[0]
 
-            files_gen = (x for x in files if not ignore_filter.search(x)) \
-                if ignore_filter else files
+            if ignore_filter:
+                files_gen = (x for x in files if not ignore_filter.search(x))
+            else:
+                files_gen = files
 
             for f in sorted(files_gen):
-                if base:
-                    path = '/'.join([base, f])
-                else:
-                    path = f
+                path = '/'.join([base, f]) if base else f
 
                 full = os.path.join(current, f)
 
@@ -1365,12 +1351,12 @@ class Dash(object):
         asset = _get_asset_path(
             self.config.requests_pathname_prefix,
             path,
-            self._assets_url_path.lstrip('/')
+            self.config.assets_url_path.lstrip('/')
         )
 
         return asset
 
-    def _make_dev_tools_config(self, **kwargs):
+    def _setup_dev_tools(self, **kwargs):
         debug = kwargs.get('debug', False)
         dev_tools = self._dev_tools = _AttributeDict()
 
@@ -1395,6 +1381,14 @@ class Dash(object):
                     attr, kwargs.get(attr, None), default=default
                 )
             )
+
+        if not hasattr(self, '_reload_hash'):
+            # for hot reload
+            self._reload_hash = None
+            self._hard_reload = False
+            self._lock = threading.RLock()
+            self._watch_thread = None
+            self._changed_assets = []
 
         return dev_tools
 
@@ -1476,7 +1470,7 @@ class Dash(object):
         if debug is None:
             debug = get_combined_config('debug', None, True)
 
-        dev_tools = self._make_dev_tools_config(
+        dev_tools = self._setup_dev_tools(
             debug=debug,
             ui=dev_tools_ui,
             props_check=dev_tools_props_check,
@@ -1507,7 +1501,7 @@ class Dash(object):
 
             self._watch_thread = threading.Thread(
                 target=lambda: _watch.watch(
-                    [self._assets_folder] + component_packages_dist,
+                    [self.config.assets_folder] + component_packages_dist,
                     self._on_assets_change,
                     sleep_time=dev_tools.hot_reload_watch_interval)
             )
@@ -1529,9 +1523,10 @@ class Dash(object):
         self._hard_reload = True
         self._reload_hash = _generate_hash()
 
-        if self._assets_folder in filename:
+        if self.config.assets_folder in filename:
             asset_path = os.path.relpath(
-                filename, os.path.commonprefix([self._assets_folder, filename])
+                filename,
+                os.path.commonprefix([self.config.assets_folder, filename])
             ).replace('\\', '/').lstrip('/')
 
             self._changed_assets.append({
