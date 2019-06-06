@@ -6,7 +6,7 @@ import dash
 from dash.dependencies import Input, Output
 
 
-def test_rdd001_dependencies_on_components_that_dont_exist(dash_duo):
+def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [dcc.Input(id="input", value="initial value"), html.Div(id="output-1")]
