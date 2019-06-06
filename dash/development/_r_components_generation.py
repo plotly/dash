@@ -42,15 +42,15 @@ deps_metadata <- list("""
 frame_element_template = """`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
-script = "{dep_rpp}",
-stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
+script = {script_name},
+stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")"""
 
 frame_body_template = """`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
-script = "{dep_rpp}",
-stylesheet = NULL, head = NULL, attachment = NULL, package = "{rpkgname}",
+script = {script_name},
+stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")"""  # noqa:E501
 
 frame_close_template = """)
@@ -238,7 +238,8 @@ def generate_js_metadata(pkg_data, project_shortname):
     # import component library module into sys
     mod = sys.modules[project_shortname]
 
-    jsdist = getattr(mod, "_js_dist", [])
+    alldist = getattr(mod, "_js_dist", []) + getattr(mod, "_css_dist", [])
+    
     project_ver = pkg_data.get("version")
 
     rpkgname = snake_case_to_camel_case(project_shortname)
@@ -254,29 +255,45 @@ def generate_js_metadata(pkg_data, project_shortname):
     function_frame_body = []
 
     # pylint: disable=consider-using-enumerate
-    if len(jsdist) > 1:
-        for dep in range(len(jsdist)):
-            if "dash_" in jsdist[dep]["relative_package_path"]:
-                dep_name = jsdist[dep]["relative_package_path"].split(".")[0]
+    if len(alldist) > 1:
+        for dep in range(len(alldist)):
+            rpp = alldist[dep]["relative_package_path"]
+            if "dash_" in rpp:
+                dep_name = rpp.split(".")[0]
             else:
                 dep_name = "{}_{}".format(project_shortname, str(dep))
                 project_ver = str(dep)
+            if "css" in rpp:
+                css_name = "'{}'".format(rpp)
+                script_name = 'NULL'
+            else:
+                script_name = "'{}'".format(rpp)
+                css_name = 'NULL'
             function_frame += [
                 frame_element_template.format(
                     dep_name=dep_name,
                     project_ver=project_ver,
                     rpkgname=rpkgname,
                     project_shortname=project_shortname,
-                    dep_rpp=jsdist[dep]["relative_package_path"],
+                    script_name=script_name,
+                    css_name=css_name,
                 )
             ]
             function_frame_body = ",\n".join(function_frame)
-    elif len(jsdist) == 1:
+    elif len(alldist) == 1:
+        rpp = alldist[0]["relative_package_path"]
+        if "css" in rpp:
+            css_name = rpp 
+            script_name = "NULL"
+        else:
+            script_name = rpp 
+            css_name = "NULL"
         function_frame_body = frame_body_template.format(
             project_shortname=project_shortname,
             project_ver=project_ver,
             rpkgname=rpkgname,
-            dep_rpp=jsdist[0]["relative_package_path"],
+            script_name=script_name,
+            css_name=css_name,            
         )
 
     function_string = "".join(
