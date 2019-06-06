@@ -413,7 +413,6 @@ class Dash(object):
         if (not isinstance(value, Component) and
                 not isinstance(value, _patch_collections_abc('Callable'))):
             raise exceptions.NoLayoutException(
-                ''
                 'Layout must be a dash component '
                 'or a function that returns '
                 'a dash component.')
@@ -517,8 +516,7 @@ class Dash(object):
                 paths = [paths] if isinstance(paths, str) else paths
 
                 for rel_path in paths:
-                    self.registered_paths[resource['namespace']]\
-                        .add(rel_path)
+                    self.registered_paths[resource['namespace']].add(rel_path)
 
                     if not is_dynamic_resource:
                         srcs.append(_relative_url_path(
@@ -530,28 +528,27 @@ class Dash(object):
                     if isinstance(resource['external_url'], str):
                         srcs.append(resource['external_url'])
                     else:
-                        for url in resource['external_url']:
-                            srcs.append(url)
+                        srcs += resource['external_url']
             elif 'absolute_path' in resource:
                 raise Exception(
                     'Serving files from absolute_path isn\'t supported yet'
                 )
             elif 'asset_path' in resource:
                 static_url = self.get_asset_url(resource['asset_path'])
-                # Add a bust query param
+                # Add a cache-busting query param
                 static_url += '?m={}'.format(resource['ts'])
                 srcs.append(static_url)
         return srcs
 
     def _generate_css_dist_html(self):
-        links = self.config.external_stylesheets + \
-            self._collect_and_register_resources(self.css.get_all_css())
+        external_links = self.config.external_stylesheets
+        links = self._collect_and_register_resources(self.css.get_all_css())
 
         return '\n'.join([
             _format_tag('link', link, opened=True)
             if isinstance(link, dict)
             else '<link rel="stylesheet" href="{}">'.format(link)
-            for link in links
+            for link in (external_links + links)
         ])
 
     def _generate_scripts_html(self):
@@ -633,14 +630,12 @@ class Dash(object):
                 'The path requested: "{}"\n'
                 'List of registered paths: {}'
                 .format(
-                    package_name,
-                    path_in_package_dist,
-                    self.registered_paths
+                    package_name, path_in_package_dist, self.registered_paths
                 )
             )
 
         mimetype = ({
-            'js': 'application/JavaScript',
+            'js': 'application/javascript',
             'css': 'text/css',
             'map': 'application/json'
         })[path_in_package_dist.split('.')[-1]]
@@ -699,9 +694,16 @@ class Dash(object):
 
         return index
 
-    def interpolate_index(self,
-                          metas='', title='', css='', config='',
-                          scripts='', app_entry='', favicon='', renderer=''):
+    def interpolate_index(
+            self,
+            metas='',
+            title='',
+            css='',
+            config='',
+            scripts='',
+            app_entry='',
+            favicon='',
+            renderer=''):
         """
         Called to create the initial HTML string that is loaded on page.
         Override this method to provide you own custom HTML.
@@ -741,15 +743,17 @@ class Dash(object):
         :param favicon: A favicon <link> tag if found in assets folder.
         :return: The interpolated HTML string for the index.
         """
-        return _interpolate(self.index_string,
-                            metas=metas,
-                            title=title,
-                            css=css,
-                            config=config,
-                            scripts=scripts,
-                            favicon=favicon,
-                            renderer=renderer,
-                            app_entry=app_entry)
+        return _interpolate(
+            self.index_string,
+            metas=metas,
+            title=title,
+            css=css,
+            config=config,
+            scripts=scripts,
+            favicon=favicon,
+            renderer=renderer,
+            app_entry=app_entry
+        )
 
     def dependencies(self):
         return flask.jsonify([
@@ -774,7 +778,7 @@ class Dash(object):
                 the `layout` property has not been assigned.
                 Assign the `layout` property before assigning callbacks.
                 Alternatively, suppress this warning by setting
-                `app.config['suppress_callback_exceptions']=True`
+                `suppress_callback_exceptions=True`
             '''.replace('    ', ''))
 
         outputs = output if is_multi else [output]
@@ -792,73 +796,65 @@ class Dash(object):
             for arg in args:
                 if not isinstance(arg, obj):
                     raise exceptions.IncorrectTypeException(
-                        'The {} argument `{}` is '
-                        'not of type `dash.{}`.'.format(
+                        'The {} argument `{}` must be '
+                        'of type `dash.{}`.'.format(
                             name.lower(), str(arg), name
                         ))
 
                 invalid_characters = ['.']
                 if any(x in arg.component_id for x in invalid_characters):
-                    raise exceptions.InvalidComponentIdError('''The element
-                    `{}` contains {} in its ID.
-                    Periods are not allowed in IDs right now.'''.format(
-                        arg.component_id,
-                        invalid_characters
-                    ))
-
-                if (not self.config.suppress_callback_exceptions and
-                        arg.component_id not in layout and
-                        arg.component_id != getattr(layout, 'id', None)):
-                    raise exceptions.NonExistentIdException('''
-                        Attempting to assign a callback to the
-                        component with the id "{}" but no
-                        components with id "{}" exist in the
-                        app\'s layout.\n\n
-                        Here is a list of IDs in layout:\n{}\n\n
-                        If you are assigning callbacks to components
-                        that are generated by other callbacks
-                        (and therefore not in the initial layout), then
-                        you can suppress this exception by setting
-                        `app.config['suppress_callback_exceptions']=True`.
-                    '''.format(
-                        arg.component_id,
-                        arg.component_id,
-                        list(layout.keys()) + (
-                            [] if not hasattr(layout, 'id') else
-                            [layout.id]
-                        )
-                    ).replace('    ', ''))
+                    raise exceptions.InvalidComponentIdError(
+                        'The element `{}` contains {} in its ID. '
+                        'Periods are not allowed in IDs.'.format(
+                            arg.component_id, invalid_characters
+                        ))
 
                 if not self.config.suppress_callback_exceptions:
-                    if getattr(layout, 'id', None) == arg.component_id:
-                        component = layout
-                    else:
-                        component = layout[arg.component_id]
+                    layout_id = getattr(layout, 'id', None)
+                    arg_id = arg.component_id
+                    arg_prop = getattr(arg, 'component_property', None)
+                    if (arg_id not in layout and arg_id != layout_id):
+                        raise exceptions.NonExistentIdException('''
+                            Attempting to assign a callback to the
+                            component with the id "{0}" but no
+                            components with id "{0}" exist in the
+                            app\'s layout.\n\n
+                            Here is a list of IDs in layout:\n{1}\n\n
+                            If you are assigning callbacks to components
+                            that are generated by other callbacks
+                            (and therefore not in the initial layout), then
+                            you can suppress this exception by setting
+                            `suppress_callback_exceptions=True`.
+                        '''.format(
+                            arg_id,
+                            list(layout.keys()) + (
+                                [layout_id] if layout_id else []
+                            )
+                        ).replace('    ', ''))
 
-                    if (hasattr(arg, 'component_property') and
-                            arg.component_property not in
-                            component.available_properties and not
-                            any(arg.component_property.startswith(w) for w in
-                                component.available_wildcard_properties)):
+                    component = (
+                        layout if layout_id == arg_id else layout[arg_id]
+                    )
+
+                    if (arg_prop and
+                            arg_prop not in component.available_properties and
+                            not any(arg_prop.startswith(w) for w in
+                                    component.available_wildcard_properties)):
                         raise exceptions.NonExistentPropException('''
                             Attempting to assign a callback with
-                            the property "{}" but the component
-                            "{}" doesn't have "{}" as a property.\n
-                            Here is a list of the available properties in "{}":
-                            {}
+                            the property "{0}" but the component
+                            "{1}" doesn't have "{0}" as a property.\n
+                            Here are the available properties in "{1}":
+                            {2}
                         '''.format(
-                            arg.component_property,
-                            arg.component_id,
-                            arg.component_property,
-                            arg.component_id,
-                            component.available_properties).replace(
-                                '    ', ''))
+                            arg_prop, arg_id, component.available_properties
+                        ).replace('    ', ''))
 
                     if hasattr(arg, 'component_event'):
                         raise exceptions.NonExistentEventException('''
                             Events have been removed.
                             Use the associated property instead.
-                        ''')
+                        '''.replace('    ', ''))
 
         if state and not inputs:
             raise exceptions.MissingInputsException('''
@@ -930,7 +926,7 @@ class Dash(object):
                 '''.format(
                     callback_id,
                     pprint.pformat(ns['duplicates'])
-                )
+                ).replace('    ', '')
             else:
                 msg = '''
                 You have already assigned a callback to the output
@@ -947,8 +943,9 @@ class Dash(object):
     def _validate_callback_output(output_value, output):
         valid = [str, dict, int, float, type(None), Component]
 
-        def _raise_invalid(bad_val, outer_val, bad_type, path, index=None,
+        def _raise_invalid(bad_val, outer_val, path, index=None,
                            toplevel=False):
+            bad_type = type(bad_val).__name__
             outer_id = "(id={:s})".format(outer_val.id) \
                 if getattr(outer_val, 'id', False) else ''
             outer_type = type(outer_val).__name__
@@ -981,7 +978,8 @@ class Dash(object):
                      else ('[*] ' + outer_type + ' ' + outer_id))
                     + "\n" + path + "\n"
                 ) if not toplevel else '',
-                bad_val=bad_val).replace('    ', ''))
+                bad_val=bad_val
+            ).replace('    ', ''))
 
         def _value_is_valid(val):
             return (
@@ -1000,7 +998,6 @@ class Dash(object):
                         _raise_invalid(
                             bad_val=j,
                             outer_val=val,
-                            bad_type=type(j).__name__,
                             path=p,
                             index=index
                         )
@@ -1014,7 +1011,6 @@ class Dash(object):
                             _raise_invalid(
                                 bad_val=child,
                                 outer_val=val,
-                                bad_type=type(child).__name__,
                                 path=p + "\n" + "[*] " + type(child).__name__,
                                 index=index
                             )
@@ -1026,7 +1022,6 @@ class Dash(object):
                         _raise_invalid(
                             bad_val=child,
                             outer_val=val,
-                            bad_type=type(child).__name__,
                             path=type(child).__name__,
                             index=index
                         )
@@ -1037,7 +1032,6 @@ class Dash(object):
                     _raise_invalid(
                         bad_val=val,
                         outer_val=type(val).__name__,
-                        bad_type=type(val).__name__,
                         path='',
                         index=index,
                         toplevel=True
@@ -1207,8 +1201,10 @@ class Dash(object):
                     In general, Dash properties can only be
                     dash components, strings, dictionaries, numbers, None,
                     or lists of those.
-                    '''.format(property=output.component_property,
-                               id=output.component_id))
+                    '''.format(
+                        property=output.component_property,
+                        id=output.component_id
+                    ).replace('    ', ''))
 
                 return jsonResponse
 
@@ -1263,7 +1259,6 @@ class Dash(object):
     def _validate_layout(self):
         if self.layout is None:
             raise exceptions.NoLayoutException(
-                ''
                 'The layout was `None` '
                 'at the time that `run_server` was called. '
                 'Make sure to set the `layout` attribute of your application '
@@ -1390,16 +1385,17 @@ class Dash(object):
 
         return dev_tools
 
-    def enable_dev_tools(self,
-                         debug=None,
-                         dev_tools_ui=None,
-                         dev_tools_props_check=None,
-                         dev_tools_serve_dev_bundles=None,
-                         dev_tools_hot_reload=None,
-                         dev_tools_hot_reload_interval=None,
-                         dev_tools_hot_reload_watch_interval=None,
-                         dev_tools_hot_reload_max_retry=None,
-                         dev_tools_silence_routes_logging=None):
+    def enable_dev_tools(
+            self,
+            debug=None,
+            dev_tools_ui=None,
+            dev_tools_props_check=None,
+            dev_tools_serve_dev_bundles=None,
+            dev_tools_hot_reload=None,
+            dev_tools_hot_reload_interval=None,
+            dev_tools_hot_reload_watch_interval=None,
+            dev_tools_hot_reload_max_retry=None,
+            dev_tools_silence_routes_logging=None):
         """
         Activate the dev tools, called by `run_server`. If your application is
         served by wsgi and you want to activate the dev tools, you can call
