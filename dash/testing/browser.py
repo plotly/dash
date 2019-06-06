@@ -19,7 +19,7 @@ from selenium.common.exceptions import (
     NoSuchElementException,
 )
 
-from dash.testing.wait import text_to_equal
+from dash.testing.wait import text_to_equal, style_to_equal
 from dash.testing.locators import DashLocatorsMixin
 from dash.testing.errors import DashAppLoadingError
 
@@ -102,7 +102,7 @@ class Browser(DashLocatorsMixin):
         logger.debug(
             "method, timeout, poll => %s %s %s",
             method,
-            _wait.timeout,  # pylint: disable=protected-access
+            _wait._timeout,  # pylint: disable=protected-access
             _wait._poll,  # pylint: disable=protected-access
         )
 
@@ -120,6 +120,16 @@ class Browser(DashLocatorsMixin):
             "cannot find_element using the css selector",
         )
 
+    def wait_for_style_to_equal(self, selector, style, val, timeout=None):
+        return self._wait_for(
+            method=style_to_equal,
+            args=(selector, style, val),
+            timeout=timeout,
+            msg="style val => {} {} not found within {}s".format(
+                style, val, timeout
+            ),
+        )
+
     def wait_for_text_to_equal(self, selector, text, timeout=None):
         return self._wait_for(
             method=text_to_equal,
@@ -133,7 +143,7 @@ class Browser(DashLocatorsMixin):
         self.driver.get(self.server_url)
         try:
             self.wait_for_element_by_css_selector(
-                "#react-entry-point", timeout=timeout
+                self.dash_entry_locator, timeout=timeout
             )
         except TimeoutException:
             logger.exception(
@@ -253,3 +263,15 @@ class Browser(DashLocatorsMixin):
         """
         self._url = value
         self.wait_for_page()
+
+    @property
+    def redux_state_paths(self):
+        return self.driver.execute_script(
+            "return window.store.getState().paths"
+        )
+
+    @property
+    def redux_state_rqs(self):
+        return self.driver.execute_script(
+            "return window.store.getState().requestQueue"
+        )

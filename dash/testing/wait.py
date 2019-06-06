@@ -17,7 +17,7 @@ def until(
 ):  # noqa: C0330
     res = None
     logger.debug(
-        "start wait.until with %s, timeout[%s], poll[%s]",
+        "start wait.until with method, timeout, poll => %s %s %s",
         wait_cond,
         timeout,
         poll,
@@ -38,7 +38,7 @@ def until_not(
 ):  # noqa: C0330
     res = True
     logger.debug(
-        "start wait.until with %s, timeout[%s], poll[%s]",
+        "start wait.until_not method, timeout, poll => %s %s %s",
         wait_cond,
         timeout,
         poll,
@@ -71,4 +71,21 @@ class text_to_equal(object):
             )
         except WebDriverException:
             logger.exception("text_to_equal encountered an exception")
+            return False
+
+
+class style_to_equal(object):
+    def __init__(self, selector, style, val):
+        self.selector = selector
+        self.style = style
+        self.val = val
+
+    def __call__(self, driver):
+        try:
+            elem = driver.find_element_by_css_selector(self.selector)
+            val = elem.value_of_css_property(self.style)
+            logger.debug("style to equal {%s} => expected %s", val, self.val)
+            return val == self.val
+        except WebDriverException:
+            logger.exception("style_to_equal encountered an exception")
             return False

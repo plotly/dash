@@ -1,8 +1,9 @@
 # pylint: disable=too-few-public-methods
 class DashLocatorsMixin(object):
-    def dev_tools_error_counts(self):
-        return int(
-            self.driver.find_element_by_css_selector(
-                ".test-devtools-error-count"
-            ).text
-        )
+    @property
+    def devtools_error_count_locator(self):
+        return ".test-devtools-error-count"
+
+    @property
+    def dash_entry_locator(self):
+        return "#react-entry-point"
