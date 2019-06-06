@@ -20,14 +20,14 @@ from selenium.common.exceptions import (
 )
 
 from dash.testing.wait import text_to_equal, style_to_equal
-from dash.testing.locators import DashLocatorsMixin
+from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError
 
 
 logger = logging.getLogger(__name__)
 
 
-class Browser(DashLocatorsMixin):
+class Browser(DashPageMixin):
     def __init__(self, browser, remote=None, wait_timeout=10):
         self._browser = browser.lower()
         self._wait_timeout = wait_timeout
@@ -263,15 +263,3 @@ class Browser(DashLocatorsMixin):
         """
         self._url = value
         self.wait_for_page()
-
-    @property
-    def redux_state_paths(self):
-        return self.driver.execute_script(
-            "return window.store.getState().paths"
-        )
-
-    @property
-    def redux_state_rqs(self):
-        return self.driver.execute_script(
-            "return window.store.getState().requestQueue"
-        )
