@@ -232,11 +232,10 @@ class Dash(object):
                     key + ' is no longer a valid keyword argument in Dash '
                     'since v1.0. See https://dash.plot.ly for details.'
                 )
-            else:
-                # any other kwarg mimic the built-in exception
-                raise TypeError(
-                    "Dash() got an unexpected keyword argument '" + key + "'"
-                )
+            # any other kwarg mimic the built-in exception
+            raise TypeError(
+                "Dash() got an unexpected keyword argument '" + key + "'"
+            )
 
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
@@ -300,6 +299,13 @@ class Dash(object):
         self._cached_layout = None
 
         self._setup_dev_tools()
+        self._hot_reload = _AttributeDict(
+            hash=None,
+            hard=False,
+            lock=threading.RLock(),
+            watch_thread=None,
+            changed_assets=[]
+        )
 
         self._assets_files = []
 
@@ -466,15 +472,16 @@ class Dash(object):
         return config
 
     def serve_reload_hash(self):
-        hard = self._hard_reload
-        changed = self._changed_assets
-        self._lock.acquire()
-        self._hard_reload = False
-        self._changed_assets = []
-        self._lock.release()
+        reload = self._hot_reload
+        with reload.lock:
+            hard = reload.hard
+            changed = reload.changed_assets
+            _hash = reload.hash
+            reload.hard = False
+            reload.changed_assets = []
 
         return flask.jsonify({
-            'reloadHash': self._reload_hash,
+            'reloadHash': _hash,
             'hard': hard,
             'packages': list(self.registered_paths.keys()),
             'files': list(changed)
@@ -1334,7 +1341,8 @@ class Dash(object):
     def _invalid_resources_handler(err):
         return err.args[0], 404
 
-    def _serve_default_favicon(self):
+    @staticmethod
+    def _serve_default_favicon():
         return flask.Response(
             pkgutil.get_data('dash', 'favicon.ico'),
             content_type='image/x-icon',
@@ -1354,34 +1362,26 @@ class Dash(object):
         dev_tools = self._dev_tools = _AttributeDict()
 
         for attr in (
-            'ui',
-            'props_check',
-            'serve_dev_bundles',
-            'hot_reload',
-            'silence_routes_logging'
+                'ui',
+                'props_check',
+                'serve_dev_bundles',
+                'hot_reload',
+                'silence_routes_logging'
         ):
             dev_tools[attr] = get_combined_config(
                 attr, kwargs.get(attr, None), default=debug
             )
 
         for attr, _type, default in (
-            ('hot_reload_interval', float, 3),
-            ('hot_reload_watch_interval', float, 0.5),
-            ('hot_reload_max_retry', int, 8)
+                ('hot_reload_interval', float, 3),
+                ('hot_reload_watch_interval', float, 0.5),
+                ('hot_reload_max_retry', int, 8)
         ):
             dev_tools[attr] = _type(
                 get_combined_config(
                     attr, kwargs.get(attr, None), default=default
                 )
             )
-
-        if not hasattr(self, '_reload_hash'):
-            # for hot reload
-            self._reload_hash = None
-            self._hard_reload = False
-            self._lock = threading.RLock()
-            self._watch_thread = None
-            self._changed_assets = []
 
         return dev_tools
 
@@ -1481,7 +1481,8 @@ class Dash(object):
             self.logger.setLevel(logging.INFO)
 
         if dev_tools.hot_reload:
-            self._reload_hash = _generate_hash()
+            reload = self._hot_reload
+            reload.hash = _generate_hash()
 
             component_packages_dist = [
                 os.path.dirname(package.path)
@@ -1493,14 +1494,14 @@ class Dash(object):
                 )
             ]
 
-            self._watch_thread = threading.Thread(
+            reload.watch_thread = threading.Thread(
                 target=lambda: _watch.watch(
                     [self.config.assets_folder] + component_packages_dist,
                     self._on_assets_change,
                     sleep_time=dev_tools.hot_reload_watch_interval)
             )
-            self._watch_thread.daemon = True
-            self._watch_thread.start()
+            reload.watch_thread.daemon = True
+            reload.watch_thread.start()
 
         if (debug and dev_tools.serve_dev_bundles and
                 not self.scripts.config.serve_locally):
@@ -1513,50 +1514,49 @@ class Dash(object):
 
     # noinspection PyProtectedMember
     def _on_assets_change(self, filename, modified, deleted):
-        self._lock.acquire()
-        self._hard_reload = True
-        self._reload_hash = _generate_hash()
+        reload = self._hot_reload
+        with reload.lock:
+            reload.hard = True
+            reload.hash = _generate_hash()
 
-        if self.config.assets_folder in filename:
-            asset_path = os.path.relpath(
-                filename,
-                os.path.commonprefix([self.config.assets_folder, filename])
-            ).replace('\\', '/').lstrip('/')
+            if self.config.assets_folder in filename:
+                asset_path = os.path.relpath(
+                    filename,
+                    os.path.commonprefix([self.config.assets_folder, filename])
+                ).replace('\\', '/').lstrip('/')
 
-            self._changed_assets.append({
-                'url': self.get_asset_url(asset_path),
-                'modified': int(modified),
-                'is_css': filename.endswith('css')
-            })
+                reload.changed_assets.append({
+                    'url': self.get_asset_url(asset_path),
+                    'modified': int(modified),
+                    'is_css': filename.endswith('css')
+                })
 
-            if filename not in self._assets_files and not deleted:
-                res = self._add_assets_resource(asset_path, filename)
-                if filename.endswith('js'):
-                    self.scripts.append_script(res)
-                elif filename.endswith('css'):
-                    self.css.append_css(res)
+                if filename not in self._assets_files and not deleted:
+                    res = self._add_assets_resource(asset_path, filename)
+                    if filename.endswith('js'):
+                        self.scripts.append_script(res)
+                    elif filename.endswith('css'):
+                        self.css.append_css(res)
 
-            if deleted:
-                if filename in self._assets_files:
-                    self._assets_files.remove(filename)
+                if deleted:
+                    if filename in self._assets_files:
+                        self._assets_files.remove(filename)
 
-                def delete_resource(resources):
-                    to_delete = None
-                    for r in resources:
-                        if r.get('asset_path') == asset_path:
-                            to_delete = r
-                            break
-                    if to_delete:
-                        resources.remove(to_delete)
+                    def delete_resource(resources):
+                        to_delete = None
+                        for r in resources:
+                            if r.get('asset_path') == asset_path:
+                                to_delete = r
+                                break
+                        if to_delete:
+                            resources.remove(to_delete)
 
-                if filename.endswith('js'):
-                    # pylint: disable=protected-access
-                    delete_resource(self.scripts._resources._resources)
-                elif filename.endswith('css'):
-                    # pylint: disable=protected-access
-                    delete_resource(self.css._resources._resources)
-
-        self._lock.release()
+                    if filename.endswith('js'):
+                        # pylint: disable=protected-access
+                        delete_resource(self.scripts._resources._resources)
+                    elif filename.endswith('css'):
+                        # pylint: disable=protected-access
+                        delete_resource(self.css._resources._resources)
 
     def run_server(
             self,
