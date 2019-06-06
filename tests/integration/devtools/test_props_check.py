@@ -3,10 +3,8 @@ import dash_html_components as html
 import dash
 from dash.dependencies import Input, Output
 
-from selenium.common.exceptions import TimeoutException
 
-
-def test_dev100_prop_check_errors_with_path(dash_duo):
+def test_dvpc001_prop_check_errors_with_path(dash_duo):
     app = dash.Dash(__name__)
 
     test_cases = {

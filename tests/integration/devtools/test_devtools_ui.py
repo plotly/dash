@@ -1,11 +1,10 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import dash
-
 import dash.testing.wait as wait
 
 
-def test_dev020_disable_props_check_config(dash_duo):
+def test_dvui001_disable_props_check_config(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -37,7 +36,7 @@ def test_dev020_disable_props_check_config(dash_duo):
     )
 
 
-def test_dev021_disable_ui_config(dash_duo):
+def test_dvui002_disable_ui_config(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
