@@ -88,8 +88,7 @@ jobs:
           name: ⚙️ run integration test
           command: |
             . venv/bin/activate
-            # pytest --junitxml=test-reports/junit_intg.xml tests/integration/
-            pytest --log-cli-level DEBUG -k dvpc001
+            pytest --junitxml=test-reports/junit_intg.xml tests/integration/
       - store_artifacts:
           path: test-reports
       - store_test_results:
