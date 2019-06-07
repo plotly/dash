@@ -20,11 +20,11 @@ import QuerySyntaxTree from 'dash-table/syntax-tree/QuerySyntaxTree';
 
 import {
     ControlledTableProps,
-    PropsWithDefaultsAndDerived,
     SetProps,
     IState,
     StandaloneState,
-    PropsWithDefaults
+    SanitizedAndDerivedProps,
+    TableAction
 } from './props';
 
 import 'react-select/dist/react-select.css';
@@ -36,17 +36,17 @@ import derivedFilterMap from 'dash-table/derived/filter/map';
 
 const DERIVED_REGEX = /^derived_/;
 
-export default class Table extends Component<PropsWithDefaultsAndDerived, StandaloneState> {
-    constructor(props: PropsWithDefaultsAndDerived) {
+export default class Table extends Component<SanitizedAndDerivedProps, StandaloneState> {
+    constructor(props: SanitizedAndDerivedProps) {
         super(props);
 
         this.state = {
             forcedResizeOnly: false,
             workFilter: {
-                value: props.filter,
+                value: props.filter_query,
                 map: this.filterMap(
                     new Map<string, SingleColumnSyntaxTree>(),
-                    props.filter,
+                    props.filter_query,
                     props.columns
                 )
             },
@@ -55,18 +55,18 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
         };
     }
 
-    componentWillReceiveProps(nextProps: PropsWithDefaultsAndDerived) {
-        if (nextProps.filter === this.props.filter) {
+    componentWillReceiveProps(nextProps: SanitizedAndDerivedProps) {
+        if (nextProps.filter_query === this.props.filter_query) {
             return;
         }
 
         this.setState(state => {
             const { workFilter: { map: currentMap, value } } = state;
 
-            if (value !== nextProps.filter) {
+            if (value !== nextProps.filter_query) {
                 const map = this.filterMap(
                     currentMap,
-                    nextProps.filter,
+                    nextProps.filter_query,
                     nextProps.columns
                 );
 
@@ -103,32 +103,33 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
         const {
             columns,
             data,
-            filter,
-            filtering,
-            pagination_mode,
-            pagination_settings,
+            filter_query,
+            filter_action,
+            page_action,
+            page_current,
+            page_size,
             selected_rows,
-            sorting,
+            sort_action,
             sort_by,
-            sorting_treat_empty_string_as_none,
             uiCell,
             uiHeaders,
             uiViewport,
             virtualization
-        } = R.merge(this.props, this.state) as (PropsWithDefaults & StandaloneState);
+        } = R.merge(this.props, this.state) as (SanitizedAndDerivedProps & StandaloneState);
 
         const virtual = this.virtual(
+            columns,
             data,
-            filtering,
-            filter,
-            sorting,
-            sort_by,
-            sorting_treat_empty_string_as_none
+            filter_action,
+            filter_query,
+            sort_action,
+            sort_by
         );
 
         const viewport = this.viewport(
-            pagination_mode,
-            pagination_settings,
+            page_action,
+            page_current,
+            page_size,
             virtual.data,
             virtual.indices
         );
@@ -152,8 +153,9 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
         );
 
         const paginator = this.paginator(
-            pagination_mode,
-            pagination_settings,
+            page_action,
+            page_current,
+            page_size,
             setProps,
             virtual.data
         );
@@ -179,11 +181,12 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
 
     private updateDerivedProps(controlled: ControlledTableProps) {
         const {
-            filter,
-            filtering,
-            pagination_mode,
-            pagination_settings,
-            sorting,
+            filter_query,
+            filter_action,
+            page_action,
+            page_current,
+            page_size,
+            sort_action,
             sort_by,
             viewport,
             viewport_selected_rows,
@@ -191,7 +194,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
             virtual_selected_rows
         } = controlled;
 
-        const derivedStructureCache = this.structuredQueryCache(filter);
+        const derivedStructureCache = this.structuredQueryCache(filter_query);
 
         const viewportCached = this.viewportCache(viewport).cached;
         const virtualCached = this.virtualCache(virtual).cached;
@@ -199,17 +202,17 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
         const viewportSelectedRowsCached = this.viewportSelectedRowsCache(viewport_selected_rows).cached;
         const virtualSelectedRowsCached = this.virtualSelectedRowsCache(virtual_selected_rows).cached;
 
-        const invalidatedFilter = this.filterCache(filter);
-        const invalidatedPagination = this.paginationCache(pagination_settings);
+        const invalidatedFilter = this.filterCache(filter_query);
+        const invalidatedPagination = this.paginationCache(page_current, page_size);
         const invalidatedSort = this.sortCache(sort_by);
 
         const invalidateSelection =
-            (!invalidatedFilter.cached && !invalidatedFilter.first && filtering === 'be') ||
-            (!invalidatedPagination.cached && !invalidatedPagination.first && pagination_mode === 'be') ||
-            (!invalidatedSort.cached && !invalidatedSort.first && sorting === 'be');
+            (!invalidatedFilter.cached && !invalidatedFilter.first && filter_action === TableAction.Custom) ||
+            (!invalidatedPagination.cached && !invalidatedPagination.first && page_action === TableAction.Custom) ||
+            (!invalidatedSort.cached && !invalidatedSort.first && sort_action === TableAction.Custom);
 
         const { controlledSetProps } = this;
-        let newProps: Partial<PropsWithDefaultsAndDerived> = {};
+        let newProps: Partial<SanitizedAndDerivedProps> = {};
 
         if (!derivedStructureCache.cached) {
             newProps.derived_filter_structure = derivedStructureCache.result;
@@ -285,7 +288,7 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
             }
 
             setProps(newProps);
-        } : (newProps: Partial<PropsWithDefaultsAndDerived>) => {
+        } : (newProps: Partial<SanitizedAndDerivedProps>) => {
             /*#if DEV*/
             const props: any = this.state;
             R.forEach(
@@ -309,8 +312,8 @@ export default class Table extends Component<PropsWithDefaultsAndDerived, Standa
     private readonly virtualized = derivedVirtualizedData();
     private readonly visibleColumns = derivedVisibleColumns();
 
-    private readonly filterCache = memoizeOneWithFlag(filter => filter);
-    private readonly paginationCache = memoizeOneWithFlag(pagination => pagination);
+    private readonly filterCache = memoizeOneWithFlag(filter_query => filter_query);
+    private readonly paginationCache = memoizeOneWithFlag((page_current, page_size) => [page_current, page_size]);
     private readonly sortCache = memoizeOneWithFlag(sort => sort);
     private readonly viewportCache = memoizeOneWithFlag(viewport => viewport);
     private readonly viewportSelectedRowsCache = memoizeOneWithFlag(viewport => viewport);

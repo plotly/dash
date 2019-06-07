@@ -1,31 +1,31 @@
 import * as R from 'ramda';
 
 import Logger from 'core/Logger';
-import { SortSettings, ISortSetting, SortDirection } from 'core/sorting';
+import { SortBy, ISortBy, SortDirection } from 'core/sorting';
 
 export default (
-    settings: SortSettings,
-    setting: ISortSetting
-): SortSettings => {
-    Logger.trace('multi - updateSettings', settings, setting);
+    sortBy: SortBy,
+    sort: ISortBy
+): SortBy => {
+    Logger.trace('multi - update sortBy', sortBy, sort);
 
-    settings = R.clone(settings);
+    sortBy = R.clone(sortBy);
 
-    if (setting.direction === SortDirection.None) {
-        const currentIndex = R.findIndex(s => s.column_id === setting.column_id, settings);
+    if (sort.direction === SortDirection.None) {
+        const currentIndex = R.findIndex(s => s.column_id === sort.column_id, sortBy);
 
         if (currentIndex !== -1) {
-            settings.splice(currentIndex, 1);
+            sortBy.splice(currentIndex, 1);
         }
     } else {
-        const currentSetting = R.find(s => s.column_id === setting.column_id, settings);
+        const current = R.find(s => s.column_id === sort.column_id, sortBy);
 
-        if (currentSetting) {
-            currentSetting.direction = setting.direction;
+        if (current) {
+            current.direction = sort.direction;
         } else {
-            settings.push(setting);
+            sortBy.push(sort);
         }
     }
 
-    return settings;
+    return sortBy;
 };

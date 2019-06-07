@@ -36,19 +36,20 @@ storiesOf('DashTable/Dropdown', module)
         data={data}
         columns={columns}
         editable={true}
-        column_static_dropdown={[{
-            id: 'climate',
-            dropdown: R.map(
-                i => ({ label: i, value: i }),
-                ['Sunny', 'Snowy', 'Rainy']
-            )
-        }, {
-            id: 'city',
-            dropdown: R.map(
-                i => ({ label: i, value: i }),
-                ['NYC', 'Montreal', 'Miami']
-            )
-        }]}
+        dropdown={{
+            climate: {
+                options: R.map(
+                    i => ({ label: i, value: i }),
+                    ['Sunny', 'Snowy', 'Rainy']
+                )
+            },
+            city: {
+                options: R.map(
+                    i => ({ label: i, value: i }),
+                    ['NYC', 'Montreal', 'Miami']
+                )
+            }
+        }}
     />))
     .add('dropdown by filtering', () => (<DataTable
         setProps={setProps}
@@ -56,27 +57,34 @@ storiesOf('DashTable/Dropdown', module)
         data={data2}
         columns={columns2}
         editable={true}
-        column_conditional_dropdowns={[{
-            id: 'Neighborhood',
-            dropdowns: [{
-                condition: '{City} eq "NYC"',
-                dropdown: R.map(
-                    i => ({ label: i, value: i }),
-                    ['Brooklyn', 'Queens', 'Staten Island']
-                )
-            }, {
-                condition: '{City} eq "Montreal"',
-                dropdown: R.map(
-                    i => ({ label: i, value: i }),
-                    ['Mile End', 'Plateau', 'Hochelaga']
-                )
-            }, {
-                condition: '{City} eq "Los Angeles"',
-                dropdown: R.map(
-                    i => ({ label: i, value: i }),
-                    ['Venice', 'Hollywood', 'Los Feliz']
-                )
-            }]
+        dropdown_conditional={[{
+            if: {
+                column_id: 'Neighborhood',
+                filter_query: '{City} eq "NYC"'
+            },
+            options: R.map(
+                i => ({ label: i, value: i }),
+                ['Brooklyn', 'Queens', 'Staten Island']
+            )
+        }, {
+            if: {
+                column_id: 'Neighborhood',
+                filter_query: '{City} eq "Montreal"'
+            },
+            options: R.map(
+                i => ({ label: i, value: i }),
+                ['Mile End', 'Plateau', 'Hochelaga']
+            )
+        },
+        {
+            if: {
+                column_id: 'Neighborhood',
+                filter_query: '{City} eq "Los Angeles"'
+            },
+            options: R.map(
+                i => ({ label: i, value: i }),
+                ['Venice', 'Hollywood', 'Los Feliz']
+            )
         }]}
     />)).add('dropdown by cell (deprecated)', () => (<DataTable
         setProps={setProps}
@@ -84,22 +92,30 @@ storiesOf('DashTable/Dropdown', module)
         data={data2}
         columns={columns2}
         editable={true}
-        dropdown_properties={{
-            Neighborhood: [{
-                options: R.map(
-                    i => ({ label: i, value: i }),
-                    ['Brooklyn', 'Queens', 'Staten Island']
-                )
-            }, {
-                options: R.map(
-                    i => ({ label: i, value: i }),
-                    ['Mile End', 'Plateau', 'Hochelaga']
-                )
-            }, {
-                options: R.map(
-                    i => ({ label: i, value: i }),
-                    ['Venice', 'Hollywood', 'Los Feliz']
-                )
-            }]
-        }}
+        dropdown_data={[
+            {
+                Neighborhood: {
+                    options: R.map(
+                        i => ({ label: i, value: i }),
+                        ['Brooklyn', 'Queens', 'Staten Island']
+                    )
+                }
+            },
+            {
+                Neighborhood: {
+                    options: R.map(
+                        i => ({ label: i, value: i }),
+                        ['Mile End', 'Plateau', 'Hochelaga']
+                    )
+                }
+            },
+            {
+                Neighborhood: {
+                    options: R.map(
+                        i => ({ label: i, value: i }),
+                        ['Venice', 'Hollywood', 'Los Feliz']
+                    )
+                }
+            }
+        ]}
     />));

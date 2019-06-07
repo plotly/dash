@@ -46,6 +46,7 @@ fixtures.forEach(fixture => {
 });
 
 import dataset from './../../../datasets/gapminder.csv';
+import { TableAction } from 'dash-table/components/Table/props';
 
 storiesOf('DashTable/Without Data', module)
     .add('with 1 column', () => (<DataTable
@@ -53,7 +54,7 @@ storiesOf('DashTable/Without Data', module)
         id='table'
         data={[]}
         columns={[{ id: 'a', name: 'A' }]}
-        sorting={false}
+        sort_action={TableAction.None}
         editable={false}
         row_deletable={false}
         row_selectable={false}
@@ -86,7 +87,7 @@ storiesOf('DashTable/With Data', module)
             { id: 'c', name: 'C' }
         ]}
         editable={false}
-        sorting={false}
+        sort_action={TableAction.None}
         row_deletable={false}
         row_selectable={false}
         style_data_conditional={[
@@ -136,8 +137,8 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         id='table'
         data={dataA2J}
         columns={columnsA2J}
-        n_fixed_columns={2}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true }}
+        fixed_rows={{ headers: true }}
         row_deletable={true}
         row_selectable={true}
         style_data_conditional={style_data_conditional}
@@ -147,7 +148,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         id='table'
         data={dataA2J}
         columns={columnsA2J}
-        n_fixed_rows={1}
+        fixed_rows={{ headers: true }}
         row_deletable={true}
         row_selectable={true}
         style_data_conditional={style_data_conditional}
@@ -157,7 +158,7 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         id='table'
         data={dataA2J}
         columns={columnsA2J}
-        n_fixed_columns={2}
+        fixed_columns={{ headers: true }}
         row_deletable={true}
         row_selectable={true}
         style_data_conditional={style_data_conditional}
@@ -168,8 +169,8 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
         data={dataA2J}
         columns={mergedColumns}
         merge_duplicate_headers={true}
-        n_fixed_columns={4}
-        n_fixed_rows={2}
+        fixed_columns={{ headers: true, data: 4 }}
+        fixed_rows={{ headers: true, data: 1 }}
         style_data_conditional={style_data_conditional}
     />))
     .add('with 2 fixed rows, 3 fixed columns, hidden columns and merged cells', () => {
@@ -182,8 +183,8 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             data={dataA2J}
             columns={mergedColumns}
             merge_duplicate_headers={true}
-            n_fixed_columns={3}
-            n_fixed_rows={2}
+            fixed_columns={{ headers: true, data: 3 }}
+            fixed_rows={{ headers: true, data: 1 }}
             style_data_conditional={style_data_conditional}
         />);
     });
@@ -240,7 +241,7 @@ storiesOf('DashTable/Sorting', module)
         id='table'
         data={sparseData}
         columns={mergedColumns}
-        sorting={true}
+        sort_action={TableAction.Native}
         sort_by={[{ column_id: 'a', direction: 'asc' }]}
         style_data_conditional={style_data_conditional}
     />))
@@ -249,7 +250,7 @@ storiesOf('DashTable/Sorting', module)
         id='table'
         data={sparseData}
         columns={mergedColumns}
-        sorting={true}
+        sort_action={TableAction.Native}
         sort_by={[{ column_id: 'a', direction: 'desc' }]}
         style_data_conditional={style_data_conditional}
     />))
@@ -258,9 +259,9 @@ storiesOf('DashTable/Sorting', module)
         id='table'
         data={sparseData}
         columns={mergedColumns}
-        sorting={true}
+        sort_action={TableAction.Native}
         sort_by={[{ column_id: 'a', direction: 'asc' }]}
-        sorting_treat_empty_string_as_none={true}
+        sort_as_null={['']}
         style_data_conditional={style_data_conditional}
     />))
     .add('"a" descending -- empty string override', () => (<DataTable
@@ -268,9 +269,29 @@ storiesOf('DashTable/Sorting', module)
         id='table'
         data={sparseData}
         columns={mergedColumns}
-        sorting={true}
+        sort_action={TableAction.Native}
         sort_by={[{ column_id: 'a', direction: 'desc' }]}
-        sorting_treat_empty_string_as_none={true}
+        sort_as_null={['']}
+        style_data_conditional={style_data_conditional}
+    />))
+    .add(`"a" descending -- '' & 426 override`, () => (<DataTable
+        setProps={setProps}
+        id='table'
+        data={sparseData}
+        columns={mergedColumns}
+        sort_action={TableAction.Native}
+        sort_by={[{ column_id: 'a', direction: 'desc' }]}
+        sort_as_null={['', 426]}
+        style_data_conditional={style_data_conditional}
+    />))
+    .add(`"a" ascending -- '' and 426 override`, () => (<DataTable
+        setProps={setProps}
+        id='table'
+        data={sparseData}
+        columns={mergedColumns}
+        sort_action={TableAction.Native}
+        sort_by={[{ column_id: 'a', direction: 'asc' }]}
+        sort_as_null={['', 426]}
         style_data_conditional={style_data_conditional}
     />));
 storiesOf('DashTable/Without id', module)
@@ -278,8 +299,8 @@ storiesOf('DashTable/Without id', module)
         setProps={setProps}
         data={dataA2J}
         columns={columnsA2J}
-        n_fixed_columns={2}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true }}
+        fixed_rows={{ headers: true }}
         row_deletable={true}
         row_selectable={true}
         style_data_conditional={style_data_conditional}
@@ -288,8 +309,8 @@ storiesOf('DashTable/Without id', module)
         setProps={setProps}
         data={dataA2J}
         columns={columnsA2J}
-        n_fixed_columns={2}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true }}
+        fixed_rows={{ headers: true }}
         row_deletable={true}
         row_selectable={true}
         style_table={{height: 500, width: 200}}
@@ -299,8 +320,8 @@ storiesOf('DashTable/Without id', module)
         setProps={setProps}
         data={dataA2J}
         columns={columnsA2J}
-        n_fixed_columns={2}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true }}
+        fixed_rows={{ headers: true }}
         row_deletable={true}
         row_selectable={true}
         style_table={{height: 500, width: 200}}
@@ -314,8 +335,8 @@ storiesOf('DashTable/Without id', module)
             setProps={setProps}
             data={dataA2J}
             columns={columnsA2J}
-            n_fixed_columns={2}
-            n_fixed_rows={1}
+            fixed_columns={{ headers: true }}
+            fixed_rows={{ headers: true }}
             row_deletable={true}
             row_selectable={true}
             style_table={{height: 500, width: 400}}
@@ -328,8 +349,8 @@ storiesOf('DashTable/Without id', module)
             setProps={setProps}
             data={dataA2J}
             columns={columnsA2J}
-            n_fixed_columns={2}
-            n_fixed_rows={1}
+            fixed_columns={{ headers: true }}
+            fixed_rows={{ headers: true }}
             row_deletable={true}
             row_selectable={true}
             style_table={{height: 500, width: 400}}

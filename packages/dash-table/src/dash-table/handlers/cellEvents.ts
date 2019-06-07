@@ -155,7 +155,7 @@ export const handleEnter = (propsFn: () => ICellFactoryProps, idx: number, i: nu
     const realIdx = virtualized.indices[idx];
 
     setState({
-        tooltip: {
+        currentTooltip: {
             id: c.id,
             row: realIdx
         }
@@ -167,26 +167,26 @@ export const handleLeave = (propsFn: () => ICellFactoryProps, _idx: number, _i: 
         setState
     } = propsFn();
 
-    setState({ tooltip: undefined });
+    setState({ currentTooltip: undefined });
 };
 
 export const handleMove = (propsFn: () => ICellFactoryProps, idx: number, i: number) => {
     const {
         columns,
+        currentTooltip,
         virtualized,
-        setState,
-        tooltip
+        setState
     } = propsFn();
 
     const c = columns[i];
     const realIdx = virtualized.indices[idx];
 
-    if (tooltip && tooltip.id === c.id && tooltip.row === realIdx) {
+    if (currentTooltip && currentTooltip.id === c.id && currentTooltip.row === realIdx) {
         return;
     }
 
     setState({
-        tooltip: {
+        currentTooltip: {
             id: c.id,
             row: realIdx
         }

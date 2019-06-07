@@ -22,7 +22,6 @@ const data = (() => {
 const baseProps = {
     setProps,
     id: 'table',
-    content_style: 'fit',
     data
 };
 
@@ -37,14 +36,14 @@ storiesOf('DashTable/Width minWidth only', module)
     />))
     .add('with frozen rows', () => (<DataTable
         {...props}
-        n_fixed_rows={1}
+        fixed_rows={{ headers: true }}
     />))
     .add('with frozen columns', () => (<DataTable
         {...props}
-        n_fixed_columns={1}
+        fixed_columns={{ headers: true }}
     />))
     .add('with frozen rows and frozen columns', () => (<DataTable
         {...props}
-        n_fixed_columns={1}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true }}
+        fixed_rows={{ headers: true }}
     />));

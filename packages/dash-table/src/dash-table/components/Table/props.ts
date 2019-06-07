@@ -1,4 +1,4 @@
-import { SortSettings } from 'core/sorting';
+import { SortBy } from 'core/sorting';
 import { IPaginator } from 'dash-table/derived/paginator';
 import {
     Table,
@@ -13,6 +13,8 @@ import {
     Tooltip
 } from 'dash-table/tooltips/props';
 import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
+import { IConditionalElement, INamedElement } from 'dash-table/conditional';
+import { Merge } from 'core/type';
 
 export enum ColumnType {
     Any = 'any',
@@ -21,9 +23,15 @@ export enum ColumnType {
     Datetime = 'datetime'
 }
 
-export enum FilteringType {
-    Advanced = 'advanced',
-    Basic = 'basic'
+export enum SortMode {
+    Single = 'single',
+    Multi = 'multi'
+}
+
+export enum TableAction {
+    Custom = 'custom',
+    Native = 'native',
+    None = 'none'
 }
 
 export interface IDerivedData {
@@ -48,11 +56,6 @@ export interface IVirtualizedDerivedData extends IDerivedData {
     };
 }
 
-export enum ContentStyle {
-    Fit = 'fit',
-    Grow = 'grow'
-}
-
 export interface ICellCoordinates {
     row: number;
     column: number;
@@ -60,21 +63,17 @@ export interface ICellCoordinates {
     column_id: ColumnId;
 }
 
-export type ColumnId = string | number;
+export type ColumnId = string;
 export type Columns = IColumn[];
 export type Data = Datum[];
 export type Datum =  IDatumObject | any;
-export type Filtering = 'fe' | 'be' | boolean;
 export type Indices = number[];
 export type RowId = string | number;
-export type Navigation = 'page';
-export type PaginationMode = 'fe' | 'be' | boolean;
 export type RowSelection = 'single' | 'multi' | false;
 export type SelectedCells = ICellCoordinates[];
 export type SetProps = (...args: any[]) => void;
 export type SetState = (state: Partial<IState>) => void;
-export type Sorting = 'fe' | 'be' | boolean;
-export type SortingType = 'multi' | 'single';
+export type SortAsNull = (string | number | boolean)[];
 export type VisibleColumns = IVisibleColumn[];
 
 export enum ChangeAction {
@@ -155,15 +154,20 @@ export interface IDatetimeColumn extends ITypeColumn {
 }
 
 export interface IBaseVisibleColumn {
-    clearable?: boolean;
-    deletable?: boolean | number;
+    deletable?: boolean | boolean[];
     editable?: boolean;
-    editable_name?: boolean | number;
+    renamable?: boolean | boolean[];
+    sort_as_null: SortAsNull;
     id: ColumnId;
     name: string | string[];
-    options?: IDropdownValue[]; // legacy
 }
 
+export type ConditionalDropdowns = IConditionalDropdown[];
+export type DataDropdowns = Partial<IDataDropdowns>[];
+export type DataTooltips = Partial<ITableTooltips>[];
+export type StaticDropdowns = Partial<IStaticDropdowns>;
+
+export type Fixed = { headers: false, data?: 0 } | { headers: true, data?: number };
 export type IColumnType = INumberColumn | ITextColumn | IDatetimeColumn | IAnyColumn;
 export type IVisibleColumn = IBaseVisibleColumn & IColumnType;
 
@@ -180,29 +184,25 @@ export interface IDropdownValue {
     value: string | number;
 }
 
-export type DropdownValues = IDropdownValue[];
-
-interface IConditionalDropdown {
-    condition: string;
-    dropdown: IDropdownValue[];
+export interface IDropdown {
+    clearable?: boolean;
+    options: IDropdownValue[];
 }
 
-export  interface IColumnDropdown {
-    id: string;
-    dropdown: IDropdownValue[];
+export interface IConditionalDropdown extends IDropdown {
+    if: Partial<IConditionalElement & INamedElement>;
 }
 
-export interface IConditionalColumnDropdown {
-    id: string;
-    dropdowns: IConditionalDropdown[];
+export interface IDataDropdowns {
+    [key: string]: IDropdown;
 }
 
-export interface IDropdownProperties {
-    [key: string]: { options: IDropdownValue[] }[];
+export interface IStaticDropdowns {
+    [key: string]: IDropdown;
 }
 
 export interface ITableTooltips {
-    [key: string]: Tooltip[];
+    [key: string]: Tooltip;
 }
 
 export interface ITableStaticTooltips {
@@ -212,11 +212,6 @@ export interface ITableStaticTooltips {
 interface IStylesheetRule {
     selector: string;
     rule: string;
-}
-
-export interface IPaginationSettings {
-    current_page: number;
-    page_size: number;
 }
 
 export interface IUserInterfaceCell {
@@ -238,20 +233,20 @@ export interface IUSerInterfaceTooltip {
 }
 
 export interface IState {
+    currentTooltip?: IUSerInterfaceTooltip;
     forcedResizeOnly: boolean;
+    rawFilterQuery: string;
+    scrollbarWidth: number;
+    uiCell?: IUserInterfaceCell;
+    uiHeaders?: IUserInterfaceCell[];
+    uiViewport?: IUserInterfaceViewport;
     workFilter: {
         value: string,
         map: Map<string, SingleColumnSyntaxTree>
     };
-    rawFilterQuery: string;
-    scrollbarWidth: number;
-    tooltip?: IUSerInterfaceTooltip;
-    uiViewport?: IUserInterfaceViewport;
-    uiCell?: IUserInterfaceCell;
-    uiHeaders?: IUserInterfaceCell[];
 }
 
-export type StandaloneState = IState & Partial<PropsWithDefaultsAndDerived>;
+export type StandaloneState = IState & Partial<SanitizedAndDerivedProps>;
 
 export interface IProps {
     data_previous?: any[];
@@ -262,43 +257,40 @@ export interface IProps {
 
     id: string;
 
-    tooltips?: ITableTooltips;
+    tooltip_data?: DataTooltips;
     tooltip_delay: number | null;
     tooltip_duration: number | null;
-    column_static_tooltip: ITableStaticTooltips;
-    column_conditional_tooltips: ConditionalTooltip[];
+    tooltip: ITableStaticTooltips;
+    tooltip_conditional: ConditionalTooltip[];
 
     active_cell?: ICellCoordinates;
     columns?: Columns;
-    column_conditional_dropdowns?: IConditionalColumnDropdown[];
-    column_static_dropdown?: IColumnDropdown[];
-    content_style: ContentStyle;
+    dropdown?: StaticDropdowns;
+    dropdown_conditional?: ConditionalDropdowns;
+    dropdown_data: DataDropdowns;
     css?: IStylesheetRule[];
     data?: Data;
-    dropdown_properties: any; // legacy
     editable?: boolean;
-    filter?: string;
-    filtering?: Filtering;
-    filtering_type?: FilteringType;
-    filtering_types?: FilteringType[];
+    filter_query?: string;
+    filter_action?: TableAction;
     locale_format: INumberLocale;
     merge_duplicate_headers?: boolean;
-    navigation?: Navigation;
-    n_fixed_columns?: number;
-    n_fixed_rows?: number;
+    fixed_columns?: Fixed;
+    fixed_rows?: Fixed;
     row_deletable?: boolean;
     row_selectable?: RowSelection;
     selected_cells?: SelectedCells;
     selected_rows?: Indices;
     selected_row_ids?: RowId[];
     setProps?: SetProps;
-    sorting?: Sorting;
-    sort_by?: SortSettings;
-    sorting_type?: SortingType;
-    sorting_treat_empty_string_as_none?: boolean;
+    sort_action?: TableAction;
+    sort_by?: SortBy;
+    sort_mode?: SortMode;
+    sort_as_null?: SortAsNull;
     style_as_list_view?: boolean;
-    pagination_mode?: PaginationMode;
-    pagination_settings?: IPaginationSettings;
+    page_action?: TableAction;
+    page_current?: number;
+    page_size: number;
 
     style_data?: Style;
     style_cell?: Style;
@@ -316,19 +308,17 @@ export interface IProps {
 interface IDefaultProps {
     active_cell: ICellCoordinates;
     columns: Columns;
-    column_conditional_dropdowns: IConditionalColumnDropdown[];
-    column_static_dropdown: IColumnDropdown[];
+    dropdown: StaticDropdowns;
+    dropdown_conditional: ConditionalDropdowns;
+    dropdown_data: DataDropdowns;
     css: IStylesheetRule[];
     data: Data;
     editable: boolean;
-    filter: string;
-    filtering: Filtering;
-    filtering_type: FilteringType;
-    filtering_types: FilteringType[];
+    filter_query: string;
+    filter_action: TableAction;
     merge_duplicate_headers: boolean;
-    navigation: Navigation;
-    n_fixed_columns: number;
-    n_fixed_rows: number;
+    fixed_columns: Fixed;
+    fixed_rows: Fixed;
     row_deletable: boolean;
     row_selectable: RowSelection;
     selected_cells: SelectedCells;
@@ -336,14 +326,16 @@ interface IDefaultProps {
     end_cell: ICellCoordinates;
     selected_rows: Indices;
     selected_row_ids: RowId[];
-    sorting: Sorting;
-    sort_by: SortSettings;
-    sorting_type: SortingType;
-    sorting_treat_empty_string_as_none: boolean;
+    sort_action: TableAction;
+    sort_by: SortBy;
+    sort_mode: SortMode;
+    sort_as_null: SortAsNull;
     style_as_list_view: boolean;
+    tooltip_data: DataTooltips;
 
-    pagination_mode: PaginationMode;
-    pagination_settings: IPaginationSettings;
+    page_action: TableAction;
+    page_current: number;
+    page_size: number;
 
     style_data: Style;
     style_cell: Style;
@@ -374,15 +366,24 @@ interface IDerivedProps {
 }
 
 export type PropsWithDefaults = IProps & IDefaultProps;
-export type PropsWithDefaultsAndDerived = PropsWithDefaults & IDerivedProps;
 
-export type ControlledTableProps = PropsWithDefaults & IState & {
+export type SanitizedProps = Omit<
+    Omit<
+        Merge<PropsWithDefaults, { fixed_columns: number; fixed_rows: number; }>,
+        'locale_format'
+    >,
+    'sort_as_null'
+>;
+
+export type SanitizedAndDerivedProps = SanitizedProps & IDerivedProps;
+
+export type ControlledTableProps = SanitizedProps & IState & {
     setProps: SetProps;
     setState: SetState;
 
     columns: VisibleColumns;
+    currentTooltip: IUSerInterfaceTooltip;
     paginator: IPaginator;
-    tooltip: IUSerInterfaceTooltip;
     viewport: IDerivedData;
     viewport_selected_rows: Indices;
     virtual: IDerivedData;
@@ -393,17 +394,17 @@ export type ControlledTableProps = PropsWithDefaults & IState & {
 export interface ICellFactoryProps {
     active_cell: ICellCoordinates;
     columns: VisibleColumns;
-    column_conditional_dropdowns: IConditionalColumnDropdown[];
-    column_conditional_tooltips: ConditionalTooltip[];
-    column_static_dropdown: IColumnDropdown[];
-    column_static_tooltip: ITableStaticTooltips;
+    dropdown: StaticDropdowns;
+    dropdown_conditional: ConditionalDropdowns;
+    dropdown_data: DataDropdowns;
+    tooltip: ITableStaticTooltips;
+    currentTooltip: IUSerInterfaceTooltip;
     data: Data;
-    dropdown_properties: any; // legacy
     editable: boolean;
     id: string;
     is_focused?: boolean;
-    n_fixed_columns: number;
-    n_fixed_rows: number;
+    fixed_columns: number;
+    fixed_rows: number;
     paginator: IPaginator;
     row_deletable: boolean;
     row_selectable: RowSelection;
@@ -422,8 +423,7 @@ export interface ICellFactoryProps {
     style_filter_conditional: BasicFilters;
     style_header_conditional: Headers;
     style_table: Table;
-    tooltip: IUSerInterfaceTooltip;
-    tooltips?: ITableTooltips;
+    tooltip_data: DataTooltips;
     uiCell?: IUserInterfaceCell;
     uiViewport?: IUserInterfaceViewport;
     viewport: IDerivedData;

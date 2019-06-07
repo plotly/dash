@@ -26,7 +26,7 @@
     "private::host_dash8082": "python tests/cypress/dash/v_copy_paste.py",
     "private::host_dash8083": "python tests/cypress/dash/v_fe_page.py",
     "private::host_js": "http-server ./dash_table -c-1 --silent",
-    "private::lint:ts": "tslint '{src,demo,tests}/**/*.{js,ts,tsx}' --exclude '**/@Types/*.*'",
+    "private::lint:ts": "tslint --project tsconfig.json --config tslint.json",
     "private::lint:py": "flake8 --exclude=DataTable.py,__init__.py,_imports_.py dash_table",
     "private::wait_dash8081": "wait-on http://localhost:8081",
     "private::wait_dash8082": "wait-on http://localhost:8082",

@@ -29,7 +29,6 @@ storiesOf('DashTable/Sizing', module)
     />))
     .add('padding', () => (<DataTable
         {...props}
-        content_style='grow'
         css={[{
             selector: '.dash-spreadsheet',
             rule: 'width: 100%'
@@ -41,7 +40,6 @@ storiesOf('DashTable/Sizing', module)
     />))
     .add('single column width by percentage', () => (<DataTable
         {...props}
-        content_style='grow'
         css={[{
             selector: '.dash-spreadsheet',
             rule: 'width: 100%'

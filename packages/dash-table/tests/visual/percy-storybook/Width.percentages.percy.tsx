@@ -21,12 +21,10 @@ const data = (() => {
 const baseProps = {
     setProps,
     id: 'table',
-    content_style: 'grow',
     data
 };
 
 const props = Object.assign({}, baseProps, {
-    content_style: 'grow',
     columns: columns.map((id => ({ id: id, name: id.toUpperCase() }))),
     style_cell: {
         width: '33%'
@@ -48,14 +46,14 @@ storiesOf('DashTable/Width percentages', module)
         />))
     .add('with frozen rows', () => (<DataTable
         { ...props }
-        n_fixed_rows = { 1}
+        fixed_rows={{ headers: true }}
         />))
     .add('with frozen columns', () => (<DataTable
         { ...props }
-        n_fixed_columns = { 1}
+        fixed_columns={{ headers: true }}
     />))
     .add('with frozen rows and frozen columns', () => (<DataTable
         { ...props }
-        n_fixed_columns = { 1}
-        n_fixed_rows = { 1}
+        fixed_columns={{ headers: true }}
+        fixed_rows={{ headers: true }}
     />));

@@ -5,9 +5,12 @@
     ],
     "linterOptions": {
         "exclude": [
-            "node_modules/**",
+            ".config/**",
             "cypress/**",
-            "@Types/**"
+            "inst/**",
+            "node_modules/**",
+            "@Types/**",
+            "venv/**"
         ]
     },
     "jsRules": {

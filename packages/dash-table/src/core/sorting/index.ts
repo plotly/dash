@@ -2,7 +2,7 @@ import * as R from 'ramda';
 
 import { ColumnId } from 'dash-table/components/Table/props';
 
-export interface ISortSetting {
+export interface ISortBy {
     column_id: ColumnId;
     direction: SortDirection;
 }
@@ -13,46 +13,46 @@ export enum SortDirection {
     None = 'none'
 }
 
-export type SortSettings = ISortSetting[];
-type IsNullyFn = (value: any) => boolean;
-export const defaultIsNully: IsNullyFn = (value: any) => value === undefined || value === null;
-export default (data: any[], settings: SortSettings, isNully: IsNullyFn = defaultIsNully): any[] => {
-    if (!settings.length) {
+export type SortBy = ISortBy[];
+type IsNullyFn = (value: any, id: string) => boolean;
+export const defaultIsNully: IsNullyFn = (value: any, _: string) => R.isNil(value);
+export default (data: any[], sortBy: SortBy, isNully: IsNullyFn = defaultIsNully): any[] => {
+    if (!sortBy.length) {
         return data;
     }
 
     return R.sortWith(
-        R.map(setting => {
-            return setting.direction === SortDirection.Descending ?
+        R.map(sort => {
+            return sort.direction === SortDirection.Descending ?
                 R.comparator((d1: any, d2: any) => {
-                    const id = setting.column_id;
+                    const id = sort.column_id;
 
                     const prop1 = d1[id];
                     const prop2 = d2[id];
 
-                    if (isNully(prop1)) {
+                    if (isNully(prop1, sort.column_id)) {
                         return false;
-                    } else if (isNully(prop2)) {
+                    } else if (isNully(prop2, sort.column_id)) {
                         return true;
                     }
 
                     return prop1 > prop2;
                 }) :
                 R.comparator((d1: any, d2: any) => {
-                    const id = setting.column_id;
+                    const id = sort.column_id;
 
                     const prop1 = d1[id];
                     const prop2 = d2[id];
 
-                    if (isNully(prop1)) {
+                    if (isNully(prop1, sort.column_id)) {
                         return false;
-                    } else if (isNully(prop2)) {
+                    } else if (isNully(prop2, sort.column_id)) {
                         return true;
                     }
 
                     return prop1 < prop2;
                 });
-        }, settings),
+        }, sortBy),
         data
     );
 };

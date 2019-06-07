@@ -70,7 +70,6 @@ storiesOf('DashTable/Style type condition', module)
             i => ({ name: i, id: i }),
             R.keysIn(data[0]))
         }
-        content_style='grow'
         style_table={{
             width: '100%'
         }}
@@ -102,7 +101,6 @@ storiesOf('DashTable/Style type condition', module)
             i => ({ name: i, id: i }),
             R.keysIn(data[0]))
         }
-        content_style='grow'
         style_table={{
             width: '100%'
         }}
@@ -123,15 +121,14 @@ storiesOf('DashTable/Style type condition', module)
             i => ({ name: i, id: i }),
             R.keysIn(data[0]))
         }
-        content_style='grow'
         style_table={{
             width: '100%'
         }}
         style_data_conditional={[{
-            if: { column_id: 'Region', filter: '{Region} eq Montreal' },
+            if: { column_id: 'Region', filter_query: '{Region} eq Montreal' },
             background_color: 'yellow'
         }, {
-            if: { column_id: 'Humidity', filter: '{Humidity} eq 20' },
+            if: { column_id: 'Humidity', filter_query: '{Humidity} eq 20' },
             background_color: 'yellow'
         }]}
     />))

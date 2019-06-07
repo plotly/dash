@@ -233,17 +233,6 @@
             }
         }
 
-        &.dash-grow {
-            .cell-0-1,
-            .cell-1-1 {
-                flex: 1 0 auto;
-            }
-
-            table {
-                width: 100%;
-            }
-        }
-
         tr {
             background-color: white;
         }
@@ -320,6 +309,7 @@
 
         // cell content styling
         td, th {
+            background-clip: padding-box;
             padding: 2px;
             white-space: nowrap;
             overflow-x: hidden;

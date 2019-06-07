@@ -2,7 +2,7 @@ import { ColumnId, Datum, ColumnType } from 'dash-table/components/Table/props';
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 
 export interface IConditionalElement {
-    filter?: string;
+    filter_query?: string;
 }
 
 export interface IIndexedHeaderElement {
@@ -68,6 +68,6 @@ export function ifHeaderIndex(condition: IIndexedHeaderElement | undefined, head
 
 export function ifFilter(condition: IConditionalElement | undefined, datum: Datum) {
     return !condition ||
-        condition.filter === undefined ||
-        ifAstFilter(new QuerySyntaxTree(condition.filter), datum);
+        condition.filter_query === undefined ||
+        ifAstFilter(new QuerySyntaxTree(condition.filter_query), datum);
 }

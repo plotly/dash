@@ -30,11 +30,11 @@ const getWeightedStyle = (
 
 export default memoizeOneFactory((
     columns: number,
-    filtering: boolean,
+    filter_action: boolean,
     borderStyles: IConvertedStyle[],
     listViewStyle: boolean
 ) => {
-    if (!filtering || columns === 0) {
+    if (!filter_action || columns === 0) {
         return;
     }
 

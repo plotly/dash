@@ -34,10 +34,10 @@ export default class CellFactory {
         const {
             active_cell,
             columns,
-            column_conditional_dropdowns,
-            column_static_dropdown,
+            dropdown_conditional,
+            dropdown,
             data,
-            dropdown_properties, // legacy
+            dropdown_data,
             editable,
             is_focused,
             row_deletable,
@@ -78,9 +78,9 @@ export default class CellFactory {
             columns,
             virtualized.data,
             virtualized.indices,
-            column_conditional_dropdowns,
-            column_static_dropdown,
-            dropdown_properties
+            dropdown_conditional,
+            dropdown,
+            dropdown_data
         );
 
         const operations = this.cellOperations(

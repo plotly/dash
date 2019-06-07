@@ -40,11 +40,9 @@ def layout():
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
-                pagination_settings={
-                    'current_page': 0,
-                    'page_size': PAGE_SIZE
-                },
-                pagination_mode='be'
+                page_current=0,
+                page_size=PAGE_SIZE,
+                page_action='custom'
             ),
 
             html.Hr(),
@@ -58,7 +56,7 @@ def layout():
             with large pages, might not be aware that this is only occuring
             on the current page.
 
-            Instead, we recommend implmenting sorting and filtering on the
+            Instead, we recommend implementing sorting and filtering on the
             backend as well. That is, on the entire underlying dataset.
             ''')),
 
@@ -69,14 +67,12 @@ def layout():
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
-                pagination_settings={
-                    'current_page': 0,
-                    'page_size': PAGE_SIZE
-                },
-                pagination_mode='be',
+                page_current=0,
+                page_size=PAGE_SIZE,
+                page_action='custom',
 
-                sorting='be',
-                sorting_type='single',
+                sort_action='custom',
+                sort_mode='single',
                 sort_by=[]
             ),
 
@@ -96,14 +92,12 @@ def layout():
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
-                pagination_settings={
-                    'current_page': 0,
-                    'page_size': PAGE_SIZE
-                },
-                pagination_mode='be',
+                page_current=0,
+                page_size=PAGE_SIZE,
+                page_action='custom',
 
-                sorting='be',
-                sorting_type='multi',
+                sort_action='custom',
+                sort_mode='multi',
                 sort_by=[]
             ),
 
@@ -134,14 +128,12 @@ def layout():
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
-                pagination_settings={
-                    'current_page': 0,
-                    'page_size': PAGE_SIZE
-                },
-                pagination_mode='be',
+                page_current=0,
+                page_size=PAGE_SIZE,
+                page_action='custom',
 
-                filtering='be',
-                filter=''
+                filter_action='custom',
+                filter_query=''
             ),
 
             section_title('Backend Paging with Filtering and Multi-Column Sorting'),
@@ -151,17 +143,15 @@ def layout():
                 columns=[
                     {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                 ],
-                pagination_settings={
-                    'current_page': 0,
-                    'page_size': PAGE_SIZE
-                },
-                pagination_mode='be',
+                page_current=0,
+                page_size=PAGE_SIZE,
+                page_action='custom',
 
-                filtering='be',
-                filter='',
+                filter_action='custom',
+                filter_query='',
 
-                sorting='be',
-                sorting_type='multi',
+                sort_action='custom',
+                sort_mode='multi',
                 sort_by=[]
             ),
 
@@ -181,17 +171,15 @@ def layout():
                             columns=[
                                 {"name": i, "id": i, "deletable": True} for i in sorted(df.columns)
                             ],
-                            pagination_settings={
-                                'current_page': 0,
-                                'page_size': 20
-                            },
-                            pagination_mode='be',
+                            page_current=0,
+                            page_size=20,
+                            page_action='custom',
 
-                            filtering='be',
-                            filter='',
+                            filter_action='custom',
+                            filter_query='',
 
-                            sorting='be',
-                            sorting_type='multi',
+                            sort_action='custom',
+                            sort_mode='multi',
                             sort_by=[]
                         ),
                         style={'height': 750, 'overflowY': 'scroll'},
@@ -210,19 +198,20 @@ def layout():
 
 @app.callback(
     Output(IDS["table"], "data"),
-    [Input(IDS["table"], "pagination_settings")])
-def update_graph(pagination_settings):
+    [Input(IDS["table"], "page_current"), Input(IDS["table"], "page_size")])
+def update_graph(page_current, page_size):
     return df.iloc[
-        pagination_settings['current_page']*pagination_settings['page_size']:
-        (pagination_settings['current_page'] + 1)*pagination_settings['page_size']
+        page_current * page_size:
+        (page_current + 1) * page_size
     ].to_dict('rows')
 
 
 @app.callback(
     Output(IDS["table-sorting"], "data"),
-    [Input(IDS["table-sorting"], "pagination_settings"),
+    [Input(IDS["table-sorting"], "page_current"),
+     Input(IDS["table-sorting"], "page_size"),
      Input(IDS["table-sorting"], "sort_by")])
-def update_graph(pagination_settings, sort_by):
+def update_graph(page_current, page_size, sort_by):
     print(sort_by)
     if len(sort_by):
         dff = df.sort_values(
@@ -235,17 +224,18 @@ def update_graph(pagination_settings, sort_by):
         dff = df
 
     return dff.iloc[
-        pagination_settings['current_page']*pagination_settings['page_size']:
-        (pagination_settings['current_page'] + 1)*pagination_settings['page_size']
+        page_current * page_size:
+        (page_current + 1) * page_size
     ].to_dict('rows')
 
 
 
 @app.callback(
     Output(IDS["table-multi-sorting"], "data"),
-    [Input(IDS["table-multi-sorting"], "pagination_settings"),
+    [Input(IDS["table-multi-sorting"], "page_current"),
+     Input(IDS["table-multi-sorting"], "page_size"),
      Input(IDS["table-multi-sorting"], "sort_by")])
-def update_graph(pagination_settings, sort_by):
+def update_graph(page_current, page_size, sort_by):
     print(sort_by)
     if len(sort_by):
         dff = df.sort_values(
@@ -261,59 +251,61 @@ def update_graph(pagination_settings, sort_by):
         dff = df
 
     return dff.iloc[
-        pagination_settings['current_page']*pagination_settings['page_size']:
-        (pagination_settings['current_page'] + 1)*pagination_settings['page_size']
+        page_current * page_size:
+        (page_current + 1) * page_size
     ].to_dict('rows')
 
 
 @app.callback(
     Output(IDS["table-filtering"], "data"),
-    [Input(IDS["table-filtering"], "pagination_settings"),
-     Input(IDS["table-filtering"], "filter")])
-def update_graph(pagination_settings, filter):
-    print(filter)
-    filtering_expressions = filter.split(' && ')
+    [Input(IDS["table-filtering"], "page_current"),
+     Input(IDS["table-filtering"], "page_size"),
+     Input(IDS["table-filtering"], "filter_query")])
+def update_graph(page_current, page_size, filter_query):
+    print(filter_query)
+    filtering_expressions = filter_query.split(' && ')
     dff = df
-    for filter in filtering_expressions:
-        if ' eq ' in filter:
-            col_name = filter.split(' eq ')[0]
-            filter_value = filter.split(' eq ')[1]
+    for filter_query in filtering_expressions:
+        if ' eq ' in filter_query:
+            col_name = filter_query.split(' eq ')[0]
+            filter_value = filter_query.split(' eq ')[1]
             dff = dff.loc[dff[col_name] == filter_value]
-        if ' > ' in filter:
-            col_name = filter.split(' > ')[0]
-            filter_value = float(filter.split(' > ')[1])
+        if ' > ' in filter_query:
+            col_name = filter_query.split(' > ')[0]
+            filter_value = float(filter_query.split(' > ')[1])
             dff = dff.loc[dff[col_name] > filter_value]
-        if ' < ' in filter:
-            col_name = filter.split(' < ')[0]
-            filter_value = float(filter.split(' < ')[1])
+        if ' < ' in filter_query:
+            col_name = filter_query.split(' < ')[0]
+            filter_value = float(filter_query.split(' < ')[1])
             dff = dff.loc[dff[col_name] < filter_value]
 
     return dff.iloc[
-        pagination_settings['current_page']*pagination_settings['page_size']:
-        (pagination_settings['current_page'] + 1)*pagination_settings['page_size']
+        page_current * page_size:
+        (page_current + 1) * page_size
     ].to_dict('rows')
 
 
 @app.callback(
     Output(IDS["table-sorting-filtering"], "data"),
-    [Input(IDS["table-sorting-filtering"], "pagination_settings"),
+    [Input(IDS["table-sorting-filtering"], "page_current"),
+     Input(IDS["table-sorting-filtering"], "page_size"),
      Input(IDS["table-sorting-filtering"], "sort_by"),
-     Input(IDS["table-sorting-filtering"], "filter")])
-def update_graph(pagination_settings, sort_by, filter):
-    filtering_expressions = filter.split(' && ')
+     Input(IDS["table-sorting-filtering"], "filter_query")])
+def update_graph(page_current, page_size, sort_by, filter_query):
+    filtering_expressions = filter_query.split(' && ')
     dff = df
-    for filter in filtering_expressions:
-        if ' eq ' in filter:
-            col_name = filter.split(' eq ')[0]
-            filter_value = filter.split(' eq ')[1]
+    for filter_query in filtering_expressions:
+        if ' eq ' in filter_query:
+            col_name = filter_query.split(' eq ')[0]
+            filter_value = filter_query.split(' eq ')[1]
             dff = dff.loc[dff[col_name] == filter_value]
-        if ' > ' in filter:
-            col_name = filter.split(' > ')[0]
-            filter_value = float(filter.split(' > ')[1])
+        if ' > ' in filter_query:
+            col_name = filter_query.split(' > ')[0]
+            filter_value = float(filter_query.split(' > ')[1])
             dff = dff.loc[dff[col_name] > filter_value]
-        if ' < ' in filter:
-            col_name = filter.split(' < ')[0]
-            filter_value = float(filter.split(' < ')[1])
+        if ' < ' in filter_query:
+            col_name = filter_query.split(' < ')[0]
+            filter_value = float(filter_query.split(' < ')[1])
             dff = dff.loc[dff[col_name] < filter_value]
 
     if len(sort_by):
@@ -327,31 +319,32 @@ def update_graph(pagination_settings, sort_by, filter):
         )
 
     return dff.iloc[
-        pagination_settings['current_page']*pagination_settings['page_size']:
-        (pagination_settings['current_page'] + 1)*pagination_settings['page_size']
+        page_current * page_size:
+        (page_current + 1) * page_size
     ].to_dict('rows')
 
 
 @app.callback(
     Output(IDS["table-paging-with-graph"], "data"),
-    [Input(IDS["table-paging-with-graph"], "pagination_settings"),
+    [Input(IDS["table-paging-with-graph"], "page_current"),
+     Input(IDS["table-paging-with-graph"], "page_size"),
      Input(IDS["table-paging-with-graph"], "sort_by"),
-     Input(IDS["table-paging-with-graph"], "filter")])
-def update_table(pagination_settings, sort_by, filter):
-    filtering_expressions = filter.split(' && ')
+     Input(IDS["table-paging-with-graph"], "filter_query")])
+def update_table(page_current, page_size, sort_by, filter_query):
+    filtering_expressions = filter_query.split(' && ')
     dff = df
-    for filter in filtering_expressions:
-        if ' eq ' in filter:
-            col_name = filter.split(' eq ')[0]
-            filter_value = filter.split(' eq ')[1]
+    for filter_query in filtering_expressions:
+        if ' eq ' in filter_query:
+            col_name = filter_query.split(' eq ')[0]
+            filter_value = filter_query.split(' eq ')[1]
             dff = dff.loc[dff[col_name] == filter_value]
-        if ' > ' in filter:
-            col_name = filter.split(' > ')[0]
-            filter_value = float(filter.split(' > ')[1])
+        if ' > ' in filter_query:
+            col_name = filter_query.split(' > ')[0]
+            filter_value = float(filter_query.split(' > ')[1])
             dff = dff.loc[dff[col_name] > filter_value]
-        if ' < ' in filter:
-            col_name = filter.split(' < ')[0]
-            filter_value = float(filter.split(' < ')[1])
+        if ' < ' in filter_query:
+            col_name = filter_query.split(' < ')[0]
+            filter_value = float(filter_query.split(' < ')[1])
             dff = dff.loc[dff[col_name] < filter_value]
 
     if len(sort_by):
@@ -365,8 +358,8 @@ def update_table(pagination_settings, sort_by, filter):
         )
 
     return dff.iloc[
-        pagination_settings['current_page']*pagination_settings['page_size']:
-        (pagination_settings['current_page'] + 1)*pagination_settings['page_size']
+        page_current * page_size:
+        (page_current + 1) * page_size
     ].to_dict('rows')
 
 

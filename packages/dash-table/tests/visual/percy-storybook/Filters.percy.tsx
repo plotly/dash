@@ -3,6 +3,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import random from 'core/math/random';
 import DataTable from 'dash-table/dash/DataTable';
+import { TableAction } from 'dash-table/components/Table/props';
 
 const setProps = () => { };
 
@@ -21,7 +22,7 @@ let props = {
     setProps,
     id: 'table',
     data: data,
-    filtering: true,
+    filter_action: TableAction.Native,
     style_cell: {
         width: 100,
         min_width: 100,

@@ -36,12 +36,9 @@ app.layout = html.Div(
         dash_table.DataTable(
             id="table",
             data=data,
-            pagination_mode="fe",
-            pagination_settings={
-                "current_page": 0,
-                "page_size": 250,
-            },
-            navigation="page",
+            page_action="native",
+            page_current=0,
+            page_size=250,
             columns=[
                 {"id": 0, "name": "Complaint ID"},
                 {"id": 1, "name": "Product"},
@@ -58,12 +55,12 @@ app.layout = html.Div(
                 {"id": 12, "name": "Timely response?"},
                 {"id": 13, "name": "Consumer disputed?"},
             ],
-            n_fixed_columns=2,
-            n_fixed_rows=1,
+            fixed_columns={ 'headers': True },
+            fixed_rows={ 'headers': True },
             row_selectable=True,
             row_deletable=True,
-            sorting="fe",
-            filtering=True,
+            sort_action="native",
+           filter_action='native',
             editable=True,
         ),
         html.Div(id="props_container")

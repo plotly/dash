@@ -38,13 +38,13 @@ export default class HeaderFactory {
         const {
             columns,
             merge_duplicate_headers,
-            pagination_mode,
+            page_action,
             row_deletable,
             row_selectable,
             setProps,
-            sorting,
+            sort_action,
             sort_by,
-            sorting_type,
+            sort_mode,
             style_cell,
             style_cell_conditional,
             style_header,
@@ -92,10 +92,10 @@ export default class HeaderFactory {
         const content = this.headerContent(
             columns,
             labelsAndIndices,
-            sorting,
-            sorting_type,
+            sort_action,
+            sort_mode,
             sort_by,
-            pagination_mode,
+            page_action,
             setProps,
             props
         );

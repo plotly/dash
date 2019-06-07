@@ -72,16 +72,16 @@ storiesOf('DashTable/Border (available space not filled)', module)
     />))
     .add('with frozen rows and no frozen columns', () => (<DataTable
         {...BORDER_PROPS_DEFAULTS}
-        n_fixed_rows={1}
+        fixed_rows={{ headers: true }}
     />))
     .add('with no frozen rows and frozen columns', () => (<DataTable
         {...BORDER_PROPS_DEFAULTS}
-        n_fixed_columns={1}
+        fixed_columns={{ headers: true, data: 1 }}
     />))
     .add('with frozen rows and frozen columns', () => (<DataTable
         {...BORDER_PROPS_DEFAULTS}
-        n_fixed_columns={1}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true, data: 1 }}
+        fixed_rows={{ headers: true }}
     />));
 
 storiesOf('DashTable/Border (available space filled)', module)
@@ -90,16 +90,16 @@ storiesOf('DashTable/Border (available space filled)', module)
     />))
     .add('with frozen rows and no frozen columns', () => (<DataTable
         {...props2}
-        n_fixed_rows={1}
+        fixed_rows={{ headers: true }}
     />))
     .add('with no frozen rows and frozen columns', () => (<DataTable
         {...props2}DataTable
-        n_fixed_columns={1}
+        fixed_columns={{ headers: true, data: 1 }}
     />))
     .add('with frozen rows and frozen columns', () => (<DataTable
         {...props2}
-        n_fixed_columns={1}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true, data: 1 }}
+        fixed_rows={{ headers: true }}
     />));
 
 let props3 = Object.assign({}, BORDER_PROPS_DEFAULTS, {
@@ -116,16 +116,16 @@ storiesOf('DashTable/ListView style, Border (available space not filled)', modul
     />))
     .add('with frozen rows and no frozen columns', () => (<DataTable
         {...props3}
-        n_fixed_rows={1}
+        fixed_rows={{ headers: true }}
     />))
     .add('with no frozen rows and frozen columns', () => (<DataTable
         {...props3}
-        n_fixed_columns={1}
+        fixed_columns={{ headers: true, data: 1 }}
     />))
     .add('with frozen rows and frozen columns', () => (<DataTable
         {...props3}
-        n_fixed_columns={1}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true, data: 1 }}
+        fixed_rows={{ headers: true }}
     />));
 
 storiesOf('DashTable/ListView style, Border (available space filled)', module)
@@ -134,14 +134,14 @@ storiesOf('DashTable/ListView style, Border (available space filled)', module)
     />))
     .add('with frozen rows and no frozen columns', () => (<DataTable
         {...props4}
-        n_fixed_rows={1}
+        fixed_rows={{ headers: true }}
     />))
     .add('with no frozen rows and frozen columns', () => (<DataTable
         {...props4}
-        n_fixed_columns={1}
+        fixed_columns={{ headers: true, data: 1 }}
     />))
     .add('with frozen rows and frozen columns', () => (<DataTable
         {...props4}
-        n_fixed_columns={1}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true, data: 1 }}
+        fixed_rows={{ headers: true }}
     />));

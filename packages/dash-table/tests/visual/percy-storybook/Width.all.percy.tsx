@@ -23,7 +23,6 @@ const baseProps = {
     setProps,
     id: 'table',
     data,
-    content_style: 'fit',
     style_data_conditional: [
         { width: '20px', min_width: '20px', max_width: '20px' }
     ]
@@ -39,14 +38,14 @@ storiesOf('DashTable/Width width, minWidth, maxWidth', module)
     />))
     .add('with frozen rows', () => (<DataTable
         {...props}
-        n_fixed_rows={1}
+        fixed_rows={{ headers: true }}
     />))
     .add('with frozen columns', () => (<DataTable
         {...props}
-        n_fixed_columns={1}
+        fixed_columns={{ headers: true }}
     />))
     .add('with frozen rows and frozen columns', () => (<DataTable
         {...props}
-        n_fixed_columns={1}
-        n_fixed_rows={1}
+        fixed_columns={{ headers: true }}
+        fixed_rows={{ headers: true }}
     />));

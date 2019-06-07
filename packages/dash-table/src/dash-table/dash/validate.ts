@@ -1,13 +1,14 @@
 import * as R from 'ramda';
 
 import Logger from 'core/Logger';
+import { TableAction } from 'dash-table/components/Table/props';
 
-function isFrontEnd(value: any) {
-    return ['fe', true, false].indexOf(value) !== -1;
+function isFrontEnd(value: TableAction) {
+    return value !== TableAction.Custom;
 }
 
-function isBackEnd(value: any) {
-    return ['be', false].indexOf(value) !== -1;
+function isBackEnd(value: TableAction) {
+    return value !== TableAction.Native;
 }
 
 function validColumns(props: any) {
@@ -32,18 +33,18 @@ function validColumns(props: any) {
 
 function validFSP(props: any) {
     const {
-        filtering,
-        sorting,
-        pagination_mode
+        filter_action,
+        sort_action,
+        page_action
     } = props;
 
-    return isFrontEnd(pagination_mode) ||
-        (isBackEnd(filtering) && isBackEnd(sorting));
+    return isFrontEnd(page_action) ||
+        (isBackEnd(filter_action) && isBackEnd(sort_action));
 }
 
 export default (props: any): boolean => {
     if (!validFSP(props)) {
-        Logger.error(`Invalid combination of filtering / sorting / pagination`);
+        Logger.error(`Invalid combination of filter_action / sort_action / page_action`);
         return false;
     }
 

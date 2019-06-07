@@ -1,13 +1,13 @@
 import Logger from 'core/Logger';
-import { SortSettings, ISortSetting, SortDirection } from 'core/sorting';
+import { SortBy, ISortBy, SortDirection } from 'core/sorting';
 
 export default (
-    settings: SortSettings,
-    setting: ISortSetting
-): SortSettings => {
-    Logger.trace('single - updateSettings', settings, setting);
+    sortBy: SortBy,
+    sort: ISortBy
+): SortBy => {
+    Logger.trace('single - update sortBy', sortBy, sort);
 
-    return setting.direction === SortDirection.None ?
+    return sort.direction === SortDirection.None ?
         [] :
-        [setting];
+        [sort];
 };

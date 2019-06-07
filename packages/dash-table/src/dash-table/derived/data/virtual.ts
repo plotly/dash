@@ -1,42 +1,53 @@
 import * as R from 'ramda';
 
 import { memoizeOneFactory } from 'core/memoizer';
-import sort, { defaultIsNully, SortSettings } from 'core/sorting';
+import sort, { SortBy } from 'core/sorting';
 import {
+    ColumnId,
     Data,
     Datum,
-    Filtering,
     IDerivedData,
-    Sorting
+    SortAsNull,
+    VisibleColumns,
+    TableAction
 } from 'dash-table/components/Table/props';
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 
 const getter = (
+    columns: VisibleColumns,
     data: Data,
-    filtering: Filtering,
-    filter: string,
-    sorting: Sorting,
-    sort_by: SortSettings = [],
-    sorting_treat_empty_string_as_none: boolean
+    filter_action: TableAction,
+    filter_query: string,
+    sort_action: TableAction,
+    sort_by: SortBy = []
 ): IDerivedData => {
     const map = new Map<Datum, number>();
     R.addIndex(R.forEach)((datum, index) => {
         map.set(datum, index);
     }, data);
 
-    if (filtering === 'fe' || filtering === true) {
-        const tree = new QuerySyntaxTree(filter);
+    if (filter_action === TableAction.Native) {
+        const tree = new QuerySyntaxTree(filter_query);
 
         data = tree.isValid ?
             tree.filter(data) :
             data;
     }
 
-    const isNully = sorting_treat_empty_string_as_none ?
-        (value: any) => value === '' || defaultIsNully(value) :
-        undefined;
+    const getNullyCases = (
+        columnId: ColumnId
+    ): SortAsNull => {
+        const column = R.find(c => c.id === columnId, columns);
 
-    if (sorting === 'fe' || sorting === true) {
+        return (column && column.sort_as_null) || [];
+    };
+
+    const isNully = (
+        value: any,
+        columnId: ColumnId
+    ) => R.isNil(value) || R.contains(value, getNullyCases(columnId));
+
+    if (sort_action === TableAction.Native) {
         data = sort(data, sort_by, isNully);
     }
 

@@ -40,7 +40,7 @@ class App extends Component {
                         className='clear-filters'
                         onClick={() => {
                             const tableProps = R.clone(this.state.tableProps);
-                            tableProps.filter = '';
+                            tableProps.filter_query = '';
 
                             this.setState({ tableProps });
                         }}
@@ -53,7 +53,7 @@ class App extends Component {
                         }
                         onBlur={e => {
                             const tableProps = R.clone(this.state.tableProps);
-                            tableProps.filter = e.target.value;
+                            tableProps.filter_query = e.target.value;
 
                             this.setState({ tableProps });
                         }} />

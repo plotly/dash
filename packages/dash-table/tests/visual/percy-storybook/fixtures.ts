@@ -10,26 +10,24 @@ export default [
                     name: 'Column 1',
                     id: 'column-1',
                     type: ColumnType.Text,
-                    presentation: Presentation.Dropdown,
-                    options: [
-                        {
-                            label: 'Montréal',
-                            value: 'mtl'
-                        },
-                        {
-                            label: 'San Francisco',
-                            value: 'sf'
-                        }
-                    ]
+                    presentation: Presentation.Dropdown
                 }
             ],
+            dropdown: {
+                'column-1': {
+                    options: [
+                        { label: 'Montréal', value: 'mtl' },
+                        { label: 'San Francisco', value: 'sf' }
+                    ]
+                }
+            },
             data: [
                 {'column-1': 'mtl'},
                 {'column-1': 'sf'},
                 {'column-1': 'mtl'},
                 {'column-1': 'boston'}
             ],
-            n_fixed_rows: 1,
+            fixed_rows: { headers: true },
             editable: true,
             css: [{
                 selector: '.dash-spreadsheet.dash-freeze-top',
@@ -136,19 +134,17 @@ export default [
                     name: 'Column 1',
                     id: 'column-1',
                     type: ColumnType.Text,
-                    presentation: Presentation.Dropdown,
-                    options: [
-                        {
-                            label: 'Montréal',
-                            value: 'mtl'
-                        },
-                        {
-                            label: 'San Francisco',
-                            value: 'sf'
-                        }
-                    ]
+                    presentation: Presentation.Dropdown
                 }
             ],
+            dropdown: {
+                'column-1': {
+                    options: [
+                        { label: 'Montréal', value: 'mtl' },
+                        { label: 'San Francisco', value: 'sf' }
+                    ]
+                }
+            },
             data: [
                 {'column-1': 'mtl'},
                 {'column-1': 'sf'},
@@ -163,7 +159,6 @@ export default [
     {
         name: 'dropdown with column widths',
         props: {
-            content_style: 'fit',
             style_data_conditional: [
                 { if: { column_id: 'column-2' }, width: 400 },
                 { if: { column_id: 'column-3' }, width: 80 }
@@ -173,51 +168,41 @@ export default [
                     name: 'Column 1',
                     id: 'column-1',
                     type: ColumnType.Text,
-                    presentation: Presentation.Dropdown,
-                    options: [
-                        {
-                            label: 'Montréal',
-                            value: 'mtl'
-                        },
-                        {
-                            label: 'San Francisco',
-                            value: 'sf'
-                        }
-                    ]
+                    presentation: Presentation.Dropdown
                 },
                 {
                     name: 'Column 2',
                     id: 'column-2',
                     type: ColumnType.Text,
-                    presentation: Presentation.Dropdown,
-                    options: [
-                        {
-                            label: 'Montréal',
-                            value: 'mtl'
-                        },
-                        {
-                            label: 'San Francisco',
-                            value: 'sf'
-                        }
-                    ]
+                    presentation: Presentation.Dropdown
                 },
                 {
                     name: 'Column 3',
                     id: 'column-3',
                     type: ColumnType.Text,
-                    presentation: Presentation.Dropdown,
-                    options: [
-                        {
-                            label: 'Montréal',
-                            value: 'mtl'
-                        },
-                        {
-                            label: 'San Francisco',
-                            value: 'sf'
-                        }
-                    ]
+                    presentation: Presentation.Dropdown
                 }
             ],
+            dropdown: {
+                'column-1': {
+                    options: [
+                        { label: 'Montréal', value: 'mtl' },
+                        { label: 'San Francisco', value: 'sf' }
+                    ]
+                },
+                'column-2': {
+                    options: [
+                        { label: 'Montréal', value: 'mtl' },
+                        { label: 'San Francisco', value: 'sf' }
+                    ]
+                },
+                'column-3': {
+                    options: [
+                        { label: 'Montréal', value: 'mtl' },
+                        { label: 'San Francisco', value: 'sf' }
+                    ]
+                }
+            },
             data: [
                 {'column-1': 'mtl', 'column-2': 'mtl', 'column-3': 'mtl'},
                 {'column-1': 'mtl', 'column-2': 'mtl', 'column-3': 'mtl'},
@@ -256,19 +241,17 @@ export default [
                     name: ['Region', ''],
                     id: 'region',
                     type: ColumnType.Text,
-                    presentation: Presentation.Dropdown,
-                    options: [
-                        {
-                            label: 'Hawaii',
-                            value: 'hawaii'
-                        },
-                        {
-                            label: 'Costa Rica',
-                            value: 'costa-rica'
-                        }
-                    ]
+                    presentation: Presentation.Dropdown
                 }
             ],
+            dropdown: {
+                region: {
+                    options: [
+                        { label: 'Hawaii', value: 'hawaii' },
+                        { label: 'Costa Rica', value: 'costa-rica' }
+                    ]
+                }
+            },
             merge_duplicate_headers: true,
             data: [
                 {
@@ -297,7 +280,6 @@ export default [
         name: 'mixed percentage and pixel column widths',
         props: {
             id: 'table',
-            content_style: 'fit',
             style_data_conditional: [
                 { if: { column_id: 'column-2' }, width: 400 },
                 { if: { column_id: 'column-3' }, width: '30%' }
@@ -534,7 +516,7 @@ export default [
                     name: ['City', 'NYC'],
                     id: 'city-nyc',
                     deletable: true,
-                    editable_name: true
+                    renamable: true
                 },
                 {
                     name: ['City', 'SF'],
@@ -544,7 +526,7 @@ export default [
                 {
                     name: ['Weather', 'Rainy'],
                     id: 'weather-rainy',
-                    editable_name: true
+                    renamable: true
                 },
                 {
                     name: ['Weather', 'Sunny'],
@@ -554,7 +536,7 @@ export default [
                     name: ['Village', 'NYC'],
                     id: 'village-nyc',
                     deletable: true,
-                    editable_name: 0
+                    renamable: [true, false]
                 },
                 {
                     name: ['Village', 'SF'],
@@ -564,7 +546,7 @@ export default [
                 {
                     name: ['Climate', 'Rainy'],
                     id: 'climate-rainy',
-                    editable_name: 1
+                    renamable: [false, true]
                 },
                 {
                     name: ['Climate', 'Sunny'],

@@ -7,7 +7,7 @@ import memoizerCache from 'core/cache/memoizer';
 import { memoizeOne } from 'core/memoizer';
 
 import ColumnFilter from 'dash-table/components/Filter/Column';
-import { ColumnId, Filtering, FilteringType, IVisibleColumn, VisibleColumns, RowSelection } from 'dash-table/components/Table/props';
+import { ColumnId, IVisibleColumn, VisibleColumns, RowSelection, TableAction } from 'dash-table/components/Table/props';
 import derivedFilterStyles, { derivedFilterOpStyles } from 'dash-table/derived/filter/wrapperStyles';
 import derivedHeaderOperations from 'dash-table/derived/header/operations';
 import { derivedRelevantFilterStyles } from 'dash-table/derived/style';
@@ -18,16 +18,15 @@ import { IEdgesMatrices } from 'dash-table/derived/edges/type';
 import { updateMap } from 'dash-table/derived/filter/map';
 
 type SetFilter = (
-    filter: string,
+    filter_query: string,
     rawFilter: string,
     map: Map<string, SingleColumnSyntaxTree>
 ) => void;
 
 export interface IFilterOptions {
     columns: VisibleColumns;
-    filter: string;
-    filtering: Filtering;
-    filtering_type: FilteringType;
+    filter_query: string;
+    filter_action: TableAction;
     id: string;
     map: Map<string, SingleColumnSyntaxTree>;
     rawFilterQuery: string;
@@ -107,8 +106,7 @@ export default class FilterFactory {
     ) {
         const {
             columns,
-            filtering,
-            filtering_type,
+            filter_action,
             map,
             row_deletable,
             row_selectable,
@@ -119,67 +117,63 @@ export default class FilterFactory {
             style_filter_conditional
         } = this.props;
 
-        if (!filtering) {
+        if (filter_action === TableAction.None) {
             return [];
         }
 
-        if (filtering_type === FilteringType.Basic) {
-            const relevantStyles = this.relevantStyles(
-                style_cell,
-                style_filter,
-                style_cell_conditional,
-                style_filter_conditional
+        const relevantStyles = this.relevantStyles(
+            style_cell,
+            style_filter,
+            style_cell_conditional,
+            style_filter_conditional
+        );
+
+        const wrapperStyles = this.wrapperStyles(
+            this.filterStyles(columns, relevantStyles),
+            filterEdges
+        );
+
+        const opStyles = this.filterOpStyles(
+            1,
+            (row_selectable ? 1 : 0) + (row_deletable ? 1 : 0),
+            relevantStyles
+        )[0];
+
+        const filters = R.addIndex<IVisibleColumn, JSX.Element>(R.map)((column, index) => {
+            return this.filter.get(column.id, index)(
+                column,
+                index,
+                map,
+                setFilter
             );
+        }, columns);
 
-            const wrapperStyles = this.wrapperStyles(
-                this.filterStyles(columns, relevantStyles),
-                filterEdges
-            );
+        const styledFilters = arrayMap2(
+            filters,
+            wrapperStyles,
+            (f, s) => React.cloneElement(f, {
+                style: s
+            })
+        );
 
-            const opStyles = this.filterOpStyles(
-                1,
-                (row_selectable ? 1 : 0) + (row_deletable ? 1 : 0),
-                relevantStyles
-            )[0];
+        const operations = this.headerOperations(
+            1,
+            row_selectable,
+            row_deletable
+        )[0];
 
-            const filters = R.addIndex<IVisibleColumn, JSX.Element>(R.map)((column, index) => {
-                return this.filter.get(column.id, index)(
-                    column,
-                    index,
-                    map,
-                    setFilter
-                );
-            }, columns);
+        const operators = arrayMap2(
+            operations,
+            opStyles,
+            (o, s, j) => React.cloneElement(o, {
+                style: R.mergeAll([
+                    filterOpEdges && filterOpEdges.getStyle(0, j),
+                    s,
+                    o.props.style
+                ])
+            })
+        );
 
-            const styledFilters = arrayMap2(
-                filters,
-                wrapperStyles,
-                (f, s) => React.cloneElement(f, {
-                    style: s
-                })
-            );
-
-            const operations = this.headerOperations(
-                1,
-                row_selectable,
-                row_deletable
-            )[0];
-
-            const operators = arrayMap2(
-                operations,
-                opStyles,
-                (o, s, j) => React.cloneElement(o, {
-                    style: R.mergeAll([
-                        filterOpEdges && filterOpEdges.getStyle(0, j),
-                        s,
-                        o.props.style
-                    ])
-                })
-            );
-
-            return [operators.concat(styledFilters)];
-        } else {
-            return [[]];
-        }
+        return [operators.concat(styledFilters)];
     }
 }

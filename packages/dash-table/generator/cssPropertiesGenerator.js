@@ -302,7 +302,7 @@ camels.forEach(([camel]) => map.set(camel, camel));
 
 const fs = require('fs');
 
-var stream1 = fs.createWriteStream("src/dash-table/derived/style/py2jsCssProperties.ts");
+var stream1 = fs.createWriteStream('src/dash-table/derived/style/py2jsCssProperties.ts');
 stream1.once('open', () => {
     stream1.write('export type StyleProperty = string | number;\n');
     stream1.write('\n');
@@ -317,12 +317,12 @@ stream1.once('open', () => {
         first = false;
         stream1.write(`    ['${key}', '${value}']`);
     });
-    stream1.write('\n]);')
+    stream1.write('\n]);');
 
     stream1.end();
 });
 
-var stream2 = fs.createWriteStream("src/dash-table/derived/style/IStyle.ts");
+var stream2 = fs.createWriteStream('src/dash-table/derived/style/IStyle.ts');
 stream2.once('open', () => {
     stream2.write(`import { StyleProperty } from './ py2jsCssProperties';\n`);
     stream2.write('\n');
@@ -330,12 +330,12 @@ stream2.once('open', () => {
     camels.forEach(([key]) => {
         stream2.write(`    ${key}: StyleProperty;\n`);
     });
-    stream2.write('}')
+    stream2.write('}');
 
     stream2.end();
 });
 
-var stream3 = fs.createWriteStream("proptypes.js");
+var stream3 = fs.createWriteStream('proptypes.js');
 stream3.once('open', () => {
     let first = true;
     map.forEach((value, key) => {
@@ -350,7 +350,7 @@ stream3.once('open', () => {
             stream3.write(`    ${key}: PropTypes.oneOfType([PropTypes.string, PropTypes.number])`);
         }
     });
-    stream3.write('\n')
+    stream3.write('\n');
 
     stream3.end();
 });

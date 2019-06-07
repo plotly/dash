@@ -6,6 +6,7 @@ import { storiesOf } from '@storybook/react';
 import dataset from './../../../datasets/16zpallagi-25cols-100klines.csv';
 
 import DataTable from 'dash-table/dash/DataTable';
+import { TableAction } from 'dash-table/components/Table/props';
 
 const setProps = () => { };
 
@@ -18,10 +19,10 @@ storiesOf('DashTable/Virtualization', module)
         id='table'
         data={data}
         columns={columns}
-        pagination_mode={false}
+        page_action={TableAction.None}
         virtualization={true}
         editable={true}
-        n_fixed_rows={1}
+        fixed_rows={{ headers: true }}
         style_table={{
             height: 800,
             max_height: 800,

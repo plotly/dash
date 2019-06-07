@@ -14,12 +14,12 @@ import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
 const handleSetFilter = (
     setProps: SetProps,
     setState: SetState,
-    filter: string,
+    filter_query: string,
     rawFilterQuery: string,
     map: Map<string, SingleColumnSyntaxTree>
 ) => {
-    setProps({ filter, ...clearSelection });
-    setState({ workFilter: { map, value: filter }, rawFilterQuery });
+    setProps({ filter_query, ...clearSelection });
+    setState({ workFilter: { map, value: filter_query }, rawFilterQuery });
 };
 
 function filterPropsFn(propsFn: () => ControlledTableProps, setFilter: any) {

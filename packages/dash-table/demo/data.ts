@@ -58,7 +58,6 @@ export const generateMockData = (rows: number) => unpackIntoColumnsAndData([
         name: ['', 'Weather', 'Climate'],
         type: ColumnType.Text,
         presentation: 'dropdown',
-        clearable: true,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4],
             rows
@@ -141,7 +140,6 @@ export const generateSpaceMockData = (rows: number) => unpackIntoColumnsAndData(
         name: ['', 'Weather', 'Climate'],
         type: ColumnType.Text,
         presentation: 'dropdown',
-        clearable: true,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4],
             rows
@@ -162,11 +160,6 @@ export const mockDataSimple = (rows: number) => unpackIntoColumnsAndData([
         name: 'Climate',
         type: ColumnType.Text,
         presentation: 'dropdown',
-        options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
-            label: i,
-            value: i
-        })),
-        clearable: true,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4],
             rows

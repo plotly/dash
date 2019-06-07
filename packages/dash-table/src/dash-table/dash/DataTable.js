@@ -31,21 +31,16 @@ export default class DataTable extends Component {
 }
 
 export const defaultProps = {
-    pagination_mode: 'fe',
-    pagination_settings: {
-        current_page: 0,
-        page_size: 250
-    },
-    navigation: 'page',
+    page_action: 'native',
+    page_current: 0,
+    page_size: 250,
 
-    content_style: 'grow',
     css: [],
-    filter: '',
-    filtering: false,
-    filtering_type: 'basic',
-    filtering_types: ['basic'],
-    sorting: false,
-    sorting_type: 'single',
+    filter_query: '',
+    filter_action: 'none',
+    sort_as_null: [],
+    sort_action: 'none',
+    sort_mode: 'single',
     sort_by: [],
     style_as_list_view: false,
 
@@ -60,11 +55,22 @@ export const defaultProps = {
     derived_virtual_selected_rows: [],
     derived_virtual_selected_row_ids: [],
 
-    column_conditional_dropdowns: [],
-    column_static_dropdown: [],
+    dropdown: {},
+    dropdown_conditional: [],
+    dropdown_data: [],
 
-    column_static_tooltip: {},
-    column_conditional_tooltips: [],
+    fixed_columns: {
+        headers: false,
+        data: 0
+    },
+    fixed_rows: {
+        headers: false,
+        data: 0
+    },
+
+    tooltip: {},
+    tooltip_conditional: [],
+    tooltip_data: [],
     tooltip_delay: 350,
     tooltip_duration: 2000,
 
@@ -92,40 +98,29 @@ export const propTypes = {
         row: PropTypes.number,
         column: PropTypes.number,
         row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        column_id: PropTypes.string
     }),
 
     /**
      * Columns describes various aspects about each individual column.
      * `name` and `id` are the only required parameters.
      */
-    columns: PropTypes.arrayOf(PropTypes.shape({
-
-        /**
-         * If the column is rendered as dropdowns, then the
-         * `clearable` property determines whether or not
-         * the dropdown value can be cleared or not.
-         *
-         * NOTE - The name of this property may change in the future,
-         * subscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
-         * for more information.
-         */
-        clearable: PropTypes.bool,
+    columns: PropTypes.arrayOf(PropTypes.exact({
 
         /**
          * If True, the user can delete the column by clicking on a little `x`
          * button on the column.
          * If there are merged, multi-header columns then you can choose
          * which column header row to display the "x" in by
-         * supplying a column row index.
-         * For example, `0` will display the "x" on the first row,
-         * `1` on the second row.
+         * supplying an array of booleans.
+         * For example, `[true, false]` will display the "x" on the first row,
+         * but not the second row.
          * If the "x" appears on a merged column, then clicking on that button
          * will delete *all* of the merged columns associated with it.
          */
         deletable: PropTypes.oneOfType([
             PropTypes.bool,
-            PropTypes.number
+            PropTypes.arrayOf(PropTypes.bool)
         ]),
 
         /**
@@ -144,14 +139,16 @@ export const propTypes = {
         /**
          * If True, then the name of this column is editable.
          * If there are multiple column headers (if `name` is a list of strings),
-         * then `editable_name` can refer to _which_ column header should be
-         * editable by setting it to the column header index.
+         * then `renamable` can refer to _which_ column header should be
+         * editable by defining an array of booleans.
+         * For example, `[true, false]` will make the first row's name editable,
+         * but not the second row.
          * Also, updating the name in a merged column header cell will
          * update the name of each column.
          */
-        editable_name: PropTypes.oneOfType([
+        renamable: PropTypes.oneOfType([
             PropTypes.bool,
-            PropTypes.number
+            PropTypes.arrayOf(PropTypes.bool)
         ]),
 
         /**
@@ -183,8 +180,8 @@ export const propTypes = {
          * dash_table.FormatTemplate contains helper functions to rapidly use certain
          * typical number formats.
          */
-        format: PropTypes.shape({
-            locale: PropTypes.shape({
+        format: PropTypes.exact({
+            locale: PropTypes.exact({
                 symbol: PropTypes.arrayOf(PropTypes.string),
                 decimal: PropTypes.string,
                 group: PropTypes.string,
@@ -243,7 +240,7 @@ export const propTypes = {
          *  default: replace the provided value with `validation.default`
          *  reject: do not modify the existing value
          */
-        on_change: PropTypes.shape({
+        on_change: PropTypes.exact({
             action: PropTypes.oneOf([
                 'coerce',
                 'none',
@@ -257,6 +254,17 @@ export const propTypes = {
         }),
 
         /**
+         * An array of string, number and boolean values that are treated as `null`
+         * (i.e. ignored and always displayed last) when sorting.
+         * This value overrides the table-level `sort_as_null`.
+         */
+        sort_as_null: PropTypes.arrayOf(PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.number,
+            PropTypes.bool
+        ])),
+
+        /**
          * The `validation` options.
          * 'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)
          * 'default': The default value to apply with on_change.failure = 'default' (default: null)
@@ -265,29 +273,11 @@ export const propTypes = {
          *   this is 1949 to 2048 but in 2020 it will be different. If used with
          *   `action: 'coerce'`, will convert user input to a 4-digit year.
          */
-        validation: PropTypes.shape({
+        validation: PropTypes.exact({
             allow_null: PropTypes.bool,
             default: PropTypes.any,
             allow_YY: PropTypes.bool
         }),
-
-        /**
-         * DEPRECATED
-         * Please use `column_static_dropdown` instead.
-         * NOTE - Dropdown behavior will likely change in the future,
-         * subscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
-         * for more information.
-         */
-        options: PropTypes.arrayOf(PropTypes.shape({
-            label: PropTypes.oneOfType([
-                PropTypes.number,
-                PropTypes.string
-            ]).isRequired,
-            value: PropTypes.oneOfType([
-                PropTypes.number,
-                PropTypes.string
-            ]).isRequired
-        })),
 
         /**
          * The data-type of the column's data.
@@ -335,7 +325,7 @@ export const propTypes = {
      *   'percent': (default: '%') the string used for the percentage symbol
      *   'separate_4digits': (default: True) separate integers with 4-digits or less
      */
-    locale_format: PropTypes.shape({
+    locale_format: PropTypes.exact({
         symbol: PropTypes.arrayOf(PropTypes.string),
         decimal: PropTypes.string,
         group: PropTypes.string,
@@ -345,17 +335,6 @@ export const propTypes = {
         separate_4digits: PropTypes.bool
     }),
 
-    /**
-     * `content_style` toggles between a set of CSS styles for
-     * two common behaviors:
-     * - `fit`: The table container's width be equal to the width of its content.
-     * - `grow`: The table container's width will grow to be the size of the container.
-     *
-     * NOTE - This property will likely change in the future,
-     * subscribe to [https://github.com/plotly/dash-table/issues/176](https://github.com/plotly/dash-table/issues/176)
-     * for more details.
-     */
-    content_style: PropTypes.oneOf(['fit', 'grow']),
     /**
      * The `css` property is a way to embed CSS selectors and rules
      * onto the page.
@@ -368,7 +347,7 @@ export const propTypes = {
      * ]
      *
      */
-    css: PropTypes.arrayOf(PropTypes.shape({
+    css: PropTypes.arrayOf(PropTypes.exact({
         selector: PropTypes.string.isRequired,
         rule: PropTypes.string.isRequired
     })),
@@ -432,7 +411,7 @@ export const propTypes = {
         row: PropTypes.number,
         column: PropTypes.number,
         row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        column_id: PropTypes.string
     }),
 
     /**
@@ -454,34 +433,62 @@ export const propTypes = {
     merge_duplicate_headers: PropTypes.bool,
 
     /**
-     * `n_fixed_columns` will "fix" the set of columns so that
+     * `fixed_columns` will "fix" the set of columns so that
      * they remain visible when scrolling horizontally across
-     * the unfixed columns. `n_fixed_columns` fixes columns
-     * from left-to-right, so `n_fixed_columns=3` will fix
-     * the first 3 columns.
+     * the unfixed columns. `fixed_columns` fixes columns
+     * from left-to-right.
+     *
+     * If `headers` is False, no columns are fixed.
+     * If `headers` is True, all operation columns (see `row_deletable` and `row_selectable`)
+     * are fixed. Additional data columns can be fixed by
+     * assigning a number to `data`.
+     *
+     * Defaults to `{ headers: False }`.
      *
      * Note that fixing columns introduces some changes to the
      * underlying markup of the table and may impact the
      * way that your columns are rendered or sized.
      * View the documentation examples to learn more.
      */
-    n_fixed_columns: PropTypes.number,
+    fixed_columns: PropTypes.oneOfType([
+        PropTypes.exact({
+            headers: PropTypes.oneOf([false]),
+            data: PropTypes.oneOf([0])
+        }),
+        PropTypes.exact({
+            headers: PropTypes.oneOf([true]).isRequired,
+            data: PropTypes.number
+        })
+    ]),
 
     /**
-     * `n_fixed_rows` will "fix" the set of rows so that
+     * `fixed_rows` will "fix" the set of rows so that
      * they remain visible when scrolling vertically down
-     * the table. `n_fixed_rows` fixes rows
-     * from top-to-bottom, starting from the headers,
-     * so `n_fixed_rows=1` will fix the header row,
-     * `n_fixed_rows=2` will fix the header row and the first row,
-     * or the first two header rows (if there are multiple headers).
+     * the table. `fixed_rows` fixes rows
+     * from top-to-bottom, starting from the headers.
+     *
+     * If `headers` is False, no rows are fixed.
+     * If `headers` is True, all header and filter rows (see `filter_action`) are
+     * fixed. Additional data rows can be fixed by assigning
+     * a number to `data`.
+     *
+     * Defaults to `{ headers: False }`.
      *
      * Note that fixing rows introduces some changes to the
      * underlying markup of the table and may impact the
      * way that your columns are rendered or sized.
      * View the documentation examples to learn more.
      */
-    n_fixed_rows: PropTypes.number,
+    fixed_rows: PropTypes.oneOfType([
+        PropTypes.exact({
+            headers: PropTypes.oneOf([false]),
+            data: PropTypes.oneOf([0])
+        }),
+        PropTypes.exact({
+            headers: PropTypes.oneOf([true]).isRequired,
+            data: PropTypes.number
+        })
+    ]),
 
     /**
      * If True, then a `x` will appear next to each `row`
@@ -513,7 +520,7 @@ export const propTypes = {
         row: PropTypes.number,
         column: PropTypes.number,
         row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        column_id: PropTypes.string
     })),
 
     /**
@@ -545,7 +552,7 @@ export const propTypes = {
         row: PropTypes.number,
         column: PropTypes.number,
         row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        column_id: PropTypes.string
     }),
 
     /**
@@ -555,7 +562,7 @@ export const propTypes = {
     style_as_list_view: PropTypes.bool,
 
     /**
-     * "pagination" refers to a mode of the table where
+     * `page_action` refers to a mode of the table where
      * not all of the rows are displayed at once: only a subset
      * are displayed (a "page") and the next subset of rows
      * can viewed by clicking "Next" or "Previous" buttons
@@ -569,78 +576,38 @@ export const propTypes = {
      * in the table (e.g. page through `10,000` rows in `data` `100` rows at a time)
      * or we can update the data on-the-fly with callbacks
      * when the user clicks on the "Previous" or "Next" buttons.
-     * These modes can be toggled with this `pagination_mode` parameter:
-     * - `'fe'` refers to "front-end" paging: passing large data up-front
-     * - `'be'` refers to "back-end" paging: updating the data on the fly via callbacks
-     * - `False` will disable paging, attempting to render all of the data at once
-     * - `True` is the same as `fe`
-     *
-     * NOTE: The `fe` and `be` names may change in the future.
-     * Tune in to [https://github.com/plotly/dash-table/issues/167](https://github.com/plotly/dash-table/issues/167) for more.
+     * These modes can be toggled with this `page_action` parameter:
+     * - `'native'`: all data is passed to the table up-front, paging logic is
+     * handled by the table
+     * - `'custom'`: data is passed to the table one page at a time, paging logic
+     * is handled via callbacks
+     * - `none`: disables paging, render all of the data at once
      */
-    pagination_mode: PropTypes.oneOf(['fe', 'be', true, false]),
+    page_action: PropTypes.oneOf(['custom', 'native', 'none']),
 
     /**
-     * `pagination_settings` controls the pagination settings
-     * _and_ represents the current state of the pagination UI.
-     * - `page_size` represents the number of rows that will be
-     * displayed on a particular page.
-     * - `current_page` represents which page the user is on.
+     * `page_current` represents which page the user is on.
      * Use this property to index through data in your callbacks with
      * backend paging.
      */
-    pagination_settings: PropTypes.shape({
-        current_page: PropTypes.number.isRequired,
-        page_size: PropTypes.number.isRequired
-    }),
+    page_current: PropTypes.number,
 
     /**
-     * DEPRECATED
+     * `page_size` represents the number of rows that will be
+     * displayed on a particular page when `page_action` is `'custom'` or `'native'`
      */
-    navigation: PropTypes.string,
+    page_size: PropTypes.number,
 
     /**
-     * `column_conditional_dropdowns` specifies the available options
-     * for dropdowns in various columns and cells.
-     * This property allows you to specify different dropdowns
-     * depending on certain conditions. For example, you may
-     * render different "city" dropdowns in a row depending on the
-     * current value in the "state" column.
+     * `dropdown` specifies dropdown options for different columns.
      *
-     * NOTE: The naming and the behavior of this option may change
-     * in the future.
-     * Tune in to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
+     * Each entry refers to the column ID.
+     * The `clearable` property defines whether the value can be deleted.
+     * The `options` property refers to the `options` of the dropdown.
      */
-    column_conditional_dropdowns: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        // .exact
-        dropdowns: PropTypes.arrayOf(PropTypes.shape({
-            condition: PropTypes.string.isRequired,
-            // .exact
-            dropdown: PropTypes.arrayOf(PropTypes.shape({
-                label: PropTypes.string.isRequired,
-                value: PropTypes.oneOfType([
-                    PropTypes.number,
-                    PropTypes.string
-                ]).isRequired
-            })).isRequired
-        })).isRequired
-    })),
-    /**
-     * `column_static_dropdown` represents the available dropdown
-     * options for different columns.
-     * The `id` property refers to the column ID.
-     * The `dropdown` property refers to the `options` of the
-     * dropdown.
-     *
-     * NOTE: The naming and the behavior of this option may change
-     * in the future.
-     * Tune in to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
-     */
-    column_static_dropdown: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        // .exact
-        dropdown: PropTypes.arrayOf(PropTypes.shape({
+    dropdown: PropTypes.objectOf(PropTypes.exact({
+        clearable: PropTypes.bool,
+        options: PropTypes.arrayOf(PropTypes.exact({
             label: PropTypes.string.isRequired,
             value: PropTypes.oneOfType([
                 PropTypes.number,
@@ -650,7 +617,51 @@ export const propTypes = {
     })),
 
     /**
-     * `column_static_tooltip` represents the tooltip shown
+     * `dropdown_conditional` specifies dropdown options in various columns and cells.
+     *
+     * This property allows you to specify different dropdowns
+     * depending on certain conditions. For example, you may
+     * render different "city" dropdowns in a row depending on the
+     * current value in the "state" column.
+     */
+    dropdown_conditional: PropTypes.arrayOf(PropTypes.exact({
+        clearable: PropTypes.bool,
+        if: PropTypes.exact({
+            column_id: PropTypes.string,
+            filter_query: PropTypes.string
+        }),
+        options: PropTypes.arrayOf(PropTypes.exact({
+            label: PropTypes.string.isRequired,
+            value: PropTypes.oneOfType([
+                PropTypes.number,
+                PropTypes.string
+            ]).isRequired
+        })).isRequired
+    })),
+
+    /**
+     * `dropdown_data` specifies dropdown options on a row-by-row, column-by-column basis.
+     *
+     * Each item in the array corresponds to the corresponding dropdowns for the `data` item
+     * at the same index. Each entry in the item refers to the Column ID.
+     */
+    dropdown_data: PropTypes.arrayOf(
+        PropTypes.objectOf(
+            PropTypes.exact({
+                clearable: PropTypes.bool,
+                options: PropTypes.arrayOf(PropTypes.exact({
+                    label: PropTypes.string.isRequired,
+                    value: PropTypes.oneOfType([
+                        PropTypes.number,
+                        PropTypes.string
+                    ]).isRequired
+                })).isRequired
+            })
+        )
+    ),
+
+    /**
+     * `tooltip` represents the tooltip shown
      * for different columns.
      * The `property` name refers to the column ID.
      * The `type` refers to the type of tooltip syntax used
@@ -671,9 +682,9 @@ export const propTypes = {
      * a plain string. The `text` syntax will be used in
      * that case.
      */
-    column_static_tooltip: PropTypes.objectOf(
+    tooltip: PropTypes.objectOf(
         PropTypes.oneOfType([
-            PropTypes.shape({
+            PropTypes.exact({
                 delay: PropTypes.number,
                 duration: PropTypes.number,
                 type: PropTypes.oneOf([
@@ -687,7 +698,7 @@ export const propTypes = {
     ),
 
     /**
-     * `column_conditional_tooltips` represents the tooltip shown
+     * `tooltip_conditional` represents the tooltip shown
      * for different columns and cells.
      *
      * This property allows you to specify different tooltips for
@@ -708,7 +719,7 @@ export const propTypes = {
      * ID that must be matched.
      * The `if` nested property `row_index` refers to the index
      * of the row in the source `data`.
-     * The `if` nested property `filter` refers to the query that
+     * The `if` nested property `filter_query` refers to the query that
      * must evaluate to True.
      *
      * The `type` refers to the type of tooltip syntax used
@@ -725,20 +736,20 @@ export const propTypes = {
      * This overrides the table's `tooltip_duration` property.
      * If set to `null`, the tooltip will not disappear.
      */
-    column_conditional_tooltips: PropTypes.arrayOf(PropTypes.shape({
-        if: PropTypes.shape({
-            filter: PropTypes.string,
+    tooltip_conditional: PropTypes.arrayOf(PropTypes.exact({
+        delay: PropTypes.number,
+        duration: PropTypes.number,
+        if: PropTypes.exact({
+            column_id: PropTypes.string,
+            filter_query: PropTypes.string,
             row_index: PropTypes.oneOfType([
                 PropTypes.number,
                 PropTypes.oneOf([
                     'odd',
                     'even'
                 ])
-            ]),
-            column_id: PropTypes.string
+            ])
         }).isRequired,
-        delay: PropTypes.number,
-        duration: PropTypes.number,
         type: PropTypes.oneOf([
             'text',
             'markdown'
@@ -747,7 +758,7 @@ export const propTypes = {
     })),
 
     /**
-     * `tooltips` represents the tooltip shown
+     * `tooltip_data` represents the tooltip shown
      * for different columns and cells.
      * The `property` name refers to the column ID. Each property
      * contains a list of tooltips mapped to the source `data`
@@ -771,10 +782,10 @@ export const propTypes = {
      * a plain string. The `text` syntax will be used in
      * that case.
      */
-    tooltips: PropTypes.objectOf(PropTypes.arrayOf(
+    tooltip_data: PropTypes.arrayOf(PropTypes.objectOf(
         PropTypes.oneOfType([
             PropTypes.string,
-            PropTypes.shape({
+            PropTypes.exact({
                 delay: PropTypes.number,
                 duration: PropTypes.number,
                 type: PropTypes.oneOf([
@@ -805,68 +816,43 @@ export const propTypes = {
     tooltip_duration: PropTypes.number,
 
     /**
-     * If `filtering` is enabled, then the current filtering
-     * string is represented in this `filter`
+     * If `filter_action` is enabled, then the current filtering
+     * string is represented in this `filter_query`
      * property.
-     * NOTE: The shape and structure of this property will
-     * likely change in the future.
-     * Stay tuned in [https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)
      */
-    filter: PropTypes.string,
+    filter_query: PropTypes.string,
 
     /**
-     * The `filtering` property controls the behavior of the `filtering` UI.
-     * If `False`, then the filtering UI is not displayed
-     * If `fe` or True, then the filtering UI is displayed and the filtering
-     * happens in the "front-end". That is, it is performed on the data
+     * The `filter_action` property controls the behavior of the `filtering` UI.
+     *
+     * If `'none'`, then the filtering UI is not displayed
+     * If `'native'`, then the filtering UI is displayed and the filtering
+     * logic is handled by the table. That is, it is performed on the data
      * that exists in the `data` property.
-     * If `be`, then the filtering UI is displayed but it is the
+     * If `'custom'`, then the filtering UI is displayed but it is the
      * responsibility of the developer to program the filtering
-     * through a callback (where `filter` would be the input
+     * through a callback (where `filter_query` or `derived_filter_query_structure` would be the input
      * and `data` would be the output).
-     *
-     * NOTE - Several aspects of filtering may change in the future,
-     * including the naming of this property.
-     * Tune in to [https://github.com/plotly/dash-table/issues/167](https://github.com/plotly/dash-table/issues/167)
      */
-    filtering: PropTypes.oneOf(['fe', 'be', true, false]),
+    filter_action: PropTypes.oneOf(['custom', 'native', 'none']),
 
     /**
-     * UNSTABLE
-     * In the future, there may be several modes of the
-     * filtering UI like `basic`, `advanced`, etc.
-     * Currently, we only `basic`.
-     * NOTE - This will likely change in the future,
-     * subscribe to changes here:
-     * [https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)
-     */
-    filtering_type: PropTypes.oneOf(['basic']),
-
-    /**
-     * UNSTABLE
-     * In the future, there may be several modes of the
-     * filtering UI like `basic`, `advanced`, etc
-     * NOTE - This will likely change in the future,
-     * subscribe to changes here:
-     * [https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)
-     */
-    filtering_types: PropTypes.arrayOf(PropTypes.oneOf([
-        'basic'
-    ])),
-
-    /**
-     * The `sorting` property enables data to be
+     * The `sort_action` property enables data to be
      * sorted on a per-column basis.
-     * Enabling `sorting` will display a UI element
-     * on each of the columns (up and down arrows).
      *
-     * Sorting can be performed in the "front-end"
-     * with the `fe` (or True) setting or via a callback in your
-     * python "back-end" with the `be` setting.
+     * If `'none'`, then the sorting UI is not displayed.
+     * If `'native'`, then the sorting UI is displayed and the sorting
+     * logic is hanled by the table. That is, it is performed on the data
+     * that exists in the `data` property.
+     * If `'custom'`, the the sorting UI is displayed but it is the
+     * responsibility of the developer to program the sorting
+     * through a callback (where `sort_by` would be the input and `data`
+     * would be the output).
+     *
      * Clicking on the sort arrows will update the
      * `sort_by` property.
      */
-    sorting: PropTypes.oneOf(['fe', 'be', true, false]),
+    sort_action: PropTypes.oneOf(['custom', 'native', 'none']),
 
     /**
      * Sorting can be performed across multiple columns
@@ -878,7 +864,7 @@ export const propTypes = {
      * the columns were sorted through the UI.
      * See [https://github.com/plotly/dash-table/issues/170](https://github.com/plotly/dash-table/issues/170)
      */
-    sorting_type: PropTypes.oneOf(['single', 'multi']),
+    sort_mode: PropTypes.oneOf(['single', 'multi']),
 
     /**
      * `sort_by` describes the current state
@@ -892,19 +878,23 @@ export const propTypes = {
      * clicked.
      */
     sort_by: PropTypes.arrayOf(
-        // .exact
-        PropTypes.shape({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+        PropTypes.exact({
+            column_id: PropTypes.string.isRequired,
             direction: PropTypes.oneOf(['asc', 'desc']).isRequired
         })),
 
     /**
-     * If False, then empty strings (`''`) are considered
-     * valid values (they will appear first when sorting ascending).
-     * If True, empty strings will be ignored, causing these cells to always
-     * appear last.
+     * An array of string, number and boolean values that are treated as `null`
+     * (i.e. ignored and always displayed last) when sorting.
+     * This value will be used by columns without `sort_as_null`.
+     *
+     * Defaults to `[]`.
      */
-    sorting_treat_empty_string_as_none: PropTypes.bool,
+    sort_as_null: PropTypes.arrayOf(PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+        PropTypes.bool
+    ])),
 
     /**
      * CSS styles to be applied to the outer `table` container.
@@ -950,9 +940,8 @@ export const propTypes = {
      * This can be used to apply styles to cells on a per-column basis.
      */
     style_cell_conditional: PropTypes.arrayOf(PropTypes.shape({
-        // .exact
-        if: PropTypes.shape({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        if: PropTypes.exact({
+            column_id: PropTypes.string,
             column_type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime'])
         })
     })),
@@ -963,11 +952,10 @@ export const propTypes = {
      * This can be used to apply styles to data cells on a per-column basis.
      */
     style_data_conditional: PropTypes.arrayOf(PropTypes.shape({
-        // .exact
-        if: PropTypes.shape({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        if: PropTypes.exact({
+            column_id: PropTypes.string,
             column_type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime']),
-            filter: PropTypes.string,
+            filter_query: PropTypes.string,
             row_index: PropTypes.oneOfType([
                 PropTypes.number,
                 PropTypes.oneOf(['odd', 'even'])
@@ -981,9 +969,8 @@ export const propTypes = {
      * This can be used to apply styles to filter cells on a per-column basis.
      */
     style_filter_conditional: PropTypes.arrayOf(PropTypes.shape({
-        // .exact
-        if: PropTypes.shape({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        if: PropTypes.exact({
+            column_id: PropTypes.string,
             column_type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime'])
         })
     })),
@@ -994,9 +981,8 @@ export const propTypes = {
      * This can be used to apply styles to header cells on a per-column basis.
      */
     style_header_conditional: PropTypes.arrayOf(PropTypes.shape({
-        // .exact
-        if: PropTypes.shape({
-            column_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        if: PropTypes.exact({
+            column_id: PropTypes.string,
             column_type: PropTypes.oneOf(['any', 'numeric', 'text', 'datetime']),
             header_index: PropTypes.oneOfType([
                 PropTypes.number,
@@ -1017,7 +1003,7 @@ export const propTypes = {
 
     /**
      * This property represents the current structure of
-     * `filter` as a tree structure. Each node of the
+     * `filter_query` as a tree structure. Each node of the
      * query structure have:
      * - type (string; required)
      *   - 'open-block'
@@ -1039,10 +1025,10 @@ export const propTypes = {
      * - left (nested query structure; optional)
      * - right (nested query structure; optional)
      *
-     * If the query is invalid or empty, the `derived_filter_structure` will
+     * If the query is invalid or empty, the `derived_filter_query_structure` will
      * be null.
      */
-    derived_filter_structure: PropTypes.object,
+    derived_filter_query_structure: PropTypes.object,
 
     /**
      * This property represents the current state of `data`
@@ -1121,14 +1107,7 @@ export const propTypes = {
      */
     derived_virtual_selected_row_ids: PropTypes.arrayOf(
         PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-    ),
-
-    /**
-     * DEPRECATED
-     * Subscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)
-     * for updates on the dropdown API.
-     */
-     dropdown_properties: PropTypes.any
+    )
 };
 
 DataTable.defaultProps = defaultProps;

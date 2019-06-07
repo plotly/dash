@@ -1,7 +1,11 @@
-import { VisibleColumns } from 'dash-table/components/Table/props';
+import { IColumn } from 'dash-table/components/Table/props';
 
-const getColLength = (c: any) => (Array.isArray(c.name) ? c.name.length : 1);
+const getColLength = (c: IColumn) => c.hidden ?
+    0 :
+    Array.isArray(c.name) ?
+        c.name.length :
+        1;
 
 export default (
-    columns: VisibleColumns
+    columns: IColumn[]
 ): number => Math.max(...columns.map(getColLength));

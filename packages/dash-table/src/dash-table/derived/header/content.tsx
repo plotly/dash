@@ -2,19 +2,18 @@ import * as R from 'ramda';
 import React from 'react';
 
 import { memoizeOneFactory } from 'core/memoizer';
-import { SortDirection, SortSettings } from 'core/sorting';
-import multiUpdateSettings from 'core/sorting/multi';
-import singleUpdateSettings from 'core/sorting/single';
+import { SortDirection, SortBy } from 'core/sorting';
+import multiUpdate from 'core/sorting/multi';
+import singleUpdate from 'core/sorting/single';
 
 import {
     ColumnId,
-    PaginationMode,
-    SortingType,
+    SortMode,
     VisibleColumns,
     IVisibleColumn,
     SetProps,
     ControlledTableProps,
-    Sorting
+    TableAction
 } from 'dash-table/components/Table/props';
 import * as actions from 'dash-table/utils/actions';
 
@@ -24,10 +23,10 @@ function deleteColumn(column: IVisibleColumn, columns: VisibleColumns, columnRow
     };
 }
 
-function doSort(columnId: ColumnId, sortSettings: SortSettings, sortType: SortingType, setProps: SetProps) {
+function doSort(columnId: ColumnId, sortBy: SortBy, mode: SortMode, setProps: SetProps) {
     return () => {
         let direction: SortDirection;
-        switch (getSorting(columnId, sortSettings)) {
+        switch (getSorting(columnId, sortBy)) {
             case SortDirection.Descending:
                 direction = SortDirection.None;
                 break;
@@ -42,13 +41,13 @@ function doSort(columnId: ColumnId, sortSettings: SortSettings, sortType: Sortin
                 break;
         }
 
-        const sortingStrategy = sortType === 'single' ?
-            singleUpdateSettings :
-            multiUpdateSettings;
+        const sortingStrategy = mode === SortMode.Single ?
+            singleUpdate :
+            multiUpdate;
 
         setProps({
             sort_by: sortingStrategy(
-                sortSettings,
+                sortBy,
                 { column_id: columnId, direction }
             ),
             ...actions.clearSelection
@@ -62,14 +61,14 @@ function editColumnName(column: IVisibleColumn, columns: VisibleColumns, columnR
     };
 }
 
-function getSorting(columnId: ColumnId, settings: SortSettings): SortDirection {
-    const setting = R.find(s => s.column_id === columnId, settings);
+function getSorting(columnId: ColumnId, sortBy: SortBy): SortDirection {
+    const sort = R.find(s => s.column_id === columnId, sortBy);
 
-    return setting ? setting.direction : SortDirection.None;
+    return sort ? sort.direction : SortDirection.None;
 }
 
-function getSortingIcon(columnId: ColumnId, sortSettings: SortSettings) {
-    switch (getSorting(columnId, sortSettings)) {
+function getSortingIcon(columnId: ColumnId, sortBy: SortBy) {
+    switch (getSorting(columnId, sortBy)) {
         case SortDirection.Descending:
             return '↓';
         case SortDirection.Ascending:
@@ -83,10 +82,10 @@ function getSortingIcon(columnId: ColumnId, sortSettings: SortSettings) {
 function getter(
     columns: VisibleColumns,
     labelsAndIndices: R.KeyValuePair<any[], number[]>[],
-    sorting: Sorting,
-    sortType: SortingType,
-    sortSettings: SortSettings,
-    paginationMode: PaginationMode,
+    sort_action: TableAction,
+    mode: SortMode,
+    sortBy: SortBy,
+    paginationMode: TableAction,
     setProps: SetProps,
     options: ControlledTableProps
 ): JSX.Element[][] {
@@ -98,27 +97,28 @@ function getter(
                 columnIndex => {
                     const column = columns[columnIndex];
 
-                    const editable = (column.editable_name && R.type(column.editable_name) === 'Boolean') ||
-                        (R.type(column.editable_name) === 'Number' && column.editable_name === headerRowIndex);
+                    const renamable: boolean = typeof column.renamable === 'boolean' ?
+                        column.renamable :
+                        !!column.renamable && column.renamable[headerRowIndex];
 
-                    const deletable = paginationMode !== 'be' &&
-                        (
-                            (column.deletable && R.type(column.deletable) === 'Boolean') ||
-                            (R.type(column.deletable) === 'Number' && column.deletable === headerRowIndex)
-                        );
+                    const deletable = paginationMode !== TableAction.Custom && (
+                        typeof column.deletable === 'boolean' ?
+                            column.deletable :
+                            !!column.deletable && column.deletable[headerRowIndex]
+                    );
 
                     return (<div>
-                        {sorting && isLastRow ?
+                        {sort_action !== TableAction.None && isLastRow ?
                             (<span
                                 className='sort'
-                                onClick={doSort(column.id, sortSettings, sortType, setProps)}
+                                onClick={doSort(column.id, sortBy, mode, setProps)}
                             >
-                                {getSortingIcon(column.id, sortSettings)}
+                                {getSortingIcon(column.id, sortBy)}
                             </span>) :
                             ''
                         }
 
-                        {editable ?
+                        {renamable ?
                             (<span
                                 className='column-header--edit'
                                 onClick={editColumnName(column, columns, headerRowIndex, setProps, options)}
