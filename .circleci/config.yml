@@ -75,12 +75,12 @@ jobs:
           name: 🚧 install dependencies from latest master commit
           command: |
               git clone https://github.com/plotly/dash-core-components.git
-              git clone --depth 1 https://github.com/plotly/dash-html-components.git
+              git clone https://github.com/plotly/dash-html-components.git
               git clone --depth 1 https://github.com/plotly/dash-table.git
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
               . venv/bin/activate
               cd dash-core-components && git checkout 2932409 && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-              cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-html-components && git checkout 446b114 && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
 
