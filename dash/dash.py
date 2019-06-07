@@ -486,13 +486,13 @@ class Dash(object):
         return config
 
     def serve_reload_hash(self):
-        reload = self._hot_reload
-        with reload.lock:
-            hard = reload.hard
-            changed = reload.changed_assets
-            _hash = reload.hash
-            reload.hard = False
-            reload.changed_assets = []
+        _reload = self._hot_reload
+        with _reload.lock:
+            hard = _reload.hard
+            changed = _reload.changed_assets
+            _hash = _reload.hash
+            _reload.hard = False
+            _reload.changed_assets = []
 
         return flask.jsonify({
             'reloadHash': _hash,
@@ -1495,8 +1495,8 @@ class Dash(object):
             self.logger.setLevel(logging.INFO)
 
         if dev_tools.hot_reload:
-            reload = self._hot_reload
-            reload.hash = _generate_hash()
+            _reload = self._hot_reload
+            _reload.hash = _generate_hash()
 
             component_packages_dist = [
                 os.path.dirname(package.path)
@@ -1508,14 +1508,14 @@ class Dash(object):
                 )
             ]
 
-            reload.watch_thread = threading.Thread(
+            _reload.watch_thread = threading.Thread(
                 target=lambda: _watch.watch(
                     [self.config.assets_folder] + component_packages_dist,
                     self._on_assets_change,
                     sleep_time=dev_tools.hot_reload_watch_interval)
             )
-            reload.watch_thread.daemon = True
-            reload.watch_thread.start()
+            _reload.watch_thread.daemon = True
+            _reload.watch_thread.start()
 
         if (debug and dev_tools.serve_dev_bundles and
                 not self.scripts.config.serve_locally):
@@ -1528,10 +1528,10 @@ class Dash(object):
 
     # noinspection PyProtectedMember
     def _on_assets_change(self, filename, modified, deleted):
-        reload = self._hot_reload
-        with reload.lock:
-            reload.hard = True
-            reload.hash = _generate_hash()
+        _reload = self._hot_reload
+        with _reload.lock:
+            _reload.hard = True
+            _reload.hash = _generate_hash()
 
             if self.config.assets_folder in filename:
                 asset_path = os.path.relpath(
@@ -1539,7 +1539,7 @@ class Dash(object):
                     os.path.commonprefix([self.config.assets_folder, filename])
                 ).replace('\\', '/').lstrip('/')
 
-                reload.changed_assets.append({
+                _reload.changed_assets.append({
                     'url': self.get_asset_url(asset_path),
                     'modified': int(modified),
                     'is_css': filename.endswith('css')
