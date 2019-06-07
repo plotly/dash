@@ -74,12 +74,12 @@ jobs:
       - run:
           name: 🚧 install dependencies from latest master commit
           command: |
-              git clone --depth 1 https://github.com/plotly/dash-core-components.git
+              git clone https://github.com/plotly/dash-core-components.git
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
               git clone --depth 1 https://github.com/plotly/dash-table.git
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
               . venv/bin/activate
-              cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+              cd dash-core-components && git checkout 2932409 && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
@@ -88,7 +88,8 @@ jobs:
           name: ⚙️ run integration test
           command: |
             . venv/bin/activate
-            pytest --junitxml=test-reports/junit_intg.xml tests/integration/
+            # pytest --junitxml=test-reports/junit_intg.xml tests/integration/
+            pytest --log-cli-level DEBUG -k dvpc001
       - store_artifacts:
           path: test-reports
       - store_test_results:
