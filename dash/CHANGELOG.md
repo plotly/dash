@@ -1,5 +1,13 @@
 ## Unreleased
 ### Changed
+- [#761](https://github.com/plotly/dash/pull/761) Several breaking changes to the `dash.Dash` API:
+  - Removed two obsolete constructor kwargs: `static_folder` and `components_cache_max_age`
+  - Removed the misspelled `supress_callback_exceptions` fallback
+  - Removed the unused `resources.config.infer_from_layout`
+  - Revamped `app.config`: ALL constructor args are now stored in `config`, with three exceptions: `server`, `index_string`, and `plugins`. None of these are stored in any other instance attributes anymore.
+  - Changed `hot_reload_interval` from msec to seconds, for consistency with `hot_reload_watch_interval`
+  - When called from `enable_dev_tools`, `debug=True` by default. It's still `False` by default from `run_server`.
+
 - [#753](https://github.com/plotly/dash/pull/753) `Component` no longer inherits `MutableMapping`, so `values`, `keys`, and more are no longer methods. This fixed an issue reported in [dcc](https://github.com/plotly/dash-core-components/issues/440) where components with certain prop names defined but not provided would cause a failure to render. During component generation we now disallow all props with leading underscores or matching a few remaining reserved words: `UNDEFINED`, `REQUIRED`, `to_plotly_json`, `available_properties`, and `available_wildcard_properties`.
 
 - [#739](https://github.com/plotly/dash/pull/739) Allow the Flask app to be provided to Dash after object initialization. This allows users to define Dash layouts etc when using the app factory pattern, or any other pattern that inhibits access to the app object. This broadly complies with the flask extension API, allowing Dash to be considered as a Flask extension where it needs to be.
