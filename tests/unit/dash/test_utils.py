@@ -1,5 +1,6 @@
-import dash._utils as utils
 import pytest
+
+import dash._utils as utils
 
 
 def test_attribute_dict():
