@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -117,7 +118,7 @@ class Browser(DashPageMixin):
             EC.presence_of_element_located,
             ((By.CSS_SELECTOR, selector),),
             timeout,
-            "cannot find_element using the css selector",
+            "timeout {} => waiting for selector {}".format(timeout, selector),
         )
 
     def wait_for_style_to_equal(self, selector, style, val, timeout=None):
@@ -138,9 +139,9 @@ class Browser(DashPageMixin):
             msg="text -> {} not found within {}s".format(text, timeout),
         )
 
-    def wait_for_page(self, timeout=10):
+    def wait_for_page(self, url=None, timeout=10):
 
-        self.driver.get(self.server_url)
+        self.driver.get(self.server_url if url is None else url)
         try:
             self.wait_for_element_by_css_selector(
                 self.dash_entry_locator, timeout=timeout
@@ -212,6 +213,10 @@ class Browser(DashPageMixin):
     def _is_windows():
         return sys.platform == "win32"
 
+    def multiple_click(self, css_selector, clicks):
+        for _ in range(clicks):
+            self.driver.find_element(css_selector).click()
+
     def js_click(self, elem):
         """click in native javascript way
         note: this is NOT the recommended way to click"""
@@ -222,6 +227,17 @@ class Browser(DashPageMixin):
             ActionChains(self.driver).click(elem).perform()
         except NoSuchElementException:
             logger.exception("mouse_click on wrong element")
+
+    def clear_input(self, elem):
+        (
+            ActionChains(self.driver)
+            .click(elem)
+            .send_keys(Keys.HOME)
+            .key_down(Keys.SHIFT)
+            .send_keys(Keys.END)
+            .key_up(Keys.SHIFT)
+            .send_keys(Keys.DELETE)
+        ).perform()
 
     def get_logs(self):
         """get_logs works only with chrome webdriver"""
