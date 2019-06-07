@@ -274,6 +274,20 @@ class Dash(object):
                 False),
             show_undo_redo=show_undo_redo
         )
+        self.config.set_read_only([
+            'name',
+            'assets_folder',
+            'assets_url_path',
+            'url_base_pathname',
+            'routes_pathname_prefix',
+            'requests_pathname_prefix',
+            'serve_locally',
+            'compress',
+        ], 'Read-only: can only be set in the Dash constructor')
+        self.config.finalize(
+            'Invalid config key. Some settings are only available '
+            'via the Dash constructor'
+        )
 
         # list of dependencies
         self.callback_map = {}
