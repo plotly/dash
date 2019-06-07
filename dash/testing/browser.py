@@ -215,7 +215,7 @@ class Browser(DashPageMixin):
 
     def multiple_click(self, css_selector, clicks):
         for _ in range(clicks):
-            self.driver.find_element(css_selector).click()
+            self.find_element(css_selector).click()
 
     def js_click(self, elem):
         """click in native javascript way
