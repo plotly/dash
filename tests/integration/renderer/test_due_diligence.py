@@ -63,12 +63,7 @@ def test_rddd001_initial_state(dash_duo):
     ) as fp:
         expected_dom = BeautifulSoup(fp.read().strip(), "lxml")
 
-    fetched_dom = BeautifulSoup(
-        dash_duo.find_element(dash_duo.dash_entry_locator).get_attribute(
-            "outerHTML"
-        ),
-        "lxml",
-    )
+    fetched_dom = dash_duo.dash_outerhtml_dom
 
     assert (
         fetched_dom.decode() == expected_dom.decode()
