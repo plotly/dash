@@ -202,8 +202,6 @@ class Dash(object):
         with a ``plug`` method, taking a single argument: this app, which will
         be called after the Flask server is attached.
     :type plugins: list of objects
-
-    :param **kwargs: Do not use. Gives error messages for obsolete arguments.
     """
     def __init__(
             self,
@@ -226,9 +224,9 @@ class Dash(object):
             suppress_callback_exceptions=None,
             show_undo_redo=False,
             plugins=None,
-            **kwargs):
+            **obsolete):
 
-        for key in kwargs:
+        for key in obsolete:
             if key in ['components_cache_max_age', 'static_folder']:
                 raise exceptions.ObsoleteKwargException(
                     key + ' is no longer a valid keyword argument in Dash '
