@@ -1,6 +1,6 @@
 ## Unreleased
 ### Changed
-- [#761](https://github.com/plotly/dash/pull/761) Several breaking changes to the `dash.Dash` API:
+- 💥 [#761](https://github.com/plotly/dash/pull/761) Several breaking changes to the `dash.Dash` API:
   - Removed two obsolete constructor kwargs: `static_folder` and `components_cache_max_age`
   - Removed the misspelled `supress_callback_exceptions` fallback
   - Removed the unused `resources.config.infer_from_layout`
