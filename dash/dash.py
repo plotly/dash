@@ -90,7 +90,8 @@ class Dash(object):
     Dash is a framework for building analytical web applications.
     No JavaScript required.
 
-    If a parameter can be set by an environment variable, that is listed too.
+    If a parameter can be set by an environment variable, that is listed as:
+        env: ``DASH_****``
     Values provided here take precedence over environment variables.
 
     :param name: The name Flask should use for your app. Even if you provide
@@ -107,9 +108,10 @@ class Dash(object):
     :type server: boolean or flask.Flask
 
     :param assets_folder: a path, relative to the current working directory,
-        for extra files to be used in the browser. Default ``'assets'`` By
-        default all .js and .css will be loaded immediately, and other files
-        such as images will be served if requested.
+        for extra files to be used in the browser. Default ``'assets'``.
+        All .js and .css files will be loaded immediately unless excluded by
+        ``assets_ignore``, and other files such as images will be served if
+        requested.
     :type assets_folder: string
 
     :param assets_url_path: The local urls for assets will be:
@@ -118,7 +120,7 @@ class Dash(object):
         Default ``'assets'``.
     :type asset_url_path: string
 
-    :param assets_ignore: A regexp, as a string to pass to ``re.compile``, for
+    :param assets_ignore: A regex, as a string to pass to ``re.compile``, for
         assets to omit from immediate loading. Ignored files will still be
         served if specifically requested. You cannot use this to prevent access
         to sensitive files.
