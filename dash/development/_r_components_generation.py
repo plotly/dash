@@ -44,7 +44,7 @@ version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
 stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
-all_files = FALSE), class = "html_dependency")"""
+all_files = FALSE), class = "html_dependency")"""   # noqa:E501
 
 frame_body_template = """`{project_shortname}` = structure(list(name = "{project_shortname}",
 version = "{project_ver}", src = list(href = NULL,
@@ -239,7 +239,7 @@ def generate_js_metadata(pkg_data, project_shortname):
     mod = sys.modules[project_shortname]
 
     alldist = getattr(mod, "_js_dist", []) + getattr(mod, "_css_dist", [])
-    
+
     project_ver = pkg_data.get("version")
 
     rpkgname = snake_case_to_camel_case(project_shortname)
@@ -283,17 +283,17 @@ def generate_js_metadata(pkg_data, project_shortname):
     elif len(alldist) == 1:
         rpp = alldist[0]["relative_package_path"]
         if "css" in rpp:
-            css_name = rpp 
+            css_name = rpp
             script_name = "NULL"
         else:
-            script_name = rpp 
+            script_name = rpp
             css_name = "NULL"
         function_frame_body = frame_body_template.format(
             project_shortname=project_shortname,
             project_ver=project_ver,
             rpkgname=rpkgname,
             script_name=script_name,
-            css_name=css_name,            
+            css_name=css_name,
         )
 
     function_string = "".join(
