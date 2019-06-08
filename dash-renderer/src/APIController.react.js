@@ -102,7 +102,7 @@ class UnconnectedContainer extends Component {
             layoutRequest.status &&
             !contains(layoutRequest.status, [STATUS.OK, 'loading'])
         ) {
-            return <div className="_dash-error">{'Error loading layout'}</div>;
+            return <div className="_dash-error">Error loading layout</div>;
         } else if (
             errorLoading ||
             (dependenciesRequest.status &&
