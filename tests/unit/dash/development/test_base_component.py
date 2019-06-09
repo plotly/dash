@@ -540,15 +540,19 @@ class TestGenerateClassFile(unittest.TestCase):
         for line in s.split('\n'):
             self.assertEqual(line, line.rstrip())
 
+    def match_lines(self, val, expected):
+        for val1, exp1 in zip(val.splitlines(), expected.splitlines()):
+            assert val1 == exp1
+
     def test_class_string(self):
-        self.assertEqual(
+        self.match_lines(
             self.expected_class_string,
             self.component_class_string
         )
         self.assert_no_trailing_spaces(self.component_class_string)
 
     def test_class_file(self):
-        self.assertEqual(
+        self.match_lines(
             self.expected_class_string,
             self.written_class_string
         )
@@ -801,7 +805,7 @@ class TestMetaDataConversions(unittest.TestCase):
 
             ['optionalUnion', 'string | number'],
 
-            ['optionalArrayOf', 'list'],
+            ['optionalArrayOf', 'list of numbers'],
 
             ['optionalObjectOf',
              'dict with strings as keys and values of type number'],
@@ -814,7 +818,7 @@ class TestMetaDataConversions(unittest.TestCase):
                 "  - fontSize (number; optional)",
                 "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
                 "Those keys have the following types:",
-                "  - data (list; optional): data is a collection of traces",
+                "  - data (list of dicts; optional): data is a collection of traces",
                 "  - layout (dict; optional): layout describes the rest of the figure"  # noqa: E501
 
             ])],
@@ -827,7 +831,7 @@ class TestMetaDataConversions(unittest.TestCase):
                 "  - fontSize (number; optional)",
                 "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
                 "Those keys have the following types:",
-                "  - data (list; optional): data is a collection of traces",
+                "  - data (list of dicts; optional): data is a collection of traces",
                 "  - layout (dict; optional): layout describes the rest of the figure"  # noqa: E501
 
             ])],
@@ -888,7 +892,7 @@ def assert_docstring(assertEqual, docstring):
             "- optionalElement (dash component; optional)",
             "- optionalEnum (a value equal to: 'News', 'Photos'; optional)",
             "- optionalUnion (string | number; optional)",
-            "- optionalArrayOf (list; optional)",
+            "- optionalArrayOf (list of numbers; optional)",
 
             "- optionalObjectOf (dict with strings as keys and values "
             "of type number; optional)",
@@ -907,7 +911,7 @@ def assert_docstring(assertEqual, docstring):
             "keys 'data', 'layout'.",
 
             "Those keys have the following types:",
-            "  - data (list; optional): data is a collection of traces",
+            "  - data (list of dicts; optional): data is a collection of traces",
 
             "  - layout (dict; optional): layout describes "
             "the rest of the figure",
@@ -926,7 +930,7 @@ def assert_docstring(assertEqual, docstring):
             "keys 'data', 'layout'.",
 
             "Those keys have the following types:",
-            "  - data (list; optional): data is a collection of traces",
+            "  - data (list of dicts; optional): data is a collection of traces",
 
             "  - layout (dict; optional): layout describes "
             "the rest of the figure",
