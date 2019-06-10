@@ -19,7 +19,7 @@ Keyword arguments:
 - optionalElement (dash component; optional)
 - optionalEnum (a value equal to: 'News', 'Photos'; optional)
 - optionalUnion (string | number; optional)
-- optionalArrayOf (list; optional)
+- optionalArrayOf (list of numbers; optional)
 - optionalObjectOf (dict with strings as keys and values of type number; optional)
 - optionalObjectWithExactAndNestedDescription (optional): . optionalObjectWithExactAndNestedDescription has the following type: dict containing keys 'color', 'fontSize', 'figure'.
 Those keys have the following types:
@@ -27,7 +27,7 @@ Those keys have the following types:
   - fontSize (number; optional)
   - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.
 Those keys have the following types:
-  - data (list; optional): data is a collection of traces
+  - data (list of dicts; optional): data is a collection of traces
   - layout (dict; optional): layout describes the rest of the figure
 - optionalObjectWithShapeAndNestedDescription (optional): . optionalObjectWithShapeAndNestedDescription has the following type: dict containing keys 'color', 'fontSize', 'figure'.
 Those keys have the following types:
@@ -35,7 +35,7 @@ Those keys have the following types:
   - fontSize (number; optional)
   - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.
 Those keys have the following types:
-  - data (list; optional): data is a collection of traces
+  - data (list of dicts; optional): data is a collection of traces
   - layout (dict; optional): layout describes the rest of the figure
 - optionalAny (boolean | number | string | dict | list; optional)
 - customProp (optional)
