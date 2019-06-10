@@ -11,7 +11,7 @@ def test_dvhr001_hot_reload(dash_duo):
     dash_duo.start_server(
         app,
         dev_tools_hot_reload=True,
-        dev_tools_hot_reload_interval=100,
+        dev_tools_hot_reload_interval=0.1,
         dev_tools_hot_reload_max_retry=30,
     )
 
