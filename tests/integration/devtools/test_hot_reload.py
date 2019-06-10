@@ -8,7 +8,7 @@ def test_dvhr001_hot_reload(dash_duo):
     app = dash.Dash(__name__, assets_folder="hr_assets")
     app.layout = html.Div([html.H3("Hot reload")], id="hot-reload-content")
 
-    dash_duo.start_app_server(
+    dash_duo.start_server(
         app,
         dev_tools_hot_reload=True,
         dev_tools_hot_reload_interval=100,

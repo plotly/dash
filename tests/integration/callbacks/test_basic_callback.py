@@ -23,7 +23,7 @@ def test_cbsc001_simple_callback(dash_duo):
         call_count.value = call_count.value + 1
         return value
 
-    dash_duo.start_app_server(app)
+    dash_duo.start_server(app)
 
     assert dash_duo.find_element("#output-1").text == "initial value"
     dash_duo.percy_snapshot(name="simple-callback-initial")
@@ -75,7 +75,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
         call_count.value = call_count.value + 1
         return value
 
-    dash_duo.start_app_server(app)
+    dash_duo.start_server(app)
 
     assert call_count.value == 1, "called once at initial stage"
 

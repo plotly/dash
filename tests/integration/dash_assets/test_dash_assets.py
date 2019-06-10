@@ -34,7 +34,7 @@ def test_dada001_assets(dash_duo):
         [html.Div("Content", id="content"), dcc.Input(id="test")], id="layout"
     )
 
-    dash_duo.start_app_server(app)
+    dash_duo.start_server(app)
 
     assert (
         dash_duo.find_element("body").value_of_css_property("margin") == "0px"
@@ -116,7 +116,7 @@ def test_dada002_external_files_init(dash_duo):
 
     app.layout = html.Div()
 
-    dash_duo.start_app_server(app)
+    dash_duo.start_server(app)
 
     js_urls = [x["src"] if isinstance(x, dict) else x for x in js_files]
     css_urls = [x["href"] if isinstance(x, dict) else x for x in css_files]

@@ -23,7 +23,7 @@ def test_dveh001_python_errors(dash_duo):
         elif n_clicks == 2:
             raise Exception("Special 2 clicks exception")
 
-    dash_duo.start_app_server(
+    dash_duo.start_server(
         app,
         debug=True,
         use_reloader=False,
@@ -70,7 +70,7 @@ def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
 
         return "button clicks: {}".format(n_clicks)
 
-    dash_duo.start_app_server(
+    dash_duo.start_server(
         app,
         debug=True,
         use_reloader=False,
@@ -109,7 +109,7 @@ def test_dveh003_validation_errors_in_place(dash_duo):
         if n_clicks == 1:
             return n_clicks
 
-    dash_duo.start_app_server(
+    dash_duo.start_server(
         app,
         debug=True,
         use_reloader=False,
@@ -143,7 +143,7 @@ def test_dveh004_validation_errors_creation(dash_duo):
                 id="output", animate=0, figure={"data": [{"y": [3, 1, 2]}]}
             )
 
-    dash_duo.start_app_server(
+    dash_duo.start_server(
         app,
         debug=True,
         use_reloader=False,
@@ -186,7 +186,7 @@ def test_dveh005_multiple_outputs(dash_duo):
         else:
             n_clicks / 0
 
-    dash_duo.start_app_server(
+    dash_duo.start_server(
         app,
         debug=True,
         use_reloader=False,

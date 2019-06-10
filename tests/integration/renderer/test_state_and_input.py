@@ -28,7 +28,7 @@ def test_rdsi001_state_and_inputs(dash_duo):
         call_count.value += 1
         return 'input="{}", state="{}"'.format(input, state)
 
-    dash_duo.start_app_server(app)
+    dash_duo.start_server(app)
 
     input_ = lambda: dash_duo.find_element("#input")
     output_ = lambda: dash_duo.find_element("#output")
@@ -79,7 +79,7 @@ def test_rdsi002_event_properties_state_and_inputs(dash_duo):
         call_count.value += 1
         return 'input="{}", state="{}"'.format(input, state)
 
-    dash_duo.start_app_server(app)
+    dash_duo.start_server(app)
 
     btn = lambda: dash_duo.find_element("#button")
     output = lambda: dash_duo.find_element("#output")

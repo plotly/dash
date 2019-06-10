@@ -13,7 +13,7 @@ def test_dvui001_disable_props_check_config(dash_duo):
         ]
     )
 
-    dash_duo.start_app_server(
+    dash_duo.start_server(
         app,
         debug=True,
         use_reloader=False,
@@ -45,7 +45,7 @@ def test_dvui002_disable_ui_config(dash_duo):
         ]
     )
 
-    dash_duo.start_app_server(
+    dash_duo.start_server(
         app,
         debug=True,
         use_reloader=False,

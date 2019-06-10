@@ -7,7 +7,7 @@ class DashComposite(Browser):
         super(DashComposite, self).__init__(browser, remote, wait_timeout)
         self.server = server
 
-    def start_app_server(self, app, **kwargs):
+    def start_server(self, app, **kwargs):
         '''start the local server with app'''
 
         # start server with app and pass Dash arguments

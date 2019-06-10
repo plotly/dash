@@ -21,7 +21,7 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
             time.sleep(1)
         return n_clicks
 
-    dash_duo.start_app_server(app)
+    dash_duo.start_server(app)
     dash_duo.multiple_click("#input", clicks=3)
 
     time.sleep(3)

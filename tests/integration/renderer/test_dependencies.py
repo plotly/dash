@@ -29,7 +29,7 @@ def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
         output_2_call_count.value += 1
         return value
 
-    dash_duo.start_app_server(app)
+    dash_duo.start_server(app)
 
     assert dash_duo.find_element("#output-1").text == "initial value"
     assert output_1_call_count.value == 1 and output_2_call_count.value == 0

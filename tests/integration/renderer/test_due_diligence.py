@@ -53,7 +53,7 @@ def test_rddd001_initial_state(dash_duo):
     ])
     # fmt:on
 
-    dash_duo.start_app_server(app)
+    dash_duo.start_server(app)
 
     # Note: this .html file shows there's no undo/redo button by default
     with open(

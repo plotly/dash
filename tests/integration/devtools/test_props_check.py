@@ -199,7 +199,7 @@ def test_dvpc001_prop_check_errors_with_path(dash_duo):
             children=test_case["component"](**test_case["props"]),
         )
 
-    dash_duo.start_app_server(
+    dash_duo.start_server(
         app,
         debug=True,
         use_reloader=False,
