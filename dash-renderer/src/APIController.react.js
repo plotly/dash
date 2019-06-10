@@ -102,7 +102,7 @@ class UnconnectedContainer extends Component {
             layoutRequest.status &&
             !contains(layoutRequest.status, [STATUS.OK, 'loading'])
         ) {
-            return <div className="_dash-error">{'Error loading layout'}</div>;
+            return <div className="_dash-error">Error loading layout</div>;
         } else if (
             errorLoading ||
             (dependenciesRequest.status &&
@@ -110,7 +110,7 @@ class UnconnectedContainer extends Component {
         ) {
             return (
                 <div className="_dash-error">
-                    {'Error loading dependencies'}
+                    Error loading dependencies
                 </div>
             );
         } else if (
@@ -134,7 +134,7 @@ class UnconnectedContainer extends Component {
             );
         }
 
-        return <div className="_dash-loading">{'Loading...'}</div>;
+        return <div className="_dash-loading">Loading...</div>;
     }
 }
 UnconnectedContainer.propTypes = {
