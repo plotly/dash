@@ -66,7 +66,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
     call_count = Value("i", 0)
 
     # these components don't exist in the initial render
-    app.config.supress_callback_exceptions = True
+    app.config.suppress_callback_exceptions = True
 
     @app.callback(
         Output("sub-output-1", "children"), [Input("sub-input-1", "value")]
