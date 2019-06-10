@@ -5,7 +5,6 @@ import os
 import shutil
 import unittest
 import plotly
-
 from dash.development.base_component import Component
 from dash.development.component_generator import reserved_words
 from dash.development._py_components_generation import (

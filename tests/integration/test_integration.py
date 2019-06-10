@@ -1,4 +1,3 @@
-import json
 from multiprocessing import Value
 import datetime
 import itertools
