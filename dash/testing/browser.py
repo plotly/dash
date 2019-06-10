@@ -110,29 +110,32 @@ class Browser(DashPageMixin):
 
     # keep these two wait_for API for easy migration
     def wait_for_element_by_css_selector(self, selector, timeout=None):
+        _time = timeout or self._wait_timeout
         return self._wait_for(
             EC.presence_of_element_located,
             ((By.CSS_SELECTOR, selector),),
             timeout,
-            "timeout {} => waiting for selector {}".format(timeout, selector),
+            "timeout {}s => waiting for selector {}".format(_time, selector),
         )
 
     def wait_for_style_to_equal(self, selector, style, val, timeout=None):
+        _time = timeout or self._wait_timeout
         return self._wait_for(
             method=style_to_equal,
             args=(selector, style, val),
             timeout=timeout,
             msg="style val => {} {} not found within {}s".format(
-                style, val, timeout
+                style, val, _time
             ),
         )
 
     def wait_for_text_to_equal(self, selector, text, timeout=None):
+        _time = timeout or self._wait_timeout
         return self._wait_for(
             method=text_to_equal,
             args=(selector, text),
             timeout=timeout,
-            msg="text -> {} not found within {}s".format(text, timeout),
+            msg="text -> {} not found within {}s".format(text, _time),
         )
 
     def wait_for_page(self, url=None, timeout=10):
