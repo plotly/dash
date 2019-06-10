@@ -317,7 +317,7 @@ def write_help_file(name, props, description, prefix):
     writes an R help file to the man directory for the generated R package
 
     """
-    file_name = format_filename(prefix, name, "Rd")
+    file_name = format_fn_name(prefix, name) + ".Rd"
 
     default_argtext = ""
     item_text = ""
@@ -392,7 +392,7 @@ def write_class_file(name,
         prefix
     )
 
-    file_name = format_filename(prefix, name, "R")
+    file_name = format_fn_name(prefix, name) + ".R"
 
     file_path = os.path.join("R", file_name)
     with open(file_path, "w") as f:
