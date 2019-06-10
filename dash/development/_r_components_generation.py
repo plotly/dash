@@ -16,7 +16,7 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-r_component_string = """{prefix}{name} <- function({default_argtext}{wildcards}) {{
+r_component_string = """{funcname} <- function({default_argtext}{wildcards}) {{
     {wildcard_declaration}
     component <- list(
         props = list({default_paramtext}{wildcards}),
@@ -60,9 +60,9 @@ return(deps_metadata)
 """
 
 help_string = """% Auto-generated: do not edit by hand
-\\name{{{prefix}{name}}}
+\\name{{{funcname}}}
 
-\\alias{{{prefix}{name}}}
+\\alias{{{funcname}}}
 
 \\title{{{name} component}}
 
@@ -71,7 +71,7 @@ help_string = """% Auto-generated: do not edit by hand
 }}
 
 \\usage{{
-{argtext}
+{funcname}({default_argtext})
 }}
 
 \\arguments{{
@@ -205,18 +205,16 @@ def generate_class_string(name, props, project_shortname, prefix):
         for p in prop_keys
     )
 
-    return r_component_string.format(
-        prefix=prefix,
-        name=name,
-        default_argtext=default_argtext,
-        wildcards=wildcards,
-        wildcard_declaration=wildcard_declaration,
-        default_paramtext=default_paramtext,
-        project_shortname=project_shortname,
-        prop_names=prop_names,
-        wildcard_names=wildcard_names,
-        package_name=package_name,
-    )
+    return r_component_string.format(funcname=format_fn_name(prefix, name),
+                                     name=name,
+                                     default_argtext=default_argtext,
+                                     wildcards=wildcards,
+                                     wildcard_declaration=wildcard_declaration,
+                                     default_paramtext=default_paramtext,
+                                     project_shortname=project_shortname,
+                                     prop_names=prop_names,
+                                     wildcard_names=wildcard_names,
+                                     package_name=package_name)
 
 
 # pylint: disable=R0914
@@ -319,7 +317,7 @@ def write_help_file(name, props, description, prefix):
     writes an R help file to the man directory for the generated R package
 
     """
-    file_name = "{}{}.Rd".format(prefix, name)
+    file_name = format_fn_name(prefix, name) + ".Rd"
 
     default_argtext = ""
     item_text = ""
@@ -356,31 +354,22 @@ def write_help_file(name, props, description, prefix):
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
         f.write(help_string.format(
-            prefix=prefix,
+            funcname=format_fn_name(prefix, name),
             name=name,
-            argtext=textwrap.fill(argtext,
-                                  width=80,
-                                  break_long_words=False),
+            default_argtext=textwrap.fill(argtext,
+                                          width=80,
+                                          break_long_words=False),
             item_text=item_text,
             description=description.replace('\n', ' ')
         ))
 
 
-def write_class_file(name, props, description, project_shortname, prefix=None):
+def write_class_file(name,
+                     props,
+                     description,
+                     project_shortname,
+                     prefix=None):
     props = reorder_props(props=props)
-
-    import_string = "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
-    class_string = generate_class_string(name,
-                                         props,
-                                         project_shortname,
-                                         prefix)
-
-    file_name = "{}{}.R".format(prefix, name)
-
-    file_path = os.path.join("R", file_name)
-    with open(file_path, "w") as f:
-        f.write(import_string)
-        f.write(class_string)
 
     # generate the R help pages for each of the Dash components that we
     # are transpiling -- this is done to avoid using Roxygen2 syntax,
@@ -393,6 +382,22 @@ def write_class_file(name, props, description, project_shortname, prefix=None):
         description,
         prefix
     )
+
+    import_string =\
+        "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
+    class_string = generate_class_string(
+        name,
+        props,
+        project_shortname,
+        prefix
+    )
+
+    file_name = format_fn_name(prefix, name) + ".R"
+
+    file_path = os.path.join("R", file_name)
+    with open(file_path, "w") as f:
+        f.write(import_string)
+        f.write(class_string)
 
     print("Generated {}".format(file_name))
 
@@ -594,6 +599,16 @@ is on GitHub: plotly/dash-core-components."
 def snake_case_to_camel_case(namestring):
     s = namestring.split("_")
     return s[0] + "".join(w.capitalize() for w in s[1:])
+
+
+# this logic will permit passing blank R prefixes to
+# dash-generate-components, while also enforcing
+# camelCase for the resulting functions; if a prefix
+# is supplied, leave it as-is
+def format_fn_name(prefix, name):
+    if prefix:
+        return prefix + snake_case_to_camel_case(name)
+    return snake_case_to_camel_case(name[0].lower() + name[1:])
 
 
 # pylint: disable=unused-argument
