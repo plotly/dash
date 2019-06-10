@@ -49,7 +49,7 @@ class FrontEndError extends Component {
                         {/* Special percy timestamp for visual testing.
                          * Hidden during regular usage.
                          */}
-                        {'00:00:00 PM'}
+                        00:00:00 PM
                     </span>
 
                     <CollapseIcon
