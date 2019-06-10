@@ -11,16 +11,16 @@ function AccessDenied(props) {
     const owner_username = fid.split(':')[0];
     return (
         <div style={merge(styles.base.html, styles.base.container)}>
-            <div style={styles.base.h2}>{'Access Denied'}</div>
+            <div style={styles.base.h2}>Access Denied</div>
 
             <div style={styles.base.h4}>
-                {"Uh oh! You don't have access to this Dash app."}
+                Uh oh! You don't have access to this Dash app.
             </div>
 
             <div>
-                {`This app is owned by ${owner_username}. `}
-                {`Reach out to ${owner_username} to grant you access
-                  to this app and then try refreshing the app.`}
+                This app is owned by {owner_username}. Reach out to
+                {owner_username} to grant you access to this app and then try
+                refreshing the app.
             </div>
 
             <br />
@@ -34,7 +34,7 @@ function AccessDenied(props) {
                     window.location.reload(true);
                 }}
             >
-                {'Log out of session'}
+                Log out of session
             </a>
         </div>
     );

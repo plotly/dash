@@ -37,7 +37,7 @@ class IntegrationTests(unittest.TestCase):
             options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
 
         cls.driver = webdriver.Chrome(
-            chrome_options=options, desired_capabilities=capabilities,
+            options=options, desired_capabilities=capabilities,
             service_args=["--verbose", "--log-path=chrome.log"]
             )
 

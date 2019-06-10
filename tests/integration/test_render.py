@@ -1,10 +1,7 @@
 # -*- coding: UTF-8 -*-
-import os
-import textwrap
-
 import dash
 from dash import Dash
-from dash.dependencies import Input, Output, State, ClientsideFunction
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from dash.development.base_component import Component
 import dash_html_components as html
@@ -22,8 +19,6 @@ from .IntegrationTests import IntegrationTests
 from .utils import wait_for
 from multiprocessing import Value
 import time
-import re
-import itertools
 import json
 import string
 import plotly
@@ -36,23 +31,6 @@ TIMEOUT = 20
 class Tests(IntegrationTests):
     def setUp(self):
         pass
-
-    def wait_for_style_to_equal(self, selector, style, assertion_style, timeout=TIMEOUT):
-        start = time.time()
-        exception = Exception('Time ran out, {} on {} not found'.format(
-            assertion_style, selector))
-        while time.time() < start + timeout:
-            element = self.wait_for_element_by_css_selector(selector)
-            try:
-                self.assertEqual(
-                    assertion_style, element.value_of_css_property(style))
-            except Exception as e:
-                exception = e
-            else:
-                return
-            time.sleep(0.1)
-
-        raise exception
 
     def wait_for_element_by_css_selector(self, selector, timeout=TIMEOUT):
         return WebDriverWait(self.driver, timeout).until(
@@ -74,17 +52,6 @@ class Tests(IntegrationTests):
                 assertion_text
             )
         )
-
-    def clear_input(self, input_element):
-        (
-            ActionChains(self.driver)
-            .click(input_element)
-            .send_keys(Keys.HOME)
-            .key_down(Keys.SHIFT)
-            .send_keys(Keys.END)
-            .key_up(Keys.SHIFT)
-            .send_keys(Keys.DELETE)
-        ).perform()
 
     def request_queue_assertions(
             self, check_rejected=True, expected_length=None):
@@ -108,109 +75,6 @@ class Tests(IntegrationTests):
 
         if expected_length is not None:
             self.assertEqual(len(request_queue), expected_length)
-
-    def test_initial_state(self):
-        app = Dash(__name__)
-        my_class_attrs = {
-            'id': 'p.c.4',
-            'className': 'my-class',
-            'title': 'tooltip',
-            'style': {'color': 'red', 'fontSize': 30},
-        }
-        app.layout = html.Div([
-            'Basic string',
-            3.14,
-            True,
-            None,
-            html.Div('Child div with basic string', **my_class_attrs),
-            html.Div(id='p.c.5'),
-            html.Div([
-                html.Div('Grandchild div', id='p.c.6.p.c.0'),
-                html.Div([
-                    html.Div('Great grandchild', id='p.c.6.p.c.1.p.c.0'),
-                    3.14159,
-                    'another basic string'
-                ], id='p.c.6.p.c.1'),
-                html.Div([
-                    html.Div(
-                        html.Div([
-                            html.Div([
-                                html.Div(
-                                    id='p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.0'
-                                ),
-                                '',
-                                html.Div(
-                                    id='p.c.6.p.c.2.p.c.0.p.c.p.c.0.p.c.2'
-                                )
-                            ], id='p.c.6.p.c.2.p.c.0.p.c.p.c.0')
-                        ], id='p.c.6.p.c.2.p.c.0.p.c'),
-                        id='p.c.6.p.c.2.p.c.0'
-                    )
-                ], id='p.c.6.p.c.2')
-            ], id='p.c.6')
-        ])
-
-        self.startServer(app)
-        el = self.wait_for_element_by_css_selector('#react-entry-point')
-
-        # Note: this .html file shows there's no undo/redo button by default
-        _dash_app_content_html = os.path.join(
-            os.path.dirname(__file__),
-            'test_assets', 'initial_state_dash_app_content.html')
-        with open(_dash_app_content_html) as fp:
-            rendered_dom = BeautifulSoup(fp.read().strip(), 'lxml')
-        fetched_dom = BeautifulSoup(el.get_attribute('outerHTML'), 'lxml')
-
-        self.assertEqual(
-            fetched_dom.decode(), rendered_dom.decode(),
-            "the fetching rendered dom is expected ")
-
-        # Check that no errors or warnings were displayed
-        self.assertTrue(self.is_console_clean())
-
-        self.assertEqual(
-            self.driver.execute_script(
-                'return JSON.parse(JSON.stringify('
-                'window.store.getState().layout'
-                '))'
-            ),
-            json.loads(
-                json.dumps(app.layout, cls=plotly.utils.PlotlyJSONEncoder)),
-            "the state layout is identical to app.layout"
-        )
-
-        r = requests.get('http://localhost:8050/_dash-dependencies')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.json(), [],
-            "no dependencies present in app as no callbacks are defined"
-
-        )
-
-        self.assertEqual(
-            self.driver.execute_script(
-                'return window.store.getState().paths'
-            ),
-            {
-                abbr: [
-                    int(token) if token in string.digits
-                    else token.replace('p', 'props').replace('c', 'children')
-                    for token in abbr.split('.')
-                ]
-                for abbr in (
-                    child.get('id')
-                    for child in fetched_dom.find(
-                        id='react-entry-point').findChildren(id=True)
-                )
-            },
-            "paths should refect to the component hierarchy"
-        )
-
-        self.request_queue_assertions(0)
-
-        self.percy_snapshot(name='layout')
-
-        self.assertTrue(self.is_console_clean())
 
     def click_undo(self):
         undo_selector = '._dash-undo-redo span:first-child div:last-child'
@@ -302,153 +166,6 @@ class Tests(IntegrationTests):
         self.startServer(app)
 
         self.wait_for_text_to_equal('#nully-wrapper', '0')
-
-        self.assertTrue(self.is_console_clean())
-
-    def test_simple_callback(self):
-        app = Dash(__name__)
-        app.layout = html.Div([
-            dcc.Input(
-                id='input',
-                value='initial value'
-            ),
-            html.Div(
-                html.Div([
-                    1.5,
-                    None,
-                    'string',
-                    html.Div(id='output-1')
-                ])
-            )
-        ])
-
-        call_count = Value('i', 0)
-
-        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
-        def update_output(value):
-            call_count.value = call_count.value + 1
-            return value
-
-        self.startServer(app)
-
-        self.wait_for_text_to_equal('#output-1', 'initial value')
-        self.percy_snapshot(name='simple-callback-1')
-
-        input1 = self.wait_for_element_by_css_selector('#input')
-        self.clear_input(input1)
-
-        input1.send_keys('hello world')
-
-        self.wait_for_text_to_equal('#output-1', 'hello world')
-        self.percy_snapshot(name='simple-callback-2')
-
-        self.assertEqual(
-            call_count.value,
-            # an initial call to retrieve the first value + clear is now one
-            2 +
-            # one for each hello world character
-            len('hello world')
-        )
-
-        self.request_queue_assertions(
-            expected_length=1,
-            check_rejected=False)
-
-        self.assertTrue(self.is_console_clean())
-
-    def test_callbacks_generating_children(self):
-        ''' Modify the DOM tree by adding new
-        components in the callbacks
-        '''
-
-        app = Dash(__name__)
-        app.layout = html.Div([
-            dcc.Input(
-                id='input',
-                value='initial value'
-            ),
-            html.Div(id='output')
-        ])
-
-        @app.callback(Output('output', 'children'), [Input('input', 'value')])
-        def pad_output(input):
-            return html.Div([
-                dcc.Input(
-                    id='sub-input-1',
-                    value='sub input initial value'
-                ),
-                html.Div(id='sub-output-1')
-            ])
-
-        call_count = Value('i', 0)
-
-        # these components don't exist in the initial render
-        app.config.supress_callback_exceptions = True
-
-        @app.callback(
-            Output('sub-output-1', 'children'),
-            [Input('sub-input-1', 'value')]
-        )
-        def update_input(value):
-            call_count.value = call_count.value + 1
-            return value
-
-        self.startServer(app)
-
-        wait_for(lambda: call_count.value == 1)
-
-        pad_input, pad_div = BeautifulSoup(
-            self.driver.find_element_by_css_selector(
-                '#react-entry-point').get_attribute('innerHTML'),
-            'lxml').select_one('#output > div').contents
-
-        self.assertEqual(pad_input.attrs['value'], 'sub input initial value')
-        self.assertEqual(pad_input.attrs['id'], 'sub-input-1')
-        self.assertEqual(pad_input.name, 'input')
-
-        self.assertTrue(
-            pad_div.text == pad_input.attrs['value'] and
-            pad_div.get('id') == 'sub-output-1',
-            "the sub-output-1 content reflects to sub-input-1 value"
-        )
-
-        self.percy_snapshot(name='callback-generating-function-1')
-
-        # the paths should include these new output IDs
-        self.assertEqual(
-            self.driver.execute_script('return window.store.getState().paths'),
-            {
-                'input': [
-                    'props', 'children', 0
-                ],
-                'output': ['props', 'children', 1],
-                'sub-input-1': [
-                    'props', 'children', 1,
-                    'props', 'children',
-                    'props', 'children', 0
-                ],
-                'sub-output-1': [
-                    'props', 'children', 1,
-                    'props', 'children',
-                    'props', 'children', 1
-                ]
-            }
-        )
-
-        # editing the input should modify the sub output
-        sub_input = self.driver.find_element_by_id('sub-input-1')
-
-        sub_input.send_keys('deadbeef')
-        self.wait_for_text_to_equal(
-            '#sub-output-1',
-            pad_input.attrs['value'] + 'deadbeef')
-
-        self.assertEqual(
-            call_count.value, len('deadbeef') + 1,
-            "the total updates is initial one + the text input changes")
-
-        self.request_queue_assertions(call_count.value + 1)
-        self.percy_snapshot(name='callback-generating-function-2')
 
         self.assertTrue(self.is_console_clean())
 
@@ -762,54 +479,6 @@ class Tests(IntegrationTests):
         chapter1_assertions()
         self.percy_snapshot(name='chapter-1-again')
 
-    def test_dependencies_on_components_that_dont_exist(self):
-        app = Dash(__name__)
-        app.layout = html.Div([
-            dcc.Input(id='input', value='initial value'),
-            html.Div(id='output-1')
-        ])
-
-        # standard callback
-        output_1_call_count = Value('i', 0)
-
-        @app.callback(Output('output-1', 'children'), [Input('input', 'value')])
-        def update_output(value):
-            output_1_call_count.value += 1
-            return value
-
-        # callback for component that doesn't yet exist in the dom
-        # in practice, it might get added by some other callback
-        app.config.supress_callback_exceptions = True
-        output_2_call_count = Value('i', 0)
-
-        @app.callback(
-            Output('output-2', 'children'),
-            [Input('input', 'value')]
-        )
-        def update_output_2(value):
-            output_2_call_count.value += 1
-            return value
-
-        self.startServer(app)
-
-        self.wait_for_text_to_equal('#output-1', 'initial value')
-        self.percy_snapshot(name='dependencies')
-        time.sleep(1.0)
-        self.assertEqual(output_1_call_count.value, 1)
-        self.assertEqual(output_2_call_count.value, 0)
-
-        input = self.driver.find_element_by_id('input')
-
-        input.send_keys('a')
-        self.wait_for_text_to_equal('#output-1', 'initial valuea')
-        time.sleep(1.0)
-        self.assertEqual(output_1_call_count.value, 2)
-        self.assertEqual(output_2_call_count.value, 0)
-
-        self.request_queue_assertions(2)
-
-        self.assertTrue(self.is_console_clean())
-
     def test_event_properties(self):
         app = Dash(__name__)
         app.layout = html.Div([
@@ -836,203 +505,6 @@ class Tests(IntegrationTests):
         btn.click()
         wait_for(lambda: output().text == 'Click')
         self.assertEqual(call_count.value, 1)
-
-    def test_event_properties_and_state(self):
-        app = Dash(__name__)
-        app.layout = html.Div([
-            html.Button('Click Me', id='button'),
-            dcc.Input(value='Initial State', id='state'),
-            html.Div(id='output')
-        ])
-
-        call_count = Value('i', 0)
-
-        @app.callback(Output('output', 'children'),
-                      [Input('button', 'n_clicks')],
-                      [State('state', 'value')])
-        def update_output(n_clicks, value):
-            if(not n_clicks):
-                raise PreventUpdate
-            call_count.value += 1
-            return value
-
-        self.startServer(app)
-        btn = self.driver.find_element_by_id('button')
-        output = lambda: self.driver.find_element_by_id('output')
-
-        self.assertEqual(call_count.value, 0)
-        self.assertEqual(output().text, '')
-
-        btn.click()
-        wait_for(lambda: output().text == 'Initial State')
-        self.assertEqual(call_count.value, 1)
-
-        # Changing state shouldn't fire the callback
-        state = self.driver.find_element_by_id('state')
-        state.send_keys('x')
-        time.sleep(0.75)
-        self.assertEqual(output().text, 'Initial State')
-        self.assertEqual(call_count.value, 1)
-
-        btn.click()
-        wait_for(lambda: output().text == 'Initial Statex')
-        self.assertEqual(call_count.value, 2)
-
-    def test_event_properties_state_and_inputs(self):
-        app = Dash(__name__)
-        app.layout = html.Div([
-            html.Button('Click Me', id='button'),
-            dcc.Input(value='Initial Input', id='input'),
-            dcc.Input(value='Initial State', id='state'),
-            html.Div(id='output')
-        ])
-
-        call_count = Value('i', 0)
-
-        @app.callback(Output('output', 'children'),
-                      [Input('input', 'value'), Input('button', 'n_clicks')],
-                      [State('state', 'value')])
-        def update_output(input, n_clicks, state):
-            call_count.value += 1
-            return 'input="{}", state="{}"'.format(input, state)
-
-        self.startServer(app)
-        btn = lambda: self.driver.find_element_by_id('button')
-        output = lambda: self.driver.find_element_by_id('output')
-        input = lambda: self.driver.find_element_by_id('input')
-        state = lambda: self.driver.find_element_by_id('state')
-
-        # callback gets called with initial input
-        self.assertEqual(
-            output().text,
-            'input="Initial Input", state="Initial State"'
-        )
-
-        btn().click()
-        wait_for(lambda: call_count.value == 2)
-        self.assertEqual(
-            output().text,
-            'input="Initial Input", state="Initial State"')
-
-        input().send_keys('x')
-        wait_for(lambda: call_count.value == 3)
-        self.assertEqual(
-            output().text,
-            'input="Initial Inputx", state="Initial State"')
-
-        state().send_keys('x')
-        time.sleep(0.75)
-        self.assertEqual(call_count.value, 3)
-        self.assertEqual(
-            output().text,
-            'input="Initial Inputx", state="Initial State"')
-
-        btn().click()
-        wait_for(lambda: call_count.value == 4)
-        self.assertEqual(
-            output().text,
-            'input="Initial Inputx", state="Initial Statex"')
-
-    def test_state_and_inputs(self):
-        app = Dash(__name__)
-        app.layout = html.Div([
-            dcc.Input(value='Initial Input', id='input'),
-            dcc.Input(value='Initial State', id='state'),
-            html.Div(id='output')
-        ])
-
-        call_count = Value('i', 0)
-
-        @app.callback(
-            Output('output', 'children'), [Input('input', 'value')],
-            [State('state', 'value')])
-        def update_output(input, state):
-            call_count.value += 1
-            return 'input="{}", state="{}"'.format(input, state)
-
-        self.startServer(app)
-        output = lambda: self.driver.find_element_by_id('output')
-        input = lambda: self.driver.find_element_by_id('input')
-        state = lambda: self.driver.find_element_by_id('state')
-
-        # callback gets called with initial input
-        self.assertEqual(
-            output().text,
-            'input="Initial Input", state="Initial State"'
-        )
-
-        input().send_keys('x')
-        wait_for(lambda: call_count.value == 2)
-        self.assertEqual(
-            output().text,
-            'input="Initial Inputx", state="Initial State"')
-
-        state().send_keys('x')
-        time.sleep(0.75)
-        self.assertEqual(call_count.value, 2)
-        self.assertEqual(
-            output().text,
-            'input="Initial Inputx", state="Initial State"')
-
-        input().send_keys('y')
-        wait_for(lambda: call_count.value == 3)
-        self.assertEqual(
-            output().text,
-            'input="Initial Inputxy", state="Initial Statex"')
-
-    def test_event_properties_creating_inputs(self):
-        app = Dash(__name__)
-
-        ids = {
-            k: k for k in ['button', 'button-output', 'input', 'input-output']
-        }
-        app.layout = html.Div([
-            html.Button(id=ids['button']),
-            html.Div(id=ids['button-output'])
-        ])
-        for script in dcc._js_dist:
-            script['namespace'] = 'dash_core_components'
-            app.scripts.append_script(script)
-
-        app.config.supress_callback_exceptions = True
-        call_counts = {
-            ids['input-output']: Value('i', 0),
-            ids['button-output']: Value('i', 0)
-        }
-
-        @app.callback(
-            Output(ids['button-output'], 'children'),
-            [Input(ids['button'], 'n_clicks')])
-        def display(n_clicks):
-            if(not n_clicks):
-                raise PreventUpdate
-            call_counts['button-output'].value += 1
-            return html.Div([
-                dcc.Input(id=ids['input'], value='initial state'),
-                html.Div(id=ids['input-output'])
-            ])
-
-        @app.callback(
-            Output(ids['input-output'], 'children'),
-            [Input(ids['input'], 'value')])
-        def update_input(value):
-            call_counts['input-output'].value += 1
-            return 'Input is equal to "{}"'.format(value)
-
-        self.startServer(app)
-        time.sleep(1)
-        self.assertEqual(call_counts[ids['button-output']].value, 0)
-        self.assertEqual(call_counts[ids['input-output']].value, 0)
-
-        btn = lambda: self.driver.find_element_by_id(ids['button'])
-        output = lambda: self.driver.find_element_by_id(ids['input-output'])
-        with self.assertRaises(Exception):
-            output()
-
-        btn().click()
-        wait_for(lambda: call_counts[ids['input-output']].value == 1)
-        self.assertEqual(call_counts[ids['button-output']].value, 1)
-        self.assertEqual(output().text, 'Input is equal to "initial state"')
 
     def test_chained_dependencies_direct_lineage(self):
         app = Dash(__name__)
@@ -1322,43 +794,6 @@ class Tests(IntegrationTests):
         )
 
         self.assertEqual(call_count.value, 1)
-
-    def test_callbacks_called_multiple_times_and_out_of_order(self):
-        app = Dash(__name__)
-        app.layout = html.Div([
-            html.Button(id='input', n_clicks=0),
-            html.Div(id='output')
-        ])
-
-        call_count = Value('i', 0)
-
-        @app.callback(
-            Output('output', 'children'),
-            [Input('input', 'n_clicks')])
-        def update_output(n_clicks):
-            call_count.value = call_count.value + 1
-            if n_clicks == 1:
-                time.sleep(4)
-            return n_clicks
-
-        self.startServer(app)
-        button = self.wait_for_element_by_css_selector('#input')
-        button.click()
-        button.click()
-        time.sleep(8)
-        self.percy_snapshot(
-            name='test_callbacks_called_multiple_times_and_out_of_order'
-        )
-        self.assertEqual(call_count.value, 3)
-        self.assertEqual(
-            self.driver.find_element_by_id('output').text,
-            '2'
-        )
-        request_queue = self.driver.execute_script(
-            'return window.store.getState().requestQueue'
-        )
-        self.assertFalse(request_queue[0]['rejected'])
-        self.assertEqual(len(request_queue), 1)
 
     def test_callbacks_called_multiple_times_and_out_of_order_multi_output(self):
         app = Dash(__name__)
@@ -1912,45 +1347,6 @@ class Tests(IntegrationTests):
         )[0].click()
 
         self.wait_for_text_to_equal('#graph2_info', json.dumps(graph_2_expected_clickdata))
-
-    def test_hot_reload(self):
-        app = dash.Dash(__name__, assets_folder='test_assets')
-
-        app.layout = html.Div([
-            html.H3('Hot reload')
-        ], id='hot-reload-content')
-
-        self.startServer(
-            app,
-            dev_tools_hot_reload=True,
-            dev_tools_hot_reload_interval=100,
-            dev_tools_hot_reload_max_retry=30,
-        )
-
-        hot_reload_file = os.path.join(
-            os.path.dirname(__file__), 'test_assets', 'hot_reload.css')
-
-        self.wait_for_style_to_equal(
-            '#hot-reload-content', 'background-color', 'rgba(0, 0, 255, 1)'
-        )
-
-        with open(hot_reload_file, 'r+') as f:
-            old_content = f.read()
-            f.truncate(0)
-            f.seek(0)
-            f.write(textwrap.dedent('''
-            #hot-reload-content {
-                background-color: red;
-            }
-            '''))
-
-        try:
-            self.wait_for_style_to_equal(
-                '#hot-reload-content', 'background-color', 'rgba(255, 0, 0, 1)'
-            )
-        finally:
-            with open(hot_reload_file, 'w') as f:
-                f.write(old_content)
 
     def test_single_input_multi_outputs_on_multiple_components(self):
         call_count = Value('i')
