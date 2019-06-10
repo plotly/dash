@@ -607,16 +607,8 @@ def snake_case_to_camel_case(namestring):
 # is supplied, leave it as-is
 def format_fn_name(prefix, name):
     if prefix:
-        return prefix + name
+        return prefix + snake_case_to_camel_case(name)
     return snake_case_to_camel_case(name[0].lower() + name[1:])
-
-
-def format_filename(prefix, name, ext):
-    if prefix:
-        file_name = "{}{}.{}".format(prefix, name.capitalize(), ext)
-    else:
-        file_name = "{}.{}".format(name[0].lower() + name[1:], ext)
-    return file_name
 
 
 # pylint: disable=unused-argument
