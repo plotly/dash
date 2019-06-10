@@ -488,11 +488,12 @@ def map_js_to_py_types_prop_types(type_object):
                 if js_to_py_type(subType) != '')),
 
         # React's PropTypes.arrayOf
-        arrayOf=lambda: 'list'.format(  # pylint: disable=too-many-format-args
-            ' of {}s'.format(
-                js_to_py_type(type_object['value']))
-            if js_to_py_type(type_object['value']) != ''
-            else ''),
+        arrayOf=lambda: (
+            "list" + ((" of {}s").format(
+                js_to_py_type(type_object["value"]))
+                      if js_to_py_type(type_object["value"]) != ""
+                      else "")
+        ),
 
         # React's PropTypes.objectOf
         objectOf=lambda: (

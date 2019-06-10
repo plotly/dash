@@ -12,8 +12,10 @@ setup(
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
     license='MIT',
-    description=('A Python framework for building reactive web-apps. '
-                 'Developed by Plotly.'),
+    description=(
+        'A Python framework for building reactive web-apps. '
+        'Developed by Plotly.'
+    ),
     long_description=io.open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
     install_requires=[
@@ -29,7 +31,10 @@ setup(
         'console_scripts': [
             'dash-generate-components ='
             ' dash.development.component_generator:cli'
-        ]
+        ],
+        'pytest11': [
+            'dash = dash.testing.plugin'
+        ],
     },
     url='https://plot.ly/dash',
     classifiers=[
