@@ -109,9 +109,7 @@ class UnconnectedContainer extends Component {
                 !contains(dependenciesRequest.status, [STATUS.OK, 'loading']))
         ) {
             return (
-                <div className="_dash-error">
-                    Error loading dependencies
-                </div>
+                <div className="_dash-error">Error loading dependencies</div>
             );
         } else if (
             appLifecycle === getAppState('HYDRATED') &&

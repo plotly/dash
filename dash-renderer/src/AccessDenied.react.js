@@ -18,9 +18,9 @@ function AccessDenied(props) {
             </div>
 
             <div>
-                This app is owned by {owner_username}.
-                Reach out to {owner_username} to grant you access
-                  to this app and then try refreshing the app.
+                This app is owned by {owner_username}. Reach out to
+                {owner_username} to grant you access to this app and then try
+                refreshing the app.
             </div>
 
             <br />
