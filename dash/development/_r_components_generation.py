@@ -579,7 +579,7 @@ def format_fn_name(prefix, name):
 
 def format_filename(prefix, name, ext):
     if prefix:
-        file_name = "{}{}.{}".format(prefix.lower(), name.capitalize(), ext)
+        file_name = "{}{}.{}".format(prefix, name.capitalize(), ext)
     else:
         file_name = "{}.{}".format(name[0].lower() + name[1:], ext)
     return file_name
