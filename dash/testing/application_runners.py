@@ -81,7 +81,7 @@ class BaseDashRunner(object):
                 self.stop()
             except TestingTimeoutError:
                 raise ServerCloseError(
-                    "Cannot stop server within {} timeout".format(
+                    "Cannot stop server within {}s timeout".format(
                         self.stop_timeout
                     )
                 )

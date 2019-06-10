@@ -14,11 +14,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.action_chains import ActionChains
 
-from selenium.common.exceptions import (
-    WebDriverException,
-    TimeoutException,
-    NoSuchElementException,
-)
+from selenium.common.exceptions import WebDriverException, TimeoutException
 
 from dash.testing.wait import text_to_equal, style_to_equal
 from dash.testing.dash_page import DashPageMixin
@@ -202,7 +198,7 @@ class Browser(DashPageMixin):
 
         # this will be useful if we wanna test download csv or other data
         # files with selenium
-        # TODO this can be fed as a tmpdir fixture from pytest
+        # TODO this could be replaced with a tmpfixture from pytest too
         fp.set_preference("browser.download.dir", "/tmp")
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
@@ -216,17 +212,6 @@ class Browser(DashPageMixin):
     def multiple_click(self, css_selector, clicks):
         for _ in range(clicks):
             self.find_element(css_selector).click()
-
-    def js_click(self, elem):
-        """click in native javascript way
-        note: this is NOT the recommended way to click"""
-        self.driver.execute_script("arguments[0].click();", elem)
-
-    def mouse_click(self, elem):
-        try:
-            ActionChains(self.driver).click(elem).perform()
-        except NoSuchElementException:
-            logger.exception("mouse_click on wrong element")
 
     def clear_input(self, elem):
         (
