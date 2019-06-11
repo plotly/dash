@@ -5,6 +5,7 @@ import re
 import time
 import pytest
 
+from bs4 import BeautifulSoup
 from selenium.webdriver.common.keys import Keys
 
 import dash_dangerously_set_inner_html
@@ -142,11 +143,14 @@ def test_inin003_aborted_callback(dash_duo):
     input_.send_keys('xyz')
     dash_duo.wait_for_text_to_equal('#input', 'initial inputxyz')
 
-    # callback1 runs 4x (initial page load and 3x through send_keys)
-    until(lambda: callback1_count.value == 4, 3)
+    until(
+        lambda: callback1_count.value == 4,
+        timeout=3,
+        msg="callback1 runs 4x (initial page load and 3x through send_keys)"
+    )
 
-    # callback2 is never triggered, even on initial load
-    assert callback2_count.value == 0
+    assert callback2_count.value == 0, \
+        "callback2 is never triggered, even on initial load"
 
     # double check that output1 and output2 children were not updated
     assert dash_duo.find_element('#output1').text == initial_output
@@ -160,58 +164,31 @@ def test_inin003_aborted_callback(dash_duo):
 def test_inin004_wildcard_data_attributes(dash_duo):
     app = Dash()
     test_time = datetime.datetime(2012, 1, 10, 2, 3)
-    test_date = datetime.date(test_time.year, test_time.month,
-                              test_time.day)
-    app.layout = html.Div([
-        html.Div(
-            id="inner-element",
-            **{
-                'data-string': 'multiple words',
-                'data-number': 512,
-                'data-none': None,
-                'data-date': test_date,
-                'aria-progress': 5
-            }
-        )
-    ], id='data-element')
+    test_date = datetime.date(test_time.year, test_time.month, test_time.day)
+    attrs = {
+        "id": "inner-element",
+        "data-string": "multiple words",
+        "data-number": 512,
+        "data-none": None,
+        "data-date": test_date,
+        "aria-progress": 5
+    }
+    app.layout = html.Div([html.Div(**attrs)], id='data-element')
 
     dash_duo.start_server(app)
 
     div = dash_duo.find_element('#data-element')
 
-    # React wraps text and numbers with e.g. <!-- react-text: 20 -->
-    # Remove those
-    comment_regex = r'<!--[^\[](.*?)-->'  # noqa: W605
+    # attribute order is ill-defined - BeautifulSoup will sort them
+    actual = BeautifulSoup(div.get_attribute('innerHTML'), 'lxml').decode()
+    expected = BeautifulSoup(
+        '<div ' + ' '.join(
+            '{}="{!s}"'.format(k, v) for k, v in attrs.items() if v is not None
+        ) + '></div>',
+        'lxml'
+    ).decode()
 
-    # Somehow the html attributes are unordered.
-    # Try different combinations (they're all valid html)
-    permutations = itertools.permutations([
-        'id="inner-element"',
-        'data-string="multiple words"',
-        'data-number="512"',
-        'data-date="%s"' % test_date,
-        'aria-progress="5"'
-    ], 5)
-    passed = False
-    for permutation in permutations:
-        actual_cleaned = re.sub(comment_regex, '',
-                                div.get_attribute('innerHTML'))
-        expected_cleaned = re.sub(
-            comment_regex,
-            '',
-            "<div PERMUTE></div>"
-            .replace('PERMUTE', ' '.join(list(permutation)))
-        )
-        passed = passed or (actual_cleaned == expected_cleaned)
-        if passed:
-            break
-    if not passed:
-        raise Exception(
-            'HTML does not match\nActual:\n{}\n\nExpected:\n{}'.format(
-                actual_cleaned,
-                expected_cleaned
-            )
-        )
+    assert actual == expected, 'all attrs are included except None values'
 
     assert not dash_duo.get_logs()
 
@@ -314,7 +291,7 @@ def test_inin008_index_customization(dash_duo):
             </footer>
             <div id="custom-footer">My custom footer</div>
             <script>
-            // Test the formatting doesn't mess up script tags.
+            // Test the formatting doesn"t mess up script tags.
             var elem = document.getElementById('add');
             if (!elem) {
                 throw Error('could not find container to add');
@@ -426,8 +403,10 @@ def test_inin011_multi_output(dash_duo):
 
         return 'Output 3: {}'.format(n_clicks)
 
-    # Test that a multi output can't be included in a single output
-    with pytest.raises(DuplicateCallbackOutput) as err:
+    with pytest.raises(
+        DuplicateCallbackOutput,
+        message="multi output can't be included in a single output"
+    ) as err:
         @app.callback(Output('output1', 'children'),
                       [Input('output-btn', 'n_clicks')])
         def on_click_duplicate(n_clicks):
@@ -438,8 +417,10 @@ def test_inin011_multi_output(dash_duo):
 
     assert 'output1' in err.value.args[0]
 
-    # Test a multi output cannot contain a used single output
-    with pytest.raises(DuplicateCallbackOutput) as err:
+    with pytest.raises(
+        DuplicateCallbackOutput,
+        message="multi output cannot contain a used single output"
+    ) as err:
         @app.callback([Output('output3', 'children'),
                        Output('output4', 'children')],
                       [Input('output-btn', 'n_clicks')])
@@ -451,7 +432,10 @@ def test_inin011_multi_output(dash_duo):
 
     assert 'output3' in err.value.args[0]
 
-    with pytest.raises(DuplicateCallbackOutput) as err:
+    with pytest.raises(
+        DuplicateCallbackOutput,
+        message="same output cannot be used twice in one callback"
+    ) as err:
         @app.callback([Output('output5', 'children'),
                        Output('output5', 'children')],
                       [Input('output-btn', 'n_clicks')])
@@ -460,7 +444,10 @@ def test_inin011_multi_output(dash_duo):
 
     assert 'output5' in err.value.args[0]
 
-    with pytest.raises(DuplicateCallbackOutput) as err:
+    with pytest.raises(
+        DuplicateCallbackOutput,
+        message="no part of an existing multi-output can be used in another"
+    ) as err:
         @app.callback([Output('output1', 'children'),
                        Output('output5', 'children')],
                       [Input('output-btn', 'n_clicks')])
@@ -509,9 +496,7 @@ def test_inin012_multi_output_no_update(dash_duo):
 
     dash_duo.start_server(app)
 
-    btn = dash_duo.find_element('#btn')
-    for _ in range(10):
-        btn.click()
+    dash_duo.multiple_click('#btn', 10)
 
     dash_duo.wait_for_text_to_equal('#n1', '4')
     dash_duo.wait_for_text_to_equal('#n2', '2')
@@ -812,22 +797,22 @@ def test_inin019_callback_dep_types():
         html.Div(id='out')
     ])
 
-    with pytest.raises(IncorrectTypeException):
-        @app.callback([[Output('out', 'children')]],  # extra nesting
+    with pytest.raises(IncorrectTypeException, message="extra output nesting"):
+        @app.callback([[Output('out', 'children')]],
                       [Input('in', 'children')])
         def f(i):
             return i
 
-    with pytest.raises(IncorrectTypeException):
+    with pytest.raises(IncorrectTypeException, message="un-nested input"):
         @app.callback(Output('out', 'children'),
-                      Input('in', 'children'))  # no nesting
+                      Input('in', 'children'))
         def f2(i):
             return i
 
-    with pytest.raises(IncorrectTypeException):
+    with pytest.raises(IncorrectTypeException, message="un-nested state"):
         @app.callback(Output('out', 'children'),
                       [Input('in', 'children')],
-                      State('state', 'children'))  # no nesting
+                      State('state', 'children'))
         def f3(i):
             return i
 
@@ -852,28 +837,29 @@ def test_inin020_callback_return_validation():
 
     @app.callback(Output('b', 'children'), [Input('a', 'children')])
     def single(a):
-        # anything non-serializable, really
         return set([1])
 
-    with pytest.raises(InvalidCallbackReturnValue):
+    with pytest.raises(InvalidCallbackReturnValue, message="not serializable"):
         single('aaa')
 
     @app.callback([Output('c', 'children'), Output('d', 'children')],
                   [Input('a', 'children')])
     def multi(a):
-        # non-serializable inside a list
         return [1, set([2])]
 
-    with pytest.raises(InvalidCallbackReturnValue):
+    with pytest.raises(
+        InvalidCallbackReturnValue, message="nested non-serializable"
+    ):
         multi('aaa')
 
     @app.callback([Output('e', 'children'), Output('f', 'children')],
                   [Input('a', 'children')])
     def multi2(a):
-        # wrong-length list
         return ['abc']
 
-    with pytest.raises(InvalidCallbackReturnValue):
+    with pytest.raises(
+        InvalidCallbackReturnValue, message="wrong-length list"
+    ):
         multi2('aaa')
 
 
@@ -883,9 +869,7 @@ def test_inin021_callback_context(dash_duo):
     btns = ['btn-{}'.format(x) for x in range(1, 6)]
 
     app.layout = html.Div([
-        html.Div([
-            html.Button(x, id=x) for x in btns
-        ]),
+        html.Div([html.Button(btn, id=btn) for btn in btns]),
         html.Div(id='output'),
     ])
 
@@ -901,18 +885,12 @@ def test_inin021_callback_context(dash_duo):
 
     dash_duo.start_server(app)
 
-    btn_elements = [
-        dash_duo.find_element('#' + x) for x in btns
-    ]
-
     for i in range(1, 5):
-        for j, btn in enumerate(btns):
-            btn_elements[j].click()
+        for btn in btns:
+            dash_duo.find_element('#' + btn).click()
             dash_duo.wait_for_text_to_equal(
                 '#output',
-                'Just clicked {} for the {} time!'.format(
-                    btn, i
-                )
+                'Just clicked {} for the {} time!'.format(btn, i)
             )
 
 
