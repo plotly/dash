@@ -74,8 +74,8 @@ jobs:
       - run:
           name: 🚧 install dependencies from latest master commit
           command: |
-              git clone -b prop-types-dev https://github.com/plotly/dash-core-components.git
-              git clone -b prop-types-dev https://github.com/plotly/dash-html-components.git
+              git clone --depth 1 https://github.com/plotly/dash-core-components.git
+              git clone --depth 1 https://github.com/plotly/dash-html-components.git
               git clone --depth 1 https://github.com/plotly/dash-table.git
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
               . venv/bin/activate
