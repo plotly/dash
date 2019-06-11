@@ -12,6 +12,5 @@ venv/
 dist
 *egg-info*
 
-dash_renderer/**/*.min.js
-dash_renderer/**/*.dev.js
+dash_renderer/**/*.js
 tests/test_clientside/
