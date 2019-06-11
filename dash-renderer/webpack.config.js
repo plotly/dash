@@ -37,6 +37,7 @@ module.exports = (env, argv) => {
             react: 'React',
             'react-dom': 'ReactDOM',
             'plotly.js': 'Plotly',
+            'prop-types': 'PropTypes'
         },
         module: {
             rules: [
