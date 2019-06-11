@@ -26,8 +26,8 @@ jobs:
             - run:
                 name: Install dependencies (dash)
                 command: |
-                    git clone --depth 1 git@github.com:plotly/dash.git dash-main
-                    git clone --depth 1 git@github.com:plotly/dash-html-components.git
+                    git clone --depth 1  -b prop-types-dev git@github.com:plotly/dash.git dash-main
+                    git clone --depth 1  -b prop-types-dev git@github.com:plotly/dash-html-components.git
                     . venv/bin/activate
                     pip install -e ./dash-main --quiet
                     cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
