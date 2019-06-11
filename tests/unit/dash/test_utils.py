@@ -3,7 +3,7 @@ import pytest
 import dash._utils as utils
 
 
-def test_attribute_dict():
+def test_ddut001_attribute_dict():
     a = utils.AttributeDict()
 
     assert str(a) == '{}'

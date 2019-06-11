@@ -24,7 +24,7 @@ from dash.exceptions import (
 from dash.testing.wait import until
 
 
-def test_simple_callback(dash_duo):
+def test_inin001_simple_callback(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div([
         dcc.Input(id='input', value='initial value'),
@@ -57,7 +57,7 @@ def test_simple_callback(dash_duo):
     assert not dash_duo.get_logs()
 
 
-def test_wildcard_callback(dash_duo):
+def test_inin002_wildcard_callback(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div([
         dcc.Input(id='input', value='initial value'),
@@ -102,7 +102,7 @@ def test_wildcard_callback(dash_duo):
     assert not dash_duo.get_logs()
 
 
-def test_aborted_callback(dash_duo):
+def test_inin003_aborted_callback(dash_duo):
     """
     Raising PreventUpdate OR returning no_update
     prevents update and triggering dependencies
@@ -157,7 +157,7 @@ def test_aborted_callback(dash_duo):
     dash_duo.percy_snapshot(name='aborted')
 
 
-def test_wildcard_data_attributes(dash_duo):
+def test_inin004_wildcard_data_attributes(dash_duo):
     app = Dash()
     test_time = datetime.datetime(2012, 1, 10, 2, 3)
     test_date = datetime.date(test_time.year, test_time.month,
@@ -216,7 +216,7 @@ def test_wildcard_data_attributes(dash_duo):
     assert not dash_duo.get_logs()
 
 
-def test_no_props_component(dash_duo):
+def test_inin005_no_props_component(dash_duo):
     app = Dash()
     app.layout = html.Div([
         dash_dangerously_set_inner_html.DangerouslySetInnerHTML('''
@@ -230,7 +230,7 @@ def test_no_props_component(dash_duo):
     dash_duo.percy_snapshot(name='no-props-component')
 
 
-def test_flow_component(dash_duo):
+def test_inin006_flow_component(dash_duo):
     app = Dash()
 
     app.layout = html.Div([
@@ -267,7 +267,7 @@ def test_flow_component(dash_duo):
     dash_duo.percy_snapshot(name='flowtype')
 
 
-def test_meta_tags(dash_duo):
+def test_inin007_meta_tags(dash_duo):
     metas = [
         {'name': 'description', 'content': 'my dash app'},
         {'name': 'custom', 'content': 'customized'},
@@ -291,7 +291,7 @@ def test_meta_tags(dash_duo):
         assert meta_tag.get_attribute('content') == meta_info['content']
 
 
-def test_index_customization(dash_duo):
+def test_inin008_index_customization(dash_duo):
     app = Dash()
 
     app.index_string = '''
@@ -339,7 +339,7 @@ def test_index_customization(dash_duo):
     dash_duo.percy_snapshot('custom-index')
 
 
-def test_invalid_index_string(dash_duo):
+def test_inin009_invalid_index_string(dash_duo):
     app = Dash()
 
     def will_raise():
@@ -375,7 +375,7 @@ def test_invalid_index_string(dash_duo):
     assert dash_duo.find_element('#a').text == 'Hello World'
 
 
-def test_func_layout_accepted(dash_duo):
+def test_inin010_func_layout_accepted(dash_duo):
     app = Dash()
 
     def create_layout():
@@ -386,7 +386,7 @@ def test_func_layout_accepted(dash_duo):
     assert dash_duo.find_element('#a').text == 'Hello World'
 
 
-def test_multi_output(dash_duo):
+def test_inin011_multi_output(dash_duo):
     app = Dash(__name__)
 
     app.layout = html.Div([
@@ -485,7 +485,7 @@ def test_multi_output(dash_duo):
     assert int(dash_duo.find_element('#output2').text) > t
 
 
-def test_multi_output_no_update(dash_duo):
+def test_inin012_multi_output_no_update(dash_duo):
     app = Dash(__name__)
 
     app.layout = html.Div([
@@ -518,7 +518,7 @@ def test_multi_output_no_update(dash_duo):
     dash_duo.wait_for_text_to_equal('#n3', 'initial3')
 
 
-def test_no_update_chains(dash_duo):
+def test_inin013_no_update_chains(dash_duo):
     app = Dash(__name__)
 
     app.layout = html.Div([
@@ -577,7 +577,7 @@ def test_no_update_chains(dash_duo):
     dash_duo.wait_for_text_to_equal('#ab_out', 'aa bbbb')
 
 
-def test_with_custom_renderer(dash_duo):
+def test_inin014_with_custom_renderer(dash_duo):
     app = Dash(__name__)
 
     app.index_string = '''
@@ -647,7 +647,7 @@ def test_with_custom_renderer(dash_duo):
     dash_duo.percy_snapshot(name='request-hooks')
 
 
-def test_with_custom_renderer_interpolated(dash_duo):
+def test_inin015_with_custom_renderer_interpolated(dash_duo):
 
     renderer = '''
         <script id="_dash-renderer" type="application/javascript">
@@ -725,7 +725,7 @@ def test_with_custom_renderer_interpolated(dash_duo):
     dash_duo.percy_snapshot(name='request-hooks interpolated')
 
 
-def test_modified_response(dash_duo):
+def test_inin016_modified_response(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div([
         dcc.Input(id='input', value='ab'),
@@ -752,7 +752,7 @@ def test_modified_response(dash_duo):
     assert not dash_duo.get_logs()
 
 
-def test_late_component_register(dash_duo):
+def test_inin017_late_component_register(dash_duo):
     app = Dash()
 
     app.layout = html.Div([
@@ -776,7 +776,7 @@ def test_late_component_register(dash_duo):
     dash_duo.find_element('#inserted-input')
 
 
-def test_output_input_invalid_callback():
+def test_inin018_output_input_invalid_callback():
     app = Dash(__name__)
     app.layout = html.Div([
         html.Div('child', id='input-output'),
@@ -804,7 +804,7 @@ def test_output_input_invalid_callback():
     assert err.value.args[0] == msg
 
 
-def test_callback_dep_types():
+def test_inin019_callback_dep_types():
     app = Dash(__name__)
     app.layout = html.Div([
         html.Div('child', id='in'),
@@ -839,7 +839,7 @@ def test_callback_dep_types():
         return i
 
 
-def test_callback_return_validation():
+def test_inin020_callback_return_validation():
     app = Dash(__name__)
     app.layout = html.Div([
         html.Div(id='a'),
@@ -877,7 +877,7 @@ def test_callback_return_validation():
         multi2('aaa')
 
 
-def test_callback_context(dash_duo):
+def test_inin021_callback_context(dash_duo):
     app = Dash(__name__)
 
     btns = ['btn-{}'.format(x) for x in range(1, 6)]
@@ -916,7 +916,7 @@ def test_callback_context(dash_duo):
             )
 
 
-def test_no_callback_context():
+def test_inin022_no_callback_context():
     for attr in ['inputs', 'states', 'triggered', 'response']:
         with pytest.raises(MissingCallbackContextException):
             getattr(callback_context, attr)
