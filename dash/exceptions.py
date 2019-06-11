@@ -2,6 +2,10 @@ class DashException(Exception):
     pass
 
 
+class ObsoleteKwargException(DashException):
+    pass
+
+
 class NoLayoutException(DashException):
     pass
 

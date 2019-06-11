@@ -2,7 +2,7 @@ import importlib
 import types
 
 
-def test_dash_import_is_correct():
+def test_dddi001_dash_import_is_correct():
     imported = importlib.import_module("dash")
     assert isinstance(imported, types.ModuleType), "dash can be imported"
 

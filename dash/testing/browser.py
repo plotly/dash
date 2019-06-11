@@ -114,7 +114,9 @@ class Browser(DashPageMixin):
             EC.presence_of_element_located,
             ((By.CSS_SELECTOR, selector),),
             timeout,
-            "timeout {} => waiting for selector {}".format(timeout, selector),
+            "timeout {}s => waiting for selector {}".format(
+                timeout if timeout else self._wait_timeout, selector
+            ),
         )
 
     def wait_for_style_to_equal(self, selector, style, val, timeout=None):
@@ -123,7 +125,7 @@ class Browser(DashPageMixin):
             args=(selector, style, val),
             timeout=timeout,
             msg="style val => {} {} not found within {}s".format(
-                style, val, timeout
+                style, val, timeout if timeout else self._wait_timeout
             ),
         )
 
@@ -132,7 +134,9 @@ class Browser(DashPageMixin):
             method=text_to_equal,
             args=(selector, text),
             timeout=timeout,
-            msg="text -> {} not found within {}s".format(text, timeout),
+            msg="text -> {} not found within {}s".format(
+                text, timeout if timeout else self._wait_timeout
+            ),
         )
 
     def wait_for_page(self, url=None, timeout=10):

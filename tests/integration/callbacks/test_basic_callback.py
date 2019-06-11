@@ -49,7 +49,8 @@ def test_cbsc001_simple_callback(dash_duo):
 def test_cbsc002_callbacks_generating_children(dash_duo):
     """ Modify the DOM tree by adding new components in the callbacks"""
 
-    app = dash.Dash(__name__)
+    # some components don't exist in the initial render
+    app = dash.Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [dcc.Input(id="input", value="initial value"), html.Div(id="output")]
     )
@@ -65,9 +66,6 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
 
     call_count = Value("i", 0)
 
-    # these components don't exist in the initial render
-    app.config.supress_callback_exceptions = True
-
     @app.callback(
         Output("sub-output-1", "children"), [Input("sub-input-1", "value")]
     )
@@ -76,6 +74,8 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
         return value
 
     dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#sub-output-1", "sub input initial value")
 
     assert call_count.value == 1, "called once at initial stage"
 

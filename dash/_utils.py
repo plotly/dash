@@ -75,8 +75,28 @@ class AttributeDict(dict):
         try:
             return self[key]
         except KeyError:
-            # to conform with __getattr__ spec
-            raise AttributeError(key)
+            pass
+        # to conform with __getattr__ spec
+        # but get out of the except block so it doesn't look like a nested err
+        raise AttributeError(key)
+
+    def set_read_only(self, names, msg='Attribute is read-only'):
+        object.__setattr__(self, '_read_only', names)
+        object.__setattr__(self, '_read_only_msg', msg)
+
+    def finalize(self, msg='Object is final: No new keys may be added.'):
+        """Prevent any new keys being set"""
+        object.__setattr__(self, '_final', msg)
+
+    def __setitem__(self, key, val):
+        if key in self.__dict__.get('_read_only', []):
+            raise AttributeError(self._read_only_msg, key)
+
+        final_msg = self.__dict__.get('_final')
+        if final_msg and key not in self:
+            raise AttributeError(final_msg, key)
+
+        return super(AttributeDict, self).__setitem__(key, val)
 
     # pylint: disable=inconsistent-return-statements
     def first(self, *names):

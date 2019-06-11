@@ -56,6 +56,12 @@ def test_external(mocker):
     ]
 
 
+def test_external_kwarg():
+    app = dash.Dash(__name__, serve_locally=False)
+    assert not app.scripts.config.serve_locally
+    assert not app.css.config.serve_locally
+
+
 def test_internal(mocker):
     mocker.patch("dash_core_components._js_dist")
     mocker.patch("dash_html_components._js_dist")
