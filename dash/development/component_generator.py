@@ -50,7 +50,7 @@ def generate_components(
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
 
-    if rprefix:
+    if rprefix is not None:
         prefix = rprefix
 
     is_windows = sys.platform == "win32"
@@ -98,25 +98,27 @@ def generate_components(
 
     generator_methods = [generate_class_file]
 
-    if rprefix:
-        if not os.path.exists("man"):
-            os.makedirs("man")
-        if not os.path.exists("R"):
-            os.makedirs("R")
-        generator_methods.append(functools.partial(write_class_file,
-                                                   prefix=prefix))
+    if rprefix is not None:
+        if not os.path.exists('man'):
+            os.makedirs('man')
+        if not os.path.exists('R'):
+            os.makedirs('R')
+        generator_methods.append(
+            functools.partial(write_class_file, prefix=prefix))
 
-    components = generate_classes_files(project_shortname,
-                                        metadata,
-                                        *generator_methods)
+    components = generate_classes_files(
+        project_shortname,
+        metadata,
+        *generator_methods
+    )
 
-    with open(os.path.join(project_shortname, "metadata.json"), "w") as f:
+    with open(os.path.join(project_shortname, 'metadata.json'), 'w') as f:
         json.dump(metadata, f, indent=2)
 
     generate_imports(project_shortname, components)
 
-    if rprefix:
-        with open("package.json", "r") as f:
+    if rprefix is not None:
+        with open('package.json', 'r') as f:
             jsondata_unicode = json.load(f, object_pairs_hook=OrderedDict)
             if sys.version_info[0] >= 3:
                 pkg_data = jsondata_unicode

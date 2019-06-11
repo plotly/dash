@@ -36,7 +36,7 @@ function UnconnectedToolbar(props) {
             onClick={() => dispatch(undo())}
         >
             <div style={merge({transform: 'rotate(270deg)'}, styles.iconStyle)}>
-                {'↺'}
+                ↺
             </div>
             <div style={styles.labelStyle}>undo</div>
         </span>
@@ -56,7 +56,7 @@ function UnconnectedToolbar(props) {
             onClick={() => dispatch(redo())}
         >
             <div style={merge({transform: 'rotate(90deg)'}, styles.iconStyle)}>
-                {'↻'}
+                ↻
             </div>
             <div style={styles.labelStyle}>redo</div>
         </span>

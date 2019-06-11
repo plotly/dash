@@ -21,7 +21,7 @@ def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
 
     # callback for component that doesn't yet exist in the dom
     # in practice, it might get added by some other callback
-    app.config.supress_callback_exceptions = True
+    app.config.suppress_callback_exceptions = True
     output_2_call_count = Value("i", 0)
 
     @app.callback(Output("output-2", "children"), [Input("input", "value")])

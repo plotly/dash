@@ -253,7 +253,7 @@ class Tests(IntegrationTests):
             call_counts['body'].value += 1
             return chapters[toc_value]
 
-        app.config.supress_callback_exceptions = True
+        app.config.suppress_callback_exceptions = True
 
         def generate_graph_callback(counterId):
             def callback(value):
@@ -636,7 +636,7 @@ class Tests(IntegrationTests):
             ),
             html.Div(id='body')
         ])
-        app.config.supress_callback_exceptions = True
+        app.config.suppress_callback_exceptions = True
 
         call_counts = {
             'body': Value('i', 0),
