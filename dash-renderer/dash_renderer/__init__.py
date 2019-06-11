@@ -16,14 +16,30 @@ _DEFAULT_REACT_VERSION = '16.8.6'
 _REACT_VERSION_TYPES = {'16.8.6'}
 _REACT_VERSION_TO_URLS = {
     '16.8.6': {
-        'external_url': [
-            'https://unpkg.com/react@16.8.6/umd/react.production.min.js',
-            'https://unpkg.com/react-dom@16.8.6/umd/react-dom.production.min.js'
-        ],
-        'relative_package_path': [
-            'react@16.8.6.min.js',
-            'react-dom@16.8.6.min.js'
-        ],
+        'external_url': {
+            'prod': [
+                'https://unpkg.com/react@16.8.6/umd/react.production.min.js',
+                'https://unpkg.com/react-dom@16.8.6/umd/react-dom.production.min.js',
+                'https://unpkg.com/prop-types@15.7.2/prop-types.min.js'
+            ],
+            'dev': [
+                'https://unpkg.com/react@16.8.6/umd/react.production.min.js',
+                'https://unpkg.com/react-dom@16.8.6/umd/react-dom.production.min.js',
+                'https://unpkg.com/prop-types@15.7.2/prop-types.js'
+            ]
+        },
+        'relative_package_path': {
+            'prod': [
+                'react@16.8.6.min.js',
+                'react-dom@16.8.6.min.js',
+                'prop-types@15.7.2.min.js'
+            ],
+            'dev': [
+                'react@16.8.6.min.js',
+                'react-dom@16.8.6.min.js',
+                'prop-types@15.7.2.js'
+            ]
+        }
     }
 }
 

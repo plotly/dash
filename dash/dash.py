@@ -474,9 +474,20 @@ class Dash(object):
         # The rest of the scripts can just be loaded after React but before
         # dash renderer.
         # pylint: disable=protected-access
+
+        mode = 'dev' if self._dev_tools['props_check'] is True else 'prod'
+
+        deps = []
+        for js_dist_dependency in dash_renderer._js_dist_dependencies:
+            dep = {}
+            for key, value in js_dist_dependency.items():
+                dep[key] = value[mode] if isinstance(value, dict) else value
+
+            deps.append(dep)
+
         srcs = self._collect_and_register_resources(
             self.scripts._resources._filter_resources(
-                dash_renderer._js_dist_dependencies,
+                deps,
                 dev_bundles=self._dev_tools.serve_dev_bundles
             )) + self._external_scripts + self._collect_and_register_resources(
                 self.scripts.get_all_scripts(

@@ -4,3 +4,4 @@ include dash_renderer/dash_renderer.min.js
 include dash_renderer/dash_renderer.min.js.map
 include dash_renderer/react-dom@*.min.js
 include dash_renderer/react@*.min.js
+include dash_renderer/prop-types@*.js
