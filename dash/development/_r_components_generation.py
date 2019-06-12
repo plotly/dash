@@ -217,7 +217,8 @@ def generate_class_string(name, props, project_shortname, prefix):
 def generate_js_metadata(pkg_data, project_shortname):
     """
     Dynamically generate R function to supply JavaScript
-    and CSS dependency information required by dash package.
+    and CSS dependency information required by the dash
+    package for R.
 
     Parameters
     ----------
