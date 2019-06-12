@@ -9,7 +9,7 @@ describe('clipboard', () => {
                 R.range(0, 1).map(value => [`${value}`]),
                 {row: 0, column: 0, column_id: ''},
                 R.range(0, 1),
-                ['c1'].map(id => ({ id: id, name: id })),
+                ['c1'].map(id => ({ id: id, name: id, editable: true, sort_as_null: []  })),
                 R.range(0, 1).map(() => ({ c1: 'c1' })),
                 true,
                 true
@@ -28,7 +28,7 @@ describe('clipboard', () => {
                 R.range(0, 2).map(value => [`${value}`]),
                 {row: 0, column: 0, column_id: ''},
                 R.range(0, 1),
-                ['c1'].map(id => ({ id: id, name: id })),
+                ['c1'].map(id => ({ id: id, name: id, editable: true, sort_as_null: []  })),
                 R.range(0, 1).map(() => ({ c1: 'c1' })),
                 true,
                 true
@@ -48,7 +48,7 @@ describe('clipboard', () => {
                 R.range(0, 10).map(value => [`${value}`]),
                 {row: 0, column: 0, column_id: ''},
                 R.range(0, 3),
-                ['c1'].map(id => ({ id: id, name: id })),
+                ['c1'].map(id => ({ id: id, name: id, editable: true, sort_as_null: []  })),
                 R.range(0, 3).map(() => ({ c1: 'c1' })),
                 true,
                 true
@@ -69,7 +69,7 @@ describe('clipboard', () => {
                 R.range(0, 10).map(value => [`${value}`]),
                 {row: 1, column: 0, column_id: ''},
                 R.range(0, 3),
-                ['c1'].map(id => ({ id: id, name: id })),
+                ['c1'].map(id => ({ id: id, name: id, editable: true, sort_as_null: []  })),
                 R.range(0, 3).map(() => ({ c1: 'c1' })),
                 true,
                 true
@@ -93,7 +93,7 @@ describe('clipboard', () => {
                 R.range(0, 1).map(value => [`${value}`]),
                 {row: 0, column: 0, column_id: ''},
                 R.range(0, 1),
-                ['c1'].map(id => ({ id: id, name: id })),
+                ['c1'].map(id => ({ id: id, name: id, editable: true, sort_as_null: []  })),
                 R.range(0, 1).map(() => ({ c1: 'c1' })),
                 true,
                 false
@@ -112,7 +112,7 @@ describe('clipboard', () => {
                 R.range(0, 2).map(value => [`${value}`]),
                 {row: 0, column: 0, column_id: ''},
                 R.range(0, 1),
-                ['c1'].map(id => ({ id: id, name: id })),
+                ['c1'].map(id => ({ id: id, name: id, editable: true, sort_as_null: []  })),
                 R.range(0, 1).map(() => ({ c1: 'c1' })),
                 true,
                 false
@@ -131,7 +131,7 @@ describe('clipboard', () => {
                 R.range(0, 10).map(value => [`${value}`]),
                 {row: 0, column: 0, column_id: ''},
                 R.range(0, 3),
-                ['c1'].map(id => ({ id: id, name: id })),
+                ['c1'].map(id => ({ id: id, name: id, editable: true, sort_as_null: []  })),
                 R.range(0, 3).map(() => ({ c1: 'c1' })),
                 true,
                 false
@@ -152,7 +152,7 @@ describe('clipboard', () => {
                 R.range(0, 10).map(value => [`${value}`]),
                 {row: 1, column: 0, column_id: ''},
                 R.range(0, 3),
-                ['c1'].map(id => ({ id: id, name: id })),
+                ['c1'].map(id => ({ id: id, name: id, editable: true, sort_as_null: [] })),
                 R.range(0, 3).map(() => ({ c1: 'c1' })),
                 true,
                 false

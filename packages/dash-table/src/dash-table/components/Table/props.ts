@@ -155,7 +155,7 @@ export interface IDatetimeColumn extends ITypeColumn {
 
 export interface IBaseVisibleColumn {
     deletable?: boolean | boolean[];
-    editable?: boolean;
+    editable: boolean;
     renamable?: boolean | boolean[];
     sort_as_null: SortAsNull;
     id: ColumnId;

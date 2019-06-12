@@ -21,8 +21,10 @@ import {
     IIndexedRowElement,
     INamedElement,
     ITypedElement,
+    IEditableElement,
     ifColumnId,
-    ifColumnType
+    ifColumnType,
+    ifEditable
  } from 'dash-table/conditional';
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 
@@ -36,7 +38,7 @@ export interface IConvertedStyle {
     matchesFilter: (datum: Datum) => boolean;
 }
 
-type GenericIf = Partial<IConditionalElement & IIndexedHeaderElement & IIndexedRowElement & INamedElement & ITypedElement>;
+type GenericIf = Partial<IConditionalElement & IIndexedHeaderElement & IIndexedRowElement & INamedElement & ITypedElement & IEditableElement>;
 type GenericStyle = Style & Partial<{ if: GenericIf }>;
 
 function convertElement(style: GenericStyle): IConvertedStyle {
@@ -46,7 +48,8 @@ function convertElement(style: GenericStyle): IConvertedStyle {
     return {
         checksColumn: () => !R.isNil(style.if) && (
             !R.isNil(style.if.column_id) ||
-            !R.isNil(style.if.column_type)
+            !R.isNil(style.if.column_type) ||
+            !R.isNil(style.if.column_editable)
         ),
         checksRow: () => !R.isNil(indexFilter),
         checksFilter: () => !R.isNil(style.if) && !R.isNil(style.if.filter_query),
@@ -55,7 +58,8 @@ function convertElement(style: GenericStyle): IConvertedStyle {
             !style.if || (
                 !R.isNil(column) &&
                 ifColumnId(style.if, column && column.id) &&
-                ifColumnType(style.if, column && column.type)
+                ifColumnType(style.if, column && column.type) &&
+                ifEditable (style.if, column && column.editable)
             ),
         matchesRow: (index: number | undefined) =>
             indexFilter === undefined ?

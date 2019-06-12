@@ -80,7 +80,6 @@ export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: nu
 
 export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number, i: number, e: any) => {
     const {
-        editable,
         is_focused,
         setProps,
         virtualized,
@@ -88,7 +87,9 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number,
         viewport
     } = propsFn();
 
-    if (!editable) {
+    const c = columns[i];
+
+    if (!c.editable) {
         return;
     }
 
@@ -115,7 +116,6 @@ export const handleChange = (propsFn: () => ICellFactoryProps, idx: number, i: n
     const {
         columns,
         data,
-        editable,
         setProps,
         virtualized
     } = propsFn();
@@ -123,7 +123,7 @@ export const handleChange = (propsFn: () => ICellFactoryProps, idx: number, i: n
     const c = columns[i];
     const realIdx = virtualized.indices[idx];
 
-    if (!editable) {
+    if (!c.editable) {
         return;
     }
 
