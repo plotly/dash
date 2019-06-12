@@ -91,6 +91,7 @@ class PlotlyGraph extends Component {
         super(props);
         this.bindEvents = this.bindEvents.bind(this);
         this._hasPlotted = false;
+        this.graphResize = this.graphResize.bind(this);
     }
 
     plot(props) {
@@ -111,9 +112,13 @@ class PlotlyGraph extends Component {
             config: config,
         }).then(() => {
             if (!this._hasPlotted) {
-                this.bindEvents();
-                Plotly.Plots.resize(document.getElementById(id));
-                this._hasPlotted = true;
+                // double-check gd hasn't been unmounted
+                const gd = document.getElementById(id);
+                if (gd) {
+                    this.bindEvents();
+                    Plotly.Plots.resize(gd);
+                    this._hasPlotted = true;
+                }
             }
         });
     }
@@ -139,6 +144,13 @@ class PlotlyGraph extends Component {
         }
 
         return Plotly.extendTraces(id, updateData, traceIndices, maxPoints);
+    }
+
+    graphResize() {
+        const graphDiv = document.getElementById(this.props.id);
+        if (graphDiv) {
+            Plotly.Plots.resize(graphDiv);
+        }
     }
 
     bindEvents() {
@@ -195,9 +207,7 @@ class PlotlyGraph extends Component {
 
     componentDidMount() {
         this.plot(this.props).then(() => {
-            window.addEventListener('resize', () => {
-                Plotly.Plots.resize(document.getElementById(this.props.id));
-            });
+            window.addEventListener('resize', this.graphResize);
         });
     }
 
@@ -205,6 +215,7 @@ class PlotlyGraph extends Component {
         if (this.eventEmitter) {
             this.eventEmitter.removeAllListeners();
         }
+        window.removeEventListener('resize', this.graphResize);
     }
 
     shouldComponentUpdate(nextProps) {
