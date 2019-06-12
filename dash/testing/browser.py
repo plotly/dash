@@ -58,8 +58,8 @@ class Browser(DashPageMixin):
             logger.exception("percy runner failed to finalize properly")
 
     def percy_snapshot(self, name=""):
-        """percy_snapshot - visaul test api shortcut to `percy_runner.snapshot`
-        it also combines the snapshot `name` with python versions
+        """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`
+        it also combines the snapshot `name` with the python version
         """
         snapshot_name = "{} - py{}.{}".format(
             name, sys.version_info.major, sys.version_info.minor
@@ -68,7 +68,7 @@ class Browser(DashPageMixin):
         self.percy_runner.snapshot(name=snapshot_name)
 
     def take_snapshot(self, name):
-        """hook method to take snapshot while selenium test fails
+        """hook method to take snapshot when a selenium test fails
         The snapshot is placed under
             - `/tmp/dash_artifacts` in linux
             - `%TEMP` in windows
@@ -97,8 +97,8 @@ class Browser(DashPageMixin):
         return self.driver.find_element_by_css_selector(selector)
 
     def find_elements(self, selector):
-        """find_elements return a list of matching elements by the css
-        `selector` shortcut to `driver.find_elements_by_css_selector`
+        """find_elements returns a list of all elements matching the css
+        `selector`. shortcut to `driver.find_elements_by_css_selector`
         """
         return self.driver.find_elements_by_css_selector(selector)
 
@@ -125,7 +125,7 @@ class Browser(DashPageMixin):
         return self.wait_for_element_by_css_selector(selector, timeout)
 
     def wait_for_element_by_css_selector(self, selector, timeout=None):
-        """explicit wait until the element presents,
+        """explicit wait until the element is present,
         timeout if not set, equals to the fixture's `wait_timeout`
         shortcut to `WebDriverWait` with `EC.presence_of_element_located`
         """
@@ -244,12 +244,12 @@ class Browser(DashPageMixin):
         return sys.platform == "win32"
 
     def multiple_click(self, selector, clicks):
-        """multiple_clcik click the element with number of `clicks`"""
+        """multiple_click click the element with number of `clicks`"""
         for _ in range(clicks):
             self.find_element(selector).click()
 
     def clear_input(self, elem):
-        """similate key press to clear the input with ActionChains"""
+        """simulate key press to clear the input"""
         (
             ActionChains(self.driver)
             .click(elem)
@@ -284,7 +284,7 @@ class Browser(DashPageMixin):
 
     @property
     def driver(self):
-        """expose the default selenium webdriver as fixture property"""
+        """expose the selenium webdriver as fixture property"""
         return self._driver
 
     @property
