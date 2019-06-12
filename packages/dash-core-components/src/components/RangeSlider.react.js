@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
-import {Range} from 'rc-slider';
+import {Range, createSliderWithTooltip} from 'rc-slider';
 
 /**
  * A double slider with two handles.
@@ -11,6 +11,9 @@ export default class RangeSlider extends Component {
     constructor(props) {
         super(props);
         this.propsToState = this.propsToState.bind(this);
+        this.DashSlider = props.tooltip
+            ? createSliderWithTooltip(Range)
+            : Range;
     }
 
     propsToState(newProps) {
@@ -18,6 +21,11 @@ export default class RangeSlider extends Component {
     }
 
     componentWillReceiveProps(newProps) {
+        if (newProps.tooltip !== this.props.tooltip) {
+            this.DashSlider = newProps.tooltip
+                ? createSliderWithTooltip(Range)
+                : Range;
+        }
         this.propsToState(newProps);
     }
 
@@ -31,10 +39,26 @@ export default class RangeSlider extends Component {
             id,
             loading_state,
             setProps,
+            tooltip,
             updatemode,
             vertical,
         } = this.props;
         const value = this.state.value;
+
+        let tipProps;
+        if (tooltip && tooltip.always_visible) {
+            /**
+             * clone `tooltip` but with renamed key `always_visible` -> `visible`
+             * the rc-tooltip API uses `visible`, but `always_visible is more semantic
+             * assigns the new (renamed) key to the old key and deletes the old key
+             */
+            tipProps = Object.assign(tooltip, {
+                visible: tooltip.always_visible,
+            });
+            delete tipProps.always_visible;
+        } else {
+            tipProps = tooltip;
+        }
 
         return (
             <div
@@ -45,7 +69,7 @@ export default class RangeSlider extends Component {
                 className={className}
                 style={vertical ? {height: '100%'} : {}}
             >
-                <Range
+                <this.DashSlider
                     onChange={value => {
                         if (updatemode === 'drag') {
                             setProps({value});
@@ -58,6 +82,7 @@ export default class RangeSlider extends Component {
                             setProps({value});
                         }
                     }}
+                    tipProps={tipProps}
                     value={value}
                     {...omit(
                         ['className', 'value', 'setProps', 'updatemode'],
@@ -151,6 +176,31 @@ RangeSlider.propTypes = {
      * minimum ensured distance between handles.
      */
     pushable: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
+
+    tooltip: PropTypes.exact({
+        /**
+         * Determines whether tooltips should always be visible
+         * (as opposed to the default, visible on hover)
+         */
+        always_visible: PropTypes.bool,
+
+        /**
+         * Determines the placement of tooltips
+         * See https://github.com/react-component/tooltip#api
+         * top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft` will
+         * in reality appear to be on the top right of the handle
+         */
+        placement: PropTypes.oneOf([
+            'left',
+            'right',
+            'top',
+            'bottom',
+            'topLeft',
+            'topRight',
+            'bottomLeft',
+            'bottomRight',
+        ]),
+    }),
 
     /**
      * Value by which increments or decrements are made
