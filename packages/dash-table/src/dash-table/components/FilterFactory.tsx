@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import Logger from 'core/Logger';
 import { arrayMap, arrayMap2 } from 'core/math/arrayZipMap';
@@ -38,6 +38,8 @@ export interface IFilterOptions {
     style_filter: Style;
     style_filter_conditional: BasicFilters;
 }
+
+const NO_FILTERS: JSX.Element[][] = [];
 
 export default class FilterFactory {
     private readonly filterStyles = derivedFilterStyles();
@@ -118,7 +120,7 @@ export default class FilterFactory {
         } = this.props;
 
         if (filter_action === TableAction.None) {
-            return [];
+            return NO_FILTERS;
         }
 
         const relevantStyles = this.relevantStyles(
@@ -148,12 +150,10 @@ export default class FilterFactory {
             );
         }, columns);
 
-        const styledFilters = arrayMap2(
+        const styledFilters = this.getFilterCells(
             filters,
             wrapperStyles,
-            (f, s) => React.cloneElement(f, {
-                style: s
-            })
+            filterEdges
         );
 
         const operations = this.headerOperations(
@@ -162,18 +162,49 @@ export default class FilterFactory {
             row_deletable
         )[0];
 
-        const operators = arrayMap2(
+        const operators = this.getOpFilterCells(
             operations,
             opStyles,
-            (o, s, j) => React.cloneElement(o, {
-                style: R.mergeAll([
-                    filterOpEdges && filterOpEdges.getStyle(0, j),
-                    s,
-                    o.props.style
-                ])
-            })
+            filterOpEdges
         );
 
-        return [operators.concat(styledFilters)];
+        return this.getCells(operators, styledFilters);
     }
+
+    getCells = memoizeOne((
+        opCells: JSX.Element[],
+        filterCells: JSX.Element[]
+    ) => [opCells.concat(filterCells)]);
+
+    getFilterCells = memoizeOne((
+        filters: JSX.Element[],
+        styles: (CSSProperties | undefined)[],
+        edges: IEdgesMatrices | undefined
+    ) => arrayMap2(
+        filters,
+        styles,
+        (f, s, j) => React.cloneElement(f, {
+            style: R.mergeAll([
+                edges && edges.getStyle(0, j),
+                s,
+                f.props.style
+            ])
+        })
+    ));
+
+    getOpFilterCells = memoizeOne((
+        ops: JSX.Element[],
+        styles: (CSSProperties | undefined)[],
+        edges: IEdgesMatrices | undefined
+    ) => arrayMap2(
+        ops,
+        styles,
+        (o, s, j) => React.cloneElement(o, {
+            style: R.mergeAll([
+                edges && edges.getStyle(0, j),
+                s,
+                o.props.style
+            ])
+        })
+    ));
 }

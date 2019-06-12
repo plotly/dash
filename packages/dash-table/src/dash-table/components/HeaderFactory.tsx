@@ -1,10 +1,10 @@
 import * as R from 'ramda';
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import { arrayMap2 } from 'core/math/arrayZipMap';
 import { matrixMap2, matrixMap3 } from 'core/math/matrixZipMap';
 
-import { ControlledTableProps } from 'dash-table/components/Table/props';
+import { ControlledTableProps, VisibleColumns } from 'dash-table/components/Table/props';
 import derivedHeaderContent from 'dash-table/derived/header/content';
 import getHeaderRows from 'dash-table/derived/header/headerRows';
 import getIndices from 'dash-table/derived/header/indices';
@@ -15,6 +15,7 @@ import { derivedRelevantHeaderStyles } from 'dash-table/derived/style';
 import derivedHeaderStyles, { derivedHeaderOpStyles } from 'dash-table/derived/header/wrapperStyles';
 
 import { IEdgesMatrices } from 'dash-table/derived/edges/type';
+import { memoizeOne } from 'core/memoizer';
 
 export default class HeaderFactory {
     private readonly headerContent = derivedHeaderContent();
@@ -37,6 +38,7 @@ export default class HeaderFactory {
 
         const {
             columns,
+            data,
             merge_duplicate_headers,
             page_action,
             row_deletable,
@@ -53,10 +55,7 @@ export default class HeaderFactory {
 
         const headerRows = getHeaderRows(columns);
 
-        const labels = getLabels(columns, headerRows);
-        const indices = getIndices(columns, labels, merge_duplicate_headers);
-
-        const labelsAndIndices = R.zip(labels, indices);
+        const labelsAndIndices = this.getLabelsAndIndices(columns, headerRows, merge_duplicate_headers);
 
         const relevantStyles = this.relevantStyles(
             style_cell,
@@ -89,41 +88,85 @@ export default class HeaderFactory {
             merge_duplicate_headers
         );
 
-        const content = this.headerContent(
+        const contents = this.headerContent(
             columns,
+            data,
             labelsAndIndices,
             sort_action,
             sort_mode,
             sort_by,
             page_action,
-            setProps,
-            props
+            setProps
         );
 
-        const ops = matrixMap2(
+        const ops = this.getHeaderOpCells(
             operations,
             opStyles,
-            (o, s, i, j) => React.cloneElement(o, {
-                style: R.mergeAll([
-                    headerOpEdges && headerOpEdges.getStyle(i, j),
-                    s,
-                    o.props.style
-                ])
-            })
+            headerOpEdges
         );
 
-        const headers = matrixMap3(
+        const headers = this.getHeaderCells(
             wrappers,
+            contents,
             wrapperStyles,
-            content,
-            (w, s, c, i, j) => React.cloneElement(w, {
-                children: [c],
-                style: R.mergeAll([
-                    s,
-                    headerEdges && headerEdges.getStyle(i, j)
-                ])
-            }));
+            headerEdges
+        );
 
-        return arrayMap2(ops, headers, (o, h) => Array.prototype.concat(o, h));
+        return this.getCells(ops, headers);
     }
+
+    getLabelsAndIndices = memoizeOne((
+        columns: VisibleColumns,
+        headerRows: number,
+        merge_duplicate_headers: boolean
+    ) => {
+        const labels = getLabels(columns, headerRows);
+        const indices = getIndices(columns, labels, merge_duplicate_headers);
+
+        return R.zip(labels, indices);
+
+    });
+
+    getCells = memoizeOne((
+        opCells: JSX.Element[][],
+        dataCells: JSX.Element[][]
+    ) => arrayMap2(
+        opCells,
+        dataCells,
+        (o, c) => Array.prototype.concat(o, c)
+    ));
+
+    getHeaderOpCells = memoizeOne((
+        ops: JSX.Element[][],
+        styles: (CSSProperties | undefined)[][],
+        edges: IEdgesMatrices | undefined
+    ) => matrixMap2(
+        ops,
+        styles,
+        (o, s, i, j) => React.cloneElement(o, {
+            style: R.mergeAll([
+                edges && edges.getStyle(i, j),
+                s,
+                o.props.style
+            ])
+        })
+    ));
+
+    getHeaderCells = memoizeOne((
+        wrappers: JSX.Element[][],
+        contents: JSX.Element[][],
+        styles: (CSSProperties | undefined)[][],
+        edges: IEdgesMatrices | undefined
+    ) => matrixMap3(
+        wrappers,
+        styles,
+        contents,
+        (w, s, c, i, j) => React.cloneElement(w, {
+            children: [c],
+            style: R.mergeAll([
+                s,
+                edges && edges.getStyle(i, j)
+            ])
+        })
+    ));
 }

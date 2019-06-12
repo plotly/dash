@@ -28,27 +28,6 @@ function filterPropsFn(propsFn: () => ControlledTableProps, setFilter: any) {
     return R.merge(props, { map: props.workFilter.map, setFilter });
 }
 
-function getter(
-    cellFactory: CellFactory,
-    filterFactory: FilterFactory,
-    headerFactory: HeaderFactory,
-    edgeFactory: EdgeFactory
-): JSX.Element[][] {
-    const cells: JSX.Element[][] = [];
-
-    const edges = edgeFactory.createEdges();
-
-    const dataCells = cellFactory.createCells(edges.dataEdges, edges.dataOpEdges);
-    const filters = filterFactory.createFilters(edges.filterEdges, edges.filterOpEdges);
-    const headers = headerFactory.createHeaders(edges.headerEdges, edges.headerOpEdges);
-
-    cells.push(...headers);
-    cells.push(...filters);
-    cells.push(...dataCells);
-
-    return cells;
-}
-
 export default (propsFn: () => ControlledTableProps) => {
     const setFilter = memoizeOne((
         setProps: SetProps,
@@ -64,5 +43,23 @@ export default (propsFn: () => ControlledTableProps) => {
     const headerFactory = new HeaderFactory(propsFn);
     const edgeFactory = new EdgeFactory(propsFn);
 
-    return getter.bind(undefined, cellFactory, filterFactory, headerFactory, edgeFactory);
+    const merge = memoizeOne((data: JSX.Element[][], filters: JSX.Element[][], headers: JSX.Element[][]) => {
+        const cells: JSX.Element[][] = [];
+
+        cells.push(...headers);
+        cells.push(...filters);
+        cells.push(...data);
+
+        return cells;
+    });
+
+    return () => {
+        const edges = edgeFactory.createEdges();
+
+        const dataCells = cellFactory.createCells(edges.dataEdges, edges.dataOpEdges);
+        const filters = filterFactory.createFilters(edges.filterEdges, edges.filterOpEdges);
+        const headers = headerFactory.createHeaders(edges.headerEdges, edges.headerOpEdges);
+
+        return merge(dataCells, filters, headers);
+    };
 };

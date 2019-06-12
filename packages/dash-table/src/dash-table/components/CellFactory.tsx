@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import { matrixMap2, matrixMap3 } from 'core/math/matrixZipMap';
 import { arrayMap2 } from 'core/math/arrayZipMap';
@@ -12,6 +12,7 @@ import derivedCellStyles, { derivedDataOpStyles } from 'dash-table/derived/cell/
 import derivedDropdowns from 'dash-table/derived/cell/dropdowns';
 import { derivedRelevantCellStyles } from 'dash-table/derived/style';
 import { IEdgesMatrices } from 'dash-table/derived/edges/type';
+import { memoizeOne } from 'core/memoizer';
 
 export default class CellFactory {
 
@@ -109,35 +110,65 @@ export default class CellFactory {
             dropdowns
         );
 
-        const ops = matrixMap2(
+        const ops = this.getDataOpCells(
             operations,
             dataOpStyles,
-            (o, s, i, j) => React.cloneElement(o, {
-                style: R.mergeAll([
-                    dataOpEdges && dataOpEdges.getStyle(i, j),
-                    s,
-                    o.props.style
-                ])
-            })
+            dataOpEdges
         );
 
-        const cells = matrixMap3(
+        const cells = this.getDataCells(
             cellWrappers,
-            cellStyles,
             cellContents,
-            (w, s, c, i, j) => React.cloneElement(w, {
-                children: [c],
-                style: R.mergeAll([
-                    s,
-                    dataEdges && dataEdges.getStyle(i, j)
-                ])
-            })
+            cellStyles,
+            dataEdges
         );
 
-        return arrayMap2(
+        return this.getCells(
             ops,
-            cells,
-            (o, c) => Array.prototype.concat(o, c)
+            cells
         );
     }
+
+    getCells = memoizeOne((
+        opCells: JSX.Element[][],
+        dataCells: JSX.Element[][]
+    ) => arrayMap2(
+        opCells,
+        dataCells,
+        (o, c) => o.length ? o.concat(c) : c
+    ));
+
+    getDataOpCells = memoizeOne((
+        ops: JSX.Element[][],
+        styles: (CSSProperties | undefined)[][],
+        edges: IEdgesMatrices | undefined
+    ) => matrixMap2(
+        ops,
+        styles,
+        (o, s, i, j) => React.cloneElement(o, {
+            style: R.mergeAll([
+                edges && edges.getStyle(i, j),
+                s,
+                o.props.style
+            ])
+        })
+    ));
+
+    getDataCells = memoizeOne((
+        wrappers: JSX.Element[][],
+        contents: JSX.Element[][],
+        styles: (CSSProperties | undefined)[][],
+        edges: IEdgesMatrices | undefined
+    ) => matrixMap3(
+        wrappers,
+        styles,
+        contents,
+        (w, s, c, i, j) => React.cloneElement(w, {
+            children: [c],
+            style: R.mergeAll([
+                s,
+                edges && edges.getStyle(i, j)
+            ])
+        })
+    ));
 }

@@ -8,18 +8,18 @@ import singleUpdate from 'core/sorting/single';
 
 import {
     ColumnId,
+    Data,
     SortMode,
     VisibleColumns,
     IVisibleColumn,
     SetProps,
-    ControlledTableProps,
     TableAction
 } from 'dash-table/components/Table/props';
 import * as actions from 'dash-table/utils/actions';
 
-function deleteColumn(column: IVisibleColumn, columns: VisibleColumns, columnRowIndex: any, setProps: SetProps, options: ControlledTableProps) {
+function deleteColumn(column: IVisibleColumn, columns: VisibleColumns, columnRowIndex: any, setProps: SetProps, data: Data) {
     return () => {
-        setProps(actions.deleteColumn(column, columns, columnRowIndex, options));
+        setProps(actions.deleteColumn(column, columns, columnRowIndex, data));
     };
 }
 
@@ -55,9 +55,9 @@ function doSort(columnId: ColumnId, sortBy: SortBy, mode: SortMode, setProps: Se
     };
 }
 
-function editColumnName(column: IVisibleColumn, columns: VisibleColumns, columnRowIndex: any, setProps: SetProps, options: ControlledTableProps) {
+function editColumnName(column: IVisibleColumn, columns: VisibleColumns, columnRowIndex: any, setProps: SetProps) {
     return () => {
-        setProps(actions.editColumnName(column, columns, columnRowIndex, options));
+        setProps(actions.editColumnName(column, columns, columnRowIndex));
     };
 }
 
@@ -81,13 +81,13 @@ function getSortingIcon(columnId: ColumnId, sortBy: SortBy) {
 
 function getter(
     columns: VisibleColumns,
+    data: Data,
     labelsAndIndices: R.KeyValuePair<any[], number[]>[],
     sort_action: TableAction,
     mode: SortMode,
     sortBy: SortBy,
     paginationMode: TableAction,
-    setProps: SetProps,
-    options: ControlledTableProps
+    setProps: SetProps
 ): JSX.Element[][] {
     return R.addIndex<R.KeyValuePair<any[], number[]>, JSX.Element[]>(R.map)(
         ([labels, indices], headerRowIndex) => {
@@ -121,7 +121,7 @@ function getter(
                         {renamable ?
                             (<span
                                 className='column-header--edit'
-                                onClick={editColumnName(column, columns, headerRowIndex, setProps, options)}
+                                onClick={editColumnName(column, columns, headerRowIndex, setProps)}
                             >
                                 {`✎`}
                             </span>) :
@@ -131,7 +131,7 @@ function getter(
                         {deletable ?
                             (<span
                                 className='column-header--delete'
-                                onClick={deleteColumn(column, columns, headerRowIndex, setProps, options)}
+                                onClick={deleteColumn(column, columns, headerRowIndex, setProps, data)}
                             >
                                 {'×'}
                             </span>) :

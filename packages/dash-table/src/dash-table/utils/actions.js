@@ -22,8 +22,7 @@ function getGroupedColumnIndices(column, columns, headerRowIndex) {
     return { groupIndexFirst: columnIndex, groupIndexLast: lastColumnIndex };
 }
 
-export function deleteColumn(column, columns, headerRowIndex, props) {
-    const { data} = props;
+export function deleteColumn(column, columns, headerRowIndex, data) {
     const {groupIndexFirst, groupIndexLast} = getGroupedColumnIndices(
         column, columns, headerRowIndex
     );
@@ -54,9 +53,9 @@ export const clearSelection = {
     selected_cells: []
 };
 
-export function editColumnName(column, columns, headerRowIndex, props) {
+export function editColumnName(column, columns, headerRowIndex) {
     const { groupIndexFirst, groupIndexLast } = getGroupedColumnIndices(
-        column, columns, headerRowIndex, props
+        column, columns, headerRowIndex
     );
     /* eslint no-alert: 0 */
     const newColumnName = window.prompt('Enter a new column name');
