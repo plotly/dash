@@ -58,6 +58,9 @@ class Browser(DashPageMixin):
             logger.exception("percy runner failed to finalize properly")
 
     def percy_snapshot(self, name=""):
+        """percy_snapshot - visaul test api shortcut to `percy_runner.snapshot`
+        it also combines the snapshot `name` with python versions
+        """
         snapshot_name = "{} - py{}.{}".format(
             name, sys.version_info.major, sys.version_info.minor
         )
@@ -65,7 +68,13 @@ class Browser(DashPageMixin):
         self.percy_runner.snapshot(name=snapshot_name)
 
     def take_snapshot(self, name):
-        """method used by hook to take snapshot while selenium test fails"""
+        """hook method to take snapshot while selenium test fails
+        The snapshot is placed under
+            - `/tmp/dash_artifacts` in linux
+            - `%TEMP` in windows
+        with a filename combining test case name and the
+        running selenium session id
+        """
         target = (
             "/tmp/dash_artifacts"
             if not self._is_windows()
@@ -81,16 +90,20 @@ class Browser(DashPageMixin):
             "{}/{}_{}.png".format(target, name, self.session_id)
         )
 
-    def find_element(self, css_selector):
-        """wrapper for find_element_by_css_selector from driver"""
-        return self.driver.find_element_by_css_selector(css_selector)
+    def find_element(self, selector):
+        """find_element returns the first found element by the css `selector`
+        shortcut to `driver.find_element_by_css_selector`
+        """
+        return self.driver.find_element_by_css_selector(selector)
 
-    def find_elements(self, css_selector):
-        """wrapper for find_elements_by_css_selector from driver"""
-        return self.driver.find_elements_by_css_selector(css_selector)
+    def find_elements(self, selector):
+        """find_elements return a list of matching elements by the css
+        `selector` shortcut to `driver.find_elements_by_css_selector`
+        """
+        return self.driver.find_elements_by_css_selector(selector)
 
     def _wait_for(self, method, args, timeout, msg):
-        """abstract generic pattern for explicit webdriver wait"""
+        """abstract generic pattern for explicit WebDriverWait"""
         _wait = (
             self._wd_wait
             if timeout is None
@@ -105,11 +118,17 @@ class Browser(DashPageMixin):
 
         return _wait.until(method(*args), msg)
 
-    def wait_for_element(self, css_selector, timeout=None):
-        return self.wait_for_element_by_css_selector(css_selector, timeout)
+    def wait_for_element(self, selector, timeout=None):
+        """wait_for_element is shortcut to `wait_for_element_by_css_selector`
+        timeout if not set, equals to the fixture's `wait_timeout`
+        """
+        return self.wait_for_element_by_css_selector(selector, timeout)
 
-    # keep these two wait_for API for easy migration
     def wait_for_element_by_css_selector(self, selector, timeout=None):
+        """explicit wait until the element presents,
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with `EC.presence_of_element_located`
+        """
         return self._wait_for(
             EC.presence_of_element_located,
             ((By.CSS_SELECTOR, selector),),
@@ -120,6 +139,10 @@ class Browser(DashPageMixin):
         )
 
     def wait_for_style_to_equal(self, selector, style, val, timeout=None):
+        """explicit wait until the element's style has expected `value`
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with customized `style_to_equal` condition
+        """
         return self._wait_for(
             method=style_to_equal,
             args=(selector, style, val),
@@ -130,6 +153,10 @@ class Browser(DashPageMixin):
         )
 
     def wait_for_text_to_equal(self, selector, text, timeout=None):
+        """explicit wait until the element's text equals the expected `text`.
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with customized `text_to_equal` condition
+        """
         return self._wait_for(
             method=text_to_equal,
             args=(selector, text),
@@ -140,7 +167,10 @@ class Browser(DashPageMixin):
         )
 
     def wait_for_page(self, url=None, timeout=10):
-
+        """wait_for_page navigates to the url in webdriver
+        wait until the renderer is loaded in browser. use the `server_url`
+        if url is not provided.
+        """
         self.driver.get(self.server_url if url is None else url)
         try:
             self.wait_for_element_by_css_selector(
@@ -213,11 +243,13 @@ class Browser(DashPageMixin):
     def _is_windows():
         return sys.platform == "win32"
 
-    def multiple_click(self, css_selector, clicks):
+    def multiple_click(self, selector, clicks):
+        """multiple_clcik click the element with number of `clicks`"""
         for _ in range(clicks):
-            self.find_element(css_selector).click()
+            self.find_element(selector).click()
 
     def clear_input(self, elem):
+        """similate key press to clear the input with ActionChains"""
         (
             ActionChains(self.driver)
             .click(elem)
@@ -229,7 +261,9 @@ class Browser(DashPageMixin):
         ).perform()
 
     def get_logs(self):
-        """get_logs works only with chrome webdriver"""
+        """return a list of `SEVERE` level logs after last reset time stamps
+        (default to 0, resettable by `reset_log_timestamp`. Chrome only
+        """
         if self.driver.name.lower() == "chrome":
             return [
                 entry
@@ -250,6 +284,7 @@ class Browser(DashPageMixin):
 
     @property
     def driver(self):
+        """expose the default selenium webdriver as fixture property"""
         return self._driver
 
     @property
@@ -262,9 +297,8 @@ class Browser(DashPageMixin):
 
     @server_url.setter
     def server_url(self, value):
-        """property setter for server_url
-        Note: set server_url will implicitly check if the server is ready
-        for selenium testing
+        """set the server url so the selenium is aware of the local server port
+        it also implicitly calls `wait_for_page`
         """
         self._url = value
         self.wait_for_page()
