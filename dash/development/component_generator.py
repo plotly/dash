@@ -165,8 +165,8 @@ def cli():
     )
     parser.add_argument(
         "--r-prefix",
-        help="Specify a prefix for DashR component names, write "
-        "DashR components to R dir, create R package.",
+        help="Specify a prefix for Dash for R component names, write "
+        "components to R dir, create R package.",
     )
     parser.add_argument(
         "--r-depends",

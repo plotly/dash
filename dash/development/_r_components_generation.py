@@ -86,7 +86,7 @@ Version: {package_version}
 Authors @R: as.person(c({package_author}))
 Description: {package_description}
 Depends: R (>= 3.0.2){package_depends}
-Imports: dashR{package_imports}
+Imports: dash{package_imports}
 Suggests: {package_suggests}
 License: {package_license}
 URL: {package_url}
@@ -221,7 +221,7 @@ def generate_class_string(name, props, project_shortname, prefix):
 def generate_js_metadata(pkg_data, project_shortname):
     """
     Dynamically generate R function to supply JavaScript
-    and CSS dependency information required by dashR package.
+    and CSS dependency information required by dash package.
 
     Parameters
     ----------
@@ -405,7 +405,7 @@ def write_class_file(name,
 def write_js_metadata(pkg_data, project_shortname):
     """
     Write an internal (not exported) R function to return all JS
-    dependencies as required by dashR.
+    dependencies as required by dash.
 
     Parameters
     ----------
@@ -530,7 +530,7 @@ def generate_rpkg(
     pkghelp_stub_path = os.path.join("man", package_name + "-package.Rd")
 
     # generate the internal (not exported to the user) functions which
-    # supply the JavaScript dependencies to the dashR package.
+    # supply the JavaScript dependencies to the dash package.
     # this avoids having to generate an RData file from within Python.
     write_js_metadata(pkg_data=pkg_data, project_shortname=project_shortname)
 
