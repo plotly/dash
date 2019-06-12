@@ -30,7 +30,6 @@ r_component_string = """{funcname} <- function({default_argtext}{wildcards}) {{
 
     structure(component, class = c('dash_component', 'list'))
 }}
-
 """  # noqa:E501
 
 # the following strings represent all the elements in an object
@@ -56,7 +55,6 @@ all_files = FALSE), class = "html_dependency")"""  # noqa:E501
 frame_close_template = """)
 return(deps_metadata)
 }
-
 """
 
 help_string = """% Auto-generated: do not edit by hand
@@ -77,7 +75,6 @@ help_string = """% Auto-generated: do not edit by hand
 \\arguments{{
 {item_text}
 }}
-
 """
 
 description_template = """Package: {package_name}
@@ -146,7 +143,6 @@ Useful links:
 \\author{{
 \\strong{{Maintainer}}: {package_author}
 }}
-
 """
 
 
