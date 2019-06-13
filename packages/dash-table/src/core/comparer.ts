@@ -1,29 +1,25 @@
-function isPlainObject(candidate: any) {
-    return candidate !== undefined &&
-        candidate !== null &&
-        typeof candidate === 'object' &&
-        candidate.constructor === Object;
-}
-
-export function isEqual(obj1: object, obj2: object, deep: boolean = false) {
+export function isEqual(obj1: object, obj2: object) {
     return obj1 === obj2 || isEqualArgs(
         Object.values(obj1),
-        Object.values(obj2),
-        deep
+        Object.values(obj2)
     );
 }
 
-export function isEqualArgs(args1: any[] | null, args2: any[], deep: boolean = false): boolean {
-    return (
-        !!args1 &&
-        args1.length === args2.length &&
-        !!args1.every((arg1, index) => {
-            const arg2 = args2[index];
+export function isEqualArgs(args1: any[] | null, args2: any[]): boolean {
+    if (!args1) {
+        return false;
+    }
 
-            return arg1 === arg2 || (deep && (
-                (Array.isArray(arg1) && Array.isArray(arg2) && isEqualArgs(arg1, arg2, deep)) ||
-                (isPlainObject(arg1) && isPlainObject(arg2) && isEqual(arg1, arg2, deep))
-            ));
-        })
-    );
+    const _args1_ = args1.length;
+    if (_args1_ !== args2.length) {
+        return false;
+    }
+
+    for (let i = 0; i < _args1_; ++i) {
+        if (args1[i] !== args2[i]) {
+            return false;
+        }
+    }
+
+    return true;
 }

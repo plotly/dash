@@ -130,17 +130,18 @@ export const derivedTableStyle = memoizeOneFactory(
 );
 
 export function resolveStyle(styles: IConvertedStyle[]): CSSProperties {
-    return R.mergeAll(
-        R.map<IConvertedStyle, CSSProperties>(
-            s => R.omit(BORDER_PROPERTIES_AND_FRAGMENTS, s.style),
-            styles
-        )
-    );
+    let res: CSSProperties = {};
+
+    for (let i = 0; i < styles.length; ++i) {
+        Object.assign(res, styles[i].style);
+    }
+
+    return R.omit(BORDER_PROPERTIES_AND_FRAGMENTS, res);
 }
 
-export const getDataCellStyle = (datum: Datum, i: number, column: IVisibleColumn) => R.compose(resolveStyle, matchesDataCell(datum, i, column));
-export const getDataOpCellStyle = (datum: Datum, i: number) => R.compose(resolveStyle, matchesDataOpCell(datum, i));
-export const getFilterCellStyle = (column: IVisibleColumn) => R.compose(resolveStyle, matchesFilterCell(column));
-export const getFilterOpCellStyle = () => R.compose(resolveStyle, getFilterOpStyles);
-export const getHeaderCellStyle = (i: number, column: IVisibleColumn) => R.compose(resolveStyle, matchesHeaderCell(i, column));
-export const getHeaderOpCellStyle = (i: number) => R.compose(resolveStyle, getHeaderOpStyles(i));
+export const getDataCellStyle = (datum: Datum, i: number, column: IVisibleColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesDataCell(datum, i, column)(styles));
+export const getDataOpCellStyle = (datum: Datum, i: number) => (styles: IConvertedStyle[]) => resolveStyle(matchesDataOpCell(datum, i)(styles));
+export const getFilterCellStyle = (column: IVisibleColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesFilterCell(column)(styles));
+export const getFilterOpCellStyle = () => (styles: IConvertedStyle[]) => resolveStyle(getFilterOpStyles(styles));
+export const getHeaderCellStyle = (i: number, column: IVisibleColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesHeaderCell(i, column)(styles));
+export const getHeaderOpCellStyle = (i: number) => (styles: IConvertedStyle[]) => resolveStyle(getHeaderOpStyles(i)(styles));
