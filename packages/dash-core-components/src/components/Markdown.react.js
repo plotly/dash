@@ -11,6 +11,11 @@ import './css/highlight.css';
  * [react-markdown](https://rexxars.github.io/react-markdown/) under the hood.
  */
 class DashMarkdown extends Component {
+    constructor(props) {
+        super(props);
+        this.highlightCode = this.highlightCode.bind(this);
+    }
+
     componentDidMount() {
         this.highlightCode();
     }
