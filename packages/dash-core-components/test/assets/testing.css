@@ -2,3 +2,7 @@
     width: 420px;
     border-color: hotpink;
 }
+
+.test-custom-tab {
+    font-weight: bold;
+}

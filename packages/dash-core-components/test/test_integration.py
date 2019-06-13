@@ -2406,6 +2406,26 @@ class Tests(IntegrationTests):
     #                    )
     #                )
     #
+    def test_disabled_tab(self):
+        app = dash.Dash(__name__)
+        app.layout = html.Div([
+            html.H1("Dash Tabs component with disabled tab demo"),
+            dcc.Tabs(id="tabs-example", value='tab-2', children=[
+                dcc.Tab(label="Disabled Tab", value="tab-1", id="tab-1", className="test-custom-tab", disabled=True),
+                dcc.Tab(label="Active Tab", value="tab-2", id="tab-2", className="test-custom-tab"),
+            ]),
+            html.Div(id="tabs-content-example"),
+        ])
+        self.startServer(app=app)
+
+        WebDriverWait(self.driver, TIMEOUT).until(
+            EC.element_to_be_clickable((By.ID, "tab-2"))
+        )
+
+        WebDriverWait(self.driver, TIMEOUT).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, ".tab--disabled"))
+        )
+
     def test_unmounted_graph_resize(self):
         app = dash.Dash(__name__)
 

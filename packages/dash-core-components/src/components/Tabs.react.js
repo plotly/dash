@@ -33,7 +33,7 @@ const EnhancedTab = ({
     }
     let tabClassName = `tab ${className || ''}`;
     if (disabled) {
-        tabClassName += `tab--disabled ${disabled_className || ''}`;
+        tabClassName += ` tab--disabled ${disabled_className || ''}`;
     }
     if (selected) {
         tabClassName += ` tab--selected ${selectedClassName || ''}`;

@@ -7,8 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Ability to add tooltips to `Slider` and `RangeSlider`, which can be visible always or on hover. Tooltips also take a position argument. [#564](https://github.com/plotly/dash-core-components/pull/564)
 
 ### Fixed
-- Fixed `min_date_allowed` and `max_date_allowed` bug in `DatePickerRange` [#551]https://github.com/plotly/dash-core-components/issues/551)
+- Fixed `min_date_allowed` and `max_date_allowed` bug in `DatePickerRange` [#551](https://github.com/plotly/dash-core-components/issues/551)
 - Fixed unwanted `resize()` calls on unmounted `Graph`s [#534](https://github.com/plotly/dash-core-components/issues/534)
+- Fixed `tab--disabled` CSS class issue in `Tab` component with custom styling [#568](https://github.com/plotly/dash-core-components/pull/568)
 
 ### Changed
 - Changed `dcc.Checklist` prop `values` to `value`, to match all the other input components [#558](https://github.com/plotly/dash-core-components/pull/558). Also improved prop types for `Dropdown` and `RadioItems` `value` props to consistently accept both strings and numbers.
