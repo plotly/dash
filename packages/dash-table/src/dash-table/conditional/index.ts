@@ -1,5 +1,8 @@
-import { ColumnId, Datum, ColumnType } from 'dash-table/components/Table/props';
+import * as R from 'ramda';
+
+import { ColumnId, Datum, ColumnType, IVisibleColumn } from 'dash-table/components/Table/props';
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
+import { IConvertedStyle } from 'dash-table/derived/style';
 
 export interface IConditionalElement {
     filter_query?: string;
@@ -83,3 +86,35 @@ export function ifEditable(condition: IEditableElement | undefined, isEditable: 
     }
     return isEditable === condition.column_editable;
 }
+
+export type Filter<T> = (s: T[]) => T[];
+
+export const matchesDataCell = (datum: Datum, i: number, column: IVisibleColumn): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
+    style.matchesRow(i) &&
+    style.matchesColumn(column) &&
+    style.matchesFilter(datum)
+));
+
+export const matchesFilterCell = (column: IVisibleColumn): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
+    style.matchesColumn(column)
+));
+
+export const matchesHeaderCell = (i: number, column: IVisibleColumn): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
+    style.matchesRow(i) &&
+    style.matchesColumn(column)
+));
+
+export const matchesDataOpCell = (datum: Datum, i: number): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
+    !style.checksColumn() &&
+    style.matchesRow(i) &&
+    style.matchesFilter(datum)
+));
+
+export const getFilterOpStyles: Filter<IConvertedStyle> = R.filter<IConvertedStyle>((style =>
+    !style.checksColumn()
+));
+
+export const getHeaderOpStyles = (i: number): Filter<IConvertedStyle> => R.filter<IConvertedStyle>((style =>
+    style.matchesRow(i) &&
+    !style.checksColumn()
+));

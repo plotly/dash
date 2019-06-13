@@ -2,70 +2,55 @@ import * as R from 'ramda';
 import { CSSProperties } from 'react';
 
 import { memoizeOneFactory } from 'core/memoizer';
-import { Data, VisibleColumns, IViewportOffset, SelectedCells, ICellCoordinates } from 'dash-table/components/Table/props';
-import { IConvertedStyle } from '../style';
-import { BORDER_PROPERTIES_AND_FRAGMENTS } from '../edges/type';
+import { Data, VisibleColumns, IViewportOffset, SelectedCells } from 'dash-table/components/Table/props';
+import { IConvertedStyle, getDataCellStyle, getDataOpCellStyle } from '../style';
+import { traverseMap2, shallowClone } from 'core/math/matrixZipMap';
 
-type Style = CSSProperties | undefined;
+const SELECTED_CELL_STYLE = { backgroundColor: 'var(--selected-background)' };
 
-function getter(
+const partialGetter = (
     columns: VisibleColumns,
-    columnStyles: IConvertedStyle[],
-    data: Data,
-    offset: IViewportOffset,
-    selectedCells: SelectedCells
-): Style[][] {
-    return R.addIndex<any, Style[]>(R.map)((datum, index) => R.addIndex<any, Style>(R.map)((column, columnIndex) => {
-        const relevantStyles = R.map(
-            s => s.style,
-            R.filter<IConvertedStyle>(
-                style =>
-                    style.matchesColumn(column) &&
-                    style.matchesRow(index + offset.rows) &&
-                    style.matchesFilter(datum),
-                columnStyles
-            )
-        );
-        const matchCell = (cell: ICellCoordinates) => cell.row === index && cell.column === columnIndex;
-        const isSelectedCell: boolean = R.any(matchCell)(selectedCells);
-        if (isSelectedCell) {
-            relevantStyles.push({backgroundColor:  'var(--selected-background)'});
-        }
-        return relevantStyles.length ?
-            R.omit(
-                BORDER_PROPERTIES_AND_FRAGMENTS,
-                R.mergeAll(relevantStyles)
-            ) :
-            undefined;
-    }, columns), data);
-}
-
-function opGetter(
-    columns: number,
-    columnStyles: IConvertedStyle[],
+    styles: IConvertedStyle[],
     data: Data,
     offset: IViewportOffset
-) {
-    return R.addIndex<any, Style[]>(R.map)((datum, index) => R.map(_ => {
-        const relevantStyles = R.map(
-            s => s.style,
-            R.filter<IConvertedStyle>(
-                style =>
-                    !style.checksColumn() &&
-                    style.matchesRow(index + offset.rows) &&
-                    style.matchesFilter(datum),
-                columnStyles
-            )
-        );
+) => traverseMap2(
+    data,
+    columns,
+    (datum, column, i) => getDataCellStyle(datum, i + offset.rows, column)(styles)
+);
 
-        return relevantStyles.length ?
-            R.omit(
-                BORDER_PROPERTIES_AND_FRAGMENTS,
-                R.mergeAll(relevantStyles)
-            ) :
-            undefined;
-    }, R.range(0, columns)), data);
-}
+const getter = (
+    styles: CSSProperties[][],
+    offset: IViewportOffset,
+    selectedCells: SelectedCells
+) => {
+    styles = shallowClone(styles);
 
-export default memoizeOneFactory(getter);
+    R.forEach(({ row: i, column: j }) => {
+        i -= offset.rows;
+        j -= offset.columns;
+
+        if (i < 0 || j < 0 || styles.length <= i || styles[i].length <= j) {
+            return;
+        }
+
+        styles[i][j] = R.merge(styles[i][j], SELECTED_CELL_STYLE);
+    }, selectedCells);
+
+    return styles;
+};
+
+const opGetter = (
+    columns: number,
+    styles: IConvertedStyle[],
+    data: Data,
+    offset: IViewportOffset
+) => traverseMap2(
+    data,
+    R.range(0, columns),
+    (datum, _, i) => getDataOpCellStyle(datum, i + offset.rows)(styles)
+);
+
+export const derivedPartialDataStyles = memoizeOneFactory(partialGetter);
+export const derivedDataStyles = memoizeOneFactory(getter);
 export const derivedDataOpStyles = memoizeOneFactory(opGetter);

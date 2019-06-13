@@ -1,62 +1,31 @@
 import * as R from 'ramda';
-import { CSSProperties } from 'react';
 
 import { memoizeOneFactory } from 'core/memoizer';
 
 import { VisibleColumns } from 'dash-table/components/Table/props';
 
-import { IConvertedStyle } from '../style';
-import { BORDER_PROPERTIES_AND_FRAGMENTS } from '../edges/type';
+import { IConvertedStyle, getHeaderCellStyle, getHeaderOpCellStyle } from '../style';
+import { traverseMap2 } from 'core/math/matrixZipMap';
 
-type Style = CSSProperties | undefined;
-
-function getter(
+const getter = (
     columns: VisibleColumns,
     headerRows: number,
     headerStyles: IConvertedStyle[]
-): Style[][] {
-    return R.map(idx => R.map(column => {
-        const relevantStyles = R.map(
-            s => s.style,
-            R.filter<IConvertedStyle>(
-                style =>
-                    style.matchesColumn(column) &&
-                    style.matchesRow(idx),
-                headerStyles
-            )
-        );
+) => traverseMap2(
+    R.range(0, headerRows),
+    columns,
+    (i, column) => getHeaderCellStyle(i, column)(headerStyles)
+);
 
-        return relevantStyles.length ?
-            R.omit(
-                BORDER_PROPERTIES_AND_FRAGMENTS,
-                R.mergeAll(relevantStyles)
-            ) :
-            undefined;
-    }, columns), R.range(0, headerRows));
-}
-
-function opGetter(
+const opGetter = (
     rows: number,
     columns: number,
     columnStyles: IConvertedStyle[]
-) {
-    return R.map(() => R.map(() => {
-        const relevantStyles = R.map(
-            s => s.style,
-            R.filter<IConvertedStyle>(
-                style => !style.checksColumn(),
-                columnStyles
-            )
-        );
-
-        return relevantStyles.length ?
-            R.omit(
-                BORDER_PROPERTIES_AND_FRAGMENTS,
-                R.mergeAll(relevantStyles)
-            ) :
-            undefined;
-    }, R.range(0, columns)), R.range(0, rows));
-}
+) => traverseMap2(
+    R.range(0, rows),
+    R.range(0, columns),
+    i => getHeaderOpCellStyle(i)(columnStyles)
+);
 
 export default memoizeOneFactory(getter);
 export const derivedHeaderOpStyles = memoizeOneFactory(opGetter);

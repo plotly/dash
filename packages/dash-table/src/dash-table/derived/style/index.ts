@@ -27,6 +27,8 @@ import {
     ifEditable
  } from 'dash-table/conditional';
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
+import { BORDER_PROPERTIES_AND_FRAGMENTS } from '../edges/type';
+import { matchesDataCell, matchesDataOpCell, matchesFilterCell, getFilterOpStyles, matchesHeaderCell, getHeaderOpStyles } from 'dash-table/conditional';
 
 export interface IConvertedStyle {
     style: CSSProperties;
@@ -126,3 +128,19 @@ export const derivedTableStyle = memoizeOneFactory(
         convertStyle(table)
     ]
 );
+
+export function resolveStyle(styles: IConvertedStyle[]): CSSProperties {
+    return R.mergeAll(
+        R.map<IConvertedStyle, CSSProperties>(
+            s => R.omit(BORDER_PROPERTIES_AND_FRAGMENTS, s.style),
+            styles
+        )
+    );
+}
+
+export const getDataCellStyle = (datum: Datum, i: number, column: IVisibleColumn) => R.compose(resolveStyle, matchesDataCell(datum, i, column));
+export const getDataOpCellStyle = (datum: Datum, i: number) => R.compose(resolveStyle, matchesDataOpCell(datum, i));
+export const getFilterCellStyle = (column: IVisibleColumn) => R.compose(resolveStyle, matchesFilterCell(column));
+export const getFilterOpCellStyle = () => R.compose(resolveStyle, getFilterOpStyles);
+export const getHeaderCellStyle = (i: number, column: IVisibleColumn) => R.compose(resolveStyle, matchesHeaderCell(i, column));
+export const getHeaderOpCellStyle = (i: number) => R.compose(resolveStyle, getHeaderOpStyles(i));

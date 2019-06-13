@@ -1,59 +1,29 @@
 import * as R from 'ramda';
-import { CSSProperties } from 'react';
 
 import { memoizeOneFactory } from 'core/memoizer';
 
 import { VisibleColumns } from 'dash-table/components/Table/props';
 
-import { IConvertedStyle } from '../style';
-import { BORDER_PROPERTIES_AND_FRAGMENTS } from '../edges/type';
+import { IConvertedStyle, getFilterCellStyle, getFilterOpCellStyle } from '../style';
+import { traverseMap2 } from 'core/math/matrixZipMap';
 
-type Style = CSSProperties | undefined;
-
-function getter(
+const getter = (
     columns: VisibleColumns,
     filterStyles: IConvertedStyle[]
-): Style[] {
-    return R.map(column => {
-        const relevantStyles = R.map(
-            s => s.style,
-            R.filter<IConvertedStyle>(
-                style => style.matchesColumn(column),
-                filterStyles
-            )
-        );
+) => R.map(
+    column => getFilterCellStyle(column)(filterStyles),
+    columns
+);
 
-        return relevantStyles.length ?
-            R.omit(
-                BORDER_PROPERTIES_AND_FRAGMENTS,
-                R.mergeAll(relevantStyles)
-            ) :
-            undefined;
-    }, columns);
-}
-
-function opGetter(
+const opGetter = (
     rows: number,
     columns: number,
     columnStyles: IConvertedStyle[]
-) {
-    return R.map(() => R.map(() => {
-        const relevantStyles = R.map(
-            s => s.style,
-            R.filter<IConvertedStyle>(
-                style => !style.checksColumn(),
-                columnStyles
-            )
-        );
-
-        return relevantStyles.length ?
-            R.omit(
-                BORDER_PROPERTIES_AND_FRAGMENTS,
-                R.mergeAll(relevantStyles)
-            ) :
-            undefined;
-    }, R.range(0, columns)), R.range(0, rows));
-}
+) => traverseMap2(
+    R.range(0, rows),
+    R.range(0, columns),
+    () => getFilterOpCellStyle()(columnStyles)
+);
 
 export default memoizeOneFactory(getter);
 export const derivedFilterOpStyles = memoizeOneFactory(opGetter);

@@ -3,10 +3,11 @@ import { CSSProperties } from 'react';
 
 import { OptionalMap, OptionalProp, PropOf } from 'core/type';
 import py2jsCssProperties from '../style/py2jsCssProperties';
+import { shallowClone } from 'core/math/matrixZipMap';
 
 export type Edge = any;
 
-type BorderProp =
+export type BorderProp =
     PropOf<CSSProperties, 'borderBottom'> |
     PropOf<CSSProperties, 'borderLeft'> |
     PropOf<CSSProperties, 'borderRight'> |
@@ -93,12 +94,16 @@ export class EdgesMatrix implements IEdgesMatrix {
             this.columns = source.columns;
             this.defaultEdge = source.defaultEdge;
 
-            this.weights = R.clone(source.weights);
-            this.edges = R.clone(source.edges);
+            this.weights = shallowClone(source.weights);
+            this.edges = shallowClone(source.edges);
         }
     }
 
     setEdge(i: number, j: number, edge: Edge, weight: number, force: boolean = false) {
+        if (i < 0 || j < 0 || i >= this.rows || j >= this.columns) {
+            return;
+        }
+
         if (!force && (R.isNil(edge) || weight <= this.weights[i][j])) {
             return;
         }

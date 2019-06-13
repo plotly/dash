@@ -9,39 +9,13 @@ import {
 } from 'dash-table/components/Table/props';
 
 import { IConvertedStyle } from '../style';
-import { BorderStyle, BORDER_PROPERTIES, EdgesMatrices } from './type';
-
-const getWeightedStyle = (
-    borderStyles: IConvertedStyle[],
-    index: number,
-    offset: IViewportOffset,
-    datum: any
-): BorderStyle => {
-    const res: BorderStyle = {};
-
-    R.addIndex<IConvertedStyle>(R.forEach)((rs, i) => {
-        if (rs.checksColumn() ||
-            !rs.matchesRow(index + offset.rows) ||
-            !rs.matchesFilter(datum)
-        ) {
-            return;
-        }
-
-        R.forEach(p => {
-            const s = rs.style[p] || rs.style.border;
-
-            if (!R.isNil(s)) {
-                res[p] = [s, i];
-            }
-        }, BORDER_PROPERTIES);
-    }, borderStyles);
-
-    return res;
-};
+import { EdgesMatrices } from './type';
+import { getDataOpCellEdges } from '.';
+import { traverse2 } from 'core/math/matrixZipMap';
 
 export default memoizeOneFactory((
     columns: number,
-    borderStyles: IConvertedStyle[],
+    styles: IConvertedStyle[],
     data: Data,
     offset: IViewportOffset,
     listViewStyle: boolean
@@ -52,20 +26,10 @@ export default memoizeOneFactory((
 
     const edges = new EdgesMatrices(data.length, columns, Environment.defaultEdge, true, !listViewStyle);
 
-    R.addIndex(R.forEach)((datum, i) =>
-        R.forEach(j => {
-                const cellStyle = getWeightedStyle(
-                    borderStyles,
-                    i,
-                    offset,
-                    datum
-                );
-
-                edges.setEdges(i, j, cellStyle);
-            },
-            R.range(0, columns)
-        ),
-        data
+    traverse2(
+        data,
+        R.range(0, columns),
+        (datum, _, i, j) => edges.setEdges(i, j, getDataOpCellEdges(datum, i + offset.rows)(styles))
     );
 
     return edges;
