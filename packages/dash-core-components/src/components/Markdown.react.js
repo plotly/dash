@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {omit, propOr, type} from 'ramda';
 import Markdown from 'react-markdown';
+import './css/highlight.css';
 
 // eslint-disable-next-line valid-jsdoc
 /**
@@ -9,27 +10,74 @@ import Markdown from 'react-markdown';
  * GitHub Markdown spec. These component uses
  * [react-markdown](https://rexxars.github.io/react-markdown/) under the hood.
  */
-function DashMarkdown(props) {
-    if (type(props.children) === 'Array') {
-        props.children = props.children.join('\n');
+class DashMarkdown extends Component {
+    componentDidMount() {
+        this.highlightCode();
     }
 
-    return (
-        <div
-            id={props.id}
-            data-dash-is-loading={
-                (props.loading_state && props.loading_state.is_loading) ||
-                undefined
+    componentDidUpdate() {
+        this.highlightCode();
+    }
+
+    highlightCode() {
+        if (!window.hljs) {
+            // skip highlighting if highlight.js isn't found
+            return;
+        }
+        if (this.mdContainer) {
+            const nodes = this.mdContainer.getElementsByTagName('code');
+
+            for (let i = 0; i < nodes.length; i++) {
+                window.hljs.highlightBlock(nodes[i]);
             }
-            {...propOr({}, 'containerProps', props)}
-        >
-            <Markdown
-                source={props.children}
-                escapeHtml={!props.dangerously_allow_html}
-                {...omit(['containerProps'], props)}
-            />
-        </div>
-    );
+        }
+    }
+
+    render() {
+        const {
+            id,
+            style,
+            className,
+            highlight_config,
+            loading_state,
+            dangerously_allow_html,
+        } = this.props;
+
+        if (type(this.props.children) === 'Array') {
+            this.props.children = this.props.children.join('\n');
+        }
+
+        return (
+            <div
+                id={id}
+                ref={node => {
+                    this.mdContainer = node;
+                }}
+                style={style}
+                className={
+                    ((highlight_config && highlight_config.theme) ||
+                        className) &&
+                    `${className ? className : ''} ${
+                        highlight_config &&
+                        highlight_config.theme &&
+                        highlight_config.theme === 'dark'
+                            ? 'hljs-dark'
+                            : ''
+                    }`
+                }
+                data-dash-is-loading={
+                    (loading_state && loading_state.is_loading) || undefined
+                }
+                {...propOr({}, 'containerProps', this.props)}
+            >
+                <Markdown
+                    source={this.props.children}
+                    escapeHtml={!dangerously_allow_html}
+                    {...omit(['containerProps'], this.props)}
+                />
+            </div>
+        );
+    }
 }
 
 DashMarkdown.propTypes = {
@@ -67,6 +115,13 @@ DashMarkdown.propTypes = {
     ]),
 
     /**
+     * Config options for syntax highlighting.
+     */
+    highlight_config: PropTypes.exact({
+        theme: PropTypes.oneOf(['dark', 'light']),
+    }),
+
+    /**
      * Object that holds the loading state object coming from dash-renderer
      */
     loading_state: PropTypes.shape({
@@ -83,10 +138,16 @@ DashMarkdown.propTypes = {
          */
         component_name: PropTypes.string,
     }),
+
+    /**
+     * User-defined inline styles for the rendered Markdown
+     */
+    style: PropTypes.object,
 };
 
 DashMarkdown.defaultProps = {
     dangerously_allow_html: false,
+    highlight_config: {},
 };
 
 export default DashMarkdown;

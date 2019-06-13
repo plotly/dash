@@ -10,7 +10,6 @@ import {
     RadioItems,
     RangeSlider,
     Slider,
-    SyntaxHighlighter,
     Interval,
     Markdown,
     Upload
@@ -90,39 +89,6 @@ const SetTimeoutExample = `class Controller extends Component {
 ReactDOM.render(<Controller/>, mountNode);
 `;
 
-
-const SyntaxHighlighterExample = `
-const properties = {
-    language: 'python',
-    theme: 'light',
-    customStyle: {},
-    codeTagProps: {},
-    useInlineStyles: true,
-    showLineNumbers: false,
-    startingLineNumber: 0,
-    lineNumberContainerStyle: {},
-    lineNumberStyle: {},
-    wrapLines: false,
-    lineStyle: {},
-    children: \`import Dash
-dash.layout = Div([
-    Graph(figure={'data': [{'x': [1, 2, 3]}]})
-]);
-
-def update_graph(lahlah):
-	return dict(updates=lahlah)
-
-<html>
-
-</html>
-function thisIsJavascript(test) {
-    console.log({test: that});
-}
-\`
-}
-
-ReactDOM.render(<SyntaxHighlighter {...properties}/>, mountNode);
-`
 
 const DropdownExample = `
 const properties = {
@@ -332,7 +298,6 @@ const examples = [
     {name: 'Markdown', code: MarkdownExample},
     {name: 'Interval', code: SetTimeoutExample},
     {name: 'Graph', code: GraphExample},
-    {name: 'SyntaxHighlighter', code: SyntaxHighlighterExample},
     {name: 'Radio', code: RadioExample},
     {name: 'Checklist', code: ChecklistExample},
     {name: 'Dropdown', code: DropdownExample},
@@ -353,7 +318,7 @@ class Demo extends Component {
                             <h3>{example.name}</h3>
                             <Playground
                                 codeText={example.code}
-                                scope={{Component, React, ReactDOM, Checklist, DatePickerRange, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, SyntaxHighlighter, Interval, Markdown, Upload}}
+                                scope={{Component, React, ReactDOM, Checklist, DatePickerRange, Dropdown, Graph, Input, RadioItems, RangeSlider, Slider, Interval, Markdown, Upload}}
                                 noRender={false}
                                 theme={'xq-light'}
                             />

@@ -47,6 +47,10 @@ _js_dist = [
         'namespace': 'dash_core_components'
     },
     {
+        'relative_package_path': 'highlight.pack.js',
+        'namespace': 'dash_core_components'
+    },
+    {
         'relative_package_path': '{}.min.js'.format(__name__),
         'external_url': (
             'https://unpkg.com/dash-core-components@{}'
