@@ -4,6 +4,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- `Markdown` components support code highlighting - no need to switch to `SyntaxHighlighter`, which has been removed. Use triple backticks, with the opening backticks followed by the language name or abbreviation. [#562](https://github.com/plotly/dash-core-components/pull/562) Supported languages:
+    - Bash
+    - CSS
+    - HTTP
+    - JavaScript
+    - Python
+    - JSON
+    - Markdown
+    - HTML, XML
+    - R
+    - Ruby
+    - SQL
+    - Shell Session
+    - YAML
+- Added a `dedent` prop to `Markdown` components, and enabled it by default - removing all matching leading whitespace from every line that has any non-whitespace content. You can disable this with `dedent=False`. [#569](https://github.com/plotly/dash-core-components/pull/569)
 - Ability to add tooltips to `Slider` and `RangeSlider`, which can be visible always or on hover. Tooltips also take a position argument. [#564](https://github.com/plotly/dash-core-components/pull/564)
 
 ### Fixed
@@ -13,6 +28,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Changed `dcc.Checklist` prop `values` to `value`, to match all the other input components [#558](https://github.com/plotly/dash-core-components/pull/558). Also improved prop types for `Dropdown` and `RadioItems` `value` props to consistently accept both strings and numbers.
+
+### Removed
+- 💥 Removed the `SyntaxHighlighter` component. This is now built into `Markdown` [#562](https://github.com/plotly/dash-core-components/pull/562).
+- Removed the `containerProps` prop in `Markdown` - after the refactor of [#562](https://github.com/plotly/dash-core-components/pull/562), its function is served by the `id`, `className`, and `style` props. [#569](https://github.com/plotly/dash-core-components/pull/569)
 
 ## [0.48.0] - 2019-05-15
 ### Added
