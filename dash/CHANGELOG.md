@@ -8,6 +8,9 @@
   - Changed `hot_reload_interval` from msec to seconds, for consistency with `hot_reload_watch_interval`
   - When called from `enable_dev_tools`, `debug=True` by default. It's still `False` by default from `run_server`.
 
+- ✨ [#744](https://github.com/plotly/dash/pull/744) Dash Testing(`dash.testing`) is introduced, read the full tutorial on http://dash.plot.ly/testing.
+    
+
 - [#753](https://github.com/plotly/dash/pull/753) `Component` no longer inherits `MutableMapping`, so `values`, `keys`, and more are no longer methods. This fixed an issue reported in [dcc](https://github.com/plotly/dash-core-components/issues/440) where components with certain prop names defined but not provided would cause a failure to render. During component generation we now disallow all props with leading underscores or matching a few remaining reserved words: `UNDEFINED`, `REQUIRED`, `to_plotly_json`, `available_properties`, and `available_wildcard_properties`.
 
 - [#739](https://github.com/plotly/dash/pull/739) Allow the Flask app to be provided to Dash after object initialization. This allows users to define Dash layouts etc when using the app factory pattern, or any other pattern that inhibits access to the app object. This broadly complies with the flask extension API, allowing Dash to be considered as a Flask extension where it needs to be.
