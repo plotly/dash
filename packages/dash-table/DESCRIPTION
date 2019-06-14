@@ -4,7 +4,7 @@ Version: 3.7.0
 Authors @R: as.person(c(Chris P <chris@plot.ly>))
 Description: Dash table
 Depends: R (>= 3.0.2)
-Imports: dashR
+Imports: dash
 Suggests: 
 License: MIT + file LICENSE
 URL: https://github.com/plotly/dash-table
