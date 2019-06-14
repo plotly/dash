@@ -14,6 +14,7 @@ class DashMarkdown extends Component {
     constructor(props) {
         super(props);
         this.highlightCode = this.highlightCode.bind(this);
+        this.dedent = this.dedent.bind(this);
     }
 
     componentDidMount() {
@@ -38,6 +39,40 @@ class DashMarkdown extends Component {
         }
     }
 
+    dedent(text) {
+        const lines = text.split(/\r\n|\r|\n/);
+        let commonPrefix = null;
+        for (const line of lines) {
+            const preMatch = line && line.match(/^\s*(?=\S)/);
+            if (preMatch) {
+                const prefix = preMatch[0];
+                if (commonPrefix !== null) {
+                    for (let i = 0; i < commonPrefix.length; i++) {
+                        // Like Python's textwrap.dedent, we'll remove both
+                        // space and tab characters, but only if they match
+                        if (prefix[i] !== commonPrefix[i]) {
+                            commonPrefix = commonPrefix.substr(0, i);
+                            break;
+                        }
+                    }
+                } else {
+                    commonPrefix = prefix;
+                }
+
+                if (!commonPrefix) {
+                    break;
+                }
+            }
+        }
+
+        const commonLen = commonPrefix ? commonPrefix.length : 0;
+        return lines
+            .map(line => {
+                return line.match(/\S/) ? line.substr(commonLen) : '';
+            })
+            .join('\n');
+    }
+
     render() {
         const {
             id,
@@ -46,11 +81,14 @@ class DashMarkdown extends Component {
             highlight_config,
             loading_state,
             dangerously_allow_html,
+            children,
+            dedent,
         } = this.props;
 
-        if (type(this.props.children) === 'Array') {
-            this.props.children = this.props.children.join('\n');
-        }
+        const textProp =
+            type(children) === 'Array' ? children.join('\n') : children;
+        const displayText =
+            dedent && textProp ? this.dedent(textProp) : textProp;
 
         return (
             <div
@@ -75,7 +113,7 @@ class DashMarkdown extends Component {
                 }
             >
                 <Markdown
-                    source={this.props.children}
+                    source={displayText}
                     escapeHtml={!dangerously_allow_html}
                 />
             </div>
@@ -112,9 +150,20 @@ DashMarkdown.propTypes = {
     ]),
 
     /**
+     * Remove matching leading whitespace from all lines.
+     * Lines that are empty, or contain *only* whitespace, are ignored.
+     * Both spaces and tab characters are removed, but only if they match;
+     * we will not convert tabs to spaces or vice versa.
+     */
+    dedent: PropTypes.bool,
+
+    /**
      * Config options for syntax highlighting.
      */
     highlight_config: PropTypes.exact({
+        /**
+         * Color scheme; default 'light'
+         */
         theme: PropTypes.oneOf(['dark', 'light']),
     }),
 
@@ -145,6 +194,7 @@ DashMarkdown.propTypes = {
 DashMarkdown.defaultProps = {
     dangerously_allow_html: false,
     highlight_config: {},
+    dedent: true,
 };
 
 export default DashMarkdown;
