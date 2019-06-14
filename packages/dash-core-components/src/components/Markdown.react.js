@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {omit, propOr, type} from 'ramda';
+import {type} from 'ramda';
 import Markdown from 'react-markdown';
 import './css/highlight.css';
 
@@ -73,12 +73,10 @@ class DashMarkdown extends Component {
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
-                {...propOr({}, 'containerProps', this.props)}
             >
                 <Markdown
                     source={this.props.children}
                     escapeHtml={!dangerously_allow_html}
-                    {...omit(['containerProps'], this.props)}
                 />
             </div>
         );
@@ -96,12 +94,6 @@ DashMarkdown.propTypes = {
      * Class name of the container element
      */
     className: PropTypes.string,
-
-    /**
-     * An object containing custom element props to put on the container
-     * element such as id or style
-     */
-    containerProps: PropTypes.object,
 
     /**
      * A boolean to control raw HTML escaping.
