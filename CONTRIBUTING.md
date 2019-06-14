@@ -30,7 +30,7 @@ For pull request with notable file changes or a big feature developmennt, we hig
 
 #### Git Desktop
 
-Git command veterans might argue that a simple terminal and cherry switch powered keyboard is the most elegant solution. But in general, a desktop tool makes the task easier.
+Git command veterans might argue that a simple terminal and a cherry switch keyboard is the most elegant solution. But in general, a desktop tool makes the task easier.
 
 1. https://www.gitkraken.com/git-client
 2. https://desktop.github.com/
@@ -59,19 +59,6 @@ Emojis make the commit messages :cherry_blossom:. If you have no idea about what
 - :space_invader: `:space_invader:` - Too much space or too little.
 - :spaghetti: `:spaghetti:` - copy-pasta, used to signal code that was copy-pasted without being updated
 
-## Testing before your first push
-
-You can use [circleci local cli](https://circleci.com/docs/2.0/local-cli/) to **locally** test your branch before pushing it to origin `plotly/dash`, doing so leaves no chance of making an embarrasing public exposé.
-
-```bash
-# install the cli (first time only)
-$ curl -fLSs https://circle.ci/cli | bash && circleci version
-
-# trigger a local circleci container session
-# you should run at least one python version locally
-# note: the current config requires all tests pass on python 2.7, 3.6 and 3.7.
-$ circleci local execute --job python-3.6
-```
 ### Coding Style
 
 We use both `flake8` and `pylint` for basic linting check, please refer to the relevant steps in `.circleci/config.yml`.
@@ -88,30 +75,8 @@ Note: *You might find out that we have more integration tests than unit tests in
 
 ### Integration Tests
 
-We create various miminal dash apps to cover feature scenario. A server is launched in mutli-thread or multi-process flavor and the test steps are executed in browsers driving by selenium webdrivers.
+We introduced the `dash.testing` feature in Dash 1.0. It makes writing an Dash integration test much easier. Please read the [tutorial](http://dash.plot.ly/testing) and contribute your feature code along with a decent integration test if applicable.
 
-Any reasonable test scenario is encouraged to be added along with the same PR.
-
-### Visual regression with Percy
-
-Testing graph-intensive-application is a challenging job. We use [percy](https://percy.io/) to mitigate the pain, please pay attention if percy reports visual differences. If you are not sure whether the change is expected, leave a comment, and don't blind-approve it.
-
-
-## Test variable tips
-You can configure the test server with the following variables:
-
-### DASH_TEST_CHROMEPATH
-If you run a special chrome, set the path to your chrome binary with this environment variable.
-
-### DASH_TEST_PROCESSES
-If you encounter errors about Multi-server + Multi-processing when running under Python 3, try running the tests with the number of server processes set to 1.
-
-### Example: single test run with configuration
-
-```bash
-DASH_TEST_CHROMEPATH=/bin/google-chrome-beta DASH_TEST_PROCESSES=1
-pytest -k test_no_callback_context
-```
 
 ## Financial Contributions
 
