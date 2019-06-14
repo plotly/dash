@@ -10,21 +10,26 @@ Logout button to submit a form post request to the `logout_url` prop. Usage is i
 }
 
 \usage{
-dccLogoutButton(id=NULL, label=NULL, logout_url=NULL, style=NULL, method=NULL, className=NULL, loading_state=NULL)
+dccLogoutButton(dccLogoutButton(id=NULL, label=NULL, logout_url=NULL, style=NULL, method=NULL,
+className=NULL, loading_state=NULL))
 }
 
 \arguments{
-\item{id}{Id of the button.}
+\item{id}{Character. Id of the button.}
 
-\item{label}{Text of the button}
+\item{label}{Character. Text of the button}
 
-\item{logout_url}{Url to submit a post logout request.}
+\item{logout_url}{Character. Url to submit a post logout request.}
 
-\item{style}{Style of the button}
+\item{style}{Named list. Style of the button}
 
-\item{method}{Http method to submit the logout form.}
+\item{method}{Character. Http method to submit the logout form.}
 
-\item{className}{CSS class for the button.}
+\item{className}{Character. CSS class for the button.}
 
-\item{loading_state}{Object that holds the loading state object coming from dash-renderer}
+\item{loading_state}{Lists containing elements 'is_loading', 'prop_name', 'component_name'.
+those elements have the following types:
+  - is_loading (logical; optional): determines if the component is loading or not
+  - prop_name (character; optional): holds which property is loading
+  - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
 }

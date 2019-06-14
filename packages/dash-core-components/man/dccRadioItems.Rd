@@ -10,29 +10,37 @@ RadioItems is a component that encapsulates several radio item inputs. The value
 }
 
 \usage{
-dccRadioItems(id=NULL, options=NULL, value=NULL, style=NULL, className=NULL, inputStyle=NULL, inputClassName=NULL, labelStyle=NULL, labelClassName=NULL, loading_state=NULL)
+dccRadioItems(dccRadioItems(id=NULL, options=NULL, value=NULL, style=NULL, className=NULL,
+inputStyle=NULL, inputClassName=NULL, labelStyle=NULL, labelClassName=NULL,
+loading_state=NULL))
 }
 
 \arguments{
-\item{id}{}
+\item{id}{Character. The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.}
 
-\item{options}{An array of options}
+\item{options}{List. An array of options}
 
-\item{value}{The currently selected value}
+\item{value}{Character | numeric. The currently selected value}
 
-\item{style}{The style of the container (div)}
+\item{style}{Named list. The style of the container (div)}
 
-\item{className}{The class of the container (div)}
+\item{className}{Character. The class of the container (div)}
 
-\item{inputStyle}{The style of the <input> radio element}
+\item{inputStyle}{Named list. The style of the <input> radio element}
 
-\item{inputClassName}{The class of the <input> radio element}
+\item{inputClassName}{Character. The class of the <input> radio element}
 
-\item{labelStyle}{The style of the <label> that wraps the radio input
+\item{labelStyle}{Named list. The style of the <label> that wraps the radio input
  and the option's label}
 
-\item{labelClassName}{The class of the <label> that wraps the radio input
+\item{labelClassName}{Character. The class of the <label> that wraps the radio input
  and the option's label}
 
-\item{loading_state}{Object that holds the loading state object coming from dash-renderer}
+\item{loading_state}{Lists containing elements 'is_loading', 'prop_name', 'component_name'.
+those elements have the following types:
+  - is_loading (logical; optional): determines if the component is loading or not
+  - prop_name (character; optional): holds which property is loading
+  - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
 }

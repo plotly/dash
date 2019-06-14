@@ -10,36 +10,47 @@ Dropdown is an interactive dropdown element for selecting one or more items. The
 }
 
 \usage{
-dccDropdown(id=NULL, options=NULL, value=NULL, className=NULL, clearable=NULL, disabled=NULL, multi=NULL, placeholder=NULL, searchable=NULL, style=NULL, loading_state=NULL)
+dccDropdown(dccDropdown(id=NULL, options=NULL, value=NULL, optionHeight=NULL,
+className=NULL, clearable=NULL, disabled=NULL, multi=NULL, placeholder=NULL,
+searchable=NULL, style=NULL, loading_state=NULL))
 }
 
 \arguments{
-\item{id}{}
+\item{id}{Character. The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.}
 
-\item{options}{An array of options}
+\item{options}{List. An array of options {label: [string|number], value: [string|number]},
+an optional disabled field can be used for each option}
 
-\item{value}{The value of the input. If `multi` is false (the default)
+\item{value}{Character | numeric | list of character | numerics. The value of the input. If `multi` is false (the default)
 then value is just a string that corresponds to the values
 provided in the `options` property. If `multi` is true, then
 multiple values can be selected at once, and `value` is an
 array of items with values corresponding to those in the
 `options` prop.}
 
-\item{className}{className of the dropdown element}
+\item{optionHeight}{Numeric. height of each option. Can be increased when label lengths would wrap around}
 
-\item{clearable}{Whether or not the dropdown is "clearable", that is, whether or
+\item{className}{Character. className of the dropdown element}
+
+\item{clearable}{Logical. Whether or not the dropdown is "clearable", that is, whether or
 not a small "x" appears on the right of the dropdown that removes
 the selected value.}
 
-\item{disabled}{If true, the option is disabled}
+\item{disabled}{Logical. If true, this dropdown is disabled and the selection cannot be changed.}
 
-\item{multi}{If true, the user can select multiple values}
+\item{multi}{Logical. If true, the user can select multiple values}
 
-\item{placeholder}{The grey, default text shown when no option is selected}
+\item{placeholder}{Character. The grey, default text shown when no option is selected}
 
-\item{searchable}{Whether to enable the searching feature or not}
+\item{searchable}{Logical. Whether to enable the searching feature or not}
 
-\item{style}{}
+\item{style}{Named list. Defines CSS styles which will override styles previously set.}
 
-\item{loading_state}{Object that holds the loading state object coming from dash-renderer}
+\item{loading_state}{Lists containing elements 'is_loading', 'prop_name', 'component_name'.
+those elements have the following types:
+  - is_loading (logical; optional): determines if the component is loading or not
+  - prop_name (character; optional): holds which property is loading
+  - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
 }

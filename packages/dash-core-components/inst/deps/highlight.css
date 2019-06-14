@@ -1,0 +1,150 @@
+/**
+ * Default styles
+ */
+.hljs {
+    display: block;
+    padding: 0.5em;
+    overflow-x: auto;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+/**
+ * Light theme styles
+ * Light theme from react-syntax-highlighter 'arduino-light'
+ * https://github.com/conorhastings/react-syntax-highlighter/blob/master/src/styles/hljs/arduino-light.js
+ */
+.hljs {
+    background: #FFFFFF;
+    color: #434f54;
+}
+
+.hljs-comment {
+    color: rgba(149,165,166,.8);
+}
+
+.hljs-built_in,
+.hljs-literal,
+.hljs-bullet,
+.hljs-code,
+.hljs-addition {
+  color: #D35400;
+}
+
+.hljs-meta-keyboard,
+.hljs-function {
+    color: #728E00;
+}
+
+.hljs-meta {
+    color: #434f54;
+}
+
+.hljs-type,
+.hljs-string,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-quote,
+.hljs-template-tag,
+.hljs-deletion {
+  color: #005C5F;
+}
+
+.hljs-title,
+.hljs-section {
+  color: #880000;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-attribute,
+.hljs-tag,
+.hljs-doctag,
+.hljs-name,
+.hljs-regexp,
+.hljs-symbol,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-link,
+.hljs-selector-attr,
+.hljs-selector-psuedo {
+  color: #00979D;
+}
+
+.hljs-subst {
+    color: #434f54;
+}
+
+.hljs-number {
+    color: #8A7B52;
+}
+
+/**
+ * Dark theme styles
+ * Dark theme from react-syntax-highlighter 'monokai'
+ * https://github.com/conorhastings/react-syntax-highlighter/blob/master/src/styles/hljs/monokai.js
+ */
+.hljs-dark .hljs {
+    background: #272822;
+    color: #ddd;
+}
+
+.hljs-dark .hljs-tag,
+.hljs-dark .hljs-keyword,
+.hljs-dark .hljs-selector-tag,
+.hljs-dark .hljs-literal,
+.hljs-dark .hljs-strong,
+.hljs-dark .hljs-name {
+    color: #f92672;
+}
+
+.hljs-dark .hljs-code {
+    color: #66d9ef;
+}
+
+.hljs-dark .hljs-class .hljs-title {
+    color: #ffffff;
+}
+
+.hljs-dark .hljs-attribute,
+.hljs-dark .hljs-symbol,
+.hljs-dark .hljs-regexp,
+.hljs-dark .hljs-link {
+    color: #bf79db;
+}
+
+.hljs-dark .hljs-string,
+.hljs-dark .hljs-bullet,
+.hljs-dark .hljs-subst,
+.hljs-dark .hljs-title,
+.hljs-dark .hljs-section,
+.hljs-dark .hljs-emphasis,
+.hljs-dark .hljs-type,
+.hljs-dark .hljs-built_in,
+.hljs-dark .hljs-builtin-name,
+.hljs-dark .hljs-selector-attr,
+.hljs-dark .hljs-selector-pseudo,
+.hljs-dark .hljs-addition,
+.hljs-dark .hljs-variable,
+.hljs-dark .hljs-template-tag,
+.hljs-dark .hljs-template-variable {
+    color: #a6e22e;
+}
+
+.hljs-dark .hljs-comment,
+.hljs-dark .hljs-quote,
+.hljs-dark .hljs-deletion,
+.hljs-dark .hljs-meta {
+    color: #75715e;
+}
+
+.hljs-dark .hljs-doctag,
+.hljs-dark .hljs-selector-id {
+    font-weight: bold;
+}

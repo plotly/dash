@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `figure` prop in `dcc.Graph` now accepts a `frames` key
 - Improved the `Dropdown` options description for dash-docs [#547](https://github.com/plotly/dash-core-components/pull/547)
 - Added `optionHeight` prop to `Dropdown` [#552](https://github.com/plotly/dash-core-components/pull/552)
+- Merged in R `dashCoreComponents` package and updated to 0.48.0
 
 ### Removed
 - Removed unused `key` prop from `dcc.ConfirmDialog`

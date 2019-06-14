@@ -10,20 +10,23 @@ A component that repeatedly increments a counter `n_intervals` with a fixed time
 }
 
 \usage{
-dccInterval(id=NULL, interval=NULL, disabled=NULL, n_intervals=NULL, max_intervals=NULL)
+dccInterval(dccInterval(id=NULL, interval=NULL, disabled=NULL, n_intervals=NULL,
+max_intervals=NULL))
 }
 
 \arguments{
-\item{id}{}
+\item{id}{Character. The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.}
 
-\item{interval}{This component will increment the counter `n_intervals` every
+\item{interval}{Numeric. This component will increment the counter `n_intervals` every
 `interval` milliseconds}
 
-\item{disabled}{If True, the counter will no longer update}
+\item{disabled}{Logical. If True, the counter will no longer update}
 
-\item{n_intervals}{Number of times the interval has passed}
+\item{n_intervals}{Numeric. Number of times the interval has passed}
 
-\item{max_intervals}{Number of times the interval will be fired.
+\item{max_intervals}{Numeric. Number of times the interval will be fired.
 If -1, then the interval has no limit (the default)
 and if 0 then the interval stops running.}
 }

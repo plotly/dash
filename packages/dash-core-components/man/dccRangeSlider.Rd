@@ -10,51 +10,58 @@ A double slider with two handles. Used for specifying a range of numerical value
 }
 
 \usage{
-dccRangeSlider(id=NULL, marks=NULL, value=NULL, allowCross=NULL, className=NULL, count=NULL, disabled=NULL, dots=NULL, included=NULL, min=NULL, max=NULL, pushable=NULL, step=NULL, vertical=NULL, updatemode=NULL, loading_state=NULL)
+dccRangeSlider(dccRangeSlider(id=NULL, marks=NULL, value=NULL, allowCross=NULL, className=NULL,
+count=NULL, disabled=NULL, dots=NULL, included=NULL, min=NULL, max=NULL,
+pushable=NULL, tooltip=NULL, step=NULL, vertical=NULL, updatemode=NULL,
+loading_state=NULL))
 }
 
 \arguments{
-\item{id}{}
+\item{id}{Character. The ID of this component, used to identify dash components
+in callbacks. The ID needs to be unique across all of the
+components in an app.}
 
-\item{marks}{Marks on the slider.
+\item{marks}{List with named elements and values of type character. Marks on the slider.
 The key determines the position (a number),
 and the value determines what will show.
 If you want to set the style of a specific mark point,
 the value should be an object which
 contains style and label properties.}
 
-\item{value}{The value of the input}
+\item{value}{List of numerics. The value of the input}
 
-\item{allowCross}{allowCross could be set as true to allow those handles to cross.}
+\item{allowCross}{Logical. allowCross could be set as true to allow those handles to cross.}
 
-\item{className}{Additional CSS class for the root DOM node}
+\item{className}{Character. Additional CSS class for the root DOM node}
 
-\item{count}{Determine how many ranges to render, and multiple handles
+\item{count}{Numeric. Determine how many ranges to render, and multiple handles
 will be rendered (number + 1).}
 
-\item{disabled}{If true, the handles can't be moved.}
+\item{disabled}{Logical. If true, the handles can't be moved.}
 
-\item{dots}{When the step value is greater than 1,
+\item{dots}{Logical. When the step value is greater than 1,
 you can set the dots to true if you want to
 render the slider with dots.}
 
-\item{included}{If the value is true, it means a continuous
+\item{included}{Logical. If the value is true, it means a continuous
 value is included. Otherwise, it is an independent value.}
 
-\item{min}{Minimum allowed value of the slider}
+\item{min}{Numeric. Minimum allowed value of the slider}
 
-\item{max}{Maximum allowed value of the slider}
+\item{max}{Numeric. Maximum allowed value of the slider}
 
-\item{pushable}{pushable could be set as true to allow pushing of
+\item{pushable}{Logical | numeric. pushable could be set as true to allow pushing of
 surrounding handles when moving an handle.
 When set to a number, the number will be the
 minimum ensured distance between handles.}
 
-\item{step}{Value by which increments or decrements are made}
+\item{tooltip}{}
 
-\item{vertical}{If true, the slider will be vertical}
+\item{step}{Numeric. Value by which increments or decrements are made}
 
-\item{updatemode}{Determines when the component should update
+\item{vertical}{Logical. If true, the slider will be vertical}
+
+\item{updatemode}{A value equal to: 'mouseup', 'drag'. Determines when the component should update
 its value. If `mouseup`, then the slider
 will only trigger its value when the user has
 finished dragging the slider. If `drag`, then
@@ -62,5 +69,9 @@ the slider will update its value continuously
 as it is being dragged.
 Only use `drag` if your updates are fast.}
 
-\item{loading_state}{Object that holds the loading state object coming from dash-renderer}
+\item{loading_state}{Lists containing elements 'is_loading', 'prop_name', 'component_name'.
+those elements have the following types:
+  - is_loading (logical; optional): determines if the component is loading or not
+  - prop_name (character; optional): holds which property is loading
+  - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
 }
