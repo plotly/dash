@@ -957,7 +957,7 @@ class Tests(IntegrationTests):
                 print(3)
                 ```'''),
             dcc.Markdown([
-                '```py'
+                '```py',
                 'import python',
                 'print(3)',
                 '```'

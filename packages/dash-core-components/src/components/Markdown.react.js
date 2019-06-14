@@ -31,7 +31,7 @@ class DashMarkdown extends Component {
             return;
         }
         if (this.mdContainer) {
-            const nodes = this.mdContainer.getElementsByTagName('code');
+            const nodes = this.mdContainer.querySelectorAll('pre code');
 
             for (let i = 0; i < nodes.length; i++) {
                 window.hljs.highlightBlock(nodes[i]);
