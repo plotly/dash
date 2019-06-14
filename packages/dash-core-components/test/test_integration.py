@@ -951,13 +951,18 @@ class Tests(IntegrationTests):
             '''.replace('    ', '')),
             dcc.Markdown(['# Line one', '## Line two']),
             dcc.Markdown(),
-            dcc.SyntaxHighlighter(dedent('''import python
-                print(3)'''), language='python'),
-            dcc.SyntaxHighlighter([
+            dcc.Markdown('''
+                ```py
+                import python
+                print(3)
+                ```'''),
+            dcc.Markdown([
+                '```py'
                 'import python',
-                'print(3)'
-            ], language='python'),
-            dcc.SyntaxHighlighter()
+                'print(3)',
+                '```'
+            ]),
+            dcc.Markdown()
         ])
         self.startServer(app)
 
