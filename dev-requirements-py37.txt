@@ -1,7 +1,0 @@
-dash-flow-example==0.0.5
-dash-dangerously-set-inner-html
-six
-plotly==3.7.1
-flake8
-pylint==2.3.1
-astroid==2.2.5
