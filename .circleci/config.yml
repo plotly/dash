@@ -7,8 +7,6 @@ jobs:
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
         environment:
-          REQUIRES_INTG: requires-intg.txt
-          REQUIRES_INSTALL: requires-install.txt
           PYLINTRC: .pylintrc
 
     steps:
@@ -24,20 +22,18 @@ jobs:
             echo "RUNNING JOB: ${CIRCLE_JOB}"
             echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
             echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-            # cat "$REQUIRES_INTG" > reqs.txt
-            # echo $CIRCLE_JOB > circlejob.txt
 
       - restore_cache:
-          key: py-{{ checksum $REQUIRES_INTG }}-{{ checksum $REQUIRES_INSTALL }}
+          key: py-{{ checksum "requires-intg.txt" }}-{{ checksum "requires-install.txt" }}
       - run:
           name: 🚧 pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv
             . venv/bin/activate
-            pip install -r $REQUIRES_INTG -r $REQUIRES_INSTALL --quiet
+            pip install -r requires-install.txt -r requires-intg.txt --quiet
       - save_cache:
-          key: py-{{ checksum $REQUIRES_INTG }}-{{ checksum $REQUIRES_INSTALL }}
+          key: py-{{ checksum "requires-intg.txt" }}-{{ checksum "requires-install.txt" }}
           paths:
               - "venv"
 
