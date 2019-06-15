@@ -5,3 +5,5 @@ mock
 flake8
 pylint==1.9.4
 astroid==2.2.5;python_version>"3.6"
+venv;python_version>"3.5"
+virtualenv;python_version=="2.7"
