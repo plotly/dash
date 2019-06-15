@@ -4,7 +4,6 @@ six
 mock
 flake8
 pylint==1.9.4;python_version<"3.7"
-pylint==2.3.1;python_version>"3.6"
-astroid==2.2.5;python_version>"3.6"
-venv;python_version>"3.5"
+pylint==2.3.1;python_version=="3.7"
+astroid==2.2.5;python_version=="3.7"
 virtualenv;python_version=="2.7"
