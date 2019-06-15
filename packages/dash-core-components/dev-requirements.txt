@@ -1,5 +1,3 @@
-percy
-selenium
 pandas
 xlrd
 flake8
