@@ -19,7 +19,7 @@ pre_style = {"whiteSpace": "pre-wrap", "wordBreak": "break-all"}
 def load_table(filetype, payload):
     df = (
         pd.read_csv(io.StringIO(base64.b64decode(payload).decode("utf-8")))
-        if filetype == 'csv'
+        if filetype == "csv"
         else pd.read_excel(io.BytesIO(base64.b64decode(payload)))
     )
 
@@ -98,45 +98,3 @@ def test_upft001_test_upload_with_different_file_types(filetype, dash_duo):
     upload_div.send_keys(filepath)
     time.sleep(0.5)
     dash_duo.percy_snapshot(filepath)
-
-
-# def test_upload_gallery(self):
-#     app = dash.Dash(__name__)
-#     app.layout = html.Div([
-#         html.Div(id='waitfor'),
-#         html.Label('Empty'),
-#         dcc.Upload(),
-
-#         html.Label('Button'),
-#         dcc.Upload(html.Button('Upload File')),
-
-#         html.Label('Text'),
-#         dcc.Upload('Upload File'),
-
-#         html.Label('Link'),
-#         dcc.Upload(html.A('Upload File')),
-
-#         html.Label('Style'),
-#         dcc.Upload([
-#             'Drag and Drop or ',
-#             html.A('Select a File')
-#         ], style={
-#             'width': '100%',
-#             'height': '60px',
-#             'lineHeight': '60px',
-#             'borderWidth': '1px',
-#             'borderStyle': 'dashed',
-#             'borderRadius': '5px',
-#             'textAlign': 'center'
-#         })
-#     ])
-#     dash_duo.startServer(app)
-
-#     try:
-#         dash_duo.wait_for_element_by_css_selector('#waitfor')
-#     except Exception as e:
-#         print(dash_duo.wait_for_element_by_css_selector(
-#             '#_dash-app-content').get_attribute('innerHTML'))
-#         raise e
-
-#     dash_duo.snapshot('test_upload_gallery')
