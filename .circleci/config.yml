@@ -7,7 +7,8 @@ jobs:
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
         environment:
-          REQUIREMENTS_FILE: dev-requirements.txt
+          REQUIRES_INTG: requires-intg.txt
+          REQUIRES_INSTALL: requires-install.txt
           PYLINTRC: .pylintrc
 
     steps:
@@ -23,20 +24,20 @@ jobs:
             echo "RUNNING JOB: ${CIRCLE_JOB}"
             echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
             echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-            cat "$REQUIREMENTS_FILE" > reqs.txt
-            echo $CIRCLE_JOB > circlejob.txt
+            # cat "$REQUIRES_INTG" > reqs.txt
+            # echo $CIRCLE_JOB > circlejob.txt
 
       - restore_cache:
-          key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
+          key: py-{{ checksum $REQUIRES_INTG }}-{{ checksum $REQUIRES_INSTALL }}
       - run:
           name: 🚧 pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv
             . venv/bin/activate
-            pip install -r $REQUIREMENTS_FILE --quiet
+            pip install -r $REQUIRES_INTG -r $REQUIRES_INSTALL --quiet
       - save_cache:
-          key: py-{{ .Branch }}-{{ checksum "circlejob.txt" }}-{{ checksum "reqs.txt" }}-{{ checksum ".circleci/config.yml" }}
+          key: py-{{ checksum $REQUIRES_INTG }}-{{ checksum $REQUIRES_INSTALL }}
           paths:
               - "venv"
 
@@ -44,7 +45,7 @@ jobs:
           name: 🌸 linting
           command: |
             . venv/bin/activate
-            pip install -e . --quiet
+            pip install -e .[intg] --quiet
             pip list | grep dash
             flake8 dash setup.py
             flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
@@ -102,7 +103,6 @@ jobs:
     docker:
       - image: circleci/python:3.6-stretch-node-browsers
         environment:
-          REQUIREMENTS_FILE: dev-requirements.txt
           PYLINTRC: .pylintrc
           PERCY_ENABLE: 0
 
@@ -111,7 +111,6 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
-          REQUIREMENTS_FILE: dev-requirements-py37.txt
           PYLINTRC: .pylintrc37
           PERCY_ENABLE: 0
 

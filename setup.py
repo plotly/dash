@@ -4,6 +4,11 @@ from setuptools import setup, find_packages
 main_ns = {}
 exec(open('dash/version.py').read(), main_ns)  # pylint: disable=exec-used
 
+def read_req_file(req_type):
+    with open('requires-{}.txt'.format(req_type)) as fp:
+        requires = (line.strip() for line in fp)
+        return [req for req in requires if req and not req.startswith('#')]
+
 setup(
     name='dash',
     version=main_ns['__version__'],
@@ -18,24 +23,8 @@ setup(
     ),
     long_description=io.open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
-    install_requires=[
-        'Flask>=0.12',
-        'flask-compress',
-        'plotly',
-        'dash_renderer==0.24.0',
-        'dash-core-components==0.48.0',
-        'dash-html-components==0.16.0',
-        'dash-table==3.7.0',
-        'pytest',
-        'pytest-sugar',
-        'pytest-mock',
-        'lxml',
-        'requests[security]',
-        'beautifulsoup4',
-        'waitress',
-        'percy',
-        'selenium',
-    ],
+    install_requires=read_req_file('install'),
+    extra_require={'intg': read_req_file('intg')},
     entry_points={
         'console_scripts': [
             'dash-generate-components ='
