@@ -205,7 +205,7 @@ class Dash(object):
     """
     def __init__(
             self,
-            name='__main__',
+            name=None,
             server=True,
             assets_folder='assets',
             assets_url_path='assets',
@@ -239,10 +239,14 @@ class Dash(object):
 
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
-        if isinstance(server, bool):
-            self.server = Flask(name) if server else None
-        elif isinstance(server, Flask):
+        if isinstance(server, Flask):
             self.server = server
+            # GH 771
+            if name is None:
+                name = getattr(server, 'name', '__main__')
+        elif isinstance(server, bool):
+            name = name if name else '__main__'
+            self.server = Flask(name) if server else None
         else:
             raise ValueError('server must be a Flask app or a boolean')
 
