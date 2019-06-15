@@ -7,7 +7,7 @@ jobs:
     docker:
       - image: circleci/python:2.7-stretch-node-browsers
         environment:
-          REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
+          REQUIREMENTS_FILE: dev-requirements.txt
           PYLINTRC: .pylintrc
 
     steps:
@@ -102,7 +102,7 @@ jobs:
     docker:
       - image: circleci/python:3.6-stretch-node-browsers
         environment:
-          REQUIREMENTS_FILE: .circleci/requirements/dev-requirements.txt
+          REQUIREMENTS_FILE: dev-requirements.txt
           PYLINTRC: .pylintrc
           PERCY_ENABLE: 0
 
@@ -111,7 +111,7 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
-          REQUIREMENTS_FILE: .circleci/requirements/dev-requirements-py37.txt
+          REQUIREMENTS_FILE: dev-requirements-py37.txt
           PYLINTRC: .pylintrc37
           PERCY_ENABLE: 0
 
