@@ -24,16 +24,16 @@ jobs:
             echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
 
       - restore_cache:
-          key: py-{{ checksum "requires-intg.txt" }}-{{ checksum "requires-install.txt" }}
+          key: py-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}
       - run:
           name: 🚧 pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv
             . venv/bin/activate
-            pip install -r requires-install.txt -r requires-intg.txt --quiet
+            pip install -r requires-install.txt -r requires-ci.txt --quiet
       - save_cache:
-          key: py-{{ checksum "requires-intg.txt" }}-{{ checksum "requires-install.txt" }}
+          key: py-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}
           paths:
               - "venv"
 
@@ -41,7 +41,7 @@ jobs:
           name: 🌸 linting
           command: |
             . venv/bin/activate
-            pip install -e .[intg] --quiet
+            pip install -e .[ci] --quiet
             pip list | grep dash
             flake8 dash setup.py
             flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
