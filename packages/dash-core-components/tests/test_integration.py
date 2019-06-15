@@ -71,150 +71,150 @@ class Tests(IntegrationTests):
             print("Percy Snapshot {}".format(python_version))
             self.percy_runner.snapshot(name=name)
 
-    def create_upload_component_content_types_test(self, filename):
-        app = dash.Dash(__name__)
+    # def create_upload_component_content_types_test(self, filename):
+    #     app = dash.Dash(__name__)
 
-        filepath = os.path.join(os.getcwd(), 'test', 'upload-assets', filename)
+    #     filepath = os.path.join(os.getcwd(), 'test', 'upload-assets', filename)
 
-        pre_style = {
-            'whiteSpace': 'pre-wrap',
-            'wordBreak': 'break-all'
-        }
+    #     pre_style = {
+    #         'whiteSpace': 'pre-wrap',
+    #         'wordBreak': 'break-all'
+    #     }
 
-        app.layout = html.Div([
-            html.Div(filepath, id='waitfor'),
-            html.Div(
-                id='upload-div',
-                children=dcc.Upload(
-                    id='upload',
-                    children=html.Div([
-                        'Drag and Drop or ',
-                        html.A('Select a File')
-                    ]),
-                    style={
-                        'width': '100%',
-                        'height': '60px',
-                        'lineHeight': '60px',
-                        'borderWidth': '1px',
-                        'borderStyle': 'dashed',
-                        'borderRadius': '5px',
-                        'textAlign': 'center'
-                    }
-                )
-            ),
-            html.Div(id='output'),
-            html.Div(DataTable(data=[{}]), style={'display': 'none'})
-        ])
+    #     app.layout = html.Div([
+    #         html.Div(filepath, id='waitfor'),
+    #         html.Div(
+    #             id='upload-div',
+    #             children=dcc.Upload(
+    #                 id='upload',
+    #                 children=html.Div([
+    #                     'Drag and Drop or ',
+    #                     html.A('Select a File')
+    #                 ]),
+    #                 style={
+    #                     'width': '100%',
+    #                     'height': '60px',
+    #                     'lineHeight': '60px',
+    #                     'borderWidth': '1px',
+    #                     'borderStyle': 'dashed',
+    #                     'borderRadius': '5px',
+    #                     'textAlign': 'center'
+    #                 }
+    #             )
+    #         ),
+    #         html.Div(id='output'),
+    #         html.Div(DataTable(data=[{}]), style={'display': 'none'})
+    #     ])
 
-        @app.callback(Output('output', 'children'),
-                      [Input('upload', 'contents')])
-        def update_output(contents):
-            if contents is not None:
-                content_type, content_string = contents.split(',')
-                if 'csv' in filepath:
-                    df = pd.read_csv(io.StringIO(base64.b64decode(
-                        content_string).decode('utf-8')))
-                    return html.Div([
-                        DataTable(
-                            data=df.to_dict('records'),
-                            columns=[{'id': i} for i in ['city', 'country']]),
-                        html.Hr(),
-                        html.Div('Raw Content'),
-                        html.Pre(contents, style=pre_style)
-                    ])
-                elif 'xls' in filepath:
-                    df = pd.read_excel(io.BytesIO(base64.b64decode(
-                        content_string)))
-                    return html.Div([
-                        DataTable(
-                            data=df.to_dict('records'),
-                            columns=[{'id': i} for i in ['city', 'country']]),
-                        html.Hr(),
-                        html.Div('Raw Content'),
-                        html.Pre(contents, style=pre_style)
-                    ])
-                elif 'image' in content_type:
-                    return html.Div([
-                        html.Img(src=contents),
-                        html.Hr(),
-                        html.Div('Raw Content'),
-                        html.Pre(contents, style=pre_style)
-                    ])
-                else:
-                    return html.Div([
-                        html.Hr(),
-                        html.Div('Raw Content'),
-                        html.Pre(contents, style=pre_style)
-                    ])
+    #     @app.callback(Output('output', 'children'),
+    #                   [Input('upload', 'contents')])
+    #     def update_output(contents):
+    #         if contents is not None:
+    #             content_type, content_string = contents.split(',')
+    #             if 'csv' in filepath:
+    #                 df = pd.read_csv(io.StringIO(base64.b64decode(
+    #                     content_string).decode('utf-8')))
+    #                 return html.Div([
+    #                     DataTable(
+    #                         data=df.to_dict('records'),
+    #                         columns=[{'id': i} for i in ['city', 'country']]),
+    #                     html.Hr(),
+    #                     html.Div('Raw Content'),
+    #                     html.Pre(contents, style=pre_style)
+    #                 ])
+    #             elif 'xls' in filepath:
+    #                 df = pd.read_excel(io.BytesIO(base64.b64decode(
+    #                     content_string)))
+    #                 return html.Div([
+    #                     DataTable(
+    #                         data=df.to_dict('records'),
+    #                         columns=[{'id': i} for i in ['city', 'country']]),
+    #                     html.Hr(),
+    #                     html.Div('Raw Content'),
+    #                     html.Pre(contents, style=pre_style)
+    #                 ])
+    #             elif 'image' in content_type:
+    #                 return html.Div([
+    #                     html.Img(src=contents),
+    #                     html.Hr(),
+    #                     html.Div('Raw Content'),
+    #                     html.Pre(contents, style=pre_style)
+    #                 ])
+    #             else:
+    #                 return html.Div([
+    #                     html.Hr(),
+    #                     html.Div('Raw Content'),
+    #                     html.Pre(contents, style=pre_style)
+    #                 ])
 
-        self.startServer(app)
+    #     self.startServer(app)
 
-        try:
-            self.wait_for_element_by_css_selector('#waitfor')
-        except Exception as e:
-            print(self.wait_for_element_by_css_selector(
-                '#_dash-app-content').get_attribute('innerHTML'))
-            raise e
+    #     try:
+    #         self.wait_for_element_by_css_selector('#waitfor')
+    #     except Exception as e:
+    #         print(self.wait_for_element_by_css_selector(
+    #             '#_dash-app-content').get_attribute('innerHTML'))
+    #         raise e
 
-        upload_div = self.wait_for_element_by_css_selector(
-            '#upload-div input[type=file]')
+    #     upload_div = self.wait_for_element_by_css_selector(
+    #         '#upload-div input[type=file]')
 
-        upload_div.send_keys(filepath)
-        time.sleep(5)
-        self.snapshot(filename)
+    #     upload_div.send_keys(filepath)
+    #     time.sleep(5)
+    #     self.snapshot(filename)
 
-    def test_upload_csv(self):
-        self.create_upload_component_content_types_test('utf8.csv')
+    # def test_upload_csv(self):
+    #     self.create_upload_component_content_types_test('utf8.csv')
 
-    def test_upload_xlsx(self):
-        self.create_upload_component_content_types_test('utf8.xlsx')
+    # def test_upload_xlsx(self):
+    #     self.create_upload_component_content_types_test('utf8.xlsx')
 
-    def test_upload_png(self):
-        self.create_upload_component_content_types_test('dash-logo-stripe.png')
+    # def test_upload_png(self):
+    #     self.create_upload_component_content_types_test('dash-logo-stripe.png')
 
-    def test_upload_svg(self):
-        self.create_upload_component_content_types_test('dash-logo-stripe.svg')
+    # def test_upload_svg(self):
+    #     self.create_upload_component_content_types_test('dash-logo-stripe.svg')
 
-    def test_upload_gallery(self):
-        app = dash.Dash(__name__)
-        app.layout = html.Div([
-            html.Div(id='waitfor'),
-            html.Label('Empty'),
-            dcc.Upload(),
+    # def test_upload_gallery(self):
+    #     app = dash.Dash(__name__)
+    #     app.layout = html.Div([
+    #         html.Div(id='waitfor'),
+    #         html.Label('Empty'),
+    #         dcc.Upload(),
 
-            html.Label('Button'),
-            dcc.Upload(html.Button('Upload File')),
+    #         html.Label('Button'),
+    #         dcc.Upload(html.Button('Upload File')),
 
-            html.Label('Text'),
-            dcc.Upload('Upload File'),
+    #         html.Label('Text'),
+    #         dcc.Upload('Upload File'),
 
-            html.Label('Link'),
-            dcc.Upload(html.A('Upload File')),
+    #         html.Label('Link'),
+    #         dcc.Upload(html.A('Upload File')),
 
-            html.Label('Style'),
-            dcc.Upload([
-                'Drag and Drop or ',
-                html.A('Select a File')
-            ], style={
-                'width': '100%',
-                'height': '60px',
-                'lineHeight': '60px',
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '5px',
-                'textAlign': 'center'
-            })
-        ])
-        self.startServer(app)
+    #         html.Label('Style'),
+    #         dcc.Upload([
+    #             'Drag and Drop or ',
+    #             html.A('Select a File')
+    #         ], style={
+    #             'width': '100%',
+    #             'height': '60px',
+    #             'lineHeight': '60px',
+    #             'borderWidth': '1px',
+    #             'borderStyle': 'dashed',
+    #             'borderRadius': '5px',
+    #             'textAlign': 'center'
+    #         })
+    #     ])
+    #     self.startServer(app)
 
-        try:
-            self.wait_for_element_by_css_selector('#waitfor')
-        except Exception as e:
-            print(self.wait_for_element_by_css_selector(
-                '#_dash-app-content').get_attribute('innerHTML'))
-            raise e
+    #     try:
+    #         self.wait_for_element_by_css_selector('#waitfor')
+    #     except Exception as e:
+    #         print(self.wait_for_element_by_css_selector(
+    #             '#_dash-app-content').get_attribute('innerHTML'))
+    #         raise e
 
-        self.snapshot('test_upload_gallery')
+    #     self.snapshot('test_upload_gallery')
 
     def test_loading_component_initialization(self):
         lock = Lock()
