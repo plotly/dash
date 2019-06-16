@@ -241,7 +241,6 @@ class Dash(object):
         # (defer server creation) or a Flask app instance (we use their server)
         if isinstance(server, Flask):
             self.server = server
-            # GH 771
             if name is None:
                 name = getattr(server, 'name', '__main__')
         elif isinstance(server, bool):
