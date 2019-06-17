@@ -1,15 +1,3 @@
 pandas
 xlrd
 flake8
-
-# to be removed after merge in dash
-
-pytest
-pytest-sugar
-pytest-mock
-lxml
-selenium
-percy
-requests[security]
-beautifulsoup4
-waitress
