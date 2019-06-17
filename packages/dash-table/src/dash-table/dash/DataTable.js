@@ -8,13 +8,14 @@ import Logger from 'core/Logger';
 
 import genRandomId from 'dash-table/utils/generate';
 import isValidProps from './validate';
-import sanitizeProps from './sanitize';
+import Sanitizer from './Sanitizer';
 
 export default class DataTable extends Component {
     constructor(props) {
         super(props);
         let id;
         this.getId = () => (id = id || genRandomId('table-'));
+        this.sanitizer = new Sanitizer();
     }
 
     render() {
@@ -22,7 +23,7 @@ export default class DataTable extends Component {
             return (<div>Invalid props combination</div>);
         }
 
-        const sanitizedProps = sanitizeProps(this.props);
+        const sanitizedProps = this.sanitizer.sanitize(this.props);
         return this.props.id ?
             (<RealTable {...sanitizedProps} />) :
             (<RealTable {...sanitizedProps} id={this.getId()} />);

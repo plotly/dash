@@ -1,5 +1,5 @@
 import { getFormatter } from 'dash-table/type/number';
-import { getLocale, getNully, getSpecifier } from 'dash-table/dash/sanitize';
+import { getLocale, getNully, getSpecifier } from 'dash-table/dash/Sanitizer';
 
 describe('formatting', () => {
     describe('number', () => {

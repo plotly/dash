@@ -29,23 +29,6 @@ const D3_DEFAULT_LOCALE: INumberLocale = {
 const DEFAULT_NULLY = '';
 const DEFAULT_SPECIFIER = '';
 
-const applyDefaultToLocale = memoizeOne((locale: INumberLocale) => getLocale(locale));
-
-const applyDefaultsToColumns = memoizeOne(
-    (defaultLocale: INumberLocale, defaultSort: SortAsNull, columns: Columns, editable: boolean ) => R.map(column => {
-        const c = R.clone(column);
-        c.editable = isEditable(editable, column.editable);
-        c.sort_as_null = c.sort_as_null || defaultSort;
-
-        if (c.type === ColumnType.Numeric && c.format) {
-            c.format.locale = getLocale(defaultLocale, c.format.locale);
-            c.format.nully = getNully(c.format.nully);
-            c.format.specifier = getSpecifier(c.format.specifier);
-        }
-        return c;
-    }, columns)
-);
-
 const data2number = (data?: any) => +data || 0;
 
 const getFixedColumns = (
@@ -64,16 +47,37 @@ const getFixedRows = (
         0 :
         headerRows(columns) + (filter_action !== TableAction.None ? 1 : 0) + data2number(fixed.data);
 
-export default (props: PropsWithDefaults): SanitizedProps => {
-    const locale_format = applyDefaultToLocale(props.locale_format);
+const applyDefaultsToColumns = (defaultLocale: INumberLocale, defaultSort: SortAsNull, columns: Columns, editable: boolean) => R.map(column => {
+    const c = R.clone(column);
+    c.editable = isEditable(editable, column.editable);
+    c.sort_as_null = c.sort_as_null || defaultSort;
 
-    return R.merge(props, {
-        columns: applyDefaultsToColumns(locale_format, props.sort_as_null, props.columns, props.editable),
-        fixed_columns: getFixedColumns(props.fixed_columns, props.row_deletable, props.row_selectable),
-        fixed_rows: getFixedRows(props.fixed_rows, props.columns, props.filter_action),
-        locale_format
-    });
-};
+    if (c.type === ColumnType.Numeric && c.format) {
+        c.format.locale = getLocale(defaultLocale, c.format.locale);
+        c.format.nully = getNully(c.format.nully);
+        c.format.specifier = getSpecifier(c.format.specifier);
+    }
+    return c;
+}, columns);
+
+const applyDefaultToLocale = (locale: INumberLocale) => getLocale(locale);
+
+export default class Sanitizer {
+    sanitize(props: PropsWithDefaults): SanitizedProps {
+        const locale_format = this.applyDefaultToLocale(props.locale_format);
+
+        return R.merge(props, {
+            columns: this.applyDefaultsToColumns(locale_format, props.sort_as_null, props.columns, props.editable),
+            fixed_columns: getFixedColumns(props.fixed_columns, props.row_deletable, props.row_selectable),
+            fixed_rows: getFixedRows(props.fixed_rows, props.columns, props.filter_action),
+            locale_format
+        });
+    }
+
+    private readonly applyDefaultToLocale = memoizeOne(applyDefaultToLocale);
+
+    private readonly applyDefaultsToColumns = memoizeOne(applyDefaultsToColumns);
+}
 
 export const getLocale = (...locales: Partial<INumberLocale>[]): INumberLocale =>
     R.mergeAll([

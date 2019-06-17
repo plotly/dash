@@ -22,6 +22,7 @@ export enum AppMode {
     Formatting = 'formatting',
     ReadOnly = 'readonly',
     ColumnsInSpace = 'columnsInSpace',
+    TaleOfTwoTables = 'taleOfTwoTables',
     Tooltips = 'tooltips',
     Typed = 'typed',
     Virtualized = 'virtualized'
@@ -335,6 +336,7 @@ function getState() {
             return getVirtualizedState();
         case AppMode.Typed:
             return getTypedState();
+        case AppMode.TaleOfTwoTables:
         case AppMode.Default:
         default:
             return getDefaultState();
