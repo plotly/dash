@@ -22,9 +22,10 @@ jobs:
             echo "RUNNING JOB: ${CIRCLE_JOB}"
             echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
             echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+            echo $CIRCLE_JOB > circlejob.txt
 
       - restore_cache:
-          key: py-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}
+          key: v-{{ checksum "circlejob.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}
       - run:
           name: 🚧 pip dev requirements
           command: |
@@ -33,7 +34,7 @@ jobs:
             . venv/bin/activate
             pip install -r requires-install.txt -r requires-ci.txt --quiet
       - save_cache:
-          key: py-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}
+          key: v-{{ checksum "circlejob.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}
           paths:
               - "venv"
 
