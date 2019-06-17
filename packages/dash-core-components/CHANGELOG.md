@@ -33,6 +33,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - 💥 Removed the `SyntaxHighlighter` component. This is now built into `Markdown` [#562](https://github.com/plotly/dash-core-components/pull/562).
 - Removed the `containerProps` prop in `Markdown` - after the refactor of [#562](https://github.com/plotly/dash-core-components/pull/562), its function is served by the `id`, `className`, and `style` props. [#569](https://github.com/plotly/dash-core-components/pull/569)
 
+### Updated
+- Upgraded plotly.js to 1.48.3 [#571](https://github.com/plotly/dash-core-components/pull/571)
+  - [Feature release 1.48.0](https://github.com/plotly/plotly.js/releases/tag/v1.48.0) which contains:
+    - New `funnel` and `funnelarea` trace types
+    - Shared color axes and colorbars
+    - Sorting cartesian axes by the value on the opposite axis
+    - Improvements to `bar` & `waterfall` text, legend clicking, histogram binning, hover text, and more
+  - Patch releases [1.48.3](https://github.com/plotly/plotly.js/releases/tag/v1.48.3), [1.48.2](https://github.com/plotly/plotly.js/releases/tag/v1.48.2), [1.48.1](https://github.com/plotly/plotly.js/releases/tag/v1.48.1), [1.47.4](https://github.com/plotly/plotly.js/releases/tag/v1.47.4), [1.47.3](https://github.com/plotly/plotly.js/releases/tag/v1.47.3), [1.47.2](https://github.com/plotly/plotly.js/releases/tag/v1.47.2), [1.47.1](https://github.com/plotly/plotly.js/releases/tag/v1.47.1) containing numerous bug fixes
+
 ## [0.48.0] - 2019-05-15
 ### Added
 - `figure` prop in `dcc.Graph` now accepts a `frames` key

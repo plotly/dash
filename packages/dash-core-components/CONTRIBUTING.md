@@ -78,7 +78,7 @@ respectively. TODO:
 
 ## Updating Plotly.js
 
-1. Download the latest plotly.js from the cdn: `$ wget https://github.com/plotly/plotly.js/releases/tag/v1.47.0`
+1. Download the latest plotly.js from the cdn: `$ wget https://github.com/plotly/plotly.js/releases/tag/v1.48.3`
 2. Update `dash_core_components/__init__.py` plotly.js `external_url`
 3. Update `CHANGELOG.md` with links to the releases and a description of the changes. The message should state (see the existing `CHANGELOG.md` for examples):
     * If you're only bumping the patch level, the heading is "Fixed" and the text starts "Patched plotly.js". Otherwise the heading is "Updated" and the text starts "Upgraded plotly.js"
