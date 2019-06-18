@@ -3,6 +3,7 @@ import os
 import sys
 import logging
 import warnings
+from time import sleep as wait
 import percy
 
 from selenium import webdriver
@@ -18,7 +19,7 @@ from selenium.common.exceptions import WebDriverException, TimeoutException
 
 from dash.testing.wait import text_to_equal, style_to_equal
 from dash.testing.dash_page import DashPageMixin
-from dash.testing.errors import DashAppLoadingError
+from dash.testing.errors import DashAppLoadingError, BrowserError
 
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,8 @@ class Browser(DashPageMixin):
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
         self._last_ts = 0
         self._url = None
+
+        self._window_idx = 0  # switch browser tabs
 
         self.percy_runner = percy.Runner(
             loader=percy.ResourceLoader(
@@ -190,6 +193,19 @@ class Browser(DashPageMixin):
                     "\n".join((str(log) for log in self.get_logs())),
                 )
             )
+
+    def toggle_window(self):
+        """switch between the current working window and the new opened one"""
+        if len(self.driver.window_handles) < 2:
+            raise BrowserError("there is no new opening window")
+
+        idx = (self._window_idx + 1) % 2
+        self.switch_window(idx=idx)
+        self._window_idx += 1
+
+    def switch_window(self, idx=0):
+        self.driver.switch_to.window(self.driver.window_handles[idx])
+        wait(0.5)
 
     def get_webdriver(self, remote):
         return (

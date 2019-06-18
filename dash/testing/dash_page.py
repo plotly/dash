@@ -35,3 +35,15 @@ class DashPageMixin(object):
         return self.driver.execute_script(
             "return window.store.getState().requestQueue"
         )
+
+    @property
+    def local_storage(self):
+        return self.driver.execute_script(
+            "return JSON.parse(window.localStorage.getItem('local'));"
+        )
+
+    @property
+    def session_storage(self):
+        return self.driver.execute_script(
+            "return JSON.parse(window.sessionStorage.getItem('session'));"
+        )
