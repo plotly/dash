@@ -2,12 +2,14 @@ import collections
 import json
 import os
 import shutil
-import unittest
-from dash.development.component_loader import load_components, generate_classes
+
+import pytest
+
+from dash.development._py_components_generation import generate_class
 from dash.development.base_component import (
     Component
 )
-from dash.development._py_components_generation import generate_class
+from dash.development.component_loader import load_components, generate_classes
 
 METADATA_PATH = 'metadata.json'
 
@@ -102,12 +104,13 @@ METADATA = json\
     .decode(METADATA_STRING)
 
 
-class TestLoadComponents(unittest.TestCase):
-    def setUp(self):
+class TestLoadComponents:
+
+    @pytest.fixture(autouse=True)
+    def setup_function(self):
         with open(METADATA_PATH, 'w') as f:
             f.write(METADATA_STRING)
-
-    def tearDown(self):
+        yield
         os.remove(METADATA_PATH)
 
     def test_loadcomponents(self):
@@ -140,23 +143,19 @@ class TestLoadComponents(unittest.TestCase):
             'href': 'Hello World'
         }
 
-        self.assertTrue(
-            isinstance(MyComponent(**MyComponentKwargs), Component)
-        )
+        assert isinstance(MyComponent(**MyComponentKwargs), Component)
 
-        self.assertEqual(
-            repr(MyComponent(**MyComponentKwargs)),
-            repr(c[0](**MyComponentKwargs))
-        )
+        assert (repr(MyComponent(**MyComponentKwargs)) ==
+                repr(c[0](**MyComponentKwargs))
+                )
 
-        self.assertEqual(
-            repr(A(**AKwargs)),
-            repr(c[1](**AKwargs))
-        )
+        assert repr(A(**AKwargs)) == repr(c[1](**AKwargs))
 
 
-class TestGenerateClasses(unittest.TestCase):
-    def setUp(self):
+class TestGenerateClasses:
+
+    @pytest.fixture(autouse=True)
+    def setup_function(self):
         with open(METADATA_PATH, 'w') as f:
             f.write(METADATA_STRING)
         os.makedirs('default_namespace')
@@ -164,8 +163,7 @@ class TestGenerateClasses(unittest.TestCase):
         init_file_path = 'default_namespace/__init__.py'
         with open(init_file_path, 'a'):
             os.utime(init_file_path, None)
-
-    def tearDown(self):
+        yield
         os.remove(METADATA_PATH)
         shutil.rmtree('default_namespace')
 
@@ -202,19 +200,17 @@ class TestGenerateClasses(unittest.TestCase):
             'href': 'Hello World'
         }
 
-        self.assertTrue(
-            isinstance(
-                MyComponent_buildtime(**MyComponentKwargs),
-                Component
-            )
+        assert isinstance(
+            MyComponent_buildtime(**MyComponentKwargs),
+            Component
         )
 
-        self.assertEqual(
-            repr(MyComponent_buildtime(**MyComponentKwargs)),
-            repr(MyComponent_runtime(**MyComponentKwargs)),
+        assert (
+                repr(MyComponent_buildtime(**MyComponentKwargs)) ==
+                repr(MyComponent_runtime(**MyComponentKwargs))
         )
 
-        self.assertEqual(
-            repr(A_runtime(**AKwargs)),
-            repr(A_buildtime(**AKwargs))
+        assert (
+                repr(A_runtime(**AKwargs)) ==
+                repr(A_buildtime(**AKwargs))
         )
