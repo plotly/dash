@@ -25,7 +25,7 @@ from dash.testing.errors import DashAppLoadingError, BrowserError
 logger = logging.getLogger(__name__)
 
 
-class Browser(DashPageMixin):
+class Browser(DashPageMixin):  # pylint: disable=too-many-instance-attributes
     def __init__(self, browser, remote=None, wait_timeout=10):
         self._browser = browser.lower()
         self._wait_timeout = wait_timeout
