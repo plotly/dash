@@ -16,7 +16,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from selenium.common.exceptions import WebDriverException, TimeoutException
 
-from dash.testing.wait import text_to_equal, style_to_equal
+from dash.testing.wait import text_to_equal, style_to_equal, contains_text
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError
 
@@ -164,6 +164,20 @@ class Browser(DashPageMixin):
             args=(selector, text),
             timeout=timeout,
             msg="text -> {} not found within {}s".format(
+                text, timeout if timeout else self._wait_timeout
+            ),
+        )
+
+    def wait_for_contains_text(self, selector, text, timeout=None):
+        """explicit wait until the element's text contains the expected `text`.
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with customized `contains_text` condition
+        """
+        return self._wait_for(
+            method=contains_text,
+            args=(selector, text),
+            timeout=timeout,
+            msg="text -> {} not found inside element within {}s".format(
                 text, timeout if timeout else self._wait_timeout
             ),
         )
