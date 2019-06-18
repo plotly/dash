@@ -22,7 +22,7 @@ storiesOf('DashTable/Headers', module)
             { name: ['Year', ''], id: 'year' },
             { name: ['City', 'Montreal'], id: 'montreal' },
             { name: ['City', 'Toronto'], id: 'toronto' },
-            { name: ['City', 'Ottawa'], id: 'ottawa', hidden: true },
+            { name: ['City', 'Ottawa'], id: 'ottawa' },
             { name: ['City', 'Vancouver'], id: 'vancouver' },
             { name: ['Climate', 'Temperature'], id: 'temp' },
             { name: ['Climate', 'Humidity'], id: 'humidity' }

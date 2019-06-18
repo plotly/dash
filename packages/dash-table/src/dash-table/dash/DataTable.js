@@ -196,14 +196,6 @@ export const propTypes = {
         }),
 
         /**
-         * If True, then the column and its data is hidden.
-         * This can be useful if you want to transport extra
-         * meta data (like a data index) to and from callbacks
-         * but you don't necessarily want to display that data.
-         */
-        hidden: PropTypes.bool,
-
-        /**
          * The `id` of the column.
          * The column `id` is used to match cells in data
          * with particular columns.
