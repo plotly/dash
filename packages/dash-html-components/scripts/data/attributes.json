@@ -44,6 +44,7 @@
             "elements": [
                 "form",
                 "input",
+                "select",
                 "textarea"
             ],
             "description": "Indicates whether controls in this form can by default have their values automatically completed by the browser."
@@ -243,11 +244,33 @@
             ],
             "description": "Indicates the action of the element, overriding the action defined in the <form>."
         },
+        "formEncType": {
+            "elements": [
+                "button",
+                "input"
+            ],
+            "description": "If the button/input is a submit button (type=\"submit\"), this attribute sets the encoding type to use during form submission. If this attribute is specified, it overrides the enctype attribute of the button's form owner."
+        },
+        "formMethod": {
+            "elements": [
+                "button",
+                "input"
+            ],
+            "description": "If the button/input is a submit button (type=\"submit\"), this attribute sets the submission method to use during form submission (GET, POST, etc.). If this attribute is specified, it overrides the method attribute of the button's form owner."
+        },
         "formNoValidate": {
             "elements": [
-                "button"
+                "button",
+                "input"
             ],
-            "description": "If the button is a submit button (type=\"submit\"), this Boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner."
+            "description": "If the button/input is a submit button (type=\"submit\"), this boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner."
+        },
+        "formTarget": {
+            "elements": [
+                "button",
+                "input"
+            ],
+            "description": "If the button/input is a submit button (type=\"submit\"), this attribute specifies the browsing context (for example, tab, window, or inline frame) in which to display the response that is received after submitting the form. If this attribute is specified, it overrides the target attribute of the button's form owner."
         },
         "headers": {
             "elements": [
@@ -761,6 +784,10 @@
             "disabled",
             "form",
             "formAction",
+            "formEncType",
+            "formMethod",
+            "formNoValidate",
+            "formTarget",
             "height",
             "list",
             "max",
@@ -829,6 +856,16 @@
             "src",
             "type"
         ],
+        "select": [
+            "autoComplete",
+            "autoFocus",
+            "disabled",
+            "form",
+            "multiple",
+            "name",
+            "required",
+            "size"
+        ],
         "textarea": [
             "autoComplete",
             "autoFocus",
@@ -850,7 +887,10 @@
             "disabled",
             "form",
             "formAction",
+            "formEncType",
+            "formMethod",
             "formNoValidate",
+            "formTarget",
             "name",
             "type",
             "value"
@@ -862,15 +902,6 @@
             "form",
             "keyType",
             "name"
-        ],
-        "select": [
-            "autoFocus",
-            "disabled",
-            "form",
-            "multiple",
-            "name",
-            "required",
-            "size"
         ],
         "audio": [
             "autoPlay",

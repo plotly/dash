@@ -7,6 +7,7 @@ const str = require('string');
 
 const htmlURL = 'https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes';
 const dataPath = './data/attributes.json';
+const htmlPath = './data/attributes.html';
 
 // From https://facebook.github.io/react/docs/tags-and-attributes.html#supported-attributes
 // less the `data` attribute,
@@ -124,6 +125,10 @@ request(htmlURL, (error, response, html) => {
     if (error) {
         throw error;
     }
+    const html2 = html.split(/\n\r|\r\n|\r|\n/).map(l => l.trimRight()).join('\n');
+    // write back to the saved copy of MDN attributes so we can see the diff
+    fs.writeFileSync(htmlPath, html2);
+
     const $ = cheerio.load(html);
     const attributes = extractAttributes($);
     const elements = extractElements(attributes);

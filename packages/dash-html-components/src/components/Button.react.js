@@ -103,12 +103,27 @@ Button.propTypes = {
     'formAction': PropTypes.string,
 
     /**
-     * If the button is a submit button (type="submit"), this Boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner.
+     * If the button/input is a submit button (type="submit"), this attribute sets the encoding type to use during form submission. If this attribute is specified, it overrides the enctype attribute of the button's form owner.
+     */
+    'formEncType': PropTypes.string,
+
+    /**
+     * If the button/input is a submit button (type="submit"), this attribute sets the submission method to use during form submission (GET, POST, etc.). If this attribute is specified, it overrides the method attribute of the button's form owner.
+     */
+    'formMethod': PropTypes.string,
+
+    /**
+     * If the button/input is a submit button (type="submit"), this boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner.
      */
     'formNoValidate': PropTypes.oneOfType([
         PropTypes.oneOf(['formNoValidate', 'formnovalidate', 'FORMNOVALIDATE']),
         PropTypes.bool
      ]),
+
+    /**
+     * If the button/input is a submit button (type="submit"), this attribute specifies the browsing context (for example, tab, window, or inline frame) in which to display the response that is received after submitting the form. If this attribute is specified, it overrides the target attribute of the button's form owner.
+     */
+    'formTarget': PropTypes.string,
 
     /**
      * Name of the element. For example used by the server to identify the fields in form submits.
