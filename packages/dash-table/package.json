@@ -88,13 +88,13 @@
     "remarkable": "^1.7.1",
     "sheetclip": "^0.3.0",
     "style-loader": "^0.23.1",
-    "ts-loader": "^6.0.2",
+    "ts-loader": "^6.0.3",
     "tslint": "^5.17.0",
     "typescript": "^3.5.2",
     "wait-on": "^3.2.0",
     "webpack": "^4.34.0",
     "webpack-cli": "^3.3.4",
-    "webpack-dev-server": "^3.7.1",
+    "webpack-dev-server": "^3.7.2",
     "webpack-preprocessor": "^0.1.12"
   },
   "files": [
