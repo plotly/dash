@@ -3,7 +3,6 @@ import os
 import sys
 import logging
 import warnings
-from time import sleep as wait
 import percy
 
 from selenium import webdriver
@@ -25,7 +24,7 @@ from dash.testing.errors import DashAppLoadingError, BrowserError
 logger = logging.getLogger(__name__)
 
 
-class Browser(DashPageMixin):  # pylint: disable=too-many-instance-attributes
+class Browser(DashPageMixin):
     def __init__(self, browser, remote=None, wait_timeout=10):
         self._browser = browser.lower()
         self._wait_timeout = wait_timeout
@@ -196,16 +195,28 @@ class Browser(DashPageMixin):  # pylint: disable=too-many-instance-attributes
 
     def toggle_window(self):
         """switch between the current working window and the new opened one"""
-        if len(self.driver.window_handles) < 2:
-            raise BrowserError("there is no new opening window")
-
         idx = (self._window_idx + 1) % 2
         self.switch_window(idx=idx)
         self._window_idx += 1
 
     def switch_window(self, idx=0):
+        """switch to window by window index
+        shortcut to `driver.switch_to.window`
+        """
+        if len(self.driver.window_handles) <= idx:
+            raise BrowserError("there is no second window in Browser")
+
         self.driver.switch_to.window(self.driver.window_handles[idx])
-        wait(0.5)
+
+    def open_new_tab(self, url=None):
+        """open a new tab in browser
+        url is not set, equals to `server_url`
+        """
+        self.driver.execute_script(
+            'window.open("{}", "new window")'.format(
+                self.server_url if url is None else url
+            )
+        )
 
     def get_webdriver(self, remote):
         return (
