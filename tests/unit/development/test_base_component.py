@@ -1,12 +1,12 @@
-from collections import OrderedDict
 import inspect
 import json
 import os
 import shutil
-import unittest
+from collections import OrderedDict
+
 import plotly
-from dash.development.base_component import Component
-from dash.development.component_generator import reserved_words
+import pytest
+
 from dash.development._py_components_generation import (
     generate_class_string,
     generate_class_file,
@@ -15,6 +15,8 @@ from dash.development._py_components_generation import (
     prohibit_events,
     js_to_py_type
 )
+from dash.development.base_component import Component
+from dash.development.component_generator import reserved_words
 
 _dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -55,27 +57,27 @@ def nested_tree():
     return c, c1, c2, c3, c4, c5
 
 
-class TestComponent(unittest.TestCase):
+class TestComponent:
     def test_init(self):
         Component(a=3)
 
     def test_get_item_with_children(self):
         c1 = Component(id='1')
         c2 = Component(children=[c1])
-        self.assertEqual(c2['1'], c1)
+        assert c2['1'] == c1
 
     def test_get_item_with_children_as_component_instead_of_list(self):
         c1 = Component(id='1')
         c2 = Component(id='2', children=c1)
-        self.assertEqual(c2['1'], c1)
+        assert c2['1'] == c1
 
     def test_get_item_with_nested_children_one_branch(self):
         c1 = Component(id='1')
         c2 = Component(id='2', children=[c1])
         c3 = Component(children=[c2])
-        self.assertEqual(c2['1'], c1)
-        self.assertEqual(c3['2'], c2)
-        self.assertEqual(c3['1'], c1)
+        assert c2['1'] == c1
+        assert c3['2'] == c2
+        assert c3['1'] == c1
 
     def test_get_item_with_nested_children_two_branches(self):
         c1 = Component(id='1')
@@ -83,43 +85,39 @@ class TestComponent(unittest.TestCase):
         c3 = Component(id='3')
         c4 = Component(id='4', children=[c3])
         c5 = Component(children=[c2, c4])
-        self.assertEqual(c2['1'], c1)
-        self.assertEqual(c4['3'], c3)
-        self.assertEqual(c5['2'], c2)
-        self.assertEqual(c5['4'], c4)
-        self.assertEqual(c5['1'], c1)
-        self.assertEqual(c5['3'], c3)
+        assert c2['1'] == c1
+        assert c4['3'] == c3
+        assert c5['2'] == c2
+        assert c5['4'] == c4
+        assert c5['1'] == c1
+        assert c5['3'] == c3
 
     def test_get_item_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c, c1, c2, c3, c4, c5 = nested_tree()
         keys = [k for k in c]
-        self.assertEqual(
-            keys,
-            [
-                '0.0',
-                '0.1',
-                '0.1.x',
-                '0.1.x.x',
-                '0.1.x.x.0'
-            ]
-        )
+
+        assert keys == [
+            '0.0',
+            '0.1',
+            '0.1.x',
+            '0.1.x.x',
+            '0.1.x.x.0'
+        ]
 
         # Try to get each item
         for comp in [c1, c2, c3, c4, c5]:
-            self.assertEqual(c[comp.id], comp)
+            assert c[comp.id] == comp
 
         # Get an item that doesn't exist
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             c['x']
 
     def test_len_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
-        self.assertEqual(
-            len(c),
-            5 +  # 5 components
-            5 +  # c2 has 2 strings, 2 numbers, and a None
-            1    # c1 has 1 string
-        )
+        # 5 components
+        # c2 has 2 strings, 2 numbers, and a None
+        # c1 has 1 string
+        assert len(c) == 5 + 5 + 1
 
     def test_set_item_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         keys = [
@@ -139,7 +137,7 @@ class TestComponent(unittest.TestCase):
                 children='new string'
             )
             c[key] = new_component
-            self.assertEqual(c[new_id], new_component)
+            assert c[new_id] == new_component
 
     def test_del_item_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
@@ -147,120 +145,118 @@ class TestComponent(unittest.TestCase):
         for key in keys:
             c[key]
             del c[key]
-            with self.assertRaises(KeyError):
+            with pytest.raises(KeyError):
                 c[key]
 
     def test_traverse_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c, c1, c2, c3, c4, c5 = nested_tree()
         elements = [i for i in c._traverse()]
-        self.assertEqual(
-            elements,
-            c.children + [c3] + [c2] + c2.children
-        )
+        assert elements == c.children + [c3] + [c2] + c2.children
 
     def test_traverse_with_tuples(self):  # noqa: E501
         c, c1, c2, c3, c4, c5 = nested_tree()
         c2.children = tuple(c2.children)
         c.children = tuple(c.children)
         elements = [i for i in c._traverse()]
-        self.assertEqual(
-            elements,
-            list(c.children) + [c3] + [c2] + list(c2.children)
-        )
+        assert elements == list(c.children) + [c3] + [c2] + list(c2.children)
 
     def test_to_plotly_json_with_nested_children_with_mixed_strings_and_without_lists(self):  # noqa: E501
         c = nested_tree()[0]
         Component._namespace
         Component._type
 
-        self.assertEqual(json.loads(json.dumps(
+        expected = {
+            'type': 'TestComponent',
+            'namespace': 'test_namespace',
+            'props': {
+                'children': [
+                    {
+                        'type': 'TestComponent',
+                        'namespace': 'test_namespace',
+                        'props': {
+                            'id': '0.0'
+                        }
+                    },
+                    {
+                        'type': 'TestComponent',
+                        'namespace': 'test_namespace',
+                        'props': {
+                            'children': {
+                                'type': 'TestComponent',
+                                'namespace': 'test_namespace',
+                                'props': {
+                                    'children': {
+                                        'type': 'TestComponent',
+                                        'namespace': 'test_namespace',
+                                        'props': {
+                                            'children': [
+                                                10,
+                                                None,
+                                                'wrap string',
+                                                {
+                                                    'type': 'TestComponent',
+                                                    'namespace': 'test_namespace',  # noqa: E501
+                                                    'props': {
+                                                        'children': 'string',
+                                                        'id': '0.1.x.x.0'
+                                                    }
+                                                },
+                                                'another string',
+                                                4.51
+                                            ],
+                                            'id': '0.1.x.x'
+                                        }
+                                    },
+                                    'id': '0.1.x'
+                                }
+                            },
+                            'id': '0.1'
+                        }
+                    }
+                ],
+                'id': '0'
+            }
+        }
+
+        res = json.loads(json.dumps(
             c.to_plotly_json(),
             cls=plotly.utils.PlotlyJSONEncoder
-            )), {
-                'type': 'TestComponent',
-                'namespace': 'test_namespace',
-                'props': {
-                    'children': [
-                        {
-                            'type': 'TestComponent',
-                            'namespace': 'test_namespace',
-                            'props': {
-                                'id': '0.0'
-                            }
-                        },
-                        {
-                            'type': 'TestComponent',
-                            'namespace': 'test_namespace',
-                            'props': {
-                                'children': {
-                                    'type': 'TestComponent',
-                                    'namespace': 'test_namespace',
-                                    'props': {
-                                        'children': {
-                                            'type': 'TestComponent',
-                                            'namespace': 'test_namespace',
-                                            'props': {
-                                                'children': [
-                                                    10,
-                                                    None,
-                                                    'wrap string',
-                                                    {
-                                                        'type': 'TestComponent',
-                                                        'namespace': 'test_namespace',  # noqa: E501
-                                                        'props': {
-                                                            'children': 'string',
-                                                            'id': '0.1.x.x.0'
-                                                        }
-                                                    },
-                                                    'another string',
-                                                    4.51
-                                                ],
-                                                'id': '0.1.x.x'
-                                            }
-                                        },
-                                        'id': '0.1.x'
-                                    }
-                                },
-                                'id': '0.1'
-                            }
-                        }
-                    ],
-                    'id': '0'
-                }
-            })
+        ))
+        assert res == expected
 
     def test_get_item_raises_key_if_id_doesnt_exist(self):
         c = Component()
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             c['1']
 
         c1 = Component(id='1')
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             c1['1']
 
         c2 = Component(id='2', children=[c1])
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             c2['0']
 
         c3 = Component(children='string with no id')
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             c3['0']
 
     def test_set_item(self):
         c1a = Component(id='1', children='Hello world')
         c2 = Component(id='2', children=c1a)
-        self.assertEqual(c2['1'], c1a)
+        assert c2['1'] == c1a
+
         c1b = Component(id='1', children='Brave new world')
         c2['1'] = c1b
-        self.assertEqual(c2['1'], c1b)
+        assert c2['1'] == c1b
 
     def test_set_item_with_children_as_list(self):
         c1 = Component(id='1')
         c2 = Component(id='2', children=[c1])
-        self.assertEqual(c2['1'], c1)
+        assert c2['1'] == c1
         c3 = Component(id='3')
         c2['1'] = c3
-        self.assertEqual(c2['3'], c3)
+        assert c2['3'] == c3
 
     def test_set_item_with_nested_children(self):
         c1 = Component(id='1')
@@ -270,103 +266,96 @@ class TestComponent(unittest.TestCase):
         c5 = Component(id='5', children=[c2, c4])
 
         c3b = Component(id='3')
-        self.assertEqual(c5['3'], c3)
-        self.assertTrue(c5['3'] != '3')
-        self.assertTrue(c5['3'] is not c3b)
+        assert c5['3'] == c3
+        assert c5['3'] != '3'
+        assert c5['3'] is not c3b
 
         c5['3'] = c3b
-        self.assertTrue(c5['3'] is c3b)
-        self.assertTrue(c5['3'] is not c3)
+        assert c5['3'] is c3b
+        assert c5['3'] is not c3
 
         c2b = Component(id='2')
         c5['2'] = c2b
-        self.assertTrue(c5['4'] is c4)
-        self.assertTrue(c5['2'] is not c2)
-        self.assertTrue(c5['2'] is c2b)
-        with self.assertRaises(KeyError):
+        assert c5['4'] is c4
+        assert c5['2'] is not c2
+        assert c5['2'] is c2b
+        with pytest.raises(KeyError):
             c5['1']
 
     def test_set_item_raises_key_error(self):
         c1 = Component(id='1')
         c2 = Component(id='2', children=[c1])
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             c2['3'] = Component(id='3')
 
     def test_del_item_from_list(self):
         c1 = Component(id='1')
         c2 = Component(id='2')
         c3 = Component(id='3', children=[c1, c2])
-        self.assertEqual(c3['1'], c1)
-        self.assertEqual(c3['2'], c2)
+        assert c3['1'] == c1
+        assert c3['2'] == c2
         del c3['2']
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             c3['2']
-        self.assertEqual(c3.children, [c1])
+        assert c3.children == [c1]
 
         del c3['1']
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             c3['1']
-        self.assertEqual(c3.children, [])
+        assert c3.children == []
 
     def test_del_item_from_class(self):
         c1 = Component(id='1')
         c2 = Component(id='2', children=c1)
-        self.assertEqual(c2['1'], c1)
+        assert c2['1'] == c1
         del c2['1']
-        with self.assertRaises(KeyError):
+        with pytest.raises(KeyError):
             c2['1']
 
-        self.assertEqual(c2.children, None)
+        assert c2.children is None
 
     def test_to_plotly_json_without_children(self):
         c = Component(id='a')
         c._prop_names = ('id',)
         c._type = 'MyComponent'
         c._namespace = 'basic'
-        self.assertEqual(
-            c.to_plotly_json(),
-            {'namespace': 'basic', 'props': {'id': 'a'}, 'type': 'MyComponent'}
-        )
+        assert (c.to_plotly_json() ==
+                {'namespace': 'basic',
+                 'props': {'id': 'a'},
+                 'type': 'MyComponent'})
 
     def test_to_plotly_json_with_null_arguments(self):
         c = Component(id='a')
         c._prop_names = ('id', 'style',)
         c._type = 'MyComponent'
         c._namespace = 'basic'
-        self.assertEqual(
-            c.to_plotly_json(),
-            {'namespace': 'basic', 'props': {'id': 'a'}, 'type': 'MyComponent'}
-        )
+        assert (c.to_plotly_json() ==
+                {'namespace': 'basic',
+                 'props': {'id': 'a'},
+                 'type': 'MyComponent'})
 
         c = Component(id='a', style=None)
         c._prop_names = ('id', 'style',)
         c._type = 'MyComponent'
         c._namespace = 'basic'
-        self.assertEqual(
-            c.to_plotly_json(),
-            {
-                'namespace': 'basic', 'props': {'id': 'a', 'style': None},
-                'type': 'MyComponent'
-            }
-        )
+        assert (c.to_plotly_json() ==
+                {'namespace': 'basic',
+                 'props': {'id': 'a', 'style': None},
+                 'type': 'MyComponent'})
 
     def test_to_plotly_json_with_children(self):
         c = Component(id='a', children='Hello World')
         c._prop_names = ('id', 'children',)
         c._type = 'MyComponent'
         c._namespace = 'basic'
-        self.assertEqual(
-            c.to_plotly_json(),
-            {
-                'namespace': 'basic',
-                'props': {
-                    'id': 'a',
-                    # TODO - Rename 'children' to 'children'
-                    'children': 'Hello World'
-                },
-                'type': 'MyComponent'
-            }
-        )
+        assert (c.to_plotly_json() ==
+                {'namespace': 'basic',
+                 'props': {
+                     'id': 'a',
+                     # TODO - Rename 'children' to 'children'
+                     'children': 'Hello World'
+                 },
+                 'type': 'MyComponent'})
 
     def test_to_plotly_json_with_nested_children(self):
         c1 = Component(id='1', children='Hello World')
@@ -417,28 +406,25 @@ class TestComponent(unittest.TestCase):
         c._prop_names = ('id',)
         c._type = 'MyComponent'
         c._namespace = 'basic'
-        self.assertEqual(
-            c.to_plotly_json(),
-            {'namespace': 'basic',
-             'props': {
-                 'aria-expanded': 'true',
-                 'data-toggle': 'toggled',
-                 'data-none': None,
-                 'id': 'a',
-             },
-             'type': 'MyComponent'}
-        )
+        assert (c.to_plotly_json() ==
+                {'namespace': 'basic',
+                 'props': {
+                     'aria-expanded': 'true',
+                     'data-toggle': 'toggled',
+                     'data-none': None,
+                     'id': 'a',
+                 },
+                 'type': 'MyComponent'})
 
     def test_len(self):
-        self.assertEqual(len(Component()), 0)
-        self.assertEqual(len(Component(children='Hello World')), 1)
-        self.assertEqual(len(Component(children=Component())), 1)
-        self.assertEqual(len(Component(children=[Component(), Component()])),
-                         2)
-        self.assertEqual(len(Component(children=[
+        assert len(Component()) == 0
+        assert len(Component(children='Hello World')) == 1
+        assert len(Component(children=Component())) == 1
+        assert len(Component(children=[Component(), Component()])) == 2
+        assert len(Component(children=[
             Component(children=Component()),
             Component()
-        ])), 3)
+        ])) == 3
 
     def test_iter(self):
         # The mixin methods from MutableMapping were cute but probably never
@@ -487,8 +473,10 @@ class TestComponent(unittest.TestCase):
         assert len(keys) == len(keys2), 'iteration produces no extra keys'
 
 
-class TestGenerateClassFile(unittest.TestCase):
-    def setUp(self):
+class TestGenerateClassFile:
+
+    @pytest.fixture(autouse=True)
+    def setup_function(self):
         json_path = os.path.join(_dir, 'metadata_test.json')
         with open(json_path) as data_file:
             json_string = data_file.read()
@@ -532,12 +520,12 @@ class TestGenerateClassFile(unittest.TestCase):
         with open(expected_string_path, 'r') as f:
             self.expected_class_string = f.read()
 
-    def tearDown(self):
+        yield
         shutil.rmtree('TableComponents')
 
     def assert_no_trailing_spaces(self, s):
         for line in s.split('\n'):
-            self.assertEqual(line, line.rstrip())
+            assert line == line.rstrip()
 
     def match_lines(self, val, expected):
         for val1, exp1 in zip(val.splitlines(), expected.splitlines()):
@@ -558,8 +546,10 @@ class TestGenerateClassFile(unittest.TestCase):
         self.assert_no_trailing_spaces(self.written_class_string)
 
 
-class TestGenerateClass(unittest.TestCase):
-    def setUp(self):
+class TestGenerateClass:
+
+    @pytest.fixture(autouse=True)
+    def setup_function(self):
         path = os.path.join(_dir, 'metadata_test.json')
         with open(path) as data_file:
             json_string = data_file.read()
@@ -592,34 +582,37 @@ class TestGenerateClass(unittest.TestCase):
 
     def test_to_plotly_json(self):
         c = self.ComponentClass()
-        self.assertEqual(c.to_plotly_json(), {
-            'namespace': 'TableComponents',
-            'type': 'Table',
-            'props': {
-                'children': None
-            }
-        })
+        assert (c.to_plotly_json() ==
+                {
+                    'namespace': 'TableComponents',
+                    'type': 'Table',
+                    'props': {
+                        'children': None
+                    }
+                })
 
         c = self.ComponentClass(id='my-id')
-        self.assertEqual(c.to_plotly_json(), {
-            'namespace': 'TableComponents',
-            'type': 'Table',
-            'props': {
-                'children': None,
-                'id': 'my-id'
-            }
-        })
+        assert (c.to_plotly_json() ==
+                {
+                    'namespace': 'TableComponents',
+                    'type': 'Table',
+                    'props': {
+                        'children': None,
+                        'id': 'my-id'
+                    }
+                })
 
         c = self.ComponentClass(id='my-id', optionalArray=None)
-        self.assertEqual(c.to_plotly_json(), {
-            'namespace': 'TableComponents',
-            'type': 'Table',
-            'props': {
-                'children': None,
-                'id': 'my-id',
-                'optionalArray': None
-            }
-        })
+        assert (c.to_plotly_json() ==
+                {
+                    'namespace': 'TableComponents',
+                    'type': 'Table',
+                    'props': {
+                        'children': None,
+                        'id': 'my-id',
+                        'optionalArray': None
+                    }
+                })
 
     def test_arguments_become_attributes(self):
         kwargs = {
@@ -629,44 +622,29 @@ class TestGenerateClass(unittest.TestCase):
         }
         component_instance = self.ComponentClass(**kwargs)
         for k, v in list(kwargs.items()):
-            self.assertEqual(getattr(component_instance, k), v)
+            assert getattr(component_instance, k) == v
 
     def test_repr_single_default_argument(self):
         c1 = self.ComponentClass('text children')
         c2 = self.ComponentClass(children='text children')
-        self.assertEqual(
-            repr(c1),
-            "Table('text children')"
-        )
-        self.assertEqual(
-            repr(c2),
-            "Table('text children')"
-        )
+        assert repr(c1) == "Table('text children')"
+        assert repr(c2) == "Table('text children')"
 
     def test_repr_single_non_default_argument(self):
         c = self.ComponentClass(id='my-id')
-        self.assertEqual(
-            repr(c),
-            "Table(id='my-id')"
-        )
+        assert repr(c) == "Table(id='my-id')"
 
     def test_repr_multiple_arguments(self):
         # Note how the order in which keyword arguments are supplied is
         # not always equal to the order in the repr of the component
         c = self.ComponentClass(id='my id', optionalArray=[1, 2, 3])
-        self.assertEqual(
-            repr(c),
-            "Table(optionalArray=[1, 2, 3], id='my id')"
-        )
+        assert repr(c) == "Table(optionalArray=[1, 2, 3], id='my id')"
 
     def test_repr_nested_arguments(self):
         c1 = self.ComponentClass(id='1')
         c2 = self.ComponentClass(id='2', children=c1)
         c3 = self.ComponentClass(children=c2)
-        self.assertEqual(
-            repr(c3),
-            "Table(Table(children=Table(id='1'), id='2'))"
-        )
+        assert repr(c3) == "Table(Table(children=Table(id='1'), id='2'))"
 
     def test_repr_with_wildcards(self):
         c = self.ComponentClass(id='1', **{"data-one": "one",
@@ -674,20 +652,17 @@ class TestGenerateClass(unittest.TestCase):
         data_first = "Table(id='1', data-one='one', aria-two='two')"
         aria_first = "Table(id='1', aria-two='two', data-one='one')"
         repr_string = repr(c)
-        if not (repr_string == data_first or repr_string == aria_first):
-            raise Exception("%s\nDoes not equal\n%s\nor\n%s" %
-                            (repr_string, data_first, aria_first))
+
+        assert repr_string == data_first or repr_string == aria_first
 
     def test_docstring(self):
-        assert_docstring(self.assertEqual, self.ComponentClass.__doc__)
+        assert_docstring(self.ComponentClass.__doc__)
 
     def test_no_events(self):
-        self.assertEqual(
-            hasattr(self.ComponentClass(), 'available_events'),
-            False
-        )
+        assert not hasattr(self.ComponentClass(), 'available_events')
 
     # This one is kind of pointless now
+    @pytest.mark.skip
     def test_call_signature(self):
         __init__func = self.ComponentClass.__init__
         # TODO: Will break in Python 3
@@ -734,12 +709,12 @@ class TestGenerateClass(unittest.TestCase):
             )
 
     def test_required_props(self):
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             self.ComponentClassRequired()
         self.ComponentClassRequired(id='test')
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             self.ComponentClassRequired(id='test', lahlah='test')
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             self.ComponentClassRequired(children='test')
 
     def test_attrs_match_forbidden_props(self):
@@ -765,8 +740,10 @@ class TestGenerateClass(unittest.TestCase):
         ), 'explicit props were added as attrs'
 
 
-class TestMetaDataConversions(unittest.TestCase):
-    def setUp(self):
+class TestMetaDataConversions:
+
+    @pytest.fixture(autouse=True)
+    def setup_function(self):
         path = os.path.join(_dir, 'metadata_test.json')
         with open(path) as data_file:
             json_string = data_file.read()
@@ -817,7 +794,7 @@ class TestMetaDataConversions(unittest.TestCase):
                 "  - fontSize (number; optional)",
                 "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
                 "Those keys have the following types:",
-                "  - data (list of dicts; optional): data is a collection of traces",
+                "  - data (list of dicts; optional): data is a collection of traces",  # noqa: E501
                 "  - layout (dict; optional): layout describes the rest of the figure"  # noqa: E501
 
             ])],
@@ -830,7 +807,7 @@ class TestMetaDataConversions(unittest.TestCase):
                 "  - fontSize (number; optional)",
                 "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
                 "Those keys have the following types:",
-                "  - data (list of dicts; optional): data is a collection of traces",
+                "  - data (list of dicts; optional): data is a collection of traces",  # noqa: E501
                 "  - layout (dict; optional): layout describes the rest of the figure"  # noqa: E501
 
             ])],
@@ -857,22 +834,20 @@ class TestMetaDataConversions(unittest.TestCase):
             self.data['description'],
         )
         prohibit_events(self.data['props']),
-        assert_docstring(self.assertEqual, docstring)
+        assert_docstring(docstring)
 
     def test_docgen_to_python_args(self):
-
         props = self.data['props']
 
         for prop_name, prop in list(props.items()):
-            self.assertEqual(
-                js_to_py_type(prop['type']),
-                self.expected_arg_strings[prop_name]
-            )
+            assert (js_to_py_type(prop['type']) ==
+                    self.expected_arg_strings[prop_name]
+                    )
 
 
-def assert_docstring(assertEqual, docstring):
+def assert_docstring(docstring):
     for i, line in enumerate(docstring.split('\n')):
-        assertEqual(line, ([
+        assert (line == ([
             "A Table component.",
             "This is a description of the component.",
             "It's multiple lines long.",
@@ -910,7 +885,7 @@ def assert_docstring(assertEqual, docstring):
             "keys 'data', 'layout'.",
 
             "Those keys have the following types:",
-            "  - data (list of dicts; optional): data is a collection of traces",
+            "  - data (list of dicts; optional): data is a collection of traces",  # noqa: E501
 
             "  - layout (dict; optional): layout describes "
             "the rest of the figure",
@@ -929,7 +904,7 @@ def assert_docstring(assertEqual, docstring):
             "keys 'data', 'layout'.",
 
             "Those keys have the following types:",
-            "  - data (list of dicts; optional): data is a collection of traces",
+            "  - data (list of dicts; optional): data is a collection of traces",  # noqa: E501
 
             "  - layout (dict; optional): layout describes "
             "the rest of the figure",
@@ -948,8 +923,10 @@ def assert_docstring(assertEqual, docstring):
                    )
 
 
-class TestFlowMetaDataConversions(unittest.TestCase):
-    def setUp(self):
+class TestFlowMetaDataConversions:
+
+    @pytest.fixture(autouse=True)
+    def setup_function(self):
         path = os.path.join(_dir, 'flow_metadata_test.json')
         with open(path) as data_file:
             json_string = data_file.read()
@@ -959,7 +936,7 @@ class TestFlowMetaDataConversions(unittest.TestCase):
             self.data = data
 
         self.expected_arg_strings = OrderedDict([
-            ['children', 'a list of or a singular dash component, string or number'],
+            ['children', 'a list of or a singular dash component, string or number'],  # noqa: E501
 
             ['requiredString', 'string'],
 
@@ -969,7 +946,7 @@ class TestFlowMetaDataConversions(unittest.TestCase):
 
             ['optionalFunc', ''],
 
-            ['optionalNode', 'a list of or a singular dash component, string or number'],
+            ['optionalNode', 'a list of or a singular dash component, string or number'],  # noqa: E501
 
             ['optionalArray', 'list'],
 
@@ -977,11 +954,11 @@ class TestFlowMetaDataConversions(unittest.TestCase):
 
             ['optionalSignature(shape)', '\n'.join([
 
-                "dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
+                "dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",  # noqa: E501
                 "Those keys have the following types:",
                 "- checked (boolean; optional)",
-                "- children (a list of or a singular dash component, string or number; optional)",
-                "- customData (bool | number | str | dict | list; required): A test description",
+                "- children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
+                "- customData (bool | number | str | dict | list; required): A test description",  # noqa: E501
                 "- disabled (boolean; optional)",
                 "- label (string; optional)",
                 "- primaryText (string; required): Another test description",
@@ -995,10 +972,10 @@ class TestFlowMetaDataConversions(unittest.TestCase):
 
                 "dict containing keys 'customData', 'value'.",
                 "Those keys have the following types:",
-                "- customData (required): . customData has the following type: dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
+                "- customData (required): . customData has the following type: dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",  # noqa: E501
                 "  Those keys have the following types:",
                 "  - checked (boolean; optional)",
-                "  - children (a list of or a singular dash component, string or number; optional)",
+                "  - children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
                 "  - customData (bool | number | str | dict | list; required)",
                 "  - disabled (boolean; optional)",
                 "  - label (string; optional)",
@@ -1018,49 +995,48 @@ class TestFlowMetaDataConversions(unittest.TestCase):
             self.data['description'],
         )
         prohibit_events(self.data['props']),
-        assert_flow_docstring(self.assertEqual, docstring)
+        assert_flow_docstring(docstring)
 
     def test_docgen_to_python_args(self):
 
         props = self.data['props']
 
         for prop_name, prop in list(props.items()):
-            self.assertEqual(
-                js_to_py_type(prop['flowType'], is_flow_type=True),
-                self.expected_arg_strings[prop_name]
-            )
+            assert (js_to_py_type(prop['flowType'], is_flow_type=True) ==
+                    self.expected_arg_strings[prop_name]
+                    )
 
 
-def assert_flow_docstring(assertEqual, docstring):
+def assert_flow_docstring(docstring):
     for i, line in enumerate(docstring.split('\n')):
-        assertEqual(line, ([
+        assert (line == ([
             "A Flow_component component.",
             "This is a test description of the component.",
             "It's multiple lines long.",
             "",
             "Keyword arguments:",
             "- requiredString (string; required): A required string",
-            "- optionalString (string; optional): A string that isn't required.",
+            "- optionalString (string; optional): A string that isn't required.",  # noqa: E501
             "- optionalBoolean (boolean; optional): A boolean test",
 
-            "- optionalNode (a list of or a singular dash component, string or number; optional): "
+            "- optionalNode (a list of or a singular dash component, string or number; optional): "  # noqa: E501
             "A node test",
 
-            "- optionalArray (list; optional): An array test with a particularly ",
-            "long description that covers several lines. It includes the newline character ",
+            "- optionalArray (list; optional): An array test with a particularly ",  # noqa: E501
+            "long description that covers several lines. It includes the newline character ",  # noqa: E501
             "and should span 3 lines in total.",
 
             "- requiredUnion (string | number; required)",
 
-            "- optionalSignature(shape) (optional): This is a test of an object's shape. "
-            "optionalSignature(shape) has the following type: dict containing keys 'checked', "
-            "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "
+            "- optionalSignature(shape) (optional): This is a test of an object's shape. "  # noqa: E501
+            "optionalSignature(shape) has the following type: dict containing keys 'checked', "  # noqa: E501
+            "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "  # noqa: E501
             "'style', 'value'.",
 
             "  Those keys have the following types:",
             "  - checked (boolean; optional)",
-            "  - children (a list of or a singular dash component, string or number; optional)",
-            "  - customData (bool | number | str | dict | list; required): A test description",
+            "  - children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
+            "  - customData (bool | number | str | dict | list; required): A test description",  # noqa: E501
             "  - disabled (boolean; optional)",
             "  - label (string; optional)",
             "  - primaryText (string; required): Another test description",
@@ -1068,18 +1044,18 @@ def assert_flow_docstring(assertEqual, docstring):
             "  - style (dict; optional)",
             "  - value (bool | number | str | dict | list; required)",
 
-            "- requiredNested (required): . requiredNested has the following type: dict containing "
+            "- requiredNested (required): . requiredNested has the following type: dict containing "  # noqa: E501
             "keys 'customData', 'value'.",
 
             "  Those keys have the following types:",
 
-            "  - customData (required): . customData has the following type: dict containing "
-            "keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', "
+            "  - customData (required): . customData has the following type: dict containing "  # noqa: E501
+            "keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', "  # noqa: E501
             "'secondaryText', 'style', 'value'.",
 
             "    Those keys have the following types:",
             "    - checked (boolean; optional)",
-            "    - children (a list of or a singular dash component, string or number; optional)",
+            "    - children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
             "    - customData (bool | number | str | dict | list; required)",
             "    - disabled (boolean; optional)",
             "    - label (string; optional)",

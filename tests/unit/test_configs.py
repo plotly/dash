@@ -40,7 +40,8 @@ def test_valid_pathname_prefix_init(
         empty_environ, route_prefix, req_prefix, expected_route, expected_req
 ):
     _, routes, req = pathname_configs(
-        routes_pathname_prefix=route_prefix, requests_pathname_prefix=req_prefix
+        routes_pathname_prefix=route_prefix,
+        requests_pathname_prefix=req_prefix
     )
 
     if expected_route is not None:
@@ -54,15 +55,21 @@ def test_invalid_pathname_prefix(empty_environ):
 
     with pytest.raises(_exc.InvalidConfig) as excinfo:
         _, _, _ = pathname_configs(
-            url_base_pathname="/invalid", routes_pathname_prefix="/invalid"
+            url_base_pathname="/invalid",
+            routes_pathname_prefix="/invalid"
         )
-    assert str(excinfo.value).split(".")[0].endswith("`routes_pathname_prefix`")
+    assert (str(excinfo.value)
+            .split(".")[0]
+            .endswith("`routes_pathname_prefix`"))
 
     with pytest.raises(_exc.InvalidConfig) as excinfo:
         _, _, _ = pathname_configs(
-            url_base_pathname="/my-path", requests_pathname_prefix="/another-path"
+            url_base_pathname="/my-path",
+            requests_pathname_prefix="/another-path"
         )
-    assert str(excinfo.value).split(".")[0].endswith("`requests_pathname_prefix`")
+    assert (str(excinfo.value)
+            .split(".")[0]
+            .endswith("`requests_pathname_prefix`"))
 
     with pytest.raises(_exc.InvalidConfig, match="start with `/`"):
         _, _, _ = pathname_configs("my-path")
@@ -107,7 +114,7 @@ def test_get_combined_config_dev_tools_ui(empty_environ):
     val1 = get_combined_config("ui", None, default=False)
     assert (
         not val1
-    ), "should return the default value if None is provided for init and environment"
+    ), "should return the default value if None is provided for init and environment"  # noqa E501
 
     os.environ["DASH_UI"] = "true"
     val2 = get_combined_config("ui", None, default=False)
@@ -121,7 +128,7 @@ def test_get_combined_config_props_check(empty_environ):
     val1 = get_combined_config("props_check", None, default=False)
     assert (
         not val1
-    ), "should return the default value if None is provided for init and environment"
+    ), "should return the default value if None is provided for init and environment"  # noqa E501
 
     os.environ["DASH_PROPS_CHECK"] = "true"
     val2 = get_combined_config("props_check", None, default=False)
