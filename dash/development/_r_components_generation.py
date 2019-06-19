@@ -26,7 +26,7 @@ r_component_string = """{funcname} <- function({default_argtext}{wildcards}) {{
         package = '{package_name}'
         )
 
-    component$props <- filter_null(component$props)
+    component$props <- dash_filter_null(component$props)
 
     structure(component, class = c('dash_component', 'list'))
 }}
