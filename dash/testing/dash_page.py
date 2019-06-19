@@ -18,11 +18,11 @@ class DashPageMixin(object):
 
     @property
     def dash_outerhtml_dom(self):
-        return self._get_dash_dom_by_attribute('outerHTML')
+        return self._get_dash_dom_by_attribute("outerHTML")
 
     @property
     def dash_innerhtml_dom(self):
-        return self._get_dash_dom_by_attribute('innerHTML')
+        return self._get_dash_dom_by_attribute("innerHTML")
 
     @property
     def redux_state_paths(self):
@@ -36,14 +36,16 @@ class DashPageMixin(object):
             "return window.store.getState().requestQueue"
         )
 
-    @property
-    def local_storage(self):
+    def get_local_storage(self, store_id="local"):
         return self.driver.execute_script(
-            "return JSON.parse(window.localStorage);"
+            "return JSON.parse(window.localStorage.getItem('{}'));".format(
+                store_id
+            )
         )
 
-    @property
-    def session_storage(self):
+    def get_session_storage(self, session_id="session"):
         return self.driver.execute_script(
-            "return JSON.parse(window.sessionStorage);"
+            "return JSON.parse(window.sessionStorage.getItem('{}'));".format(
+                session_id
+            )
         )
