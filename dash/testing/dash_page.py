@@ -39,11 +39,11 @@ class DashPageMixin(object):
     @property
     def local_storage(self):
         return self.driver.execute_script(
-            "return JSON.parse(window.localStorage.getItem('local'));"
+            "return JSON.parse(window.localStorage);"
         )
 
     @property
     def session_storage(self):
         return self.driver.execute_script(
-            "return JSON.parse(window.sessionStorage.getItem('session'));"
+            "return JSON.parse(window.sessionStorage);"
         )
