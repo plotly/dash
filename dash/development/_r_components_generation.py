@@ -346,14 +346,13 @@ def write_help_file(name, props, description, prefix):
     # in R, the online help viewer does not properly wrap lines for
     # the usage string -- we will hard wrap at 80 characters using
     # textwrap.fill, starting from the beginning of the usage string
-    argtext = prefix + name + "({})".format(default_argtext)
 
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
         f.write(help_string.format(
             funcname=format_fn_name(prefix, name),
             name=name,
-            default_argtext=textwrap.fill(argtext,
+            default_argtext=textwrap.fill(default_argtext,
                                           width=80,
                                           break_long_words=False),
             item_text=item_text,
