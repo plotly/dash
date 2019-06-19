@@ -163,7 +163,7 @@ def generate_class_string(name, props, project_shortname, prefix):
     if any("-*" in key for key in prop_keys):
         wildcards = ", ..."
         wildcard_declaration = (
-            "\n    wildcard_names = names(assert_valid_wildcards(...))\n"
+            "\n    wildcard_names = names(dash_assert_valid_wildcards(...))\n"
         )
         wildcard_names = ", wildcard_names"
 
