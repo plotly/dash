@@ -477,7 +477,7 @@ def generate_rpkg(
         package_depends = ", " + package_depends.strip(",").lstrip()
 
     if package_imports:
-        package_imports = ", " + package_imports.strip(",").lstrip()
+        package_imports = package_imports.strip(",").lstrip()
 
     if package_suggests:
         package_suggests = package_suggests.strip(",").lstrip()
