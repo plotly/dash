@@ -83,7 +83,7 @@ Version: {package_version}
 Authors @R: as.person(c({package_author}))
 Description: {package_description}
 Depends: R (>= 3.0.2){package_depends}
-Imports: dash{package_imports}
+Imports: {package_imports}
 Suggests: {package_suggests}
 License: {package_license}
 URL: {package_url}
@@ -539,7 +539,7 @@ def generate_rpkg(
         f2.write(rbuild_ignore_string)
 
     # Write package stub files for R online help, generate if
-    # dashHtmlComponents or dashCoreComponents; makes it easy
+    # dashHtmlComponents, dashTable, or dashCoreComponents; makes it easy
     # for R users to bring up main package help page
     pkg_help_header = ""
 
@@ -559,6 +559,15 @@ interactive user interfaces. A core set of components,\n\
 written and maintained by the Dash team, is available in\n\
 the dashCoreComponents package. The source for this package\n\
 is on GitHub: plotly/dash-core-components."
+    if package_name in ["dashTable"]:
+        pkg_help_header = "Core Interactive Table Component for Dash"
+        pkg_help_desc = "Dash DataTable is an interactive table component\n\
+designed for viewing, editing, and exploring large datasets. DataTable is\n\
+rendered with standard, semantic HTML <table/> markup, which makes it\n\
+accessible, responsive, and easy to style. This component was written\n\
+from scratch in React.js specifically for the Dash community. Its API\n\
+was designed to be ergonomic and its behavior is completely customizable\n\
+through its properties."
 
     description_string = description_template.format(
         package_name=package_name,
