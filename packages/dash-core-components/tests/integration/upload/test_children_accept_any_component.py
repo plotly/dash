@@ -1,3 +1,4 @@
+import time
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -32,6 +33,5 @@ def test_upca001_upload_children_gallery(dash_duo):
         ]
     )
     dash_duo.start_server(app)
-    import time
-    time.sleep(60)
+    time.sleep(0.5)
     dash_duo.percy_snapshot("upca001 children gallery")
