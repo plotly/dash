@@ -425,30 +425,31 @@ def create_prop_docstring(prop_name, type_object, required, description,
         is_flow_type=is_flow_type,
         indent_num=indent_num + 1)
     indent_spacing = '  ' * indent_num
-    default_string = ' (Default: {})'.format(default) if len(default) > 0 \
-        and 'null' not in str(default) \
-        and '[]' not in str(default) else ''
+
+    is_required = 'optional'
+    if required:
+        is_required = 'required'
+    elif len(default) > 0 and 'null' not in str(default) and '[]' not in str(default):
+        is_required = 'default {}'.format(default.replace('\n', '\n' + indent_spacing))
 
     if '\n' in py_type_name:
         return '{indent_spacing}- {name} ({is_required}): {description}{period} ' \
-               '{name} has the following type: {type}{defaultValue}'.format(
+               '{name} has the following type: {type}'.format(
                    indent_spacing=indent_spacing,
                    name=prop_name,
                    type=py_type_name,
                    description=description,
                    period='.' if len(description) > 0 and description[-1] != '.' else '',
-                   defaultValue='\n' + indent_spacing + default_string.replace('\n', '\n' + indent_spacing),
-                   is_required='required' if required else 'optional')
+                   is_required=is_required)
     return '{indent_spacing}- {name} ({type}' \
-           '{is_required}){description}{defaultValue}'.format(
+           '{is_required}){description}'.format(
                indent_spacing=indent_spacing,
                name=prop_name,
                type='{}; '.format(py_type_name) if py_type_name else '',
                description=(
                    ': {}'.format(description) if description != '' else ''
                ),
-               defaultValue=default_string,
-               is_required='required' if required else 'optional')
+               is_required=is_required)
 
 
 def map_js_to_py_types_prop_types(type_object):
