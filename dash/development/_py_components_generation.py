@@ -250,6 +250,7 @@ Keyword arguments:\n{args}"""
                 else prop['flowType'],
                 required=prop['required'],
                 description=prop['description'],
+                default=prop['defaultValue']['value'] if 'defaultValue' in prop.keys() else '',
                 indent_num=0,
                 is_flow_type='flowType' in prop and 'type' not in prop)
             for p, prop in list(filter_props(props).items())))
@@ -394,7 +395,7 @@ def filter_props(props):
 
 # pylint: disable=too-many-arguments
 def create_prop_docstring(prop_name, type_object, required, description,
-                          indent_num, is_flow_type=False):
+                          default, indent_num, is_flow_type=False):
     """
     Create the Dash component prop docstring
 
@@ -423,24 +424,25 @@ def create_prop_docstring(prop_name, type_object, required, description,
         type_object=type_object,
         is_flow_type=is_flow_type,
         indent_num=indent_num + 1)
-
     indent_spacing = '  ' * indent_num
     if '\n' in py_type_name:
         return '{indent_spacing}- {name} ({is_required}): {description}. ' \
-               '{name} has the following type: {type}'.format(
+               '{name} has the following type: {type}{defaultValue})'.format(
                    indent_spacing=indent_spacing,
                    name=prop_name,
                    type=py_type_name,
                    description=description,
+                   defaultValue=' (Default: {})'.format(default) if len(default) > 0 else '',
                    is_required='required' if required else 'optional')
     return '{indent_spacing}- {name} ({type}' \
-           '{is_required}){description}'.format(
+           '{is_required}){description}{defaultValue}'.format(
                indent_spacing=indent_spacing,
                name=prop_name,
                type='{}; '.format(py_type_name) if py_type_name else '',
                description=(
                    ': {}'.format(description) if description != '' else ''
                ),
+               defaultValue=' (Default: {})'.format(default) if len(default) > 0 else '',
                is_required='required' if required else 'optional')
 
 
@@ -459,6 +461,7 @@ def map_js_to_py_types_prop_types(type_object):
                         type_object=prop,
                         required=prop['required'],
                         description=prop.get('description', ''),
+                        default=prop['defaultValue']['value'] if 'defaultValue' in prop.keys() else '',
                         indent_num=1
                     ) for prop_name, prop in
                     list(type_object['value'].items())))
