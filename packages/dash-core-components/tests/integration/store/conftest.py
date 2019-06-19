@@ -9,6 +9,7 @@ import dash_html_components as html
 
 UUID = "store-test-{}".format(uuid.uuid4().hex)
 
+
 @pytest.fixture(scope="module")
 def store_app():
     app = dash.Dash(__name__)
@@ -30,6 +31,8 @@ def store_app():
         [State("memory", "data")],
     )
     def write_memory(modified_ts, data):
+        if data is None:
+            return ""
         return json.dumps(data)
 
     @app.callback(
@@ -43,7 +46,7 @@ def store_app():
     def on_clear(n_clicks):
         if n_clicks is None:
             raise PreventUpdate
-        return True
+        return True, True, True
 
     @app.callback(
         [
