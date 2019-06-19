@@ -102,97 +102,93 @@ METADATA = json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(
 )
 
 
-class TestLoadComponents:
-    @pytest.fixture(autouse=True)
-    def setup_function(self):
-        with open(METADATA_PATH, "w") as f:
-            f.write(METADATA_STRING)
-        yield
-        os.remove(METADATA_PATH)
-
-    def test_loadcomponents(self):
-        my_component = generate_class(
-            "MyComponent",
-            METADATA["MyComponent.react.js"]["props"],
-            METADATA["MyComponent.react.js"]["description"],
-            "default_namespace",
-        )
-
-        a_component = generate_class(
-            "A",
-            METADATA["A.react.js"]["props"],
-            METADATA["A.react.js"]["description"],
-            "default_namespace",
-        )
-
-        c = load_components(METADATA_PATH)
-
-        my_component_kwargs = {
-            "foo": "Hello World",
-            "bar": "Lah Lah",
-            "baz": "Lemons",
-            "data-foo": "Blah",
-            "aria-bar": "Seven",
-            "children": "Child",
-        }
-        a_kwargs = {"children": "Child", "href": "Hello World"}
-
-        assert isinstance(my_component(**my_component_kwargs), Component)
-
-        assert repr(my_component(**my_component_kwargs)) == repr(
-            c[0](**my_component_kwargs)
-        )
-
-        assert repr(a_component(**a_kwargs)) == repr(c[1](**a_kwargs))
+@pytest.fixture
+def write_metada_file():
+    with open(METADATA_PATH, "w") as f:
+        f.write(METADATA_STRING)
+    yield
+    os.remove(METADATA_PATH)
 
 
-class TestGenerateClasses:
-    @pytest.fixture(autouse=True)
-    def setup_function(self):
-        with open(METADATA_PATH, "w") as f:
-            f.write(METADATA_STRING)
-        os.makedirs("default_namespace")
+@pytest.fixture
+def make_namespace():
+    os.makedirs("default_namespace")
+    init_file_path = "default_namespace/__init__.py"
+    with open(init_file_path, "a"):
+        os.utime(init_file_path, None)
+    yield
+    shutil.rmtree("default_namespace")
 
-        init_file_path = "default_namespace/__init__.py"
-        with open(init_file_path, "a"):
-            os.utime(init_file_path, None)
-        yield
-        os.remove(METADATA_PATH)
-        shutil.rmtree("default_namespace")
 
-    def test_loadcomponents(self):
-        my_component_runtime = generate_class(
-            "MyComponent",
-            METADATA["MyComponent.react.js"]["props"],
-            METADATA["MyComponent.react.js"]["description"],
-            "default_namespace",
-        )
+def test_loadcomponents(write_metada_file):
+    my_component = generate_class(
+        "MyComponent",
+        METADATA["MyComponent.react.js"]["props"],
+        METADATA["MyComponent.react.js"]["description"],
+        "default_namespace",
+    )
 
-        a_runtime = generate_class(
-            "A",
-            METADATA["A.react.js"]["props"],
-            METADATA["A.react.js"]["description"],
-            "default_namespace",
-        )
+    a_component = generate_class(
+        "A",
+        METADATA["A.react.js"]["props"],
+        METADATA["A.react.js"]["description"],
+        "default_namespace",
+    )
 
-        generate_classes("default_namespace", METADATA_PATH)
-        from default_namespace.MyComponent import MyComponent as MyComponent_buildtime
-        from default_namespace.A import A as A_buildtime
+    c = load_components(METADATA_PATH)
 
-        my_component_kwargs = {
-            "foo": "Hello World",
-            "bar": "Lah Lah",
-            "baz": "Lemons",
-            "data-foo": "Blah",
-            "aria-bar": "Seven",
-            "children": "Child",
-        }
-        a_kwargs = {"children": "Child", "href": "Hello World"}
+    my_component_kwargs = {
+        "foo": "Hello World",
+        "bar": "Lah Lah",
+        "baz": "Lemons",
+        "data-foo": "Blah",
+        "aria-bar": "Seven",
+        "children": "Child",
+    }
+    a_kwargs = {"children": "Child", "href": "Hello World"}
 
-        assert isinstance(MyComponent_buildtime(**my_component_kwargs), Component)
+    assert isinstance(my_component(**my_component_kwargs), Component)
 
-        assert repr(MyComponent_buildtime(**my_component_kwargs)) == repr(
-            my_component_runtime(**my_component_kwargs)
-        )
+    assert repr(my_component(**my_component_kwargs)) == repr(
+        c[0](**my_component_kwargs)
+    )
 
-        assert repr(a_runtime(**a_kwargs)) == repr(A_buildtime(**a_kwargs))
+    assert repr(a_component(**a_kwargs)) == repr(c[1](**a_kwargs))
+
+
+def test_loadcomponents_from_generated_class(write_metada_file, make_namespace):
+    my_component_runtime = generate_class(
+        "MyComponent",
+        METADATA["MyComponent.react.js"]["props"],
+        METADATA["MyComponent.react.js"]["description"],
+        "default_namespace",
+    )
+
+    a_runtime = generate_class(
+        "A",
+        METADATA["A.react.js"]["props"],
+        METADATA["A.react.js"]["description"],
+        "default_namespace",
+    )
+
+    generate_classes("default_namespace", METADATA_PATH)
+    from default_namespace.MyComponent import MyComponent as MyComponent_buildtime
+    from default_namespace.A import A as A_buildtime
+
+    my_component_kwargs = {
+        "foo": "Hello World",
+        "bar": "Lah Lah",
+        "baz": "Lemons",
+        "data-foo": "Blah",
+        "aria-bar": "Seven",
+        "children": "Child",
+    }
+    a_kwargs = {"children": "Child", "href": "Hello World"}
+
+    assert isinstance(MyComponent_buildtime(**my_component_kwargs), Component)
+
+    assert repr(MyComponent_buildtime(**my_component_kwargs)) == repr(
+        my_component_runtime(**my_component_kwargs)
+    )
+
+    assert repr(a_runtime(**a_kwargs)) == repr(A_buildtime(**a_kwargs))
