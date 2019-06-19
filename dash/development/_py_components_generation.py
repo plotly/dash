@@ -236,10 +236,11 @@ def create_docstring(component_name, props, description):
     props = reorder_props(props=props)
 
     return (
-        """A {name} component.\n{description}
+        """A{n} {name} component.\n{description}
 
 Keyword arguments:\n{args}"""
     ).format(
+        n='n' if component_name[0].lower() in ['a', 'e', 'i', 'o', 'u'] else '',
         name=component_name,
         description=description,
         args='\n'.join(
