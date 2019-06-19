@@ -91,7 +91,7 @@ BugReports: {package_issues}
 Encoding: UTF-8
 LazyData: true
 Author: {package_author_no_email}
-Maintainer: {package_author}
+Maintainer: {maintainer}
 """
 
 rbuild_ignore_string = r"""# ignore JS config files/folders
@@ -505,6 +505,8 @@ def generate_rpkg(
 
     package_author_no_email = package_author.split(" <")[0] + " [aut]"
 
+    maintainer = pkg_data.get("maintainer", pkg_data.get("author"))
+
     if not (os.path.isfile("LICENSE") or os.path.isfile("LICENSE.txt")):
         package_license = pkg_data.get("license", "")
     else:
@@ -581,6 +583,7 @@ through its properties."
         package_url=package_url,
         package_issues=package_issues,
         package_author_no_email=package_author_no_email,
+        maintainer=maintainer,
     )
 
     with open("DESCRIPTION", "w") as f3:
