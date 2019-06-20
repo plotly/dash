@@ -1,4 +1,4 @@
 pandas
 xlrd
 flake8
-mimesis
+memisis;python_version>="3.6"

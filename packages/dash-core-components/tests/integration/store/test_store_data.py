@@ -1,3 +1,4 @@
+import sys
 import json
 import hashlib
 import itertools
@@ -118,6 +119,10 @@ def test_stda002_nested_data(dash_duo):
     dash_duo.wait_for_text_to_equal("#output", json.dumps(nested_list))
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 6),
+    reason="tests requires depedency only available in 3.6+",
+)
 @pytest.mark.parametrize("storage_type", ("memory", "local", "session"))
 def test_stda003_large_data_size(storage_type, csv_5mb, dash_duo):
     def fingerprint(data):
