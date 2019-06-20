@@ -66,10 +66,9 @@ def store_app():
     yield app
 
 
-@pytest.fixture(scope="module")
-def fake_data():
-    buf = ""
-    chunk = ""
+@pytest.fixture(scope="session")
+def csv_5mb():
+    buf, chunks = None, []
     limit = 5 * 1024 * 1024
     while sys.getsizeof(buf) <= limit:
         g = mimesis.Generic()
@@ -79,9 +78,7 @@ def fake_data():
                 for _ in range(10000)
             )
         )
-        buf += chunk
-
-    with open("/tmp/x.csv", "w") as fp:
-        fp.write(buf[len(chunk):limit])
+        chunks.append(chunk)
+        buf = ''.join(chunks)
 
     yield buf[len(chunk):limit]

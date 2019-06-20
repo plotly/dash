@@ -1,6 +1,7 @@
 import json
 import hashlib
 import itertools
+import pytest
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -117,64 +118,39 @@ def test_stda002_nested_data(dash_duo):
     dash_duo.wait_for_text_to_equal("#output", json.dumps(nested_list))
 
 
-def test_stda003_data_size_limit(fake_data, dash_duo):
+@pytest.mark.parametrize("storage_type", ("memory", "local", "session"))
+def test_stda003_large_data_size(storage_type, csv_5mb, dash_duo):
     def fingerprint(data):
         return hashlib.sha1(data.encode("utf-8")).hexdigest()
 
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
-            dcc.Store(id="memory", storage_type="memory"),
-            dcc.Store(id="local", storage_type="local"),
-            dcc.Store(id="session", storage_type="session"),
+            dcc.Store(id=storage_type, storage_type=storage_type),
             html.Button("big data", id="btn"),
-            html.Div(id="mout"),
-            html.Div(id="sout"),
-            html.Div(id="lout"),
+            html.Div(id="out"),
         ]
     )
 
     @app.callback(
-        [
-            Output("mout", "children"),
-            Output("sout", "children"),
-            Output("lout", "children"),
-        ],
-        [
-            Input("memory", "modified_timestamp"),
-            Input("session", "modified_timestamp"),
-            Input("local", "modified_timestamp"),
-        ],
-        [
-            State("memory", "data"),
-            State("session", "data"),
-            State("local", "data"),
-        ],
+        Output("out", "children"),
+        [Input(storage_type, "modified_timestamp")],
+        [State(storage_type, "data")],
     )
-    def update_output(mts, sts, lts, mdata, sdata, ldata):
-        if None in {mdata, sdata, ldata}:
-            return ("nil",) * 3
-        return [fingerprint(data) for data in (mdata, sdata, ldata)]
+    def update_output(mts, data):
+        if data is None:
+            return "nil"
+        return fingerprint(data)
 
-    @app.callback(
-        [
-            Output("memory", "data"),
-            Output("local", "data"),
-            Output("session", "data"),
-        ],
-        [Input("btn", "n_clicks")],
-    )
+    @app.callback(Output(storage_type, "data"), [Input("btn", "n_clicks")])
     def on_click(n_clicks):
         if n_clicks is None:
             raise PreventUpdate
-        return (fake_data,) * 3
+        return csv_5mb
 
     dash_duo.start_server(app)
-    outputs = ('#mout', '#lout', '#sout')
-    for output in outputs:
-        assert dash_duo.find_element(output).text == 'nil'
 
-    dash_duo.find_element('#btn').click()
-    for output in outputs:
-        dash_duo.wait_for_text_to_equal(output, fingerprint(fake_data))
+    assert dash_duo.find_element("#out").text == "nil"
 
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#out", fingerprint(csv_5mb))

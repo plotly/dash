@@ -1,3 +1,4 @@
 pandas
 xlrd
 flake8
+mimesis
