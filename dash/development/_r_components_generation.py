@@ -19,9 +19,9 @@ from ._py_components_generation import reorder_props
 r_component_string = """{funcname} <- function({default_argtext}{wildcards}) {{
     {wildcard_declaration}
     props <- list({default_paramtext}{wildcards})
-    if (length(props) > 0) {
+    if (length(props) > 0) {{
         props <- props[!vapply(props, is.null, logical(1))]
-    }
+    }}
     component <- list(
         props = props,
         type = '{name}',
