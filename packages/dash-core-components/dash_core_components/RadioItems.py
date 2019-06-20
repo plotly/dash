@@ -14,8 +14,14 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- options (list; optional): An array of options
-- value (string; optional): The currently selected value
+- options (optional): An array of options. options has the following type: list of dict containing keys 'label', 'value', 'disabled'.
+Those keys have the following types:
+  - label (string | number; required): The radio item's label
+  - value (string | number; required): The value of the radio item. This value
+corresponds to the items specified in the
+`value` property.
+  - disabled (boolean; optional): If true, this radio item is disabled and can't be clicked on.s
+- value (string | number; optional): The currently selected value
 - style (dict; optional): The style of the container (div)
 - className (string; optional): The class of the container (div)
 - inputStyle (dict; optional): The style of the <input> radio element

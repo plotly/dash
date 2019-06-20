@@ -46,9 +46,9 @@ https://plot.ly/javascript/reference
 
 `config` is set separately by the `config` property. figure has the following type: dict containing keys 'data', 'layout', 'frames'.
 Those keys have the following types:
-  - data (list; optional)
+  - data (list of dicts; optional)
   - layout (dict; optional)
-  - frames (list; optional)
+  - frames (list of dicts; optional)
 - style (dict; optional): Generic style overrides on the plot div
 - className (string; optional): className of the parent div
 - animate (boolean; optional): Beta: If true, animate between updates using

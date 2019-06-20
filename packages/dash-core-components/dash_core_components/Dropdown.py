@@ -18,9 +18,15 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- options (list; optional): An array of options {label: [string|number], value: [string|number]},
-an optional disabled field can be used for each option
-- value (string | list | number | list; optional): The value of the input. If `multi` is false (the default)
+- options (optional): An array of options {label: [string|number], value: [string|number]},
+an optional disabled field can be used for each option. options has the following type: list of dict containing keys 'label', 'value', 'disabled'.
+Those keys have the following types:
+  - label (string | number; required): The dropdown's label
+  - value (string | number; required): The value of the dropdown. This value
+corresponds to the items specified in the
+`value` property.
+  - disabled (boolean; optional): If true, this option is disabled and cannot be selected.s
+- value (string | number | list of string | numbers; optional): The value of the input. If `multi` is false (the default)
 then value is just a string that corresponds to the values
 provided in the `options` property. If `multi` is true, then
 multiple values can be selected at once, and `value` is an
@@ -31,7 +37,7 @@ array of items with values corresponding to those in the
 - clearable (boolean; optional): Whether or not the dropdown is "clearable", that is, whether or
 not a small "x" appears on the right of the dropdown that removes
 the selected value.
-- disabled (boolean; optional): If true, the option is disabled
+- disabled (boolean; optional): If true, this dropdown is disabled and the selection cannot be changed.
 - multi (boolean; optional): If true, the user can select multiple values
 - placeholder (string; optional): The grey, default text shown when no option is selected
 - searchable (boolean; optional): Whether to enable the searching feature or not

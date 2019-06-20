@@ -10,7 +10,7 @@ can be dcc.Tab components, which can hold a label that will be displayed as a ta
 children components that will be that tab's content.
 
 Keyword arguments:
-- children (list | a list of or a singular dash component, string or number; optional): Array that holds Tab components
+- children (list of a list of or a singular dash component, string or numbers | a list of or a singular dash component, string or number; optional): Array that holds Tab components
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.

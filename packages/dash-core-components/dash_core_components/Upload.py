@@ -12,11 +12,11 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- contents (string | list; optional): The contents of the uploaded file as a binary string
-- filename (string | list; optional): The name of the file(s) that was(were) uploaded.
+- contents (string | list of strings; optional): The contents of the uploaded file as a binary string
+- filename (string | list of strings; optional): The name of the file(s) that was(were) uploaded.
 Note that this does not include the path of the file
 (for security reasons).
-- last_modified (number | list; optional): The last modified date of the file that was uploaded in unix time
+- last_modified (number | list of numbers; optional): The last modified date of the file that was uploaded in unix time
 (seconds since 1970).
 - accept (string; optional): Allow specific types of files.
 See https://github.com/okonet/attr-accept for more information.

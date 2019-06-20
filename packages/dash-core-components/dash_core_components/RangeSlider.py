@@ -21,7 +21,7 @@ contains style and label properties.. marks has the following type: dict with st
 Those keys have the following types:
   - label (string; optional)
   - style (dict; optional)
-- value (list; optional): The value of the input
+- value (list of numbers; optional): The value of the input
 - allowCross (boolean; optional): allowCross could be set as true to allow those handles to cross.
 - className (string; optional): Additional CSS class for the root DOM node
 - count (number; optional): Determine how many ranges to render, and multiple handles
@@ -38,6 +38,14 @@ value is included. Otherwise, it is an independent value.
 surrounding handles when moving an handle.
 When set to a number, the number will be the
 minimum ensured distance between handles.
+- tooltip (optional): . tooltip has the following type: dict containing keys 'always_visible', 'placement'.
+Those keys have the following types:
+  - always_visible (boolean; optional): Determines whether tooltips should always be visible
+(as opposed to the default, visible on hover)
+  - placement (a value equal to: 'left', 'right', 'top', 'bottom', 'topLeft', 'topRight', 'bottomLeft', 'bottomRight'; optional): Determines the placement of tooltips
+See https://github.com/react-component/tooltip#api
+top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft` will
+in reality appear to be on the top right of the handle
 - step (number; optional): Value by which increments or decrements are made
 - vertical (boolean; optional): If true, the slider will be vertical
 - updatemode (a value equal to: 'mouseup', 'drag'; optional): Determines when the component should update
@@ -53,12 +61,12 @@ Those keys have the following types:
   - prop_name (string; optional): Holds which property is loading
   - component_name (string; optional): Holds the name of the component that is loading"""
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, marks=Component.UNDEFINED, value=Component.UNDEFINED, allowCross=Component.UNDEFINED, className=Component.UNDEFINED, count=Component.UNDEFINED, disabled=Component.UNDEFINED, dots=Component.UNDEFINED, included=Component.UNDEFINED, min=Component.UNDEFINED, max=Component.UNDEFINED, pushable=Component.UNDEFINED, step=Component.UNDEFINED, vertical=Component.UNDEFINED, updatemode=Component.UNDEFINED, loading_state=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'marks', 'value', 'allowCross', 'className', 'count', 'disabled', 'dots', 'included', 'min', 'max', 'pushable', 'step', 'vertical', 'updatemode', 'loading_state']
+    def __init__(self, id=Component.UNDEFINED, marks=Component.UNDEFINED, value=Component.UNDEFINED, allowCross=Component.UNDEFINED, className=Component.UNDEFINED, count=Component.UNDEFINED, disabled=Component.UNDEFINED, dots=Component.UNDEFINED, included=Component.UNDEFINED, min=Component.UNDEFINED, max=Component.UNDEFINED, pushable=Component.UNDEFINED, tooltip=Component.UNDEFINED, step=Component.UNDEFINED, vertical=Component.UNDEFINED, updatemode=Component.UNDEFINED, loading_state=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['id', 'marks', 'value', 'allowCross', 'className', 'count', 'disabled', 'dots', 'included', 'min', 'max', 'pushable', 'tooltip', 'step', 'vertical', 'updatemode', 'loading_state']
         self._type = 'RangeSlider'
         self._namespace = 'dash_core_components'
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'marks', 'value', 'allowCross', 'className', 'count', 'disabled', 'dots', 'included', 'min', 'max', 'pushable', 'step', 'vertical', 'updatemode', 'loading_state']
+        self.available_properties = ['id', 'marks', 'value', 'allowCross', 'className', 'count', 'disabled', 'dots', 'included', 'min', 'max', 'pushable', 'tooltip', 'step', 'vertical', 'updatemode', 'loading_state']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')

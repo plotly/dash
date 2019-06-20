@@ -1,6 +1,6 @@
 {
   "src/components/Checklist.react.js": {
-    "description": "Checklist is a component that encapsulates several checkboxes.\nThe values and labels of the checklist is specified in the `options`\nproperty and the checked items are specified with the `values` property.\nEach checkbox is rendered as an input with a surrounding label.",
+    "description": "Checklist is a component that encapsulates several checkboxes.\nThe values and labels of the checklist are specified in the `options`\nproperty and the checked items are specified with the `value` property.\nEach checkbox is rendered as an input with a surrounding label.",
     "displayName": "Checklist",
     "methods": [],
     "props": {
@@ -40,7 +40,7 @@
                     "name": "number"
                   }
                 ],
-                "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`values` property.",
+                "description": "The value of the checkbox. This value\ncorresponds to the items specified in the\n`value` property.",
                 "required": true
               },
               "disabled": {
@@ -58,7 +58,7 @@
           "computed": false
         }
       },
-      "values": {
+      "value": {
         "type": {
           "name": "arrayOf",
           "value": {
@@ -74,7 +74,11 @@
           }
         },
         "required": false,
-        "description": "The currently selected value"
+        "description": "The currently selected value",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
       },
       "className": {
         "type": {
@@ -1084,12 +1088,12 @@
                     "name": "number"
                   }
                 ],
-                "description": "The value of the dropdown. This value\ncorresponds to the items specified in the\n`values` property.",
+                "description": "The value of the dropdown. This value\ncorresponds to the items specified in the\n`value` property.",
                 "required": true
               },
               "disabled": {
                 "name": "bool",
-                "description": "If true, this dropdown is disabled and items can't be selected.",
+                "description": "If true, this option is disabled and cannot be selected.",
                 "required": false
               }
             }
@@ -1106,18 +1110,20 @@
               "name": "string"
             },
             {
-              "name": "arrayOf",
-              "value": {
-                "name": "string"
-              }
-            },
-            {
               "name": "number"
             },
             {
               "name": "arrayOf",
               "value": {
-                "name": "number"
+                "name": "union",
+                "value": [
+                  {
+                    "name": "string"
+                  },
+                  {
+                    "name": "number"
+                  }
+                ]
               }
             }
           ]
@@ -1159,7 +1165,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If true, the option is disabled",
+        "description": "If true, this dropdown is disabled and the selection cannot be changed.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -2740,7 +2746,27 @@
   "src/components/Markdown.react.js": {
     "description": "A component that renders Markdown text as specified by the\nGitHub Markdown spec. These component uses\n[react-markdown](https://rexxars.github.io/react-markdown/) under the hood.",
     "displayName": "DashMarkdown",
-    "methods": [],
+    "methods": [
+      {
+        "name": "highlightCode",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "dedent",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "text",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
     "props": {
       "id": {
         "type": {
@@ -2755,13 +2781,6 @@
         },
         "required": false,
         "description": "Class name of the container element"
-      },
-      "containerProps": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "An object containing custom element props to put on the container\nelement such as id or style"
       },
       "dangerously_allow_html": {
         "type": {
@@ -2792,6 +2811,45 @@
         "required": false,
         "description": "A markdown string (or array of strings) that adhreres to the CommonMark spec"
       },
+      "dedent": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "Remove matching leading whitespace from all lines.\nLines that are empty, or contain *only* whitespace, are ignored.\nBoth spaces and tab characters are removed, but only if they match;\nwe will not convert tabs to spaces or vice versa.",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      },
+      "highlight_config": {
+        "type": {
+          "name": "exact",
+          "value": {
+            "theme": {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'dark'",
+                  "computed": false
+                },
+                {
+                  "value": "'light'",
+                  "computed": false
+                }
+              ],
+              "description": "Color scheme; default 'light'",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Config options for syntax highlighting.",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
       "loading_state": {
         "type": {
           "name": "shape",
@@ -2815,6 +2873,13 @@
         },
         "required": false,
         "description": "Object that holds the loading state object coming from dash-renderer"
+      },
+      "style": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "User-defined inline styles for the rendered Markdown"
       }
     }
   },
@@ -2859,7 +2924,7 @@
                     "name": "number"
                   }
                 ],
-                "description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`values` property.",
+                "description": "The value of the radio item. This value\ncorresponds to the items specified in the\n`value` property.",
                 "required": true
               },
               "disabled": {
@@ -2879,7 +2944,15 @@
       },
       "value": {
         "type": {
-          "name": "string"
+          "name": "union",
+          "value": [
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
         },
         "required": false,
         "description": "The currently selected value"
@@ -3109,6 +3182,59 @@
         "required": false,
         "description": "pushable could be set as true to allow pushing of\nsurrounding handles when moving an handle.\nWhen set to a number, the number will be the\nminimum ensured distance between handles."
       },
+      "tooltip": {
+        "type": {
+          "name": "exact",
+          "value": {
+            "always_visible": {
+              "name": "bool",
+              "description": "Determines whether tooltips should always be visible\n(as opposed to the default, visible on hover)",
+              "required": false
+            },
+            "placement": {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'left'",
+                  "computed": false
+                },
+                {
+                  "value": "'right'",
+                  "computed": false
+                },
+                {
+                  "value": "'top'",
+                  "computed": false
+                },
+                {
+                  "value": "'bottom'",
+                  "computed": false
+                },
+                {
+                  "value": "'topLeft'",
+                  "computed": false
+                },
+                {
+                  "value": "'topRight'",
+                  "computed": false
+                },
+                {
+                  "value": "'bottomLeft'",
+                  "computed": false
+                },
+                {
+                  "value": "'bottomRight'",
+                  "computed": false
+                }
+              ],
+              "description": "Determines the placement of tooltips\nSee https://github.com/react-component/tooltip#api\ntop/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft` will\nin reality appear to be on the top right of the handle",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": ""
+      },
       "step": {
         "type": {
           "name": "number"
@@ -3278,6 +3404,59 @@
         },
         "required": false,
         "description": "Maximum allowed value of the slider"
+      },
+      "tooltip": {
+        "type": {
+          "name": "exact",
+          "value": {
+            "always_visible": {
+              "name": "bool",
+              "description": "Determines whether tooltips should always be visible\n(as opposed to the default, visible on hover)",
+              "required": false
+            },
+            "placement": {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'left'",
+                  "computed": false
+                },
+                {
+                  "value": "'right'",
+                  "computed": false
+                },
+                {
+                  "value": "'top'",
+                  "computed": false
+                },
+                {
+                  "value": "'bottom'",
+                  "computed": false
+                },
+                {
+                  "value": "'topLeft'",
+                  "computed": false
+                },
+                {
+                  "value": "'topRight'",
+                  "computed": false
+                },
+                {
+                  "value": "'bottomLeft'",
+                  "computed": false
+                },
+                {
+                  "value": "'bottomRight'",
+                  "computed": false
+                }
+              ],
+              "description": "Determines the placement of tooltips\nSee https://github.com/react-component/tooltip#api\ntop/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft` will\nin reality appear to be on the top right of the handle",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": ""
       },
       "step": {
         "type": {
@@ -3449,149 +3628,6 @@
         },
         "required": false,
         "description": "Dash-assigned callback that gets fired when the value changes."
-      }
-    }
-  },
-  "src/components/SyntaxHighlighter.react.js": {
-    "description": "A component for pretty printing code.",
-    "displayName": "SyntaxHighlighter",
-    "methods": [],
-    "props": {
-      "id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ID of this component, used to identify dash components\nin callbacks. The ID needs to be unique across all of the\ncomponents in an app."
-      },
-      "children": {
-        "type": {
-          "name": "union",
-          "value": [
-            {
-              "name": "string"
-            },
-            {
-              "name": "arrayOf",
-              "value": {
-                "name": "string"
-              }
-            }
-          ]
-        },
-        "required": false,
-        "description": "The text to display and highlight"
-      },
-      "language": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "the language to highlight code in."
-      },
-      "theme": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'light'",
-              "computed": false
-            },
-            {
-              "value": "'dark'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "theme: light or dark"
-      },
-      "customStyle": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "prop that will be combined with the top level style on the pre tag, styles here will overwrite earlier styles."
-      },
-      "codeTagProps": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "props that will be spread into the <code> tag that is the direct parent of the highlighted code elements. Useful for styling/assigning classNames."
-      },
-      "useInlineStyles": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "if this prop is passed in as false, react syntax highlighter will not add style objects to elements, and will instead append classNames. You can then style the code block by using one of the CSS files provided by highlight.js."
-      },
-      "showLineNumbers": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "if this is enabled line numbers will be shown next to the code block."
-      },
-      "startingLineNumber": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "if showLineNumbers is enabled the line numbering will start from here."
-      },
-      "lineNumberContainerStyle": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "the line numbers container default to appearing to the left with 10px of right padding. You can use this to override those styles."
-      },
-      "lineNumberStyle": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "inline style to be passed to the span wrapping each number. Can be either an object or a function that recieves current line number as argument and returns style object."
-      },
-      "wrapLines": {
-        "type": {
-          "name": "bool"
-        },
-        "required": false,
-        "description": "a boolean value that determines whether or not each line of code should be wrapped in a parent element. defaults to false, when false one can not take action on an element on the line level. You can see an example of what this enables here"
-      },
-      "lineStyle": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "inline style to be passed to the span wrapping each line if wrapLines is true. Can be either an object or a function that recieves current line number as argument and returns style object."
-      },
-      "loading_state": {
-        "type": {
-          "name": "shape",
-          "value": {
-            "is_loading": {
-              "name": "bool",
-              "description": "Determines if the component is loading or not",
-              "required": false
-            },
-            "prop_name": {
-              "name": "string",
-              "description": "Holds which property is loading",
-              "required": false
-            },
-            "component_name": {
-              "name": "string",
-              "description": "Holds the name of the component that is loading",
-              "required": false
-            }
-          }
-        },
-        "required": false,
-        "description": "Object that holds the loading state object coming from dash-renderer"
       }
     }
   },

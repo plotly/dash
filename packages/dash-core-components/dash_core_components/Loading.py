@@ -8,7 +8,7 @@ class Loading(Component):
 A Loading component that wraps any other component and displays a spinner until the wrapped component has rendered.
 
 Keyword arguments:
-- children (list | a list of or a singular dash component, string or number; optional): Array that holds components to render
+- children (list of a list of or a singular dash component, string or numbers | a list of or a singular dash component, string or number; optional): Array that holds components to render
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
