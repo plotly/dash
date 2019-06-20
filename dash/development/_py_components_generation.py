@@ -433,7 +433,7 @@ def create_prop_docstring(prop_name, type_object, required, description,
         is_required = 'default {}'.format(default.replace('\n', '\n' + indent_spacing))
 
     if '\n' in py_type_name:
-        return '{indent_spacing}- {name} ({is_required}): {description}{period} ' \
+        return '{indent_spacing}- {name} (dict; {is_required}): {description}{period} ' \
                '{name} has the following type: {type}'.format(
                    indent_spacing=indent_spacing,
                    name=prop_name,
