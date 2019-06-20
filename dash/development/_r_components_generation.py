@@ -318,7 +318,7 @@ def write_help_file(name, props, description, prefix):
 
     prop_keys = list(props.keys())
 
-    has_wildcards = any("-*" in key for key in prop_keys)
+    has_wildcards = any(key.endswith("-*") for key in prop_keys)
 
     if has_wildcards:
         wildcards = get_wildcards_r(prop_keys)
