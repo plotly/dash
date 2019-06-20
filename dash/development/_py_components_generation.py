@@ -521,7 +521,7 @@ def map_js_to_py_types_prop_types(type_object):
         # React's PropTypes.shape
         shape=shape_or_exact,
         # React's PropTypes.exact
-        exact=shape_or_exact,
+        exact=shape_or_exact
     )
 
 
