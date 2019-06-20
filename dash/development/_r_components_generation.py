@@ -446,7 +446,8 @@ dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...)
     file_path = os.path.join("R", file_name)
     with open(file_path, "w") as f:
         f.write(function_string)
-        f.write(component_helpers)
+        if has_wildcards:
+            f.write(component_helpers)
 
     # now copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
