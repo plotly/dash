@@ -2,6 +2,7 @@
 from datetime import datetime
 import os
 import sys
+import itertools
 from multiprocessing import Lock
 import time
 import json
