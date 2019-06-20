@@ -18,15 +18,17 @@ from ._py_components_generation import reorder_props
 # code below
 r_component_string = """{funcname} <- function({default_argtext}{wildcards}) {{
     {wildcard_declaration}
+    props <- list({default_paramtext}{wildcards})
+    if (length(props) > 0) {
+        props <- props[!vapply(props, is.null, logical(1))]
+    }
     component <- list(
-        props = list({default_paramtext}{wildcards}),
+        props = props,
         type = '{name}',
         namespace = '{project_shortname}',
         propNames = c({prop_names}{wildcard_names}),
         package = '{package_name}'
         )
-
-    component$props <- dash_filter_null(component$props)
 
     structure(component, class = c('dash_component', 'list'))
 }}
@@ -423,13 +425,6 @@ def write_js_metadata(pkg_data, project_shortname):
 
     # import dash_filter_null and dash_assert_valid_wildcards
     component_helpers = """
-dash_filter_null <- function (x) 
-{
-    if (length(x) == 0 || !is.list(x)) 
-        return(x)
-    x[!vapply(x, is.null, logical(1))]
-}
-
 dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...) 
 {
     args <- list(...)
