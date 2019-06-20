@@ -438,13 +438,14 @@ def create_prop_docstring(prop_name, type_object, required, description,
 
     if '\n' in py_type_name:
         return '{indent_spacing}- {name} (dict; {is_required}): ' \
-            '{description}{period} ' \
+            '{description}{period}' \
             '{name} has the following type: {type}'.format(
                 indent_spacing=indent_spacing,
                 name=prop_name,
                 type=py_type_name,
                 description=description,
-                period='.' if description and description[-1] != '.' else '',
+                period='. ' if description.strip()
+                and description.strip()[-1] != '.' else '',
                 is_required=is_required)
     return '{indent_spacing}- {name} ({type}' \
         '{is_required}){description}'.format(
