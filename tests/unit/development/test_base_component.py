@@ -815,7 +815,7 @@ class TestMetaDataConversions(unittest.TestCase):
                 "Those keys have the following types:",
                 "  - color (string; optional)",
                 "  - fontSize (number; optional)",
-                "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
+                "  - figure (dict; optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
                 "Those keys have the following types:",
                 "  - data (list of dicts; optional): data is a collection of traces",
                 "  - layout (dict; optional): layout describes the rest of the figure"  # noqa: E501
@@ -828,7 +828,7 @@ class TestMetaDataConversions(unittest.TestCase):
                 "Those keys have the following types:",
                 "  - color (string; optional)",
                 "  - fontSize (number; optional)",
-                "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
+                "  - figure (dict; optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",  # noqa: E501
                 "Those keys have the following types:",
                 "  - data (list of dicts; optional): data is a collection of traces",
                 "  - layout (dict; optional): layout describes the rest of the figure"  # noqa: E501
@@ -896,7 +896,7 @@ def assert_docstring(assertEqual, docstring):
             "- optionalObjectOf (dict with strings as keys and values "
             "of type number; optional)",
 
-            "- optionalObjectWithExactAndNestedDescription (optional): . "
+            "- optionalObjectWithExactAndNestedDescription (dict; optional): "
             "optionalObjectWithExactAndNestedDescription has the "
             "following type: dict containing keys "
             "'color', 'fontSize', 'figure'.",
@@ -905,7 +905,7 @@ def assert_docstring(assertEqual, docstring):
             "  - color (string; optional)",
             "  - fontSize (number; optional)",
 
-            "  - figure (optional): Figure is a plotly graph object. "
+            "  - figure (dict; optional): Figure is a plotly graph object. "
             "figure has the following type: dict containing "
             "keys 'data', 'layout'.",
 
@@ -915,7 +915,7 @@ def assert_docstring(assertEqual, docstring):
             "  - layout (dict; optional): layout describes "
             "the rest of the figure",
 
-            "- optionalObjectWithShapeAndNestedDescription (optional): . "
+            "- optionalObjectWithShapeAndNestedDescription (dict; optional): "
             "optionalObjectWithShapeAndNestedDescription has the "
             "following type: dict containing keys "
             "'color', 'fontSize', 'figure'.",
@@ -924,7 +924,7 @@ def assert_docstring(assertEqual, docstring):
             "  - color (string; optional)",
             "  - fontSize (number; optional)",
 
-            "  - figure (optional): Figure is a plotly graph object. "
+            "  - figure (dict; optional): Figure is a plotly graph object. "
             "figure has the following type: dict containing "
             "keys 'data', 'layout'.",
 
@@ -995,7 +995,7 @@ class TestFlowMetaDataConversions(unittest.TestCase):
 
                 "dict containing keys 'customData', 'value'.",
                 "Those keys have the following types:",
-                "- customData (required): . customData has the following type: dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
+                "- customData (dict; required): customData has the following type: dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
                 "  Those keys have the following types:",
                 "  - checked (boolean; optional)",
                 "  - children (a list of or a singular dash component, string or number; optional)",
@@ -1052,7 +1052,7 @@ def assert_flow_docstring(assertEqual, docstring):
 
             "- requiredUnion (string | number; required)",
 
-            "- optionalSignature(shape) (optional): This is a test of an object's shape. "
+            "- optionalSignature(shape) (dict; optional): This is a test of an object's shape. "
             "optionalSignature(shape) has the following type: dict containing keys 'checked', "
             "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "
             "'style', 'value'.",
@@ -1068,12 +1068,12 @@ def assert_flow_docstring(assertEqual, docstring):
             "  - style (dict; optional)",
             "  - value (bool | number | str | dict | list; required)",
 
-            "- requiredNested (required): . requiredNested has the following type: dict containing "
+            "- requiredNested (dict; required): requiredNested has the following type: dict containing "
             "keys 'customData', 'value'.",
 
             "  Those keys have the following types:",
 
-            "  - customData (required): . customData has the following type: dict containing "
+            "  - customData (dict; required): customData has the following type: dict containing "
             "keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', "
             "'secondaryText', 'style', 'value'.",
 
