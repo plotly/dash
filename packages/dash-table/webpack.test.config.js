@@ -8,6 +8,4 @@ const options = {
     mode: 'development'
 };
 
-const config = require('./.config/webpack/base.js')(options);
-
-module.exports = config;
+module.exports = require('./.config/webpack/base.js')(options);
