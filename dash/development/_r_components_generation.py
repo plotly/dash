@@ -44,7 +44,7 @@ frame_element_template = """`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
-stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
+stylesheet = "{css_name}", head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")"""   # noqa:E501
 
 frame_body_template = """`{project_shortname}` = structure(list(name = "{project_shortname}",
@@ -275,10 +275,10 @@ def generate_js_metadata(pkg_data, project_shortname):
     elif len(alldist) == 1:
         rpp = alldist[0]["relative_package_path"]
         if "css" in rpp:
-            css_name = rpp
+            css_name = "'{}'".format(rpp)
             script_name = "NULL"
         else:
-            script_name = rpp
+            script_name = "'{}'".format(rpp)
             css_name = "NULL"
         function_frame_body = frame_body_template.format(
             project_shortname=project_shortname,
