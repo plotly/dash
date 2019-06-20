@@ -29,15 +29,7 @@
               "required": false
             },
             "column_id": {
-              "name": "union",
-              "value": [
-                {
-                  "name": "string"
-                },
-                {
-                  "name": "number"
-                }
-              ],
+              "name": "string",
               "required": false
             }
           }
@@ -49,13 +41,8 @@
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "shape",
+            "name": "exact",
             "value": {
-              "clearable": {
-                "name": "bool",
-                "description": "If the column is rendered as dropdowns, then the\n`clearable` property determines whether or not\nthe dropdown value can be cleared or not.\n\nNOTE - The name of this property may change in the future,\nsubscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)\nfor more information.",
-                "required": false
-              },
               "deletable": {
                 "name": "union",
                 "value": [
@@ -63,10 +50,13 @@
                     "name": "bool"
                   },
                   {
-                    "name": "number"
+                    "name": "arrayOf",
+                    "value": {
+                      "name": "bool"
+                    }
                   }
                 ],
-                "description": "If True, the user can delete the column by clicking on a little `x`\nbutton on the column.\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the \"x\" in by\nsupplying a column row index.\nFor example, `0` will display the \"x\" on the first row,\n`1` on the second row.\nIf the \"x\" appears on a merged column, then clicking on that button\nwill delete *all* of the merged columns associated with it.",
+                "description": "If True, the user can delete the column by clicking on a little `x`\nbutton on the column.\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the \"x\" in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the \"x\" on the first row,\nbut not the second row.\nIf the \"x\" appears on a merged column, then clicking on that button\nwill delete *all* of the merged columns associated with it.",
                 "required": false
               },
               "editable": {
@@ -74,24 +64,27 @@
                 "description": "There are two `editable` flags in the table.\nThis is the  column-level editable flag and there is\nalso the table-level `editable` flag.\n\nThese flags determine whether the contents of the table\nare editable or not.\n\nIf the column-level `editable` flag is set it overrides\nthe table-level `editable` flag for that column.",
                 "required": false
               },
-              "editable_name": {
+              "renamable": {
                 "name": "union",
                 "value": [
                   {
                     "name": "bool"
                   },
                   {
-                    "name": "number"
+                    "name": "arrayOf",
+                    "value": {
+                      "name": "bool"
+                    }
                   }
                 ],
-                "description": "If True, then the name of this column is editable.\nIf there are multiple column headers (if `name` is a list of strings),\nthen `editable_name` can refer to _which_ column header should be\neditable by setting it to the column header index.\nAlso, updating the name in a merged column header cell will\nupdate the name of each column.",
+                "description": "If True, then the name of this column is editable.\nIf there are multiple column headers (if `name` is a list of strings),\nthen `renamable` can refer to _which_ column header should be\neditable by defining an array of booleans.\nFor example, `[true, false]` will make the first row's name editable,\nbut not the second row.\nAlso, updating the name in a merged column header cell will\nupdate the name of each column.",
                 "required": false
               },
               "format": {
-                "name": "shape",
+                "name": "exact",
                 "value": {
                   "locale": {
-                    "name": "shape",
+                    "name": "exact",
                     "value": {
                       "symbol": {
                         "name": "arrayOf",
@@ -149,11 +142,6 @@
                 "description": "The formatting applied to the column's data.\n\nThis prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from\nbeing structured slightly differently (under a single prop), the usage\nis the same.\n\n'locale': represents localization specific formatting information\n  When left unspecified, will use the default value provided by d3-format.\n\n  'symbol': (default: ['$', '']) a list of two strings representing the\n  prefix and suffix symbols. Typically used for currency, and implemented using d3's\n  currency format, but you can use this for other symbols such as measurement units.\n  'decimal': (default: '.') the string used for the decimal separator\n  'group': (default: ',') the string used for the groups separator\n  'grouping': (default: [3]) a list of integers representing the grouping pattern\n  'numerals': a list of ten strings used as replacements for numbers 0-9\n  'percent': (default: '%') the string used for the percentage symbol\n  'separate_4digits': (default: True) separate integers with 4-digits or less\n\n'nully': a value that will be used in place of the nully value during formatting\n  If the value type matches the column type, it will be formatted normally\n'prefix': a number representing the SI unit to use during formatting\n  See `dash_table.Format.Prefix` enumeration for the list of valid values\n'specifier': (default: '') represents the rules to apply when formatting the number\n\ndash_table.FormatTemplate contains helper functions to rapidly use certain\ntypical number formats.",
                 "required": false
               },
-              "hidden": {
-                "name": "bool",
-                "description": "If True, then the column and its data is hidden.\nThis can be useful if you want to transport extra\nmeta data (like a data index) to and from callbacks\nbut you don't necessarily want to display that data.",
-                "required": false
-              },
               "id": {
                 "name": "string",
                 "description": "The `id` of the column.\nThe column `id` is used to match cells in data\nwith particular columns.\nThe `id` is not visible in the table.",
@@ -191,7 +179,7 @@
                 "required": false
               },
               "on_change": {
-                "name": "shape",
+                "name": "exact",
                 "value": {
                   "action": {
                     "name": "enum",
@@ -233,8 +221,27 @@
                 "description": "The `on_change` behavior of the column for user-initiated modifications.\n'action' (default 'coerce'):\n none: do not validate data\n coerce: check if the data corresponds to the destination type and\n attempts to coerce it into the destination type if not\n validate: check if the data corresponds to the destination type (no coercion)\n\n'failure' (default 'reject'): what to do with the value if the action fails\n accept: use the invalid value\n default: replace the provided value with `validation.default`\n reject: do not modify the existing value",
                 "required": false
               },
+              "sort_as_null": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "union",
+                  "value": [
+                    {
+                      "name": "string"
+                    },
+                    {
+                      "name": "number"
+                    },
+                    {
+                      "name": "bool"
+                    }
+                  ]
+                },
+                "description": "An array of string, number and boolean values that are treated as `null`\n(i.e. ignored and always displayed last) when sorting.\nThis value overrides the table-level `sort_as_null`.",
+                "required": false
+              },
               "validation": {
-                "name": "shape",
+                "name": "exact",
                 "value": {
                   "allow_null": {
                     "name": "bool",
@@ -250,40 +257,6 @@
                   }
                 },
                 "description": "The `validation` options.\n'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)\n'default': The default value to apply with on_change.failure = 'default' (default: null)\n'allow_YY': `datetime` columns only, allow 2-digit years (default: false).\n  If true, we interpret years as ranging from now-70 to now+29 - in 2019\n  this is 1949 to 2048 but in 2020 it will be different. If used with\n  `action: 'coerce'`, will convert user input to a 4-digit year.",
-                "required": false
-              },
-              "options": {
-                "name": "arrayOf",
-                "value": {
-                  "name": "shape",
-                  "value": {
-                    "label": {
-                      "name": "union",
-                      "value": [
-                        {
-                          "name": "number"
-                        },
-                        {
-                          "name": "string"
-                        }
-                      ],
-                      "required": true
-                    },
-                    "value": {
-                      "name": "union",
-                      "value": [
-                        {
-                          "name": "number"
-                        },
-                        {
-                          "name": "string"
-                        }
-                      ],
-                      "required": true
-                    }
-                  }
-                },
-                "description": "DEPRECATED\nPlease use `column_static_dropdown` instead.\nNOTE - Dropdown behavior will likely change in the future,\nsubscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)\nfor more information.",
                 "required": false
               },
               "type": {
@@ -321,7 +294,7 @@
       },
       "locale_format": {
         "type": {
-          "name": "shape",
+          "name": "exact",
           "value": {
             "symbol": {
               "name": "arrayOf",
@@ -365,32 +338,11 @@
         "required": false,
         "description": "The localization specific formatting information applied to all columns in the table.\n\nThis prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.\n\nWhen left unspecified, each individual nested prop will default to a pre-determined value.\n\n  'symbol': (default: ['$', '']) a list of two strings representing the\n  prefix and suffix symbols. Typically used for currency, and implemented using d3's\n  currency format, but you can use this for other symbols such as measurement units.\n  'decimal': (default: '.') the string used for the decimal separator\n  'group': (default: ',') the string used for the groups separator\n  'grouping': (default: [3]) a list of integers representing the grouping pattern\n  'numerals': a list of ten strings used as replacements for numbers 0-9\n  'percent': (default: '%') the string used for the percentage symbol\n  'separate_4digits': (default: True) separate integers with 4-digits or less"
       },
-      "content_style": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'fit'",
-              "computed": false
-            },
-            {
-              "value": "'grow'",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "`content_style` toggles between a set of CSS styles for\ntwo common behaviors:\n- `fit`: The table container's width be equal to the width of its content.\n- `grow`: The table container's width will grow to be the size of the container.\n\nNOTE - This property will likely change in the future,\nsubscribe to [https://github.com/plotly/dash-table/issues/176](https://github.com/plotly/dash-table/issues/176)\nfor more details.",
-        "defaultValue": {
-          "value": "'grow'",
-          "computed": false
-        }
-      },
       "css": {
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "shape",
+            "name": "exact",
             "value": {
               "selector": {
                 "name": "string",
@@ -477,15 +429,7 @@
               "required": false
             },
             "column_id": {
-              "name": "union",
-              "value": [
-                {
-                  "name": "string"
-                },
-                {
-                  "name": "number"
-                }
-              ],
+              "name": "string",
               "required": false
             }
           }
@@ -514,19 +458,119 @@
         "required": false,
         "description": "If True, then column headers that have neighbors with duplicate names\nwill be merged into a single cell.\nThis will be applied for single column headers and multi-column\nheaders."
       },
-      "n_fixed_columns": {
+      "fixed_columns": {
         "type": {
-          "name": "number"
+          "name": "union",
+          "value": [
+            {
+              "name": "exact",
+              "value": {
+                "headers": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "false",
+                      "computed": false
+                    }
+                  ],
+                  "required": false
+                },
+                "data": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "0",
+                      "computed": false
+                    }
+                  ],
+                  "required": false
+                }
+              }
+            },
+            {
+              "name": "exact",
+              "value": {
+                "headers": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "true",
+                      "computed": false
+                    }
+                  ],
+                  "required": true
+                },
+                "data": {
+                  "name": "number",
+                  "required": false
+                }
+              }
+            }
+          ]
         },
         "required": false,
-        "description": "`n_fixed_columns` will \"fix\" the set of columns so that\nthey remain visible when scrolling horizontally across\nthe unfixed columns. `n_fixed_columns` fixes columns\nfrom left-to-right, so `n_fixed_columns=3` will fix\nthe first 3 columns.\n\nNote that fixing columns introduces some changes to the\nunderlying markup of the table and may impact the\nway that your columns are rendered or sized.\nView the documentation examples to learn more."
+        "description": "`fixed_columns` will \"fix\" the set of columns so that\nthey remain visible when scrolling horizontally across\nthe unfixed columns. `fixed_columns` fixes columns\nfrom left-to-right.\n\nIf `headers` is False, no columns are fixed.\nIf `headers` is True, all operation columns (see `row_deletable` and `row_selectable`)\nare fixed. Additional data columns can be fixed by\nassigning a number to `data`.\n\nDefaults to `{ headers: False }`.\n\nNote that fixing columns introduces some changes to the\nunderlying markup of the table and may impact the\nway that your columns are rendered or sized.\nView the documentation examples to learn more.",
+        "defaultValue": {
+          "value": "{\n    headers: false,\n    data: 0\n}",
+          "computed": false
+        }
       },
-      "n_fixed_rows": {
+      "fixed_rows": {
         "type": {
-          "name": "number"
+          "name": "union",
+          "value": [
+            {
+              "name": "exact",
+              "value": {
+                "headers": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "false",
+                      "computed": false
+                    }
+                  ],
+                  "required": false
+                },
+                "data": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "0",
+                      "computed": false
+                    }
+                  ],
+                  "required": false
+                }
+              }
+            },
+            {
+              "name": "exact",
+              "value": {
+                "headers": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "true",
+                      "computed": false
+                    }
+                  ],
+                  "required": true
+                },
+                "data": {
+                  "name": "number",
+                  "required": false
+                }
+              }
+            }
+          ]
         },
         "required": false,
-        "description": "`n_fixed_rows` will \"fix\" the set of rows so that\nthey remain visible when scrolling vertically down\nthe table. `n_fixed_rows` fixes rows\nfrom top-to-bottom, starting from the headers,\nso `n_fixed_rows=1` will fix the header row,\n`n_fixed_rows=2` will fix the header row and the first row,\nor the first two header rows (if there are multiple headers).\n\nNote that fixing rows introduces some changes to the\nunderlying markup of the table and may impact the\nway that your columns are rendered or sized.\nView the documentation examples to learn more."
+        "description": "`fixed_rows` will \"fix\" the set of rows so that\nthey remain visible when scrolling vertically down\nthe table. `fixed_rows` fixes rows\nfrom top-to-bottom, starting from the headers.\n\nIf `headers` is False, no rows are fixed.\nIf `headers` is True, all header and filter rows (see `filter_action`) are\nfixed. Additional data rows can be fixed by assigning\na number to `data`.\n\nDefaults to `{ headers: False }`.\n\nNote that fixing rows introduces some changes to the\nunderlying markup of the table and may impact the\nway that your columns are rendered or sized.\nView the documentation examples to learn more.",
+        "defaultValue": {
+          "value": "{\n    headers: false,\n    data: 0\n}",
+          "computed": false
+        }
       },
       "row_deletable": {
         "type": {
@@ -587,15 +631,7 @@
                 "required": false
               },
               "column_id": {
-                "name": "union",
-                "value": [
-                  {
-                    "name": "string"
-                  },
-                  {
-                    "name": "number"
-                  }
-                ],
+                "name": "string",
                 "required": false
               }
             }
@@ -676,15 +712,7 @@
               "required": false
             },
             "column_id": {
-              "name": "union",
-              "value": [
-                {
-                  "name": "string"
-                },
-                {
-                  "name": "number"
-                }
-              ],
+              "name": "string",
               "required": false
             }
           }
@@ -703,139 +731,67 @@
           "computed": false
         }
       },
-      "pagination_mode": {
+      "page_action": {
         "type": {
           "name": "enum",
           "value": [
             {
-              "value": "'fe'",
+              "value": "'custom'",
               "computed": false
             },
             {
-              "value": "'be'",
+              "value": "'native'",
               "computed": false
             },
             {
-              "value": "true",
-              "computed": false
-            },
-            {
-              "value": "false",
+              "value": "'none'",
               "computed": false
             }
           ]
         },
         "required": false,
-        "description": "\"pagination\" refers to a mode of the table where\nnot all of the rows are displayed at once: only a subset\nare displayed (a \"page\") and the next subset of rows\ncan viewed by clicking \"Next\" or \"Previous\" buttons\nat the bottom of the page.\n\nPagination is used to improve performance: instead of\nrendering all of the rows at once (which can be expensive),\nwe only display a subset of them.\n\nWith pagination, we can either page through data that exists\nin the table (e.g. page through `10,000` rows in `data` `100` rows at a time)\nor we can update the data on-the-fly with callbacks\nwhen the user clicks on the \"Previous\" or \"Next\" buttons.\nThese modes can be toggled with this `pagination_mode` parameter:\n- `'fe'` refers to \"front-end\" paging: passing large data up-front\n- `'be'` refers to \"back-end\" paging: updating the data on the fly via callbacks\n- `False` will disable paging, attempting to render all of the data at once\n- `True` is the same as `fe`\n\nNOTE: The `fe` and `be` names may change in the future.\nTune in to [https://github.com/plotly/dash-table/issues/167](https://github.com/plotly/dash-table/issues/167) for more.",
+        "description": "`page_action` refers to a mode of the table where\nnot all of the rows are displayed at once: only a subset\nare displayed (a \"page\") and the next subset of rows\ncan viewed by clicking \"Next\" or \"Previous\" buttons\nat the bottom of the page.\n\nPagination is used to improve performance: instead of\nrendering all of the rows at once (which can be expensive),\nwe only display a subset of them.\n\nWith pagination, we can either page through data that exists\nin the table (e.g. page through `10,000` rows in `data` `100` rows at a time)\nor we can update the data on-the-fly with callbacks\nwhen the user clicks on the \"Previous\" or \"Next\" buttons.\nThese modes can be toggled with this `page_action` parameter:\n- `'native'`: all data is passed to the table up-front, paging logic is\nhandled by the table\n- `'custom'`: data is passed to the table one page at a time, paging logic\nis handled via callbacks\n- `none`: disables paging, render all of the data at once",
         "defaultValue": {
-          "value": "'fe'",
+          "value": "'native'",
           "computed": false
         }
       },
-      "pagination_settings": {
+      "page_current": {
         "type": {
-          "name": "shape",
-          "value": {
-            "current_page": {
-              "name": "number",
-              "required": true
-            },
-            "page_size": {
-              "name": "number",
-              "required": true
-            }
-          }
+          "name": "number"
         },
         "required": false,
-        "description": "`pagination_settings` controls the pagination settings\n_and_ represents the current state of the pagination UI.\n- `page_size` represents the number of rows that will be\ndisplayed on a particular page.\n- `current_page` represents which page the user is on.\nUse this property to index through data in your callbacks with\nbackend paging.",
+        "description": "`page_current` represents which page the user is on.\nUse this property to index through data in your callbacks with\nbackend paging.",
         "defaultValue": {
-          "value": "{\n    current_page: 0,\n    page_size: 250\n}",
+          "value": "0",
           "computed": false
         }
       },
-      "navigation": {
+      "page_size": {
         "type": {
-          "name": "string"
+          "name": "number"
         },
         "required": false,
-        "description": "DEPRECATED",
+        "description": "`page_size` represents the number of rows that will be\ndisplayed on a particular page when `page_action` is `'custom'` or `'native'`",
         "defaultValue": {
-          "value": "'page'",
+          "value": "250",
           "computed": false
         }
       },
-      "column_conditional_dropdowns": {
+      "dropdown": {
         "type": {
-          "name": "arrayOf",
+          "name": "objectOf",
           "value": {
-            "name": "shape",
+            "name": "exact",
             "value": {
-              "id": {
-                "name": "string",
-                "required": true
+              "clearable": {
+                "name": "bool",
+                "required": false
               },
-              "dropdowns": {
+              "options": {
                 "name": "arrayOf",
                 "value": {
-                  "name": "shape",
-                  "value": {
-                    "condition": {
-                      "name": "string",
-                      "required": true
-                    },
-                    "dropdown": {
-                      "name": "arrayOf",
-                      "value": {
-                        "name": "shape",
-                        "value": {
-                          "label": {
-                            "name": "string",
-                            "required": true
-                          },
-                          "value": {
-                            "name": "union",
-                            "value": [
-                              {
-                                "name": "number"
-                              },
-                              {
-                                "name": "string"
-                              }
-                            ],
-                            "required": true
-                          }
-                        }
-                      },
-                      "required": true
-                    }
-                  }
-                },
-                "required": true
-              }
-            }
-          }
-        },
-        "required": false,
-        "description": "`column_conditional_dropdowns` specifies the available options\nfor dropdowns in various columns and cells.\nThis property allows you to specify different dropdowns\ndepending on certain conditions. For example, you may\nrender different \"city\" dropdowns in a row depending on the\ncurrent value in the \"state\" column.\n\nNOTE: The naming and the behavior of this option may change\nin the future.\nTune in to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)",
-        "defaultValue": {
-          "value": "[]",
-          "computed": false
-        }
-      },
-      "column_static_dropdown": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "shape",
-            "value": {
-              "id": {
-                "name": "string",
-                "required": true
-              },
-              "dropdown": {
-                "name": "arrayOf",
-                "value": {
-                  "name": "shape",
+                  "name": "exact",
                   "value": {
                     "label": {
                       "name": "string",
@@ -861,20 +817,127 @@
           }
         },
         "required": false,
-        "description": "`column_static_dropdown` represents the available dropdown\noptions for different columns.\nThe `id` property refers to the column ID.\nThe `dropdown` property refers to the `options` of the\ndropdown.\n\nNOTE: The naming and the behavior of this option may change\nin the future.\nTune in to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)",
+        "description": "`dropdown` specifies dropdown options for different columns.\n\nEach entry refers to the column ID.\nThe `clearable` property defines whether the value can be deleted.\nThe `options` property refers to the `options` of the dropdown.",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
+      "dropdown_conditional": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "exact",
+            "value": {
+              "clearable": {
+                "name": "bool",
+                "required": false
+              },
+              "if": {
+                "name": "exact",
+                "value": {
+                  "column_id": {
+                    "name": "string",
+                    "required": false
+                  },
+                  "filter_query": {
+                    "name": "string",
+                    "required": false
+                  }
+                },
+                "required": false
+              },
+              "options": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "exact",
+                  "value": {
+                    "label": {
+                      "name": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "name": "union",
+                      "value": [
+                        {
+                          "name": "number"
+                        },
+                        {
+                          "name": "string"
+                        }
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "required": true
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "`dropdown_conditional` specifies dropdown options in various columns and cells.\n\nThis property allows you to specify different dropdowns\ndepending on certain conditions. For example, you may\nrender different \"city\" dropdowns in a row depending on the\ncurrent value in the \"state\" column.",
         "defaultValue": {
           "value": "[]",
           "computed": false
         }
       },
-      "column_static_tooltip": {
+      "dropdown_data": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "objectOf",
+            "value": {
+              "name": "exact",
+              "value": {
+                "clearable": {
+                  "name": "bool",
+                  "required": false
+                },
+                "options": {
+                  "name": "arrayOf",
+                  "value": {
+                    "name": "exact",
+                    "value": {
+                      "label": {
+                        "name": "string",
+                        "required": true
+                      },
+                      "value": {
+                        "name": "union",
+                        "value": [
+                          {
+                            "name": "number"
+                          },
+                          {
+                            "name": "string"
+                          }
+                        ],
+                        "required": true
+                      }
+                    }
+                  },
+                  "required": true
+                }
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "`dropdown_data` specifies dropdown options on a row-by-row, column-by-column basis.\n\nEach item in the array corresponds to the corresponding dropdowns for the `data` item\nat the same index. Each entry in the item refers to the Column ID.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "tooltip": {
         "type": {
           "name": "objectOf",
           "value": {
             "name": "union",
             "value": [
               {
-                "name": "shape",
+                "name": "exact",
                 "value": {
                   "delay": {
                     "name": "number",
@@ -911,22 +974,34 @@
           }
         },
         "required": false,
-        "description": "`column_static_tooltip` represents the tooltip shown\nfor different columns.\nThe `property` name refers to the column ID.\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\n\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case.",
+        "description": "`tooltip` represents the tooltip shown\nfor different columns.\nThe `property` name refers to the column ID.\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\n\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case.",
         "defaultValue": {
           "value": "{}",
           "computed": false
         }
       },
-      "column_conditional_tooltips": {
+      "tooltip_conditional": {
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "shape",
+            "name": "exact",
             "value": {
+              "delay": {
+                "name": "number",
+                "required": false
+              },
+              "duration": {
+                "name": "number",
+                "required": false
+              },
               "if": {
-                "name": "shape",
+                "name": "exact",
                 "value": {
-                  "filter": {
+                  "column_id": {
+                    "name": "string",
+                    "required": false
+                  },
+                  "filter_query": {
                     "name": "string",
                     "required": false
                   },
@@ -951,21 +1026,9 @@
                       }
                     ],
                     "required": false
-                  },
-                  "column_id": {
-                    "name": "string",
-                    "required": false
                   }
                 },
                 "required": true
-              },
-              "delay": {
-                "name": "number",
-                "required": false
-              },
-              "duration": {
-                "name": "number",
-                "required": false
               },
               "type": {
                 "name": "enum",
@@ -989,17 +1052,17 @@
           }
         },
         "required": false,
-        "description": "`column_conditional_tooltips` represents the tooltip shown\nfor different columns and cells.\n\nThis property allows you to specify different tooltips for\ndepending on certain conditions. For example, you may have\ndifferent tooltips in the same column based on the value\nof a certain data property.\n\nPriority is from first to last defined conditional tooltip\nin the list. Higher priority (more specific) conditional\ntooltips should be put at the beginning of the list.\n\nThe `if` refers to the condition that needs to be fulfilled\nin order for the associated tooltip configuration to be\nused. If multiple conditions are defined, all conditions\nmust be met for the tooltip to be used by a cell.\n\nThe `if` nested property `column_id` refers to the column\nID that must be matched.\nThe `if` nested property `row_index` refers to the index\nof the row in the source `data`.\nThe `if` nested property `filter` refers to the query that\nmust evaluate to True.\n\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.",
+        "description": "`tooltip_conditional` represents the tooltip shown\nfor different columns and cells.\n\nThis property allows you to specify different tooltips for\ndepending on certain conditions. For example, you may have\ndifferent tooltips in the same column based on the value\nof a certain data property.\n\nPriority is from first to last defined conditional tooltip\nin the list. Higher priority (more specific) conditional\ntooltips should be put at the beginning of the list.\n\nThe `if` refers to the condition that needs to be fulfilled\nin order for the associated tooltip configuration to be\nused. If multiple conditions are defined, all conditions\nmust be met for the tooltip to be used by a cell.\n\nThe `if` nested property `column_id` refers to the column\nID that must be matched.\nThe `if` nested property `row_index` refers to the index\nof the row in the source `data`.\nThe `if` nested property `filter_query` refers to the query that\nmust evaluate to True.\n\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.",
         "defaultValue": {
           "value": "[]",
           "computed": false
         }
       },
-      "tooltips": {
+      "tooltip_data": {
         "type": {
-          "name": "objectOf",
+          "name": "arrayOf",
           "value": {
-            "name": "arrayOf",
+            "name": "objectOf",
             "value": {
               "name": "union",
               "value": [
@@ -1007,7 +1070,7 @@
                   "name": "string"
                 },
                 {
-                  "name": "shape",
+                  "name": "exact",
                   "value": {
                     "delay": {
                       "name": "number",
@@ -1042,7 +1105,11 @@
           }
         },
         "required": false,
-        "description": "`tooltips` represents the tooltip shown\nfor different columns and cells.\nThe `property` name refers to the column ID. Each property\ncontains a list of tooltips mapped to the source `data`\nrow index.\n\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\n\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case."
+        "description": "`tooltip_data` represents the tooltip shown\nfor different columns and cells.\nThe `property` name refers to the column ID. Each property\ncontains a list of tooltips mapped to the source `data`\nrow index.\n\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\n\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
       },
       "tooltip_delay": {
         "type": {
@@ -1066,113 +1133,68 @@
           "computed": false
         }
       },
-      "filter": {
+      "filter_query": {
         "type": {
           "name": "string"
         },
         "required": false,
-        "description": "If `filtering` is enabled, then the current filtering\nstring is represented in this `filter`\nproperty.\nNOTE: The shape and structure of this property will\nlikely change in the future.\nStay tuned in [https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)",
+        "description": "If `filter_action` is enabled, then the current filtering\nstring is represented in this `filter_query`\nproperty.",
         "defaultValue": {
           "value": "''",
           "computed": false
         }
       },
-      "filtering": {
+      "filter_action": {
         "type": {
           "name": "enum",
           "value": [
             {
-              "value": "'fe'",
+              "value": "'custom'",
               "computed": false
             },
             {
-              "value": "'be'",
+              "value": "'native'",
               "computed": false
             },
             {
-              "value": "true",
-              "computed": false
-            },
-            {
-              "value": "false",
+              "value": "'none'",
               "computed": false
             }
           ]
         },
         "required": false,
-        "description": "The `filtering` property controls the behavior of the `filtering` UI.\nIf `False`, then the filtering UI is not displayed\nIf `fe` or True, then the filtering UI is displayed and the filtering\nhappens in the \"front-end\". That is, it is performed on the data\nthat exists in the `data` property.\nIf `be`, then the filtering UI is displayed but it is the\nresponsibility of the developer to program the filtering\nthrough a callback (where `filter` would be the input\nand `data` would be the output).\n\nNOTE - Several aspects of filtering may change in the future,\nincluding the naming of this property.\nTune in to [https://github.com/plotly/dash-table/issues/167](https://github.com/plotly/dash-table/issues/167)",
+        "description": "The `filter_action` property controls the behavior of the `filtering` UI.\n\nIf `'none'`, then the filtering UI is not displayed\nIf `'native'`, then the filtering UI is displayed and the filtering\nlogic is handled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, then the filtering UI is displayed but it is the\nresponsibility of the developer to program the filtering\nthrough a callback (where `filter_query` or `derived_filter_query_structure` would be the input\nand `data` would be the output).",
         "defaultValue": {
-          "value": "false",
+          "value": "'none'",
           "computed": false
         }
       },
-      "filtering_type": {
+      "sort_action": {
         "type": {
           "name": "enum",
           "value": [
             {
-              "value": "'basic'",
+              "value": "'custom'",
+              "computed": false
+            },
+            {
+              "value": "'native'",
+              "computed": false
+            },
+            {
+              "value": "'none'",
               "computed": false
             }
           ]
         },
         "required": false,
-        "description": "UNSTABLE\nIn the future, there may be several modes of the\nfiltering UI like `basic`, `advanced`, etc.\nCurrently, we only `basic`.\nNOTE - This will likely change in the future,\nsubscribe to changes here:\n[https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)",
+        "description": "The `sort_action` property enables data to be\nsorted on a per-column basis.\n\nIf `'none'`, then the sorting UI is not displayed.\nIf `'native'`, then the sorting UI is displayed and the sorting\nlogic is hanled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, the the sorting UI is displayed but it is the\nresponsibility of the developer to program the sorting\nthrough a callback (where `sort_by` would be the input and `data`\nwould be the output).\n\nClicking on the sort arrows will update the\n`sort_by` property.",
         "defaultValue": {
-          "value": "'basic'",
+          "value": "'none'",
           "computed": false
         }
       },
-      "filtering_types": {
-        "type": {
-          "name": "arrayOf",
-          "value": {
-            "name": "enum",
-            "value": [
-              {
-                "value": "'basic'",
-                "computed": false
-              }
-            ]
-          }
-        },
-        "required": false,
-        "description": "UNSTABLE\nIn the future, there may be several modes of the\nfiltering UI like `basic`, `advanced`, etc\nNOTE - This will likely change in the future,\nsubscribe to changes here:\n[https://github.com/plotly/dash-table/issues/169](https://github.com/plotly/dash-table/issues/169)",
-        "defaultValue": {
-          "value": "['basic']",
-          "computed": false
-        }
-      },
-      "sorting": {
-        "type": {
-          "name": "enum",
-          "value": [
-            {
-              "value": "'fe'",
-              "computed": false
-            },
-            {
-              "value": "'be'",
-              "computed": false
-            },
-            {
-              "value": "true",
-              "computed": false
-            },
-            {
-              "value": "false",
-              "computed": false
-            }
-          ]
-        },
-        "required": false,
-        "description": "The `sorting` property enables data to be\nsorted on a per-column basis.\nEnabling `sorting` will display a UI element\non each of the columns (up and down arrows).\n\nSorting can be performed in the \"front-end\"\nwith the `fe` (or True) setting or via a callback in your\npython \"back-end\" with the `be` setting.\nClicking on the sort arrows will update the\n`sort_by` property.",
-        "defaultValue": {
-          "value": "false",
-          "computed": false
-        }
-      },
-      "sorting_type": {
+      "sort_mode": {
         "type": {
           "name": "enum",
           "value": [
@@ -1197,18 +1219,10 @@
         "type": {
           "name": "arrayOf",
           "value": {
-            "name": "shape",
+            "name": "exact",
             "value": {
               "column_id": {
-                "name": "union",
-                "value": [
-                  {
-                    "name": "string"
-                  },
-                  {
-                    "name": "number"
-                  }
-                ],
+                "name": "string",
                 "required": true
               },
               "direction": {
@@ -1235,12 +1249,30 @@
           "computed": false
         }
       },
-      "sorting_treat_empty_string_as_none": {
+      "sort_as_null": {
         "type": {
-          "name": "bool"
+          "name": "arrayOf",
+          "value": {
+            "name": "union",
+            "value": [
+              {
+                "name": "string"
+              },
+              {
+                "name": "number"
+              },
+              {
+                "name": "bool"
+              }
+            ]
+          }
         },
         "required": false,
-        "description": "If False, then empty strings (`''`) are considered\nvalid values (they will appear first when sorting ascending).\nIf True, empty strings will be ignored, causing these cells to always\nappear last."
+        "description": "An array of string, number and boolean values that are treated as `null`\n(i.e. ignored and always displayed last) when sorting.\nThis value will be used by columns without `sort_as_null`.\n\nDefaults to `[]`.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
       },
       "style_table": {
         "type": {
@@ -1288,18 +1320,10 @@
             "name": "shape",
             "value": {
               "if": {
-                "name": "shape",
+                "name": "exact",
                 "value": {
                   "column_id": {
-                    "name": "union",
-                    "value": [
-                      {
-                        "name": "string"
-                      },
-                      {
-                        "name": "number"
-                      }
-                    ],
+                    "name": "string",
                     "required": false
                   },
                   "column_type": {
@@ -1344,18 +1368,10 @@
             "name": "shape",
             "value": {
               "if": {
-                "name": "shape",
+                "name": "exact",
                 "value": {
                   "column_id": {
-                    "name": "union",
-                    "value": [
-                      {
-                        "name": "string"
-                      },
-                      {
-                        "name": "number"
-                      }
-                    ],
+                    "name": "string",
                     "required": false
                   },
                   "column_type": {
@@ -1380,7 +1396,7 @@
                     ],
                     "required": false
                   },
-                  "filter": {
+                  "filter_query": {
                     "name": "string",
                     "required": false
                   },
@@ -1405,6 +1421,10 @@
                       }
                     ],
                     "required": false
+                  },
+                  "column_editable": {
+                    "name": "bool",
+                    "required": false
                   }
                 },
                 "required": false
@@ -1426,18 +1446,10 @@
             "name": "shape",
             "value": {
               "if": {
-                "name": "shape",
+                "name": "exact",
                 "value": {
                   "column_id": {
-                    "name": "union",
-                    "value": [
-                      {
-                        "name": "string"
-                      },
-                      {
-                        "name": "number"
-                      }
-                    ],
+                    "name": "string",
                     "required": false
                   },
                   "column_type": {
@@ -1461,6 +1473,10 @@
                       }
                     ],
                     "required": false
+                  },
+                  "column_editable": {
+                    "name": "bool",
+                    "required": false
                   }
                 },
                 "required": false
@@ -1482,18 +1498,10 @@
             "name": "shape",
             "value": {
               "if": {
-                "name": "shape",
+                "name": "exact",
                 "value": {
                   "column_id": {
-                    "name": "union",
-                    "value": [
-                      {
-                        "name": "string"
-                      },
-                      {
-                        "name": "number"
-                      }
-                    ],
+                    "name": "string",
                     "required": false
                   },
                   "column_type": {
@@ -1539,6 +1547,10 @@
                       }
                     ],
                     "required": false
+                  },
+                  "column_editable": {
+                    "name": "bool",
+                    "required": false
                   }
                 },
                 "required": false
@@ -1564,12 +1576,12 @@
           "computed": false
         }
       },
-      "derived_filter_structure": {
+      "derived_filter_query_structure": {
         "type": {
           "name": "object"
         },
         "required": false,
-        "description": "This property represents the current structure of\n`filter` as a tree structure. Each node of the\nquery structure have:\n- type (string; required)\n  - 'open-block'\n  - 'logical-operator'\n  - 'relational-operator'\n  - 'unary-operator'\n  - 'expression'\n- subType (string; optional)\n  - 'open-block': '()'\n  - 'logical-operator': '&&', '||'\n  - 'relational-operator': '=', '>=', '>', '<=', '<', '!=', 'contains'\n  - 'unary-operator': '!', 'is bool', 'is even', 'is nil', 'is num', 'is object', 'is odd', 'is prime', 'is str'\n  - 'expression': 'value', 'field'\n- value (any)\n  - 'expression, value': passed value\n  - 'expression, field': the field/prop name\n\n- block (nested query structure; optional)\n- left (nested query structure; optional)\n- right (nested query structure; optional)\n\nIf the query is invalid or empty, the `derived_filter_structure` will\nbe null."
+        "description": "This property represents the current structure of\n`filter_query` as a tree structure. Each node of the\nquery structure have:\n- type (string; required)\n  - 'open-block'\n  - 'logical-operator'\n  - 'relational-operator'\n  - 'unary-operator'\n  - 'expression'\n- subType (string; optional)\n  - 'open-block': '()'\n  - 'logical-operator': '&&', '||'\n  - 'relational-operator': '=', '>=', '>', '<=', '<', '!=', 'contains'\n  - 'unary-operator': '!', 'is bool', 'is even', 'is nil', 'is num', 'is object', 'is odd', 'is prime', 'is str'\n  - 'expression': 'value', 'field'\n- value (any)\n  - 'expression, value': passed value\n  - 'expression, field': the field/prop name\n\n- block (nested query structure; optional)\n- left (nested query structure; optional)\n- right (nested query structure; optional)\n\nIf the query is invalid or empty, the `derived_filter_query_structure` will\nbe null."
       },
       "derived_viewport_data": {
         "type": {
@@ -1742,13 +1754,6 @@
           "value": "[]",
           "computed": false
         }
-      },
-      "dropdown_properties": {
-        "type": {
-          "name": "any"
-        },
-        "required": false,
-        "description": "DEPRECATED\nSubscribe to [https://github.com/plotly/dash-table/issues/168](https://github.com/plotly/dash-table/issues/168)\nfor updates on the dropdown API."
       }
     }
   }
