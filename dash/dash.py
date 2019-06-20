@@ -1158,17 +1158,6 @@ class Dash(object):
         callback_id = _create_callback_id(output)
         multi = isinstance(output, (list, tuple))
 
-        self.callback_map[callback_id] = {
-            'inputs': [
-                {'id': c.component_id, 'property': c.component_property}
-                for c in inputs
-            ],
-            'state': [
-                {'id': c.component_id, 'property': c.component_property}
-                for c in state
-            ],
-        }
-
         def wrap_func(func):
             @wraps(func)
             def add_context(*args, **kwargs):
@@ -1243,7 +1232,17 @@ class Dash(object):
 
                 return jsonResponse
 
-            self.callback_map[callback_id]['callback'] = add_context
+            self.callback_map[callback_id] = {
+                'inputs': [
+                    {'id': c.component_id, 'property': c.component_property}
+                    for c in inputs
+                ],
+                'state': [
+                    {'id': c.component_id, 'property': c.component_property}
+                    for c in state
+                ],
+                'callback': add_context
+            }
 
             return add_context
 
