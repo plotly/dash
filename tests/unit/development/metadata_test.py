@@ -12,9 +12,9 @@ Keyword arguments:
 - children (a list of or a singular dash component, string or number; optional)
 - optionalArray (list; optional): Description of optionalArray
 - optionalBool (boolean; optional)
-- optionalNumber (number; optional)
+- optionalNumber (number; default 42)
 - optionalObject (dict; optional)
-- optionalString (string; optional)
+- optionalString (string; default 'hello world')
 - optionalNode (a list of or a singular dash component, string or number; optional)
 - optionalElement (dash component; optional)
 - optionalEnum (a value equal to: 'News', 'Photos'; optional)

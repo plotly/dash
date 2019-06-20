@@ -881,9 +881,9 @@ def assert_docstring(assertEqual, docstring):
             "- children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
             "- optionalArray (list; optional): Description of optionalArray",
             "- optionalBool (boolean; optional)",
-            "- optionalNumber (number; optional)",
+            "- optionalNumber (number; default 42)",
             "- optionalObject (dict; optional)",
-            "- optionalString (string; optional)",
+            "- optionalString (string; default 'hello world')",
 
             "- optionalNode (a list of or a singular dash component, "
             "string or number; optional)",
@@ -1040,8 +1040,8 @@ def assert_flow_docstring(assertEqual, docstring):
             "",
             "Keyword arguments:",
             "- requiredString (string; required): A required string",
-            "- optionalString (string; optional): A string that isn't required.",
-            "- optionalBoolean (boolean; optional): A boolean test",
+            "- optionalString (string; default ''): A string that isn't required.",
+            "- optionalBoolean (boolean; default false): A boolean test",
 
             "- optionalNode (a list of or a singular dash component, string or number; optional): "
             "A node test",
