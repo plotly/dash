@@ -1,0 +1,16 @@
+build/
+dist/
+lib/
+node_modules/
+.npm
+vv/
+venv/
+*.pyc
+*.egg-info
+*.log
+.DS_Store
+dist
+*egg-info*
+
+dash_renderer/**/*.js
+tests/test_clientside/

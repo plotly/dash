@@ -1,0 +1,102 @@
+.dash-debug-menu {
+    transition: width 0.05s, background-color 0.1s;
+    position: fixed;
+    bottom: 35px;
+    right: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+.dash-debug-menu--closed {
+    background-color: #119dff;
+    border-radius: 100%;
+    width: 64px;
+    height: 64px;
+}
+.dash-debug-menu--opened {
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),
+        0px 1px 3px rgba(162, 177, 198, 0.32);
+    border-radius: 4px;
+    padding: 12px 0px;
+    background-color: white;
+}
+
+.dash-debug-menu--closed:hover {
+    cursor: pointer;
+    background-color: #108de4;
+}
+
+.dash-debug-menu__icon {
+    width: 24px;
+    height: 28px;
+}
+.dash-debug-menu__icon--close {
+    width: 14px;
+    height: 14px;
+}
+.dash-debug-menu__icon--bell {
+    height: 24px;
+    width: 28px;
+}
+.dash-debug-menu__icon--debug {
+    height: 24px;
+    width: auto;
+}
+.dash-debug-menu__icon--graph {
+    height: 24px;
+}
+
+.dash-debug-menu__content {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.dash-debug-menu__button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 74px;
+    margin-left: 10px;
+}
+.dash-debug-menu__button-label {
+    color: #A2B1C6;
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+.dash-debug-menu__button {
+    background-color: white;
+    border-radius: 100%;
+    border: 1px solid #B9C2CE;
+    width: 64px;
+    height: 64px;
+    font-size: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+    color: black;
+}
+.dash-debug-menu__button--enabled {
+    background-color: #00CC96;
+    color: white;
+}
+.dash-debug-menu__button--small {
+    width: 32px;
+    height: 32px;
+    background-color: #B9C2CE;
+}
+.dash-debug-menu__button:hover {
+    cursor: pointer;
+    background-color: #f5f5f5;
+}
+.dash-debug-menu__button--small:hover {
+    background-color: #a1a9b5;
+}
+
+.dash-debug-menu__button--enabled:hover {
+    background-color: #03bb8a;
+}

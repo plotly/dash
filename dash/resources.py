@@ -7,10 +7,9 @@ from . import exceptions
 
 
 class Resources:
-    def __init__(self, resource_name, layout):
+    def __init__(self, resource_name):
         self._resources = []
         self.resource_name = resource_name
-        self.layout = layout
 
     def append_resource(self, resource):
         self._resources.append(resource)
@@ -66,13 +65,16 @@ class Resources:
         return self._filter_resources(all_resources, dev_bundles)
 
 
-class Css:
-    def __init__(self, layout=None):
-        self._resources = Resources('_css_dist', layout)
-        self._resources.config = self.config
+# pylint: disable=too-few-public-methods
+class _Config:
+    def __init__(self, serve_locally):
+        self.serve_locally = serve_locally
 
-    def _update_layout(self, layout):
-        self._resources.layout = layout
+
+class Css:
+    def __init__(self, serve_locally):
+        self._resources = Resources('_css_dist')
+        self._resources.config = self.config = _Config(serve_locally)
 
     def append_css(self, stylesheet):
         self._resources.append_resource(stylesheet)
@@ -80,27 +82,14 @@ class Css:
     def get_all_css(self):
         return self._resources.get_all_resources()
 
-    # pylint: disable=no-init, too-few-public-methods
-    class config:
-        infer_from_layout = True
-        serve_locally = False
-
 
 class Scripts:
-    def __init__(self, layout=None):
-        self._resources = Resources('_js_dist', layout)
-        self._resources.config = self.config
-
-    def _update_layout(self, layout):
-        self._resources.layout = layout
+    def __init__(self, serve_locally):
+        self._resources = Resources('_js_dist')
+        self._resources.config = self.config = _Config(serve_locally)
 
     def append_script(self, script):
         self._resources.append_resource(script)
 
     def get_all_scripts(self, dev_bundles=False):
         return self._resources.get_all_resources(dev_bundles)
-
-    # pylint: disable=no-init, too-few-public-methods
-    class config:
-        infer_from_layout = True
-        serve_locally = False
