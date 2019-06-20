@@ -860,3 +860,13 @@ def create_prop_docstring_r(prop_name, type_object, required, description,
                    ': {}'.format(description) if description != '' else ''
                ),
                is_required='required' if required else 'optional')
+
+
+def get_wildcards_r(prop_keys):
+    wildcards = ""
+    wildcards += ", ".join("'{}'".format(p)
+                           for p in prop_keys if "*" in p)
+
+    if wildcards == "":
+        wildcards = "NULL"
+    return wildcards
