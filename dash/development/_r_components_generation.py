@@ -103,6 +103,11 @@ lib/
 .builderrc
 .eslintrc
 .npmignore
+.editorconfig
+.eslintignore
+.prettierrc
+.circleci
+.github
 
 # demo folder has special meaning in R
 # this should hopefully make it still
