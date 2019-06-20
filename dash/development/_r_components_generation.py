@@ -166,17 +166,17 @@ def generate_class_string(name, props, project_shortname, prefix):
     wildcards = ""
     wildcard_declaration = ""
     wildcard_names = ""
-
-    if any("-*" in key for key in prop_keys):
-        wildcards = ", ..."
-        wildcard_declaration = (
-            "\n    wildcard_names = names(dash::dash_assert_valid_wildcards(...))\n"
-        )
-        wildcard_names = ", wildcard_names"
-
     default_paramtext = ""
     default_argtext = ""
-    default_wildcards = ""
+    accepted_wildcards = ""
+
+    if any("-*" in key for key in prop_keys):
+        accepted_wildcards = get_wildcards_r(prop_keys)
+        wildcards = ", ..."
+        wildcard_declaration = """
+    wildcard_names = names(dash_assert_valid_wildcards(attrib = list({}), ...))
+""".format(accepted_wildcards.replace("-*", ""))       # noqa:E501
+        wildcard_names = ", wildcard_names"
 
     # Produce a string with all property names other than WCs
     prop_names = ", ".join(
@@ -184,16 +184,6 @@ def generate_class_string(name, props, project_shortname, prefix):
         for p in prop_keys
         if "*" not in p and p not in ["setProps"]
     )
-
-    # in R, we set parameters with no defaults to NULL
-    # Here we'll do that if no default value exists
-    default_wildcards += ", ".join("'{}'".format(p)
-                                   for p in prop_keys if "*" in p)
-
-    if default_wildcards == "":
-        default_wildcards = "NULL"
-    else:
-        default_wildcards = "c({})".format(default_wildcards)
 
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
@@ -330,6 +320,9 @@ def write_help_file(name, props, description, prefix):
 
     has_wildcards = any("-*" in key for key in prop_keys)
 
+    if has_wildcards:
+        wildcards = get_wildcards_r(prop_keys)
+
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
         if item.endswith("-*") or item in r_keywords or item == "setProps":
@@ -347,8 +340,10 @@ def write_help_file(name, props, description, prefix):
     )
 
     if has_wildcards:
-        item_text += '\n\n\\item{...}{wildcards: `data-*` or `aria-*`}'
         default_argtext += ', ...'
+        item_text += """
+\n\n\\item{{...}}{{wildcards allowed have the form: `{}`}}
+""".format(wildcards)
 
     # in R, the online help viewer does not properly wrap lines for
     # the usage string -- we will hard wrap at 80 characters using
