@@ -16,9 +16,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from selenium.common.exceptions import WebDriverException, TimeoutException
 
-from dash.testing.wait import text_to_equal, style_to_equal
+from dash.testing.wait import text_to_equal, style_to_equal, contains_text
 from dash.testing.dash_page import DashPageMixin
-from dash.testing.errors import DashAppLoadingError
+from dash.testing.errors import DashAppLoadingError, BrowserError
 
 
 logger = logging.getLogger(__name__)
@@ -35,6 +35,8 @@ class Browser(DashPageMixin):
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
         self._last_ts = 0
         self._url = None
+
+        self._window_idx = 0  # switch browser tabs
 
         self.percy_runner = percy.Runner(
             loader=percy.ResourceLoader(
@@ -166,6 +168,20 @@ class Browser(DashPageMixin):
             ),
         )
 
+    def wait_for_contains_text(self, selector, text, timeout=None):
+        """explicit wait until the element's text contains the expected `text`.
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with customized `contains_text` condition
+        """
+        return self._wait_for(
+            method=contains_text,
+            args=(selector, text),
+            timeout=timeout,
+            msg="text -> {} not found inside element within {}s".format(
+                text, timeout if timeout else self._wait_timeout
+            ),
+        )
+
     def wait_for_page(self, url=None, timeout=10):
         """wait_for_page navigates to the url in webdriver
         wait until the renderer is loaded in browser. use the `server_url`
@@ -190,6 +206,31 @@ class Browser(DashPageMixin):
                     "\n".join((str(log) for log in self.get_logs())),
                 )
             )
+
+    def toggle_window(self):
+        """switch between the current working window and the new opened one"""
+        idx = (self._window_idx + 1) % 2
+        self.switch_window(idx=idx)
+        self._window_idx += 1
+
+    def switch_window(self, idx=0):
+        """switch to window by window index
+        shortcut to `driver.switch_to.window`
+        """
+        if len(self.driver.window_handles) <= idx:
+            raise BrowserError("there is no second window in Browser")
+
+        self.driver.switch_to.window(self.driver.window_handles[idx])
+
+    def open_new_tab(self, url=None):
+        """open a new tab in browser
+        url is not set, equals to `server_url`
+        """
+        self.driver.execute_script(
+            'window.open("{}", "new window")'.format(
+                self.server_url if url is None else url
+            )
+        )
 
     def get_webdriver(self, remote):
         return (
