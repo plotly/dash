@@ -1,6 +1,8 @@
+import sys
 import json
 import pytest
 import uuid
+import mimesis
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -62,3 +64,24 @@ def store_app():
         return ({"n_clicks": n_clicks},) * 3
 
     yield app
+
+
+@pytest.fixture(scope="module")
+def fake_data():
+    buf = ""
+    chunk = ""
+    limit = 5 * 1024 * 1024
+    while sys.getsizeof(buf) <= limit:
+        g = mimesis.Generic()
+        chunk = "\n".join(
+            (
+                "{},{}".format(g.person.full_name(), g.person.email())
+                for _ in range(10000)
+            )
+        )
+        buf += chunk
+
+    with open("/tmp/x.csv", "w") as fp:
+        fp.write(buf[len(chunk):limit])
+
+    yield buf[len(chunk):limit]

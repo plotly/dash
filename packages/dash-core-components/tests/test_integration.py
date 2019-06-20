@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-import base64
-import itertools
 from datetime import datetime
-import io
 import os
 import sys
 from multiprocessing import Lock
@@ -11,21 +8,16 @@ import json
 import re
 
 import flask
-import pandas as pd
-
 import dash
 from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
-from dash_table import DataTable
 from dash.exceptions import PreventUpdate
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import InvalidElementStateException, TimeoutException
+from selenium.common.exceptions import InvalidElementStateException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-from textwrap import dedent
 
 try:
     from urlparse import urlparse
@@ -70,151 +62,6 @@ class Tests(IntegrationTests):
             python_version = sys.version.split(" ")[0]
             print("Percy Snapshot {}".format(python_version))
             self.percy_runner.snapshot(name=name)
-
-    # def create_upload_component_content_types_test(self, filename):
-    #     app = dash.Dash(__name__)
-
-    #     filepath = os.path.join(os.getcwd(), 'test', 'upload-assets', filename)
-
-    #     pre_style = {
-    #         'whiteSpace': 'pre-wrap',
-    #         'wordBreak': 'break-all'
-    #     }
-
-    #     app.layout = html.Div([
-    #         html.Div(filepath, id='waitfor'),
-    #         html.Div(
-    #             id='upload-div',
-    #             children=dcc.Upload(
-    #                 id='upload',
-    #                 children=html.Div([
-    #                     'Drag and Drop or ',
-    #                     html.A('Select a File')
-    #                 ]),
-    #                 style={
-    #                     'width': '100%',
-    #                     'height': '60px',
-    #                     'lineHeight': '60px',
-    #                     'borderWidth': '1px',
-    #                     'borderStyle': 'dashed',
-    #                     'borderRadius': '5px',
-    #                     'textAlign': 'center'
-    #                 }
-    #             )
-    #         ),
-    #         html.Div(id='output'),
-    #         html.Div(DataTable(data=[{}]), style={'display': 'none'})
-    #     ])
-
-    #     @app.callback(Output('output', 'children'),
-    #                   [Input('upload', 'contents')])
-    #     def update_output(contents):
-    #         if contents is not None:
-    #             content_type, content_string = contents.split(',')
-    #             if 'csv' in filepath:
-    #                 df = pd.read_csv(io.StringIO(base64.b64decode(
-    #                     content_string).decode('utf-8')))
-    #                 return html.Div([
-    #                     DataTable(
-    #                         data=df.to_dict('records'),
-    #                         columns=[{'id': i} for i in ['city', 'country']]),
-    #                     html.Hr(),
-    #                     html.Div('Raw Content'),
-    #                     html.Pre(contents, style=pre_style)
-    #                 ])
-    #             elif 'xls' in filepath:
-    #                 df = pd.read_excel(io.BytesIO(base64.b64decode(
-    #                     content_string)))
-    #                 return html.Div([
-    #                     DataTable(
-    #                         data=df.to_dict('records'),
-    #                         columns=[{'id': i} for i in ['city', 'country']]),
-    #                     html.Hr(),
-    #                     html.Div('Raw Content'),
-    #                     html.Pre(contents, style=pre_style)
-    #                 ])
-    #             elif 'image' in content_type:
-    #                 return html.Div([
-    #                     html.Img(src=contents),
-    #                     html.Hr(),
-    #                     html.Div('Raw Content'),
-    #                     html.Pre(contents, style=pre_style)
-    #                 ])
-    #             else:
-    #                 return html.Div([
-    #                     html.Hr(),
-    #                     html.Div('Raw Content'),
-    #                     html.Pre(contents, style=pre_style)
-    #                 ])
-
-    #     self.startServer(app)
-
-    #     try:
-    #         self.wait_for_element_by_css_selector('#waitfor')
-    #     except Exception as e:
-    #         print(self.wait_for_element_by_css_selector(
-    #             '#_dash-app-content').get_attribute('innerHTML'))
-    #         raise e
-
-    #     upload_div = self.wait_for_element_by_css_selector(
-    #         '#upload-div input[type=file]')
-
-    #     upload_div.send_keys(filepath)
-    #     time.sleep(5)
-    #     self.snapshot(filename)
-
-    # def test_upload_csv(self):
-    #     self.create_upload_component_content_types_test('utf8.csv')
-
-    # def test_upload_xlsx(self):
-    #     self.create_upload_component_content_types_test('utf8.xlsx')
-
-    # def test_upload_png(self):
-    #     self.create_upload_component_content_types_test('dash-logo-stripe.png')
-
-    # def test_upload_svg(self):
-    #     self.create_upload_component_content_types_test('dash-logo-stripe.svg')
-
-    # def test_upload_gallery(self):
-    #     app = dash.Dash(__name__)
-    #     app.layout = html.Div([
-    #         html.Div(id='waitfor'),
-    #         html.Label('Empty'),
-    #         dcc.Upload(),
-
-    #         html.Label('Button'),
-    #         dcc.Upload(html.Button('Upload File')),
-
-    #         html.Label('Text'),
-    #         dcc.Upload('Upload File'),
-
-    #         html.Label('Link'),
-    #         dcc.Upload(html.A('Upload File')),
-
-    #         html.Label('Style'),
-    #         dcc.Upload([
-    #             'Drag and Drop or ',
-    #             html.A('Select a File')
-    #         ], style={
-    #             'width': '100%',
-    #             'height': '60px',
-    #             'lineHeight': '60px',
-    #             'borderWidth': '1px',
-    #             'borderStyle': 'dashed',
-    #             'borderRadius': '5px',
-    #             'textAlign': 'center'
-    #         })
-    #     ])
-    #     self.startServer(app)
-
-    #     try:
-    #         self.wait_for_element_by_css_selector('#waitfor')
-    #     except Exception as e:
-    #         print(self.wait_for_element_by_css_selector(
-    #             '#_dash-app-content').get_attribute('innerHTML'))
-    #         raise e
-
-    #     self.snapshot('test_upload_gallery')
 
     def test_loading_component_initialization(self):
         lock = Lock()
@@ -2054,160 +1901,6 @@ class Tests(IntegrationTests):
         ])
         self.wait_for_text_to_equal('#output_trace_will_allow_repeated_extend', comparison)
 
-    def test_storage_component(self):
-        app = dash.Dash(__name__)
-
-        getter = 'return JSON.parse(window.{}.getItem("{}"));'
-        clicked_getter = getter.format('localStorage', 'storage')
-        dummy_getter = getter.format('sessionStorage', 'dummy')
-        dummy_data = 'Hello dummy'
-
-        app.layout = html.Div([
-            dcc.Store(id='storage',
-                      storage_type='local'),
-            html.Button('click me', id='btn'),
-            html.Button('clear', id='clear-btn'),
-            html.Button('set-init-storage',
-                        id='set-init-storage'),
-            dcc.Store(id='dummy',
-                      storage_type='session',
-                      data=dummy_data),
-            dcc.Store(id='memory',
-                      storage_type='memory'),
-            html.Div(id='memory-output'),
-            dcc.Store(id='initial-storage',
-                      storage_type='session'),
-            html.Div(id='init-output')
-        ])
-
-        @app.callback(Output('storage', 'data'),
-                      [Input('btn', 'n_clicks')],
-                      [State('storage', 'data')])
-        def on_click(n_clicks, storage):
-            if n_clicks is None:
-                return
-            storage = storage or {}
-            return {'clicked': storage.get('clicked', 0) + 1}
-
-        @app.callback(Output('storage', 'clear_data'),
-                      [Input('clear-btn', 'n_clicks')])
-        def on_clear(n_clicks):
-            if n_clicks is None:
-                return
-            return True
-
-        @app.callback(Output('memory', 'data'), [Input('storage', 'data')])
-        def on_memory(data):
-            return data
-
-        @app.callback(Output('memory-output', 'children'),
-                      [Input('memory', 'data')])
-        def on_memory2(data):
-            if data is None:
-                return ''
-            return json.dumps(data)
-
-        @app.callback(Output('initial-storage', 'data'),
-                      [Input('set-init-storage', 'n_clicks')])
-        def on_init(n_clicks):
-            if n_clicks is None:
-                raise PreventUpdate
-
-            return 'initialized'
-
-        @app.callback(Output('init-output', 'children'),
-                      [Input('initial-storage', 'modified_timestamp')],
-                      [State('initial-storage', 'data')])
-        def init_output(ts, data):
-            return json.dumps({'data': data, 'ts': ts})
-
-        self.startServer(app)
-
-        time.sleep(1)
-
-        dummy = self.driver.execute_script(dummy_getter)
-        self.assertEqual(dummy_data, dummy)
-
-        click_btn = self.wait_for_element_by_css_selector('#btn')
-        clear_btn = self.wait_for_element_by_css_selector('#clear-btn')
-        mem = self.wait_for_element_by_css_selector('#memory-output')
-
-        for i in range(1, 11):
-            click_btn.click()
-            time.sleep(1)
-
-            click_data = self.driver.execute_script(clicked_getter)
-            self.assertEqual(i, click_data.get('clicked'))
-            self.assertEqual(i, int(json.loads(mem.text).get('clicked')))
-
-        clear_btn.click()
-        time.sleep(1)
-
-        cleared_data = self.driver.execute_script(clicked_getter)
-        self.assertTrue(cleared_data is None)
-        # Did mem also got cleared ?
-        self.assertFalse(mem.text)
-
-        # Test initial timestamp output
-        init_btn = self.wait_for_element_by_css_selector('#set-init-storage')
-        init_btn.click()
-        ts = int(time.time() * 1000)
-        time.sleep(1)
-        self.driver.refresh()
-        time.sleep(2)
-        init = self.wait_for_element_by_css_selector('#init-output')
-        init = json.loads(init.text)
-        self.assertAlmostEqual(ts, init.get('ts'), delta=1000)
-        self.assertEqual('initialized', init.get('data'))
-
-    def test_store_nested_data(self):
-        app = dash.Dash(__name__)
-
-        nested = {'nested': {'nest': 'much'}}
-        nested_list = dict(my_list=[1, 2, 3])
-
-        app.layout = html.Div([
-            dcc.Store(id='store', storage_type='local'),
-            html.Button('set object as key', id='obj-btn'),
-            html.Button('set list as key', id='list-btn'),
-            html.Output(id='output')
-        ])
-
-        @app.callback(Output('store', 'data'),
-                      [Input('obj-btn', 'n_clicks_timestamp'),
-                       Input('list-btn', 'n_clicks_timestamp')])
-        def on_obj_click(obj_ts, list_ts):
-            if obj_ts is None and list_ts is None:
-                raise PreventUpdate
-
-            # python 3 got the default props bug. plotly/dash#396
-            if (obj_ts and not list_ts) or obj_ts > list_ts:
-                return nested
-            else:
-                return nested_list
-
-        @app.callback(Output('output', 'children'),
-                      [Input('store', 'modified_timestamp')],
-                      [State('store', 'data')])
-        def on_ts(ts, data):
-            if ts is None:
-                raise PreventUpdate
-            return json.dumps(data)
-
-        self.startServer(app)
-
-        obj_btn = self.wait_for_element_by_css_selector('#obj-btn')
-        list_btn = self.wait_for_element_by_css_selector('#list-btn')
-
-        obj_btn.click()
-        time.sleep(1)
-        self.wait_for_text_to_equal('#output', json.dumps(nested))
-        # it would of crashed the app before adding the recursive check.
-
-        list_btn.click()
-        time.sleep(1)
-        self.wait_for_text_to_equal('#output', json.dumps(nested_list))
-
     def test_user_supplied_css(self):
         app = dash.Dash(__name__)
 
@@ -2348,68 +2041,6 @@ class Tests(IntegrationTests):
             # plus one for each hello world character
             1 + len('hello world')
         )
-
-    def test_store_type_updates(self):
-        app = dash.Dash(__name__)
-
-        types = [
-            ('str', 'hello'),
-            ('number', 1),
-            ('dict', {'data': [2, 3, None]}),
-            ('list', [5, 6, 7]),
-            ('null', None),
-            ('bool', True),
-            ('bool', False),
-            ('empty-dict', {}),
-        ]
-        types_changes = list(
-            itertools.chain(*itertools.combinations(types, 2))
-        ) + [  # No combinations as it add much test time.
-            ('list-dict-1', [1, 2, {'data': [55, 66, 77], 'dummy': 'dum'}]),
-            ('list-dict-2', [1, 2, {'data': [111, 99, 88]}]),
-            ('dict-3', {'a': 1, 'c': 1}),
-            ('dict-2', {'a': 1, 'b': None}),
-        ]
-
-        app.layout = html.Div([
-            html.Div(id='output'),
-            html.Button('click', id='click'),
-            dcc.Store(id='store')
-        ])
-
-        @app.callback(Output('output', 'children'),
-                      [Input('store', 'modified_timestamp')],
-                      [State('store', 'data')])
-        def on_data(ts, data):
-            if ts is None:
-                raise PreventUpdate
-
-            return json.dumps(data)
-
-        @app.callback(Output('store', 'data'), [Input('click', 'n_clicks')])
-        def on_click(n_clicks):
-            if n_clicks is None:
-                raise PreventUpdate
-
-            return types_changes[n_clicks - 1][1]
-
-        self.startServer(app)
-
-        button = self.wait_for_element_by_css_selector('#click')
-
-        for i, type_change in enumerate(types_changes):
-            button.click()
-            try:
-                self.wait_for_text_to_equal(
-                    '#output', json.dumps(type_change[1]),
-                )
-            except TimeoutException:
-                raise Exception(
-                    'Output type did not change from {} to {}'.format(
-                        types_changes[i - 1],
-                        type_change
-                    )
-                )
 
     def test_disabled_tab(self):
         app = dash.Dash(__name__)
