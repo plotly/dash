@@ -1,4 +1,4 @@
-## Unreleased
+## [1.0.0] - 2019-06-20
 ### Changed
 - 💥 [#761](https://github.com/plotly/dash/pull/761) Several breaking changes to the `dash.Dash` API:
   - Removed two obsolete constructor kwargs: `static_folder` and `components_cache_max_age`
@@ -9,7 +9,7 @@
   - When called from `enable_dev_tools`, `debug=True` by default. It's still `False` by default from `run_server`.
 
 - ✨ [#744](https://github.com/plotly/dash/pull/744) Dash Testing(`dash.testing`) is introduced, read the full tutorial on http://dash.plot.ly/testing.
-    
+
 
 - [#753](https://github.com/plotly/dash/pull/753) `Component` no longer inherits `MutableMapping`, so `values`, `keys`, and more are no longer methods. This fixed an issue reported in [dcc](https://github.com/plotly/dash-core-components/issues/440) where components with certain prop names defined but not provided would cause a failure to render. During component generation we now disallow all props with leading underscores or matching a few remaining reserved words: `UNDEFINED`, `REQUIRED`, `to_plotly_json`, `available_properties`, and `available_wildcard_properties`.
 
@@ -21,7 +21,7 @@
 
 - Undo/redo toolbar is removed by default, you can enable it with `app=Dash(show_undo_redo=true)`. The CSS hack `._dash-undo-redo:{display:none;}` is no longer needed [#724](https://github.com/plotly/dash/pull/724)
 
-- 💥[#709](https://github.com/plotly/dash/pull/709) Merge the `dash-renderer` project into the main dash repo to simplify feature dev workflow. We will keep the [deprecated one](https://github.com/plotly/dash-renderer) for archive purpose.  
+- 💥[#709](https://github.com/plotly/dash/pull/709) Merge the `dash-renderer` project into the main dash repo to simplify feature dev workflow. We will keep the [deprecated one](https://github.com/plotly/dash-renderer) for archive purpose.
 
 ## [0.43.0] - 2019-04-25
 ### Changed
