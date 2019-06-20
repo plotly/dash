@@ -425,16 +425,16 @@ def write_js_metadata(pkg_data, project_shortname):
 
     # import dash_filter_null and dash_assert_valid_wildcards
     component_helpers = """
-dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...) 
+dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...)
 {
     args <- list(...)
     validation_results <- lapply(names(args), function(x) {
-        grepl(paste0("^", attrib, "-[a-zA-Z0-9]{1,}$", collapse = "|"), 
+        grepl(paste0("^", attrib, "-[a-zA-Z0-9]{1,}$", collapse = "|"),
             x)
     })
     if (FALSE %in% validation_results) {
-        stop(sprintf("The following wildcards are not currently valid in Dash: '%s'", 
-            paste(names(args)[grepl(FALSE, unlist(validation_results))], 
+        stop(sprintf("The following wildcards are not currently valid in Dash: '%s'",
+            paste(names(args)[grepl(FALSE, unlist(validation_results))],
                 collapse = ", ")), call. = FALSE)
     }
     else {
