@@ -579,12 +579,12 @@ def generate_rpkg(
     # this avoids having to generate an RData file from within Python.
     write_js_metadata(pkg_data=pkg_data, project_shortname=project_shortname)
 
-    with open("NAMESPACE", "w") as f:
+    with open("NAMESPACE", "w+") as f:
         f.write(import_string)
         f.write(export_string)
         f.write(packages_string)
 
-    with open(".Rbuildignore", "w") as f2:
+    with open(".Rbuildignore", "w+") as f2:
         f2.write(rbuild_ignore_string)
 
     description_string = description_template.format(
@@ -602,7 +602,7 @@ def generate_rpkg(
         maintainer=maintainer,
     )
 
-    with open("DESCRIPTION", "w") as f3:
+    with open("DESCRIPTION", "w+") as f3:
         f3.write(description_string)
 
     if pkg_help_header != "":
