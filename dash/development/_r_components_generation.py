@@ -430,26 +430,6 @@ def write_js_metadata(pkg_data, project_shortname):
     )
     file_name = "internal.R"
 
-    # import dash_filter_null and dash_assert_valid_wildcards
-    component_helpers = """
-dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...)
-{
-    args <- list(...)
-    validation_results <- lapply(names(args), function(x) {
-        grepl(paste0("^", attrib, "-[a-zA-Z0-9]{1,}$", collapse = "|"),
-            x)
-    })
-    if (FALSE %in% validation_results) {
-        stop(sprintf("The following wildcards are not currently valid in Dash: '%s'",
-            paste(names(args)[grepl(FALSE, unlist(validation_results))],
-                collapse = ", ")), call. = FALSE)
-    }
-    else {
-        return(args)
-    }
-}
-"""    # noqa:E501
-
     # the R source directory for the package won't exist on first call
     # create the R directory if it is missing
     if not os.path.exists("R"):
@@ -458,8 +438,7 @@ dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...)
     file_path = os.path.join("R", file_name)
     with open(file_path, "w") as f:
         f.write(function_string)
-        if has_wildcards:
-            f.write(component_helpers)
+        f.write(component_helpers)
 
     # now copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
