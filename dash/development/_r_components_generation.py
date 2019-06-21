@@ -138,12 +138,6 @@ pkghelp_stub = """% Auto-generated: do not edit by hand
 \\alias{{{package_name}}}
 \\title{{{pkg_help_title}}}
 \\description{{
-\\seealso{{
-Useful links:
-\\itemize{{
-  \\item \\url{{https://github.com/plotly/{lib_name}}}
-  \\item Report bugs at \\url{{https://github.com/plotly/{lib_name}/issues}}
-}}
 {pkg_help_description}
 }}
 \\author{{
