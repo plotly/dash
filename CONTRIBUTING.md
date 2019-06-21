@@ -63,6 +63,8 @@ Emojis make the commit messages :cherry_blossom:. If you have no idea about what
 
 We use both `flake8` and `pylint` for basic linting check, please refer to the relevant steps in `.circleci/config.yml`.
 
+Note that we also start using [`black`](https://black.readthedocs.io/en/stable/) as formatter during the test code migration. 
+
 ## Tests
 
 We started migrating to [pytest](https://docs.pytest.org/en/latest/) from `unittest` as our test automation framework. You will see more testing enhancements in the near future.
