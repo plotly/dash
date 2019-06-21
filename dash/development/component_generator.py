@@ -134,7 +134,6 @@ def generate_components(
                 pkg_data = jsondata_unicode
             else:
                 pkg_data = byteify(jsondata_unicode)
-
         generate_exports(
             project_shortname,
             components,
