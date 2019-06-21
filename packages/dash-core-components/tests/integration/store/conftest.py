@@ -2,7 +2,6 @@ import sys
 import json
 import pytest
 import uuid
-import mimesis
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -68,6 +67,7 @@ def store_app():
 
 @pytest.fixture(scope="session")
 def csv_5mb():
+    import mimesis
     buf, chunks = None, []
     limit = 5 * 1024 * 1024
     while sys.getsizeof(buf) <= limit:
