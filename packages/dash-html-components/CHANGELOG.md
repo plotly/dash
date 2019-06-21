@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - Added `formEncType`, `formMethod`, `formTarget` attributes to Button
     - Added `autoComplete` attribute to Select
 
+### Removed
+- [#113](https://github.com/plotly/dash-html-components/pull/113) Removed `version.py` - use `__version__` in the main namespace.
+
 ## [0.16.0] - 2019-04-25
 ### Fixed
 - [#110](https://github.com/plotly/dash-html-components/pull/110), [#111](https://github.com/plotly/dash-html-components/pull/111) Improved the property definitions in advance of the Dev Tools property validation.
