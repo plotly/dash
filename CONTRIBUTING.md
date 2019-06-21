@@ -77,7 +77,7 @@ Note: *You might find out that we have more integration tests than unit tests in
 
 ### Integration Tests
 
-We introduced the `dash.testing` feature in [Dash 1.0](https://community.plot.ly/t/announcing-dash-testing/24868). It makes writing an Dash integration test much easier. Please read the [tutorial](http://dash.plot.ly/testing) and contribute your feature code along with a decent integration test if applicable.
+We introduced the `dash.testing` feature in [Dash 1.0](https://community.plot.ly/t/announcing-dash-testing/24868). It makes writing a Dash integration test much easier. Please read the [tutorial](http://dash.plot.ly/testing) and add relevant integration tests with any new features or bug fixes.
 
 
 ## Financial Contributions
