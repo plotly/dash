@@ -147,7 +147,7 @@ Useful links:
 {pkg_help_description}
 }}
 \\author{{
-\\strong{{Maintainer}}: {package_author}
+\\strong{{Maintainer}}: {maintainer}
 }}
 """
 
@@ -611,7 +611,7 @@ def generate_rpkg(
             pkg_help_title=rpkg_data.get("pkg_help_title"),
             pkg_help_description=rpkg_data.get("pkg_help_description"),
             lib_name=lib_name,
-            package_author=package_author,
+            maintainer=maintainer,
         )
         with open(pkghelp_stub_path, "w") as f4:
             f4.write(pkghelp)
