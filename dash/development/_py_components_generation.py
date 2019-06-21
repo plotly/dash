@@ -293,7 +293,7 @@ def parse_wildcards(props):
     """
     list_of_valid_wildcard_attr_prefixes = []
     for wildcard_attr in ["data-*", "aria-*"]:
-        if wildcard_attr in props.keys():
+        if wildcard_attr in props:
             list_of_valid_wildcard_attr_prefixes.append(wildcard_attr[:-1])
     return list_of_valid_wildcard_attr_prefixes
 
