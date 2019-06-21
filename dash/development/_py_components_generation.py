@@ -433,7 +433,7 @@ def create_prop_docstring(prop_name, type_object, required, description,
     is_required = 'optional'
     if required:
         is_required = 'required'
-    elif default and 'null' not in str(default) and '[]' not in str(default):
+    elif default and default not in ['null', '{}', '[]']:
         is_required = 'default {}'.format(
             default.replace('\n', '\n' + indent_spacing)
         )
