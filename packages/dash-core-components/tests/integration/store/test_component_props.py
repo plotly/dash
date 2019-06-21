@@ -65,5 +65,5 @@ def test_stcp200_modified_ts(store_app, dash_duo):
         output_data.get("data") == "initialized"
     ), "the data should be the text set in on_init"
     assert ts == approx(
-        output_data.get("ts"), abs=10
+        output_data.get("ts"), abs=40
     ), "the modified_timestamp should be updated right after the click action"
