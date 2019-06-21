@@ -411,6 +411,8 @@ def create_prop_docstring(prop_name, type_object, required, description,
         Component is required?
     description: str
         Dash component description
+    default: str
+        Default value for prop
     indent_num: int
         Number of indents to use for the context block
         (creates 2 spaces for every indent)
