@@ -578,7 +578,7 @@ def generate_rpkg(
     with open("DESCRIPTION", "w+") as f3:
         f3.write(description_string)
 
-    if pkg_help_header != "":
+    if rpkg_data.get("pkg_help_description"):
         pkghelp = pkghelp_stub.format(
             package_name=package_name,
             pkg_help_title=rpkg_data.get("pkg_help_title"),
