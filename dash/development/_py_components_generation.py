@@ -251,7 +251,7 @@ Keyword arguments:\n{args}"""
                 else prop['flowType'],
                 required=prop['required'],
                 description=prop['description'],
-                default=prop.get('defaultValue', {'value': ''})['value'],
+                default=prop.get('defaultValue'),
                 indent_num=0,
                 is_flow_type='flowType' in prop and 'type' not in prop)
             for p, prop in list(filter_props(props).items())))
@@ -410,8 +410,10 @@ def create_prop_docstring(prop_name, type_object, required, description,
         Component is required?
     description: str
         Dash component description
-    default: str
-        Default value for prop
+    default: dict
+        Either None if a default value is not defined, or
+        dict containing the key 'value' that defines a
+        default value for the prop
     indent_num: int
         Number of indents to use for the context block
         (creates 2 spaces for every indent)
@@ -428,6 +430,11 @@ def create_prop_docstring(prop_name, type_object, required, description,
         is_flow_type=is_flow_type,
         indent_num=indent_num + 1)
     indent_spacing = '  ' * indent_num
+
+    if default is None:
+        default = ''
+    else:
+        default = default['value']
 
     is_required = 'optional'
     if required:
@@ -473,9 +480,7 @@ def map_js_to_py_types_prop_types(type_object):
                         type_object=prop,
                         required=prop['required'],
                         description=prop.get('description', ''),
-                        default=prop.get(
-                            'defaultValue', {'value': ''}
-                        )['value'],
+                        default=prop.get('defaultValue'),
                         indent_num=1
                     ) for prop_name, prop in
                     list(type_object['value'].items())))
@@ -571,9 +576,7 @@ def map_js_to_py_types_flow_types(type_object):
                         type_object=prop['value'],
                         required=prop['value']['required'],
                         description=prop['value'].get('description', ''),
-                        default=prop.get(
-                            'defaultValue', {'value': ''}
-                        )['value'],
+                        default=prop.get('defaultValue'),
                         indent_num=indent_num,
                         is_flow_type=True)
                     for prop in type_object['signature']['properties']))),
