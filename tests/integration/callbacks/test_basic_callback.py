@@ -8,8 +8,10 @@ import dash
 from dash.dependencies import Input, Output
 
 
-def test_cbsc001_simple_callback(dash_duo):
-    app = dash.Dash(__name__)
+def test_cbsc001_simple_callback(dash_duo, app_kwargs=None):
+    if app_kwargs is None:
+        app_kwargs = {}
+    app = dash.Dash(__name__, **app_kwargs)
     app.layout = html.Div(
         [
             dcc.Input(id="input", value="initial value"),
@@ -46,11 +48,13 @@ def test_cbsc001_simple_callback(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_cbsc002_callbacks_generating_children(dash_duo):
+def test_cbsc002_callbacks_generating_children(dash_duo, app_kwargs=None):
     """ Modify the DOM tree by adding new components in the callbacks"""
 
     # some components don't exist in the initial render
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    if app_kwargs is None:
+        app_kwargs = {}
+    app = dash.Dash(__name__, suppress_callback_exceptions=True, **app_kwargs)
     app.layout = html.Div(
         [dcc.Input(id="input", value="initial value"), html.Div(id="output")]
     )
