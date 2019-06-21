@@ -508,8 +508,13 @@ def map_js_to_py_types_prop_types(type_object):
 
         # React's PropTypes.arrayOf
         arrayOf=lambda: (
-            "list" + ((" of {}s").format(
-                js_to_py_type(type_object["value"]))
+            "list" + ((" of {}").format(
+                js_to_py_type(type_object["value"]) + 's'
+                if js_to_py_type(type_object["value"]).split(' ')[0] != 'dict'
+                else js_to_py_type(type_object["value"]).replace(
+                        'dict', 'dicts', 1
+                )
+            )
                       if js_to_py_type(type_object["value"]) != ""
                       else "")
         ),
