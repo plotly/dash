@@ -1,9 +1,11 @@
 import os
 import unittest
+import pytest
+from flask import Flask
 # noinspection PyProtectedMember
 from dash._configs import (
     pathname_configs, DASH_ENV_VARS, get_combined_config, load_dash_env_vars)
-from dash import exceptions as _exc
+from dash import Dash, exceptions as _exc
 from dash._utils import get_asset_path
 
 
@@ -136,6 +138,18 @@ class TestConfigs(unittest.TestCase):
             os.environ[var] = 'false'
             vars = load_dash_env_vars()
             self.assertEqual(vars[var], 'false')
+
+
+@pytest.mark.parametrize('name, server, expected', [
+    (None, True, '__main__'),
+    ('test', True, 'test'),
+    ('test', False, 'test'),
+    (None, Flask('test'), 'test'),
+    ('test', Flask('other'), 'test'),
+])
+def test_app_name_server(name, server, expected):
+    app = Dash(name=name, server=server)
+    assert app.config.name == expected
 
 
 if __name__ == '__main__':

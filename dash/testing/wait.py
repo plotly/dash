@@ -54,6 +54,25 @@ def until_not(
     return res
 
 
+class contains_text(object):
+    def __init__(self, selector, text):
+        self.selector = selector
+        self.text = text
+
+    def __call__(self, driver):
+        try:
+            elem = driver.find_element_by_css_selector(self.selector)
+            logger.debug(
+                "contains text {%s} => expected %s", elem.text, self.text
+            )
+            return self.text in str(elem.text) or self.text in str(
+                elem.get_attribute("value")
+            )
+        except WebDriverException:
+            logger.exception("contains_text encountered an exception")
+            return False
+
+
 class text_to_equal(object):
     def __init__(self, selector, text):
         self.selector = selector
