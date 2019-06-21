@@ -2,6 +2,7 @@ from __future__ import print_function
 from collections import OrderedDict
 
 import json
+import yaml
 import sys
 import subprocess
 import shlex
@@ -103,6 +104,14 @@ def generate_components(
             os.makedirs('man')
         if not os.path.exists('R'):
             os.makedirs('R')
+        if os.path.isfile("dash-info.yaml"):
+            yamldata = open("dash-info.yaml", 'r')
+        else:
+            print(
+                "Error: dash-info.yaml missing; R package metadata not loaded",
+                file=sys.stderr
+            )
+            sys.exit(1)
         generator_methods.append(
             functools.partial(write_class_file, prefix=prefix))
 
@@ -120,6 +129,7 @@ def generate_components(
     if rprefix is not None:
         with open('package.json', 'r') as f:
             jsondata_unicode = json.load(f, object_pairs_hook=OrderedDict)
+            rpkg_data = yaml.safe_load(yamldata)
             if sys.version_info[0] >= 3:
                 pkg_data = jsondata_unicode
             else:
@@ -130,11 +140,14 @@ def generate_components(
             components,
             metadata,
             pkg_data,
+            rpkg_data,
             prefix,
             rdepends,
             rimports,
             rsuggests,
-        )
+        ) 
+    else:
+        rpkgdata = None
 
 
 def cli():

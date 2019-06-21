@@ -136,16 +136,15 @@ pkghelp_stub = """% Auto-generated: do not edit by hand
 \\docType{{package}}
 \\name{{{package_name}-package}}
 \\alias{{{package_name}}}
-\\title{{{pkg_help_header}}}
+\\title{{{pkg_help_title}}}
 \\description{{
-{pkg_help_desc}
-}}
 \\seealso{{
 Useful links:
 \\itemize{{
   \\item \\url{{https://github.com/plotly/{lib_name}}}
   \\item Report bugs at \\url{{https://github.com/plotly/{lib_name}/issues}}
 }}
+{pkg_help_description}
 }}
 \\author{{
 \\strong{{Maintainer}}: {package_author}
@@ -487,6 +486,7 @@ dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...)
 # pylint: disable=R0914, R0913, R0912, R0915
 def generate_rpkg(
         pkg_data,
+        rpkg_data,
         project_shortname,
         export_string,
         package_depends,
@@ -499,8 +499,12 @@ def generate_rpkg(
     Parameters
     ----------
     pkg_data
+    rpkg_data
     project_shortname
     export_string
+    package_depends
+    package_imports
+    package_suggests
 
     Returns
     -------
@@ -583,37 +587,6 @@ def generate_rpkg(
     with open(".Rbuildignore", "w") as f2:
         f2.write(rbuild_ignore_string)
 
-    # Write package stub files for R online help, generate if
-    # dashHtmlComponents, dashTable, or dashCoreComponents; makes it easy
-    # for R users to bring up main package help page
-    pkg_help_header = ""
-
-    if package_name in ["dashHtmlComponents"]:
-        pkg_help_header = "Vanilla HTML Components for Dash"
-        pkg_help_desc = "Dash is a web application framework that\n\
-provides pure Python and R abstraction around HTML, CSS, and\n\
-JavaScript. Instead of writing HTML or using an HTML\n\
-templating engine, you compose your layout using R\n\
-functions within the dashHtmlComponents package. The\n\
-source for this package is on GitHub:\n\
-plotly/dash-html-components."
-    if package_name in ["dashCoreComponents"]:
-        pkg_help_header = "Core Interactive UI Components for Dash"
-        pkg_help_desc = "Dash ships with supercharged components for\n\
-interactive user interfaces. A core set of components,\n\
-written and maintained by the Dash team, is available in\n\
-the dashCoreComponents package. The source for this package\n\
-is on GitHub: plotly/dash-core-components."
-    if package_name in ["dashTable"]:
-        pkg_help_header = "Core Interactive Table Component for Dash"
-        pkg_help_desc = "Dash DataTable is an interactive table component\n\
-designed for viewing, editing, and exploring large datasets. DataTable is\n\
-rendered with standard, semantic HTML <table/> markup, which makes it\n\
-accessible, responsive, and easy to style. This component was written\n\
-from scratch in React.js specifically for the Dash community. Its API\n\
-was designed to be ergonomic and its behavior is completely customizable\n\
-through its properties."
-
     description_string = description_template.format(
         package_name=package_name,
         package_description=package_description,
@@ -635,8 +608,8 @@ through its properties."
     if pkg_help_header != "":
         pkghelp = pkghelp_stub.format(
             package_name=package_name,
-            pkg_help_header=pkg_help_header,
-            pkg_help_desc=pkg_help_desc,
+            pkg_help_title=rpkg_data.get("pkg_help_title"),
+            pkg_help_description=rpkg_data.get("pkg_help_description"),
             lib_name=lib_name,
             package_author=package_author,
         )
@@ -668,6 +641,7 @@ def generate_exports(
         components,
         metadata,
         pkg_data,
+        rpkg_data,
         prefix,
         package_depends,
         package_imports,
@@ -718,6 +692,7 @@ def generate_exports(
     # locally or directly from GitHub
     generate_rpkg(
         pkg_data,
+        rpkg_data,
         project_shortname,
         export_string,
         package_depends,
