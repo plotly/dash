@@ -251,8 +251,7 @@ Keyword arguments:\n{args}"""
                 else prop['flowType'],
                 required=prop['required'],
                 description=prop['description'],
-                default=prop['defaultValue']['value']
-                if 'defaultValue' in prop else '',
+                default=prop.get('defaultValue', {'value': ''})['value'],
                 indent_num=0,
                 is_flow_type='flowType' in prop and 'type' not in prop)
             for p, prop in list(filter_props(props).items())))
@@ -475,8 +474,9 @@ def map_js_to_py_types_prop_types(type_object):
                         type_object=prop,
                         required=prop['required'],
                         description=prop.get('description', ''),
-                        default=prop['defaultValue']['value']
-                        if 'defaultValue' in prop else '',
+                        default=prop.get(
+                            'defaultValue', {'value': ''}
+                        )['value'],
                         indent_num=1
                     ) for prop_name, prop in
                     list(type_object['value'].items())))
@@ -567,8 +567,9 @@ def map_js_to_py_types_flow_types(type_object):
                         type_object=prop['value'],
                         required=prop['value']['required'],
                         description=prop['value'].get('description', ''),
-                        default=prop['defaultValue']['value']
-                        if 'defaultValue' in prop else '',
+                        default=prop.get(
+                            'defaultValue', {'value': ''}
+                        )['value'],
                         indent_num=indent_num,
                         is_flow_type=True)
                     for prop in type_object['signature']['properties']))),
