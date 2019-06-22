@@ -5,7 +5,7 @@
 - [ ] I have broken down my PR scope into the following TODO tasks
    -  [ ] task 1
    -  [ ] task 2
-- [ ] I have run the tests locally and they passed. (refer to testing section in [contributing](../CONTRIBUTING.md))
+- [ ] I have run the tests locally and they passed. (refer to testing section in [contributing](https://github.com/plotly/dash/blob/master/CONTRIBUTING.md))
 - [ ] I have added tests, or extended existing tests, to cover any new features or bugs fixed in this PR
 
 ### optionals
