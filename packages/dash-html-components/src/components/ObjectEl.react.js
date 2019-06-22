@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * ObjectEl is a wrapper for the <object> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object
+ */
 const ObjectEl = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {

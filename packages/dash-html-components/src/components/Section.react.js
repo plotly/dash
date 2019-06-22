@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * Section is a wrapper for the <section> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section
+ */
 const Section = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {

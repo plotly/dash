@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * Hr is a wrapper for the <hr> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr
+ */
 const Hr = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {

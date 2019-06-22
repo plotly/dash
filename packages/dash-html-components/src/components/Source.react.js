@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * Source is a wrapper for the <source> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source
+ */
 const Source = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {

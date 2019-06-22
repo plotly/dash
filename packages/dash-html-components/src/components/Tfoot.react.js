@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * Tfoot is a wrapper for the <tfoot> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot
+ */
 const Tfoot = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {

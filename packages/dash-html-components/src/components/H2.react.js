@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * H2 is a wrapper for the <h2> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h2
+ */
 const H2 = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {

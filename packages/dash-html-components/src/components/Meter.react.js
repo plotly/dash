@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * Meter is a wrapper for the <meter> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter
+ */
 const Meter = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {

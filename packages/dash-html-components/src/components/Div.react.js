@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * Div is a wrapper for the <div> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div
+ */
 const Div = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {

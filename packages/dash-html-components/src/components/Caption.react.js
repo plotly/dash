@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * Caption is a wrapper for the <caption> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption
+ */
 const Caption = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {

@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
 
+/**
+ * Keygen is a wrapper for the <keygen> HTML5 element.
+ * For detailed attribute info see:
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/keygen
+ */
 const Keygen = (props) => {
     const dataAttributes = {};
     if(props.loading_state && props.loading_state.is_loading) {
