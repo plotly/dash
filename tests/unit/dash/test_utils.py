@@ -61,3 +61,34 @@ def test_ddut001_attribute_dict():
         'Object is final: No new keys may be added.', 'x'
     )
     assert 'x' not in a
+
+
+def test_redis_dict():
+
+    redis_kwargs = {'host': 'localhost',
+                    'port': 6379}
+    import redis
+    r = redis.Redis(**redis_kwargs)
+    r.flushdb()
+    rd = utils.RedisDict(redis_kwargs)
+
+    test_d = {'A.figure': {'in': [None, 2, 3],
+                           'out': ['boo', 'fing']},
+              'B.id': {'c': 'woo'}}
+    for k, v in test_d.items():
+        rd[k] = v
+
+    for k, v in rd.items():
+        assert k in test_d.keys()
+        for (k2, v2), (k3, v3) in zip(test_d[k].items(),
+                                      v.items()):
+            assert k2 == k3
+            for e1, e2 in zip(v2, v3):
+                assert e1 == e2
+
+    def f(x):
+        return x + 2
+
+    test_d['F'] = f
+
+    assert f(10) == test_d['F'](10)
