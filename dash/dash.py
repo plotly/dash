@@ -974,110 +974,6 @@ class Dash(object):
                 ).replace('    ', '')
             raise exceptions.DuplicateCallbackOutput(msg)
 
-    @staticmethod
-    def _validate_callback_output(output_value, output):
-        valid = [str, dict, int, float, type(None), Component]
-
-        def _raise_invalid(bad_val, outer_val, path, index=None,
-                           toplevel=False):
-            bad_type = type(bad_val).__name__
-            outer_id = "(id={:s})".format(outer_val.id) \
-                if getattr(outer_val, 'id', False) else ''
-            outer_type = type(outer_val).__name__
-            raise exceptions.InvalidCallbackReturnValue('''
-            The callback for `{output:s}`
-            returned a {object:s} having type `{type:s}`
-            which is not JSON serializable.
-
-            {location_header:s}{location:s}
-            and has string representation
-            `{bad_val}`
-
-            In general, Dash properties can only be
-            dash components, strings, dictionaries, numbers, None,
-            or lists of those.
-            '''.format(
-                output=repr(output),
-                object='tree with one value' if not toplevel else 'value',
-                type=bad_type,
-                location_header=(
-                    'The value in question is located at'
-                    if not toplevel else
-                    '''The value in question is either the only value returned,
-                    or is in the top level of the returned list,'''
-                ),
-                location=(
-                    "\n" +
-                    ("[{:d}] {:s} {:s}".format(index, outer_type, outer_id)
-                     if index is not None
-                     else ('[*] ' + outer_type + ' ' + outer_id))
-                    + "\n" + path + "\n"
-                ) if not toplevel else '',
-                bad_val=bad_val
-            ).replace('    ', ''))
-
-        def _value_is_valid(val):
-            return (
-                # pylint: disable=unused-variable
-                any([isinstance(val, x) for x in valid]) or
-                type(val).__name__ == 'unicode'
-            )
-
-        def _validate_value(val, index=None):
-            # val is a Component
-            if isinstance(val, Component):
-                # pylint: disable=protected-access
-                for p, j in val._traverse_with_paths():
-                    # check each component value in the tree
-                    if not _value_is_valid(j):
-                        _raise_invalid(
-                            bad_val=j,
-                            outer_val=val,
-                            path=p,
-                            index=index
-                        )
-
-                    # Children that are not of type Component or
-                    # list/tuple not returned by traverse
-                    child = getattr(j, 'children', None)
-                    if not isinstance(child, (tuple,
-                                              collections.MutableSequence)):
-                        if child and not _value_is_valid(child):
-                            _raise_invalid(
-                                bad_val=child,
-                                outer_val=val,
-                                path=p + "\n" + "[*] " + type(child).__name__,
-                                index=index
-                            )
-
-                # Also check the child of val, as it will not be returned
-                child = getattr(val, 'children', None)
-                if not isinstance(child, (tuple, collections.MutableSequence)):
-                    if child and not _value_is_valid(child):
-                        _raise_invalid(
-                            bad_val=child,
-                            outer_val=val,
-                            path=type(child).__name__,
-                            index=index
-                        )
-
-            # val is not a Component, but is at the top level of tree
-            else:
-                if not _value_is_valid(val):
-                    _raise_invalid(
-                        bad_val=val,
-                        outer_val=type(val).__name__,
-                        path='',
-                        index=index,
-                        toplevel=True
-                    )
-
-        if isinstance(output_value, list):
-            for i, val in enumerate(output_value):
-                _validate_value(val, index=i)
-        else:
-            _validate_value(output_value)
-
     # pylint: disable=dangerous-default-value
     def clientside_callback(
             self, clientside_function, output, inputs=[], state=[]):
@@ -1216,7 +1112,7 @@ class Dash(object):
                         cls=plotly.utils.PlotlyJSONEncoder
                     )
                 except TypeError:
-                    self._validate_callback_output(output_value, output)
+                    validate_callback_output(output_value, output)
                     raise exceptions.InvalidCallbackReturnValue('''
                     The callback for property `{property:s}`
                     of component `{id:s}` returned a value
@@ -1691,3 +1587,107 @@ class Dash(object):
             self.logger.info('Debugger PIN: %s', debugger_pin)
 
         self.server.run(port=port, debug=debug, **flask_run_options)
+
+
+def validate_callback_output(output_value, output):
+    valid = [str, dict, int, float, type(None), Component]
+
+    def _raise_invalid(bad_val, outer_val, path, index=None,
+                       toplevel=False):
+        bad_type = type(bad_val).__name__
+        outer_id = "(id={:s})".format(outer_val.id) \
+            if getattr(outer_val, 'id', False) else ''
+        outer_type = type(outer_val).__name__
+        raise exceptions.InvalidCallbackReturnValue('''
+        The callback for `{output:s}`
+        returned a {object:s} having type `{type:s}`
+        which is not JSON serializable.
+
+        {location_header:s}{location:s}
+        and has string representation
+        `{bad_val}`
+
+        In general, Dash properties can only be
+        dash components, strings, dictionaries, numbers, None,
+        or lists of those.
+        '''.format(
+            output=repr(output),
+            object='tree with one value' if not toplevel else 'value',
+            type=bad_type,
+            location_header=(
+                'The value in question is located at'
+                if not toplevel else
+                '''The value in question is either the only value returned,
+                or is in the top level of the returned list,'''
+            ),
+            location=(
+                "\n" +
+                ("[{:d}] {:s} {:s}".format(index, outer_type, outer_id)
+                 if index is not None
+                 else ('[*] ' + outer_type + ' ' + outer_id))
+                + "\n" + path + "\n"
+            ) if not toplevel else '',
+            bad_val=bad_val
+        ).replace('    ', ''))
+
+    def _value_is_valid(val):
+        return (
+            # pylint: disable=unused-variable
+            any([isinstance(val, x) for x in valid]) or
+            type(val).__name__ == 'unicode'
+        )
+
+    def _validate_value(val, index=None):
+        # val is a Component
+        if isinstance(val, Component):
+            # pylint: disable=protected-access
+            for p, j in val._traverse_with_paths():
+                # check each component value in the tree
+                if not _value_is_valid(j):
+                    _raise_invalid(
+                        bad_val=j,
+                        outer_val=val,
+                        path=p,
+                        index=index
+                    )
+
+                # Children that are not of type Component or
+                # list/tuple not returned by traverse
+                child = getattr(j, 'children', None)
+                if not isinstance(child, (tuple,
+                                          collections.MutableSequence)):
+                    if child and not _value_is_valid(child):
+                        _raise_invalid(
+                            bad_val=child,
+                            outer_val=val,
+                            path=p + "\n" + "[*] " + type(child).__name__,
+                            index=index
+                        )
+
+            # Also check the child of val, as it will not be returned
+            child = getattr(val, 'children', None)
+            if not isinstance(child, (tuple, collections.MutableSequence)):
+                if child and not _value_is_valid(child):
+                    _raise_invalid(
+                        bad_val=child,
+                        outer_val=val,
+                        path=type(child).__name__,
+                        index=index
+                    )
+
+        # val is not a Component, but is at the top level of tree
+        else:
+            if not _value_is_valid(val):
+                _raise_invalid(
+                    bad_val=val,
+                    outer_val=type(val).__name__,
+                    path='',
+                    index=index,
+                    toplevel=True
+                )
+
+    if isinstance(output_value, list):
+        for i, val in enumerate(output_value):
+            _validate_value(val, index=i)
+    else:
+        _validate_value(output_value)
