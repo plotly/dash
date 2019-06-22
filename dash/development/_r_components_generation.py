@@ -44,7 +44,7 @@ frame_element_template = """`{dep_name}` = structure(list(name = "{dep_name}",
 version = "{project_ver}", src = list(href = NULL,
 file = "deps"), meta = NULL,
 script = {script_name},
-stylesheet = "{css_name}", head = NULL, attachment = NULL, package = "{rpkgname}",
+stylesheet = {css_name}, head = NULL, attachment = NULL, package = "{rpkgname}",
 all_files = FALSE), class = "html_dependency")"""   # noqa:E501
 
 frame_body_template = """`{project_shortname}` = structure(list(name = "{project_shortname}",
