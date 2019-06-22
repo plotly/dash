@@ -34,6 +34,7 @@ from ._utils import patch_collections_abc as _patch_collections_abc
 from . import _watch
 from ._utils import get_asset_path as _get_asset_path
 from ._utils import create_callback_id as _create_callback_id
+from ._utils import RedisDict
 from ._configs import (get_combined_config, pathname_configs)
 from .version import __version__
 
@@ -224,6 +225,7 @@ class Dash(object):
             suppress_callback_exceptions=None,
             show_undo_redo=False,
             plugins=None,
+            callback_redis=None,
             **obsolete):
 
         for key in obsolete:
@@ -293,7 +295,10 @@ class Dash(object):
         )
 
         # list of dependencies
-        self.callback_map = {}
+        if callback_redis is None:
+            self.callback_map = {}
+        else:
+            self.callback_map = RedisDict(callback_redis)
 
         # index_string has special setter so can't go in config
         self._index_string = ''
