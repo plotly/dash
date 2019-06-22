@@ -1,5 +1,4 @@
 from multiprocessing import Value
-import redis
 import time
 
 import dash_core_components as dcc
@@ -140,6 +139,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
 
 
 def test_redis_cbsc001_simple_callback(dash_duo):
+    import redis
     redis_kwargs = {'host': 'localhost',
                     'port': 6379}
     r = redis.Redis(**redis_kwargs)
@@ -188,11 +188,13 @@ def test_redis_cbsc002_callbacks_generating_children(dash_duo):
     """ Modify the DOM tree by adding new components in the callbacks"""
 
     # some components don't exist in the initial render
+    import redis
     redis_kwargs = {'host': 'localhost',
                     'port': 6379}
     r = redis.Redis(**redis_kwargs)
     r.flushdb()
-    app = dash.Dash(__name__, suppress_callback_exceptions=True, callback_redis=redis_kwargs)
+    app = dash.Dash(__name__, suppress_callback_exceptions=True,
+                    callback_redis=redis_kwargs)
     app.layout = html.Div(
         [dcc.Input(id="input", value="initial value"), html.Div(id="output"),
          html.Div(0, id="cb-count")]
@@ -222,7 +224,8 @@ def test_redis_cbsc002_callbacks_generating_children(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#sub-output-1", "sub input initial value")
 
-    assert int(dash_duo.find_element("#cb-count").text) == 1, "called once at initial stage"
+    assert int(dash_duo.find_element("#cb-count").text) == 1, \
+        "called once at initial stage"
 
     pad_input, pad_div = dash_duo.dash_innerhtml_dom.select_one(
         "#output > div"
