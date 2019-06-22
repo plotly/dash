@@ -92,3 +92,6 @@ def test_redis_dict():
     test_d['F'] = f
 
     assert f(10) == test_d['F'](10)
+
+    for k in rd:
+        assert k in test_d.keys()
