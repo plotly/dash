@@ -182,6 +182,7 @@ def test_redis_cbsc001_simple_callback(dash_duo):
     assert len(rqs) == 1
 
     assert dash_duo.get_logs() == []
+    r.flushdb()
 
 
 def test_redis_cbsc002_callbacks_generating_children(dash_duo):
@@ -289,3 +290,4 @@ def test_redis_cbsc002_callbacks_generating_children(dash_duo):
 
     dash_duo.percy_snapshot(name="callback-generating-function-2")
     assert dash_duo.get_logs() == [], "console is clean"
+    r.flushdb()
