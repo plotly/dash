@@ -956,7 +956,7 @@ class Dash(object):
         else:
             def duplicate_check():
                 return callback_id in callbacks
-        if duplicate_check():
+        if duplicate_check() and isinstance(self.callback_map, dict):
             if is_multi:
                 msg = '''
                 Multi output {} contains an `Output` object
