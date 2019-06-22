@@ -16,3 +16,5 @@ percy
 requests[security]
 beautifulsoup4
 waitress
+redis
+dill
