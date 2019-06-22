@@ -116,3 +116,30 @@ def create_callback_id(output):
     return '{}.{}'.format(
         output.component_id, output.component_property
     )
+
+
+class RedisDict:
+
+    def __init__(self, redis_kwargs):
+        import redis
+        import dill
+        self.serializer = dill
+        self.r = redis.Redis(**redis_kwargs)
+
+    def __iter__(self):
+
+        for k in self.r.keys():
+            yield k.decode('utf-8')
+
+    def __getitem__(self, k):
+
+        return self.serializer.loads(self.r.get(k))
+
+    def __setitem__(self, k, v):
+
+        self.r.set(k, self.serializer.dumps(v))
+
+    def items(self):
+
+        for k in self.r.keys():
+            yield k.decode('utf-8'), self[k]
