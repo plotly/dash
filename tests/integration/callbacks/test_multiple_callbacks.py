@@ -6,10 +6,8 @@ import dash
 from dash.dependencies import Input, Output
 
 
-def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo, app_kwargs=None):
-    if app_kwargs is None:
-        app_kwargs = {}
-    app = dash.Dash(__name__, **app_kwargs)
+def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
+    app = dash.Dash(__name__)
     app.layout = html.Div(
         [html.Button(id="input", n_clicks=0), html.Div(id="output")]
     )
