@@ -1,3 +1,4 @@
+import difflib
 import json
 import os
 from collections import OrderedDict
@@ -6,7 +7,8 @@ import pytest
 
 from dash.development._py_components_generation import generate_class
 from dash.development.component_generator import reserved_words
-from . import assert_docstring, _dir
+from . import _dir
+from . import expected_table_component_doc
 
 
 @pytest.fixture
@@ -102,7 +104,11 @@ def test_repr_with_wildcards(component_class):
 
 
 def test_docstring(component_class):
-    assert_docstring(component_class.__doc__)
+    assert not list(
+        difflib.unified_diff(
+            expected_table_component_doc, component_class.__doc__.splitlines()
+        )
+    )
 
 
 def test_no_events(component_class):

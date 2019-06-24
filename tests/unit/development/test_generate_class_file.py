@@ -1,5 +1,6 @@
 import os
 import shutil
+from difflib import unified_diff
 
 import pytest
 
@@ -8,7 +9,7 @@ from dash.development._py_components_generation import (
     generate_class_string,
     generate_class_file,
 )
-from . import assert_no_trailing_spaces, match_lines, _dir
+from . import _dir, has_trailing_space
 
 # Import string not included in generated class string
 import_string = (
@@ -61,10 +62,22 @@ def written_class_string(make_component_dir):
 
 
 def test_class_string(expected_class_string, component_class_string):
-    match_lines(expected_class_string, component_class_string)
-    assert_no_trailing_spaces(component_class_string)
+    assert not len(
+        list(
+            unified_diff(
+                expected_class_string.splitlines(), component_class_string.splitlines()
+            )
+        )
+    )
+    assert not has_trailing_space(component_class_string)
 
 
 def test_class_file(expected_class_string, written_class_string):
-    match_lines(expected_class_string, written_class_string)
-    assert_no_trailing_spaces(written_class_string)
+    assert not len(
+        list(
+            unified_diff(
+                expected_class_string.splitlines(), written_class_string.splitlines()
+            )
+        )
+    )
+    assert not has_trailing_space(written_class_string)

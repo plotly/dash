@@ -1,11 +1,12 @@
 from collections import OrderedDict
+from difflib import unified_diff
 
 from dash.development._py_components_generation import (
     create_docstring,
     prohibit_events,
     js_to_py_type,
 )
-from . import assert_docstring
+from . import expected_table_component_doc
 
 expected_arg_strings = OrderedDict(
     [
@@ -74,7 +75,7 @@ def test_docstring(load_test_metadata_json):
         load_test_metadata_json["description"],
     )
     prohibit_events(load_test_metadata_json["props"]),
-    assert_docstring(docstring)
+    assert not list(unified_diff(expected_table_component_doc, docstring.splitlines()))
 
 
 def test_docgen_to_python_args(load_test_metadata_json):

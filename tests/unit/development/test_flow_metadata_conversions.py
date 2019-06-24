@@ -1,6 +1,7 @@
 import json
 import os
 from collections import OrderedDict
+from difflib import unified_diff
 
 import pytest
 
@@ -9,7 +10,6 @@ from dash.development._py_components_generation import (
     prohibit_events,
     js_to_py_type,
 )
-from . import assert_flow_docstring
 
 _dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -65,6 +65,54 @@ expected_arg_strings = OrderedDict(
     ]
 )
 
+expected_doc = [
+    "A Flow_component component.",
+    "This is a test description of the component.",
+    "It's multiple lines long.",
+    "",
+    "Keyword arguments:",
+    "- requiredString (string; required): A required string",
+    "- optionalString (string; default ''): A string that isn't required.",
+    "- optionalBoolean (boolean; default false): A boolean test",
+    "- optionalNode (a list of or a singular dash component, string or number; optional): "
+    "A node test",
+    "- optionalArray (list; optional): An array test with a particularly ",
+    "long description that covers several lines. It includes the newline character ",
+    "and should span 3 lines in total.",
+    "- requiredUnion (string | number; required)",
+    "- optionalSignature(shape) (dict; optional): This is a test of an object's shape. "
+    "optionalSignature(shape) has the following type: dict containing keys 'checked', "
+    "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "
+    "'style', 'value'.",
+    "  Those keys have the following types:",
+    "  - checked (boolean; optional)",
+    "  - children (a list of or a singular dash component, string or number; optional)",
+    "  - customData (bool | number | str | dict | list; required): A test description",
+    "  - disabled (boolean; optional)",
+    "  - label (string; optional)",
+    "  - primaryText (string; required): Another test description",
+    "  - secondaryText (string; optional)",
+    "  - style (dict; optional)",
+    "  - value (bool | number | str | dict | list; required)",
+    "- requiredNested (dict; required): requiredNested has the following type: dict containing "
+    "keys 'customData', 'value'.",
+    "  Those keys have the following types:",
+    "  - customData (dict; required): customData has the following type: dict containing "
+    "keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', "
+    "'secondaryText', 'style', 'value'.",
+    "    Those keys have the following types:",
+    "    - checked (boolean; optional)",
+    "    - children (a list of or a singular dash component, string or number; optional)",
+    "    - customData (bool | number | str | dict | list; required)",
+    "    - disabled (boolean; optional)",
+    "    - label (string; optional)",
+    "    - primaryText (string; required)",
+    "    - secondaryText (string; optional)",
+    "    - style (dict; optional)",
+    "    - value (bool | number | str | dict | list; required)",
+    "  - value (bool | number | str | dict | list; required)",
+]
+
 
 @pytest.fixture
 def load_test_flow_metadata_json():
@@ -82,7 +130,7 @@ def test_docstring(load_test_flow_metadata_json):
         load_test_flow_metadata_json["description"],
     )
     prohibit_events(load_test_flow_metadata_json["props"]),
-    assert_flow_docstring(docstring)
+    assert not list(unified_diff(expected_doc, docstring.splitlines()))
 
 
 def test_docgen_to_python_args(load_test_flow_metadata_json):
