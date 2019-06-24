@@ -32,10 +32,11 @@ expected_arg_strings = OrderedDict(
                     "Those keys have the following types:",
                     "  - color (string; optional)",
                     "  - fontSize (number; optional)",
-                    "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",
+                    "  - figure (dict; optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",
+                    # noqa: E501
                     "Those keys have the following types:",
                     "  - data (list of dicts; optional): data is a collection of traces",
-                    "  - layout (dict; optional): layout describes the rest of the figure",
+                    "  - layout (dict; optional): layout describes the rest of the figure",  # noqa: E501
                 ]
             ),
         ],
@@ -47,10 +48,11 @@ expected_arg_strings = OrderedDict(
                     "Those keys have the following types:",
                     "  - color (string; optional)",
                     "  - fontSize (number; optional)",
-                    "  - figure (optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",
+                    "  - figure (dict; optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.",
+                    # noqa: E501
                     "Those keys have the following types:",
                     "  - data (list of dicts; optional): data is a collection of traces",
-                    "  - layout (dict; optional): layout describes the rest of the figure",
+                    "  - layout (dict; optional): layout describes the rest of the figure",  # noqa: E501
                 ]
             ),
         ],

@@ -19,4 +19,8 @@ class ServerCloseError(DashTestingError):
 
 
 class TestingTimeoutError(DashTestingError):
-    """"all timeout error about dash testing"""
+    """all timeout error about dash testing"""
+
+
+class BrowserError(DashTestingError):
+    """all browser relevant errors"""

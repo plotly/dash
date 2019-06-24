@@ -24,12 +24,12 @@ def assert_docstring(docstring):
                     "It's multiple lines long.",
                     "",
                     "Keyword arguments:",
-                    "- children (a list of or a singular dash component, string or number; optional)",
+                    "- children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
                     "- optionalArray (list; optional): Description of optionalArray",
                     "- optionalBool (boolean; optional)",
-                    "- optionalNumber (number; optional)",
+                    "- optionalNumber (number; default 42)",
                     "- optionalObject (dict; optional)",
-                    "- optionalString (string; optional)",
+                    "- optionalString (string; default 'hello world')",
                     "- optionalNode (a list of or a singular dash component, "
                     "string or number; optional)",
                     "- optionalElement (dash component; optional)",
@@ -38,28 +38,28 @@ def assert_docstring(docstring):
                     "- optionalArrayOf (list of numbers; optional)",
                     "- optionalObjectOf (dict with strings as keys and values "
                     "of type number; optional)",
-                    "- optionalObjectWithExactAndNestedDescription (optional): . "
+                    "- optionalObjectWithExactAndNestedDescription (dict; optional): "
                     "optionalObjectWithExactAndNestedDescription has the "
                     "following type: dict containing keys "
                     "'color', 'fontSize', 'figure'.",
                     "Those keys have the following types:",
                     "  - color (string; optional)",
                     "  - fontSize (number; optional)",
-                    "  - figure (optional): Figure is a plotly graph object. "
+                    "  - figure (dict; optional): Figure is a plotly graph object. "
                     "figure has the following type: dict containing "
                     "keys 'data', 'layout'.",
                     "Those keys have the following types:",
                     "  - data (list of dicts; optional): data is a collection of traces",
                     "  - layout (dict; optional): layout describes "
                     "the rest of the figure",
-                    "- optionalObjectWithShapeAndNestedDescription (optional): . "
+                    "- optionalObjectWithShapeAndNestedDescription (dict; optional): "
                     "optionalObjectWithShapeAndNestedDescription has the "
                     "following type: dict containing keys "
                     "'color', 'fontSize', 'figure'.",
                     "Those keys have the following types:",
                     "  - color (string; optional)",
                     "  - fontSize (number; optional)",
-                    "  - figure (optional): Figure is a plotly graph object. "
+                    "  - figure (dict; optional): Figure is a plotly graph object. "
                     "figure has the following type: dict containing "
                     "keys 'data', 'layout'.",
                     "Those keys have the following types:",
@@ -92,15 +92,15 @@ def assert_flow_docstring(docstring):
                     "",
                     "Keyword arguments:",
                     "- requiredString (string; required): A required string",
-                    "- optionalString (string; optional): A string that isn't required.",
-                    "- optionalBoolean (boolean; optional): A boolean test",
+                    "- optionalString (string; default ''): A string that isn't required.",
+                    "- optionalBoolean (boolean; default false): A boolean test",
                     "- optionalNode (a list of or a singular dash component, string or number; optional): "
                     "A node test",
                     "- optionalArray (list; optional): An array test with a particularly ",
                     "long description that covers several lines. It includes the newline character ",
                     "and should span 3 lines in total.",
                     "- requiredUnion (string | number; required)",
-                    "- optionalSignature(shape) (optional): This is a test of an object's shape. "
+                    "- optionalSignature(shape) (dict; optional): This is a test of an object's shape. "
                     "optionalSignature(shape) has the following type: dict containing keys 'checked', "
                     "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "
                     "'style', 'value'.",
@@ -114,10 +114,10 @@ def assert_flow_docstring(docstring):
                     "  - secondaryText (string; optional)",
                     "  - style (dict; optional)",
                     "  - value (bool | number | str | dict | list; required)",
-                    "- requiredNested (required): . requiredNested has the following type: dict containing "
+                    "- requiredNested (dict; required): requiredNested has the following type: dict containing "
                     "keys 'customData', 'value'.",
                     "  Those keys have the following types:",
-                    "  - customData (required): . customData has the following type: dict containing "
+                    "  - customData (dict; required): customData has the following type: dict containing "
                     "keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', "
                     "'secondaryText', 'style', 'value'.",
                     "    Those keys have the following types:",

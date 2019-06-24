@@ -15,18 +15,12 @@ _dir = os.path.dirname(os.path.abspath(__file__))
 
 expected_arg_strings = OrderedDict(
     [
-        [
-            "children",
-            "a list of or a singular dash component, string or number",
-        ],  # noqa: E501
+        ["children", "a list of or a singular dash component, string or number"],
         ["requiredString", "string"],
         ["optionalString", "string"],
         ["optionalBoolean", "boolean"],
         ["optionalFunc", ""],
-        [
-            "optionalNode",
-            "a list of or a singular dash component, string or number",
-        ],  # noqa: E501
+        ["optionalNode", "a list of or a singular dash component, string or number"],
         ["optionalArray", "list"],
         ["requiredUnion", "string | number"],
         [
@@ -34,11 +28,10 @@ expected_arg_strings = OrderedDict(
             "\n".join(
                 [
                     "dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
-                    # noqa: E501
                     "Those keys have the following types:",
                     "- checked (boolean; optional)",
-                    "- children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
-                    "- customData (bool | number | str | dict | list; required): A test description",  # noqa: E501
+                    "- children (a list of or a singular dash component, string or number; optional)",
+                    "- customData (bool | number | str | dict | list; required): A test description",
                     "- disabled (boolean; optional)",
                     "- label (string; optional)",
                     "- primaryText (string; required): Another test description",
@@ -54,11 +47,10 @@ expected_arg_strings = OrderedDict(
                 [
                     "dict containing keys 'customData', 'value'.",
                     "Those keys have the following types:",
-                    "- customData (required): . customData has the following type: dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
-                    # noqa: E501
+                    "- customData (dict; required): customData has the following type: dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
                     "  Those keys have the following types:",
                     "  - checked (boolean; optional)",
-                    "  - children (a list of or a singular dash component, string or number; optional)",  # noqa: E501
+                    "  - children (a list of or a singular dash component, string or number; optional)",
                     "  - customData (bool | number | str | dict | list; required)",
                     "  - disabled (boolean; optional)",
                     "  - label (string; optional)",
