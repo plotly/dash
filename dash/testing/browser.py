@@ -301,6 +301,14 @@ class Browser(DashPageMixin):
             .send_keys(Keys.DELETE)
         ).perform()
 
+    def send_key_input(self, elem, key_input):
+        """send key input to an input"""
+        (
+            ActionChains(self.driver)
+            .click(elem)
+            .send_keys(key_input)
+        ).perform()
+
     def get_logs(self):
         """return a list of `SEVERE` level logs after last reset time stamps
         (default to 0, resettable by `reset_log_timestamp`. Chrome only
