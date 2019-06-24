@@ -1,14 +1,13 @@
-import difflib
 import json
 import os
 from collections import OrderedDict
+from difflib import unified_diff
 
 import pytest
 
 from dash.development._py_components_generation import generate_class
 from dash.development.component_generator import reserved_words
-from . import _dir
-from . import expected_table_component_doc
+from . import _dir, expected_table_component_doc
 
 
 @pytest.fixture
@@ -105,9 +104,7 @@ def test_repr_with_wildcards(component_class):
 
 def test_docstring(component_class):
     assert not list(
-        difflib.unified_diff(
-            expected_table_component_doc, component_class.__doc__.splitlines()
-        )
+        unified_diff(expected_table_component_doc, component_class.__doc__.splitlines())
     )
 
 
