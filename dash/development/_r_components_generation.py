@@ -265,7 +265,7 @@ def generate_js_metadata(pkg_data, project_shortname):
             if "dash_" in rpp:
                 dep_name = rpp.split(".")[0]
             else:
-                dep_name = "{}_{}".format(project_shortname, str(dep))
+                dep_name = "{}".format(project_shortname)
                 project_ver = str(dep)
             if "css" in rpp:
                 css_name = "'{}'".format(rpp)
@@ -578,16 +578,17 @@ def generate_rpkg(
     with open("DESCRIPTION", "w+") as f3:
         f3.write(description_string)
 
-    if rpkg_data.get("pkg_help_description"):
-        pkghelp = pkghelp_stub.format(
-            package_name=package_name,
-            pkg_help_title=rpkg_data.get("pkg_help_title"),
-            pkg_help_description=rpkg_data.get("pkg_help_description"),
-            lib_name=lib_name,
-            maintainer=maintainer,
-        )
-        with open(pkghelp_stub_path, "w") as f4:
-            f4.write(pkghelp)
+    if rpkg_data is not None:
+        if rpkg_data.get("pkg_help_description"):
+            pkghelp = pkghelp_stub.format(
+                package_name=package_name,
+                pkg_help_title=rpkg_data.get("pkg_help_title"),
+                pkg_help_description=rpkg_data.get("pkg_help_description"),
+                lib_name=lib_name,
+                maintainer=maintainer,
+            )
+            with open(pkghelp_stub_path, "w") as f4:
+                f4.write(pkghelp)
 
 
 # This converts a string from snake case to camel case

@@ -56,6 +56,8 @@ def generate_components(
 
     is_windows = sys.platform == "win32"
 
+    yamldata = None
+
     extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
 
     reserved_patterns = '|'.join('^{}$'.format(p) for p in reserved_words)
@@ -105,13 +107,12 @@ def generate_components(
         if not os.path.exists('R'):
             os.makedirs('R')
         if os.path.isfile("dash-info.yaml"):
-            yamldata = open("dash-info.yaml", 'r')
+            yamldata = open("dash-info.yaml")
         else:
             print(
-                "Error: dash-info.yaml missing; R package metadata not loaded",
+                "Warning: dash-info.yaml missing; package metadata not loaded",
                 file=sys.stderr
             )
-            sys.exit(1)
         generator_methods.append(
             functools.partial(write_class_file, prefix=prefix))
 
@@ -129,7 +130,10 @@ def generate_components(
     if rprefix is not None:
         with open('package.json', 'r') as f:
             jsondata_unicode = json.load(f, object_pairs_hook=OrderedDict)
-            rpkg_data = yaml.safe_load(yamldata)
+            if yamldata is not None:
+                rpkg_data = yaml.safe_load(yamldata)
+            else:
+                rpkg_data = None
             if sys.version_info[0] >= 3:
                 pkg_data = jsondata_unicode
             else:
@@ -144,7 +148,7 @@ def generate_components(
             rdepends,
             rimports,
             rsuggests,
-        ) 
+        )
     else:
         rpkgdata = None
 
