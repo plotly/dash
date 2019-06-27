@@ -17,6 +17,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
         Removed. Stay tuned by following https://github.com/plotly/dash-table/issues/314.
     - `column.options`
         Removed. Redundant with `dropdown`.
+    - `content_style`
+        Removed. Deemed unnecessary
     - `pagination_settings`
         Replaced by two props `page_current` and `page_size`.
 
