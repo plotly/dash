@@ -73,7 +73,7 @@ expected_doc = [
     "Keyword arguments:",
     "- requiredString (string; required): A required string",
     "- optionalString (string; default ''): A string that isn't required.",
-    "- optionalBoolean (boolean; default false): A boolean test",
+    "- optionalBoolean (boolean; default False): A boolean test",
     "- optionalNode (a list of or a singular dash component, string or number; optional): "
     "A node test",
     "- optionalArray (list; optional): An array test with a particularly ",
