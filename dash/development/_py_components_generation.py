@@ -436,6 +436,9 @@ def create_prop_docstring(prop_name, type_object, required, description,
     else:
         default = default['value']
 
+    if default in ['true', 'false']:
+        default = default.title()
+
     is_required = 'optional'
     if required:
         is_required = 'required'
