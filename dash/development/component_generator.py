@@ -2,7 +2,6 @@ from __future__ import print_function
 from collections import OrderedDict
 
 import json
-import yaml
 import sys
 import subprocess
 import shlex
@@ -12,6 +11,7 @@ import shutil
 import functools
 
 import pkg_resources
+import yaml
 
 from ._r_components_generation import write_class_file
 from ._r_components_generation import generate_exports
@@ -51,9 +51,6 @@ def generate_components(
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
 
-    if rprefix is not None:
-        prefix = rprefix
-
     is_windows = sys.platform == "win32"
 
     yamldata = None
@@ -92,12 +89,7 @@ def generate_components(
         )
         sys.exit(1)
 
-    jsondata_unicode = json.loads(out.decode(), object_pairs_hook=OrderedDict)
-
-    if sys.version_info[0] >= 3:
-        metadata = jsondata_unicode
-    else:
-        metadata = byteify(jsondata_unicode)
+    metadata = safe_json_loads(out.decode())
 
     generator_methods = [generate_class_file]
 
@@ -106,15 +98,8 @@ def generate_components(
             os.makedirs('man')
         if not os.path.exists('R'):
             os.makedirs('R')
-        if os.path.isfile("dash-info.yaml"):
-            yamldata = open("dash-info.yaml")
-        else:
-            print(
-                "Warning: dash-info.yaml missing; package metadata not loaded",
-                file=sys.stderr
-            )
         generator_methods.append(
-            functools.partial(write_class_file, prefix=prefix))
+            functools.partial(write_class_file, prefix=rprefix))
 
     components = generate_classes_files(
         project_shortname,
@@ -128,27 +113,37 @@ def generate_components(
     generate_imports(project_shortname, components)
 
     if rprefix is not None:
-        with open('package.json', 'r') as f:
-            jsondata_unicode = json.load(f, object_pairs_hook=OrderedDict)
-            if yamldata is not None:
+        if os.path.isfile("dash-info.yaml"):
+            with open("dash-info.yaml") as yamldata:
                 rpkg_data = yaml.safe_load(yamldata)
-            else:
-                rpkg_data = None
-            if sys.version_info[0] >= 3:
-                pkg_data = jsondata_unicode
-            else:
-                pkg_data = byteify(jsondata_unicode)
+        else:
+            rpkg_data = None
+            print(
+                "Warning: dash-info.yaml missing; package metadata not loaded",
+                file=sys.stderr
+            )
+
+        with open('package.json', 'r') as f:
+            pkg_data = safe_json_loads(f.read())
+
         generate_exports(
             project_shortname,
             components,
             metadata,
             pkg_data,
             rpkg_data,
-            prefix,
+            rprefix,
             rdepends,
             rimports,
             rsuggests,
         )
+
+
+def safe_json_loads(s):
+    jsondata_unicode = json.loads(s, object_pairs_hook=OrderedDict)
+    if sys.version_info[0] >= 3:
+        return jsondata_unicode
+    return byteify(jsondata_unicode)
 
 
 def cli():
