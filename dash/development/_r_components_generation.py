@@ -146,7 +146,7 @@ pkghelp_stub = """% Auto-generated: do not edit by hand
 }}
 """
 
-component_helpers = """
+wildcard_helper = """
 dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...)
 {
     args <- list(...)
@@ -183,7 +183,7 @@ def generate_class_string(name, props, project_shortname, prefix):
     default_argtext = ""
     accepted_wildcards = ""
 
-    if any("-*" in key for key in prop_keys):
+    if any(key.endswith("-*") for key in prop_keys):
         accepted_wildcards = get_wildcards_r(prop_keys)
         wildcards = ", ..."
         wildcard_declaration = """
@@ -419,7 +419,7 @@ def write_class_file(name,
     print("Generated {}".format(file_name))
 
 
-def write_js_metadata(pkg_data, project_shortname):
+def write_js_metadata(pkg_data, project_shortname, has_wildcards):
     """
     Write an internal (not exported) R function to return all JS
     dependencies as required by dash.
@@ -445,7 +445,8 @@ def write_js_metadata(pkg_data, project_shortname):
     file_path = os.path.join("R", file_name)
     with open(file_path, "w") as f:
         f.write(function_string)
-        f.write(component_helpers)
+        if has_wildcards:
+            f.write(wildcard_helper)
 
     # now copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
@@ -471,7 +472,8 @@ def generate_rpkg(
         export_string,
         package_depends,
         package_imports,
-        package_suggests
+        package_suggests,
+        has_wildcards,
 ):
     """
     Generate documents for R package creation
@@ -557,7 +559,7 @@ def generate_rpkg(
     # generate the internal (not exported to the user) functions which
     # supply the JavaScript dependencies to the dash package.
     # this avoids having to generate an RData file from within Python.
-    write_js_metadata(pkg_data=pkg_data, project_shortname=project_shortname)
+    write_js_metadata(pkg_data, project_shortname, has_wildcards)
 
     with open("NAMESPACE", "w+") as f:
         f.write(import_string)
@@ -668,6 +670,13 @@ def generate_exports(
     export_string += "\n".join("export({})".format(function)
                                for function in fnlist)
 
+    # Look for wildcards in the metadata
+    has_wildcards = False
+    for component_data in metadata.values():
+        if any(key.endswith('-*') for key in component_data['props']):
+            has_wildcards = True
+            break
+
     # now, bundle up the package information and create all the requisite
     # elements of an R package, so that the end result is installable either
     # locally or directly from GitHub
@@ -679,6 +688,7 @@ def generate_exports(
         package_depends,
         package_imports,
         package_suggests,
+        has_wildcards,
     )
 
 
