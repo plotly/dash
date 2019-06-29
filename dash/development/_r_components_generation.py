@@ -228,10 +228,10 @@ def generate_js_metadata(pkg_data, project_shortname):
     -------
     function_string = complete R function code to provide component features
     """
-    importlib.import_module(project_shortname)
-
-    # import component library module into sys
-    mod = sys.modules[project_shortname]
+    # make sure the module we're building is available to Python,
+    # even if it hasn't been installed yet
+    sys.path.insert(0, os.getcwd())
+    mod = importlib.import_module(project_shortname)
 
     alldist = getattr(mod, "_js_dist", []) + getattr(mod, "_css_dist", [])
 
