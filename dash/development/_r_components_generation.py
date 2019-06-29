@@ -8,6 +8,7 @@ import glob
 import importlib
 import textwrap
 import re
+import warnings
 
 from ._all_keywords import r_keywords
 from ._py_components_generation import reorder_props
@@ -199,8 +200,14 @@ def generate_class_string(name, props, project_shortname, prefix):
 
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
-        if item.endswith("-*") or item in r_keywords or item == "setProps":
+        if item.endswith("-*") or item == "setProps":
             prop_keys.remove(item)
+        elif item in r_keywords:
+            prop_keys.remove(item)
+            warnings.warn((
+                'WARNING: prop "{}" in component "{}" is an R keyword'
+                ' - REMOVED FROM THE R COMPONENT'
+            ).format(item, name))
 
     default_argtext += ", ".join("{}=NULL".format(p) for p in prop_keys)
 
