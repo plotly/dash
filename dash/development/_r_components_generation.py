@@ -163,7 +163,17 @@ dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...)
         return(args)
     }
 }
-"""    # noqa:E501
+"""  # noqa:E501
+
+wildcard_template = """
+    wildcard_names = names(dash_assert_valid_wildcards(attrib = list({}), ...))
+"""
+
+wildcard_help_template = """
+
+
+\\item{{...}}{{wildcards allowed have the form: `{}`}}
+"""
 
 
 # pylint: disable=R0914
@@ -186,9 +196,9 @@ def generate_class_string(name, props, project_shortname, prefix):
     if any(key.endswith("-*") for key in prop_keys):
         accepted_wildcards = get_wildcards_r(prop_keys)
         wildcards = ", ..."
-        wildcard_declaration = """
-    wildcard_names = names(dash_assert_valid_wildcards(attrib = list({}), ...))
-""".format(accepted_wildcards.replace("-*", ""))       # noqa:E501
+        wildcard_declaration = wildcard_template.format(
+            accepted_wildcards.replace("-*", "")
+        )
         wildcard_names = ", wildcard_names"
 
     # Produce a string with all property names other than WCs
@@ -337,11 +347,6 @@ def write_help_file(name, props, description, prefix):
 
     prop_keys = list(props.keys())
 
-    has_wildcards = any(key.endswith("-*") for key in prop_keys)
-
-    if has_wildcards:
-        wildcards = get_wildcards_r(prop_keys)
-
     # Filter props to remove those we don't want to expose
     for item in prop_keys[:]:
         if item.endswith("-*") or item in r_keywords or item == "setProps":
@@ -350,19 +355,17 @@ def write_help_file(name, props, description, prefix):
     default_argtext += ", ".join("{}=NULL".format(p) for p in prop_keys)
 
     item_text += "\n\n".join(
-        "\\item{{{}}}{{{}{}}}".format(p,
-                                      print_r_type(
-                                          props[p]["type"]
-                                      ),
-                                      props[p]["description"])
+        "\\item{{{}}}{{{}{}}}".format(
+            p,
+            print_r_type(props[p]["type"]),
+            props[p]["description"]
+        )
         for p in prop_keys
     )
 
-    if has_wildcards:
+    if any(key.endswith("-*") for key in prop_keys):
         default_argtext += ', ...'
-        item_text += """
-\n\n\\item{{...}}{{wildcards allowed have the form: `{}`}}
-""".format(wildcards)
+        item_text += wildcard_help_template.format(get_wildcards_r(prop_keys))
 
     # in R, the online help viewer does not properly wrap lines for
     # the usage string -- we will hard wrap at 80 characters using
@@ -381,11 +384,7 @@ def write_help_file(name, props, description, prefix):
         ))
 
 
-def write_class_file(name,
-                     props,
-                     description,
-                     project_shortname,
-                     prefix=None):
+def write_class_file(name, props, description, project_shortname, prefix=None):
     props = reorder_props(props=props)
 
     # generate the R help pages for each of the Dash components that we
@@ -393,20 +392,12 @@ def write_class_file(name,
     # we may eventually be able to generate similar documentation using
     # doxygen and an R plugin, but for now we'll just do it on our own
     # from within Python
-    write_help_file(
-        name,
-        props,
-        description,
-        prefix
-    )
+    write_help_file(name, props, description, prefix)
 
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
     class_string = generate_class_string(
-        name,
-        props,
-        project_shortname,
-        prefix
+        name, props, project_shortname, prefix
     )
 
     file_name = format_fn_name(prefix, name) + ".R"
@@ -511,7 +502,7 @@ def generate_rpkg(
     if package_suggests:
         package_suggests = package_suggests.strip(",").lstrip()
 
-    if "bugs" in pkg_data.keys():
+    if "bugs" in pkg_data:
         package_issues = pkg_data["bugs"].get("url", "")
     else:
         package_issues = ""
@@ -521,7 +512,7 @@ def generate_rpkg(
             file=sys.stderr,
         )
 
-    if "homepage" in pkg_data.keys():
+    if "homepage" in pkg_data:
         package_url = pkg_data.get("homepage", "")
     else:
         package_url = ""
@@ -636,9 +627,7 @@ def generate_exports(
         if (
                 not component.endswith("-*")
                 and str(component) not in r_keywords
-                and str(component) not in ["setProps",
-                                           "children",
-                                           "dashEvents"]
+                and str(component) not in ["setProps", "children"]
         ):
             export_string += "export({}{})\n".format(prefix, component)
 

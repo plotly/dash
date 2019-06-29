@@ -149,8 +149,6 @@ def generate_components(
             rimports,
             rsuggests,
         )
-    else:
-        rpkgdata = None
 
 
 def cli():
