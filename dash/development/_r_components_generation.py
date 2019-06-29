@@ -151,11 +151,11 @@ dash_assert_valid_wildcards <- function (attrib = list("data", "aria"), ...)
 {
     args <- list(...)
     validation_results <- lapply(names(args), function(x) {
-        grepl(paste0("^", attrib, "-[a-zA-Z0-9]{1,}$", collapse = "|"),
+        grepl(paste0("^(", paste0(attrib, collapse="|"), ")-[a-zA-Z0-9_-]+$"),
             x)
     })
     if (FALSE %in% validation_results) {
-        stop(sprintf("The following wildcards are not currently valid in Dash: '%s'",
+        stop(sprintf("The following props are not valid in this component: '%s'",
             paste(names(args)[grepl(FALSE, unlist(validation_results))],
                 collapse = ", ")), call. = FALSE)
     }
