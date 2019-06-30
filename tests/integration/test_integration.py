@@ -46,7 +46,7 @@ def test_inin001_simple_callback(dash_duo):
 
     input1 = dash_duo.find_element('#input')
     dash_duo.clear_input(input1)
-    input1.send_keys('hello world')
+    dash_duo.send_keys('#input', 'hello world')
 
     dash_duo.wait_for_text_to_equal('#output-1', 'hello world')
     dash_duo.percy_snapshot(name='simple-callback-2')
@@ -139,8 +139,8 @@ def test_inin003_aborted_callback(dash_duo):
 
     dash_duo.start_server(app)
 
-    input_ = dash_duo.find_element('#input')
-    input_.send_keys('xyz')
+    dash_duo.find_element('#input')
+    dash_duo.send_keys('#input', 'xyz')
     dash_duo.wait_for_text_to_equal('#input', 'initial inputxyz')
 
     until(
