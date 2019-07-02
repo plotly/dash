@@ -10,8 +10,8 @@ Logout button to submit a form post request to the `logout_url` prop. Usage is i
 }
 
 \usage{
-dccLogoutButton(dccLogoutButton(id=NULL, label=NULL, logout_url=NULL, style=NULL, method=NULL,
-className=NULL, loading_state=NULL))
+dccLogoutButton(id=NULL, label=NULL, logout_url=NULL, style=NULL, method=NULL, className=NULL,
+loading_state=NULL)
 }
 
 \arguments{

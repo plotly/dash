@@ -10,9 +10,9 @@ A slider component with a single handle.
 }
 
 \usage{
-dccSlider(dccSlider(id=NULL, marks=NULL, value=NULL, className=NULL, disabled=NULL,
-dots=NULL, included=NULL, min=NULL, max=NULL, tooltip=NULL, step=NULL,
-vertical=NULL, updatemode=NULL, loading_state=NULL))
+dccSlider(id=NULL, marks=NULL, value=NULL, className=NULL, disabled=NULL, dots=NULL,
+included=NULL, min=NULL, max=NULL, tooltip=NULL, step=NULL, vertical=NULL,
+updatemode=NULL, loading_state=NULL)
 }
 
 \arguments{
@@ -20,7 +20,10 @@ vertical=NULL, updatemode=NULL, loading_state=NULL))
 in callbacks. The ID needs to be unique across all of the
 components in an app.}
 
-\item{marks}{List with named elements and values of type character. Marks on the slider.
+\item{marks}{List with named elements and values of type character | lists containing elements 'label', 'style'.
+those elements have the following types:
+  - label (character; optional)
+  - style (named list; optional). Marks on the slider.
 The key determines the position (a number),
 and the value determines what will show.
 If you want to set the style of a specific mark point,
@@ -44,7 +47,14 @@ value is included. Otherwise, it is an independent value.}
 
 \item{max}{Numeric. Maximum allowed value of the slider}
 
-\item{tooltip}{}
+\item{tooltip}{Lists containing elements 'always_visible', 'placement'.
+those elements have the following types:
+  - always_visible (logical; optional): determines whether tooltips should always be visible
+(as opposed to the default, visible on hover)
+  - placement (a value equal to: 'left', 'right', 'top', 'bottom', 'topleft', 'topright', 'bottomleft', 'bottomright'; optional): determines the placement of tooltips
+see https://github.com/react-component/tooltip#api
+top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topleft` will
+in reality appear to be on the top right of the handle. }
 
 \item{step}{Numeric. Value by which increments or decrements are made}
 

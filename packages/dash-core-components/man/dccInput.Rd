@@ -10,13 +10,13 @@ A basic HTML input control for entering text, numbers, or passwords.  Note that 
 }
 
 \usage{
-dccInput(dccInput(id=NULL, value=NULL, style=NULL, className=NULL, debounce=NULL,
-type=NULL, autoComplete=NULL, autoFocus=NULL, disabled=NULL, inputMode=NULL,
-list=NULL, max=NULL, maxLength=NULL, min=NULL, minLength=NULL, multiple=NULL,
-name=NULL, pattern=NULL, placeholder=NULL, readOnly=NULL, required=NULL,
+dccInput(id=NULL, value=NULL, style=NULL, className=NULL, debounce=NULL, type=NULL,
+autoComplete=NULL, autoFocus=NULL, disabled=NULL, inputMode=NULL, list=NULL,
+max=NULL, maxLength=NULL, min=NULL, minLength=NULL, multiple=NULL, name=NULL,
+pattern=NULL, placeholder=NULL, readOnly=NULL, required=NULL,
 selectionDirection=NULL, selectionEnd=NULL, selectionStart=NULL, size=NULL,
 spellCheck=NULL, step=NULL, n_submit=NULL, n_submit_timestamp=NULL, n_blur=NULL,
-n_blur_timestamp=NULL, loading_state=NULL))
+n_blur_timestamp=NULL, loading_state=NULL)
 }
 
 \arguments{

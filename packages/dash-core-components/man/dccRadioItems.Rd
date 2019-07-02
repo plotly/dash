@@ -10,9 +10,8 @@ RadioItems is a component that encapsulates several radio item inputs. The value
 }
 
 \usage{
-dccRadioItems(dccRadioItems(id=NULL, options=NULL, value=NULL, style=NULL, className=NULL,
-inputStyle=NULL, inputClassName=NULL, labelStyle=NULL, labelClassName=NULL,
-loading_state=NULL))
+dccRadioItems(id=NULL, options=NULL, value=NULL, style=NULL, className=NULL, inputStyle=NULL,
+inputClassName=NULL, labelStyle=NULL, labelClassName=NULL, loading_state=NULL)
 }
 
 \arguments{
@@ -20,7 +19,13 @@ loading_state=NULL))
 in callbacks. The ID needs to be unique across all of the
 components in an app.}
 
-\item{options}{List. An array of options}
+\item{options}{List of lists containing elements 'label', 'value', 'disabled'.
+those elements have the following types:
+  - label (character | numeric; required): the radio item's label
+  - value (character | numeric; required): the value of the radio item. this value
+corresponds to the items specified in the
+`value` property.
+  - disabled (logical; optional): if true, this radio item is disabled and can't be clicked on.s. An array of options}
 
 \item{value}{Character | numeric. The currently selected value}
 

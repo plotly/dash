@@ -10,9 +10,8 @@ A component that renders Markdown text as specified by the GitHub Markdown spec.
 }
 
 \usage{
-dccMarkdown(dccMarkdown(children=NULL, id=NULL, className=NULL, containerProps=NULL,
-dangerously_allow_html=NULL, highlight_config=NULL, loading_state=NULL,
-style=NULL))
+dccMarkdown(children=NULL, id=NULL, className=NULL, dangerously_allow_html=NULL,
+dedent=NULL, highlight_config=NULL, loading_state=NULL, style=NULL)
 }
 
 \arguments{
@@ -24,15 +23,19 @@ components in an app.}
 
 \item{className}{Character. Class name of the container element}
 
-\item{containerProps}{Named list. An object containing custom element props to put on the container
-element such as id or style}
-
 \item{dangerously_allow_html}{Logical. A boolean to control raw HTML escaping.
 Setting HTML from code is risky because it's easy to
 inadvertently expose your users to a cross-site scripting (XSS)
 (https://en.wikipedia.org/wiki/Cross-site_scripting) attack.}
 
-\item{highlight_config}{Config options for syntax highlighting.}
+\item{dedent}{Logical. Remove matching leading whitespace from all lines.
+Lines that are empty, or contain *only* whitespace, are ignored.
+Both spaces and tab characters are removed, but only if they match;
+we will not convert tabs to spaces or vice versa.}
+
+\item{highlight_config}{Lists containing elements 'theme'.
+those elements have the following types:
+  - theme (a value equal to: 'dark', 'light'; optional): color scheme; default 'light'. Config options for syntax highlighting.}
 
 \item{loading_state}{Lists containing elements 'is_loading', 'prop_name', 'component_name'.
 those elements have the following types:

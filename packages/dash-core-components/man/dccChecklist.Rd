@@ -10,9 +10,8 @@ Checklist is a component that encapsulates several checkboxes. The values and la
 }
 
 \usage{
-dccChecklist(dccChecklist(id=NULL, options=NULL, value=NULL, className=NULL, style=NULL,
-inputStyle=NULL, inputClassName=NULL, labelStyle=NULL, labelClassName=NULL,
-loading_state=NULL))
+dccChecklist(id=NULL, options=NULL, value=NULL, className=NULL, style=NULL, inputStyle=NULL,
+inputClassName=NULL, labelStyle=NULL, labelClassName=NULL, loading_state=NULL)
 }
 
 \arguments{
@@ -20,7 +19,13 @@ loading_state=NULL))
 in callbacks. The ID needs to be unique across all of the
 components in an app.}
 
-\item{options}{List. An array of options}
+\item{options}{List of lists containing elements 'label', 'value', 'disabled'.
+those elements have the following types:
+  - label (character | numeric; required): the checkbox's label
+  - value (character | numeric; required): the value of the checkbox. this value
+corresponds to the items specified in the
+`value` property.
+  - disabled (logical; optional): if true, this checkbox is disabled and can't be clicked on.s. An array of options}
 
 \item{value}{List of character | numerics. The currently selected value}
 

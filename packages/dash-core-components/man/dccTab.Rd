@@ -10,9 +10,9 @@ Part of dcc.Tabs - this is the child Tab component used to render a tabbed page.
 }
 
 \usage{
-dccTab(dccTab(children=NULL, id=NULL, label=NULL, value=NULL, disabled=NULL,
+dccTab(children=NULL, id=NULL, label=NULL, value=NULL, disabled=NULL,
 disabled_style=NULL, disabled_className=NULL, className=NULL,
-selected_className=NULL, style=NULL, selected_style=NULL, loading_state=NULL))
+selected_className=NULL, style=NULL, selected_style=NULL, loading_state=NULL)
 }
 
 \arguments{

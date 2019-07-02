@@ -10,8 +10,8 @@ Link allows you to create a clickable link within a multi-page app.  For links w
 }
 
 \usage{
-dccLink(dccLink(children=NULL, id=NULL, href=NULL, refresh=NULL, className=NULL,
-style=NULL, loading_state=NULL))
+dccLink(children=NULL, id=NULL, href=NULL, refresh=NULL, className=NULL, style=NULL,
+loading_state=NULL)
 }
 
 \arguments{

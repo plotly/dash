@@ -1,10 +1,10 @@
 Package: dashCoreComponents
 Title: Core component suite for Dash
-Version: 0.48.0
+Version: 1.0.0
 Authors @R: as.person(c(Chris Parmer <chris@plot.ly>))
 Description: Core component suite for Dash
 Depends: R (>= 3.0.2)
-Imports: dash
+Imports: 
 Suggests: 
 License: MIT + file LICENSE
 URL: https://github.com/plotly/dash-core-components
@@ -12,4 +12,4 @@ BugReports: https://github.com/plotly/dash-core-components/issues
 Encoding: UTF-8
 LazyData: true
 Author: Chris Parmer [aut]
-Maintainer: Ryan Patrick Kyle <ryan@plot.ly>
+Maintainer: Chris Parmer <chris@plot.ly>

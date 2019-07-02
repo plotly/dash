@@ -10,9 +10,9 @@ Dropdown is an interactive dropdown element for selecting one or more items. The
 }
 
 \usage{
-dccDropdown(dccDropdown(id=NULL, options=NULL, value=NULL, optionHeight=NULL,
-className=NULL, clearable=NULL, disabled=NULL, multi=NULL, placeholder=NULL,
-searchable=NULL, style=NULL, loading_state=NULL))
+dccDropdown(id=NULL, options=NULL, value=NULL, optionHeight=NULL, className=NULL,
+clearable=NULL, disabled=NULL, multi=NULL, placeholder=NULL, searchable=NULL,
+style=NULL, loading_state=NULL)
 }
 
 \arguments{
@@ -20,7 +20,13 @@ searchable=NULL, style=NULL, loading_state=NULL))
 in callbacks. The ID needs to be unique across all of the
 components in an app.}
 
-\item{options}{List. An array of options {label: [string|number], value: [string|number]},
+\item{options}{List of lists containing elements 'label', 'value', 'disabled'.
+those elements have the following types:
+  - label (character | numeric; required): the dropdown's label
+  - value (character | numeric; required): the value of the dropdown. this value
+corresponds to the items specified in the
+`value` property.
+  - disabled (logical; optional): if true, this option is disabled and cannot be selected.s. An array of options {label: [string|number], value: [string|number]},
 an optional disabled field can be used for each option}
 
 \item{value}{Character | numeric | list of character | numerics. The value of the input. If `multi` is false (the default)

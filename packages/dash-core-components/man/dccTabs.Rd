@@ -10,10 +10,9 @@ A Dash component that lets you render pages with tabs - the Tabs component's chi
 }
 
 \usage{
-dccTabs(dccTabs(children=NULL, id=NULL, value=NULL, className=NULL,
-content_className=NULL, parent_className=NULL, style=NULL, parent_style=NULL,
-content_style=NULL, vertical=NULL, mobile_breakpoint=NULL, colors=NULL,
-loading_state=NULL))
+dccTabs(children=NULL, id=NULL, value=NULL, className=NULL, content_className=NULL,
+parent_className=NULL, style=NULL, parent_style=NULL, content_style=NULL,
+vertical=NULL, mobile_breakpoint=NULL, colors=NULL, loading_state=NULL)
 }
 
 \arguments{
@@ -41,7 +40,11 @@ components in an app.}
 
 \item{mobile_breakpoint}{Numeric. Breakpoint at which tabs are rendered full width (can be 0 if you don't want full width tabs on mobile)}
 
-\item{colors}{Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:
+\item{colors}{Lists containing elements 'border', 'primary', 'background'.
+those elements have the following types:
+  - border (character; optional)
+  - primary (character; optional)
+  - background (character; optional). Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:
 colors: {
    border: '#d6d6d6',
    primary: '#1975FA',
