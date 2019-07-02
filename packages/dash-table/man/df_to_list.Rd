@@ -16,3 +16,26 @@ df_to_list(df=NULL)
 \arguments{
 \item{df}{A \code{data.frame} object, which will be transformed into a list of lists. Each row will become a single named list, in which the elements are named as the columns from which they were extracted.}
 }
+
+\examples{
+\dontrun{
+# first, create data frame
+df <- read.csv(url(
+  'https://raw.githubusercontent.com/plotly/datasets/master/solar.csv'
+  ),
+  check.names=FALSE,
+  stringsAsFactors=FALSE
+)
+
+# then convert to list-of-lists format for use in dashTable
+# the following snippet below will print as JSON
+# see the help for dashDataTable to see an actual app example
+dashDataTable(
+  id = 'table',
+  columns = lapply(colnames(df), function(x) {
+    list(name = x, id = x)
+  }),
+  data = df_to_list(df)
+)
+}
+}
