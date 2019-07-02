@@ -6,14 +6,14 @@
 \title{I component}
 
 \description{
-
+I is a wrapper for the <i> HTML5 element. For detailed attribute info see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/i
 }
 
 \usage{
-htmlI(htmlI(children=NULL, id=NULL, n_clicks=NULL, n_clicks_timestamp=NULL, key=NULL,
+htmlI(children=NULL, id=NULL, n_clicks=NULL, n_clicks_timestamp=NULL, key=NULL,
 role=NULL, accessKey=NULL, className=NULL, contentEditable=NULL,
 contextMenu=NULL, dir=NULL, draggable=NULL, hidden=NULL, lang=NULL,
-spellCheck=NULL, style=NULL, tabIndex=NULL, title=NULL, loading_state=NULL, ...))
+spellCheck=NULL, style=NULL, tabIndex=NULL, title=NULL, loading_state=NULL, ...)
 }
 
 \arguments{
@@ -66,5 +66,7 @@ those elements have the following types:
   - prop_name (character; optional): holds which property is loading
   - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
 
-\item{...}{wildcards: `data-*` or `aria-*`}
+
+\item{...}{wildcards allowed have the form: `'data-*', 'aria-*'`}
+
 }

@@ -6,16 +6,16 @@
 \title{Select component}
 
 \description{
-
+Select is a wrapper for the <select> HTML5 element. For detailed attribute info see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select
 }
 
 \usage{
-htmlSelect(htmlSelect(children=NULL, id=NULL, n_clicks=NULL, n_clicks_timestamp=NULL,
-key=NULL, role=NULL, autoFocus=NULL, disabled=NULL, form=NULL, multiple=NULL,
-name=NULL, required=NULL, size=NULL, accessKey=NULL, className=NULL,
-contentEditable=NULL, contextMenu=NULL, dir=NULL, draggable=NULL, hidden=NULL,
-lang=NULL, spellCheck=NULL, style=NULL, tabIndex=NULL, title=NULL,
-loading_state=NULL, ...))
+htmlSelect(children=NULL, id=NULL, n_clicks=NULL, n_clicks_timestamp=NULL, key=NULL,
+role=NULL, autoComplete=NULL, autoFocus=NULL, disabled=NULL, form=NULL,
+multiple=NULL, name=NULL, required=NULL, size=NULL, accessKey=NULL,
+className=NULL, contentEditable=NULL, contextMenu=NULL, dir=NULL,
+draggable=NULL, hidden=NULL, lang=NULL, spellCheck=NULL, style=NULL,
+tabIndex=NULL, title=NULL, loading_state=NULL, ...)
 }
 
 \arguments{
@@ -37,6 +37,8 @@ performance by React.js while rendering components
 See https://reactjs.org/docs/lists-and-keys.html for more info}
 
 \item{role}{Character. The ARIA role attribute}
+
+\item{autoComplete}{Character. Indicates whether controls in this form can by default have their values automatically completed by the browser.}
 
 \item{autoFocus}{A value equal to: 'autofocus', 'autofocus', 'autofocus' | logical. The element should be automatically focused after the page loaded.}
 
@@ -82,5 +84,7 @@ those elements have the following types:
   - prop_name (character; optional): holds which property is loading
   - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
 
-\item{...}{wildcards: `data-*` or `aria-*`}
+
+\item{...}{wildcards allowed have the form: `'data-*', 'aria-*'`}
+
 }

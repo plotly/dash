@@ -6,16 +6,17 @@
 \title{Button component}
 
 \description{
-
+Button is a wrapper for the <button> HTML5 element. For detailed attribute info see: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button
 }
 
 \usage{
-htmlButton(htmlButton(children=NULL, id=NULL, n_clicks=NULL, n_clicks_timestamp=NULL,
-key=NULL, role=NULL, autoFocus=NULL, disabled=NULL, form=NULL, formAction=NULL,
-formNoValidate=NULL, name=NULL, type=NULL, value=NULL, accessKey=NULL,
-className=NULL, contentEditable=NULL, contextMenu=NULL, dir=NULL,
-draggable=NULL, hidden=NULL, lang=NULL, spellCheck=NULL, style=NULL,
-tabIndex=NULL, title=NULL, loading_state=NULL, ...))
+htmlButton(children=NULL, id=NULL, n_clicks=NULL, n_clicks_timestamp=NULL, key=NULL,
+role=NULL, autoFocus=NULL, disabled=NULL, form=NULL, formAction=NULL,
+formEncType=NULL, formMethod=NULL, formNoValidate=NULL, formTarget=NULL,
+name=NULL, type=NULL, value=NULL, accessKey=NULL, className=NULL,
+contentEditable=NULL, contextMenu=NULL, dir=NULL, draggable=NULL, hidden=NULL,
+lang=NULL, spellCheck=NULL, style=NULL, tabIndex=NULL, title=NULL,
+loading_state=NULL, ...)
 }
 
 \arguments{
@@ -46,7 +47,13 @@ See https://reactjs.org/docs/lists-and-keys.html for more info}
 
 \item{formAction}{Character. Indicates the action of the element, overriding the action defined in the <form>.}
 
-\item{formNoValidate}{A value equal to: 'formnovalidate', 'formnovalidate', 'formnovalidate' | logical. If the button is a submit button (type="submit"), this Boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner.}
+\item{formEncType}{Character. If the button/input is a submit button (type="submit"), this attribute sets the encoding type to use during form submission. If this attribute is specified, it overrides the enctype attribute of the button's form owner.}
+
+\item{formMethod}{Character. If the button/input is a submit button (type="submit"), this attribute sets the submission method to use during form submission (GET, POST, etc.). If this attribute is specified, it overrides the method attribute of the button's form owner.}
+
+\item{formNoValidate}{A value equal to: 'formnovalidate', 'formnovalidate', 'formnovalidate' | logical. If the button/input is a submit button (type="submit"), this boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner.}
+
+\item{formTarget}{Character. If the button/input is a submit button (type="submit"), this attribute specifies the browsing context (for example, tab, window, or inline frame) in which to display the response that is received after submitting the form. If this attribute is specified, it overrides the target attribute of the button's form owner.}
 
 \item{name}{Character. Name of the element. For example used by the server to identify the fields in form submits.}
 
@@ -84,5 +91,7 @@ those elements have the following types:
   - prop_name (character; optional): holds which property is loading
   - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
 
-\item{...}{wildcards: `data-*` or `aria-*`}
+
+\item{...}{wildcards allowed have the form: `'data-*', 'aria-*'`}
+
 }
