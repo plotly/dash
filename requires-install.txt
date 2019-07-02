@@ -1,4 +1,4 @@
-Flask>=0.12
+Flask>=1.0.2
 PyYAML>=5.1.1
 flask-compress
 plotly
@@ -8,7 +8,7 @@ dash-html-components==1.0.0
 dash-table==4.0.0
 
 # dash.testing
-pytest
+pytest<5.0.0
 pytest-sugar
 pytest-mock
 lxml
