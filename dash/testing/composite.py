@@ -2,18 +2,8 @@ from dash.testing.browser import Browser
 
 
 class DashComposite(Browser):
-    def __init__(
-        self,
-        server,
-        browser,
-        headless=False,
-        options=None,
-        remote=None,
-        wait_timeout=10,
-    ):
-        super(DashComposite, self).__init__(
-            browser, headless, options, remote, wait_timeout
-        )
+    def __init__(self, server, **kwargs):
+        super(DashComposite, self).__init__(**kwargs)
         self.server = server
 
     def start_server(self, app, **kwargs):
