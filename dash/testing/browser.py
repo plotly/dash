@@ -296,7 +296,9 @@ class Browser(DashPageMixin):
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
 
-        return webdriver.Firefox(fp, options=options, capabilities=capabilities)
+        return webdriver.Firefox(
+            fp, options=options, capabilities=capabilities
+        )
 
     @staticmethod
     def _is_windows():
