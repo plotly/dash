@@ -1,17 +1,16 @@
 # pylint: disable=missing-docstring,redefined-outer-name
-import pytest
+import warnings
 
-from selenium import webdriver
+try:
+    import pytest
 
-from dash.testing.application_runners import ThreadedRunner, ProcessRunner
-from dash.testing.browser import Browser
-from dash.testing.composite import DashComposite
+    from dash.testing.application_runners import ThreadedRunner, ProcessRunner
+    from dash.testing.browser import Browser
+    from dash.testing.composite import DashComposite
+except (ModuleNotFoundError, ImportError):
+    warnings.warn("run `pip install dash[testing]` if you need dash.testing")
 
-WEBDRIVERS = {
-    "Chrome": webdriver.Chrome,
-    "Firefox": webdriver.Firefox,
-    "Remote": webdriver.Remote,
-}
+WEBDRIVERS = {"Chrome", "Firefox", "Remote"}
 
 
 def pytest_addoption(parser):
@@ -21,7 +20,7 @@ def pytest_addoption(parser):
 
     dash.addoption(
         "--webdriver",
-        choices=tuple(WEBDRIVERS.keys()),
+        choices=tuple(WEBDRIVERS),
         default="Chrome",
         help="Name of the selenium driver to use",
     )
