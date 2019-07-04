@@ -1,3 +1,13 @@
+
+## [Unreleased]
+
+### Changed
+
+- 💥 [#808](https://github.com/plotly/dash/pull/808) Remove strong `dash.testing` dependencies per community feedbacks.
+Testing users should do `pip install dash[testing]` afterwards.
+
+- [#805](https://github.com/plotly/dash/pull/805) Add headless mode for dash.testing, add `pytest_setup_options` hook for full configuration of `WebDriver Options`.
+
 ## [1.0.0] - 2019-06-20
 ### Changed
 - 💥 [#761](https://github.com/plotly/dash/pull/761) Several breaking changes to the `dash.Dash` API:
