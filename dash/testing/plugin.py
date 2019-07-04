@@ -7,7 +7,7 @@ try:
     from dash.testing.application_runners import ThreadedRunner, ProcessRunner
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite
-except (ModuleNotFoundError, ImportError):
+except ImportError:
     warnings.warn("run `pip install dash[testing]` if you need dash.testing")
 
 WEBDRIVERS = {"Chrome", "Firefox", "Remote"}
