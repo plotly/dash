@@ -1,6 +1,6 @@
 {
   "src/dash-table/dash/DataTable.js": {
-    "description": "",
+    "description": "Dash DataTable is an interactive table component designed for \ndesigned for viewing, editing, and exploring large datasets.\nDataTable is rendered with standard, semantic HTML <table/> markup,\nwhich makes it accessible, responsive, and easy to style. This\ncomponent was written from scratch in React.js specifically for the \nDash community. Its API was designed to be ergonomic and its behavior\nis completely customizable through its properties.",
     "displayName": "DataTable",
     "methods": [],
     "props": {

@@ -19,29 +19,19 @@ module.exports = (options = {}) => {
     return {
         entry: {
             bundle: './src/dash-table/index.ts',
-            demo: ['./demo/index.js', './demo/index.html']
+            demo: ['./demo/index.html', './demo/index.js']
         },
         mode: mode,
         output: {
             path: path.resolve(__dirname, `./../../${dashLibraryName}`),
             filename: '[name].js',
             library: dashLibraryName,
-            libraryTarget: 'umd'
+            libraryTarget: 'window'
         },
         devtool: 'source-map',
         externals: {
-            react: {
-                commonjs: 'react',
-                commonjs2: 'react',
-                amd: 'React',
-                root: 'React'
-            },
-            'react-dom': {
-                commonjs: 'react-dom',
-                commonjs2: 'react-dom',
-                amd: 'ReactDOM',
-                root: 'ReactDOM'
-            },
+            react: 'React',
+            'react-dom': 'ReactDOM',
             'plotly.js': 'Plotly'
         },
         module: {

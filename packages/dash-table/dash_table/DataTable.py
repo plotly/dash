@@ -5,17 +5,23 @@ from dash.development.base_component import Component, _explicitize_args
 
 class DataTable(Component):
     """A DataTable component.
-
+Dash DataTable is an interactive table component designed for 
+designed for viewing, editing, and exploring large datasets.
+DataTable is rendered with standard, semantic HTML <table/> markup,
+which makes it accessible, responsive, and easy to style. This
+component was written from scratch in React.js specifically for the 
+Dash community. Its API was designed to be ergonomic and its behavior
+is completely customizable through its properties.
 
 Keyword arguments:
-- active_cell (optional): The row and column indices and IDs of the currently active cell.. active_cell has the following type: dict containing keys 'row', 'column', 'row_id', 'column_id'.
+- active_cell (dict; optional): The row and column indices and IDs of the currently active cell. active_cell has the following type: dict containing keys 'row', 'column', 'row_id', 'column_id'.
 Those keys have the following types:
   - row (number; optional)
   - column (number; optional)
   - row_id (string | number; optional)
   - column_id (string; optional)
-- columns (optional): Columns describes various aspects about each individual column.
-`name` and `id` are the only required parameters.. columns has the following type: list of dict containing keys 'deletable', 'editable', 'renamable', 'format', 'id', 'name', 'presentation', 'on_change', 'sort_as_null', 'validation', 'type'.
+- columns (dict; optional): Columns describes various aspects about each individual column.
+`name` and `id` are the only required parameters. columns has the following type: list of dicts containing keys 'deletable', 'editable', 'renamable', 'format', 'id', 'name', 'presentation', 'on_change', 'sort_as_null', 'validation', 'type'.
 Those keys have the following types:
   - deletable (boolean | list of booleans; optional): If True, the user can delete the column by clicking on a little `x`
 button on the column.
@@ -43,7 +49,7 @@ For example, `[true, false]` will make the first row's name editable,
 but not the second row.
 Also, updating the name in a merged column header cell will
 update the name of each column.
-  - format (optional): The formatting applied to the column's data.
+  - format (dict; optional): The formatting applied to the column's data.
 
 This prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from
 being structured slightly differently (under a single prop), the usage
@@ -69,9 +75,9 @@ is the same.
 'specifier': (default: '') represents the rules to apply when formatting the number
 
 dash_table.FormatTemplate contains helper functions to rapidly use certain
-typical number formats.. format has the following type: dict containing keys 'locale', 'nully', 'prefix', 'specifier'.
+typical number formats. format has the following type: dict containing keys 'locale', 'nully', 'prefix', 'specifier'.
 Those keys have the following types:
-  - locale (optional): . locale has the following type: dict containing keys 'symbol', 'decimal', 'group', 'grouping', 'numerals', 'percent', 'separate_4digits'.
+  - locale (dict; optional): locale has the following type: dict containing keys 'symbol', 'decimal', 'group', 'grouping', 'numerals', 'percent', 'separate_4digits'.
 Those keys have the following types:
   - symbol (list of strings; optional)
   - decimal (string; optional)
@@ -93,7 +99,7 @@ If `name` is a list of strings, then the columns
 will render with multiple headers rows.
   - presentation (a value equal to: 'input', 'dropdown'; optional): The `presentation` to use to display the value.
 Defaults to 'input' for ['numeric', 'text', 'any'].
-  - on_change (optional): The `on_change` behavior of the column for user-initiated modifications.
+  - on_change (dict; optional): The `on_change` behavior of the column for user-initiated modifications.
 'action' (default 'coerce'):
  none: do not validate data
  coerce: check if the data corresponds to the destination type and
@@ -110,13 +116,13 @@ Those keys have the following types:
   - sort_as_null (list of string | number | booleans; optional): An array of string, number and boolean values that are treated as `null`
 (i.e. ignored and always displayed last) when sorting.
 This value overrides the table-level `sort_as_null`.
-  - validation (optional): The `validation` options.
+  - validation (dict; optional): The `validation` options.
 'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)
 'default': The default value to apply with on_change.failure = 'default' (default: null)
 'allow_YY': `datetime` columns only, allow 2-digit years (default: false).
   If true, we interpret years as ranging from now-70 to now+29 - in 2019
   this is 1949 to 2048 but in 2020 it will be different. If used with
-  `action: 'coerce'`, will convert user input to a 4-digit year.. validation has the following type: dict containing keys 'allow_null', 'default', 'allow_YY'.
+  `action: 'coerce'`, will convert user input to a 4-digit year. validation has the following type: dict containing keys 'allow_null', 'default', 'allow_YY'.
 Those keys have the following types:
   - allow_null (boolean; optional)
   - default (boolean | number | string | dict | list; optional)
@@ -144,8 +150,8 @@ In the future, it's data types will impact things like
 text formatting options in the cell (e.g. display 2 decimals
 for a number), filtering options and behavior, and editing
 behavior.
-Stay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)s
-- locale_format (optional): The localization specific formatting information applied to all columns in the table.
+Stay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)
+- locale_format (dict; optional): The localization specific formatting information applied to all columns in the table.
 
 This prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.
 
@@ -168,7 +174,7 @@ Those keys have the following types:
   - numerals (list of strings; optional)
   - percent (string; optional)
   - separate_4digits (boolean; optional)
-- css (optional): The `css` property is a way to embed CSS selectors and rules
+- css (dict; optional): The `css` property is a way to embed CSS selectors and rules
 onto the page.
 We recommend starting with the `style_*` properties
 before using this `css` property.
@@ -176,10 +182,10 @@ before using this `css` property.
 Example:
 [
     {"selector": ".dash-spreadsheet", "rule": 'font-family: "monospace"'}
-]. css has the following type: list of dict containing keys 'selector', 'rule'.
+]. css has the following type: list of dicts containing keys 'selector', 'rule'.
 Those keys have the following types:
   - selector (string; required)
-  - rule (string; required)s
+  - rule (string; required)
 - data (list of dicts; optional): The contents of the table.
 The keys of each item in data should match the column IDs.
 Each item can also have an 'id' key, whose value is its row ID. If there
@@ -202,7 +208,7 @@ have any impact on the table.
 Use this property with other timestamp properties
 (such as `n_clicks_timestamp` in `dash_html_components`)
 to determine which property has changed within a callback.
-- editable (boolean; optional): If True, then the data in all of the cells is editable.
+- editable (boolean; default False): If True, then the data in all of the cells is editable.
 When `editable` is True, particular columns can be made
 uneditable by setting `editable` to `False` inside the `columns`
 property.
@@ -211,11 +217,11 @@ If False, then the data in all of the cells is uneditable.
 When `editable` is False, particular columns can be made
 editable by setting `editable` to `True` inside the `columns`
 property.
-- end_cell (optional): When selecting multiple cells
+- end_cell (dict; optional): When selecting multiple cells
 (via clicking on a cell and then shift-clicking on another cell),
 `end_cell` represents the row / column coordinates and IDs of the cell
 in one of the corners of the region.
-`start_cell` represents the coordinates of the other corner.. end_cell has the following type: dict containing keys 'row', 'column', 'row_id', 'column_id'.
+`start_cell` represents the coordinates of the other corner. end_cell has the following type: dict containing keys 'row', 'column', 'row_id', 'column_id'.
 Those keys have the following types:
   - row (number; optional)
   - column (number; optional)
@@ -227,7 +233,10 @@ Those keys have the following types:
 will be merged into a single cell.
 This will be applied for single column headers and multi-column
 headers.
-- fixed_columns (optional): `fixed_columns` will "fix" the set of columns so that
+- fixed_columns (dict; default {
+    headers: false,
+    data: 0
+}): `fixed_columns` will "fix" the set of columns so that
 they remain visible when scrolling horizontally across
 the unfixed columns. `fixed_columns` fixes columns
 from left-to-right.
@@ -242,14 +251,17 @@ Defaults to `{ headers: False }`.
 Note that fixing columns introduces some changes to the
 underlying markup of the table and may impact the
 way that your columns are rendered or sized.
-View the documentation examples to learn more.. fixed_columns has the following type: dict containing keys 'headers', 'data'.
+View the documentation examples to learn more. fixed_columns has the following type: dict containing keys 'headers', 'data'.
 Those keys have the following types:
   - headers (a value equal to: false; optional)
   - data (a value equal to: 0; optional) | dict containing keys 'headers', 'data'.
 Those keys have the following types:
   - headers (a value equal to: true; required)
   - data (number; optional)
-- fixed_rows (optional): `fixed_rows` will "fix" the set of rows so that
+- fixed_rows (dict; default {
+    headers: false,
+    data: 0
+}): `fixed_rows` will "fix" the set of rows so that
 they remain visible when scrolling vertically down
 the table. `fixed_rows` fixes rows
 from top-to-bottom, starting from the headers.
@@ -264,7 +276,7 @@ Defaults to `{ headers: False }`.
 Note that fixing rows introduces some changes to the
 underlying markup of the table and may impact the
 way that your columns are rendered or sized.
-View the documentation examples to learn more.. fixed_rows has the following type: dict containing keys 'headers', 'data'.
+View the documentation examples to learn more. fixed_rows has the following type: dict containing keys 'headers', 'data'.
 Those keys have the following types:
   - headers (a value equal to: false; optional)
   - data (a value equal to: 0; optional) | dict containing keys 'headers', 'data'.
@@ -273,7 +285,7 @@ Those keys have the following types:
   - data (number; optional)
 - row_deletable (boolean; optional): If True, then a `x` will appear next to each `row`
 and the user can delete the row.
-- row_selectable (a value equal to: 'single', 'multi', false; optional): If `single`, then the user can select a single row
+- row_selectable (a value equal to: 'single', 'multi', false; default False): If `single`, then the user can select a single row
 via a radio button that will appear next to each row.
 If `multi`, then the user can select multiple rows
 via a checkbox that will appear next to each row.
@@ -282,35 +294,35 @@ and no additional UI elements will appear.
 
 When a row is selected, its index will be contained
 in `selected_rows`.
-- selected_cells (optional): `selected_cells` represents the set of cells that are selected,
+- selected_cells (dict; optional): `selected_cells` represents the set of cells that are selected,
 as an array of objects, each item similar to `active_cell`.
 Multiple cells can be selected by holding down shift and
 clicking on a different cell or holding down shift and navigating
-with the arrow keys.. selected_cells has the following type: list of dict containing keys 'row', 'column', 'row_id', 'column_id'.
+with the arrow keys. selected_cells has the following type: list of dicts containing keys 'row', 'column', 'row_id', 'column_id'.
 Those keys have the following types:
   - row (number; optional)
   - column (number; optional)
   - row_id (string | number; optional)
-  - column_id (string; optional)s
+  - column_id (string; optional)
 - selected_rows (list of numbers; optional): `selected_rows` contains the indices of rows that
 are selected via the UI elements that appear when
 `row_selectable` is `'single'` or `'multi'`.
 - selected_row_ids (list of string | numbers; optional): `selected_row_ids` contains the ids of rows that
 are selected via the UI elements that appear when
 `row_selectable` is `'single'` or `'multi'`.
-- start_cell (optional): When selecting multiple cells
+- start_cell (dict; optional): When selecting multiple cells
 (via clicking on a cell and then shift-clicking on another cell),
 `start_cell` represents the [row, column] coordinates of the cell
 in one of the corners of the region.
-`end_cell` represents the coordinates of the other corner.. start_cell has the following type: dict containing keys 'row', 'column', 'row_id', 'column_id'.
+`end_cell` represents the coordinates of the other corner. start_cell has the following type: dict containing keys 'row', 'column', 'row_id', 'column_id'.
 Those keys have the following types:
   - row (number; optional)
   - column (number; optional)
   - row_id (string | number; optional)
   - column_id (string; optional)
-- style_as_list_view (boolean; optional): If True, then the table will be styled like a list view
+- style_as_list_view (boolean; default False): If True, then the table will be styled like a list view
 and not have borders between the columns.
-- page_action (a value equal to: 'custom', 'native', 'none'; optional): `page_action` refers to a mode of the table where
+- page_action (a value equal to: 'custom', 'native', 'none'; default 'native'): `page_action` refers to a mode of the table where
 not all of the rows are displayed at once: only a subset
 are displayed (a "page") and the next subset of rows
 can viewed by clicking "Next" or "Previous" buttons
@@ -330,49 +342,49 @@ handled by the table
 - `'custom'`: data is passed to the table one page at a time, paging logic
 is handled via callbacks
 - `none`: disables paging, render all of the data at once
-- page_current (number; optional): `page_current` represents which page the user is on.
+- page_current (number; default 0): `page_current` represents which page the user is on.
 Use this property to index through data in your callbacks with
 backend paging.
-- page_size (number; optional): `page_size` represents the number of rows that will be
+- page_size (number; default 250): `page_size` represents the number of rows that will be
 displayed on a particular page when `page_action` is `'custom'` or `'native'`
-- dropdown (optional): `dropdown` specifies dropdown options for different columns.
+- dropdown (dict; optional): `dropdown` specifies dropdown options for different columns.
 
 Each entry refers to the column ID.
 The `clearable` property defines whether the value can be deleted.
-The `options` property refers to the `options` of the dropdown.. dropdown has the following type: dict with strings as keys and values of type dict containing keys 'clearable', 'options'.
+The `options` property refers to the `options` of the dropdown. dropdown has the following type: dict with strings as keys and values of type dict containing keys 'clearable', 'options'.
 Those keys have the following types:
   - clearable (boolean; optional)
-  - options (required): . options has the following type: list of dict containing keys 'label', 'value'.
+  - options (dict; required): options has the following type: list of dicts containing keys 'label', 'value'.
 Those keys have the following types:
   - label (string; required)
-  - value (number | string; required)s
-- dropdown_conditional (optional): `dropdown_conditional` specifies dropdown options in various columns and cells.
+  - value (number | string; required)
+- dropdown_conditional (dict; optional): `dropdown_conditional` specifies dropdown options in various columns and cells.
 
 This property allows you to specify different dropdowns
 depending on certain conditions. For example, you may
 render different "city" dropdowns in a row depending on the
-current value in the "state" column.. dropdown_conditional has the following type: list of dict containing keys 'clearable', 'if', 'options'.
+current value in the "state" column. dropdown_conditional has the following type: list of dicts containing keys 'clearable', 'if', 'options'.
 Those keys have the following types:
   - clearable (boolean; optional)
-  - if (optional): . if has the following type: dict containing keys 'column_id', 'filter_query'.
+  - if (dict; optional): if has the following type: dict containing keys 'column_id', 'filter_query'.
 Those keys have the following types:
   - column_id (string; optional)
   - filter_query (string; optional)
-  - options (required): . options has the following type: list of dict containing keys 'label', 'value'.
+  - options (dict; required): options has the following type: list of dicts containing keys 'label', 'value'.
 Those keys have the following types:
   - label (string; required)
-  - value (number | string; required)ss
-- dropdown_data (optional): `dropdown_data` specifies dropdown options on a row-by-row, column-by-column basis.
+  - value (number | string; required)
+- dropdown_data (dict; optional): `dropdown_data` specifies dropdown options on a row-by-row, column-by-column basis.
 
 Each item in the array corresponds to the corresponding dropdowns for the `data` item
-at the same index. Each entry in the item refers to the Column ID.. dropdown_data has the following type: list of dict with strings as keys and values of type dict containing keys 'clearable', 'options'.
+at the same index. Each entry in the item refers to the Column ID. dropdown_data has the following type: list of dicts with strings as keys and values of type dict containing keys 'clearable', 'options'.
 Those keys have the following types:
   - clearable (boolean; optional)
-  - options (required): . options has the following type: list of dict containing keys 'label', 'value'.
+  - options (dict; required): options has the following type: list of dicts containing keys 'label', 'value'.
 Those keys have the following types:
   - label (string; required)
-  - value (number | string; required)ss
-- tooltip (optional): `tooltip` represents the tooltip shown
+  - value (number | string; required)
+- tooltip (dict; optional): `tooltip` represents the tooltip shown
 for different columns.
 The `property` name refers to the column ID.
 The `type` refers to the type of tooltip syntax used
@@ -391,13 +403,13 @@ If set to `null`, the tooltip will not disappear.
 
 Alternatively, the value of the property can also be
 a plain string. The `text` syntax will be used in
-that case.. tooltip has the following type: dict with strings as keys and values of type dict containing keys 'delay', 'duration', 'type', 'value'.
+that case. tooltip has the following type: dict with strings as keys and values of type dict containing keys 'delay', 'duration', 'type', 'value'.
 Those keys have the following types:
   - delay (number; optional)
   - duration (number; optional)
   - type (a value equal to: 'text', 'markdown'; optional)
   - value (string; required) | string
-- tooltip_conditional (optional): `tooltip_conditional` represents the tooltip shown
+- tooltip_conditional (dict; optional): `tooltip_conditional` represents the tooltip shown
 for different columns and cells.
 
 This property allows you to specify different tooltips for
@@ -433,18 +445,18 @@ the tooltip will be shown immediately.
 The `duration` represents the duration in milliseconds
 during which the tooltip is shown when hovering a cell.
 This overrides the table's `tooltip_duration` property.
-If set to `null`, the tooltip will not disappear.. tooltip_conditional has the following type: list of dict containing keys 'delay', 'duration', 'if', 'type', 'value'.
+If set to `null`, the tooltip will not disappear. tooltip_conditional has the following type: list of dicts containing keys 'delay', 'duration', 'if', 'type', 'value'.
 Those keys have the following types:
   - delay (number; optional)
   - duration (number; optional)
-  - if (required): . if has the following type: dict containing keys 'column_id', 'filter_query', 'row_index'.
+  - if (dict; required): if has the following type: dict containing keys 'column_id', 'filter_query', 'row_index'.
 Those keys have the following types:
   - column_id (string; optional)
   - filter_query (string; optional)
   - row_index (number | a value equal to: 'odd', 'even'; optional)
   - type (a value equal to: 'text', 'markdown'; optional)
-  - value (string; required)s
-- tooltip_data (optional): `tooltip_data` represents the tooltip shown
+  - value (string; required)
+- tooltip_data (dict; optional): `tooltip_data` represents the tooltip shown
 for different columns and cells.
 The `property` name refers to the column ID. Each property
 contains a list of tooltips mapped to the source `data`
@@ -466,26 +478,26 @@ If set to `null`, the tooltip will not disappear.
 
 Alternatively, the value of the property can also be
 a plain string. The `text` syntax will be used in
-that case.. tooltip_data has the following type: list of dict with strings as keys and values of type string | dict containing keys 'delay', 'duration', 'type', 'value'.
+that case. tooltip_data has the following type: list of dicts with strings as keys and values of type string | dict containing keys 'delay', 'duration', 'type', 'value'.
 Those keys have the following types:
   - delay (number; optional)
   - duration (number; optional)
   - type (a value equal to: 'text', 'markdown'; optional)
-  - value (string; required)s
-- tooltip_delay (number; optional): `tooltip_delay` represents the table-wide delay in milliseconds before
+  - value (string; required)
+- tooltip_delay (number; default 350): `tooltip_delay` represents the table-wide delay in milliseconds before
 the tooltip is shown when hovering a cell. If set to `null`, the tooltip
 will be shown immediately.
 
 Defaults to 350.
-- tooltip_duration (number; optional): `tooltip_duration` represents the table-wide duration in milliseconds
+- tooltip_duration (number; default 2000): `tooltip_duration` represents the table-wide duration in milliseconds
 during which the tooltip will be displayed when hovering a cell. If
 set to `null`, the tooltip will not disappear.
 
 Defaults to 2000.
-- filter_query (string; optional): If `filter_action` is enabled, then the current filtering
+- filter_query (string; default ''): If `filter_action` is enabled, then the current filtering
 string is represented in this `filter_query`
 property.
-- filter_action (a value equal to: 'custom', 'native', 'none'; optional): The `filter_action` property controls the behavior of the `filtering` UI.
+- filter_action (a value equal to: 'custom', 'native', 'none'; default 'none'): The `filter_action` property controls the behavior of the `filtering` UI.
 
 If `'none'`, then the filtering UI is not displayed
 If `'native'`, then the filtering UI is displayed and the filtering
@@ -495,7 +507,7 @@ If `'custom'`, then the filtering UI is displayed but it is the
 responsibility of the developer to program the filtering
 through a callback (where `filter_query` or `derived_filter_query_structure` would be the input
 and `data` would be the output).
-- sort_action (a value equal to: 'custom', 'native', 'none'; optional): The `sort_action` property enables data to be
+- sort_action (a value equal to: 'custom', 'native', 'none'; default 'none'): The `sort_action` property enables data to be
 sorted on a per-column basis.
 
 If `'none'`, then the sorting UI is not displayed.
@@ -509,7 +521,7 @@ would be the output).
 
 Clicking on the sort arrows will update the
 `sort_by` property.
-- sort_mode (a value equal to: 'single', 'multi'; optional): Sorting can be performed across multiple columns
+- sort_mode (a value equal to: 'single', 'multi'; default 'single'): Sorting can be performed across multiple columns
 (e.g. sort by country, sort within each country,
  sort by year) or by a single column.
 
@@ -517,7 +529,7 @@ NOTE - With multi-column sort, it's currently
 not possible to determine the order in which
 the columns were sorted through the UI.
 See [https://github.com/plotly/dash-table/issues/170](https://github.com/plotly/dash-table/issues/170)
-- sort_by (optional): `sort_by` describes the current state
+- sort_by (dict; optional): `sort_by` describes the current state
 of the sorting UI.
 That is, if the user clicked on the sort arrow
 of a column, then this property will be updated
@@ -525,10 +537,10 @@ with the column ID and the direction
 (`asc` or `desc`) of the sort.
 For multi-column sorting, this will be a list of
 sorting parameters, in the order in which they were
-clicked.. sort_by has the following type: list of dict containing keys 'column_id', 'direction'.
+clicked. sort_by has the following type: list of dicts containing keys 'column_id', 'direction'.
 Those keys have the following types:
   - column_id (string; required)
-  - direction (a value equal to: 'asc', 'desc'; required)s
+  - direction (a value equal to: 'asc', 'desc'; required)
 - sort_as_null (list of string | number | booleans; optional): An array of string, number and boolean values that are treated as `null`
 (i.e. ignored and always displayed last) when sorting.
 This value will be used by columns without `sort_as_null`.
@@ -552,45 +564,45 @@ more complex filtering UI.
 - style_header (dict; optional): CSS styles to be applied to each individual header cell.
 
 That is, unlike `style_cell`, it excludes the `data` and filter cells.
-- style_cell_conditional (optional): Conditional CSS styles for the cells.
+- style_cell_conditional (dict; optional): Conditional CSS styles for the cells.
 
-This can be used to apply styles to cells on a per-column basis.. style_cell_conditional has the following type: list of dict containing keys 'if'.
+This can be used to apply styles to cells on a per-column basis. style_cell_conditional has the following type: list of dicts containing keys 'if'.
 Those keys have the following types:
-  - if (optional): . if has the following type: dict containing keys 'column_id', 'column_type'.
+  - if (dict; optional): if has the following type: dict containing keys 'column_id', 'column_type'.
 Those keys have the following types:
   - column_id (string; optional)
-  - column_type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional)s
-- style_data_conditional (optional): Conditional CSS styles for the data cells.
+  - column_type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional)
+- style_data_conditional (dict; optional): Conditional CSS styles for the data cells.
 
-This can be used to apply styles to data cells on a per-column basis.. style_data_conditional has the following type: list of dict containing keys 'if'.
+This can be used to apply styles to data cells on a per-column basis. style_data_conditional has the following type: list of dicts containing keys 'if'.
 Those keys have the following types:
-  - if (optional): . if has the following type: dict containing keys 'column_id', 'column_type', 'filter_query', 'row_index', 'column_editable'.
+  - if (dict; optional): if has the following type: dict containing keys 'column_id', 'column_type', 'filter_query', 'row_index', 'column_editable'.
 Those keys have the following types:
   - column_id (string; optional)
   - column_type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional)
   - filter_query (string; optional)
   - row_index (number | a value equal to: 'odd', 'even'; optional)
-  - column_editable (boolean; optional)s
-- style_filter_conditional (optional): Conditional CSS styles for the filter cells.
+  - column_editable (boolean; optional)
+- style_filter_conditional (dict; optional): Conditional CSS styles for the filter cells.
 
-This can be used to apply styles to filter cells on a per-column basis.. style_filter_conditional has the following type: list of dict containing keys 'if'.
+This can be used to apply styles to filter cells on a per-column basis. style_filter_conditional has the following type: list of dicts containing keys 'if'.
 Those keys have the following types:
-  - if (optional): . if has the following type: dict containing keys 'column_id', 'column_type', 'column_editable'.
+  - if (dict; optional): if has the following type: dict containing keys 'column_id', 'column_type', 'column_editable'.
 Those keys have the following types:
   - column_id (string; optional)
   - column_type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional)
-  - column_editable (boolean; optional)s
-- style_header_conditional (optional): Conditional CSS styles for the header cells.
+  - column_editable (boolean; optional)
+- style_header_conditional (dict; optional): Conditional CSS styles for the header cells.
 
-This can be used to apply styles to header cells on a per-column basis.. style_header_conditional has the following type: list of dict containing keys 'if'.
+This can be used to apply styles to header cells on a per-column basis. style_header_conditional has the following type: list of dicts containing keys 'if'.
 Those keys have the following types:
-  - if (optional): . if has the following type: dict containing keys 'column_id', 'column_type', 'header_index', 'column_editable'.
+  - if (dict; optional): if has the following type: dict containing keys 'column_id', 'column_type', 'header_index', 'column_editable'.
 Those keys have the following types:
   - column_id (string; optional)
   - column_type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional)
   - header_index (number | a value equal to: 'odd', 'even'; optional)
-  - column_editable (boolean; optional)s
-- virtualization (boolean; optional): This property tells the table to use virtualization when rendering.
+  - column_editable (boolean; optional)
+- virtualization (boolean; default False): This property tells the table to use virtualization when rendering.
 
 Assumptions are that:
 - the width of the columns is fixed
