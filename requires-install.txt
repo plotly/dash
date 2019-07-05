@@ -1,4 +1,5 @@
 Flask>=1.0.2
+PyYAML>=5.1.1
 flask-compress
 plotly
 dash_renderer==1.0.0
