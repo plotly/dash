@@ -1,18 +1,8 @@
-Flask>=0.12
+Flask>=1.0.2
+PyYAML>=5.1.1
 flask-compress
 plotly
 dash_renderer==1.0.0
 dash-core-components==1.0.0
 dash-html-components==1.0.0
 dash-table==4.0.0
-
-# dash.testing
-pytest
-pytest-sugar
-pytest-mock
-lxml
-selenium
-percy
-requests[security]
-beautifulsoup4
-waitress

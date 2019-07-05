@@ -1,17 +1,16 @@
 # pylint: disable=missing-docstring,redefined-outer-name
-import pytest
+import warnings
 
-from selenium import webdriver
+try:
+    import pytest
 
-from dash.testing.application_runners import ThreadedRunner, ProcessRunner
-from dash.testing.browser import Browser
-from dash.testing.composite import DashComposite
+    from dash.testing.application_runners import ThreadedRunner, ProcessRunner
+    from dash.testing.browser import Browser
+    from dash.testing.composite import DashComposite
+except ImportError:
+    warnings.warn("run `pip install dash[testing]` if you need dash.testing")
 
-WEBDRIVERS = {
-    "Chrome": webdriver.Chrome,
-    "Firefox": webdriver.Firefox,
-    "Remote": webdriver.Remote,
-}
+WEBDRIVERS = {"Chrome", "Firefox", "Remote"}
 
 
 def pytest_addoption(parser):
@@ -21,10 +20,29 @@ def pytest_addoption(parser):
 
     dash.addoption(
         "--webdriver",
-        choices=tuple(WEBDRIVERS.keys()),
+        choices=tuple(WEBDRIVERS),
         default="Chrome",
         help="Name of the selenium driver to use",
     )
+
+    dash.addoption(
+        "--headless",
+        action="store",
+        default=False,
+        help="Run tests in headless mode",
+    )
+
+
+@pytest.mark.tryfirst
+def pytest_addhooks(pluginmanager):
+    # https://github.com/pytest-dev/pytest-xdist/blob/974bd566c599dc6a9ea291838c6f226197208b46/xdist/plugin.py#L67
+    # avoid warnings with pytest-2.8
+    from dash.testing import newhooks
+
+    method = getattr(pluginmanager, "add_hookspecs", None)
+    if method is None:
+        method = pluginmanager.addhooks  # pragma: no cover
+    method(newhooks)
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -64,13 +82,20 @@ def dash_process_server():
 
 @pytest.fixture
 def dash_br(request):
-    with Browser(request.config.getoption("webdriver")) as browser:
+    with Browser(
+        browser=request.config.getoption("webdriver"),
+        headless=request.config.getoption("headless"),
+        options=request.config.hook.pytest_setup_options(),
+    ) as browser:
         yield browser
 
 
 @pytest.fixture
 def dash_duo(request, dash_thread_server):
     with DashComposite(
-        dash_thread_server, request.config.getoption("webdriver")
+        dash_thread_server,
+        browser=request.config.getoption("webdriver"),
+        headless=request.config.getoption("headless"),
+        options=request.config.hook.pytest_setup_options(),
     ) as dc:
         yield dc
