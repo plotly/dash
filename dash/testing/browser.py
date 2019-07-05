@@ -9,7 +9,6 @@ from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.action_chains import ActionChains
@@ -25,8 +24,17 @@ logger = logging.getLogger(__name__)
 
 
 class Browser(DashPageMixin):
-    def __init__(self, browser, remote=None, wait_timeout=10):
+    def __init__(
+        self,
+        browser,
+        headless=False,
+        options=None,
+        remote=None,
+        wait_timeout=10,
+    ):
         self._browser = browser.lower()
+        self._headless = headless
+        self._options = options
         self._wait_timeout = wait_timeout
 
         self._driver = self.get_webdriver(remote)
@@ -244,10 +252,20 @@ class Browser(DashPageMixin):
             )
         )
 
-    @staticmethod
-    def _get_chrome():
-        options = Options()
-        options.add_argument("--no-sandbox")
+    def _get_wd_options(self):
+        options = (
+            self._options[0]
+            if self._options and isinstance(self._options, list)
+            else getattr(webdriver, self._browser).options.Options()
+        )
+
+        if self._headless:
+            options.headless = True
+
+        return options
+
+    def _get_chrome(self):
+        options = self._get_wd_options()
 
         capabilities = DesiredCapabilities.CHROME
         capabilities["loggingPrefs"] = {"browser": "SEVERE"}
@@ -261,8 +279,8 @@ class Browser(DashPageMixin):
         chrome.set_window_position(0, 0)
         return chrome
 
-    @staticmethod
-    def _get_firefox():
+    def _get_firefox(self):
+        options = self._get_wd_options()
 
         capabilities = DesiredCapabilities.FIREFOX
         capabilities["loggingPrefs"] = {"browser": "SEVERE"}
@@ -278,7 +296,9 @@ class Browser(DashPageMixin):
         fp.set_preference("browser.download.folderList", 2)
         fp.set_preference("browser.download.manager.showWhenStarting", False)
 
-        return webdriver.Firefox(fp, capabilities=capabilities)
+        return webdriver.Firefox(
+            fp, options=options, capabilities=capabilities
+        )
 
     @staticmethod
     def _is_windows():
