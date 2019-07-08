@@ -1,5 +1,5 @@
 'use strict';
-import R, {concat, lensPath, view} from 'ramda';
+import {concat, equals, filter, isEmpty, keys, lensPath, view} from 'ramda';
 import {combineReducers} from 'redux';
 import layout from './layout';
 import graphs from './dependencyGraph';
@@ -31,12 +31,12 @@ const reducer = combineReducers({
 function getInputHistoryState(itempath, props, state) {
     const {graphs, layout, paths} = state;
     const {InputGraph} = graphs;
-    const keyObj = R.filter(R.equals(itempath), paths);
+    const keyObj = filter(equals(itempath), paths);
     let historyEntry;
-    if (!R.isEmpty(keyObj)) {
-        const id = R.keys(keyObj)[0];
+    if (!isEmpty(keyObj)) {
+        const id = keys(keyObj)[0];
         historyEntry = {id, props: {}};
-        R.keys(props).forEach(propKey => {
+        keys(props).forEach(propKey => {
             const inputKey = `${id}.${propKey}`;
             if (
                 InputGraph.hasNode(inputKey) &&
@@ -58,7 +58,7 @@ function recordHistory(reducer) {
         if (action.type === 'ON_PROP_CHANGE') {
             const {itempath, props} = action.payload;
             const historyEntry = getInputHistoryState(itempath, props, state);
-            if (historyEntry && !R.isEmpty(historyEntry.props)) {
+            if (historyEntry && !isEmpty(historyEntry.props)) {
                 state.history.present = historyEntry;
             }
         }
@@ -79,7 +79,7 @@ function recordHistory(reducer) {
                 props,
                 nextState
             );
-            if (historyEntry && !R.isEmpty(historyEntry.props)) {
+            if (historyEntry && !isEmpty(historyEntry.props)) {
                 nextState.history = {
                     past: [...nextState.history.past, state.history.present],
                     present: historyEntry,

@@ -413,12 +413,12 @@ function updateOutput(
             return;
         }
         const updatedQueue = adjust(
+            thisRequestIndex,
             merge(__, {
                 status: status,
                 responseTime: Date.now(),
                 rejected,
             }),
-            thisRequestIndex,
             postRequestQueue
         );
         // We don't need to store any requests before this one

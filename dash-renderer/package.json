@@ -37,7 +37,7 @@
     "prop-types": "^15.6.2",
     "query-string": "^4.3.2",
     "radium": "^0.22.1",
-    "ramda": "^0.23.0",
+    "ramda": "^0.26.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "^4.4.5",
