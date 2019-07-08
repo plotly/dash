@@ -6,7 +6,7 @@ import {
     isEmpty,
     isNil,
     keys,
-    merge,
+    mergeRight,
     omit,
     slice,
 } from 'ramda';
@@ -36,7 +36,7 @@ const paths = (state = initialPaths, action) => {
                 );
                 newState = omit(removeKeys, oldState);
             } else {
-                newState = merge({}, oldState);
+                newState = mergeRight({}, oldState);
             }
 
             crawlLayout(subTree, function assignPath(child, itempath) {

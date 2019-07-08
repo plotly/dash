@@ -1,6 +1,5 @@
 /* global fetch:true, Promise:true, document:true */
 import {
-    __,
     adjust,
     any,
     append,
@@ -15,14 +14,13 @@ import {
     isEmpty,
     keys,
     lensPath,
-    merge,
+    mergeLeft,
     pluck,
     propEq,
     reject,
     slice,
     sort,
     type,
-    //    values,
     view,
 } from 'ramda';
 import {createAction} from 'redux-actions';
@@ -414,7 +412,7 @@ function updateOutput(
         }
         const updatedQueue = adjust(
             thisRequestIndex,
-            merge(__, {
+            mergeLeft({
                 status: status,
                 responseTime: Date.now(),
                 rejected,

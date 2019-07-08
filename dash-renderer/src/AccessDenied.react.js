@@ -1,6 +1,6 @@
 /* global window:true, document:true */
 import React from 'react';
-import {merge} from 'ramda';
+import {mergeRight} from 'ramda';
 import PropTypes from 'prop-types';
 import * as styles from './styles/styles.js';
 import * as constants from './constants/constants.js';
@@ -10,7 +10,7 @@ function AccessDenied(props) {
     const fid = config.fid;
     const owner_username = fid.split(':')[0];
     return (
-        <div style={merge(styles.base.html, styles.base.container)}>
+        <div style={mergeRight(styles.base.html, styles.base.container)}>
             <div style={styles.base.h2}>Access Denied</div>
 
             <div style={styles.base.h4}>

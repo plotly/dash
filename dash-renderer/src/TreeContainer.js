@@ -15,7 +15,7 @@ import {
     isNil,
     keysIn,
     map,
-    mergeAll,
+    mergeRight,
     omit,
     pick,
     propOr,
@@ -76,7 +76,7 @@ function CheckedComponent(p) {
 
     return React.createElement(
         element,
-        mergeAll([props, extraProps]),
+        mergeRight(props, extraProps),
         ...(Array.isArray(children) ? children : [children])
     );
 }
@@ -140,7 +140,7 @@ class TreeContainer extends Component {
             >
                 {React.createElement(
                     element,
-                    mergeAll([props, { loading_state, setProps }]),
+                    mergeRight(props, { loading_state, setProps }),
                     ...(Array.isArray(children) ? children : [children])
                 )}
             </ComponentErrorBoundary>
