@@ -30,7 +30,7 @@ def test_mspl001_dcc_components_platter(platter_app, dash_duo):
     # for issue with datepicker when date value is `None`
 
     def reset_input(elem):
-        elem.send_keys(len(elem.get_attribute("value"))* Keys.BACKSPACE)
+        elem.send_keys(len(elem.get_attribute("value")) * Keys.BACKSPACE)
         elem.send_keys("1997-05-03")
 
     dt_input_1 = dash_duo.find_element("#dt-single-no-date-value #date")

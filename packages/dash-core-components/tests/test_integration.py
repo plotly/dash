@@ -584,7 +584,6 @@ class Tests(IntegrationTests):
         for entry in self.get_log():
             raise Exception('browser error logged during test', entry)
 
-
     def test_tabs_in_vertical_mode(self):
         app = dash.Dash(__name__)
 
