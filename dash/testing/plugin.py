@@ -27,7 +27,7 @@ def pytest_addoption(parser):
 
     dash.addoption(
         "--headless",
-        action="store",
+        action="store_true",
         default=False,
         help="Run tests in headless mode",
     )
