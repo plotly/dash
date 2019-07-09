@@ -1,6 +1,6 @@
 import {assoc, assocPath, mergeRight} from 'ramda';
 
-function createApiReducer(store) {
+export default function createApiReducer(store) {
     return function ApiReducer(state = {}, action) {
         let newState = state;
         if (action.type === store) {
@@ -33,8 +33,3 @@ function createApiReducer(store) {
         return newState;
     };
 }
-
-export const dependenciesRequest = createApiReducer('dependenciesRequest');
-export const layoutRequest = createApiReducer('layoutRequest');
-export const reloadRequest = createApiReducer('reloadRequest');
-export const loginRequest = createApiReducer('loginRequest');

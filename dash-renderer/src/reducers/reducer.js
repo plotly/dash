@@ -1,5 +1,14 @@
 'use strict';
-import {concat, equals, filter, isEmpty, keys, lensPath, view} from 'ramda';
+import {
+    concat,
+    equals,
+    filter,
+    forEach,
+    isEmpty,
+    keys,
+    lensPath,
+    view,
+} from 'ramda';
 import {combineReducers} from 'redux';
 import layout from './layout';
 import graphs from './dependencyGraph';
@@ -9,24 +18,34 @@ import appLifecycle from './appLifecycle';
 import history from './history';
 import error from './error';
 import hooks from './hooks';
-import * as API from './api';
+import createApiReducer from './api';
 import config from './config';
 
-const reducer = combineReducers({
-    appLifecycle,
-    layout,
-    graphs,
-    paths,
-    requestQueue,
-    config,
-    history,
-    error,
-    hooks,
-    dependenciesRequest: API.dependenciesRequest,
-    layoutRequest: API.layoutRequest,
-    reloadRequest: API.reloadRequest,
-    loginRequest: API.loginRequest,
-});
+export const apiRequests = [
+    'dependenciesRequest',
+    'layoutRequest',
+    'reloadRequest',
+    'loginRequest',
+];
+
+function mainReducer() {
+    const parts = {
+        appLifecycle,
+        layout,
+        graphs,
+        paths,
+        requestQueue,
+        config,
+        history,
+        error,
+        hooks,
+    };
+    forEach(r => {
+        parts[r] = createApiReducer(r);
+    }, apiRequests);
+
+    return combineReducers(parts);
+}
 
 function getInputHistoryState(itempath, props, state) {
     const {graphs, layout, paths} = state;
@@ -94,13 +113,20 @@ function recordHistory(reducer) {
 
 function reloaderReducer(reducer) {
     return function(state, action) {
+        const {history, config, hooks} = state || {};
+        let newState = state;
         if (action.type === 'RELOAD') {
-            const {history, config} = state;
-            // eslint-disable-next-line no-param-reassign
-            state = {history, config};
+            newState = {history, config, hooks};
+        } else if (action.type === 'SET_CONFIG') {
+            // new config also reloads, and even clears history,
+            // in case there's a new user or even a totally different app!
+            // hooks are set at an even higher level than config though.
+            newState = {hooks};
         }
-        return reducer(state, action);
+        return reducer(newState, action);
     };
 }
 
-export default reloaderReducer(recordHistory(reducer));
+export function createReducer() {
+    return reloaderReducer(recordHistory(mainReducer()));
+}
