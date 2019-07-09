@@ -80,21 +80,23 @@ def dash_process_server():
 
 
 @pytest.fixture
-def dash_br(request):
+def dash_br(request, tmpdir):
     with Browser(
         browser=request.config.getoption("webdriver"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
+        download_path=tmpdir.mkdir('download').strpath
     ) as browser:
         yield browser
 
 
 @pytest.fixture
-def dash_duo(request, dash_thread_server):
+def dash_duo(request, dash_thread_server, tmpdir):
     with DashComposite(
         dash_thread_server,
         browser=request.config.getoption("webdriver"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
+        download_path=tmpdir.mkdir('download').strpath
     ) as dc:
         yield dc
