@@ -15,6 +15,7 @@ import {
     keys,
     lensPath,
     mergeLeft,
+    mergeDeepRight,
     pluck,
     propEq,
     reject,
@@ -46,6 +47,12 @@ export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
         triggerDefaultState(dispatch, getState);
         dispatch(setAppLifecycle(getAppState('HYDRATED')));
+    };
+}
+
+export function getCSRFHeader() {
+    return {
+        'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
     };
 }
 
@@ -627,17 +634,16 @@ function updateOutput(
     }
 
     /* eslint-disable consistent-return */
-    return fetch(`${urlBase(config)}_dash-update-component`, {
-        /* eslint-enable consistent-return */
+    return fetch(
+        `${urlBase(config)}_dash-update-component`,
+        mergeDeepRight(config.fetch, {
+            /* eslint-enable consistent-return */
 
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(payload),
-    })
+            method: 'POST',
+            headers: getCSRFHeader(),
+            body: JSON.stringify(payload),
+        })
+    )
         .then(function handleResponse(res) {
             const isRejected = () => {
                 const latestRequestIndex = findLastIndex(
