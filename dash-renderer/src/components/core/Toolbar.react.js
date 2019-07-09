@@ -1,7 +1,7 @@
 import {connect} from 'react-redux';
 import React from 'react';
 import PropTypes from 'prop-types';
-import {merge} from 'ramda';
+import {mergeRight} from 'ramda';
 import {redo, undo} from '../../actions/index.js';
 import Radium from 'radium';
 
@@ -26,7 +26,7 @@ function UnconnectedToolbar(props) {
     const undoLink = (
         <span
             key="undoLink"
-            style={merge(
+            style={mergeRight(
                 {
                     color: history.past.length ? '#0074D9' : 'grey',
                     cursor: history.past.length ? 'pointer' : 'default',
@@ -35,7 +35,12 @@ function UnconnectedToolbar(props) {
             )}
             onClick={() => dispatch(undo())}
         >
-            <div style={merge({transform: 'rotate(270deg)'}, styles.iconStyle)}>
+            <div
+                style={mergeRight(
+                    {transform: 'rotate(270deg)'},
+                    styles.iconStyle
+                )}
+            >
                 ↺
             </div>
             <div style={styles.labelStyle}>undo</div>
@@ -45,7 +50,7 @@ function UnconnectedToolbar(props) {
     const redoLink = (
         <span
             key="redoLink"
-            style={merge(
+            style={mergeRight(
                 {
                     color: history.future.length ? '#0074D9' : 'grey',
                     cursor: history.future.length ? 'pointer' : 'default',
@@ -55,7 +60,12 @@ function UnconnectedToolbar(props) {
             )}
             onClick={() => dispatch(redo())}
         >
-            <div style={merge({transform: 'rotate(90deg)'}, styles.iconStyle)}>
+            <div
+                style={mergeRight(
+                    {transform: 'rotate(90deg)'},
+                    styles.iconStyle
+                )}
+            >
                 ↻
             </div>
             <div style={styles.labelStyle}>redo</div>
