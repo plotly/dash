@@ -63,7 +63,12 @@ export default function apiThunk(endpoint, method, store, id, body) {
                 });
             })
             .catch(err => {
-                err.text().then(text => {
+                const errText =
+                    typeof err.text === 'function'
+                        ? err.text()
+                        : Promise.resolve(err);
+
+                errText.then(text => {
                     dispatch(
                         onError({
                             type: 'backEnd',
