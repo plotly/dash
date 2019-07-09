@@ -4,30 +4,14 @@ export default function createApiReducer(store) {
     return function ApiReducer(state = {}, action) {
         let newState = state;
         if (action.type === store) {
-            const {payload} = action;
+            const {payload, status, content} = action;
+            const newRequest = {status, content};
             if (Array.isArray(payload.id)) {
-                newState = assocPath(
-                    payload.id,
-                    {
-                        status: payload.status,
-                        content: payload.content,
-                    },
-                    state
-                );
+                newState = assocPath(payload.id, newRequest, state);
             } else if (payload.id) {
-                newState = assoc(
-                    payload.id,
-                    {
-                        status: payload.status,
-                        content: payload.content,
-                    },
-                    state
-                );
+                newState = assoc(payload.id, newRequest, state);
             } else {
-                newState = mergeRight(state, {
-                    status: payload.status,
-                    content: payload.content,
-                });
+                newState = mergeRight(state, newRequest);
             }
         }
         return newState;
