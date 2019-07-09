@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [4.0.1] - 2019-07-09
 ### Changed
 [#488](https://github.com/plotly/dash-table/pull/488)
 - Update table build for use as a library and make consistent with other Dash repos
