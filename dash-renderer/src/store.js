@@ -14,7 +14,7 @@ let store;
  * @returns {Store<GenericStoreEnhancer>}
  *  An initialized redux store with middleware and possible hot reloading of reducers
  */
-const initializeStore = (reset) => {
+const initializeStore = reset => {
     if (store && !reset) {
         return store;
     }

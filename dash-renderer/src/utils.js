@@ -17,11 +17,11 @@ export function urlBase(config) {
         );
     }
 
-    const base = hasReqPrefix ?
-        config.requests_pathname_prefix :
-        config.url_base_pathname;
+    const base = hasReqPrefix
+        ? config.requests_pathname_prefix
+        : config.url_base_pathname;
 
-    return (base.charAt(base.length - 1) === '/') ? base : (base + '/');
+    return base.charAt(base.length - 1) === '/' ? base : base + '/';
 }
 
 export function uid() {
@@ -65,7 +65,5 @@ export function parseMultipleOutputs(outputIdAndProp) {
      * by `...`, e.g.
      * "..output-1.value...output-2.value...output-3.value...output-4.value.."
      */
-    return outputIdAndProp
-        .split('...')
-        .map(o => o.replace('..', ''));
+    return outputIdAndProp.split('...').map(o => o.replace('..', ''));
 }

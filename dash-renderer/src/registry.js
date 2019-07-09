@@ -1,7 +1,7 @@
 'use strict';
 
 export default {
-    resolve: (component) => {
+    resolve: component => {
         const {type, namespace} = component;
 
         const ns = window[namespace]; /* global window: true */
