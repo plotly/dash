@@ -34,7 +34,14 @@ function POST(path, body = {}, headers = {}) {
 
 const request = {GET, POST};
 
-function apiThunk(endpoint, method, store, id, body, headers = {}) {
+export default function apiThunk(
+    endpoint,
+    method,
+    store,
+    id,
+    body,
+    headers = {}
+) {
     return (dispatch, getState) => {
         const config = getState().config;
 
@@ -80,16 +87,4 @@ function apiThunk(endpoint, method, store, id, body, headers = {}) {
                 });
             });
     };
-}
-
-export function getLayout() {
-    return apiThunk('_dash-layout', 'GET', 'layoutRequest');
-}
-
-export function getDependencies() {
-    return apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest');
-}
-
-export function getReloadHash() {
-    return apiThunk('_reload-hash', 'GET', 'reloadRequest');
 }

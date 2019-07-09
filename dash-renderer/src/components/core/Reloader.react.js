@@ -13,7 +13,7 @@ import {
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
-import {getReloadHash} from '../../actions/api';
+import apiThunk from '../../actions/api';
 
 class Reloader extends React.Component {
     constructor(props) {
@@ -178,7 +178,7 @@ class Reloader extends React.Component {
                 // Prevent requests from piling up - reloading can take
                 // many seconds (10-30) and the interval is 3s by default
                 if (this.props.reloadRequest.status !== 'loading') {
-                    dispatch(getReloadHash());
+                    dispatch(apiThunk('_reload-hash', 'GET', 'reloadRequest'));
                 }
             }, interval);
             this.setState({intervalId});
