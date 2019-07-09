@@ -1,4 +1,4 @@
-import {assoc, assocPath, merge} from 'ramda';
+import {assoc, assocPath, mergeRight} from 'ramda';
 
 function createApiReducer(store) {
     return function ApiReducer(state = {}, action) {
@@ -24,7 +24,7 @@ function createApiReducer(store) {
                     state
                 );
             } else {
-                newState = merge(state, {
+                newState = mergeRight(state, {
                     status: payload.status,
                     content: payload.content,
                 });

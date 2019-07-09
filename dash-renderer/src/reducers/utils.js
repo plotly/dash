@@ -1,22 +1,32 @@
-import R from 'ramda';
+import {
+    allPass,
+    append,
+    compose,
+    flip,
+    has,
+    is,
+    prop,
+    reduce,
+    type,
+} from 'ramda';
 
-const extend = R.reduce(R.flip(R.append));
+const extend = reduce(flip(append));
 
-const hasProps = R.allPass([R.is(Object), R.has('props')]);
+const hasProps = allPass([is(Object), has('props')]);
 
-export const hasPropsId = R.allPass([
+export const hasPropsId = allPass([
     hasProps,
-    R.compose(
-        R.has('id'),
-        R.prop('props')
+    compose(
+        has('id'),
+        prop('props')
     ),
 ]);
 
-export const hasPropsChildren = R.allPass([
+export const hasPropsChildren = allPass([
     hasProps,
-    R.compose(
-        R.has('children'),
-        R.prop('props')
+    compose(
+        has('children'),
+        prop('props')
     ),
 ]);
 
@@ -32,12 +42,12 @@ export const crawlLayout = (object, func, path = []) => {
         const newPath = extend(path, ['props', 'children']);
         if (Array.isArray(object.props.children)) {
             object.props.children.forEach((child, i) => {
-                crawlLayout(child, func, R.append(i, newPath));
+                crawlLayout(child, func, append(i, newPath));
             });
         } else {
             crawlLayout(object.props.children, func, newPath);
         }
-    } else if (R.is(Array, object)) {
+    } else if (is(Array, object)) {
         /*
          * Sometimes when we're updating a sub-tree
          * (like when we're responding to a callback)
@@ -47,15 +57,15 @@ export const crawlLayout = (object, func, path = []) => {
          */
 
         object.forEach((child, i) => {
-            crawlLayout(child, func, R.append(i, path));
+            crawlLayout(child, func, append(i, path));
         });
     }
 };
 
 export function hasId(child) {
     return (
-        R.type(child) === 'Object' &&
-        R.has('props', child) &&
-        R.has('id', child.props)
+        type(child) === 'Object' &&
+        has('props', child) &&
+        has('id', child.props)
     );
 }
