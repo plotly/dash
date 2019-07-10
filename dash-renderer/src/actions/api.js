@@ -1,6 +1,6 @@
 /* global fetch: true, document: true */
 import cookie from 'cookie';
-import {merge} from 'ramda';
+import {mergeRight} from 'ramda';
 import {onError} from '../actions';
 import {urlBase} from '../utils';
 
@@ -20,7 +20,7 @@ function POST(path, body = {}, headers = {}) {
     return fetch(path, {
         method: 'POST',
         credentials: 'same-origin',
-        headers: merge(
+        headers: mergeRight(
             {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
