@@ -10,7 +10,7 @@ import dash.testing.wait as wait
 
 
 def test_radio_buttons_callbacks_generating_children(dash_duo):
-
+    TIMEOUT = 2
     with open(
         os.path.join(os.path.dirname(__file__), "state_path.json")
     ) as fp:
@@ -148,14 +148,6 @@ def test_radio_buttons_callbacks_generating_children(dash_duo):
 
     dash_duo.start_server(app)
 
-    wait.until(lambda: call_counts["body"].value == 1, timeout=1)
-    wait.until(lambda: call_counts["chapter1-graph"].value == 1, timeout=1)
-    wait.until(lambda: call_counts["chapter1-label"].value == 1, timeout=1)
-    assert call_counts["chapter2-graph"].value == 0
-    assert call_counts["chapter2-label"].value == 0
-    assert call_counts["chapter3-graph"].value == 0
-    assert call_counts["chapter3-label"].value == 0
-
     def check_chapter(chapter):
         for key in dash_duo.redux_state_paths:
             assert dash_duo.driver.find_elements(
@@ -178,45 +170,49 @@ def test_radio_buttons_callbacks_generating_children(dash_duo):
                 )
                 == value
             ),
-            timeout=1,
+            TIMEOUT,
         )
 
         rqs = dash_duo.redux_state_rqs
         assert rqs, "request queue is not empty"
         assert all((rq["status"] == 200 and not rq["rejected"] for rq in rqs))
 
+    def check_call_counts(chapters, count):
+        for chapter in chapters:
+            assert call_counts[chapter + "-graph"].value == count
+            assert call_counts[chapter + "-label"].value == count
+
+    wait.until(lambda: call_counts["body"].value == 1, TIMEOUT)
+    wait.until(lambda: call_counts["chapter1-graph"].value == 1, TIMEOUT)
+    wait.until(lambda: call_counts["chapter1-label"].value == 1, TIMEOUT)
+    check_call_counts(("chapter2", "chapter3"), 0)
+
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"]
     check_chapter("chapter1")
     dash_duo.percy_snapshot(name="chapter-1")
 
-    # switch chapters
-    dash_duo.find_elements('input[type="radio"]')[1].click()
+    dash_duo.find_elements('input[type="radio"]')[1].click()  # switch chapters
 
     # sleep just to make sure that no calls happen after our check
     time.sleep(0.2)
     dash_duo.percy_snapshot(name="chapter-2")
-    wait.until(lambda: call_counts["body"].value == 2, 2)
-    wait.until(lambda: call_counts["chapter2-graph"].value == 1, 2)
-    wait.until(lambda: call_counts["chapter2-label"].value == 1, 2)
-    assert call_counts["chapter1-graph"].value == 1
-    assert call_counts["chapter1-label"].value == 1
+    wait.until(lambda: call_counts["body"].value == 2, TIMEOUT)
+    wait.until(lambda: call_counts["chapter2-graph"].value == 1, TIMEOUT)
+    wait.until(lambda: call_counts["chapter2-label"].value == 1, TIMEOUT)
+    check_call_counts(("chapter1",), 1)
 
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter2"]
     check_chapter("chapter2")
 
     # switch to 3
     dash_duo.find_elements('input[type="radio"]')[2].click()
-    time.sleep(
-        0.2
-    )  # sleep just to make sure that no calls happen after our check
+    # sleep just to make sure that no calls happen after our check
+    time.sleep(0.2)
     dash_duo.percy_snapshot(name="chapter-3")
-    wait.until(lambda: call_counts["body"].value == 3, 2)
-    wait.until(lambda: call_counts["chapter3-graph"].value == 1, 2)
-    wait.until(lambda: call_counts["chapter3-label"].value == 1, 2)
-    assert call_counts["chapter2-graph"].value == 1
-    assert call_counts["chapter2-label"].value == 1
-    assert call_counts["chapter1-graph"].value == 1
-    assert call_counts["chapter1-label"].value == 1
+    wait.until(lambda: call_counts["body"].value == 3, TIMEOUT)
+    wait.until(lambda: call_counts["chapter3-graph"].value == 1, TIMEOUT)
+    wait.until(lambda: call_counts["chapter3-label"].value == 1, TIMEOUT)
+    check_call_counts(("chapter2", "cahpter1"), 1)
 
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter3"]
     check_chapter("chapter3")
