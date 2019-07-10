@@ -150,7 +150,7 @@ def test_radio_buttons_callbacks_generating_children(dash_duo):
 
     def check_chapter(chapter):
         for key in dash_duo.redux_state_paths:
-            assert dash_duo.driver.find_elements(
+            assert dash_duo.find_elements(
                 "#{}".format(key)
             ), "each element should exist in the dom"
 
@@ -222,7 +222,7 @@ def test_radio_buttons_callbacks_generating_children(dash_duo):
     dash_duo.percy_snapshot(name="chapter-4")
 
     for key in dash_duo.redux_state_paths:
-        assert dash_duo.driver.find_elements(
+        assert dash_duo.find_elements(
             "#{}".format(key)
         ), "each element should exist in the dom"
 
