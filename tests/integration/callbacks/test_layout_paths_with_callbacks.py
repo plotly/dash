@@ -212,7 +212,7 @@ def test_radio_buttons_callbacks_generating_children(dash_duo):
     wait.until(lambda: call_counts["body"].value == 3, TIMEOUT)
     wait.until(lambda: call_counts["chapter3-graph"].value == 1, TIMEOUT)
     wait.until(lambda: call_counts["chapter3-label"].value == 1, TIMEOUT)
-    check_call_counts(("chapter2", "cahpter1"), 1)
+    check_call_counts(("chapter2", "chapter1"), 1)
 
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter3"]
     check_chapter("chapter3")
