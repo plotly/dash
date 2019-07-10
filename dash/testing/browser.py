@@ -57,6 +57,10 @@ class Browser(DashPageMixin):
         )
         self.percy_runner.initialize_build()
 
+        logger.debug("initialize browser with arguments")
+        logger.debug("  headless => %s", self._headless)
+        logger.debug("  download_path => %s", self._download_path)
+
     def __enter__(self):
         return self
 
@@ -286,6 +290,24 @@ class Browser(DashPageMixin):
         chrome = webdriver.Chrome(
             options=options, desired_capabilities=capabilities
         )
+
+        # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
+        if self._headless:
+            # pylint: disable=protected-access
+            chrome.command_executor._commands["send_command"] = (
+                "POST",
+                "/session/$sessionId/chromium/send_command",
+            )
+            params = {
+                "cmd": "Page.setDownloadBehavior",
+                "params": {
+                    "behavior": "allow",
+                    "downloadPath": self.download_path,
+                },
+            }
+            res = chrome.execute("send_command", params)
+            logger.debug("enabled headless download returns %s", res)
+
         chrome.set_window_position(0, 0)
         return chrome
 
