@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 import os
+import shutil
 import sys
 import logging
 import warnings
@@ -65,6 +66,10 @@ class Browser(DashPageMixin):
         return self
 
     def __exit__(self, exc_type, exc_val, traceback):
+        try:
+            shutil.rmtree(self._download_path)
+        except OSError:
+            logger.exception("deleting tmp download folder has an issue")
         try:
             self.driver.quit()
             self.percy_runner.finalize_build()
@@ -284,6 +289,9 @@ class Browser(DashPageMixin):
             {
                 "download.default_directory": self.download_path,
                 "download.prompt_for_download": False,
+                "download.directory_upgrade": True,
+                "safebrowsing.enabled": False,
+                "safebrowsing.disable_download_protection": True,
             },
         )
 
