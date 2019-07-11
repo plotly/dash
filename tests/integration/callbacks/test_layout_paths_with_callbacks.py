@@ -1,6 +1,5 @@
 import os
 import json
-import time
 from multiprocessing import Value
 import dash_core_components as dcc
 import dash_html_components as html
@@ -9,7 +8,7 @@ from dash.dependencies import Input, Output
 import dash.testing.wait as wait
 
 
-def test_radio_buttons_callbacks_generating_children(dash_duo):
+def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     TIMEOUT = 2
     with open(
         os.path.join(os.path.dirname(__file__), "state_path.json")
@@ -193,9 +192,6 @@ def test_radio_buttons_callbacks_generating_children(dash_duo):
 
     dash_duo.find_elements('input[type="radio"]')[1].click()  # switch chapters
 
-    # sleep just to make sure that no calls happen after our check
-    time.sleep(0.2)
-    dash_duo.percy_snapshot(name="chapter-2")
     wait.until(lambda: call_counts["body"].value == 2, TIMEOUT)
     wait.until(lambda: call_counts["chapter2-graph"].value == 1, TIMEOUT)
     wait.until(lambda: call_counts["chapter2-label"].value == 1, TIMEOUT)
@@ -203,24 +199,23 @@ def test_radio_buttons_callbacks_generating_children(dash_duo):
 
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter2"]
     check_chapter("chapter2")
+    dash_duo.percy_snapshot(name="chapter-2")
 
     # switch to 3
     dash_duo.find_elements('input[type="radio"]')[2].click()
-    # sleep just to make sure that no calls happen after our check
-    time.sleep(0.2)
-    dash_duo.percy_snapshot(name="chapter-3")
+
     wait.until(lambda: call_counts["body"].value == 3, TIMEOUT)
     wait.until(lambda: call_counts["chapter3-graph"].value == 1, TIMEOUT)
     wait.until(lambda: call_counts["chapter3-label"].value == 1, TIMEOUT)
-    check_call_counts(("chapter2", "cahpter1"), 1)
+    check_call_counts(("chapter2", "chapter1"), 1)
 
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter3"]
     check_chapter("chapter3")
+    dash_duo.percy_snapshot(name="chapter-3")
 
     dash_duo.find_elements('input[type="radio"]')[3].click()  # switch to 4
     dash_duo.wait_for_text_to_equal("#body", "Just a string")
     dash_duo.percy_snapshot(name="chapter-4")
-
     for key in dash_duo.redux_state_paths:
         assert dash_duo.find_elements(
             "#{}".format(key)
@@ -232,7 +227,6 @@ def test_radio_buttons_callbacks_generating_children(dash_duo):
     }
 
     dash_duo.find_elements('input[type="radio"]')[0].click()
-    time.sleep(0.2)
     assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"]
     check_chapter("chapter1")
     dash_duo.percy_snapshot(name="chapter-1-again")
