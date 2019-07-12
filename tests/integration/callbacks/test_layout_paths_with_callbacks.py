@@ -227,6 +227,10 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     }
 
     dash_duo.find_elements('input[type="radio"]')[0].click()
-    assert dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"]
+
+    wait.until(
+        lambda: dash_duo.redux_state_paths == EXPECTED_PATHS["chapter1"],
+        TIMEOUT,
+    )
     check_chapter("chapter1")
     dash_duo.percy_snapshot(name="chapter-1-again")
