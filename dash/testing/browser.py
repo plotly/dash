@@ -30,11 +30,13 @@ class Browser(DashPageMixin):
         headless=False,
         options=None,
         remote=None,
+        download_path=None,
         wait_timeout=10,
     ):
         self._browser = browser.lower()
         self._headless = headless
         self._options = options
+        self._download_path = download_path
         self._wait_timeout = wait_timeout
 
         self._driver = self.get_webdriver(remote)
@@ -54,6 +56,10 @@ class Browser(DashPageMixin):
             )
         )
         self.percy_runner.initialize_build()
+
+        logger.debug("initialize browser with arguments")
+        logger.debug("  headless => %s", self._headless)
+        logger.debug("  download_path => %s", self._download_path)
 
     def __enter__(self):
         return self
@@ -273,9 +279,38 @@ class Browser(DashPageMixin):
         if "DASH_TEST_CHROMEPATH" in os.environ:
             options.binary_location = os.environ["DASH_TEST_CHROMEPATH"]
 
+        options.add_experimental_option(
+            "prefs",
+            {
+                "download.default_directory": self.download_path,
+                "download.prompt_for_download": False,
+                "download.directory_upgrade": True,
+                "safebrowsing.enabled": False,
+                "safebrowsing.disable_download_protection": True,
+            },
+        )
+
         chrome = webdriver.Chrome(
             options=options, desired_capabilities=capabilities
         )
+
+        # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
+        if self._headless:
+            # pylint: disable=protected-access
+            chrome.command_executor._commands["send_command"] = (
+                "POST",
+                "/session/$sessionId/chromium/send_command",
+            )
+            params = {
+                "cmd": "Page.setDownloadBehavior",
+                "params": {
+                    "behavior": "allow",
+                    "downloadPath": self.download_path,
+                },
+            }
+            res = chrome.execute("send_command", params)
+            logger.debug("enabled headless download returns %s", res)
+
         chrome.set_window_position(0, 0)
         return chrome
 
@@ -288,16 +323,14 @@ class Browser(DashPageMixin):
 
         # https://developer.mozilla.org/en-US/docs/Download_Manager_preferences
         fp = webdriver.FirefoxProfile()
-
-        # this will be useful if we wanna test download csv or other data
-        # files with selenium
-        # TODO this could be replaced with a tmpfixture from pytest too
-        fp.set_preference("browser.download.dir", "/tmp")
+        fp.set_preference("browser.download.dir", self.download_path)
         fp.set_preference("browser.download.folderList", 2)
-        fp.set_preference("browser.download.manager.showWhenStarting", False)
-
+        fp.set_preference(
+            "browser.helperApps.neverAsk.saveToDisk",
+            "application/octet-stream",  # this MIME is generic for binary
+        )
         return webdriver.Firefox(
-            fp, options=options, capabilities=capabilities
+            firefox_profile=fp, options=options, capabilities=capabilities
         )
 
     @staticmethod
@@ -363,3 +396,7 @@ class Browser(DashPageMixin):
         """
         self._url = value
         self.wait_for_page()
+
+    @property
+    def download_path(self):
+        return self._download_path
