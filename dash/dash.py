@@ -14,6 +14,7 @@ import logging
 import pprint
 
 from functools import wraps
+from textwrap import dedent
 
 import flask
 from flask import Flask, Response
@@ -808,13 +809,13 @@ class Dash(object):
         if (layout is None and not self.config.suppress_callback_exceptions):
             # Without a layout, we can't do validation on the IDs and
             # properties of the elements in the callback.
-            raise exceptions.LayoutIsNotDefined('''
+            raise exceptions.LayoutIsNotDefined(dedent('''
                 Attempting to assign a callback to the application but
                 the `layout` property has not been assigned.
                 Assign the `layout` property before assigning callbacks.
                 Alternatively, suppress this warning by setting
                 `suppress_callback_exceptions=True`
-            '''.replace('    ', ''))
+            '''))
 
         outputs = output if is_multi else [output]
         for args, obj, name in [(outputs, Output, 'Output'),
@@ -852,7 +853,7 @@ class Dash(object):
                         all_ids = [k for k in layout]
                         if layout_id:
                             all_ids.append(layout_id)
-                        raise exceptions.NonExistentIdException('''
+                        raise exceptions.NonExistentIdException(dedent('''
                             Attempting to assign a callback to the
                             component with the id "{0}" but no
                             components with id "{0}" exist in the
@@ -863,7 +864,7 @@ class Dash(object):
                             (and therefore not in the initial layout), then
                             you can suppress this exception by setting
                             `suppress_callback_exceptions=True`.
-                        '''.format(arg_id, all_ids).replace('    ', ''))
+                        ''').format(arg_id, all_ids))
 
                     component = (
                         layout if layout_id == arg_id else layout[arg_id]
@@ -873,34 +874,34 @@ class Dash(object):
                             arg_prop not in component.available_properties and
                             not any(arg_prop.startswith(w) for w in
                                     component.available_wildcard_properties)):
-                        raise exceptions.NonExistentPropException('''
+                        raise exceptions.NonExistentPropException(dedent('''
                             Attempting to assign a callback with
                             the property "{0}" but the component
                             "{1}" doesn't have "{0}" as a property.\n
                             Here are the available properties in "{1}":
                             {2}
-                        '''.format(
+                        ''').format(
                             arg_prop, arg_id, component.available_properties
-                        ).replace('    ', ''))
+                        ))
 
                     if hasattr(arg, 'component_event'):
-                        raise exceptions.NonExistentEventException('''
+                        raise exceptions.NonExistentEventException(dedent('''
                             Events have been removed.
                             Use the associated property instead.
-                        '''.replace('    ', ''))
+                        '''))
 
         if state and not inputs:
-            raise exceptions.MissingInputsException('''
+            raise exceptions.MissingInputsException(dedent('''
                 This callback has {} `State` {}
                 but no `Input` elements.\n
                 Without `Input` elements, this callback
                 will never get called.\n
                 (Subscribing to input components will cause the
                 callback to be called whenever their values change.)
-            '''.format(
+            ''').format(
                 len(state),
                 'elements' if len(state) > 1 else 'element'
-            ).replace('    ', ''))
+            ))
 
         for i in inputs:
             bad = None
@@ -951,25 +952,22 @@ class Dash(object):
                 return callback_id in callbacks
         if duplicate_check():
             if is_multi:
-                msg = '''
+                msg = dedent('''
                 Multi output {} contains an `Output` object
                 that was already assigned.
                 Duplicates:
                 {}
-                '''.format(
+                ''').format(
                     callback_id,
                     pprint.pformat(ns['duplicates'])
-                ).replace('    ', '')
+                )
             else:
-                msg = '''
+                msg = dedent('''
                 You have already assigned a callback to the output
                 with ID "{}" and property "{}". An output can only have
                 a single callback function. Try combining your inputs and
                 callback functions together into one function.
-                '''.format(
-                    output.component_id,
-                    output.component_property
-                ).replace('    ', '')
+                ''').format(output.component_id, output.component_property)
             raise exceptions.DuplicateCallbackOutput(msg)
 
     @staticmethod
@@ -982,7 +980,7 @@ class Dash(object):
             outer_id = "(id={:s})".format(outer_val.id) \
                 if getattr(outer_val, 'id', False) else ''
             outer_type = type(outer_val).__name__
-            raise exceptions.InvalidCallbackReturnValue('''
+            raise exceptions.InvalidCallbackReturnValue(dedent('''
             The callback for `{output:s}`
             returned a {object:s} having type `{type:s}`
             which is not JSON serializable.
@@ -994,15 +992,15 @@ class Dash(object):
             In general, Dash properties can only be
             dash components, strings, dictionaries, numbers, None,
             or lists of those.
-            '''.format(
+            ''').format(
                 output=repr(output),
                 object='tree with one value' if not toplevel else 'value',
                 type=bad_type,
                 location_header=(
                     'The value in question is located at'
                     if not toplevel else
-                    '''The value in question is either the only value returned,
-                    or is in the top level of the returned list,'''
+                    'The value in question is either the only value returned,'
+                    '\nor is in the top level of the returned list,'
                 ),
                 location=(
                     "\n" +
@@ -1012,7 +1010,7 @@ class Dash(object):
                     + "\n" + path + "\n"
                 ) if not toplevel else '',
                 bad_val=bad_val
-            ).replace('    ', ''))
+            ))
 
         def _value_is_valid(val):
             return (
@@ -1226,7 +1224,7 @@ class Dash(object):
                     )
                 except TypeError:
                     self._validate_callback_output(output_value, output)
-                    raise exceptions.InvalidCallbackReturnValue('''
+                    raise exceptions.InvalidCallbackReturnValue(dedent('''
                     The callback for property `{property:s}`
                     of component `{id:s}` returned a value
                     which is not JSON serializable.
@@ -1234,10 +1232,10 @@ class Dash(object):
                     In general, Dash properties can only be
                     dash components, strings, dictionaries, numbers, None,
                     or lists of those.
-                    '''.format(
+                    ''').format(
                         property=output.component_property,
                         id=output.component_id
-                    ).replace('    ', ''))
+                    ))
 
                 return jsonResponse
 
