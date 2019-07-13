@@ -849,6 +849,9 @@ class Dash(object):
                     arg_id = arg.component_id
                     arg_prop = getattr(arg, 'component_property', None)
                     if (arg_id not in layout and arg_id != layout_id):
+                        all_ids = [k for k in layout]
+                        if layout_id:
+                            all_ids.append(layout_id)
                         raise exceptions.NonExistentIdException('''
                             Attempting to assign a callback to the
                             component with the id "{0}" but no
@@ -860,12 +863,7 @@ class Dash(object):
                             (and therefore not in the initial layout), then
                             you can suppress this exception by setting
                             `suppress_callback_exceptions=True`.
-                        '''.format(
-                            arg_id,
-                            list(layout.keys()) + (
-                                [layout_id] if layout_id else []
-                            )
-                        ).replace('    ', ''))
+                        '''.format(arg_id, all_ids).replace('    ', ''))
 
                     component = (
                         layout if layout_id == arg_id else layout[arg_id]
