@@ -437,6 +437,17 @@
         "required": false,
         "description": "When selecting multiple cells\n(via clicking on a cell and then shift-clicking on another cell),\n`end_cell` represents the row / column coordinates and IDs of the cell\nin one of the corners of the region.\n`start_cell` represents the coordinates of the other corner."
       },
+      "fill_width": {
+        "type": {
+          "name": "bool"
+        },
+        "required": false,
+        "description": "`fill_width` toggles between a set of CSS for two common behaviors:\n- True: The table container's width will grow to fill the available space\n- False: The table container's width will equal the width of its content",
+        "defaultValue": {
+          "value": "true",
+          "computed": false
+        }
+      },
       "id": {
         "type": {
           "name": "string"

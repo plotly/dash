@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [4.0.2] - 2019-07-15
 ### Fixed
 [#489](https://github.com/plotly/dash-table/issues/489)
 - Add `fill_width` prop to replace `content_style` prop removed in the [4.0 API rework](https://github.com/plotly/dash-table/pull/446)
