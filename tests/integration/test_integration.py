@@ -887,6 +887,7 @@ def test_inin019_callback_dep_types():
             return i
 
         pytest.fail("un-nested state")
+
     # all OK with tuples
     @app.callback(
         (Output("out", "children"),),
