@@ -1,3 +1,6 @@
+## Unreleased
+### Fixed
+- [#821](https://github.com/plotly/dash/pull/821) Fix a bug with callback error reporting, [#791](https://github.com/plotly/dash/issues/791).
 
 ## [1.0.1] - 2019-07-09
 ### Changed

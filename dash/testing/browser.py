@@ -69,7 +69,7 @@ class Browser(DashPageMixin):
             self.driver.quit()
             self.percy_runner.finalize_build()
         except WebDriverException:
-            logger.exception("webdriver quit was not successfully")
+            logger.exception("webdriver quit was not successful")
         except percy.errors.Error:
             logger.exception("percy runner failed to finalize properly")
 
@@ -247,16 +247,22 @@ class Browser(DashPageMixin):
         )
 
     def get_webdriver(self, remote):
-        return (
-            getattr(self, "_get_{}".format(self._browser))()
-            if remote is None
-            else webdriver.Remote(
-                command_executor=remote,
-                desired_capabilities=getattr(
-                    DesiredCapabilities, self._browser.upper()
-                ),
-            )
-        )
+        # occasionally the browser fails to start - give it 3 tries
+        for i in reversed(range(3)):
+            try:
+                return (
+                    getattr(self, "_get_{}".format(self._browser))()
+                    if remote is None
+                    else webdriver.Remote(
+                        command_executor=remote,
+                        desired_capabilities=getattr(
+                            DesiredCapabilities, self._browser.upper()
+                        ),
+                    )
+                )
+            except WebDriverException:
+                if not i:
+                    raise
 
     def _get_wd_options(self):
         options = (
