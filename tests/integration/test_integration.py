@@ -75,7 +75,10 @@ def test_inin002_wildcard_callback(dash_duo):
                         "string",
                         html.Div(
                             id="output-1",
-                            **{"data-cb": "initial value", "aria-cb": "initial value"}
+                            **{
+                                "data-cb": "initial value",
+                                "aria-cb": "initial value",
+                            }
                         ),
                     ]
                 )
@@ -90,7 +93,9 @@ def test_inin002_wildcard_callback(dash_duo):
         input_call_count.value += 1
         return value
 
-    @app.callback(Output("output-1", "children"), [Input("output-1", "data-cb")])
+    @app.callback(
+        Output("output-1", "children"), [Input("output-1", "data-cb")]
+    )
     def update_text(data):
         return data
 
@@ -141,7 +146,9 @@ def test_inin003_aborted_callback(dash_duo):
         raise PreventUpdate("testing callback does not update")
         return value
 
-    @app.callback(Output("output2", "children"), [Input("output1", "children")])
+    @app.callback(
+        Output("output2", "children"), [Input("output1", "children")]
+    )
     def callback2(value):
         callback2_count.value += 1
         return value
@@ -193,7 +200,9 @@ def test_inin004_wildcard_data_attributes(dash_duo):
     actual = BeautifulSoup(div.get_attribute("innerHTML"), "lxml").decode()
     expected = BeautifulSoup(
         "<div "
-        + " ".join('{}="{!s}"'.format(k, v) for k, v in attrs.items() if v is not None)
+        + " ".join(
+            '{}="{!s}"'.format(k, v) for k, v in attrs.items() if v is not None
+        )
         + "></div>",
         "lxml",
     ).decode()
@@ -238,7 +247,8 @@ def test_inin006_flow_component(dash_duo):
     )
 
     @app.callback(
-        Output("output", "children"), [Input("react", "value"), Input("flow", "value")]
+        Output("output", "children"),
+        [Input("react", "value"), Input("flow", "value")],
     )
     def display_output(react_value, flow_value):
         return html.Div(
@@ -387,9 +397,15 @@ def test_inin011_multi_output(dash_duo):
             html.Button("OUTPUT", id="output-btn"),
             html.Table(
                 [
-                    html.Thead([html.Tr([html.Th("Output 1"), html.Th("Output 2")])]),
+                    html.Thead(
+                        [html.Tr([html.Th("Output 1"), html.Th("Output 2")])]
+                    ),
                     html.Tbody(
-                        [html.Tr([html.Td(id="output1"), html.Td(id="output2")])]
+                        [
+                            html.Tr(
+                                [html.Td(id="output1"), html.Td(id="output2")]
+                            )
+                        ]
                     ),
                 ]
             ),
@@ -411,31 +427,30 @@ def test_inin011_multi_output(dash_duo):
         return n_clicks, n_clicks_timestamp
 
     # Dummy callback for DuplicateCallbackOutput test.
-    @app.callback(Output("output3", "children"), [Input("output-btn", "n_clicks")])
+    @app.callback(
+        Output("output3", "children"), [Input("output-btn", "n_clicks")]
+    )
     def dummy_callback(n_clicks):
         if n_clicks is None:
             raise PreventUpdate
 
         return "Output 3: {}".format(n_clicks)
 
-    with pytest.raises(
-        DuplicateCallbackOutput,
-        message="multi output can't be included in a single output",
-    ) as err:
+    with pytest.raises(DuplicateCallbackOutput) as err:
 
-        @app.callback(Output("output1", "children"), [Input("output-btn", "n_clicks")])
+        @app.callback(
+            Output("output1", "children"), [Input("output-btn", "n_clicks")]
+        )
         def on_click_duplicate(n_clicks):
             if n_clicks is None:
                 raise PreventUpdate
-
             return "something else"
+
+        pytest.fail("multi output can't be included in a single output")
 
     assert "output1" in err.value.args[0]
 
-    with pytest.raises(
-        DuplicateCallbackOutput,
-        message="multi output cannot contain a used single output",
-    ) as err:
+    with pytest.raises(DuplicateCallbackOutput) as err:
 
         @app.callback(
             [Output("output3", "children"), Output("output4", "children")],
@@ -444,15 +459,13 @@ def test_inin011_multi_output(dash_duo):
         def on_click_duplicate_multi(n_clicks):
             if n_clicks is None:
                 raise PreventUpdate
-
             return "something else"
+
+        pytest.fail("multi output cannot contain a used single output")
 
     assert "output3" in err.value.args[0]
 
-    with pytest.raises(
-        DuplicateCallbackOutput,
-        message="same output cannot be used twice in one callback",
-    ) as err:
+    with pytest.raises(DuplicateCallbackOutput) as err:
 
         @app.callback(
             [Output("output5", "children"), Output("output5", "children")],
@@ -461,12 +474,11 @@ def test_inin011_multi_output(dash_duo):
         def on_click_same_output(n_clicks):
             return n_clicks
 
+        pytest.fail("same output cannot be used twice in one callback")
+
     assert "output5" in err.value.args[0]
 
-    with pytest.raises(
-        DuplicateCallbackOutput,
-        message="no part of an existing multi-output can be used in another",
-    ) as err:
+    with pytest.raises(DuplicateCallbackOutput) as err:
 
         @app.callback(
             [Output("output1", "children"), Output("output5", "children")],
@@ -475,6 +487,9 @@ def test_inin011_multi_output(dash_duo):
         def overlapping_multi_output(n_clicks):
             return n_clicks
 
+        pytest.fail(
+            "no part of an existing multi-output can be used in another"
+        )
     assert (
         "{'output1.children'}" in err.value.args[0]
         or "set(['output1.children'])" in err.value.args[0]
@@ -506,7 +521,11 @@ def test_inin012_multi_output_no_update(dash_duo):
     )
 
     @app.callback(
-        [Output("n1", "children"), Output("n2", "children"), Output("n3", "children")],
+        [
+            Output("n1", "children"),
+            Output("n2", "children"),
+            Output("n3", "children"),
+        ],
         [Input("btn", "n_clicks")],
     )
     def show_clicks(n):
@@ -748,11 +767,15 @@ def test_inin015_with_custom_renderer_interpolated(dash_duo):
 
 def test_inin016_modified_response(dash_duo):
     app = Dash(__name__)
-    app.layout = html.Div([dcc.Input(id="input", value="ab"), html.Div(id="output")])
+    app.layout = html.Div(
+        [dcc.Input(id="input", value="ab"), html.Div(id="output")]
+    )
 
     @app.callback(Output("output", "children"), [Input("input", "value")])
     def update_output(value):
-        callback_context.response.set_cookie("dash cookie", value + " - cookie")
+        callback_context.response.set_cookie(
+            "dash cookie", value + " - cookie"
+        )
         return value + " - output"
 
     dash_duo.start_server(app)
@@ -773,10 +796,15 @@ def test_inin017_late_component_register(dash_duo):
     app = Dash()
 
     app.layout = html.Div(
-        [html.Button("Click me to put a dcc ", id="btn-insert"), html.Div(id="output")]
+        [
+            html.Button("Click me to put a dcc ", id="btn-insert"),
+            html.Div(id="output"),
+        ]
     )
 
-    @app.callback(Output("output", "children"), [Input("btn-insert", "n_clicks")])
+    @app.callback(
+        Output("output", "children"), [Input("btn-insert", "n_clicks")]
+    )
     def update_output(value):
         if value is None:
             raise PreventUpdate
@@ -793,12 +821,15 @@ def test_inin017_late_component_register(dash_duo):
 
 def test_inin018_output_input_invalid_callback():
     app = Dash(__name__)
-    app.layout = html.Div([html.Div("child", id="input-output"), html.Div(id="out")])
+    app.layout = html.Div(
+        [html.Div("child", id="input-output"), html.Div(id="out")]
+    )
 
     with pytest.raises(CallbackException) as err:
 
         @app.callback(
-            Output("input-output", "children"), [Input("input-output", "children")]
+            Output("input-output", "children"),
+            [Input("input-output", "children")],
         )
         def failure(children):
             pass
@@ -823,22 +854,30 @@ def test_inin018_output_input_invalid_callback():
 def test_inin019_callback_dep_types():
     app = Dash(__name__)
     app.layout = html.Div(
-        [html.Div("child", id="in"), html.Div("state", id="state"), html.Div(id="out")]
+        [
+            html.Div("child", id="in"),
+            html.Div("state", id="state"),
+            html.Div(id="out"),
+        ]
     )
 
-    with pytest.raises(IncorrectTypeException, message="extra output nesting"):
+    with pytest.raises(IncorrectTypeException):
 
         @app.callback([[Output("out", "children")]], [Input("in", "children")])
         def f(i):
             return i
 
-    with pytest.raises(IncorrectTypeException, message="un-nested input"):
+        pytest.fail("extra output nesting")
+
+    with pytest.raises(IncorrectTypeException):
 
         @app.callback(Output("out", "children"), Input("in", "children"))
         def f2(i):
             return i
 
-    with pytest.raises(IncorrectTypeException, message="un-nested state"):
+        pytest.fail("un-nested input")
+
+    with pytest.raises(IncorrectTypeException):
 
         @app.callback(
             Output("out", "children"),
@@ -847,6 +886,8 @@ def test_inin019_callback_dep_types():
         )
         def f3(i):
             return i
+
+        pytest.fail("un-nested state")
 
     # all OK with tuples
     @app.callback(
@@ -875,26 +916,31 @@ def test_inin020_callback_return_validation():
     def single(a):
         return set([1])
 
-    with pytest.raises(InvalidCallbackReturnValue, message="not serializable"):
+    with pytest.raises(InvalidCallbackReturnValue):
         single("aaa")
+        pytest.fail("not serializable")
 
     @app.callback(
-        [Output("c", "children"), Output("d", "children")], [Input("a", "children")]
+        [Output("c", "children"), Output("d", "children")],
+        [Input("a", "children")],
     )
     def multi(a):
         return [1, set([2])]
 
-    with pytest.raises(InvalidCallbackReturnValue, message="nested non-serializable"):
+    with pytest.raises(InvalidCallbackReturnValue):
         multi("aaa")
+        pytest.fail("nested non-serializable")
 
     @app.callback(
-        [Output("e", "children"), Output("f", "children")], [Input("a", "children")]
+        [Output("e", "children"), Output("f", "children")],
+        [Input("a", "children")],
     )
     def multi2(a):
         return ["abc"]
 
-    with pytest.raises(InvalidCallbackReturnValue, message="wrong-length list"):
+    with pytest.raises(InvalidCallbackReturnValue):
         multi2("aaa")
+        pytest.fail("wrong-length list")
 
 
 def test_inin021_callback_context(dash_duo):
@@ -903,10 +949,15 @@ def test_inin021_callback_context(dash_duo):
     btns = ["btn-{}".format(x) for x in range(1, 6)]
 
     app.layout = html.Div(
-        [html.Div([html.Button(btn, id=btn) for btn in btns]), html.Div(id="output")]
+        [
+            html.Div([html.Button(btn, id=btn) for btn in btns]),
+            html.Div(id="output"),
+        ]
     )
 
-    @app.callback(Output("output", "children"), [Input(x, "n_clicks") for x in btns])
+    @app.callback(
+        Output("output", "children"), [Input(x, "n_clicks") for x in btns]
+    )
     def on_click(*args):
         if not callback_context.triggered:
             raise PreventUpdate

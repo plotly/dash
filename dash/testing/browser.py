@@ -15,7 +15,12 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from selenium.common.exceptions import WebDriverException, TimeoutException
 
-from dash.testing.wait import text_to_equal, style_to_equal, contains_text
+from dash.testing.wait import (
+    text_to_equal,
+    style_to_equal,
+    contains_text,
+    until,
+)
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError
 
@@ -39,7 +44,7 @@ class Browser(DashPageMixin):
         self._download_path = download_path
         self._wait_timeout = wait_timeout
 
-        self._driver = self.get_webdriver(remote)
+        self._driver = until(lambda: self.get_webdriver(remote), timeout=1)
         self._driver.implicitly_wait(2)
 
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
@@ -247,22 +252,20 @@ class Browser(DashPageMixin):
         )
 
     def get_webdriver(self, remote):
-        # occasionally the browser fails to start - give it 3 tries
-        for i in reversed(range(3)):
-            try:
-                return (
-                    getattr(self, "_get_{}".format(self._browser))()
-                    if remote is None
-                    else webdriver.Remote(
-                        command_executor=remote,
-                        desired_capabilities=getattr(
-                            DesiredCapabilities, self._browser.upper()
-                        ),
-                    )
+        try:
+            return (
+                getattr(self, "_get_{}".format(self._browser))()
+                if remote is None
+                else webdriver.Remote(
+                    command_executor=remote,
+                    desired_capabilities=getattr(
+                        DesiredCapabilities, self._browser.upper()
+                    ),
                 )
-            except WebDriverException:
-                if not i:
-                    raise
+            )
+        except WebDriverException:
+            logger.exception("<<<Webdriver not initialized correctly>>>")
+            return None
 
     def _get_wd_options(self):
         options = (
