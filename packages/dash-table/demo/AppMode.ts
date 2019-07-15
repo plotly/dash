@@ -89,6 +89,7 @@ function getDefaultState(
             data: mock.data,
             editable: true,
             sort_action: TableAction.Native,
+            fill_width: false,
             fixed_rows: { headers: true },
             fixed_columns: { headers: true },
             merge_duplicate_headers: false,
@@ -229,6 +230,7 @@ function getVirtualizedState() {
         tableProps: R.merge(getBaseTableProps(mock), {
             data: mock.data,
             editable: true,
+            fill_width: false,
             sort_action: TableAction.Native,
             merge_duplicate_headers: false,
             row_deletable: true,

@@ -68,6 +68,7 @@ export const defaultProps = {
     dropdown_conditional: [],
     dropdown_data: [],
 
+    fill_width: true,
     fixed_columns: {
         headers: false,
         data: 0
@@ -414,6 +415,13 @@ export const propTypes = {
         row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         column_id: PropTypes.string
     }),
+
+    /**
+     * `fill_width` toggles between a set of CSS for two common behaviors:
+     * - True: The table container's width will grow to fill the available space
+     * - False: The table container's width will equal the width of its content
+     */
+    fill_width: PropTypes.bool,
 
     /**
      * The ID of the table.

@@ -21,6 +21,7 @@ const data = (() => {
 
 const baseProps = {
     setProps,
+    fill_width: false,
     id: 'table',
     data
 };

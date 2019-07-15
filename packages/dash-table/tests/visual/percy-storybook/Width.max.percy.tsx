@@ -21,6 +21,7 @@ const data = (() => {
 
 const baseProps = {
     setProps,
+    fill_width: false,
     id: 'table',
     data,
     style_data_conditional: [{ max_width: 10 }]

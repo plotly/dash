@@ -684,6 +684,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             tooltip_conditional,
             tooltip,
             currentTooltip,
+            fill_width,
             filter_action,
             fixed_columns,
             fixed_rows,
@@ -730,7 +731,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             ...(empty[1][1] ? ['dash-empty-11'] : []),
             ...(columns.length ? [] : ['dash-no-columns']),
             ...(virtualized.data.length ? [] : ['dash-no-data']),
-            ...(filter_action !== TableAction.None ? [] : ['dash-no-filter'])
+            ...(filter_action !== TableAction.None ? [] : ['dash-no-filter']),
+            ...(fill_width ? ['dash-fill-width'] : [])
         ];
 
         const containerClasses = ['dash-spreadsheet-container', ...classes];
