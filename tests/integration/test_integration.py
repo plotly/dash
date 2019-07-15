@@ -1,7 +1,5 @@
 from multiprocessing import Value
 import datetime
-import itertools
-import re
 import time
 import pytest
 
@@ -403,57 +401,47 @@ def test_inin011_multi_output(dash_duo):
 
         return 'Output 3: {}'.format(n_clicks)
 
-    with pytest.raises(
-        DuplicateCallbackOutput,
-        message="multi output can't be included in a single output"
-    ) as err:
+    with pytest.raises(DuplicateCallbackOutput) as err:
         @app.callback(Output('output1', 'children'),
                       [Input('output-btn', 'n_clicks')])
         def on_click_duplicate(n_clicks):
             if n_clicks is None:
                 raise PreventUpdate
-
             return 'something else'
+        pytest.fail("multi output can't be included in a single output")
 
     assert 'output1' in err.value.args[0]
 
-    with pytest.raises(
-        DuplicateCallbackOutput,
-        message="multi output cannot contain a used single output"
-    ) as err:
+    with pytest.raises(DuplicateCallbackOutput) as err:
         @app.callback([Output('output3', 'children'),
                        Output('output4', 'children')],
                       [Input('output-btn', 'n_clicks')])
         def on_click_duplicate_multi(n_clicks):
             if n_clicks is None:
                 raise PreventUpdate
-
             return 'something else'
+        pytest.fail("multi output cannot contain a used single output")
 
     assert 'output3' in err.value.args[0]
 
-    with pytest.raises(
-        DuplicateCallbackOutput,
-        message="same output cannot be used twice in one callback"
-    ) as err:
+    with pytest.raises(DuplicateCallbackOutput) as err:
         @app.callback([Output('output5', 'children'),
                        Output('output5', 'children')],
                       [Input('output-btn', 'n_clicks')])
         def on_click_same_output(n_clicks):
             return n_clicks
+        pytest.fail("same output cannot be used twice in one callback")
 
     assert 'output5' in err.value.args[0]
 
-    with pytest.raises(
-        DuplicateCallbackOutput,
-        message="no part of an existing multi-output can be used in another"
-    ) as err:
+    with pytest.raises(DuplicateCallbackOutput) as err:
         @app.callback([Output('output1', 'children'),
                        Output('output5', 'children')],
                       [Input('output-btn', 'n_clicks')])
         def overlapping_multi_output(n_clicks):
             return n_clicks
-
+        pytest.fail(
+            "no part of an existing multi-output can be used in another")
     assert (
         '{\'output1.children\'}' in err.value.args[0]
         or "set(['output1.children'])" in err.value.args[0]
@@ -797,32 +785,33 @@ def test_inin019_callback_dep_types():
         html.Div(id='out')
     ])
 
-    with pytest.raises(IncorrectTypeException, message="extra output nesting"):
+    with pytest.raises(IncorrectTypeException):
         @app.callback([[Output('out', 'children')]],
                       [Input('in', 'children')])
         def f(i):
             return i
+        pytest.fail("extra output nesting")
 
-    with pytest.raises(IncorrectTypeException, message="un-nested input"):
+    with pytest.raises(IncorrectTypeException):
         @app.callback(Output('out', 'children'),
                       Input('in', 'children'))
         def f2(i):
             return i
+        pytest.fail("un-nested input")
 
-    with pytest.raises(IncorrectTypeException, message="un-nested state"):
+    with pytest.raises(IncorrectTypeException):
         @app.callback(Output('out', 'children'),
                       [Input('in', 'children')],
                       State('state', 'children'))
         def f3(i):
             return i
-
+        pytest.fail("un-nested state")
     # all OK with tuples
     @app.callback((Output('out', 'children'),),
                   (Input('in', 'children'),),
                   (State('state', 'children'),))
     def f4(i):
         return i
-
 
 def test_inin020_callback_return_validation():
     app = Dash(__name__)
@@ -839,29 +828,27 @@ def test_inin020_callback_return_validation():
     def single(a):
         return set([1])
 
-    with pytest.raises(InvalidCallbackReturnValue, message="not serializable"):
+    with pytest.raises(InvalidCallbackReturnValue):
         single('aaa')
+        pytest.fail("not serializable")
 
     @app.callback([Output('c', 'children'), Output('d', 'children')],
                   [Input('a', 'children')])
     def multi(a):
         return [1, set([2])]
 
-    with pytest.raises(
-        InvalidCallbackReturnValue, message="nested non-serializable"
-    ):
+    with pytest.raises(InvalidCallbackReturnValue):
         multi('aaa')
+        pytest.fail("nested non-serializable")
 
     @app.callback([Output('e', 'children'), Output('f', 'children')],
                   [Input('a', 'children')])
     def multi2(a):
         return ['abc']
 
-    with pytest.raises(
-        InvalidCallbackReturnValue, message="wrong-length list"
-    ):
+    with pytest.raises(InvalidCallbackReturnValue):
         multi2('aaa')
-
+        pytest.fail("wrong-length list")
 
 def test_inin021_callback_context(dash_duo):
     app = Dash(__name__)
