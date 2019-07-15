@@ -965,6 +965,15 @@ def test_inin023_wrong_callback_id():
     for component_id in ids:
         assert component_id in err.value.args[0]
 
+    with pytest.raises(NonExistentIdException) as err:
+
+        @app.callback(
+            [Output("inner-div", "children"), Output("nope", "children")],
+            [Input("inner-input", "value")],
+        )
+        def g2(a):
+            return [a, a]
+
     # the right way
     @app.callback(Output("inner-div", "children"), [Input("inner-input", "value")])
     def h(a):
