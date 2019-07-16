@@ -96,7 +96,8 @@ export default class HeaderFactory {
             sort_mode,
             sort_by,
             page_action,
-            setProps
+            setProps,
+            merge_duplicate_headers
         );
 
         const ops = this.getHeaderOpCells(
