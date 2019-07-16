@@ -28,7 +28,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - `column.options`
         Removed. Redundant with `dropdown`.
     - `content_style`
-        Removed. Deemed unnecessary
+        Removed. Deemed unnecessary. NOTE - This was added back in 4.0.2 under the name the "fill_width" property name.
     - `pagination_settings`
         Replaced by two props `page_current` and `page_size`.
 
