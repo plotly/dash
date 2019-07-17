@@ -662,7 +662,7 @@ def generate_exports(
                 stripped_line = line.replace(" ", "").replace("\n", "")
                 if any(fndef in stripped_line for fndef in definitions):
                     fnlist += set([re.split("<-|=", stripped_line)[0]])
-        fnlist = list(filter(lambda x: x not in omitstrings, fnlist))
+        fnlist = [fn for fn in fnlist if fn not in omitstrings]
 
     export_string += "\n".join("export({})".format(function)
                                for function in fnlist)
