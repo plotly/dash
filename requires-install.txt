@@ -5,4 +5,4 @@ plotly
 dash_renderer==1.0.0
 dash-core-components==1.0.0
 dash-html-components==1.0.0
-dash-table==4.0.1
+dash-table==4.0.2

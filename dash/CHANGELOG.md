@@ -1,3 +1,9 @@
+## [1.0.2] - 2019-07-15
+### Fixed
+- [#821](https://github.com/plotly/dash/pull/821) Fix a bug with callback error reporting, [#791](https://github.com/plotly/dash/issues/791).
+
+### Changed
+- Bumped dash-table version from 4.0.1 to [4.0.2](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#402---2019-07-15)
 
 ## [1.0.1] - 2019-07-09
 ### Changed
