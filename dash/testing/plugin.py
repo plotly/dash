@@ -4,7 +4,11 @@ import warnings
 try:
     import pytest
 
-    from dash.testing.application_runners import ThreadedRunner, ProcessRunner
+    from dash.testing.application_runners import (
+        ThreadedRunner,
+        ProcessRunner,
+        RRunner,
+    )
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite
 except ImportError:
@@ -26,9 +30,7 @@ def pytest_addoption(parser):
     )
 
     dash.addoption(
-        "--headless",
-        action="store_true",
-        help="Run tests in headless mode",
+        "--headless", action="store_true", help="Run tests in headless mode"
     )
 
 
@@ -80,12 +82,18 @@ def dash_process_server():
 
 
 @pytest.fixture
+def dashr_server():
+    with RRunner() as starter:
+        yield starter
+
+
+@pytest.fixture
 def dash_br(request, tmpdir):
     with Browser(
         browser=request.config.getoption("webdriver"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
-        download_path=tmpdir.mkdir('download').strpath
+        download_path=tmpdir.mkdir("download").strpath,
     ) as browser:
         yield browser
 
@@ -97,6 +105,6 @@ def dash_duo(request, dash_thread_server, tmpdir):
         browser=request.config.getoption("webdriver"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
-        download_path=tmpdir.mkdir('download').strpath
+        download_path=tmpdir.mkdir("download").strpath,
     ) as dc:
         yield dc

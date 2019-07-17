@@ -214,3 +214,57 @@ class ProcessRunner(BaseDashRunner):
                 )
                 self.proc.kill()
                 self.proc.communicate()
+
+
+class RRunner(BaseDashRunner):
+    """Runs a dashR application in process
+    """
+
+    def __init__(self, keep_open=False, stop_timeout=3):
+        super(RRunner, self).__init__(
+            keep_open=keep_open, stop_timeout=stop_timeout
+        )
+        self.proc = None
+
+    # pylint: disable=arguments-differ
+    def start(self):
+        """Start the server with waitress-serve in process flavor """
+        # entrypoint = "{}:{}.server".format(app_module, application_name)
+        # self.port = port
+
+        args = shlex.split(
+            "Rscript /Users/byron/code/demo.R",
+            posix=sys.platform != "win32",
+        )
+        logger.debug("start dash process with %s", args)
+
+        try:
+            self.proc = subprocess.Popen(
+                args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+        except (OSError, ValueError):
+            logger.exception("process server has encountered an error")
+            self.started = False
+            return
+
+        self.started = True
+
+    def stop(self):
+        if self.proc:
+            try:
+                self.proc.terminate()
+                if six.PY3:
+                    # pylint:disable=no-member
+                    _except = subprocess.TimeoutExpired
+                    # pylint: disable=unexpected-keyword-arg
+                    self.proc.communicate(timeout=self.stop_timeout)
+                else:
+                    _except = OSError
+                    self.proc.communicate()
+            except _except:
+                logger.exception(
+                    "subprocess terminate not success, trying to kill "
+                    "the subprocess in a safe manner"
+                )
+                self.proc.kill()
+                self.proc.communicate()
