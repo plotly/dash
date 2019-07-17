@@ -659,9 +659,9 @@ def generate_exports(
         with open(rfile, "r") as script:
             for line in script:
                 stripped_line = line.replace(" ", "").replace("\n", "")
-                if any(fndef in stripped_line and fndef not in omitstrings
-                       for fndef in definitions):
+                if any(fndef in stripped_line for fndef in definitions):
                     fnlist += set([re.split("<-|=", stripped_line)[0]])
+        fnlist = list(filter(lambda x: x not in omitstrings, fnlist))
 
     export_string += "\n".join("export({})".format(function)
                                for function in fnlist)
