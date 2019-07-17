@@ -131,6 +131,7 @@ test/
 LICENSE.txt
 ^.*\.Rproj$
 ^\.Rproj\.user$
+.ignorefns
 """
 
 pkghelp_stub = """% Auto-generated: do not edit by hand
