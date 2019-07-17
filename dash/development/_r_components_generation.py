@@ -639,8 +639,14 @@ def generate_exports(
     omitlist = ["utils.R", "internal.R"] + [
         "{}{}.R".format(prefix, component) for component in components
     ]
+    omitstrings = ["FUN"]
     stripped_line = ""
     fnlist = []
+
+    if os.path.exists(".ignorefns"):
+        with open(".ignorefns", "r") as f:
+            for line in f:
+                omitstrings.append(line.strip())
 
     for script in os.listdir("R"):
         if script.endswith(".R") and script not in omitlist:
@@ -653,7 +659,8 @@ def generate_exports(
         with open(rfile, "r") as script:
             for line in script:
                 stripped_line = line.replace(" ", "").replace("\n", "")
-                if any(fndef in stripped_line for fndef in definitions):
+                if any(fndef in stripped_line and fndef not in omitstrings
+                       for fndef in definitions):
                     fnlist += set([re.split("<-|=", stripped_line)[0]])
 
     export_string += "\n".join("export({})".format(function)
