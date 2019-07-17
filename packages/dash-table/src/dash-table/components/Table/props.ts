@@ -154,6 +154,7 @@ export interface IDatetimeColumn extends ITypeColumn {
 }
 
 export interface IBaseVisibleColumn {
+    clearable?: boolean | boolean[];
     deletable?: boolean | boolean[];
     editable: boolean;
     renamable?: boolean | boolean[];
@@ -391,6 +392,33 @@ export type ControlledTableProps = SanitizedProps & IState & {
     virtual: IDerivedData;
     virtual_selected_rows: Indices;
     virtualized: IVirtualizedDerivedData;
+};
+
+export type SetFilter = (
+    filter_query: string,
+    rawFilter: string,
+    map: Map<string, SingleColumnSyntaxTree>
+) => void;
+
+export interface IFilterFactoryProps {
+    columns: VisibleColumns;
+    filter_query: string;
+    filter_action: TableAction;
+    id: string;
+    map: Map<string, SingleColumnSyntaxTree>;
+    rawFilterQuery: string;
+    row_deletable: boolean;
+    row_selectable: RowSelection;
+    setFilter: SetFilter;
+    style_cell: Style;
+    style_cell_conditional: Cells;
+    style_filter: Style;
+    style_filter_conditional: BasicFilters;
+}
+
+export type HeaderFactoryProps = ControlledTableProps & {
+    map: Map<string, SingleColumnSyntaxTree>;
+    setFilter: SetFilter;
 };
 
 export interface ICellFactoryProps {

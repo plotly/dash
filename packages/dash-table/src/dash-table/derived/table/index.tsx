@@ -22,7 +22,7 @@ const handleSetFilter = (
     setState({ workFilter: { map, value: filter_query }, rawFilterQuery });
 };
 
-function filterPropsFn(propsFn: () => ControlledTableProps, setFilter: any) {
+function propsAndMapFn(propsFn: () => ControlledTableProps, setFilter: any) {
     const props = propsFn();
 
     return R.merge(props, { map: props.workFilter.map, setFilter });
@@ -35,12 +35,15 @@ export default (propsFn: () => ControlledTableProps) => {
     ) => handleSetFilter.bind(undefined, setProps, setState));
 
     const cellFactory = new CellFactory(propsFn);
-    const filterFactory = new FilterFactory(() => {
+
+    const augmentedPropsFn = () => {
         const props = propsFn();
 
-        return filterPropsFn(propsFn, setFilter(props.setProps, props.setState));
-    });
-    const headerFactory = new HeaderFactory(propsFn);
+        return propsAndMapFn(propsFn, setFilter(props.setProps, props.setState));
+    };
+
+    const filterFactory = new FilterFactory(augmentedPropsFn);
+    const headerFactory = new HeaderFactory(augmentedPropsFn);
     const edgeFactory = new EdgeFactory(propsFn);
 
     const merge = memoizeOne((data: JSX.Element[][], filters: JSX.Element[][], headers: JSX.Element[][]) => {

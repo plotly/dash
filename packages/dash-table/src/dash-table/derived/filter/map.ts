@@ -2,8 +2,8 @@ import * as R from 'ramda';
 
 import { memoizeOneFactory } from 'core/memoizer';
 
-import { VisibleColumns, IVisibleColumn } from 'dash-table/components/Table/props';
-import { SingleColumnSyntaxTree, MultiColumnsSyntaxTree, getSingleColumnMap } from 'dash-table/syntax-tree';
+import { VisibleColumns, IVisibleColumn, SetFilter } from 'dash-table/components/Table/props';
+import { SingleColumnSyntaxTree, MultiColumnsSyntaxTree, getMultiColumnQueryString, getSingleColumnMap } from 'dash-table/syntax-tree';
 
 const cloneIf = (
     current: Map<string, SingleColumnSyntaxTree>,
@@ -61,20 +61,49 @@ export default memoizeOneFactory((
     return newMap;
 });
 
-export const updateMap = (
-    map: Map<string, SingleColumnSyntaxTree>,
-    column: IVisibleColumn,
-    value: any
-): Map<string, SingleColumnSyntaxTree> => {
-    const safeColumnId = column.id.toString();
-
+function updateMap(map: Map<string, SingleColumnSyntaxTree>, column: IVisibleColumn, value: any) {
+    const id = column.id.toString();
     const newMap = new Map<string, SingleColumnSyntaxTree>(map);
 
     if (value && value.length) {
-        newMap.set(safeColumnId, new SingleColumnSyntaxTree(value, column));
+        newMap.set(id, new SingleColumnSyntaxTree(value, column));
     } else {
-        newMap.delete(safeColumnId);
+        newMap.delete(id);
     }
 
     return newMap;
+}
+
+function updateState(map: Map<string, SingleColumnSyntaxTree>, setFilter: SetFilter) {
+    const asts = Array.from(map.values());
+    const globalFilter = getMultiColumnQueryString(asts);
+
+    const rawGlobalFilter = R.map(
+        ast => ast.query || '',
+        R.filter<SingleColumnSyntaxTree>(ast => Boolean(ast), asts)
+    ).join(' && ');
+
+    setFilter(globalFilter, rawGlobalFilter, map);
+}
+
+export const updateColumnFilter = (
+    map: Map<string, SingleColumnSyntaxTree>,
+    column: IVisibleColumn,
+    value: any,
+    setFilter: SetFilter
+) => {
+    map = updateMap(map, column, value);
+    updateState(map, setFilter);
+};
+
+export const clearColumnsFilter = (
+    map: Map<string, SingleColumnSyntaxTree>,
+    columns: VisibleColumns,
+    setFilter: SetFilter
+) => {
+    R.forEach(column => {
+        map = updateMap(map, column, '');
+    }, columns);
+
+    updateState(map, setFilter);
 };

@@ -7,37 +7,14 @@ import memoizerCache from 'core/cache/memoizer';
 import { memoizeOne } from 'core/memoizer';
 
 import ColumnFilter from 'dash-table/components/Filter/Column';
-import { ColumnId, IVisibleColumn, VisibleColumns, RowSelection, TableAction } from 'dash-table/components/Table/props';
+import { ColumnId, IVisibleColumn, TableAction, IFilterFactoryProps, SetFilter } from 'dash-table/components/Table/props';
 import derivedFilterStyles, { derivedFilterOpStyles } from 'dash-table/derived/filter/wrapperStyles';
 import derivedHeaderOperations from 'dash-table/derived/header/operations';
 import { derivedRelevantFilterStyles } from 'dash-table/derived/style';
-import { BasicFilters, Cells, Style } from 'dash-table/derived/style/props';
-import { SingleColumnSyntaxTree, getMultiColumnQueryString } from 'dash-table/syntax-tree';
+import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
 
 import { IEdgesMatrices } from 'dash-table/derived/edges/type';
-import { updateMap } from 'dash-table/derived/filter/map';
-
-type SetFilter = (
-    filter_query: string,
-    rawFilter: string,
-    map: Map<string, SingleColumnSyntaxTree>
-) => void;
-
-export interface IFilterOptions {
-    columns: VisibleColumns;
-    filter_query: string;
-    filter_action: TableAction;
-    id: string;
-    map: Map<string, SingleColumnSyntaxTree>;
-    rawFilterQuery: string;
-    row_deletable: boolean;
-    row_selectable: RowSelection;
-    setFilter: SetFilter;
-    style_cell: Style;
-    style_cell_conditional: Cells;
-    style_filter: Style;
-    style_filter_conditional: BasicFilters;
-}
+import { updateColumnFilter } from 'dash-table/derived/filter/map';
 
 const NO_FILTERS: JSX.Element[][] = [];
 
@@ -51,7 +28,7 @@ export default class FilterFactory {
         return this.propsFn();
     }
 
-    constructor(private readonly propsFn: () => IFilterOptions) {
+    constructor(private readonly propsFn: () => IFilterFactoryProps) {
 
     }
 
@@ -60,17 +37,7 @@ export default class FilterFactory {
 
         const value = ev.target.value.trim();
 
-        map = updateMap(map, column, value);
-
-        const asts = Array.from(map.values());
-        const globalFilter = getMultiColumnQueryString(asts);
-
-        const rawGlobalFilter = R.map(
-            ast => ast.query || '',
-            R.filter<SingleColumnSyntaxTree>(ast => Boolean(ast), asts)
-        ).join(' && ');
-
-        setFilter(globalFilter, rawGlobalFilter, map);
+        updateColumnFilter(map, column, value, setFilter);
     }
 
     private filter = memoizerCache<[ColumnId, number]>()((

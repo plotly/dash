@@ -2,7 +2,22 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-#[Unreleased]
+## [Unreleased]
+### Added
+[#497](https://github.com/plotly/dash-table/pull/497)
+- New `column.clearable` flag that displays a `Ø` action in the column
+    Accepts a boolean or array of booleans for multi-line headers.
+    Clicking a merged column's `Ø` will clear all related columns.
+
+    - Clearing column(s) will remove the appropriate data props from each datum
+    row of `data`.
+    - Additionally clearing the column will reset the filter for the affected column(s)
+
+### Changed
+[#497](https://github.com/plotly/dash-table/pull/497)
+- Like for clearing above, deleting through the `x` action will also
+reset the filter for the affected column(s)
+
 ### Fixed
 [#491](https://github.com/plotly/dash-table/issues/491)
 - Fixed unconsistent behaviors when editing cell headers

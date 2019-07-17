@@ -118,6 +118,25 @@ export const propTypes = {
     columns: PropTypes.arrayOf(PropTypes.exact({
 
         /**
+         * If True, the user can clear the column by clicking on a little `Ø`
+         * button on the column.
+         * If there are merged, multi-header columns then you can choose
+         * which column header row to display the "Ø" in by
+         * supplying an array of booleans.
+         * For example, `[true, false]` will display the "Ø" on the first row,
+         * but not the second row.
+         * If the "Ø" appears on a merged column, then clicking on that button
+         * will clear *all* of the merged columns associated with it.
+         *
+         * Unlike `column.deletable`, this action does not remove the column(s)
+         * from the table. It only removed the associated entries from `data`.
+         */
+        clearable: PropTypes.oneOfType([
+            PropTypes.bool,
+            PropTypes.arrayOf(PropTypes.bool)
+        ]),
+
+        /**
          * If True, the user can delete the column by clicking on a little `x`
          * button on the column.
          * If there are merged, multi-header columns then you can choose
