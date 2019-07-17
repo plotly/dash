@@ -639,22 +639,40 @@ def generate_exports(
     omitlist = ["utils.R", "internal.R"] + [
         "{}{}.R".format(prefix, component) for component in components
     ]
-    stripped_line = ""
     fnlist = []
 
     for script in os.listdir("R"):
         if script.endswith(".R") and script not in omitlist:
             rfilelist += [os.path.join("R", script)]
 
-    # in R, either = or <- may be used to create and assign objects
-    definitions = ["<-function", "=function"]
-
     for rfile in rfilelist:
         with open(rfile, "r") as script:
-            for line in script:
-                stripped_line = line.replace(" ", "").replace("\n", "")
-                if any(fndef in stripped_line for fndef in definitions):
-                    fnlist += set([re.split("<-|=", stripped_line)[0]])
+            # put the whole file on one line
+            s = script.read().replace("\n", " ").replace("\r", " ")
+
+            # empty out strings, in case of unmatched block terminators
+            s = re.sub(r"'([^'\\]|\\'|\\[^'])*'", "''", s)
+            s = re.sub(r'"([^"\\]|\\"|\\[^"])*"', '""', s)
+
+            # empty out block terminators () and {}
+            # so we don't catch nested functions, or functions as arguments
+            # repeat until it stops changing, in case of multiply nested blocks
+            prev_len = len(s) + 1
+            while len(s) < prev_len:
+                prev_len = len(s)
+                s = re.sub(r"\(([^()]|\(\))*\)", "()", s)
+                s = re.sub(r"\{([^{}]|\{\})*\}", "{}", s)
+
+            # now, in whatever is left, look for functions
+            matches = re.findall(
+                # in R, either = or <- may be used to create and assign objects
+                r"([^A-Za-z._]|^)([A-Za-z._]+)\s*(=|<-)\s*function", s
+            )
+            for match in matches:
+                fn = match[1]
+                # Allow users to mark functions as private by prefixing with .
+                if fn[0] != "." and fn not in fnlist:
+                    fnlist.append(fn)
 
     export_string += "\n".join("export({})".format(function)
                                for function in fnlist)
