@@ -89,7 +89,7 @@ def generate_components(
         )
         sys.exit(1)
 
-    metadata = safe_json_loads(out.decode())
+    metadata = safe_json_loads(out.decode("utf-8"))
 
     generator_methods = [generate_class_file]
 
