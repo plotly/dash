@@ -672,8 +672,13 @@ def make_namespace_exports(components, prefix):
 
     for rfile in rfilelist:
         with open(rfile, "r") as script:
+            s = script.read()
+
+            # remove comments
+            s = re.sub('#.*$', '', s, flags=re.M)
+
             # put the whole file on one line
-            s = script.read().replace("\n", " ").replace("\r", " ")
+            s = s.replace("\n", " ").replace("\r", " ")
 
             # empty out strings, in case of unmatched block terminators
             s = re.sub(r"'([^'\\]|\\'|\\[^'])*'", "''", s)
@@ -691,7 +696,7 @@ def make_namespace_exports(components, prefix):
             # now, in whatever is left, look for functions
             matches = re.findall(
                 # in R, either = or <- may be used to create and assign objects
-                r"([^A-Za-z._]|^)([A-Za-z._]+)\s*(=|<-)\s*function", s
+                r"([^A-Za-z0-9._]|^)([A-Za-z0-9._]+)\s*(=|<-)\s*function", s
             )
             for match in matches:
                 fn = match[1]
