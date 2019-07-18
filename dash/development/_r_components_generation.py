@@ -622,6 +622,31 @@ def generate_exports(
         package_suggests,
         **kwargs
 ):
+    export_string = make_namespace_exports(components, prefix)
+
+    # Look for wildcards in the metadata
+    has_wildcards = False
+    for component_data in metadata.values():
+        if any(key.endswith('-*') for key in component_data['props']):
+            has_wildcards = True
+            break
+
+    # now, bundle up the package information and create all the requisite
+    # elements of an R package, so that the end result is installable either
+    # locally or directly from GitHub
+    generate_rpkg(
+        pkg_data,
+        rpkg_data,
+        project_shortname,
+        export_string,
+        package_depends,
+        package_imports,
+        package_suggests,
+        has_wildcards,
+    )
+
+
+def make_namespace_exports(components, prefix):
     export_string = ""
     for component in components:
         if (
@@ -676,27 +701,7 @@ def generate_exports(
 
     export_string += "\n".join("export({})".format(function)
                                for function in fnlist)
-
-    # Look for wildcards in the metadata
-    has_wildcards = False
-    for component_data in metadata.values():
-        if any(key.endswith('-*') for key in component_data['props']):
-            has_wildcards = True
-            break
-
-    # now, bundle up the package information and create all the requisite
-    # elements of an R package, so that the end result is installable either
-    # locally or directly from GitHub
-    generate_rpkg(
-        pkg_data,
-        rpkg_data,
-        project_shortname,
-        export_string,
-        package_depends,
-        package_imports,
-        package_suggests,
-        has_wildcards,
-    )
+    return export_string
 
 
 def get_r_prop_types(type_object):
