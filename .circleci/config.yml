@@ -55,7 +55,7 @@ jobs:
           command: |
             . venv/bin/activate
             mkdir test-reports
-            PYTHONPATH=~/dash/tests/assets pytest --junitxml=test-reports/junit.xml tests/unit
+            PYTHONPATH=~/dash/tests/assets pytest --log-cli-level DEBUG -vv --junitxml=test-reports/junit.xml tests/unit
       - store_test_results:
           path: test-reports
       - store_artifacts:
