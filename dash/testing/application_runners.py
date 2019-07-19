@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import sys
+import os
 import uuid
 import shlex
 import threading
@@ -68,6 +69,14 @@ class BaseDashRunner(object):
     def stop(self):
         raise NotImplementedError  # pragma: no cover
 
+    @staticmethod
+    def accessible(url):
+        try:
+            requests.get(url)
+        except requests.exceptions.RequestException:
+            return False
+        return True
+
     def __call__(self, *args, **kwargs):
         return self.start(*args, **kwargs)
 
@@ -90,6 +99,10 @@ class BaseDashRunner(object):
     def url(self):
         """the default server url"""
         return "http://localhost:{}".format(self.port)
+
+    @property
+    def is_windows(self):
+        return sys.platform == "win32"
 
 
 class ThreadedRunner(BaseDashRunner):
@@ -133,7 +146,8 @@ class ThreadedRunner(BaseDashRunner):
                 kwargs["port"] = self.port
             else:
                 self.port = kwargs["port"]
-            app.run_server(threaded=True, **kwargs)
+
+        app.run_server(threaded=True, **kwargs)
 
         self.thread = threading.Thread(target=run)
         self.thread.daemon = True
@@ -145,15 +159,8 @@ class ThreadedRunner(BaseDashRunner):
 
         self.started = self.thread.is_alive()
 
-        def accessible():
-            try:
-                requests.get(self.url)
-            except requests.exceptions.RequestException:
-                return False
-            return True
-
         # wait until server is able to answer http request
-        wait.until(accessible, timeout=1)
+        wait.until(lambda: self.accessible(self.url), timeout=1)
 
     def stop(self):
         requests.get("{}{}".format(self.url, self.stop_route))
@@ -180,7 +187,7 @@ class ProcessRunner(BaseDashRunner):
 
         args = shlex.split(
             "waitress-serve --listen=0.0.0.0:{} {}".format(port, entrypoint),
-            posix=sys.platform != "win32",
+            posix=not self.is_windows,
         )
         logger.debug("start dash process with %s", args)
 
@@ -216,10 +223,7 @@ class ProcessRunner(BaseDashRunner):
                 self.proc.communicate()
 
 
-class RRunner(BaseDashRunner):
-    """Runs a dashR application in process
-    """
-
+class RRunner(ProcessRunner):
     def __init__(self, keep_open=False, stop_timeout=3):
         super(RRunner, self).__init__(
             keep_open=keep_open, stop_timeout=stop_timeout
@@ -227,14 +231,32 @@ class RRunner(BaseDashRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self):
+    def start(self, app):
         """Start the server with waitress-serve in process flavor """
-        # entrypoint = "{}:{}.server".format(app_module, application_name)
-        # self.port = port
 
+        # app is a R string chunk
+        if not (os.path.isfile(app) and os.path.exists(app)):
+            path = (
+                "/tmp/app_{}.R".format(uuid.uuid4().hex)
+                if not self.is_windows
+                else os.path.join(
+                    (os.getenv("TEMP"), "app_{}.R".format(uuid.uuid4().hex))
+                )
+            )
+            logger.info("RRuner start => app is R code chunk")
+            logger.info("make a temporay R file for execution=> %s", path)
+            logger.debug("the content of dashR app")
+            logger.debug("%s", app)
+
+            with open(path, "w") as fp:
+                fp.write(app)
+
+            app = path
+
+        logger.info("Run dashR app with Rscript => %s", app)
         args = shlex.split(
-            "Rscript /Users/byron/code/demo.R",
-            posix=sys.platform != "win32",
+            "Rscript {}".format(os.path.realpath(app)),
+            posix=not self.is_windows,
         )
         logger.debug("start dash process with %s", args)
 
@@ -242,29 +264,12 @@ class RRunner(BaseDashRunner):
             self.proc = subprocess.Popen(
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
+            # wait until server is able to answer http request
+            wait.until(lambda: self.accessible(self.url), timeout=2)
+
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
             self.started = False
             return
 
         self.started = True
-
-    def stop(self):
-        if self.proc:
-            try:
-                self.proc.terminate()
-                if six.PY3:
-                    # pylint:disable=no-member
-                    _except = subprocess.TimeoutExpired
-                    # pylint: disable=unexpected-keyword-arg
-                    self.proc.communicate(timeout=self.stop_timeout)
-                else:
-                    _except = OSError
-                    self.proc.communicate()
-            except _except:
-                logger.exception(
-                    "subprocess terminate not success, trying to kill "
-                    "the subprocess in a safe manner"
-                )
-                self.proc.kill()
-                self.proc.communicate()

@@ -10,7 +10,7 @@ try:
         RRunner,
     )
     from dash.testing.browser import Browser
-    from dash.testing.composite import DashComposite
+    from dash.testing.composite import DashComposite, DashRComposite
 except ImportError:
     warnings.warn("run `pip install dash[testing]` if you need dash.testing")
 
@@ -102,6 +102,18 @@ def dash_br(request, tmpdir):
 def dash_duo(request, dash_thread_server, tmpdir):
     with DashComposite(
         dash_thread_server,
+        browser=request.config.getoption("webdriver"),
+        headless=request.config.getoption("headless"),
+        options=request.config.hook.pytest_setup_options(),
+        download_path=tmpdir.mkdir("download").strpath,
+    ) as dc:
+        yield dc
+
+
+@pytest.fixture
+def dashr(request, dashr_server, tmpdir):
+    with DashRComposite(
+        dashr_server,
         browser=request.config.getoption("webdriver"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
