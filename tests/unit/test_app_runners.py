@@ -30,20 +30,3 @@ def test_process_server_smoke(dash_process_server):
     r = requests.get(dash_process_server.url)
     assert r.status_code == 200, "the server is reachable"
     assert 'id="react-entry-point"' in r.text, "the entrypoint is present"
-
-
-rapp = """
-library(dash)
-library(dashHtmlComponents)
-app <- Dash$new()
-
-app$layout(htmlDiv(list(htmlDiv(id='test',children='hello test'))))
-app$run_server()
-"""
-
-
-def test_r_server_smoke(dashr_server):
-    dashr_server(rapp)
-    r = requests.get(dashr_server.url)
-    assert r.status_code == 200, "the server is reachable"
-    assert 'id="react-entry-point"' in r.text, "the entrypoint is present"
