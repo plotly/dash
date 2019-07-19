@@ -1,4 +1,3 @@
-import time
 import sys
 import requests
 import pytest
