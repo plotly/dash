@@ -146,8 +146,7 @@ class ThreadedRunner(BaseDashRunner):
                 kwargs["port"] = self.port
             else:
                 self.port = kwargs["port"]
-
-        app.run_server(threaded=True, **kwargs)
+            app.run_server(threaded=True, **kwargs)
 
         self.thread = threading.Thread(target=run)
         self.thread.daemon = True
@@ -195,6 +194,9 @@ class ProcessRunner(BaseDashRunner):
             self.proc = subprocess.Popen(
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
+            # wait until server is able to answer http request
+            wait.until(lambda: self.accessible(self.url), timeout=3)
+
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
             self.started = False
