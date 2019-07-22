@@ -65,12 +65,18 @@ const applyDefaultToLocale = (locale: INumberLocale) => getLocale(locale);
 export default class Sanitizer {
     sanitize(props: PropsWithDefaults): SanitizedProps {
         const locale_format = this.applyDefaultToLocale(props.locale_format);
-
+        let headerFormat = props.export_headers;
+        if (props.export_format === 'xlsx' &&  R.isNil(headerFormat)) {
+            headerFormat = 'names';
+        } else if (props.export_format === 'csv' && R.isNil(headerFormat)) {
+            headerFormat = 'ids';
+        }
         return R.merge(props, {
             columns: this.applyDefaultsToColumns(locale_format, props.sort_as_null, props.columns, props.editable),
             fixed_columns: getFixedColumns(props.fixed_columns, props.row_deletable, props.row_selectable),
             fixed_rows: getFixedRows(props.fixed_rows, props.columns, props.filter_action),
-            locale_format
+            locale_format,
+            export_headers: headerFormat
         });
     }
 

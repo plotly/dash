@@ -95,7 +95,8 @@
     "webpack": "^4.36.1",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.7.2",
-    "webpack-preprocessor": "^0.1.12"
+    "webpack-preprocessor": "^0.1.12",
+    "xlsx": "^0.14.3"
   },
   "files": [
     "/dash_table/bundle*{.js,.map}"

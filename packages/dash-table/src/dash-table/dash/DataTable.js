@@ -87,6 +87,7 @@ export const defaultProps = {
     data: [],
     columns: [],
     editable: false,
+    export_format: 'none',
     selected_cells: [],
     selected_rows: [],
     selected_row_ids: [],
@@ -434,6 +435,23 @@ export const propTypes = {
         row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         column_id: PropTypes.string
     }),
+
+    /**
+     * Denotes the type of the export data file,
+     * Defaults to `'none'`
+     */
+    export_format: PropTypes.oneOf(['csv', 'xlsx', 'none']),
+
+    /**
+     * Denotes the format of the headers in the export data file.
+     * If `'none'`, there will be no header. If `'display'`, then the header
+     * of the data file will be be how it is currently displayed. Note that
+     * `'display'` is only supported for `'xlsx'` export_format and will behave
+     * like `'names'` for `'csv'` export format. If `'ids'` or `'names'`,
+     * then the headers of data file will be the column id or the column
+     * names, respectively
+     */
+    export_headers: PropTypes.oneOf(['none', 'ids', 'names', 'display']),
 
     /**
      * `fill_width` toggles between a set of CSS for two common behaviors:

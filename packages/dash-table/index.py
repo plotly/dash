@@ -19,11 +19,11 @@ server = app.server
 apps = {
     filename.replace(".py", "").replace("app_", ""): getattr(
         getattr(
-            __import__(".".join(["tests", "dash", filename.replace(".py", "")])), "dash"
+          __import__(".".join(["tests", "integration", filename.replace(".py", "")])), "integration"
         ),
         filename.replace(".py", ""),
     )
-    for filename in os.listdir(os.path.join("tests", "dash"))
+    for filename in os.listdir(os.path.join("tests", "integration"))
     if filename.startswith("app_") and filename.endswith(".py")
 }
 

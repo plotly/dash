@@ -316,6 +316,8 @@ interface IDefaultProps {
     css: IStylesheetRule[];
     data: Data;
     editable: boolean;
+    export_format: 'csv' | 'xlsx' | 'none';
+    export_headers: 'ids' | 'names' | 'none' | 'display';
     fill_width: boolean;
     filter_query: string;
     filter_action: TableAction;

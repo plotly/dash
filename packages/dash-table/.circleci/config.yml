@@ -212,7 +212,7 @@ jobs:
                 command: |
                     . venv/bin/activate
                     git clone --depth 1 git@github.com:plotly/dash.git dash-main
-                    pip install -e ./dash-main --quiet
+                    pip install -e ./dash-main[testing] --quiet
                     cd dash-main/dash-renderer && npm install --ignore-scripts && npm run build && pip install -e . && cd ../..
 
             - run:
@@ -226,7 +226,7 @@ jobs:
                 name: Run integration tests
                 command: |
                   . venv/bin/activate
-                  python -m unittest tests.dash.test_integration
+                  pytest tests/integration
 
 
 workflows:

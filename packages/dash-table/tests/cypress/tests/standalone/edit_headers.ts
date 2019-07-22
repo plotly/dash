@@ -1,5 +1,4 @@
 import DashTable from 'cypress/DashTable';
-
 import { AppMode } from 'demo/AppMode';
 
 describe(`edit, mode=${AppMode.Typed}`, () => {

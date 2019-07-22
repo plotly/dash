@@ -8,6 +8,7 @@ import {
     isCtrlDown,
     isNavKey
 } from 'dash-table/utils/unicode';
+import ExportButton from 'dash-table/components/Export';
 import { selectionBounds, selectionCycle } from 'dash-table/utils/navigation';
 import { makeCell, makeSelection } from 'dash-table/derived/cell/cellProps';
 
@@ -760,6 +761,9 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             tooltip_duration
         );
 
+        const { export_format, export_headers, virtual } = this.props;
+        const buttonProps = { export_format, virtual_data: virtual, columns, export_headers };
+
         return (<div
             id={id}
             onCopy={this.onCopy}
@@ -802,6 +806,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                     <button className='next-page' onClick={this.loadNext}>Next</button>
                 </div>
             )}
+            <ExportButton {...buttonProps} />
         </div>);
     }
 

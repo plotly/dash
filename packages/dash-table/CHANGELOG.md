@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+[#313](https://github.com/plotly/dash-table/issues/313)
+- Ability to export table as csv or xlsx file.
+
 [#497](https://github.com/plotly/dash-table/pull/497)
 - New `column.clearable` flag that displays a `Ø` action in the column
     Accepts a boolean or array of booleans for multi-line headers.
