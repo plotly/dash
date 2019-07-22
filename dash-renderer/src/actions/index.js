@@ -906,7 +906,12 @@ function updateOutput(
         })
         .catch(err => {
             // Handle html error responses
-            err.text().then(text => {
+            const errText =
+                typeof err.text === 'function'
+                    ? err.text()
+                    : Promise.resolve(err);
+
+            errText.then(text => {
                 dispatch(
                     onError({
                         type: 'backEnd',
