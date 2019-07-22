@@ -1,3 +1,9 @@
+## Unreleased
+
+### Added
+
+- [#827](https://github.com/plotly/dash/pull/827) Adds support for dashR testing using pytest framework
+
 ## [1.0.2] - 2019-07-15
 ### Fixed
 - [#821](https://github.com/plotly/dash/pull/821) Fix a bug with callback error reporting, [#791](https://github.com/plotly/dash/issues/791).
