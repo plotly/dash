@@ -1,3 +1,11 @@
+.dash-absolute-debug {
+    position: relative;
+}
+
+.dash-absolute-debug .dash-debug-menu {
+    position: absolute;
+}
+
 .dash-debug-menu {
     transition: width 0.05s, background-color 0.1s;
     position: fixed;
