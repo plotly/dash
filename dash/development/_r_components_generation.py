@@ -328,9 +328,8 @@ def generate_js_metadata(pkg_data, project_shortname):
 # by R's internal help parser for constructing man pages
 def wrap(tag, code):
     if tag == "":
-       return code
-    else:
-       return '\\{}{{{}}}'.format(tag, code)
+        return code
+    return '\\{}{{{}}}'.format(tag, code)
 
 
 def write_help_file(name, props, description, prefix, rpkg_data):
@@ -398,9 +397,11 @@ def write_help_file(name, props, description, prefix, rpkg_data):
         the_ex = ([e for e in ex if e.get("name") == funcname] or [None])[0]
         result = ""
         if the_ex and "code" in the_ex.keys():
-            result += wrap("example",  wrap("dontrun" if the_ex["dontrun"] else "", the_ex["code"]) )
-            with open(file_path, 'a+') as fa:                
-               fa.write(result + '\n')
+            result += wrap("example",
+                           wrap("dontrun" if the_ex["dontrun"] else "",
+                                the_ex["code"]))
+            with open(file_path, 'a+') as fa:
+                fa.write(result + '\n')
 
 
 def write_class_file(name,

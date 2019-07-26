@@ -104,7 +104,7 @@ def generate_components(
         with open('package.json', 'r') as f:
             pkg_data = safe_json_loads(f.read())
         generator_methods.append(
-            functools.partial(write_class_file, 
+            functools.partial(write_class_file,
                               prefix=rprefix,
                               rpkg_data=rpkg_data))
 
@@ -131,7 +131,7 @@ def generate_components(
             rimports,
             rsuggests,
         )
-        
+
 
 def safe_json_loads(s):
     jsondata_unicode = json.loads(s, object_pairs_hook=OrderedDict)
