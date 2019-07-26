@@ -397,7 +397,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
         the_ex = ([e for e in ex if e.get("name") == funcname] or [None])[0]
         result = ""
         if the_ex and "code" in the_ex.keys():
-            result += wrap("example",
+            result += wrap("examples",
                            wrap("dontrun" if the_ex["dontrun"] else "",
                                 the_ex["code"]))
             with open(file_path, 'a+') as fa:
