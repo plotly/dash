@@ -56,7 +56,7 @@ def pytest_runtest_makereport(item, call):  # pylint: disable=unused-argument
     if rep.when == "call" and rep.failed:
         for name, fixture in item.funcargs.items():
             try:
-                if name in {"dash_duo", "dash_br"}:
+                if name in {"dash_duo", "dash_br", "dashr"}:
                     fixture.take_snapshot(item.name)
             except Exception as e:  # pylint: disable=broad-except
                 print(e)
