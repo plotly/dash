@@ -135,4 +135,6 @@ workflows:
     jobs:
       # - "python-2.7"
       # - "python-3.6"
-      - "python-3.7"
+      - "python-3.7-lint-unit"
+      - "python-3.7-integration-setup"
+      - "python-3.7-integration"
