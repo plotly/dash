@@ -4,6 +4,7 @@ import sys
 import logging
 import warnings
 import percy
+import requests
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -78,6 +79,14 @@ class Browser(DashPageMixin):
         except percy.errors.Error:
             logger.exception("percy runner failed to finalize properly")
 
+    def _safe_percy_snapshot(self, name):
+        try:
+            self.percy_runner.snapshot(name=name)
+            return True
+        except requests.exceptions.HTTPError:
+            logger.exception("percy has resource conflict")
+            return False
+
     def percy_snapshot(self, name=""):
         """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`
         it also combines the snapshot `name` with the python version
@@ -86,7 +95,7 @@ class Browser(DashPageMixin):
             name, sys.version_info.major, sys.version_info.minor
         )
         logger.info("taking snapshot name => %s", snapshot_name)
-        self.percy_runner.snapshot(name=snapshot_name)
+        until(lambda: self._safe_percy_snapshot(snapshot_name), timeout=2)
 
     def take_snapshot(self, name):
         """hook method to take snapshot when a selenium test fails
