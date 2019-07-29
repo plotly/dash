@@ -3,7 +3,7 @@ import * as R from 'ramda';
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import dataset from './../../../datasets/16zpallagi-25cols-100klines.csv';
+import dataset from './../../assets/16zpallagi-25cols-100klines.csv';
 
 import DataTable from 'dash-table/dash/DataTable';
 import { TableAction } from 'dash-table/components/Table/props';

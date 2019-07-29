@@ -223,10 +223,17 @@ jobs:
                     pip install -e .
 
             - run:
-                name: Run integration tests
+                name: ⚙️ run integration test
                 command: |
                   . venv/bin/activate
-                  pytest tests/integration
+                  pytest --junitxml=test-reports/dash.xml tests/integration
+            - store_artifacts:
+                path: test-reports
+            - store_test_results:
+                path: test-reports
+            - store_artifacts:
+                path: /tmp/dash_artifacts
+
 
 
 workflows:

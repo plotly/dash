@@ -17,7 +17,7 @@ def test_tbex001_table_export(dash_duo):
         export_format="csv",
     )
     dash_duo.start_server(app)
-    dash_duo.find_element(".export").click()
+    dash_duo.wait_for_element('.export', timeout=1).click()
 
     download = os.path.sep.join((dash_duo.download_path, "Data.csv"))
     wait.until(lambda: os.path.exists(download), timeout=2)

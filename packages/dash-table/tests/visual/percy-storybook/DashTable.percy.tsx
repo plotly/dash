@@ -45,7 +45,7 @@ fixtures.forEach(fixture => {
     fixtureStories.add(fixture.name, () => (<DataTable {...Object.assign(fixture.props)} />));
 });
 
-import dataset from './../../../datasets/gapminder.csv';
+import dataset from './../../assets/gapminder.csv';
 import { TableAction } from 'dash-table/components/Table/props';
 
 storiesOf('DashTable/Without Data', module)
