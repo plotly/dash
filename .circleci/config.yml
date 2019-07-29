@@ -8,7 +8,7 @@ jobs:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
           PYLINTRC: .pylintrc37
-    parallelism: 4
+    parallelism: 1
 
     steps:
       - checkout
@@ -86,8 +86,8 @@ jobs:
           name: ⚙️ run integration test
           command: |
             . venv/bin/activate
-            TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            echo ${TESTFILES}
+            # TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
+            # echo ${TESTFILES}
             pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
           path: test-reports
