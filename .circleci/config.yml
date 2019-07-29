@@ -2,12 +2,12 @@ version: 2
 
 jobs:
 
-  "python-2.7": &test-template
+  "python-3.7": &test-template
     working_directory: ~/dash
     docker:
-      - image: circleci/python:2.7-stretch-node-browsers
+      - image: circleci/python:3.7-stretch-node-browsers
         environment:
-          PYLINTRC: .pylintrc
+          PYLINTRC: .pylintrc37
 
     steps:
       - checkout
@@ -94,6 +94,13 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
+"python-2.7":
+    <<: *test-template
+    docker:
+      - image: circleci/python:2.7-stretch-node-browsers
+        environment:
+          PYLINTRC: .pylintrc
+          PERCY_ENABLE: 0
 
   "python-3.6":
     <<: *test-template
@@ -102,15 +109,6 @@ jobs:
         environment:
           PYLINTRC: .pylintrc
           PERCY_ENABLE: 0
-
-  "python-3.7":
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.7-stretch-node-browsers
-        environment:
-          PYLINTRC: .pylintrc37
-          PERCY_ENABLE: 0
-
 
 workflows:
   version: 2
