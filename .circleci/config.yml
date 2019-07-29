@@ -94,21 +94,21 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-"python-2.7":
+  "python-2.7":
+      <<: *test-template
+      docker:
+        - image: circleci/python:2.7-stretch-node-browsers
+          environment:
+            PYLINTRC: .pylintrc
+            PERCY_ENABLE: 0
+
+  "python-3.6":
     <<: *test-template
     docker:
-      - image: circleci/python:2.7-stretch-node-browsers
+      - image: circleci/python:3.6-stretch-node-browsers
         environment:
           PYLINTRC: .pylintrc
           PERCY_ENABLE: 0
-
-"python-3.6":
-  <<: *test-template
-  docker:
-    - image: circleci/python:3.6-stretch-node-browsers
-      environment:
-        PYLINTRC: .pylintrc
-        PERCY_ENABLE: 0
 
 workflows:
   version: 2
