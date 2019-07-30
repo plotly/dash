@@ -2,44 +2,44 @@ version: 2
 
 jobs:
 
-  "python-3.7-lint-unit": &lint-unit
-    working_directory: ~/dash
-    docker:
-      - image: circleci/python:3.7-stretch-node-browsers
-        environment:
-          PYLINTRC: .pylintrc37
+  # "python-3.7-lint-unit": &lint-unit
+  #   working_directory: ~/dash
+  #   docker:
+  #     - image: circleci/python:3.7-stretch-node-browsers
+  #       environment:
+  #         PYLINTRC: .pylintrc37
 
-    steps:
-      - checkout
-      - restore_cache:
-          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
-      - run:
-          name: 🚧 pip dev requirements
-          command: |
-            python -m venv venv || virtualenv venv
-            . venv/bin/activate
-            pip install -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
-      - save_cache:
-          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
-          paths:
-              - "venv"
-      - run:
-          name: 🌸 linting
-          command: |
-            . venv/bin/activate
-            pip install -e .[ci,testing] --quiet
-            pip list | grep dash
-            flake8 dash setup.py
-            flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
-            pylint dash setup.py --rcfile=$PYLINTRC
-            pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
-            cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
-      - run:
-          name: ⛑ Run unit tests
-          command: |
-            . venv/bin/activate
-            mkdir test-reports
-            PYTHONPATH=~/dash/tests/assets pytest --junitxml=test-reports/junit.xml tests/unit
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+  #     - run:
+  #         name: 🚧 pip dev requirements
+  #         command: |
+  #           python -m venv venv || virtualenv venv
+  #           . venv/bin/activate
+  #           pip install -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+  #     - save_cache:
+  #         key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+  #         paths:
+  #             - "venv"
+  #     - run:
+  #         name: 🌸 linting
+  #         command: |
+  #           . venv/bin/activate
+  #           pip install -e .[ci,testing] --quiet
+  #           pip list | grep dash
+  #           flake8 dash setup.py
+  #           flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
+  #           pylint dash setup.py --rcfile=$PYLINTRC
+  #           pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
+  #           cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
+  #     - run:
+  #         name: ⛑ Run unit tests
+  #         command: |
+  #           . venv/bin/activate
+  #           mkdir test-reports
+  #           PYTHONPATH=~/dash/tests/assets pytest --junitxml=test-reports/junit.xml tests/unit
 
 
   "python-3.7-integration-setup": &integration-setup
@@ -75,30 +75,31 @@ jobs:
               cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
       - persist_to_workspace:
-          root: ~/dash
+          root: ~
           paths:
-            - venv
             - dash
-            - dash-renderer
-            - dash-core-components/dash_core_components
-            - dash-html-components/dash_html_components
-            - dash-table/dash_table
-            - dash-renderer-test-components/dash_renderer_test_components
+            # - venv
+            # - dash-renderer
+            # - dash-core-components/dash_core_components
+            # - dash-html-components/dash_html_components
+            # - dash-table/dash_table
+            # - dash-renderer-test-components/dash_renderer_test_components
 
   "python-3.7-integration": &integration
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
-    parallelism: 3
+    parallelism: 1
     steps:
-      - checkout
       - attach_workspace:
           at: ~/dash
+      # - checkout
       - run:
           name: ⚙️ run integration test
           command: |
             . venv/bin/activate
             pip list | grep dash
+            ls -la ~/venv/lib/python3.7/site-packages
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             echo ${TESTFILES}
             pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
@@ -131,7 +132,7 @@ workflows:
     jobs:
       # - "python-2.7"
       # - "python-3.6"
-      - python-3.7-lint-unit
+      # - python-3.7-lint-unit
       - python-3.7-integration-setup
       - python-3.7-integration:
           requires:
