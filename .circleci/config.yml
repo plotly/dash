@@ -89,9 +89,8 @@ jobs:
           name: echo
           command: |
             . venv/bin/activate
-            cd packages
-            pip install *
-            pip list | grep dash
+            cd packages && pip install * && cd ..
+            pip list
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             echo ${TESTFILES}
             pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
