@@ -475,6 +475,13 @@ const graphPropTypes = {
         ]),
 
         /**
+         * Delay for registering a double-click event in ms. The
+         * minimum value is 100 and the maximum value is 1000. By
+         * default this is 300.
+         */
+        doubleClickDelay: PropTypes.number,
+
+        /**
          * New users see some hints about interactivity
          */
         showTips: PropTypes.bool,
@@ -516,6 +523,14 @@ const graphPropTypes = {
          * By default this is false.
          */
         showSendToCloud: PropTypes.bool,
+
+        /**
+         * Should we show a modebar button to send this data to a
+         * Plotly Chart Studio plot. If both this and showSendToCloud
+         * are selected, only showEditInChartStudio will be
+         * honored. By default this is false.
+         */
+        showEditInChartStudio: PropTypes.bool,
 
         /**
          * Remove mode bar button by name.
