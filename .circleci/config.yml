@@ -78,6 +78,8 @@ jobs:
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
+        environment:
+          PERCY_PARALLEL_TOTAL: '-1'
     parallelism: 2
     steps:
       - checkout
