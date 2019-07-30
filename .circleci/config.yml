@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 
 jobs:
 
@@ -59,18 +59,18 @@ jobs:
               . venv/bin/activate
               mkdir packages
               pip install -e . --quiet
-              python setup.py sdist && mv sdist/* packages/
+              python setup.py sdist && mv dist/* packages/
               cd dash-renderer
               npm install --ignore-scripts && npm run build:dev && npm run build
-              python setup.py sdist && mv sdist/* packages/
+              python setup.py sdist && mv dist/* packages/
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
               git clone --depth 1 https://github.com/plotly/dash-table.git
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv sdist/* packages/  && cd ..
-              cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv sdist/* packages/ && cd ..
-              cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv sdist/* packages/ && cd ..
-              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv sdist/* packages/ && cd ..
+              cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* packages/  && cd ..
+              cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* packages/ && cd ..
+              cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* packages/ && cd ..
+              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv dist/* packages/ && cd ..
       - persist_to_workspace:
           root: ~/dash
           paths:
