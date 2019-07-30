@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.0] -
+### Updated
+- Upgraded plotly.js to 1.49.0
+  - [Feature release 1.49.0](https://github.com/plotly/plotly.js/releases/tag/v1.49.0) which contains:
+
 ## [1.0.0] - 2019-06-20
 ### Added
 - `Markdown` components support code highlighting - no need to switch to `SyntaxHighlighter`, which has been removed. Use triple backticks, with the opening backticks followed by the language name or abbreviation. [#562](https://github.com/plotly/dash-core-components/pull/562) Supported languages:
