@@ -51,39 +51,30 @@ jobs:
       - checkout
       - restore_cache:
           key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
-      - attach_workspace:
-          at: ~/dash
+      # - attach_workspace:
+      #     at: ~/dash
       - run:
-          name: 🚧 build renderer
+          name: 🚧 build
           command: |
               . venv/bin/activate
-              pip install -e .[testing] --quiet
+              mkdir packages
+              pip install -e . --quiet
+              python setup.py sdist && mv sdist/* packages/
               cd dash-renderer
               npm install --ignore-scripts && npm run build:dev && npm run build
-              pip install -e . --quiet
-
-      - run:
-          name: 🚧 install dependencies from latest master commit
-          command: |
+              python setup.py sdist && mv sdist/* packages/
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
               git clone --depth 1 https://github.com/plotly/dash-table.git
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              . venv/bin/activate
-              cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-              cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-              cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
+              cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv sdist/* packages/  && cd ..
+              cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv sdist/* packages/ && cd ..
+              cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv sdist/* packages/ && cd ..
+              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv sdist/* packages/ && cd ..
       - persist_to_workspace:
-          root: ~
+          root: ~/dash
           paths:
-            - dash
-            # - venv
-            # - dash-renderer
-            # - dash-core-components/dash_core_components
-            # - dash-html-components/dash_html_components
-            # - dash-table/dash_table
-            # - dash-renderer-test-components/dash_renderer_test_components
+            - packages
 
   "python-3.7-integration": &integration
     working_directory: ~/dash
@@ -91,24 +82,30 @@ jobs:
       - image: circleci/python:3.7-stretch-node-browsers
     parallelism: 1
     steps:
+      - checkout
       - attach_workspace:
           at: ~/dash
-      # - checkout
       - run:
-          name: ⚙️ run integration test
+          name: echo
           command: |
-            . venv/bin/activate
-            pip list | grep dash
-            ls -la ~/venv/lib/python3.7/site-packages
-            TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            echo ${TESTFILES}
-            pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
-      - store_artifacts:
-          path: test-reports
-      - store_test_results:
-          path: test-reports
-      - store_artifacts:
-          path: /tmp/dash_artifacts
+            pwd
+            ls -la
+            ls packages
+  #     - run:
+  #         name: ⚙️ run integration test
+  #         command: |
+  #           . venv/bin/activate
+  #           pip list | grep dash
+  #           ls -la ~/venv/lib/python3.7/site-packages
+  #           TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
+  #           echo ${TESTFILES}
+  #           pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+  #     - store_artifacts:
+  #         path: test-reports
+  #     - store_test_results:
+  #         path: test-reports
+  #     - store_artifacts:
+  #         path: /tmp/dash_artifacts
 
   # "python-2.7":
   #     <<: *test-template
