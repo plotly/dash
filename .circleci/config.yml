@@ -33,7 +33,12 @@ jobs:
           command: |
             python -m venv venv || virtualenv venv
             . venv/bin/activate
+            pwd && ls -la
             pip install -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+      - persist_to_workspace:
+          root: ~/dash
+          paths:
+            - venv
       - save_cache:
           key: v-{{ checksum "circlejob.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
