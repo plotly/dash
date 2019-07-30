@@ -42,66 +42,66 @@ jobs:
   #           PYTHONPATH=~/dash/tests/assets pytest --junitxml=test-reports/junit.xml tests/unit
 
 
-  "python-3.7-integration-setup": &integration-setup
-    working_directory: ~/dash
-    docker:
-      - image: circleci/python:3.7-stretch-node-browsers
+  # "python-3.7-integration-setup": &integration-setup
+  #   working_directory: ~/dash
+  #   docker:
+  #     - image: circleci/python:3.7-stretch-node-browsers
 
-    steps:
-      - checkout
-      - restore_cache:
-          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
-      # - attach_workspace:
-      #     at: ~/dash
-      - run:
-          name: 🚧 build
-          command: |
-              . venv/bin/activate
-              mkdir packages
-              pip install -e . --quiet
-              python setup.py sdist && mv dist/* packages/
-              cd dash-renderer && npm install --ignore-scripts && npm run build:dev && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              git clone --depth 1 https://github.com/plotly/dash-core-components.git
-              git clone --depth 1 https://github.com/plotly/dash-html-components.git
-              git clone --depth 1 https://github.com/plotly/dash-table.git
-              git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
-              cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
-              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
-      - persist_to_workspace:
-          root: ~/dash
-          paths:
-            - packages
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+  #     # - attach_workspace:
+  #     #     at: ~/dash
+  #     - run:
+  #         name: 🚧 build
+  #         command: |
+  #             . venv/bin/activate
+  #             mkdir packages
+  #             pip install -e . --quiet
+  #             python setup.py sdist && mv dist/* packages/
+  #             cd dash-renderer && npm install --ignore-scripts && npm run build:dev && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+  #             git clone --depth 1 https://github.com/plotly/dash-core-components.git
+  #             git clone --depth 1 https://github.com/plotly/dash-html-components.git
+  #             git clone --depth 1 https://github.com/plotly/dash-table.git
+  #             git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
+  #             cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
+  #             cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+  #             cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+  #             cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
+  #     - persist_to_workspace:
+  #         root: ~/dash
+  #         paths:
+  #           - packages
 
-  "python-3.7-integration": &integration
-    working_directory: ~/dash
-    docker:
-      - image: circleci/python:3.7-stretch-node-browsers
-        environment:
-          PERCY_PARALLEL_TOTAL: '-1'
-    parallelism: 2
-    steps:
-      - checkout
-      - restore_cache:
-          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
-      - attach_workspace:
-          at: ~/dash
-      - run:
-          name: echo
-          command: |
-            . venv/bin/activate
-            cd packages && pip install * && cd ..
-            pip list
-            TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            echo ${TESTFILES}
-            pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
-      - store_artifacts:
-          path: test-reports
-      - store_test_results:
-          path: test-reports
-      - store_artifacts:
-          path: /tmp/dash_artifacts
+  # "python-3.7-integration": &integration
+  #   working_directory: ~/dash
+  #   docker:
+  #     - image: circleci/python:3.7-stretch-node-browsers
+  #       environment:
+  #         PERCY_PARALLEL_TOTAL: '-1'
+  #   parallelism: 2
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+  #     - attach_workspace:
+  #         at: ~/dash
+  #     - run:
+  #         name: echo
+  #         command: |
+  #           . venv/bin/activate
+  #           cd packages && pip install * && cd ..
+  #           pip list
+  #           TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
+  #           echo ${TESTFILES}
+  #           pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+  #     - store_artifacts:
+  #         path: test-reports
+  #     - store_test_results:
+  #         path: test-reports
+  #     - store_artifacts:
+  #         path: /tmp/dash_artifacts
 
   "finalize-percy":
     docker:
@@ -150,10 +150,10 @@ workflows:
       # - "python-2.7"
       # - "python-3.6"
       # - python-3.7-lint-unit
-      - python-3.7-integration-setup
-      - python-3.7-integration:
-          requires:
-            - python-3.7-integration-setup
-      - finalize-percy:
-          requires:
-            - python-3.7-integration
+      # - python-3.7-integration-setup
+      # - python-3.7-integration:
+      #     requires:
+      #       - python-3.7-integration-setup
+      - finalize-percy
+          # requires:
+          #   - python-3.7-integration
