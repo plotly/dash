@@ -11,21 +11,6 @@ jobs:
 
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/dash
-
-      - run:
-          name: ℹ️ CI Context
-          command: |
-            echo "TRIGGERER: ${CIRCLE_USERNAME}"
-            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
-            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
-            echo "BRANCH: ${CIRCLE_BRANCH}"
-            echo "RUNNING JOB: ${CIRCLE_JOB}"
-            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
-            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-            echo "CIRCLE_JOB: ${CIRCLE_JOB}"
-
       - restore_cache:
           key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
@@ -34,15 +19,10 @@ jobs:
             python -m venv venv || virtualenv venv
             . venv/bin/activate
             pip install -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
-      # - persist_to_workspace:
-      #     root: ~/dash
-      #     paths:
-      #       - venv
       - save_cache:
           key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
-
       - run:
           name: 🌸 linting
           command: |
@@ -54,7 +34,6 @@ jobs:
             pylint dash setup.py --rcfile=$PYLINTRC
             pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
             cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
-
       - run:
           name: ⛑ Run unit tests
           command: |
@@ -78,6 +57,7 @@ jobs:
           name: 🚧 build renderer
           command: |
               . venv/bin/activate
+              pip install -e .[testing] --quiet
               cd dash-renderer
               npm install --ignore-scripts && npm run build:dev && npm run build
               pip install -e . --quiet
@@ -94,6 +74,15 @@ jobs:
               cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
+      - persist_to_workspace:
+          root: ~/dash
+          paths:
+            - venv
+            - dash-renderer
+            - dash-core-components/dash_core_components
+            - dash-html-components/dash_html_components
+            - dash-table/dash_table
+            - dash-renderer-test-components/dash_renderer_test_components
 
   "python-3.7-integration": &integration
     working_directory: ~/dash
