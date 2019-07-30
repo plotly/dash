@@ -60,9 +60,7 @@ jobs:
               mkdir packages
               pip install -e . --quiet
               python setup.py sdist && mv dist/* packages/
-              cd dash-renderer
-              npm install --ignore-scripts && npm run build:dev && npm run build
-              python setup.py sdist && mv dist/* ../packages/
+              cd dash-renderer && npm install --ignore-scripts && npm run build:dev && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
               git clone --depth 1 https://github.com/plotly/dash-table.git
