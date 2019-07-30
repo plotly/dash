@@ -78,9 +78,6 @@ jobs:
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
-        environment:
-          PERCY_PARALLEL_NONCE: ${CIRCLE_BUILD_NUM}
-          PERCY_PARALLEL_TOTAL: '2'
     parallelism: 2
     steps:
       - checkout
@@ -96,7 +93,8 @@ jobs:
             pip list
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             echo ${TESTFILES}
-            pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+            echo ${CIRCLE_BUILD_NUM}
+            PERCY_PARALLEL_NONCE=${CIRCLE_BUILD_NUM} PERCY_PARALLEL_TOTAL=2 pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
           path: test-reports
       - store_test_results:
