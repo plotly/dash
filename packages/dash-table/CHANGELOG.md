@@ -23,7 +23,10 @@ reset the filter for the affected column(s)
 
 ### Fixed
 [#491](https://github.com/plotly/dash-table/issues/491)
-- Fixed unconsistent behaviors when editing cell headers
+- Fixed inconsistent behaviors when editing cell headers
+
+[#521](https://github.com/plotly/dash-table/pull/521)
+- Fixed white line artifacts when rendering the table with browser zoom different from 100%
 
 ## [4.0.2] - 2019-07-15
 ### Fixed
