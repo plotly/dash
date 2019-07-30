@@ -1,3 +1,7 @@
+.dash-absolute-debug .dash-callback-dag--container {
+    position: absolute;
+}
+
 .dash-callback-dag--container {
     border-radius: 4px;
     position: fixed;
