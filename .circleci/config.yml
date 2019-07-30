@@ -79,7 +79,8 @@ jobs:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
-          PERCY_PARALLEL_TOTAL: '-1'
+          PERCY_PARALLEL_NONCE: ${CIRCLE_BUILD_NUM}
+          PERCY_PARALLEL_TOTAL: '2'
     parallelism: 2
     steps:
       - checkout
