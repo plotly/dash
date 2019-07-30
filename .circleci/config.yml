@@ -88,7 +88,7 @@ jobs:
       - attach_workspace:
           at: ~/dash
       - run:
-          name: echo
+          name: Integration
           command: |
             . venv/bin/activate
             cd packages && pip install * && cd ..
@@ -149,7 +149,7 @@ workflows:
     jobs:
       # - "python-2.7"
       # - "python-3.6"
-      - python-3.7-lint-unit
+      # - python-3.7-lint-unit
       - python-3.7-integration-setup
       - python-3.7-integration:
           requires:
