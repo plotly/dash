@@ -49,10 +49,10 @@ jobs:
 
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/dash
       - restore_cache:
           key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+      - attach_workspace:
+          at: ~/dash
       - run:
           name: 🚧 build renderer
           command: |
