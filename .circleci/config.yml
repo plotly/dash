@@ -33,12 +33,11 @@ jobs:
           command: |
             python -m venv venv || virtualenv venv
             . venv/bin/activate
-            pwd && ls -la
             pip install -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
-      - persist_to_workspace:
-          root: ~/dash
-          paths:
-            - venv
+      # - persist_to_workspace:
+      #     root: ~/dash
+      #     paths:
+      #       - venv
       - save_cache:
           key: v-{{ checksum "circlejob.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
@@ -73,7 +72,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/dash
-
+      - restore_cache:
+          key: v-{{ checksum "circlejob.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🚧 build renderer
           command: |
@@ -140,6 +140,8 @@ workflows:
     jobs:
       # - "python-2.7"
       # - "python-3.6"
-      - "python-3.7-lint-unit"
-      - "python-3.7-integration-setup"
-      - "python-3.7-integration"
+      - python-3.7-lint-unit
+      - python-3.7-integration-setup
+      - python-3.7-integration:
+          requires:
+            - python-3.7-integration-setup
