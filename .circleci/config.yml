@@ -154,3 +154,6 @@ workflows:
       - python-3.7-integration:
           requires:
             - python-3.7-integration-setup
+      - finalize-percy:
+          requires:
+            - python-3.7-integration
