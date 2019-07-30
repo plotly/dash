@@ -76,8 +76,8 @@ class Browser(DashPageMixin):
             # self.percy_runner.finalize_build()
         except WebDriverException:
             logger.exception("webdriver quit was not successful")
-        except percy.errors.Error:
-            logger.exception("percy runner failed to finalize properly")
+        # except percy.errors.Error:
+        #     logger.exception("percy runner failed to finalize properly")
 
     def _safe_percy_snapshot(self, name):
         try:
