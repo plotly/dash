@@ -81,14 +81,28 @@ jobs:
     parallelism: 1
     steps:
       - checkout
+      - restore_cache:
+          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - attach_workspace:
           at: ~/dash
       - run:
           name: echo
           command: |
-            pwd
-            ls -la
-            ls packages
+            . venv/bin/activate
+            cd packages
+            pip install dash-*.tar.gz[testing]
+            pip install dash_*.tar.gz
+            pip list | grep dash
+            TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
+            echo ${TESTFILES}
+            pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+      - store_artifacts:
+          path: test-reports
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: /tmp/dash_artifacts
+
   #     - run:
   #         name: ⚙️ run integration test
   #         command: |
