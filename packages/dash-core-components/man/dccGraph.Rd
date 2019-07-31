@@ -75,7 +75,7 @@ plotly.js's `animate` function}
 \item{animation_options}{Named list. Beta: Object containing animation settings.
 Only applies if `animate` is `true`}
 
-\item{config}{Lists containing elements 'staticplot', 'plotlyserverurl', 'editable', 'edits', 'autosizable', 'responsive', 'queuelength', 'fillframe', 'framemargins', 'scrollzoom', 'doubleclick', 'showtips', 'showaxisdraghandles', 'showaxisrangeentryboxes', 'showlink', 'senddata', 'linktext', 'displaymodebar', 'showsendtocloud', 'modebarbuttonstoremove', 'modebarbuttonstoadd', 'modebarbuttons', 'toimagebuttonoptions', 'displaylogo', 'watermark', 'plotglpixelratio', 'topojsonurl', 'mapboxaccesstoken', 'locale', 'locales'.
+\item{config}{Lists containing elements 'staticplot', 'plotlyserverurl', 'editable', 'edits', 'autosizable', 'responsive', 'queuelength', 'fillframe', 'framemargins', 'scrollzoom', 'doubleclick', 'doubleclickdelay', 'showtips', 'showaxisdraghandles', 'showaxisrangeentryboxes', 'showlink', 'senddata', 'linktext', 'displaymodebar', 'showsendtocloud', 'showeditinchartstudio', 'modebarbuttonstoremove', 'modebarbuttonstoadd', 'modebarbuttons', 'toimagebuttonoptions', 'displaylogo', 'watermark', 'plotglpixelratio', 'topojsonurl', 'mapboxaccesstoken', 'locale', 'locales'.
 those elements have the following types:
   - staticplot (logical; optional): no interactivity, for export or image generation
   - plotlyserverurl (character; optional): base url for a plotly cloud instance, if `showsendtocloud` is enabled
@@ -103,6 +103,9 @@ the arrow length & direction unchanged)
   - framemargins (numeric; optional): if we do autosize, set the frame margins in percents of plot size
   - scrollzoom (logical; optional): mousewheel or two-finger scroll zooms the plot
   - doubleclick (a value equal to: false, 'reset', 'autosize', 'reset+autosize'; optional): double click interaction (false, 'reset', 'autosize' or 'reset+autosize')
+  - doubleclickdelay (numeric; optional): delay for registering a double-click event in ms. the
+minimum value is 100 and the maximum value is 1000. by
+default this is 300.
   - showtips (logical; optional): new users see some hints about interactivity
   - showaxisdraghandles (logical; optional): enable axis pan/zoom drag handles
   - showaxisrangeentryboxes (logical; optional): enable direct range entry at the pan/zoom drag points
@@ -114,6 +117,10 @@ the arrow length & direction unchanged)
   - showsendtocloud (logical; optional): should we include a modebar button to send this data to a
 plotly cloud instance, linked by `plotlyserverurl`.
 by default this is false.
+  - showeditinchartstudio (logical; optional): should we show a modebar button to send this data to a
+plotly chart studio plot. if both this and showsendtocloud
+are selected, only showeditinchartstudio will be
+honored. by default this is false.
   - modebarbuttonstoremove (unnamed list; optional): remove mode bar button by name.
 all modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js
 common names include:
