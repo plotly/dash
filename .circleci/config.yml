@@ -207,9 +207,6 @@ workflows:
           requires:
             - build-core-36
             - build-misc-36
-      - "percy-finalize":
-          requires:
-            - test-36
   python2.7:
     jobs:
       - lint-unit-27
@@ -219,6 +216,3 @@ workflows:
           requires:
             - build-core-27
             - build-misc-27
-      - "percy-finalize":
-          requires:
-            - test-27
