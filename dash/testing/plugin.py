@@ -36,7 +36,7 @@ def pytest_addoption(parser):
     )
 
     dash.addoption(
-        "--percyfinalize",
+        "--nopercyfinalize",
         action="store_false",
         help="set this flag to control percy finalize at CI level",
     )
@@ -102,7 +102,7 @@ def dash_br(request, tmpdir):
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
-        percy_finalize=request.config.getoption("percyfinalize"),
+        percy_finalize=request.config.getoption("nopercyfinalize"),
     ) as browser:
         yield browser
 
@@ -115,7 +115,7 @@ def dash_duo(request, dash_thread_server, tmpdir):
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
-        percy_finalize=request.config.getoption("percyfinalize"),
+        percy_finalize=request.config.getoption("nopercyfinalize"),
     ) as dc:
         yield dc
 
@@ -128,6 +128,6 @@ def dashr(request, dashr_server, tmpdir):
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
-        percy_finalize=request.config.getoption("percyfinalize"),
+        percy_finalize=request.config.getoption("nopercyfinalize"),
     ) as dc:
         yield dc
