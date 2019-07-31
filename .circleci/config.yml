@@ -1,92 +1,166 @@
 version: 2
-
 jobs:
+  "percy-finalize":
+    docker:
+      - image: percyio/agent
+    steps:
+      - run: percy finalize --all
 
-  "python-2.7": &test-template
+  "lint-unit-37": &lint-unit
     working_directory: ~/dash
     docker:
-      - image: circleci/python:2.7-stretch-node-browsers
+      - image: circleci/python:3.7-stretch-node-browsers
         environment:
-          PYLINTRC: .pylintrc
+          PYLINTRC: .pylintrc37
+          PYVERSION: python37
 
     steps:
       - checkout
-
-      - run:
-          name: ℹ️ CI Context
-          command: |
-            echo "TRIGGERER: ${CIRCLE_USERNAME}"
-            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
-            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
-            echo "BRANCH: ${CIRCLE_BRANCH}"
-            echo "RUNNING JOB: ${CIRCLE_JOB}"
-            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
-            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-            echo $CIRCLE_JOB > circlejob.txt
-
+      - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: v-{{ checksum "circlejob.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🚧 pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
-            python -m venv venv || virtualenv venv
-            . venv/bin/activate
-            pip install -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+            python -m venv venv || virtualenv venv && . venv/bin/activate
+            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: v-{{ checksum "circlejob.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
-
       - run:
-          name: 🌸 linting
+          name: 🌸 Python & JS Lint
           command: |
             . venv/bin/activate
-            pip install -e .[ci,testing] --quiet
-            pip list | grep dash
-            flake8 dash setup.py
-            flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
+            pip install -e . --quiet && pip list | grep dash
+            flake8 dash setup.py && flake8 --ignore=E123,E126,E501,E722,E731,F401,F841,W503,W504 --exclude=metadata_test.py tests
             pylint dash setup.py --rcfile=$PYLINTRC
             pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
             cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
-
       - run:
-          name: ⛑ Run unit tests
+          name: ⛑ Unit Tests
           command: |
             . venv/bin/activate
-            mkdir test-reports
-            PYTHONPATH=~/dash/tests/assets pytest --junitxml=test-reports/junit.xml tests/unit
-      - store_test_results:
-          path: test-reports
-      - store_artifacts:
-          path: test-reports
+            PYTHONPATH=~/dash/tests/assets pytest tests/unit
 
-      - run:
-          name: 🚧 build renderer
-          command: |
-              . venv/bin/activate
-              cd dash-renderer
-              npm install --ignore-scripts && npm run build:dev && npm run build
-              pip install -e . --quiet
+  "lint-unit-36":
+      <<: *lint-unit
+      docker:
+        - image: circleci/python:3.6-stretch-node-browsers
+          environment:
+            PYLINTRC: .pylintrc
+            PYVERSION: python36
 
+  "lint-unit-27":
+      <<: *lint-unit
+      docker:
+        - image: circleci/python:2.7-stretch-node-browsers
+          environment:
+            PYLINTRC: .pylintrc
+            PYVERSION: python27
+
+  "build-core-37": &build-core
+    working_directory: ~/dash
+    docker:
+      - image: circleci/python:3.7-stretch-node-browsers
+        environment:
+          PYVERSION: python37
+    steps:
+      - checkout
+      - run: echo $PYVERSION > ver.txt
+      - restore_cache:
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
-          name: 🚧 install dependencies from latest master commit
+          name: 🚧 build core
           command: |
+              . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
+              python setup.py sdist && mv dist/* packages/
+              cd dash-renderer && npm install --ignore-scripts && npm run build:dev && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
-              git clone --depth 1 https://github.com/plotly/dash-html-components.git
-              git clone --depth 1 https://github.com/plotly/dash-table.git
+              cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              . venv/bin/activate
-              cd dash-core-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-              cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-              cd dash-table && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && pip install -e . && cd ..
+              cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
+      - persist_to_workspace:
+          root: ~/dash
+          paths:
+            - packages
 
+  "build-core-36":
+      <<: *build-core
+      docker:
+        - image: circleci/python:3.6-stretch-node-browsers
+          environment:
+            PYVERSION: python36
+
+  "build-core-27":
+      <<: *build-core
+      docker:
+        - image: circleci/python:2.7-stretch-node-browsers
+          environment:
+            PYVERSION: python27
+
+  "build-misc-37": &build-misc
+    working_directory: ~/dash
+    docker:
+      - image: circleci/python:3.7-stretch-node-browsers
+        environment:
+          PYVERSION: python37
+
+    steps:
+      - checkout
+      - run: echo $PYVERSION > ver.txt
+      - restore_cache:
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
-          name: ⚙️ run integration test
+          name: 🚧 build misc
+          command: |
+              . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
+              git clone --depth 1 https://github.com/plotly/dash-table.git
+              cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              git clone --depth 1 https://github.com/plotly/dash-html-components.git
+              cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+      - persist_to_workspace:
+          root: ~/dash
+          paths:
+            - packages
+
+  "build-misc-36":
+      <<: *build-misc
+      docker:
+        - image: circleci/python:3.6-stretch-node-browsers
+          environment:
+            PYVERSION: python36
+
+  "build-misc-27":
+      <<: *build-misc
+      docker:
+        - image: circleci/python:2.7-stretch-node-browsers
+          environment:
+            PYVERSION: python27
+
+  "test-37": &test
+    working_directory: ~/dash
+    docker:
+      - image: circleci/python:3.7-stretch-node-browsers
+        environment:
+          PERCY_PARALLEL_TOTAL: '-1'
+          PYVERSION: python37
+    parallelism: 3
+    steps:
+      - checkout
+      - run: echo $PYVERSION > ver.txt
+      - restore_cache:
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+      - attach_workspace:
+          at: ~/dash
+      - run:
+          name: ⚙️ Run Integration Tests
           command: |
             . venv/bin/activate
-            pytest --junitxml=test-reports/junit_intg.xml tests/integration/
+            cd packages && ls -la && pip install * && cd .. && pip list | grep dash
+            TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
+            pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
           path: test-reports
       - store_test_results:
@@ -94,28 +168,51 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
+  "test-36":
+      <<: *test
+      docker:
+        - image: circleci/python:3.6-stretch-node-browsers
+          environment:
+            PERCY_ENABLE: '0'
+            PYVERSION: python36
 
-  "python-3.6":
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.6-stretch-node-browsers
-        environment:
-          PYLINTRC: .pylintrc
-          PERCY_ENABLE: 0
-
-  "python-3.7":
-    <<: *test-template
-    docker:
-      - image: circleci/python:3.7-stretch-node-browsers
-        environment:
-          PYLINTRC: .pylintrc37
-          PERCY_ENABLE: 0
-
+  "test-27":
+      <<: *test
+      docker:
+        - image: circleci/python:2.7-stretch-node-browsers
+          environment:
+            PERCY_ENABLE: '0'
+            PYVERSION: python27
 
 workflows:
   version: 2
-  build:
+  python3.7:
     jobs:
-      - "python-2.7"
-      - "python-3.6"
-      - "python-3.7"
+      - lint-unit-37
+      - build-core-37
+      - build-misc-37
+      - "test-37":
+          requires:
+            - build-core-37
+            - build-misc-37
+      - "percy-finalize":
+          requires:
+            - test-37
+  python3.6:
+    jobs:
+      - lint-unit-36
+      - build-core-36
+      - build-misc-36
+      - "test-36":
+          requires:
+            - build-core-36
+            - build-misc-36
+  python2.7:
+    jobs:
+      - lint-unit-27
+      - build-core-27
+      - build-misc-27
+      - "test-27":
+          requires:
+            - build-core-27
+            - build-misc-27
