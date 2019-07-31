@@ -2,10 +2,10 @@ import itertools
 import time
 import flask
 
-from dash import Dash
-from dash.dependencies import Input, Output
 import dash_html_components as html
 import dash_core_components as dcc
+from dash import Dash
+from dash.dependencies import Input, Output
 
 from .IntegrationTests import IntegrationTests
 from .utils import wait_for
@@ -16,7 +16,7 @@ class Tests(IntegrationTests):
         pass
 
 
-DELAY_TIME = 0.5
+DELAY_TIME = 0.3
 
 
 def create_race_conditions_test(endpoints):
