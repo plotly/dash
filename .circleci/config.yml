@@ -17,8 +17,8 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
-      # - restore_cache:
-      #     key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+      - restore_cache:
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🚧 pip dev requirements
           command: |
@@ -26,7 +26,7 @@ jobs:
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
@@ -70,7 +70,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🚧 build core
           command: |
@@ -111,7 +111,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🚧 build misc
           command: |
@@ -151,7 +151,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - attach_workspace:
           at: ~/dash
       - run:
