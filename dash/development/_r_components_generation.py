@@ -442,8 +442,10 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
     # now copy over all JS dependencies from the (Python) components dir
     # the inst/lib directory for the package won't exist on first call
     # create this directory if it is missing
-    if not os.path.exists("inst/deps"):
-        os.makedirs("inst/deps")
+    if os.path.exists("inst/deps"):
+        shutil.rmtree("inst/deps")
+
+    os.makedirs("inst/deps")
 
     for javascript in glob.glob("{}/*.js".format(project_shortname)):
         shutil.copy(javascript, "inst/deps/")
