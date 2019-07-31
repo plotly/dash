@@ -20,7 +20,7 @@ jobs:
           name: 🚧 pip dev requirements
           command: |
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
       - save_cache:
           key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
@@ -65,10 +65,14 @@ jobs:
       - run:
           name: 🚧 build core
           command: |
-              . venv/bin/activate
-              mkdir packages
+              . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
               python setup.py sdist && mv dist/* packages/
               cd dash-renderer && npm install --ignore-scripts && npm run build:dev && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              git clone --depth 1 https://github.com/plotly/dash-core-components.git
+              git clone --depth 1 https://github.com/plotly/dash-html-components.git
+              cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
+              cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+
       - persist_to_workspace:
           root: ~/dash
           paths:
@@ -85,15 +89,9 @@ jobs:
       - run:
           name: 🚧 build misc
           command: |
-              . venv/bin/activate
-              pip install -e . --quiet
-              mkdir packages
+              . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
               git clone --depth 1 https://github.com/plotly/dash-table.git
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
-              git clone --depth 1 https://github.com/plotly/dash-core-components.git
-              git clone --depth 1 https://github.com/plotly/dash-html-components.git
-              cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
-              cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
       - persist_to_workspace:
@@ -101,7 +99,7 @@ jobs:
           paths:
             - packages
 
-  "py37-test": &integration
+  "test-37": &test
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -115,7 +113,7 @@ jobs:
       - attach_workspace:
           at: ~/dash
       - run:
-          name: Integration
+          name: ⚙️ Run Integration Tests
           command: |
             . venv/bin/activate
             cd packages && ls -la && pip install * && cd .. && pip list | grep dash
