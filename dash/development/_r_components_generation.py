@@ -444,6 +444,9 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
     # create this directory if it is missing
     if not os.path.exists("inst/deps"):
         os.makedirs("inst/deps")
+    else:
+        shutil.rmtree("inst/deps")
+        os.makedirs("inst/deps")
 
     for javascript in glob.glob("{}/*.js".format(project_shortname)):
         shutil.copy(javascript, "inst/deps/")
