@@ -17,11 +17,12 @@ jobs:
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
-      - restore_cache:
-          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+      # - restore_cache:
+      #     key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🚧 pip dev requirements
           command: |
+            sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
       - save_cache:
@@ -188,36 +189,36 @@ workflows:
   python3.7:
     jobs:
       - lint-unit-37
-      - build-core-37
-      - build-misc-37
-      - "test-37":
-          requires:
-            - build-core-37
-            - build-misc-37
-      - "percy-finalize":
-          requires:
-            - test-37
+      # - build-core-37
+      # - build-misc-37
+      # - "test-37":
+      #     requires:
+      #       - build-core-37
+      #       - build-misc-37
+      # - "percy-finalize":
+      #     requires:
+      #       - test-37
   python3.6:
     jobs:
       - lint-unit-36
-      - build-core-36
-      - build-misc-36
-      - "test-36":
-          requires:
-            - build-core-36
-            - build-misc-36
-      - "percy-finalize":
-          requires:
-            - test-36
+      # - build-core-36
+      # - build-misc-36
+      # - "test-36":
+      #     requires:
+      #       - build-core-36
+      #       - build-misc-36
+      # - "percy-finalize":
+      #     requires:
+      #       - test-36
   python2.7:
     jobs:
       - lint-unit-27
-      - build-core-27
-      - build-misc-27
-      - "test-27":
-          requires:
-            - build-core-27
-            - build-misc-27
-      - "percy-finalize":
-          requires:
-            - test-27
+      # - build-core-27
+      # - build-misc-27
+      # - "test-27":
+      #     requires:
+      #       - build-core-27
+      #       - build-misc-27
+      # - "percy-finalize":
+      #     requires:
+      #       - test-27
