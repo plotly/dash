@@ -12,17 +12,20 @@ jobs:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
           PYLINTRC: .pylintrc37
+          PYVERSION: python37
+
     steps:
       - checkout
+      - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🚧 pip dev requirements
           command: |
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
@@ -46,6 +49,7 @@ jobs:
         - image: circleci/python:3.6-stretch-node-browsers
           environment:
             PYLINTRC: .pylintrc
+            PYVERSION: python36
 
   "lint-unit-27":
       <<: *lint-unit
@@ -53,15 +57,19 @@ jobs:
         - image: circleci/python:2.7-stretch-node-browsers
           environment:
             PYLINTRC: .pylintrc
+            PYVERSION: python27
 
   "build-core-37": &build-core
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
+        environment:
+          PYVERSION: python37
     steps:
       - checkout
+      - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🚧 build core
           command: |
@@ -81,20 +89,28 @@ jobs:
       <<: *build-core
       docker:
         - image: circleci/python:3.6-stretch-node-browsers
+          environment:
+            PYVERSION: python36
 
   "build-core-27":
       <<: *build-core
       docker:
         - image: circleci/python:2.7-stretch-node-browsers
+          environment:
+            PYVERSION: python27
 
   "build-misc-37": &build-misc
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
+        environment:
+          PYVERSION: python37
+
     steps:
       - checkout
+      - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🚧 build misc
           command: |
@@ -112,11 +128,15 @@ jobs:
       <<: *build-misc
       docker:
         - image: circleci/python:3.6-stretch-node-browsers
+          environment:
+            PYVERSION: python36
 
   "build-misc-27":
       <<: *build-misc
       docker:
         - image: circleci/python:2.7-stretch-node-browsers
+          environment:
+            PYVERSION: python27
 
   "test-37": &test
     working_directory: ~/dash
@@ -124,11 +144,13 @@ jobs:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
           PERCY_PARALLEL_TOTAL: '-1'
+          PYVERSION: python37
     parallelism: 3
     steps:
       - checkout
+      - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: v-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: v-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - attach_workspace:
           at: ~/dash
       - run:
@@ -151,6 +173,7 @@ jobs:
         - image: circleci/python:3.6-stretch-node-browsers
           environment:
             PERCY_ENABLE: '0'
+            PYVERSION: python36
 
   "test-27":
       <<: *test
@@ -158,6 +181,7 @@ jobs:
         - image: circleci/python:2.7-stretch-node-browsers
           environment:
             PERCY_ENABLE: '0'
+            PYVERSION: python27
 
 workflows:
   version: 2
