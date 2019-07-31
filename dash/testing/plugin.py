@@ -4,9 +4,13 @@ import warnings
 try:
     import pytest
 
-    from dash.testing.application_runners import ThreadedRunner, ProcessRunner
+    from dash.testing.application_runners import (
+        ThreadedRunner,
+        ProcessRunner,
+        RRunner,
+    )
     from dash.testing.browser import Browser
-    from dash.testing.composite import DashComposite
+    from dash.testing.composite import DashComposite, DashRComposite
 except ImportError:
     warnings.warn("run `pip install dash[testing]` if you need dash.testing")
 
@@ -26,9 +30,7 @@ def pytest_addoption(parser):
     )
 
     dash.addoption(
-        "--headless",
-        action="store_true",
-        help="Run tests in headless mode",
+        "--headless", action="store_true", help="Run tests in headless mode"
     )
 
 
@@ -54,7 +56,7 @@ def pytest_runtest_makereport(item, call):  # pylint: disable=unused-argument
     if rep.when == "call" and rep.failed:
         for name, fixture in item.funcargs.items():
             try:
-                if name in {"dash_duo", "dash_br"}:
+                if name in {"dash_duo", "dash_br", "dashr"}:
                     fixture.take_snapshot(item.name)
             except Exception as e:  # pylint: disable=broad-except
                 print(e)
@@ -80,12 +82,18 @@ def dash_process_server():
 
 
 @pytest.fixture
+def dashr_server():
+    with RRunner() as starter:
+        yield starter
+
+
+@pytest.fixture
 def dash_br(request, tmpdir):
     with Browser(
         browser=request.config.getoption("webdriver"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
-        download_path=tmpdir.mkdir('download').strpath
+        download_path=tmpdir.mkdir("download").strpath,
     ) as browser:
         yield browser
 
@@ -97,6 +105,18 @@ def dash_duo(request, dash_thread_server, tmpdir):
         browser=request.config.getoption("webdriver"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
-        download_path=tmpdir.mkdir('download').strpath
+        download_path=tmpdir.mkdir("download").strpath,
+    ) as dc:
+        yield dc
+
+
+@pytest.fixture
+def dashr(request, dashr_server, tmpdir):
+    with DashRComposite(
+        dashr_server,
+        browser=request.config.getoption("webdriver"),
+        headless=request.config.getoption("headless"),
+        options=request.config.hook.pytest_setup_options(),
+        download_path=tmpdir.mkdir("download").strpath,
     ) as dc:
         yield dc
