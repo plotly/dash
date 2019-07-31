@@ -17,7 +17,7 @@ $ pip install -r .circleci/requirements/dev-requirements.txt
 ```
 ## Git
 
-Use the [GitHub flow][] when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the **dev** branch).
+Use the [GitHub flow][] when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the default branch).
 
 ### Organize your commits
 
@@ -63,7 +63,7 @@ Emojis make the commit messages :cherry_blossom:. If you have no idea about what
 
 We use both `flake8` and `pylint` for basic linting check, please refer to the relevant steps in `.circleci/config.yml`.
 
-Note that we also start using [`black`](https://black.readthedocs.io/en/stable/) as formatter during the test code migration. 
+Note that we also start using [`black`](https://black.readthedocs.io/en/stable/) as formatter during the test code migration.
 
 ## Tests
 
