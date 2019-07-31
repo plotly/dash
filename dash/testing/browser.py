@@ -36,6 +36,7 @@ class Browser(DashPageMixin):
         options=None,
         remote=None,
         download_path=None,
+        percy_finalize=True,
         wait_timeout=10,
     ):
         self._browser = browser.lower()
@@ -43,6 +44,7 @@ class Browser(DashPageMixin):
         self._options = options
         self._download_path = download_path
         self._wait_timeout = wait_timeout
+        self._percy_finalize = percy_finalize
 
         self._driver = until(lambda: self.get_webdriver(remote), timeout=1)
         self._driver.implicitly_wait(2)
@@ -72,8 +74,15 @@ class Browser(DashPageMixin):
     def __exit__(self, exc_type, exc_val, traceback):
         try:
             self.driver.quit()
+            if self._percy_finalize:
+                logger.info("percy runner finalize build now")
+                self.percy_runner.finalize_build()
+            else:
+                logger.info("percy finalize relies on CI job")
         except WebDriverException:
             logger.exception("webdriver quit was not successful")
+        except percy.errors.Error:
+            logger.exception("percy runner failed to finalize properly")
 
     def percy_snapshot(self, name=""):
         """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`
