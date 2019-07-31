@@ -7,10 +7,6 @@
     font-variant-ligatures: common-ligatures;
 }
 
-.dash-absolute-debug .dash-error-card {
-    position: absolute;
-}
-
 .dash-error-card {
     box-sizing: border-box;
     background: #ffffff;

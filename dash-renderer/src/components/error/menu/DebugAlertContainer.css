@@ -30,10 +30,6 @@
     font-size: 10px;
 }
 
-.dash-absolute-debug .dash-debug-alert-label {
-    position: absolute;
-}
-
 .dash-debug-alert-label {
     display: flex;
     position: fixed;
