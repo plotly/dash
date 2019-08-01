@@ -85,7 +85,8 @@ function UnconnectedErrorContent({error, base}) {
              * message might overflow into ellipses in the title above &
              * will need to be displayed in full in this error body
              */}
-            {typeof error.message !== 'string' || error.message.length < 40 ? null : (
+            {typeof error.message !== 'string' ||
+            error.message.length < 40 ? null : (
                 <div className="dash-fe-error__st">
                     <div className="dash-fe-error__info dash-fe-error__curved">
                         {error.message}
@@ -123,13 +124,15 @@ function UnconnectedErrorContent({error, base}) {
                       */}
 
                         <iframe
-                            srcDoc={error.html.replace(
-                                '</head>',
-                                `<style type="text/css">${werkzeugCss}</style></head>`
-                            ).replace(
-                                '="?__debugger__',
-                                `="${base}?__debugger__`
-                            )}
+                            srcDoc={error.html
+                                .replace(
+                                    '</head>',
+                                    `<style type="text/css">${werkzeugCss}</style></head>`
+                                )
+                                .replace(
+                                    '="?__debugger__',
+                                    `="${base}?__debugger__`
+                                )}
                             style={{
                                 /*
                                  * 67px of padding and margin between this
@@ -165,9 +168,9 @@ UnconnectedErrorContent.propTypes = {
     base: PropTypes.string,
 };
 
-const ErrorContent = connect(
-    state => ({base: urlBase(state.config)})
-)(UnconnectedErrorContent);
+const ErrorContent = connect(state => ({base: urlBase(state.config)}))(
+    UnconnectedErrorContent
+);
 
 FrontEndError.propTypes = {
     e: PropTypes.shape({
