@@ -6,15 +6,15 @@
 \title{DataTable component}
 
 \description{
-Dash DataTable is an interactive table component designed for  designed for viewing, editing, and exploring large datasets. DataTable is rendered with standard, semantic HTML <table/> markup, which makes it accessible, responsive, and easy to style. This component was written from scratch in React.js specifically for the  Dash community. Its API was designed to be ergonomic and its behavior is completely customizable through its properties.
+Dash DataTable is an interactive table component designed for designed for viewing, editing, and exploring large datasets. DataTable is rendered with standard, semantic HTML <table/> markup, which makes it accessible, responsive, and easy to style. This component was written from scratch in React.js specifically for the Dash community. Its API was designed to be ergonomic and its behavior is completely customizable through its properties.
 }
 
 \usage{
 dashDataTable(active_cell=NULL, columns=NULL, locale_format=NULL, css=NULL, data=NULL,
-data_previous=NULL, data_timestamp=NULL, editable=NULL, end_cell=NULL, id=NULL,
-is_focused=NULL, merge_duplicate_headers=NULL, fixed_columns=NULL,
-fixed_rows=NULL, row_deletable=NULL, row_selectable=NULL, selected_cells=NULL,
-selected_rows=NULL, selected_row_ids=NULL, start_cell=NULL,
+data_previous=NULL, data_timestamp=NULL, editable=NULL, end_cell=NULL,
+fill_width=NULL, id=NULL, is_focused=NULL, merge_duplicate_headers=NULL,
+fixed_columns=NULL, fixed_rows=NULL, row_deletable=NULL, row_selectable=NULL,
+selected_cells=NULL, selected_rows=NULL, selected_row_ids=NULL, start_cell=NULL,
 style_as_list_view=NULL, page_action=NULL, page_current=NULL, page_size=NULL,
 dropdown=NULL, dropdown_conditional=NULL, dropdown_data=NULL, tooltip=NULL,
 tooltip_conditional=NULL, tooltip_data=NULL, tooltip_delay=NULL,
@@ -253,6 +253,10 @@ those elements have the following types:
 `end_cell` represents the row / column coordinates and IDs of the cell
 in one of the corners of the region.
 `start_cell` represents the coordinates of the other corner.}
+
+\item{fill_width}{Logical. `fill_width` toggles between a set of CSS for two common behaviors:
+- True: The table container's width will grow to fill the available space
+- False: The table container's width will equal the width of its content}
 
 \item{id}{Character. The ID of the table.}
 
@@ -757,7 +761,7 @@ app$layout(dashDataTable(
     list(name = x, id = x)
   }), 
   data = df_to_list(df) 
-)
+  )
 )
 
 app$run_server()
