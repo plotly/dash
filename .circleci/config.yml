@@ -160,7 +160,7 @@ jobs:
             . venv/bin/activate
             cd packages && ls -la && pip install * && cd .. && pip list | grep dash
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --headless --durations=10 --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
           path: test-reports
       - store_test_results:
