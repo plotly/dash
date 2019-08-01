@@ -38,28 +38,26 @@ export function propTypeErrorHandler(message, props, type) {
     const messageParts = message.split('`');
     let errorMessage;
     if (contains('is marked as required', message)) {
-
         const invalidPropPath = messageParts[1];
         errorMessage = `${invalidPropPath} in ${type}`;
         if (props.id) {
             errorMessage += ` with ID "${props.id}"`;
         }
         errorMessage += ` is required but it was not provided.`;
-
-    } else if(contains('Bad object', message)) {
+    } else if (contains('Bad object', message)) {
         /*
          * Handle .exact errors
          * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L438-L442
          */
-        errorMessage = (
+        errorMessage =
             message.split('supplied to ')[0] +
             `supplied to ${type}` +
             '.\nBad' +
-            message.split('.\nBad')[1]
-        );
-
-    } else if(contains('Invalid ', message) && contains(' supplied to ', message)) {
-
+            message.split('.\nBad')[1];
+    } else if (
+        contains('Invalid ', message) &&
+        contains(' supplied to ', message)
+    ) {
         const invalidPropPath = messageParts[1];
 
         errorMessage = `Invalid argument \`${invalidPropPath}\` passed into ${type}`;
@@ -84,10 +82,10 @@ export function propTypeErrorHandler(message, props, type) {
          * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L388
          */
         if (contains(' of type `', message)) {
-            const invalidPropTypeProvided = message.split(' of type `')[1].split('`')[0];
-            errorMessage += (
-                `\nWas supplied type \`${invalidPropTypeProvided}\`.`
-            );
+            const invalidPropTypeProvided = message
+                .split(' of type `')[1]
+                .split('`')[0];
+            errorMessage += `\nWas supplied type \`${invalidPropTypeProvided}\`.`;
         }
 
         if (has(invalidPropPath, props)) {
@@ -96,7 +94,11 @@ export function propTypeErrorHandler(message, props, type) {
              * For now, we won't try to unpack these nested options
              * but we could in the future.
              */
-            const jsonSuppliedValue = JSON.stringify(props[invalidPropPath], null, 2);
+            const jsonSuppliedValue = JSON.stringify(
+                props[invalidPropPath],
+                null,
+                2
+            );
             if (jsonSuppliedValue) {
                 if (contains('\n', jsonSuppliedValue)) {
                     errorMessage += `\nValue provided: \n${jsonSuppliedValue}`;
@@ -105,7 +107,6 @@ export function propTypeErrorHandler(message, props, type) {
                 }
             }
         }
-
     } else {
         /*
          * Not aware of other prop type warning messages.

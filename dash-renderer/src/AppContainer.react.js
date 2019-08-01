@@ -1,3 +1,4 @@
+/* global document:true */
 import {connect} from 'react-redux';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -6,7 +7,7 @@ import DocumentTitle from './components/core/DocumentTitle.react';
 import Loading from './components/core/Loading.react';
 import Toolbar from './components/core/Toolbar.react';
 import Reloader from './components/core/Reloader.react';
-import {setHooks, readConfig} from './actions/index';
+import {setHooks, setConfig} from './actions/index';
 import {type} from 'ramda';
 
 class UnconnectedAppContainer extends React.Component {
@@ -22,7 +23,20 @@ class UnconnectedAppContainer extends React.Component {
 
     componentWillMount() {
         const {dispatch} = this.props;
-        dispatch(readConfig());
+        const config = JSON.parse(
+            document.getElementById('_dash-config').textContent
+        );
+
+        // preset common request params in the config
+        config.fetch = {
+            credentials: 'same-origin',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        };
+
+        dispatch(setConfig(config));
     }
 
     render() {

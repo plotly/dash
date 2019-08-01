@@ -13,8 +13,8 @@
     "build:dev.watch": "webpack --mode development --watch",
     "build": "webpack --mode production",
     "start": "webpack-serve ./webpack.serve.config.js",
-    "format": "prettier --config .prettierrc --write src/**/*.js src/**/*.react.js",
-    "format:test": "prettier --config .prettierrc src/**/*.js src/**/*.react.js --list-different",
+    "format": "prettier --config .prettierrc --write \"src/**/*.js\"",
+    "format:test": "prettier --config .prettierrc \"src/**/*.js\" --list-different",
     "test": "npm run lint",
     "test:py": "python -m unittest -v tests.test_render tests.test_race_conditions"
   },
