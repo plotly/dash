@@ -101,6 +101,8 @@ def generate_components(
         if os.path.isfile("dash-info.yaml"):
             with open("dash-info.yaml") as yamldata:
                 rpkg_data = yaml.safe_load(yamldata)
+        else:
+            rpkg_data = None
         with open('package.json', 'r') as f:
             pkg_data = safe_json_loads(f.read())
         generator_methods.append(
