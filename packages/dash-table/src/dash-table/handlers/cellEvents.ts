@@ -10,15 +10,15 @@ export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: nu
         selected_cells,
         active_cell,
         setProps,
+        viewport,
         virtualized,
-        columns,
-        viewport
+        visibleColumns
     } = propsFn();
 
     const row = idx + virtualized.offset.rows;
     const col = i + virtualized.offset.columns;
 
-    const clickedCell = makeCell(row, col, columns, viewport);
+    const clickedCell = makeCell(row, col, visibleColumns, viewport);
 
     // clicking again on the already-active cell: ignore
     if (active_cell && row === active_cell.row && col === active_cell.column) {
@@ -66,7 +66,7 @@ export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: nu
                 minCol: min(col, active_cell.column),
                 maxCol: max(col, active_cell.column)
             },
-            columns,
+            visibleColumns,
             viewport
         );
     } else {
@@ -82,12 +82,12 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number,
     const {
         is_focused,
         setProps,
+        viewport,
         virtualized,
-        columns,
-        viewport
+        visibleColumns
     } = propsFn();
 
-    const c = columns[i];
+    const c = visibleColumns[i];
 
     if (!c.editable) {
         return;
@@ -96,7 +96,7 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number,
     const newCell = makeCell(
         idx + virtualized.offset.rows,
         i + virtualized.offset.columns,
-        columns, viewport
+        visibleColumns, viewport
     );
 
     if (!is_focused) {
@@ -114,13 +114,13 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number,
 
 export const handleChange = (propsFn: () => ICellFactoryProps, idx: number, i: number, value: any) => {
     const {
-        columns,
         data,
         setProps,
-        virtualized
+        virtualized,
+        visibleColumns
     } = propsFn();
 
-    const c = columns[i];
+    const c = visibleColumns[i];
     const realIdx = virtualized.indices[idx];
 
     if (!c.editable) {
@@ -146,12 +146,12 @@ export const handleChange = (propsFn: () => ICellFactoryProps, idx: number, i: n
 
 export const handleEnter = (propsFn: () => ICellFactoryProps, idx: number, i: number) => {
     const {
-        columns,
+        setState,
         virtualized,
-        setState
+        visibleColumns
     } = propsFn();
 
-    const c = columns[i];
+    const c = visibleColumns[i];
     const realIdx = virtualized.indices[idx];
 
     setState({
@@ -172,13 +172,13 @@ export const handleLeave = (propsFn: () => ICellFactoryProps, _idx: number, _i: 
 
 export const handleMove = (propsFn: () => ICellFactoryProps, idx: number, i: number) => {
     const {
-        columns,
         currentTooltip,
+        setState,
         virtualized,
-        setState
+        visibleColumns
     } = propsFn();
 
-    const c = columns[i];
+    const c = visibleColumns[i];
     const realIdx = virtualized.indices[idx];
 
     if (currentTooltip && currentTooltip.id === c.id && currentTooltip.row === realIdx) {

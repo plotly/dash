@@ -15,7 +15,7 @@ import getHeaderRows from 'dash-table/derived/header/headerRows';
 import { derivedRelevantCellStyles, derivedRelevantFilterStyles, derivedRelevantHeaderStyles } from 'dash-table/derived/style';
 import { Style, Cells, DataCells, BasicFilters, Headers } from 'dash-table/derived/style/props';
 
-import { ControlledTableProps, VisibleColumns, IViewportOffset, Data, ICellCoordinates, TableAction } from './Table/props';
+import { ControlledTableProps, Columns, IViewportOffset, Data, ICellCoordinates, TableAction } from './Table/props';
 import { SingleColumnSyntaxTree } from 'dash-table/syntax-tree';
 
 type EdgesMatricesOp = EdgesMatrices | undefined;
@@ -155,12 +155,14 @@ export default class EdgeFactory {
             style_filter_conditional,
             style_header,
             style_header_conditional,
-            virtualized
+            virtualized,
+            visibleColumns
         } = this.props;
 
         return this.memoizedCreateEdges(
             active_cell,
             columns,
+            visibleColumns,
             (row_deletable ? 1 : 0) + (row_selectable ? 1 : 0),
             filter_action !== TableAction.None,
             workFilter.map,
@@ -182,7 +184,8 @@ export default class EdgeFactory {
 
     private memoizedCreateEdges = memoizeOne((
         active_cell: ICellCoordinates,
-        columns: VisibleColumns,
+        columns: Columns,
+        visibleColumns: Columns,
         operations: number,
         filter_action: boolean,
         filterMap: Map<string, SingleColumnSyntaxTree>,
@@ -224,7 +227,7 @@ export default class EdgeFactory {
         const headerRows = getHeaderRows(columns);
 
         let dataEdges = this.getDataEdges(
-            columns,
+            visibleColumns,
             dataStyles,
             data,
             offset,
@@ -241,7 +244,7 @@ export default class EdgeFactory {
         );
 
         let filterEdges = this.getFilterEdges(
-            columns,
+            visibleColumns,
             filter_action,
             filterMap,
             filterStyles,
@@ -256,7 +259,7 @@ export default class EdgeFactory {
         );
 
         let headerEdges = this.getHeaderEdges(
-            columns,
+            visibleColumns,
             headerRows,
             headerStyles,
             style_as_list_view

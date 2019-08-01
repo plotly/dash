@@ -6,7 +6,7 @@ import MultiColumnsSyntaxTree from './MultiColumnsSyntaxTree';
 import QuerySyntaxTree from './QuerySyntaxTree';
 import SingleColumnSyntaxTree from './SingleColumnSyntaxTree';
 import { RelationalOperator } from './lexeme/relational';
-import { IVisibleColumn } from 'dash-table/components/Table/props';
+import { IColumn } from 'dash-table/components/Table/props';
 
 export const getMultiColumnQueryString = (
     asts: SingleColumnSyntaxTree[]
@@ -17,7 +17,7 @@ export const getMultiColumnQueryString = (
 
 export const getSingleColumnMap = (
     ast: MultiColumnsSyntaxTree,
-    columns: IVisibleColumn[]
+    columns: IColumn[]
 ) => {
     if (!ast.isValid) {
         return;

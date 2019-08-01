@@ -3,7 +3,7 @@ import React, { MouseEvent } from 'react';
 
 import { memoizeOne } from 'core/memoizer';
 import memoizerCache from 'core/cache/memoizer';
-import { Data, IVisibleColumn, VisibleColumns, ICellCoordinates, SelectedCells, Datum, ColumnId, IViewportOffset, Presentation, ICellFactoryProps } from 'dash-table/components/Table/props';
+import { Data, IColumn, Columns, ICellCoordinates, SelectedCells, Datum, ColumnId, IViewportOffset, Presentation, ICellFactoryProps } from 'dash-table/components/Table/props';
 import Cell from 'dash-table/components/Cell';
 import derivedCellEventHandlerProps, { Handler } from 'dash-table/derived/cell/eventHandlerProps';
 import isActiveCell from 'dash-table/derived/cell/isActive';
@@ -20,11 +20,11 @@ class Wrappers {
     }
 
     partialGet = memoizeOne((
-        columns: VisibleColumns,
+        columns: Columns,
         data: Data,
         _offset: IViewportOffset
     ) => R.addIndex<Datum, JSX.Element[]>(R.map)(
-        (_, rowIndex) => R.addIndex<IVisibleColumn, JSX.Element>(R.map)(
+        (_, rowIndex) => R.addIndex<IColumn, JSX.Element>(R.map)(
             (column, columnIndex) => this.getWrapper(
                 false,
                 false,
@@ -69,7 +69,7 @@ class Wrappers {
         selected: boolean,
         rowIndex: number,
         columnIndex: number,
-        column: IVisibleColumn
+        column: IColumn
     ) {
         const isDropdown = column.presentation === Presentation.Dropdown;
         const classes = 'dash-cell' +

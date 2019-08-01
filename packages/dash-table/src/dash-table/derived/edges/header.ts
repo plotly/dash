@@ -4,7 +4,7 @@ import Environment from 'core/environment';
 import { memoizeOneFactory } from 'core/memoizer';
 
 import {
-    VisibleColumns
+    Columns
 } from 'dash-table/components/Table/props';
 
 import { IConvertedStyle } from '../style';
@@ -13,7 +13,7 @@ import { getHeaderCellEdges } from '.';
 import { traverse2 } from 'core/math/matrixZipMap';
 
 export default memoizeOneFactory((
-    columns: VisibleColumns,
+    columns: Columns,
     headerRows: number,
     styles: IConvertedStyle[],
     listViewStyle: boolean

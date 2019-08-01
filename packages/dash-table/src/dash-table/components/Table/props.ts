@@ -74,7 +74,6 @@ export type SelectedCells = ICellCoordinates[];
 export type SetProps = (...args: any[]) => void;
 export type SetState = (state: Partial<IState>) => void;
 export type SortAsNull = (string | number | boolean)[];
-export type VisibleColumns = IVisibleColumn[];
 
 export enum ChangeAction {
     Coerce = 'coerce',
@@ -153,11 +152,12 @@ export interface IDatetimeColumn extends ITypeColumn {
     validation?: IDateValidation;
 }
 
-export interface IBaseVisibleColumn {
-    clearable?: boolean | boolean[];
-    deletable?: boolean | boolean[];
+export interface IBaseColumn {
+    clearable?: boolean | boolean[] | 'first' | 'last';
+    deletable?: boolean | boolean[] | 'first' |'last';
     editable: boolean;
-    renamable?: boolean | boolean[];
+    hideable?: boolean | boolean[] | 'first' | 'last';
+    renamable?: boolean | boolean[] | 'first' | 'last';
     sort_as_null: SortAsNull;
     id: ColumnId;
     name: string | string[];
@@ -170,11 +170,7 @@ export type StaticDropdowns = Partial<IStaticDropdowns>;
 
 export type Fixed = { headers: false, data?: 0 } | { headers: true, data?: number };
 export type IColumnType = INumberColumn | ITextColumn | IDatetimeColumn | IAnyColumn;
-export type IVisibleColumn = IBaseVisibleColumn & IColumnType;
-
-export type IColumn = IVisibleColumn & {
-    hidden?: boolean;
-};
+export type IColumn = IBaseColumn & IColumnType;
 
 interface IDatumObject {
     [key: string]: any;
@@ -234,6 +230,7 @@ export interface IUSerInterfaceTooltip {
 }
 
 export interface IState {
+    activeMenu?: 'show/hide';
     currentTooltip?: IUSerInterfaceTooltip;
     forcedResizeOnly: boolean;
     rawFilterQuery: string;
@@ -275,6 +272,7 @@ export interface IProps {
     fill_width?: boolean;
     filter_query?: string;
     filter_action?: TableAction;
+    hidden_columns?: string[];
     locale_format: INumberLocale;
     merge_duplicate_headers?: boolean;
     fixed_columns?: Fixed;
@@ -372,13 +370,14 @@ interface IDerivedProps {
 
 export type PropsWithDefaults = IProps & IDefaultProps;
 
-export type SanitizedProps = Omit<
-    Omit<
-        Merge<PropsWithDefaults, { fixed_columns: number; fixed_rows: number; }>,
-        'locale_format'
-    >,
-    'sort_as_null'
->;
+export type SanitizedProps = Omit<Omit<
+    Merge<PropsWithDefaults, {
+        fixed_columns: number;
+        fixed_rows: number;
+        visibleColumns: Columns;
+    }>,
+    'locale_format'>,
+    'sort_as_null'>;
 
 export type SanitizedAndDerivedProps = SanitizedProps & IDerivedProps;
 
@@ -386,7 +385,6 @@ export type ControlledTableProps = SanitizedProps & IState & {
     setProps: SetProps;
     setState: SetState;
 
-    columns: VisibleColumns;
     currentTooltip: IUSerInterfaceTooltip;
     paginator: IPaginator;
     viewport: IDerivedData;
@@ -403,7 +401,6 @@ export type SetFilter = (
 ) => void;
 
 export interface IFilterFactoryProps {
-    columns: VisibleColumns;
     filter_query: string;
     filter_action: TableAction;
     id: string;
@@ -416,6 +413,7 @@ export interface IFilterFactoryProps {
     style_cell_conditional: Cells;
     style_filter: Style;
     style_filter_conditional: BasicFilters;
+    visibleColumns: Columns;
 }
 
 export type HeaderFactoryProps = ControlledTableProps & {
@@ -425,7 +423,6 @@ export type HeaderFactoryProps = ControlledTableProps & {
 
 export interface ICellFactoryProps {
     active_cell: ICellCoordinates;
-    columns: VisibleColumns;
     dropdown: StaticDropdowns;
     dropdown_conditional: ConditionalDropdowns;
     dropdown_data: DataDropdowns;
@@ -433,19 +430,19 @@ export interface ICellFactoryProps {
     currentTooltip: IUSerInterfaceTooltip;
     data: Data;
     editable: boolean;
-    id: string;
-    is_focused?: boolean;
+    end_cell: ICellCoordinates;
     fixed_columns: number;
     fixed_rows: number;
+    id: string;
+    is_focused?: boolean;
     paginator: IPaginator;
     row_deletable: boolean;
     row_selectable: RowSelection;
     selected_cells: SelectedCells;
-    start_cell: ICellCoordinates;
-    end_cell: ICellCoordinates;
     selected_rows: Indices;
     setProps: SetProps;
     setState: SetState;
+    start_cell: ICellCoordinates;
     style_cell: Style;
     style_data: Style;
     style_filter: Style;
@@ -461,4 +458,5 @@ export interface ICellFactoryProps {
     viewport: IDerivedData;
     virtualization: boolean;
     virtualized: IVirtualizedDerivedData;
+    visibleColumns: Columns;
 }

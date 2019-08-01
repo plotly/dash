@@ -3,7 +3,7 @@ const __20years = 86400 * 1000 * 365 * 20;
 
 export default class CookieStorage {
     public static delete(id: string, domain: string = '', path: string = '/') {
-        let expires = new Date((new Date().getTime() - __1day)).toUTCString();
+        let expires = new Date(Date.now() - __1day).toUTCString();
 
         document.cookie = `${id}=;expires=${expires};domain=${domain};path=${path}`;
     }
@@ -28,7 +28,7 @@ export default class CookieStorage {
     }
 
     public static set(id: string, value: string, domain: string = '', path: string = '/') {
-        let expires = new Date((new Date().getTime() + __20years)).toUTCString();
+        let expires = new Date(Date.now() + __20years).toUTCString();
 
         let entry = `${id}=${value};expires=${expires};domain=${domain};path=${path}`;
 

@@ -4,7 +4,7 @@ import Environment from 'core/environment';
 import { memoizeOneFactory } from 'core/memoizer';
 
 import {
-    VisibleColumns
+    Columns
 } from 'dash-table/components/Table/props';
 
 import { IConvertedStyle } from '../style';
@@ -14,7 +14,7 @@ import { getFilterCellEdges } from '.';
 import { traverse2 } from 'core/math/matrixZipMap';
 
 export default memoizeOneFactory((
-    columns: VisibleColumns,
+    columns: Columns,
     showFilters: boolean,
     map: Map<string, SingleColumnSyntaxTree>,
     styles: IConvertedStyle[],

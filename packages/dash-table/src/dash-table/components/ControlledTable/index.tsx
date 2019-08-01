@@ -8,6 +8,7 @@ import {
     isCtrlDown,
     isNavKey
 } from 'dash-table/utils/unicode';
+import * as actions from 'dash-table/utils/actions';
 import ExportButton from 'dash-table/components/Export';
 import { selectionBounds, selectionCycle } from 'dash-table/utils/navigation';
 import { makeCell, makeSelection } from 'dash-table/derived/cell/cellProps';
@@ -19,9 +20,11 @@ import { memoizeOne } from 'core/memoizer';
 import lexer from 'core/syntax-tree/lexer';
 
 import TableClipboardHelper from 'dash-table/utils/TableClipboardHelper';
-import { ControlledTableProps, ICellFactoryProps, TableAction } from 'dash-table/components/Table/props';
+import { ControlledTableProps, ICellFactoryProps, TableAction, IColumn } from 'dash-table/components/Table/props';
 import dropdownHelper from 'dash-table/components/dropdownHelper';
 
+import getColumnFlag from 'dash-table/derived/header/columnFlag';
+import derivedLabelsAndIndices from 'dash-table/derived/header/labelsAndIndices';
 import derivedTable from 'dash-table/derived/table';
 import derivedTableFragments from 'dash-table/derived/table/fragments';
 import derivedTableFragmentStyles from 'dash-table/derived/table/fragmentStyles';
@@ -37,10 +40,12 @@ const DEFAULT_STYLE = {
 };
 
 export default class ControlledTable extends PureComponent<ControlledTableProps> {
+    private readonly menuRef = React.createRef<HTMLDivElement>();
     private readonly stylesheet: Stylesheet = new Stylesheet(`#${this.props.id}`);
     private readonly tableFn = derivedTable(() => this.props);
     private readonly tableFragments = derivedTableFragments();
     private readonly tableStyle = derivedTableStyle();
+    private readonly labelsAndIndices = derivedLabelsAndIndices();
 
     private calculateTableStyle = memoizeOne((style: Partial<IStyle>) => R.mergeAll(
         this.tableStyle(DEFAULT_STYLE, style)
@@ -122,13 +127,13 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         // Fallback method for paste handling in Chrome
         // when no input element has focused inside the table
         window.addEventListener('resize', this.forceHandleResize);
+        document.addEventListener('mousedown', this.handleClick);
         document.addEventListener('paste', this.handlePaste);
-        document.addEventListener('mousedown', this.handleClickOutside);
     }
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.forceHandleResize);
-        document.removeEventListener('mousedown', this.handleClickOutside);
+        document.removeEventListener('mousedown', this.handleClick);
         document.removeEventListener('paste', this.handlePaste);
     }
 
@@ -173,7 +178,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         });
     }
 
-    handleClickOutside = (event: any) => {
+    handleClick = (event: any) => {
         const $el = this.$el;
 
         if ($el &&
@@ -183,8 +188,23 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
              * so, only call when the table isn't already focussed, otherwise
              * the app will excessively re-render on _every click on the page_
              */
-            this.props.is_focused) {
-            this.props.setProps({ is_focused: false });
+            this.props.is_focused
+        ) {
+            this.props.setProps({
+                is_focused: false
+            });
+        }
+
+        const menu = this.menuRef;
+
+        if (this.props.activeMenu &&
+            menu &&
+            menu.current &&
+            !menu.current.contains(event.target as Node)
+        ) {
+            this.props.setState({
+                activeMenu: undefined
+            });
         }
     }
 
@@ -318,12 +338,12 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         const e = event;
         const {
             active_cell,
-            columns,
             selected_cells,
             start_cell,
             end_cell,
             setProps,
-            viewport
+            viewport,
+            visibleColumns
         } = this.props;
 
         // This is mostly to prevent TABing also triggering native HTML tab
@@ -415,7 +435,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             if (active_cell.column > minCol) {
                 minCol++;
                 endCol = minCol;
-            } else if (maxCol < columns.length - 1) {
+            } else if (maxCol < visibleColumns.length - 1) {
                 maxCol++;
                 endCol = maxCol;
             }
@@ -433,12 +453,12 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         const finalSelected = makeSelection(
             {minRow, maxRow, minCol, maxCol},
-            columns, viewport
+            visibleColumns, viewport
         );
 
         const newProps: Partial<ICellFactoryProps> = {
             is_focused: false,
-            end_cell: makeCell(endRow, endCol, columns, viewport),
+            end_cell: makeCell(endRow, endCol, visibleColumns, viewport),
             selected_cells: finalSelected
         };
 
@@ -449,7 +469,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             newProps.start_cell = makeCell(
                 newStartRow,
                 newStartCol,
-                columns,
+                visibleColumns,
                 viewport
             );
         }
@@ -459,11 +479,11 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
     deleteCell = (event: any) => {
         const {
-            columns,
             data,
             selected_cells,
             setProps,
-            viewport
+            viewport,
+            visibleColumns
         } = this.props;
 
         event.preventDefault();
@@ -476,9 +496,9 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         );
 
         realCells.forEach(cell => {
-            if (columns[cell[1]].editable) {
+            if (visibleColumns[cell[1]].editable) {
                 newData = R.set(
-                    R.lensPath([cell[0], columns[cell[1]].id]),
+                    R.lensPath([cell[0], visibleColumns[cell[1]].id]),
                     '',
                     newData
                 );
@@ -491,7 +511,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     }
 
     getNextCell = (event: any, { restrictToSelection, currentCell }: any) => {
-        const { columns, selected_cells, viewport } = this.props;
+        const { selected_cells, viewport, visibleColumns } = this.props;
 
         const e = event;
 
@@ -509,7 +529,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             case KEY_CODES.TAB:
                 nextCoords = restrictToSelection
                     ? selectionCycle([row, column + 1], selected_cells)
-                    : [row, R.min(columns.length - 1, column + 1)];
+                    : [row, R.min(visibleColumns.length - 1, column + 1)];
                 break;
 
             case KEY_CODES.ARROW_UP:
@@ -530,30 +550,30 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                     `Table.getNextCell: unknown navigation keycode ${e.keyCode}`
                 );
         }
-        return makeCell(nextCoords[0], nextCoords[1], columns, viewport);
+        return makeCell(nextCoords[0], nextCoords[1], visibleColumns, viewport);
     }
 
     onCopy = (e: any) => {
         const {
-            columns,
             selected_cells,
-            viewport
+            viewport,
+            visibleColumns
         } = this.props;
 
-        TableClipboardHelper.toClipboard(e, selected_cells, columns, viewport.data);
+        TableClipboardHelper.toClipboard(e, selected_cells, visibleColumns, viewport.data);
         this.$el.focus();
     }
 
     onPaste = (e: any) => {
         const {
             active_cell,
-            columns,
             data,
             editable,
             filter_query,
             setProps,
             sort_by,
-            viewport
+            viewport,
+            visibleColumns
         } = this.props;
 
         if (!editable || !active_cell) {
@@ -564,7 +584,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             e,
             active_cell,
             viewport.indices,
-            columns,
+            visibleColumns,
             data,
             true,
             !sort_by.length || !filter_query.length
@@ -680,8 +700,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
     render() {
         const {
-            id,
             columns,
+            id,
             tooltip_conditional,
             tooltip,
             currentTooltip,
@@ -700,7 +720,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             uiViewport,
             viewport,
             virtualized,
-            virtualization
+            virtualization,
+            visibleColumns
         } = this.props;
 
         const fragmentClasses = [
@@ -730,7 +751,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             ...(style_as_list_view ? ['dash-list-view'] : []),
             ...(empty[0][1] ? ['dash-empty-01'] : []),
             ...(empty[1][1] ? ['dash-empty-11'] : []),
-            ...(columns.length ? [] : ['dash-no-columns']),
+            ...(visibleColumns.length ? [] : ['dash-no-columns']),
             ...(virtualized.data.length ? [] : ['dash-no-data']),
             ...(filter_action !== TableAction.None ? [] : ['dash-no-filter']),
             ...(fill_width ? ['dash-fill-width'] : [])
@@ -762,7 +783,13 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         );
 
         const { export_format, export_headers, virtual } = this.props;
-        const buttonProps = { export_format, virtual_data: virtual, columns, export_headers };
+        const buttonProps = {
+            export_format,
+            virtual_data: virtual,
+            columns,
+            visibleColumns,
+            export_headers
+        };
 
         return (<div
             id={id}
@@ -777,6 +804,10 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 className='dash-table-tooltip'
                 tooltip={tableTooltip}
             />
+            <div className='dash-spreadsheet-menu'>
+                {this.renderMenu()}
+                <ExportButton {...buttonProps} />
+            </div>
             <div className={containerClasses.join(' ')} style={tableStyle}>
                 <div
                     ref='table'
@@ -795,7 +826,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                             ref={`r${rowIndex}c${columnIndex}`}
                             className={`cell cell-${rowIndex}-${columnIndex} ${c}`}
                         >
-                            {g ? React.cloneElement(g, { style: s.cell }) : g}
+                        {g ? React.cloneElement(g, { style: s.cell }) : g}
                         </div>))}
                     </div>))}
                 </div>
@@ -806,7 +837,67 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                     <button className='next-page' onClick={this.loadNext}>Next</button>
                 </div>
             )}
-            <ExportButton {...buttonProps} />
+        </div>);
+    }
+
+    renderMenu() {
+        if (!this.showToggleColumns) {
+            return null;
+        }
+
+        const {
+            activeMenu,
+            columns,
+            hidden_columns,
+            merge_duplicate_headers,
+            setState
+        } = this.props;
+
+        const labelsAndIndices = this.labelsAndIndices(columns, columns, merge_duplicate_headers);
+        const lastRow = labelsAndIndices.length - 1;
+
+        return (<div
+            className='dash-spreadsheet-menu-item'
+            ref={this.menuRef}
+        >
+            <button className='show-hide'
+                onClick={() => setState({
+                    activeMenu: activeMenu === 'show/hide' ? undefined : 'show/hide'
+                })}
+            >Toggle Columns</button>
+            {activeMenu !== 'show/hide' ?
+                null :
+                <div className='show-hide-menu'>
+                    {R.unnest(labelsAndIndices.map(([, indices], i) => indices.map((index, j) => {
+                        const spansAllColumns = indices.length === 1;
+                        const column = columns[index];
+
+                        const checked = !hidden_columns || hidden_columns.indexOf(column.id) < 0;
+                        const hideable = getColumnFlag(i, lastRow, column.hideable);
+
+                        const disabled = (spansAllColumns && checked) || (!hideable && checked);
+
+                        return {
+                            i: index,
+                            j,
+                            component: !hideable ? null : (<div className='show-hide-menu-item'>
+                                <input
+                                    type='checkbox'
+                                    checked={checked}
+                                    disabled={disabled}
+                                    onClick={this.toggleColumn.bind(this, column, i, merge_duplicate_headers)}
+                                />
+                                <label>{!column.name ?
+                                    column.id :
+                                    typeof column.name === 'string' ?
+                                        column.name :
+                                        column.name.slice(0, i + 1).filter(name => name.length !== 0).join(' | ')
+                                }</label>
+                            </div>)
+                        };
+                    }))).filter(i => !R.isNil(i)).sort((a, b) => (a.i - b.i) || (a.j - b.j)).map(a => a.component)}
+                </div>
+            }
         </div>);
     }
 
@@ -827,5 +918,39 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
             (this.refs.tooltip as TableTooltip).updateBounds(cell);
         }
+    }
+
+    private get showToggleColumns(): boolean {
+        const {
+            columns,
+            hidden_columns
+        } = this.props;
+
+        return (
+            hidden_columns && hidden_columns.length > 0) ||
+            R.any(column => !!column.hideable, columns);
+    }
+
+    private toggleColumn = (column: IColumn, headerRowIndex: number, mergeDuplicateHeaders: boolean) => {
+        const {
+            columns,
+            hidden_columns: base,
+            setProps
+        } = this.props;
+
+        const ids: string[] = actions.getColumnIds(column, columns, headerRowIndex, mergeDuplicateHeaders);
+
+        const hidden_columns = base ? base.slice(0) : [];
+        R.forEach(id => {
+            const cIndex = hidden_columns.indexOf(id);
+
+            if (cIndex >= 0) {
+                hidden_columns.splice(cIndex, 1);
+            } else {
+                hidden_columns.push(id);
+            }
+        }, ids);
+
+        setProps({ hidden_columns });
     }
 }

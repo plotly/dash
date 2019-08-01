@@ -3,10 +3,10 @@ import React from 'react';
 
 import { memoizeOneFactory } from 'core/memoizer';
 
-import { VisibleColumns } from 'dash-table/components/Table/props';
+import { Columns } from 'dash-table/components/Table/props';
 
 function getter(
-    columns: VisibleColumns,
+    columns: Columns,
     labelsAndIndices: R.KeyValuePair<any[], number[]>[],
     mergeHeaders: boolean
 ): JSX.Element[][] {

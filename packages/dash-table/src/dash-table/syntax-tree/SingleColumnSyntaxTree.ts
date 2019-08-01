@@ -3,7 +3,7 @@ import SyntaxTree from 'core/syntax-tree';
 import { ILexemeResult, ILexerResult } from 'core/syntax-tree/lexer';
 import { LexemeType, boundLexeme } from 'core/syntax-tree/lexicon';
 
-import { ColumnType, IVisibleColumn } from 'dash-table/components/Table/props';
+import { ColumnType, IColumn } from 'dash-table/components/Table/props';
 
 import { fieldExpression } from './lexeme/expression';
 import { equal, RelationalOperator } from './lexeme/relational';
@@ -60,7 +60,7 @@ function modifyLex(config: SingleColumnConfig, res: ILexerResult) {
     return res;
 }
 
-export type SingleColumnConfig = RequiredPluck<IVisibleColumn, 'id'> & OptionalPluck<IVisibleColumn, 'type'>;
+export type SingleColumnConfig = RequiredPluck<IColumn, 'id'> & OptionalPluck<IColumn, 'type'>;
 
 export default class SingleColumnSyntaxTree extends SyntaxTree {
     constructor(query: string, config: SingleColumnConfig) {

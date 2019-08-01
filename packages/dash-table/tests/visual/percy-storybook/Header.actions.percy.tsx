@@ -77,6 +77,26 @@ const scenarios: ITest[] = [
             }, COLUMNS_BASE)
         }
     }, {
+        name: 'clearable (first-city, last-climate)',
+        props: {
+            columns: R.map((c: any) => {
+                const firstName = c.name[0];
+
+                if (firstName === 'City') {
+                    return R.mergeRight(c, {
+                        clearable: 'first'
+                    });
+                } else if (firstName === 'Climate') {
+                    return R.mergeRight(c, {
+                        clearable: 'last'
+                    });
+
+                } else {
+                    return c;
+                }
+            }, COLUMNS_BASE)
+        }
+    }, {
         name: 'deletable',
         props: {
             columns: R.map(c => R.mergeRight(c, {
@@ -104,11 +124,79 @@ const scenarios: ITest[] = [
             }, COLUMNS_BASE)
         }
     }, {
-        name: 'clearable+deletable',
+        name: 'deletable (first-city, last-climate)',
+        props: {
+            columns: R.map((c: any) => {
+                const firstName = c.name[0];
+
+                if (firstName === 'City') {
+                    return R.mergeRight(c, {
+                        deletable: 'first'
+                    });
+                } else if (firstName === 'Climate') {
+                    return R.mergeRight(c, {
+                        deletable: 'last'
+                    });
+
+                } else {
+                    return c;
+                }
+            }, COLUMNS_BASE)
+        }
+    }, {
+        name: 'hideable',
+        props: {
+            columns: R.map(c => R.mergeRight(c, {
+                hideable: true
+            }), COLUMNS_BASE)
+        }
+    }, {
+        name: 'hideable (top-city, bottom-climate)',
+        props: {
+            columns: R.map((c: any) => {
+                const firstName = c.name[0];
+
+                if (firstName === 'City') {
+                    return R.mergeRight(c, {
+                        hideable: [true, false]
+                    });
+                } else if (firstName === 'Climate') {
+                    return R.mergeRight(c, {
+                        hideable: [false, true]
+                    });
+
+                } else {
+                    return c;
+                }
+            }, COLUMNS_BASE)
+        }
+    }, {
+        name: 'hideable (first-city, last-climate)',
+        props: {
+            columns: R.map((c: any) => {
+                const firstName = c.name[0];
+
+                if (firstName === 'City') {
+                    return R.mergeRight(c, {
+                        hideable: 'first'
+                    });
+                } else if (firstName === 'Climate') {
+                    return R.mergeRight(c, {
+                        hideable: 'last'
+                    });
+
+                } else {
+                    return c;
+                }
+            }, COLUMNS_BASE)
+        }
+    }, {
+        name: 'clearable+deletable+hideable',
         props: {
             columns: R.map(c => R.mergeRight(c, {
                 clearable: true,
-                deletable: true
+                deletable: true,
+                hideable: true
             }), COLUMNS_BASE)
         }
     }

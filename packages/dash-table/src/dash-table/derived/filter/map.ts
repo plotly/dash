@@ -2,7 +2,7 @@ import * as R from 'ramda';
 
 import { memoizeOneFactory } from 'core/memoizer';
 
-import { VisibleColumns, IVisibleColumn, SetFilter } from 'dash-table/components/Table/props';
+import { Columns, IColumn, SetFilter } from 'dash-table/components/Table/props';
 import { SingleColumnSyntaxTree, MultiColumnsSyntaxTree, getMultiColumnQueryString, getSingleColumnMap } from 'dash-table/syntax-tree';
 
 const cloneIf = (
@@ -13,7 +13,7 @@ const cloneIf = (
 export default memoizeOneFactory((
     map: Map<string, SingleColumnSyntaxTree>,
     query: string,
-    columns: VisibleColumns
+    columns: Columns
 ): Map<string, SingleColumnSyntaxTree> => {
     const multiQuery = new MultiColumnsSyntaxTree(query);
     const reversedMap = getSingleColumnMap(multiQuery, columns);
@@ -61,7 +61,7 @@ export default memoizeOneFactory((
     return newMap;
 });
 
-function updateMap(map: Map<string, SingleColumnSyntaxTree>, column: IVisibleColumn, value: any) {
+function updateMap(map: Map<string, SingleColumnSyntaxTree>, column: IColumn, value: any) {
     const id = column.id.toString();
     const newMap = new Map<string, SingleColumnSyntaxTree>(map);
 
@@ -88,7 +88,7 @@ function updateState(map: Map<string, SingleColumnSyntaxTree>, setFilter: SetFil
 
 export const updateColumnFilter = (
     map: Map<string, SingleColumnSyntaxTree>,
-    column: IVisibleColumn,
+    column: IColumn,
     value: any,
     setFilter: SetFilter
 ) => {
@@ -98,7 +98,7 @@ export const updateColumnFilter = (
 
 export const clearColumnsFilter = (
     map: Map<string, SingleColumnSyntaxTree>,
-    columns: VisibleColumns,
+    columns: Columns,
     setFilter: SetFilter
 ) => {
     R.forEach(column => {

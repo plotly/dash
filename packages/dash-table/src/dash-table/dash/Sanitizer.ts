@@ -15,7 +15,7 @@ import {
     TableAction
 } from 'dash-table/components/Table/props';
 import headerRows from 'dash-table/derived/header/headerRows';
-import isEditable from 'dash-table/derived/cell/isEditable';
+import resolveFlag from 'dash-table/derived/cell/resolveFlag';
 
 const D3_DEFAULT_LOCALE: INumberLocale = {
     symbol: ['$', ''],
@@ -47,9 +47,14 @@ const getFixedRows = (
         0 :
         headerRows(columns) + (filter_action !== TableAction.None ? 1 : 0) + data2number(fixed.data);
 
-const applyDefaultsToColumns = (defaultLocale: INumberLocale, defaultSort: SortAsNull, columns: Columns, editable: boolean) => R.map(column => {
+const applyDefaultsToColumns = (
+    defaultLocale: INumberLocale,
+    defaultSort: SortAsNull,
+    columns: Columns,
+    editable: boolean
+) => R.map(column => {
     const c = R.clone(column);
-    c.editable = isEditable(editable, column.editable);
+    c.editable = resolveFlag(editable, column.editable);
     c.sort_as_null = c.sort_as_null || defaultSort;
 
     if (c.type === ColumnType.Numeric && c.format) {
@@ -62,27 +67,39 @@ const applyDefaultsToColumns = (defaultLocale: INumberLocale, defaultSort: SortA
 
 const applyDefaultToLocale = (locale: INumberLocale) => getLocale(locale);
 
+const getVisibleColumns = (
+    columns: Columns,
+    hiddenColumns: string[] | undefined
+) => R.filter(column => !hiddenColumns || hiddenColumns.indexOf(column.id) < 0, columns);
+
 export default class Sanitizer {
     sanitize(props: PropsWithDefaults): SanitizedProps {
         const locale_format = this.applyDefaultToLocale(props.locale_format);
+        const columns = this.applyDefaultsToColumns(locale_format, props.sort_as_null, props.columns, props.editable);
+        const visibleColumns = this.getVisibleColumns(columns, props.hidden_columns);
+
         let headerFormat = props.export_headers;
         if (props.export_format === 'xlsx' &&  R.isNil(headerFormat)) {
             headerFormat = 'names';
         } else if (props.export_format === 'csv' && R.isNil(headerFormat)) {
             headerFormat = 'ids';
         }
+
         return R.merge(props, {
-            columns: this.applyDefaultsToColumns(locale_format, props.sort_as_null, props.columns, props.editable),
+            columns,
+            export_headers: headerFormat,
             fixed_columns: getFixedColumns(props.fixed_columns, props.row_deletable, props.row_selectable),
             fixed_rows: getFixedRows(props.fixed_rows, props.columns, props.filter_action),
             locale_format,
-            export_headers: headerFormat
+            visibleColumns
         });
     }
 
     private readonly applyDefaultToLocale = memoizeOne(applyDefaultToLocale);
 
     private readonly applyDefaultsToColumns = memoizeOne(applyDefaultsToColumns);
+
+    private readonly getVisibleColumns = memoizeOne(getVisibleColumns);
 }
 
 export const getLocale = (...locales: Partial<INumberLocale>[]): INumberLocale =>

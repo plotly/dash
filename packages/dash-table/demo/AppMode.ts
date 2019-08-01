@@ -7,15 +7,14 @@ import {
     PropsWithDefaults,
     ChangeAction,
     ChangeFailure,
-    IVisibleColumn,
     ColumnType,
     TableAction
 } from 'dash-table/components/Table/props';
 import { TooltipSyntax } from 'dash-table/tooltips/props';
 
 export enum AppMode {
-    Clearable = 'clearable',
-    ClearableMerged = 'clearableMerged',
+    Actionable = 'actionable',
+    ActionableMerged = 'actionableMerged',
     Date = 'date',
     Default = 'default',
     Filtering = 'filtering',
@@ -178,7 +177,7 @@ function getTypedState() {
     const state = getDefaultState();
 
     R.forEach(column => {
-        (column as IVisibleColumn).on_change = {
+        column.on_change = {
             action: ChangeAction.Coerce,
             failure: ChangeFailure.Reject
         };
@@ -187,19 +186,20 @@ function getTypedState() {
     return state;
 }
 
-function getClearableState() {
+function getActionableState() {
     const state = getDefaultState();
     state.tableProps.filter_action = TableAction.Native;
 
     R.forEach(c => {
         c.clearable = true;
+        c.hideable = [false, false, true];
     }, state.tableProps.columns || []);
 
     return state;
 }
 
-function getClearableMergedState() {
-    const state = getClearableState();
+function getActionableMergedState() {
+    const state = getActionableState();
     state.tableProps.merge_duplicate_headers = true;
 
     return state;
@@ -345,10 +345,10 @@ function getState() {
     const mode = Environment.searchParams.get('mode');
 
     switch (mode) {
-        case AppMode.Clearable:
-            return getClearableState();
-        case AppMode.ClearableMerged:
-            return getClearableMergedState();
+        case AppMode.Actionable:
+            return getActionableState();
+        case AppMode.ActionableMerged:
+            return getActionableMergedState();
         case AppMode.Date:
             return getDateState();
         case AppMode.Filtering:

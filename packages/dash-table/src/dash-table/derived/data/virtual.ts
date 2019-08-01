@@ -8,13 +8,13 @@ import {
     Datum,
     IDerivedData,
     SortAsNull,
-    VisibleColumns,
+    Columns,
     TableAction
 } from 'dash-table/components/Table/props';
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 
 const getter = (
-    columns: VisibleColumns,
+    columns: Columns,
     data: Data,
     filter_action: TableAction,
     filter_query: string,

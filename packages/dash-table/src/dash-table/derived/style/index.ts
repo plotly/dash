@@ -3,7 +3,7 @@ import { CSSProperties } from 'react';
 
 import { memoizeOneFactory } from 'core/memoizer';
 
-import { Datum, IVisibleColumn } from 'dash-table/components/Table/props';
+import { Datum, IColumn } from 'dash-table/components/Table/props';
 
 import {
     Cells,
@@ -35,7 +35,7 @@ export interface IConvertedStyle {
     checksColumn: () => boolean;
     checksRow: () => boolean;
     checksFilter: () => boolean;
-    matchesColumn: (column: IVisibleColumn | undefined) => boolean;
+    matchesColumn: (column: IColumn | undefined) => boolean;
     matchesRow: (index: number | undefined) => boolean;
     matchesFilter: (datum: Datum) => boolean;
 }
@@ -56,7 +56,7 @@ function convertElement(style: GenericStyle): IConvertedStyle {
         checksRow: () => !R.isNil(indexFilter),
         checksFilter: () => !R.isNil(style.if) && !R.isNil(style.if.filter_query),
 
-        matchesColumn: (column: IVisibleColumn | undefined) =>
+        matchesColumn: (column: IColumn | undefined) =>
             !style.if || (
                 !R.isNil(column) &&
                 ifColumnId(style.if, column && column.id) &&
@@ -139,9 +139,9 @@ export function resolveStyle(styles: IConvertedStyle[]): CSSProperties {
     return R.omit(BORDER_PROPERTIES_AND_FRAGMENTS, res);
 }
 
-export const getDataCellStyle = (datum: Datum, i: number, column: IVisibleColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesDataCell(datum, i, column)(styles));
+export const getDataCellStyle = (datum: Datum, i: number, column: IColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesDataCell(datum, i, column)(styles));
 export const getDataOpCellStyle = (datum: Datum, i: number) => (styles: IConvertedStyle[]) => resolveStyle(matchesDataOpCell(datum, i)(styles));
-export const getFilterCellStyle = (column: IVisibleColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesFilterCell(column)(styles));
+export const getFilterCellStyle = (column: IColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesFilterCell(column)(styles));
 export const getFilterOpCellStyle = () => (styles: IConvertedStyle[]) => resolveStyle(getFilterOpStyles(styles));
-export const getHeaderCellStyle = (i: number, column: IVisibleColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesHeaderCell(i, column)(styles));
+export const getHeaderCellStyle = (i: number, column: IColumn) => (styles: IConvertedStyle[]) => resolveStyle(matchesHeaderCell(i, column)(styles));
 export const getHeaderOpCellStyle = (i: number) => (styles: IConvertedStyle[]) => resolveStyle(getHeaderOpStyles(i)(styles));

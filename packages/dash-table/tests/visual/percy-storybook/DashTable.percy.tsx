@@ -200,38 +200,34 @@ const sparseData = (() => {
     ));
 })();
 
-const hiddenColumns = R.addIndex(R.map)((column, index) =>
-    R.mergeAll([
-        {},
-        column,
-        { hidden: index % 2 === 0 }
-    ]),
-    columnsA2J
-);
+const hiddenColumns = columnsA2J.map(c => c.id).filter((_, index) => index % 2 === 0);
 
 storiesOf('DashTable/Hidden Columns', module)
     .add('hides', () => (<DataTable
         setProps={setProps}
         id='table'
         data={dataA2J}
-        columns={hiddenColumns}
+        columns={columnsA2J}
+        hidden_columns={hiddenColumns}
         style_data_conditional={style_data_conditional}
     />))
     .add('active cell', () => (<DataTable
         setProps={setProps}
         id='table'
         data={dataA2J}
-        columns={hiddenColumns}
-        active_cell={makeCell(1, 1, dataA2J, hiddenColumns)}
+        columns={columnsA2J}
+        hidden_columns={hiddenColumns}
+        active_cell={makeCell(1, 1, dataA2J, columnsA2J)}
         style_data_conditional={style_data_conditional}
     />))
     .add('selected cells', () => (<DataTable
         setProps={setProps}
         id='table'
         data={dataA2J}
-        columns={hiddenColumns}
-        active_cell={makeCell(1, 1, dataA2J, hiddenColumns)}
-        selected_cells={makeSelection([[1, 1], [1, 2], [2, 1], [2, 2]], dataA2J, hiddenColumns)}
+        columns={columnsA2J}
+        hidden_columns={hiddenColumns}
+        active_cell={makeCell(1, 1, dataA2J, columnsA2J)}
+        selected_cells={makeSelection([[1, 1], [1, 2], [2, 1], [2, 2]], dataA2J, columnsA2J)}
         style_data_conditional={style_data_conditional}
     />));
 

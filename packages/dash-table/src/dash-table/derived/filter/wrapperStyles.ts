@@ -2,13 +2,13 @@ import * as R from 'ramda';
 
 import { memoizeOneFactory } from 'core/memoizer';
 
-import { VisibleColumns } from 'dash-table/components/Table/props';
+import { Columns } from 'dash-table/components/Table/props';
 
 import { IConvertedStyle, getFilterCellStyle, getFilterOpCellStyle } from '../style';
 import { traverseMap2 } from 'core/math/matrixZipMap';
 
 const getter = (
-    columns: VisibleColumns,
+    columns: Columns,
     filterStyles: IConvertedStyle[]
 ) => R.map(
     column => getFilterCellStyle(column)(filterStyles),

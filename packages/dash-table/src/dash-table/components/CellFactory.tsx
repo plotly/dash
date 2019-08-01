@@ -36,7 +36,6 @@ export default class CellFactory {
     public createCells(dataEdges: IEdgesMatrices | undefined, dataOpEdges: IEdgesMatrices | undefined) {
         const {
             active_cell,
-            columns,
             dropdown_conditional,
             dropdown,
             data,
@@ -51,7 +50,8 @@ export default class CellFactory {
             style_cell_conditional,
             style_data,
             style_data_conditional,
-            virtualized
+            virtualized,
+            visibleColumns
         } = this.props;
 
         const relevantStyles = this.relevantStyles(
@@ -62,7 +62,7 @@ export default class CellFactory {
         );
 
         const partialCellStyles = this.dataPartialStyles(
-            columns,
+            visibleColumns,
             relevantStyles,
             virtualized.data,
             virtualized.offset
@@ -82,7 +82,7 @@ export default class CellFactory {
         );
 
         const dropdowns = this.cellDropdowns(
-            columns,
+            visibleColumns,
             virtualized.data,
             virtualized.indices,
             dropdown_conditional,
@@ -101,7 +101,7 @@ export default class CellFactory {
         );
 
         const partialCellWrappers = this.cellWrappers.partialGet(
-            columns,
+            visibleColumns,
             virtualized.data,
             virtualized.offset
         );
@@ -114,7 +114,7 @@ export default class CellFactory {
         );
 
         const partialCellContents = this.cellContents.partialGet(
-            columns,
+            visibleColumns,
             virtualized.data,
             virtualized.offset,
             !!is_focused,
@@ -124,7 +124,7 @@ export default class CellFactory {
         const cellContents = this.cellContents.get(
             partialCellContents,
             active_cell,
-            columns,
+            visibleColumns,
             virtualized.data,
             virtualized.offset,
             !!is_focused,

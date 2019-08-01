@@ -3,7 +3,7 @@ import { memoizeOneFactory } from 'core/memoizer';
 
 import {
     IViewportOffset,
-    VisibleColumns,
+    Columns,
     Data,
     ICellCoordinates
 } from 'dash-table/components/Table/props';
@@ -14,7 +14,7 @@ import { getDataCellEdges } from '.';
 import { traverse2 } from 'core/math/matrixZipMap';
 
 export default memoizeOneFactory((
-    columns: VisibleColumns,
+    columns: Columns,
     styles: IConvertedStyle[],
     data: Data,
     offset: IViewportOffset,

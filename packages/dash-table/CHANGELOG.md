@@ -4,6 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+[#314](https://github.com/plotly/dash-table/issues/314)
+- New `column.hideable` flag that displays an "eye" action icon in the column
+    Accepts a boolean, array of booleans, 'last' or 'first'. Clicking on the "eye" will add the column to the `hidden_columns` prop.
+    `hidden_columns` can be added back through the Columns toggle menu whether they are hideable or not.
+- New accepted values for `column.clearable`, `column.deletable` and `column.renamable`
+    These props now also accept 'last' and 'first'.
+    - 'last' will display the action only on the last row of the headers
+    - 'first' will display the action only on the first row of the headers
+
 [#313](https://github.com/plotly/dash-table/issues/313)
 - Ability to export table as csv or xlsx file.
 

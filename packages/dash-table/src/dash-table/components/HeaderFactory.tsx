@@ -4,11 +4,8 @@ import React, { CSSProperties } from 'react';
 import { arrayMap2 } from 'core/math/arrayZipMap';
 import { matrixMap2, matrixMap3 } from 'core/math/matrixZipMap';
 
-import { VisibleColumns, HeaderFactoryProps } from 'dash-table/components/Table/props';
 import derivedHeaderContent from 'dash-table/derived/header/content';
-import getHeaderRows from 'dash-table/derived/header/headerRows';
-import getIndices from 'dash-table/derived/header/indices';
-import getLabels from 'dash-table/derived/header/labels';
+import derivedLabelsAndIndices from 'dash-table/derived/header/labelsAndIndices';
 import derivedHeaderOperations from 'dash-table/derived/header/operations';
 import derivedHeaderWrappers from 'dash-table/derived/header/wrappers';
 import { derivedRelevantHeaderStyles } from 'dash-table/derived/style';
@@ -16,6 +13,7 @@ import derivedHeaderStyles, { derivedHeaderOpStyles } from 'dash-table/derived/h
 
 import { IEdgesMatrices } from 'dash-table/derived/edges/type';
 import { memoizeOne } from 'core/memoizer';
+import { HeaderFactoryProps } from './Table/props';
 
 export default class HeaderFactory {
     private readonly headerContent = derivedHeaderContent();
@@ -24,6 +22,7 @@ export default class HeaderFactory {
     private readonly headerOpStyles = derivedHeaderOpStyles();
     private readonly headerWrappers = derivedHeaderWrappers();
     private readonly relevantStyles = derivedRelevantHeaderStyles();
+    private readonly labelsAndIndices = derivedLabelsAndIndices();
 
     private get props() {
         return this.propsFn();
@@ -39,6 +38,7 @@ export default class HeaderFactory {
         const {
             columns,
             data,
+            hidden_columns,
             map,
             merge_duplicate_headers,
             page_action,
@@ -52,12 +52,12 @@ export default class HeaderFactory {
             style_cell,
             style_cell_conditional,
             style_header,
-            style_header_conditional
+            style_header_conditional,
+            visibleColumns
         } = props;
 
-        const headerRows = getHeaderRows(columns);
-
-        const labelsAndIndices = this.getLabelsAndIndices(columns, headerRows, merge_duplicate_headers);
+        const labelsAndIndices = this.labelsAndIndices(columns, visibleColumns, merge_duplicate_headers);
+        const headerRows = labelsAndIndices.length;
 
         const relevantStyles = this.relevantStyles(
             style_cell,
@@ -73,7 +73,7 @@ export default class HeaderFactory {
         );
 
         const wrapperStyles = this.headerStyles(
-            columns,
+            visibleColumns,
             headerRows,
             relevantStyles
         );
@@ -85,14 +85,14 @@ export default class HeaderFactory {
         );
 
         const wrappers = this.headerWrappers(
-            columns,
+            visibleColumns,
             labelsAndIndices,
             merge_duplicate_headers
         );
 
         const contents = this.headerContent(
-            columns,
-            merge_duplicate_headers,
+            visibleColumns,
+            hidden_columns,
             data,
             labelsAndIndices,
             map,
@@ -120,18 +120,6 @@ export default class HeaderFactory {
 
         return this.getCells(ops, headers);
     }
-
-    getLabelsAndIndices = memoizeOne((
-        columns: VisibleColumns,
-        headerRows: number,
-        merge_duplicate_headers: boolean
-    ) => {
-        const labels = getLabels(columns, headerRows);
-        const indices = getIndices(columns, labels, merge_duplicate_headers);
-
-        return R.zip(labels, indices);
-
-    });
 
     getCells = memoizeOne((
         opCells: JSX.Element[][],

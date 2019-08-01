@@ -12,9 +12,9 @@ import {
     IConditionalDropdown,
     IDropdown,
     Indices,
-    IVisibleColumn,
+    IColumn,
     StaticDropdowns,
-    VisibleColumns
+    Columns
 } from 'dash-table/components/Table/props';
 import { QuerySyntaxTree } from 'dash-table/syntax-tree';
 import { ifColumnId } from 'dash-table/conditional';
@@ -28,7 +28,7 @@ class Dropdowns {
      * Return the dropdown for each cell in the table.
      */
     get = memoizeOne((
-        columns: VisibleColumns,
+        columns: Columns,
         data: Data,
         indices: Indices,
         conditionalDropdowns: ConditionalDropdowns,
@@ -59,7 +59,7 @@ class Dropdowns {
     private readonly dropdown = memoizerCache<[ColumnId, number]>()((
         base: IDropdown | undefined,
         conditionals: ConditionalDropdowns,
-        column: IVisibleColumn,
+        column: IColumn,
         datum: Datum
     ) => {
         const conditional = R.findLast(

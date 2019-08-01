@@ -2,14 +2,14 @@ import * as R from 'ramda';
 import { CSSProperties } from 'react';
 
 import { memoizeOneFactory } from 'core/memoizer';
-import { Data, VisibleColumns, IViewportOffset, SelectedCells } from 'dash-table/components/Table/props';
+import { Data, Columns, IViewportOffset, SelectedCells } from 'dash-table/components/Table/props';
 import { IConvertedStyle, getDataCellStyle, getDataOpCellStyle } from '../style';
 import { traverseMap2, shallowClone } from 'core/math/matrixZipMap';
 
 const SELECTED_CELL_STYLE = { backgroundColor: 'var(--selected-background)' };
 
 const partialGetter = (
-    columns: VisibleColumns,
+    columns: Columns,
     styles: IConvertedStyle[],
     data: Data,
     offset: IViewportOffset

@@ -103,6 +103,43 @@
         }
     }
 }
+
+.dash-spreadsheet-menu {
+    display: flex;
+    flex-direction: row;
+
+    & > * {
+        padding-right: 5px;
+    }
+
+    .dash-spreadsheet-menu-item {
+        position: relative;
+
+        .show-hide-menu {
+            background-color: #fafafa;
+            border: 1px solid #d3d3d3;
+            display: flex;
+            flex-direction: column;
+            max-height: 300px;
+            overflow: auto;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 500;
+
+            .show-hide-menu-item {
+                display: flex;
+                flex-direction: row;
+                padding: 5px;
+
+                label {
+                    white-space: nowrap;
+                }
+            }
+        }
+    }
+}
+
 .dash-spreadsheet-container {
     .reset-css();
     display: flex;
@@ -331,6 +368,7 @@
             .column-header--clear,
             .column-header--delete,
             .column-header--edit,
+            .column-header--hide
             .sort {
                 .not-selectable();
                 cursor: pointer;
@@ -402,8 +440,8 @@
         cursor: pointer;
         float: left;
         color: var(--faded-text-header);
-        font-size: 20px;
     }
+
     th:hover .sort {
         color: var(--accent);
     }
@@ -481,21 +519,10 @@
     }
 
     .dash-spreadsheet-inner {
-        .column-header--clear::before {
-            content: 'ø';
-        }
-
-        .column-header--delete::before {
-            content: '×'
-        }
-
-        .column-header--edit::before {
-            content: '✎';
-        }
-
         .column-header--clear,
         .column-header--delete,
-        .column-header--edit {
+        .column-header--edit,
+        .column-header--hide {
             float: left;
             opacity: 0.1;
             padding-left: 2px;
@@ -506,9 +533,12 @@
         th:hover {
             .column-header--clear,
             .column-header--delete,
-            .column-header--edit {
-                color: var(--accent);
-                opacity: 1;
+            .column-header--edit,
+            .column-header--hide {
+                &:not(.disabled) {
+                    color: var(--accent);
+                    opacity: 1;
+                }
             }
         }
     }

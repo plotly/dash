@@ -9,9 +9,9 @@ import {
     IDropdown,
     IDropdownValue,
     IViewportOffset,
-    IVisibleColumn,
+    IColumn,
     Presentation,
-    VisibleColumns
+    Columns
 } from 'dash-table/components/Table/props';
 import CellInput from 'dash-table/components/CellInput';
 import derivedCellEventHandlerProps, { Handler } from 'dash-table/derived/cell/eventHandlerProps';
@@ -22,7 +22,7 @@ import getFormatter from 'dash-table/type/formatter';
 import { shallowClone } from 'core/math/matrixZipMap';
 
 const mapData = R.addIndex<Datum, JSX.Element[]>(R.map);
-const mapRow = R.addIndex<IVisibleColumn, JSX.Element>(R.map);
+const mapRow = R.addIndex<IColumn, JSX.Element>(R.map);
 
 enum CellType {
     Dropdown,
@@ -57,7 +57,7 @@ class Contents {
     }
 
     partialGet = memoizeOne((
-        columns: VisibleColumns,
+        columns: Columns,
         data: Data,
         _offset: IViewportOffset,
         isFocused: boolean,
@@ -82,7 +82,7 @@ class Contents {
     get = memoizeOne((
         contents: JSX.Element[][],
         activeCell: ICellCoordinates | undefined,
-        columns: VisibleColumns,
+        columns: Columns,
         data: Data,
         offset: IViewportOffset,
         isFocused: boolean,
@@ -117,7 +117,7 @@ class Contents {
         return contents;
     });
 
-    private getContent(active: boolean, isFocused: boolean, column: IVisibleColumn, dropdown: IDropdown | undefined, columnIndex: number, rowIndex: number, datum: any, formatters: ((value: any) => any)[]) {
+    private getContent(active: boolean, isFocused: boolean, column: IColumn, dropdown: IDropdown | undefined, columnIndex: number, rowIndex: number, datum: any, formatters: ((value: any) => any)[]) {
         const className = [
             ...(active ? ['input-active'] : []),
             isFocused ? 'focused' : 'unfocused',

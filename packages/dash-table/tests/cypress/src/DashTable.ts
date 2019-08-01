@@ -41,6 +41,10 @@ export default class DashTable {
         return cy.get(`#table tbody tr th.dash-header[data-dash-column="${column}"] .column-header--delete`).eq(row).click();
     }
 
+    static hideColumnById(row: number, column: string) {
+        return cy.get(`#table tbody tr th.dash-header[data-dash-column="${column}"] .column-header--hide`).eq(row).click();
+    }
+
     static getDelete(row: number) {
         return cy.get(`#table tbody tr td.dash-delete-cell`).eq(row);
     }
