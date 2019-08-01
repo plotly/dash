@@ -329,7 +329,7 @@ def generate_js_metadata(pkg_data, project_shortname):
 def wrap(tag, code):
     if tag == "":
         return code
-    return '\\{}{{\r\n{}}}'.format(tag, code)
+    return '\\{}{{\n{}}}'.format(tag, code)
 
 
 def write_help_file(name, props, description, prefix, rpkg_data):
