@@ -111,6 +111,9 @@ def pathname_configs(
     elif requests_pathname_prefix is None:
         requests_pathname_prefix = routes_pathname_prefix
 
+    if not requests_pathname_prefix.startswith('/'):
+        raise exceptions.InvalidConfig(
+            '`requests_pathname_prefix` needs to start with `/`')
     if not requests_pathname_prefix.endswith(routes_pathname_prefix):
         raise exceptions.InvalidConfig(
             '`requests_pathname_prefix` needs to ends with '

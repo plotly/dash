@@ -680,7 +680,7 @@ def test_inin014_with_custom_renderer(dash_duo):
     assert dash_duo.find_element("#output-pre").text == "request_pre!!!"
     assert dash_duo.find_element("#output-post").text == "request_post ran!"
 
-    dash_duo.percy_snapshot(name="request-hooks")
+    dash_duo.percy_snapshot(name="request-hooks intg")
 
 
 def test_inin015_with_custom_renderer_interpolated(dash_duo):

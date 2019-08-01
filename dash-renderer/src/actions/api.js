@@ -1,48 +1,41 @@
-/* global fetch: true, document: true */
-import cookie from 'cookie';
-import {mergeRight} from 'ramda';
-import {onError} from '../actions';
+/* global fetch: true */
+import {mergeDeepRight} from 'ramda';
+import {handleAsyncError, getCSRFHeader} from '../actions';
 import {urlBase} from '../utils';
 
-function GET(path) {
-    return fetch(path, {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
-        },
-    });
+function GET(path, fetchConfig) {
+    return fetch(
+        path,
+        mergeDeepRight(fetchConfig, {
+            method: 'GET',
+            headers: getCSRFHeader(),
+        })
+    );
 }
 
-function POST(path, body = {}, headers = {}) {
-    return fetch(path, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: mergeRight(
-            {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRFToken': cookie.parse(document.cookie)._csrf_token,
-            },
-            headers
-        ),
-        body: body ? JSON.stringify(body) : null,
-    });
+function POST(path, fetchConfig, body = {}) {
+    return fetch(
+        path,
+        mergeDeepRight(fetchConfig, {
+            method: 'POST',
+            headers: getCSRFHeader(),
+            body: body ? JSON.stringify(body) : null,
+        })
+    );
 }
 
 const request = {GET, POST};
 
-function apiThunk(endpoint, method, store, id, body, headers = {}) {
+export default function apiThunk(endpoint, method, store, id, body) {
     return (dispatch, getState) => {
         const config = getState().config;
+        const url = `${urlBase(config)}${endpoint}`;
 
         dispatch({
             type: store,
             payload: {id, status: 'loading'},
         });
-        return request[method](`${urlBase(config)}${endpoint}`, body, headers)
+        return request[method](url, config.fetch, body)
             .then(res => {
                 const contentType = res.headers.get('content-type');
                 if (
@@ -70,26 +63,8 @@ function apiThunk(endpoint, method, store, id, body, headers = {}) {
                 });
             })
             .catch(err => {
-                err.text().then(text => {
-                    dispatch(
-                        onError({
-                            type: 'backEnd',
-                            errorPage: text,
-                        })
-                    );
-                });
+                const message = 'Error from API call: ' + endpoint;
+                handleAsyncError(err, message, dispatch);
             });
     };
-}
-
-export function getLayout() {
-    return apiThunk('_dash-layout', 'GET', 'layoutRequest');
-}
-
-export function getDependencies() {
-    return apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest');
-}
-
-export function getReloadHash() {
-    return apiThunk('_reload-hash', 'GET', 'reloadRequest');
 }

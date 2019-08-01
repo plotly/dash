@@ -1,8 +1,10 @@
+import {connect} from 'react-redux';
 import './FrontEndError.css';
 import {Component} from 'react';
 import CollapseIcon from '../icons/CollapseIcon.svg';
 import PropTypes from 'prop-types';
 import '../Percy.css';
+import {urlBase} from '../../../utils';
 
 import werkzeugCss from '../werkzeug.css.txt';
 
@@ -75,7 +77,7 @@ class FrontEndError extends Component {
 }
 
 /* eslint-disable no-inline-comments, no-magic-numbers */
-function ErrorContent({error}) {
+function UnconnectedErrorContent({error, base}) {
     return (
         <div className="error-container">
             {/*
@@ -83,7 +85,8 @@ function ErrorContent({error}) {
              * message might overflow into ellipses in the title above &
              * will need to be displayed in full in this error body
              */}
-            {!error.message || error.message.length < 40 ? null : (
+            {typeof error.message !== 'string' ||
+            error.message.length < 40 ? null : (
                 <div className="dash-fe-error__st">
                     <div className="dash-fe-error__info dash-fe-error__curved">
                         {error.message}
@@ -91,7 +94,7 @@ function ErrorContent({error}) {
                 </div>
             )}
 
-            {!error.stack ? null : (
+            {typeof error.stack !== 'string' ? null : (
                 <div className="dash-fe-error__st">
                     <div className="dash-fe-error__info">
                         <details>
@@ -112,7 +115,7 @@ function ErrorContent({error}) {
                 </div>
             )}
             {/* Backend Error */}
-            {!error.html ? null : (
+            {typeof error.html !== 'string' ? null : (
                 <div className="dash-be-error__st">
                     <div className="dash-backend-error">
                         {/* Embed werkzeug debugger in an iframe to prevent
@@ -121,10 +124,15 @@ function ErrorContent({error}) {
                       */}
 
                         <iframe
-                            srcDoc={error.html.replace(
-                                '</head>',
-                                `<style type="text/css">${werkzeugCss}</style></head>`
-                            )}
+                            srcDoc={error.html
+                                .replace(
+                                    '</head>',
+                                    `<style type="text/css">${werkzeugCss}</style></head>`
+                                )
+                                .replace(
+                                    '="?__debugger__',
+                                    `="${base}?__debugger__`
+                                )}
                             style={{
                                 /*
                                  * 67px of padding and margin between this
@@ -155,16 +163,19 @@ const errorPropTypes = PropTypes.shape({
     html: PropTypes.string,
 });
 
-ErrorContent.propTypes = {
+UnconnectedErrorContent.propTypes = {
     error: errorPropTypes,
-    type: PropTypes.oneOf(['backEnd', 'frontEnd']),
+    base: PropTypes.string,
 };
+
+const ErrorContent = connect(state => ({base: urlBase(state.config)}))(
+    UnconnectedErrorContent
+);
 
 FrontEndError.propTypes = {
     e: PropTypes.shape({
         myUID: PropTypes.string,
         timestamp: PropTypes.object,
-        type: PropTypes.oneOf(['backEnd', 'frontEnd']),
         error: errorPropTypes,
     }),
     resolve: PropTypes.func,

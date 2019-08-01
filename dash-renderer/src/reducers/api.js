@@ -1,40 +1,19 @@
 import {assoc, assocPath, mergeRight} from 'ramda';
 
-function createApiReducer(store) {
+export default function createApiReducer(store) {
     return function ApiReducer(state = {}, action) {
         let newState = state;
         if (action.type === store) {
-            const {payload} = action;
-            if (Array.isArray(payload.id)) {
-                newState = assocPath(
-                    payload.id,
-                    {
-                        status: payload.status,
-                        content: payload.content,
-                    },
-                    state
-                );
-            } else if (payload.id) {
-                newState = assoc(
-                    payload.id,
-                    {
-                        status: payload.status,
-                        content: payload.content,
-                    },
-                    state
-                );
+            const {id, status, content} = action.payload;
+            const newRequest = {status, content};
+            if (Array.isArray(id)) {
+                newState = assocPath(id, newRequest, state);
+            } else if (id) {
+                newState = assoc(id, newRequest, state);
             } else {
-                newState = mergeRight(state, {
-                    status: payload.status,
-                    content: payload.content,
-                });
+                newState = mergeRight(state, newRequest);
             }
         }
         return newState;
     };
 }
-
-export const dependenciesRequest = createApiReducer('dependenciesRequest');
-export const layoutRequest = createApiReducer('layoutRequest');
-export const reloadRequest = createApiReducer('reloadRequest');
-export const loginRequest = createApiReducer('loginRequest');

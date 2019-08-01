@@ -10,7 +10,7 @@ import {
     hydrateInitialOutputs,
     setLayout,
 } from './actions/index';
-import {getDependencies, getLayout} from './actions/api';
+import apiThunk from './actions/api';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 
@@ -45,7 +45,7 @@ class UnconnectedContainer extends Component {
         } = props;
 
         if (isEmpty(layoutRequest)) {
-            dispatch(getLayout());
+            dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
         } else if (layoutRequest.status === STATUS.OK) {
             if (isEmpty(layout)) {
                 dispatch(setLayout(layoutRequest.content));
@@ -55,7 +55,9 @@ class UnconnectedContainer extends Component {
         }
 
         if (isEmpty(dependenciesRequest)) {
-            dispatch(getDependencies());
+            dispatch(
+                apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
+            );
         } else if (
             dependenciesRequest.status === STATUS.OK &&
             isEmpty(graphs)
