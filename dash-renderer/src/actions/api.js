@@ -1,6 +1,6 @@
 /* global fetch: true */
 import {mergeDeepRight} from 'ramda';
-import {onError, getCSRFHeader} from '../actions';
+import {handleAsyncError, getCSRFHeader} from '../actions';
 import {urlBase} from '../utils';
 
 function GET(path, fetchConfig) {
@@ -63,19 +63,8 @@ export default function apiThunk(endpoint, method, store, id, body) {
                 });
             })
             .catch(err => {
-                const errText =
-                    typeof err.text === 'function'
-                        ? err.text()
-                        : Promise.resolve(err);
-
-                errText.then(text => {
-                    dispatch(
-                        onError({
-                            type: 'backEnd',
-                            errorPage: text,
-                        })
-                    );
-                });
+                const message = 'Error from API call: ' + endpoint;
+                handleAsyncError(err, message, dispatch);
             });
     };
 }

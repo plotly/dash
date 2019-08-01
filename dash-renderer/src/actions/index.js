@@ -905,30 +905,33 @@ function updateOutput(
             });
         })
         .catch(err => {
-            // Handle html error responses
-            const errText =
-                typeof err.text === 'function'
-                    ? err.text()
-                    : Promise.resolve(err);
-
-            errText.then(text => {
-                dispatch(
-                    onError({
-                        type: 'backEnd',
-                        error: {
-                            message: `Callback error updating ${
-                                isMultiOutputProp(payload.output)
-                                    ? parseMultipleOutputs(payload.output).join(
-                                          ', '
-                                      )
-                                    : payload.output
-                            }`,
-                            html: text,
-                        },
-                    })
-                );
-            });
+            const message = `Callback error updating ${
+                isMultiOutputProp(payload.output)
+                    ? parseMultipleOutputs(payload.output).join(', ')
+                    : payload.output
+            }`;
+            handleAsyncError(err, message, dispatch);
         });
+}
+
+export function handleAsyncError(err, message, dispatch) {
+    // Handle html error responses
+    const errText =
+        err && typeof err.text === 'function'
+            ? err.text()
+            : Promise.resolve(err);
+
+    errText.then(text => {
+        dispatch(
+            onError({
+                type: 'backEnd',
+                error: {
+                    message,
+                    html: text,
+                },
+            })
+        );
+    });
 }
 
 export function serialize(state) {
