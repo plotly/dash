@@ -398,7 +398,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
         result = ""
         if the_ex and "code" in the_ex.keys():
             result += wrap("examples",
-                           wrap("dontrun" if the_ex["dontrun"] else "",
+                           wrap("dontrun" if the_ex.get("dontrun") else "",
                                 the_ex["code"]))
             with open(file_path, 'a+') as fa:
                 fa.write(result + '\n')
