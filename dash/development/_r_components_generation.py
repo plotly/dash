@@ -392,7 +392,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
             item_text=item_text,
             description=description.replace('\n', ' ')
         ))
-    if rpkg_data is not None and rpkg_data.get('r_examples') is not None:
+    if rpkg_data is not None and 'r_examples' in rpkg_data:
         ex = rpkg_data.get('r_examples')
         the_ex = ([e for e in ex if e.get("name") == funcname] or [None])[0]
         result = ""
