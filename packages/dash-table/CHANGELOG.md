@@ -36,6 +36,9 @@ between two tables within the same tab.
 reset the filter for the affected column(s)
 
 ### Fixed
+[#259](https://github.com/plotly/dash-table/issues/259)
+- Fixed columns `sticky` on Safari
+
 [#491](https://github.com/plotly/dash-table/issues/491)
 - Fixed inconsistent behaviors when editing cell headers
 
