@@ -98,8 +98,17 @@ def generate_components(
             os.makedirs('man')
         if not os.path.exists('R'):
             os.makedirs('R')
+        if os.path.isfile("dash-info.yaml"):
+            with open("dash-info.yaml") as yamldata:
+                rpkg_data = yaml.safe_load(yamldata)
+        else:
+            rpkg_data = None
+        with open('package.json', 'r') as f:
+            pkg_data = safe_json_loads(f.read())
         generator_methods.append(
-            functools.partial(write_class_file, prefix=rprefix))
+            functools.partial(write_class_file,
+                              prefix=rprefix,
+                              rpkg_data=rpkg_data))
 
     components = generate_classes_files(
         project_shortname,
@@ -113,19 +122,6 @@ def generate_components(
     generate_imports(project_shortname, components)
 
     if rprefix is not None:
-        if os.path.isfile("dash-info.yaml"):
-            with open("dash-info.yaml") as yamldata:
-                rpkg_data = yaml.safe_load(yamldata)
-        else:
-            rpkg_data = None
-            print(
-                "Warning: dash-info.yaml missing; package metadata not loaded",
-                file=sys.stderr
-            )
-
-        with open('package.json', 'r') as f:
-            pkg_data = safe_json_loads(f.read())
-
         generate_exports(
             project_shortname,
             components,

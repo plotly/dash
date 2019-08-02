@@ -324,7 +324,15 @@ def generate_js_metadata(pkg_data, project_shortname):
     return function_string
 
 
-def write_help_file(name, props, description, prefix):
+# This method wraps code within arbitrary LaTeX-like tags, which are used
+# by R's internal help parser for constructing man pages
+def wrap(tag, code):
+    if tag == "":
+        return code
+    return '\\{}{{\n{}}}'.format(tag, code)
+
+
+def write_help_file(name, props, description, prefix, rpkg_data):
     """
     Write R documentation file (.Rd) given component name and properties
 
@@ -334,13 +342,15 @@ def write_help_file(name, props, description, prefix):
     props = the properties of the component
     description = the component's description, inserted into help file header
     prefix = the DashR library prefix (optional, can be a blank string)
+    rpkg_data = package metadata (optional)
 
     Returns
     -------
     writes an R help file to the man directory for the generated R package
 
     """
-    file_name = format_fn_name(prefix, name) + ".Rd"
+    funcname = format_fn_name(prefix, name)
+    file_name = funcname + ".Rd"
 
     default_argtext = ""
     item_text = ""
@@ -374,7 +384,7 @@ def write_help_file(name, props, description, prefix):
     file_path = os.path.join('man', file_name)
     with open(file_path, 'w') as f:
         f.write(help_string.format(
-            funcname=format_fn_name(prefix, name),
+            funcname=funcname,
             name=name,
             default_argtext=textwrap.fill(default_argtext,
                                           width=80,
@@ -382,9 +392,24 @@ def write_help_file(name, props, description, prefix):
             item_text=item_text,
             description=description.replace('\n', ' ')
         ))
+    if rpkg_data is not None and 'r_examples' in rpkg_data:
+        ex = rpkg_data.get('r_examples')
+        the_ex = ([e for e in ex if e.get("name") == funcname] or [None])[0]
+        result = ""
+        if the_ex and "code" in the_ex.keys():
+            result += wrap("examples",
+                           wrap("dontrun" if the_ex.get("dontrun") else "",
+                                the_ex["code"]))
+            with open(file_path, 'a+') as fa:
+                fa.write(result + '\n')
 
 
-def write_class_file(name, props, description, project_shortname, prefix=None):
+def write_class_file(name,
+                     props,
+                     description,
+                     project_shortname,
+                     prefix=None,
+                     rpkg_data=None):
     props = reorder_props(props=props)
 
     # generate the R help pages for each of the Dash components that we
@@ -392,7 +417,7 @@ def write_class_file(name, props, description, project_shortname, prefix=None):
     # we may eventually be able to generate similar documentation using
     # doxygen and an R plugin, but for now we'll just do it on our own
     # from within Python
-    write_help_file(name, props, description, prefix)
+    write_help_file(name, props, description, prefix, rpkg_data)
 
     import_string =\
         "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
