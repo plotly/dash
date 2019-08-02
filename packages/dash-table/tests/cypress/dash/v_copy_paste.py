@@ -48,6 +48,28 @@ app.layout = html.Div(
             editable=True,
             sort_action='native',
         ),
+        dash_table.DataTable(
+            id="table2",
+            data=df[0:10],
+            columns=[
+                {"id": 0, "name": "Complaint ID"},
+                {"id": 1, "name": "Product"},
+                {"id": 2, "name": "Sub-product"},
+                {"id": 3, "name": "Issue"},
+                {"id": 4, "name": "Sub-issue"},
+                {"id": 5, "name": "State"},
+                {"id": 6, "name": "ZIP"},
+                {"id": 7, "name": "code"},
+                {"id": 8, "name": "Date received"},
+                {"id": 9, "name": "Date sent to company"},
+                {"id": 10, "name": "Company"},
+                {"id": 11, "name": "Company response"},
+                {"id": 12, "name": "Timely response?"},
+                {"id": 13, "name": "Consumer disputed?"},
+            ],
+            editable=True,
+            sort_action='native',
+        ),
     ]
 )
 
@@ -70,7 +92,6 @@ def updateData(timestamp, current, previous):
                 datum[1] = "MODIFIED"
 
     return current
-
 
 if __name__ == "__main__":
     app.run_server(port=8082, debug=False)

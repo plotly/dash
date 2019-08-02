@@ -557,10 +557,12 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         const {
             selected_cells,
             viewport,
-            visibleColumns
+            columns,
+            visibleColumns,
+            include_headers_on_copy_paste
         } = this.props;
 
-        TableClipboardHelper.toClipboard(e, selected_cells, visibleColumns, viewport.data);
+        TableClipboardHelper.toClipboard(e, selected_cells, columns, visibleColumns, viewport.data, include_headers_on_copy_paste);
         this.$el.focus();
     }
 
@@ -573,7 +575,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             setProps,
             sort_by,
             viewport,
-            visibleColumns
+            visibleColumns,
+            include_headers_on_copy_paste
         } = this.props;
 
         if (!editable || !active_cell) {
@@ -587,7 +590,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             visibleColumns,
             data,
             true,
-            !sort_by.length || !filter_query.length
+            !sort_by.length || !filter_query.length,
+            include_headers_on_copy_paste
         );
 
         if (result) {

@@ -56,6 +56,29 @@ describe('copy paste', () => {
         }
     });
 
+    it('can copy multiple rows and columns from one table and paste to another', () => {
+        DashTable.getCell(10, 0).click();
+        DOM.focused.type(Key.Shift, { release: false });
+        DashTable.getCell(13, 3).click();
+
+        DOM.focused.type(`${Key.Meta}c`);
+        cy.get(`#table2 tbody tr td.column-${0}`).eq(0).click();
+        DOM.focused.type(`${Key.Meta}v`);
+        cy.get(`#table2 tbody tr td.column-${3}`).eq(3).click();
+
+        DashTable.getCell(14, 0).click();
+        DOM.focused.type(Key.Shift, { release: false });
+
+        for (let row = 9; row <= 13; ++row) {
+            for (let column = 0; column <= 3; ++column) {
+                let initialValue: string;
+
+                DashTable.getCell(row, column).within(() => cy.get('.dash-cell-value').then($cells => initialValue = $cells[0].innerHTML));
+                cy.get(`#table2 tbody tr td.column-${column}`).eq(row - 10).within(() => cy.get('.dash-cell-value').should('have.html', initialValue));
+            }
+        }
+    });
+
     // Commenting this test as Cypress team is having issues with the copy/paste scenario
     // LINK: https://github.com/cypress-io/cypress/issues/2386
     describe('BE roundtrip on copy-paste', () => {
@@ -98,7 +121,7 @@ describe('copy paste', () => {
         });
 
         it('BE rountrip with sorted, unfiltered data', () => {
-            cy.get('tr th.column-2 .sort').last().click();
+            cy.get('#table tr th.column-2 .sort').last().click();
 
             DashTable.getCell(0, 0).click();
             DashTable.getCell(0, 0).within(() => cy.get('.dash-cell-value').should('have.value', '11'));

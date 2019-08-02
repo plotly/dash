@@ -88,6 +88,7 @@ export const defaultProps = {
     columns: [],
     editable: false,
     export_format: 'none',
+    include_headers_on_copy_paste: false,
     selected_cells: [],
     selected_rows: [],
     selected_row_ids: [],
@@ -285,6 +286,14 @@ export const propTypes = {
          * The `id` is not visible in the table.
          */
         id: PropTypes.string.isRequired,
+
+        /**
+         * If true, headers are included when copying from the table to different
+         * tabs and elsewhere. Note that headers are ignored when copying from the table onto itself and
+         * between two tables within the same tab.
+         */
+        include_headers_on_copy_paste: PropTypes.bool,
+
         /**
          * The `name` of the column,
          * as it appears in the column header.
