@@ -273,6 +273,7 @@ export interface IProps {
     filter_query?: string;
     filter_action?: TableAction;
     hidden_columns?: string[];
+    include_headers_on_copy_paste?: boolean;
     locale_format: INumberLocale;
     merge_duplicate_headers?: boolean;
     fixed_columns?: Fixed;
