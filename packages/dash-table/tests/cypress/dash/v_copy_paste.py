@@ -30,7 +30,7 @@ app.layout = html.Div(
             id="table",
             data=df[0:250],
             columns=[
-                {"id": 0, "name": "Complaint ID"},
+                {"id": 0, "name": "Complaint ID", "hideable": True},
                 {"id": 1, "name": "Product"},
                 {"id": 2, "name": "Sub-product"},
                 {"id": 3, "name": "Issue"},
@@ -47,12 +47,14 @@ app.layout = html.Div(
             ],
             editable=True,
             sort_action='native',
+            include_headers_on_copy_paste=True,
+
         ),
         dash_table.DataTable(
             id="table2",
             data=df[0:10],
             columns=[
-                {"id": 0, "name": "Complaint ID"},
+                {"id": 0, "name": "Complaint ID", "hideable": True},
                 {"id": 1, "name": "Product"},
                 {"id": 2, "name": "Sub-product"},
                 {"id": 3, "name": "Issue"},
@@ -69,6 +71,7 @@ app.layout = html.Div(
             ],
             editable=True,
             sort_action='native',
+            include_headers_on_copy_paste=True,
         ),
     ]
 )

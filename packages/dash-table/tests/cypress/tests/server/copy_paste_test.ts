@@ -69,7 +69,7 @@ describe('copy paste', () => {
         DashTable.getCell(14, 0).click();
         DOM.focused.type(Key.Shift, { release: false });
 
-        for (let row = 9; row <= 13; ++row) {
+        for (let row = 10; row <= 13; ++row) {
             for (let column = 0; column <= 3; ++column) {
                 let initialValue: string;
 
@@ -77,6 +77,58 @@ describe('copy paste', () => {
                 cy.get(`#table2 tbody tr td.column-${column}`).eq(row - 10).within(() => cy.get('.dash-cell-value').should('have.html', initialValue));
             }
         }
+    });
+
+    describe('copy and paste with hideable columns', () => {
+        it('copy multiple rows and columns within table', () => {
+            DashTable.hideColumnById(0, '0');
+
+            DashTable.getCell(0, 0).click();
+            DOM.focused.type(Key.Shift, { release: false });
+            DashTable.getCell(2, 2).click();
+
+            DOM.focused.type(`${Key.Meta}c`);
+            DashTable.getCell(3, 1).click();
+            DOM.focused.type(`${Key.Meta}v`);
+            DashTable.getCell(5, 3).click();
+
+            DashTable.getCell(6, 0).click();
+            DOM.focused.type(Key.Shift, { release: false });
+
+            for (let row = 0; row <= 2; ++row) {
+                for (let column = 0; column <= 2; ++column) {
+                    let initialValue: string;
+
+                    DashTable.getCell(row, column).within(() => cy.get('.dash-cell-value').then($cells => initialValue = $cells[0].innerHTML));
+                    DashTable.getCell(row + 3, column + 1).within(() => cy.get('.dash-cell-value').should('have.html', initialValue));
+                }
+            }
+        });
+
+        it('copy multiple rows and columns from one table to another', () => {
+            DashTable.hideColumnById(0, '0');
+
+            DashTable.getCell(10, 0).click();
+            DOM.focused.type(Key.Shift, { release: false });
+            DashTable.getCell(13, 2).click();
+
+            DOM.focused.type(`${Key.Meta}c`);
+            cy.get(`#table2 tbody tr td.column-${0}`).eq(0).click();
+            DOM.focused.type(`${Key.Meta}v`);
+            cy.get(`#table2 tbody tr td.column-${3}`).eq(2).click();
+
+            DashTable.getCell(16, 6).click();
+            DOM.focused.type(Key.Shift, { release: false });
+
+            for (let row = 10; row <= 13; ++row) {
+                for (let column = 0; column <= 2; ++column) {
+                    let initialValue: string;
+
+                    DashTable.getCell(row, column).within(() => cy.get('.dash-cell-value').then($cells => initialValue = $cells[0].innerHTML));
+                    cy.get(`#table2 tbody tr td.column-${column}`).eq(row - 10).within(() => cy.get('.dash-cell-value').should('have.html', initialValue));
+                }
+            }
+        });
     });
 
     // Commenting this test as Cypress team is having issues with the copy/paste scenario
