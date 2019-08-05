@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [4.1.0] - 2019-08-05
 ### Added
 [#314](https://github.com/plotly/dash-table/issues/314)
 - New `column.hideable` flag that displays an "eye" action icon in the column
@@ -17,9 +17,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Ability to export table as csv or xlsx file.
 
 [#497](https://github.com/plotly/dash-table/pull/497)
-- New `column.clearable` flag that displays a `Ø` action in the column
+- New `column.clearable` flag that displays a "eraser" action in the column
     Accepts a boolean or array of booleans for multi-line headers.
-    Clicking a merged column's `Ø` will clear all related columns.
+    Clicking a merged column's "eraser" will clear all related columns.
 
     - Clearing column(s) will remove the appropriate data props from each datum
     row of `data`.
@@ -32,7 +32,7 @@ between two tables within the same tab.
 
 ### Changed
 [#497](https://github.com/plotly/dash-table/pull/497)
-- Like for clearing above, deleting through the `x` action will also
+- Like for clearing above, deleting through the "trash" action will also
 reset the filter for the affected column(s)
 
 ### Fixed

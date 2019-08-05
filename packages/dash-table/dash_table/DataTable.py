@@ -21,17 +21,45 @@ Those keys have the following types:
   - row_id (string | number; optional)
   - column_id (string; optional)
 - columns (dict; optional): Columns describes various aspects about each individual column.
-`name` and `id` are the only required parameters. columns has the following type: list of dicts containing keys 'deletable', 'editable', 'renamable', 'format', 'id', 'name', 'presentation', 'on_change', 'sort_as_null', 'validation', 'type'.
+`name` and `id` are the only required parameters. columns has the following type: list of dicts containing keys 'clearable', 'deletable', 'editable', 'hideable', 'renamable', 'format', 'id', 'name', 'presentation', 'on_change', 'sort_as_null', 'validation', 'type'.
 Those keys have the following types:
-  - deletable (boolean | list of booleans; optional): If True, the user can delete the column by clicking on a little `x`
-button on the column.
+  - clearable (a value equal to: 'first', 'last' | boolean | list of booleans; optional): If true, the user can clear the column by clicking on the `clear`
+action button on the column. If there are multiple header rows, true
+will display the action button on each row.
+
+If `last`, the `clear` action button will only appear on the last header
+row. If `first` it will only appear on the first header row. These
+are respectively shortcut equivalents to `[false, ..., false, true]` and
+`[true, ..., true, false]`.
+
 If there are merged, multi-header columns then you can choose
-which column header row to display the "x" in by
+which column header row to display the `clear` action button in by
 supplying an array of booleans.
-For example, `[true, false]` will display the "x" on the first row,
-but not the second row.
-If the "x" appears on a merged column, then clicking on that button
-will delete *all* of the merged columns associated with it.
+For example, `[true, false]` will display the `clear` action button
+on the first row, but not the second row.
+
+If the `clear` action button appears on a merged column, then clicking
+on that button will clear *all* of the merged columns associated with it.
+
+Unlike `column.deletable`, this action does not remove the column(s)
+from the table. It only removed the associated entries from `data`.
+  - deletable (a value equal to: 'first', 'last' | boolean | list of booleans; optional): If true, the user can remove the column by clicking on the `delete`
+action button on the column. If there are multiple header rows, true
+will display the action button on each row.
+
+If `last`, the `delete` action button will only appear on the last header
+row. If `first` it will only appear on the first header row. These
+are respectively shortcut equivalents to `[false, ..., false, true]` and
+`[true, ..., true, false]`.
+
+If there are merged, multi-header columns then you can choose
+which column header row to display the `delete` action button in by
+supplying an array of booleans.
+For example, `[true, false]` will display the `delete` action button
+on the first row, but not the second row.
+
+If the `delete` action button appears on a merged column, then clicking
+on that button will remove *all* of the merged columns associated with it.
   - editable (boolean; optional): There are two `editable` flags in the table.
 This is the  column-level editable flag and there is
 also the table-level `editable` flag.
@@ -41,14 +69,40 @@ are editable or not.
 
 If the column-level `editable` flag is set it overrides
 the table-level `editable` flag for that column.
-  - renamable (boolean | list of booleans; optional): If True, then the name of this column is editable.
-If there are multiple column headers (if `name` is a list of strings),
-then `renamable` can refer to _which_ column header should be
-editable by defining an array of booleans.
-For example, `[true, false]` will make the first row's name editable,
-but not the second row.
-Also, updating the name in a merged column header cell will
-update the name of each column.
+  - hideable (a value equal to: 'first', 'last' | boolean | list of booleans; optional): If true, the user can hide the column by clicking on the `hide`
+action button on the column. If there are multiple header rows, true
+will display the action button on each row.
+
+If `last`, the `hide` action button will only appear on the last header
+row. If `first` it will only appear on the first header row. These
+are respectively shortcut equivalents to `[false, ..., false, true]` and
+`[true, ..., true, false]`.
+
+If there are merged, multi-header columns then you can choose
+which column header row to display the `hide` action button in by
+supplying an array of booleans.
+For example, `[true, false]` will display the `hide` action button
+on the first row, but not the second row.
+
+If the `hide` action button appears on a merged column, then clicking
+on that button will hide *all* of the merged columns associated with it.
+  - renamable (a value equal to: 'first', 'last' | boolean | list of booleans; optional): If true, the user can rename the column by clicking on the `rename`
+action button on the column. If there are multiple header rows, true
+will display the action button on each row.
+
+If `last`, the `rename` action button will only appear on the last header
+row. If `first` it will only appear on the first header row. These
+are respectively shortcut equivalents to `[false, ..., false, true]` and
+`[true, ..., true, false]`.
+
+If there are merged, multi-header columns then you can choose
+which column header row to display the `rename` action button in by
+supplying an array of booleans.
+For example, `[true, false]` will display the `rename` action button
+on the first row, but not the second row.
+
+If the `rename` action button appears on a merged column, then clicking
+on that button will rename *all* of the merged columns associated with it.
   - format (dict; optional): The formatting applied to the column's data.
 
 This prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from
@@ -151,6 +205,9 @@ text formatting options in the cell (e.g. display 2 decimals
 for a number), filtering options and behavior, and editing
 behavior.
 Stay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)
+- include_headers_on_copy_paste (boolean; default False): If true, headers are included when copying from the table to different
+tabs and elsewhere. Note that headers are ignored when copying from the table onto itself and
+between two tables within the same tab.
 - locale_format (dict; optional): The localization specific formatting information applied to all columns in the table.
 
 This prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.
@@ -227,9 +284,21 @@ Those keys have the following types:
   - column (number; optional)
   - row_id (string | number; optional)
   - column_id (string; optional)
+- export_format (a value equal to: 'csv', 'xlsx', 'none'; default 'none'): Denotes the type of the export data file,
+Defaults to `'none'`
+- export_headers (a value equal to: 'none', 'ids', 'names', 'display'; optional): Denotes the format of the headers in the export data file.
+If `'none'`, there will be no header. If `'display'`, then the header
+of the data file will be be how it is currently displayed. Note that
+`'display'` is only supported for `'xlsx'` export_format and will behave
+like `'names'` for `'csv'` export format. If `'ids'` or `'names'`,
+then the headers of data file will be the column id or the column
+names, respectively
 - fill_width (boolean; default True): `fill_width` toggles between a set of CSS for two common behaviors:
 - True: The table container's width will grow to fill the available space
 - False: The table container's width will equal the width of its content
+- hidden_columns (list of strings; optional): List of columns ids of the columns that are currently hidden.
+
+See the associated nested prop `columns.hideable`.
 - id (string; optional): The ID of the table.
 - is_focused (boolean; optional): If True, then the `active_cell` is in a focused state.
 - merge_duplicate_headers (boolean; optional): If True, then column headers that have neighbors with duplicate names
@@ -668,12 +737,12 @@ while `derived_virtual_row_ids` contains IDs across all pages.
 `selected_rows` as they appear after filtering and sorting,
 across all pages."""
     @_explicitize_args
-    def __init__(self, active_cell=Component.UNDEFINED, columns=Component.UNDEFINED, locale_format=Component.UNDEFINED, css=Component.UNDEFINED, data=Component.UNDEFINED, data_previous=Component.UNDEFINED, data_timestamp=Component.UNDEFINED, editable=Component.UNDEFINED, end_cell=Component.UNDEFINED, fill_width=Component.UNDEFINED, id=Component.UNDEFINED, is_focused=Component.UNDEFINED, merge_duplicate_headers=Component.UNDEFINED, fixed_columns=Component.UNDEFINED, fixed_rows=Component.UNDEFINED, row_deletable=Component.UNDEFINED, row_selectable=Component.UNDEFINED, selected_cells=Component.UNDEFINED, selected_rows=Component.UNDEFINED, selected_row_ids=Component.UNDEFINED, start_cell=Component.UNDEFINED, style_as_list_view=Component.UNDEFINED, page_action=Component.UNDEFINED, page_current=Component.UNDEFINED, page_size=Component.UNDEFINED, dropdown=Component.UNDEFINED, dropdown_conditional=Component.UNDEFINED, dropdown_data=Component.UNDEFINED, tooltip=Component.UNDEFINED, tooltip_conditional=Component.UNDEFINED, tooltip_data=Component.UNDEFINED, tooltip_delay=Component.UNDEFINED, tooltip_duration=Component.UNDEFINED, filter_query=Component.UNDEFINED, filter_action=Component.UNDEFINED, sort_action=Component.UNDEFINED, sort_mode=Component.UNDEFINED, sort_by=Component.UNDEFINED, sort_as_null=Component.UNDEFINED, style_table=Component.UNDEFINED, style_cell=Component.UNDEFINED, style_data=Component.UNDEFINED, style_filter=Component.UNDEFINED, style_header=Component.UNDEFINED, style_cell_conditional=Component.UNDEFINED, style_data_conditional=Component.UNDEFINED, style_filter_conditional=Component.UNDEFINED, style_header_conditional=Component.UNDEFINED, virtualization=Component.UNDEFINED, derived_filter_query_structure=Component.UNDEFINED, derived_viewport_data=Component.UNDEFINED, derived_viewport_indices=Component.UNDEFINED, derived_viewport_row_ids=Component.UNDEFINED, derived_viewport_selected_rows=Component.UNDEFINED, derived_viewport_selected_row_ids=Component.UNDEFINED, derived_virtual_data=Component.UNDEFINED, derived_virtual_indices=Component.UNDEFINED, derived_virtual_row_ids=Component.UNDEFINED, derived_virtual_selected_rows=Component.UNDEFINED, derived_virtual_selected_row_ids=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['active_cell', 'columns', 'locale_format', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'fill_width', 'id', 'is_focused', 'merge_duplicate_headers', 'fixed_columns', 'fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'selected_row_ids', 'start_cell', 'style_as_list_view', 'page_action', 'page_current', 'page_size', 'dropdown', 'dropdown_conditional', 'dropdown_data', 'tooltip', 'tooltip_conditional', 'tooltip_data', 'tooltip_delay', 'tooltip_duration', 'filter_query', 'filter_action', 'sort_action', 'sort_mode', 'sort_by', 'sort_as_null', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_filter_query_structure', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_row_ids', 'derived_viewport_selected_rows', 'derived_viewport_selected_row_ids', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_row_ids', 'derived_virtual_selected_rows', 'derived_virtual_selected_row_ids']
+    def __init__(self, active_cell=Component.UNDEFINED, columns=Component.UNDEFINED, include_headers_on_copy_paste=Component.UNDEFINED, locale_format=Component.UNDEFINED, css=Component.UNDEFINED, data=Component.UNDEFINED, data_previous=Component.UNDEFINED, data_timestamp=Component.UNDEFINED, editable=Component.UNDEFINED, end_cell=Component.UNDEFINED, export_format=Component.UNDEFINED, export_headers=Component.UNDEFINED, fill_width=Component.UNDEFINED, hidden_columns=Component.UNDEFINED, id=Component.UNDEFINED, is_focused=Component.UNDEFINED, merge_duplicate_headers=Component.UNDEFINED, fixed_columns=Component.UNDEFINED, fixed_rows=Component.UNDEFINED, row_deletable=Component.UNDEFINED, row_selectable=Component.UNDEFINED, selected_cells=Component.UNDEFINED, selected_rows=Component.UNDEFINED, selected_row_ids=Component.UNDEFINED, start_cell=Component.UNDEFINED, style_as_list_view=Component.UNDEFINED, page_action=Component.UNDEFINED, page_current=Component.UNDEFINED, page_size=Component.UNDEFINED, dropdown=Component.UNDEFINED, dropdown_conditional=Component.UNDEFINED, dropdown_data=Component.UNDEFINED, tooltip=Component.UNDEFINED, tooltip_conditional=Component.UNDEFINED, tooltip_data=Component.UNDEFINED, tooltip_delay=Component.UNDEFINED, tooltip_duration=Component.UNDEFINED, filter_query=Component.UNDEFINED, filter_action=Component.UNDEFINED, sort_action=Component.UNDEFINED, sort_mode=Component.UNDEFINED, sort_by=Component.UNDEFINED, sort_as_null=Component.UNDEFINED, style_table=Component.UNDEFINED, style_cell=Component.UNDEFINED, style_data=Component.UNDEFINED, style_filter=Component.UNDEFINED, style_header=Component.UNDEFINED, style_cell_conditional=Component.UNDEFINED, style_data_conditional=Component.UNDEFINED, style_filter_conditional=Component.UNDEFINED, style_header_conditional=Component.UNDEFINED, virtualization=Component.UNDEFINED, derived_filter_query_structure=Component.UNDEFINED, derived_viewport_data=Component.UNDEFINED, derived_viewport_indices=Component.UNDEFINED, derived_viewport_row_ids=Component.UNDEFINED, derived_viewport_selected_rows=Component.UNDEFINED, derived_viewport_selected_row_ids=Component.UNDEFINED, derived_virtual_data=Component.UNDEFINED, derived_virtual_indices=Component.UNDEFINED, derived_virtual_row_ids=Component.UNDEFINED, derived_virtual_selected_rows=Component.UNDEFINED, derived_virtual_selected_row_ids=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['active_cell', 'columns', 'include_headers_on_copy_paste', 'locale_format', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'export_format', 'export_headers', 'fill_width', 'hidden_columns', 'id', 'is_focused', 'merge_duplicate_headers', 'fixed_columns', 'fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'selected_row_ids', 'start_cell', 'style_as_list_view', 'page_action', 'page_current', 'page_size', 'dropdown', 'dropdown_conditional', 'dropdown_data', 'tooltip', 'tooltip_conditional', 'tooltip_data', 'tooltip_delay', 'tooltip_duration', 'filter_query', 'filter_action', 'sort_action', 'sort_mode', 'sort_by', 'sort_as_null', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_filter_query_structure', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_row_ids', 'derived_viewport_selected_rows', 'derived_viewport_selected_row_ids', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_row_ids', 'derived_virtual_selected_rows', 'derived_virtual_selected_row_ids']
         self._type = 'DataTable'
         self._namespace = 'dash_table'
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['active_cell', 'columns', 'locale_format', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'fill_width', 'id', 'is_focused', 'merge_duplicate_headers', 'fixed_columns', 'fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'selected_row_ids', 'start_cell', 'style_as_list_view', 'page_action', 'page_current', 'page_size', 'dropdown', 'dropdown_conditional', 'dropdown_data', 'tooltip', 'tooltip_conditional', 'tooltip_data', 'tooltip_delay', 'tooltip_duration', 'filter_query', 'filter_action', 'sort_action', 'sort_mode', 'sort_by', 'sort_as_null', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_filter_query_structure', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_row_ids', 'derived_viewport_selected_rows', 'derived_viewport_selected_row_ids', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_row_ids', 'derived_virtual_selected_rows', 'derived_virtual_selected_row_ids']
+        self.available_properties = ['active_cell', 'columns', 'include_headers_on_copy_paste', 'locale_format', 'css', 'data', 'data_previous', 'data_timestamp', 'editable', 'end_cell', 'export_format', 'export_headers', 'fill_width', 'hidden_columns', 'id', 'is_focused', 'merge_duplicate_headers', 'fixed_columns', 'fixed_rows', 'row_deletable', 'row_selectable', 'selected_cells', 'selected_rows', 'selected_row_ids', 'start_cell', 'style_as_list_view', 'page_action', 'page_current', 'page_size', 'dropdown', 'dropdown_conditional', 'dropdown_data', 'tooltip', 'tooltip_conditional', 'tooltip_data', 'tooltip_delay', 'tooltip_duration', 'filter_query', 'filter_action', 'sort_action', 'sort_mode', 'sort_by', 'sort_as_null', 'style_table', 'style_cell', 'style_data', 'style_filter', 'style_header', 'style_cell_conditional', 'style_data_conditional', 'style_filter_conditional', 'style_header_conditional', 'virtualization', 'derived_filter_query_structure', 'derived_viewport_data', 'derived_viewport_indices', 'derived_viewport_row_ids', 'derived_viewport_selected_rows', 'derived_viewport_selected_row_ids', 'derived_virtual_data', 'derived_virtual_indices', 'derived_virtual_row_ids', 'derived_virtual_selected_rows', 'derived_virtual_selected_row_ids']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')
