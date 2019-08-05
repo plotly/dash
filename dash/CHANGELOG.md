@@ -1,8 +1,10 @@
-## Unreleased
-
+## [1.1.0] - 2019-08-05
 ### Added
-
 - [#827](https://github.com/plotly/dash/pull/827) Adds support for dashR testing using pytest framework
+
+### Changed
+- Bumped dash-table version from 4.0.2 to [4.1.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#410---2019-08-05)
+- Bumped dash-core-components version from 1.0.0 to [1.1.0](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#110---2019-08-05)
 
 ## [1.0.2] - 2019-07-15
 ### Fixed
