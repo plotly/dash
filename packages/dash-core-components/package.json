@@ -19,7 +19,7 @@
     "lint:py": "flake8 --ignore=E501,F401,F841,F811,W503 tests",
     "test": "run-s -c lint lint:py format:test test-unit test:py test:intg",
     "test:py": "pytest tests/test_integration.py",
-    "test:intg": "pytest tests/integration",
+    "test:intg": "pytest --nopercyfinalize --headless tests/integration",
     "test:pyimport": "pytest tests/test_dash_import.py",
     "test-unit": "jest",
     "format": "prettier --config .prettierrc --write src/**/*.js tests/unit/*.js",
@@ -45,7 +45,8 @@
     "react-markdown": "^4.0.6",
     "react-select-fast-filter-options": "^0.2.3",
     "react-virtualized-select": "^3.1.3",
-    "uniqid": "^5.0.3"
+    "uniqid": "^5.0.3",
+    "fast-isnumeric": "^1.1.3"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",

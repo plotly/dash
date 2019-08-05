@@ -1,6 +1,13 @@
-import React, {Component} from 'react';
+import * as R from 'ramda';
+import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
-import {omit, isEmpty} from 'ramda';
+import isNumeric from 'fast-isnumeric';
+import './css/input.css';
+
+// eslint-disable-next-line no-implicit-coercion
+const convert = val => (isNumeric(val) ? +val : NaN);
+
+const isEquivalent = (v1, v2) => v1 === v2 || (isNaN(v1) && isNaN(v2));
 
 /**
  * A basic HTML input control for entering text, numbers, or passwords.
@@ -9,76 +16,60 @@ import {omit, isEmpty} from 'ramda';
  * the Checklist and RadioItems component. Dates, times, and file uploads
  * are also supported through separate components.
  */
-export default class Input extends Component {
+export default class Input extends PureComponent {
     constructor(props) {
         super(props);
-        this.propsToState = this.propsToState.bind(this);
+
+        this.input = React.createRef();
+
+        this.onBlur = this.onBlur.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this.onEvent = this.onEvent.bind(this);
+        this.onKeyPress = this.onKeyPress.bind(this);
+        this.setInputValue = this.setInputValue.bind(this);
+        this.setPropValue = this.setPropValue.bind(this);
     }
 
-    propsToState(newProps) {
-        this.setState({value: newProps.value});
+    componentWillReceiveProps(nextProps) {
+        const {value, valueAsNumber} = this.input.current;
+        this.setInputValue(
+            R.isNil(valueAsNumber) ? value : valueAsNumber,
+            nextProps.value
+        );
+        if (this.props.type !== 'number') {
+            this.setState({value: nextProps.value});
+        }
     }
 
-    componentWillReceiveProps(newProps) {
-        this.propsToState(newProps);
+    componentDidMount() {
+        const {value, valueAsNumber} = this.input.current;
+        this.setInputValue(
+            R.isNil(valueAsNumber) ? value : valueAsNumber,
+            this.props.value
+        );
     }
 
     componentWillMount() {
-        this.propsToState(this.props);
+        if (this.props.type !== 'number') {
+            this.setState({value: this.props.value});
+        }
     }
 
     render() {
-        const {setProps, type, min, max, debounce, loading_state} = this.props;
-        const value = this.state.value;
+        const valprops =
+            this.props.type === 'number' ? {} : {value: this.state.value};
+        const {loading_state} = this.props;
         return (
             <input
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
-                onChange={e => {
-                    const newValue = e.target.value;
-                    if (
-                        (!isEmpty(min) && Number(newValue) < min) ||
-                        (!isEmpty(max) && Number(newValue) > max)
-                    ) {
-                        return;
-                    }
-                    if (!debounce) {
-                        const castValue =
-                            type === 'number' ? Number(newValue) : newValue;
-                        setProps({
-                            value: castValue,
-                        });
-                    } else {
-                        this.setState({value: newValue});
-                    }
-                }}
-                onBlur={() => {
-                    const payload = {
-                        n_blur: this.props.n_blur + 1,
-                        n_blur_timestamp: Date.now(),
-                    };
-                    if (debounce) {
-                        payload.value =
-                            type === 'number' ? Number(value) : value;
-                    }
-                    setProps(payload);
-                }}
-                onKeyPress={e => {
-                    if (e.key === 'Enter') {
-                        const payload = {
-                            n_submit: this.props.n_submit + 1,
-                            n_submit_timestamp: Date.now(),
-                        };
-                        if (debounce) {
-                            payload.value =
-                                type === 'number' ? Number(value) : value;
-                        }
-                        setProps(payload);
-                    }
-                }}
-                value={value}
-                {...omit(
+                ref={this.input}
+                onBlur={this.onBlur}
+                onChange={this.onChange}
+                onKeyPress={this.onKeyPress}
+                {...valprops}
+                {...R.omit(
                     [
                         'debounce',
                         'value',
@@ -97,6 +88,65 @@ export default class Input extends Component {
             />
         );
     }
+
+    setInputValue(base, value) {
+        const __value = value;
+        base = this.input.current.checkValidity() ? convert(base) : NaN;
+        value = convert(value);
+
+        if (!isEquivalent(base, value)) {
+            this.input.current.value = isNumeric(value) ? value : __value;
+        }
+    }
+
+    setPropValue(base, value) {
+        base = convert(base);
+        value = this.input.current.checkValidity() ? convert(value) : NaN;
+
+        if (!isEquivalent(base, value)) {
+            this.props.setProps({value});
+        }
+    }
+
+    onEvent() {
+        const {value, valueAsNumber} = this.input.current;
+        if (this.props.type === 'number') {
+            this.setPropValue(
+                this.props.value,
+                R.isNil(valueAsNumber) ? value : valueAsNumber
+            );
+        } else {
+            this.props.setProps({value});
+        }
+    }
+
+    onBlur() {
+        this.props.setProps({
+            n_blur: this.props.n_blur + 1,
+            n_blur_timestamp: Date.now(),
+        });
+        this.input.current.checkValidity();
+        return this.props.debounce && this.onEvent();
+    }
+
+    onKeyPress(e) {
+        if (e.key === 'Enter') {
+            this.props.setProps({
+                n_submit: this.props.n_submit + 1,
+                n_submit_timestamp: Date.now(),
+            });
+            this.input.current.checkValidity();
+        }
+        return this.props.debounce && e.key === 'Enter' && this.onEvent();
+    }
+
+    onChange() {
+        if (!this.props.debounce) {
+            this.onEvent();
+        } else if (this.props.type !== 'number') {
+            this.setState({value: this.input.current.value});
+        }
+    }
 }
 
 Input.defaultProps = {
@@ -106,6 +156,7 @@ Input.defaultProps = {
     n_submit: 0,
     n_submit_timestamp: -1,
     debounce: false,
+    step: 'any',
 };
 
 Input.propTypes = {

@@ -1,72 +1,81 @@
 version: 2
-
 jobs:
-    'python-2.7': &test-template
-        docker:
-            - image: circleci/python:2.7-stretch-node-browsers
-              environment:
-                  PYTHON_VERSION: py27
+  "percy-finalize":
+      docker:
+      - image: percyio/agent
+      steps:
+      - run: percy finalize --all
 
-        steps:
-            - checkout
+  'python-2.7': &test-template
+      docker:
+          - image: circleci/python:2.7-stretch-node-browsers
+            environment:
+                PYTHON_VERSION: py27
+                PERCY_PARALLEL_TOTAL: '-1'
 
-            - run:
-                  name: Write job name
-                  command: echo $CIRCLE_JOB > circlejob.txt
+      steps:
+          - checkout
 
-            - run:
-                  name: Install dependencies
-                  command: |
-                      sudo pip install virtualenv --upgrade
-                      python -m venv || virtualenv venv
-                      . venv/bin/activate
-                      pip install -r dev-requirements.txt
-                      npm install --ignore-scripts
+          - run:
+                name: Write job name
+                command: echo $CIRCLE_JOB > circlejob.txt
 
-            - run:
-                name: Install dependencies (dash)
+          - run:
+                name: Install dependencies
                 command: |
-                    git clone --depth 1 https://github.com/plotly/dash.git dash-main
-                    git clone --depth 1 https://github.com/plotly/dash-html-components.git
+                    sudo pip install virtualenv --upgrade
+                    python -m venv || virtualenv venv
                     . venv/bin/activate
-                    pip install -e ./dash-main[testing] --quiet
-                    cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
-                    cd dash-main/dash-renderer && npm install --ignore-scripts && npm run build && pip install -e . && cd ../..
-            - run:
-                  name: Build
-                  command: |
-                      . venv/bin/activate
-                      npm run build
-                      pip install -e . --quiet
-                      pip list | grep dash
+                    pip install -r dev-requirements.txt
+                    npm install --ignore-scripts
 
-            - run:
-                  name: Run tests
-                  command: |
-                      . venv/bin/activate
-                      python --version
-                      npm run test
+          - run:
+              name: Install dependencies (dash)
+              command: |
+                  git clone --depth 1 https://github.com/plotly/dash.git dash-main
+                  git clone --depth 1 https://github.com/plotly/dash-html-components.git
+                  . venv/bin/activate
+                  pip install -e ./dash-main[testing] --quiet
+                  cd dash-html-components && npm install --ignore-scripts && npm run build && pip install -e . && cd ..
+                  cd dash-main/dash-renderer && npm install --ignore-scripts && npm run build && pip install -e . && cd ../..
+          - run:
+                name: Build
+                command: |
+                    . venv/bin/activate
+                    npm run build
+                    pip install -e . --quiet
+                    pip list | grep dash
 
-    'python-3.6':
-        <<: *test-template
-        docker:
-            - image: circleci/python:3.6-stretch-node-browsers
-              environment:
-                  PYTHON_VERSION: py36
-                  PERCY_ENABLE: 0
+          - run:
+                name: Run tests
+                command: |
+                    . venv/bin/activate
+                    python --version
+                    npm run test
 
-    'python-3.7':
-        <<: *test-template
-        docker:
-            - image: circleci/python:3.7-stretch-node-browsers
-              environment:
-                  PYTHON_VERSION: py37
-                  PERCY_ENABLE: 0
+  'python-3.6':
+      <<: *test-template
+      docker:
+          - image: circleci/python:3.6-stretch-node-browsers
+            environment:
+                PYTHON_VERSION: py36
+                PERCY_ENABLE: 0
+
+  'python-3.7':
+      <<: *test-template
+      docker:
+          - image: circleci/python:3.7-stretch-node-browsers
+            environment:
+                PYTHON_VERSION: py37
+                PERCY_ENABLE: 0
 
 workflows:
-    version: 2
-    build:
-        jobs:
+  version: 2
+  build:
+    jobs:
+      - 'python-2.7'
+      - "percy-finalize":
+          requires:
             - 'python-2.7'
-            - 'python-3.6'
-            - 'python-3.7'
+      - 'python-3.6'
+      - 'python-3.7'

@@ -1642,54 +1642,6 @@ class Tests(IntegrationTests):
 
         self.assertFalse(self.driver.get_cookie('logout-cookie'))
 
-    def test_state_and_inputs(self):
-        app = dash.Dash(__name__)
-        app.layout = html.Div([
-            dcc.Input(value='Initial Input', id='input'),
-            dcc.Input(value='Initial State', id='state'),
-            html.Div(id='output')
-        ])
-
-        call_count = Value('i', 0)
-
-        @app.callback(Output('output', 'children'),
-                      inputs=[Input('input', 'value')],
-                      state=[State('state', 'value')])
-        def update_output(input, state):
-            call_count.value += 1
-            return 'input="{}", state="{}"'.format(input, state)
-
-        self.startServer(app)
-        output = lambda: self.driver.find_element_by_id('output')  # noqa: E731
-        input = lambda: self.driver.find_element_by_id('input')  # noqa: E731
-        state = lambda: self.driver.find_element_by_id('state')  # noqa: E731
-
-        # callback gets called with initial input
-        wait_for(lambda: call_count.value == 1)
-        self.assertEqual(
-            output().text,
-            'input="Initial Input", state="Initial State"'
-        )
-
-        input().send_keys('x')
-        wait_for(lambda: call_count.value == 2)
-        self.assertEqual(
-            output().text,
-            'input="Initial Inputx", state="Initial State"')
-
-        state().send_keys('x')
-        time.sleep(0.75)
-        self.assertEqual(call_count.value, 2)
-        self.assertEqual(
-            output().text,
-            'input="Initial Inputx", state="Initial State"')
-
-        input().send_keys('y')
-        wait_for(lambda: call_count.value == 3)
-        self.assertEqual(
-            output().text,
-            'input="Initial Inputxy", state="Initial Statex"')
-
     def test_simple_callback(self):
         app = dash.Dash(__name__)
         app.layout = html.Div([
