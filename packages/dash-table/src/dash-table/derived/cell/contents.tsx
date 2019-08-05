@@ -26,6 +26,7 @@ const mapRow = R.addIndex<IColumn, JSX.Element>(R.map);
 
 enum CellType {
     Dropdown,
+    DropdownLabel,
     Input,
     Label
 }
@@ -40,7 +41,7 @@ function getCellType(
         case Presentation.Input:
             return (!active || !editable) ? CellType.Label : CellType.Input;
         case Presentation.Dropdown:
-            return (!dropdown || !editable) ? CellType.Label : CellType.Dropdown;
+            return (!dropdown || !editable) ? CellType.DropdownLabel : CellType.Dropdown;
         default:
             return (!active || !editable) ? CellType.Label : CellType.Input;
     }
@@ -124,7 +125,9 @@ class Contents {
             'dash-cell-value'
         ].join(' ');
 
-        switch (getCellType(active, column.editable, dropdown && dropdown.options, column.presentation)) {
+        const cellType = getCellType(active, column.editable, dropdown && dropdown.options, column.presentation);
+
+        switch (cellType) {
             case CellType.Dropdown:
                 return (<CellDropdown
                     key={`column-${columnIndex}`}
@@ -148,15 +151,26 @@ class Contents {
                     type={column.type}
                     value={datum[column.id]}
                 />);
+            case CellType.DropdownLabel:
             case CellType.Label:
             default:
+                const resolvedValue = cellType === CellType.DropdownLabel ?
+                    this.resolveDropdownLabel(dropdown, datum[column.id]) :
+                    formatters[columnIndex](datum[column.id]);
+
                 return (<CellLabel
                     className={className}
                     key={`column-${columnIndex}`}
                     onClick={this.handlers(Handler.Click, rowIndex, columnIndex)}
                     onDoubleClick={this.handlers(Handler.DoubleClick, rowIndex, columnIndex)}
-                    value={formatters[columnIndex](datum[column.id])}
+                    value={resolvedValue}
                 />);
         }
+    }
+
+    private resolveDropdownLabel(dropdown: IDropdown | undefined, value: any) {
+        const dropdownValue = dropdown && dropdown.options && dropdown.options.find(option => option.value === value);
+
+        return dropdownValue ? dropdownValue.label : value;
     }
 }

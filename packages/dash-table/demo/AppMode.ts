@@ -56,7 +56,14 @@ function getBaseTableProps(mock: IDataMock) {
             bbb: {
                 clearable: true,
                 options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
-                    label: i,
+                    label: `label: ${i}`,
+                    value: i
+                }))
+            },
+            'bbb-readonly': {
+                clearable: true,
+                options: ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'].map(i => ({
+                    label: `label: ${i}`,
                     value: i
                 }))
             }

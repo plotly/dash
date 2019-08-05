@@ -30,6 +30,48 @@ const columns2 = R.map(
 );
 
 storiesOf('DashTable/Dropdown', module)
+    .add('readonly dropdown shows label', () => <DataTable
+        setProps={setProps}
+        id='table'
+        data={data}
+        columns={columns}
+        editable={false}
+        dropdown={{
+            climate: {
+                options: R.map(
+                    i => ({ label: `label: ${i}`, value: i }),
+                    ['Sunny', 'Snowy', 'Rainy']
+                )
+            },
+            city: {
+                options: R.map(
+                    i => ({ label: `label: ${i}`, value: i }),
+                    ['NYC', 'Montreal', 'Miami']
+                )
+            }
+        }}
+    />)
+    .add('editable dropdown shows label', () => <DataTable
+        setProps={setProps}
+        id='table'
+        data={data}
+        columns={columns}
+        editable={true}
+        dropdown={{
+            climate: {
+                options: R.map(
+                    i => ({ label: `label: ${i}`, value: i }),
+                    ['Sunny', 'Snowy', 'Rainy']
+                )
+            },
+            city: {
+                options: R.map(
+                    i => ({ label: `label: ${i}`, value: i }),
+                    ['NYC', 'Montreal', 'Miami']
+                )
+            }
+        }}
+    />)
     .add('dropdown by column', () => (<DataTable
         setProps={setProps}
         id='table'

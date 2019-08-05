@@ -10,15 +10,25 @@ Object.values([AppMode.ReadOnly]).forEach(mode => {
         });
 
         it('can sort', () => {
-            DashTable.getCell(0, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'Wet'));
-            DashTable.getCell(1, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'Snowy'));
-            DashTable.getCell(2, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'Tropical Beaches'));
-            DashTable.getCell(3, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'Humid'));
+            DashTable.getCell(0, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Wet'));
+            DashTable.getCell(1, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Snowy'));
+            DashTable.getCell(2, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Tropical Beaches'));
+            DashTable.getCell(3, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
+
+            DashTable.getCell(0, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Wet'));
+            DashTable.getCell(1, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Snowy'));
+            DashTable.getCell(2, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Tropical Beaches'));
+            DashTable.getCell(3, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
             cy.get('tr th.column-6 .sort').last().click();
-            DashTable.getCell(0, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'Humid'));
-            DashTable.getCell(1, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'Humid'));
-            DashTable.getCell(2, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'Humid'));
-            DashTable.getCell(3, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'Humid'));
+            DashTable.getCell(0, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
+            DashTable.getCell(1, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
+            DashTable.getCell(2, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
+            DashTable.getCell(3, 6).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
+
+            DashTable.getCell(0, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
+            DashTable.getCell(1, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
+            DashTable.getCell(2, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
+            DashTable.getCell(3, 7).within(() => cy.get('.dash-cell-value').should('have.html', 'label: Humid'));
         });
     });
 });

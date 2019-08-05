@@ -68,6 +68,7 @@ export const generateMockData = (rows: number) => unpackIntoColumnsAndData([
         id: 'bbb-readonly',
         name: ['', 'Weather', 'Climate-RO'],
         type: ColumnType.Text,
+        presentation: 'dropdown',
         editable: false,
         data: gendata(
             i => ['Humid', 'Wet', 'Snowy', 'Tropical Beaches'][i % 4],
@@ -86,6 +87,7 @@ export const generateMockData = (rows: number) => unpackIntoColumnsAndData([
         id: 'aaa-readonly',
         name: ['', 'Weather', 'Temperature-RO'],
         type: ColumnType.Numeric,
+        presentation: 'dropdown',
         editable: false,
         data: gendata(i => i + 1, rows)
     }

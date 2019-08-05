@@ -101,7 +101,7 @@ describe('filter', () => {
         DashTable.getFilterById('ccc').click();
 
         DashTable.getFilterById('bbb').within(() => cy.get('input').should('have.value', 'Tr'));
-        DashTable.getCellById(0, 'bbb-readonly').within(() => cy.get('.dash-cell-value').should('have.html', 'Tropical Beaches'));
+        DashTable.getCellById(0, 'bbb-readonly').within(() => cy.get('.dash-cell-value').should('have.html', 'label: Tropical Beaches'));
     });
 
     it('filters `Numeric` columns with `equal` without operator', () => {

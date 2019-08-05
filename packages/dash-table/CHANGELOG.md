@@ -26,9 +26,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - Additionally clearing the column will reset the filter for the affected column(s)
 
 [#318](https://github.com/plotly/dash-table/issues/318)
-- Headers are included when copying from the table to different 
-tabs and elsewhere. They are ignored when copying from the table onto itself and 
-between two tables within the same tab. 
+- Headers are included when copying from the table to different
+tabs and elsewhere. They are ignored when copying from the table onto itself and
+between two tables within the same tab.
 
 ### Changed
 [#497](https://github.com/plotly/dash-table/pull/497)
@@ -36,6 +36,9 @@ between two tables within the same tab.
 reset the filter for the affected column(s)
 
 ### Fixed
+[#524](https://github.com/plotly/dash-table/issues/524)
+- Fixed readonly dropdown cells content (display label, not value)
+
 [#259](https://github.com/plotly/dash-table/issues/259)
 - Fixed columns `sticky` on Safari
 
