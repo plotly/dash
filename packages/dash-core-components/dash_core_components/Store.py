@@ -14,14 +14,14 @@ Keyword arguments:
 - id (string; required): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- storage_type (a value equal to: 'local', 'session', 'memory'; optional): The type of the web storage.
+- storage_type (a value equal to: 'local', 'session', 'memory'; default 'memory'): The type of the web storage.
 
 memory: only kept in memory, reset on page refresh.
 local: window.localStorage, data is kept after the browser quit.
 session: window.sessionStorage, data is cleared once the browser quit.
 - data (dict | list | number | string | boolean; optional): The stored data for the id.
-- clear_data (boolean; optional): Set to true to remove the data contained in `data_key`.
-- modified_timestamp (number; optional): The last time the storage was modified."""
+- clear_data (boolean; default False): Set to true to remove the data contained in `data_key`.
+- modified_timestamp (number; default -1): The last time the storage was modified."""
     @_explicitize_args
     def __init__(self, id=Component.REQUIRED, storage_type=Component.UNDEFINED, data=Component.UNDEFINED, clear_data=Component.UNDEFINED, modified_timestamp=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'storage_type', 'data', 'clear_data', 'modified_timestamp']

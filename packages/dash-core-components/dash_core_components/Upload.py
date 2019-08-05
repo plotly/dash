@@ -4,7 +4,7 @@ from dash.development.base_component import Component, _explicitize_args
 
 
 class Upload(Component):
-    """A Upload component.
+    """An Upload component.
 Upload components allow your app to accept user-uploaded files via drag'n'drop
 
 Keyword arguments:
@@ -25,20 +25,30 @@ platforms. CSV files, for example, are reported as text/plain
 under macOS but as application/vnd.ms-excel under Windows.
 In some cases there might not be a mime type set at all.
 See: https://github.com/react-dropzone/react-dropzone/issues/276
-- disabled (boolean; optional): Enable/disable the upload component entirely
-- disable_click (boolean; optional): Disallow clicking on the component to open the file dialog
-- max_size (number; optional): Maximum file size. If `-1`, then infinite
-- min_size (number; optional): Minimum file size
-- multiple (boolean; optional): Allow dropping multiple files
+- disabled (boolean; default False): Enable/disable the upload component entirely
+- disable_click (boolean; default False): Disallow clicking on the component to open the file dialog
+- max_size (number; default -1): Maximum file size. If `-1`, then infinite
+- min_size (number; default 0): Minimum file size
+- multiple (boolean; default False): Allow dropping multiple files
 - className (string; optional): HTML class name of the component
 - className_active (string; optional): HTML class name of the component while active
 - className_reject (string; optional): HTML class name of the component if rejected
 - className_disabled (string; optional): HTML class name of the component if disabled
 - style (dict; optional): CSS styles to apply
-- style_active (dict; optional): CSS styles to apply while active
-- style_reject (dict; optional): CSS styles if rejected
-- style_disabled (dict; optional): CSS styles if disabled
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- style_active (dict; default {
+    borderStyle: 'solid',
+    borderColor: '#6c6',
+    backgroundColor: '#eee',
+}): CSS styles to apply while active
+- style_reject (dict; default {
+    borderStyle: 'solid',
+    borderColor: '#c66',
+    backgroundColor: '#eee',
+}): CSS styles if rejected
+- style_disabled (dict; default {
+    opacity: 0.5,
+}): CSS styles if disabled
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading

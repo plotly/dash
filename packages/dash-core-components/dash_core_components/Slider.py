@@ -11,12 +11,12 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- marks (optional): Marks on the slider.
+- marks (dict; optional): Marks on the slider.
 The key determines the position (a number),
 and the value determines what will show.
 If you want to set the style of a specific mark point,
 the value should be an object which
-contains style and label properties.. marks has the following type: dict with strings as keys and values of type string | dict containing keys 'label', 'style'.
+contains style and label properties. marks has the following type: dict with strings as keys and values of type string | dict containing keys 'label', 'style'.
 Those keys have the following types:
   - label (string; optional)
   - style (dict; optional)
@@ -30,7 +30,7 @@ render the slider with dots.
 value is included. Otherwise, it is an independent value.
 - min (number; optional): Minimum allowed value of the slider
 - max (number; optional): Maximum allowed value of the slider
-- tooltip (optional): . tooltip has the following type: dict containing keys 'always_visible', 'placement'.
+- tooltip (dict; optional): tooltip has the following type: dict containing keys 'always_visible', 'placement'.
 Those keys have the following types:
   - always_visible (boolean; optional): Determines whether tooltips should always be visible
 (as opposed to the default, visible on hover)
@@ -40,14 +40,14 @@ top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft` will
 in reality appear to be on the top right of the handle
 - step (number; optional): Value by which increments or decrements are made
 - vertical (boolean; optional): If true, the slider will be vertical
-- updatemode (a value equal to: 'mouseup', 'drag'; optional): Determines when the component should update
+- updatemode (a value equal to: 'mouseup', 'drag'; default 'mouseup'): Determines when the component should update
 its value. If `mouseup`, then the slider
 will only trigger its value when the user has
 finished dragging the slider. If `drag`, then
 the slider will update its value continuously
 as it is being dragged.
 Only use `drag` if your updates are fast.
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading

@@ -2,9 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] -
+## [1.1.0] - 2019-08-05
 
-### Fixed
+### Changed
 - Fixed inconsistent behavior of `input` with `type=number` [#580](https://github.com/plotly/dash-core-components/pull/580)
 
 ### Updated

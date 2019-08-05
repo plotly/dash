@@ -22,12 +22,12 @@ Keyword arguments:
 in callbacks. The ID needs to be unique across all of the
 components in an app.
 - message (string; optional): Message to show in the popup.
-- submit_n_clicks (number; optional): Number of times the submit was clicked
-- submit_n_clicks_timestamp (number; optional): Last time the submit button was clicked.
-- cancel_n_clicks (number; optional): Number of times the popup was canceled.
-- cancel_n_clicks_timestamp (number; optional): Last time the cancel button was clicked.
+- submit_n_clicks (number; default 0): Number of times the submit was clicked
+- submit_n_clicks_timestamp (number; default -1): Last time the submit button was clicked.
+- cancel_n_clicks (number; default 0): Number of times the popup was canceled.
+- cancel_n_clicks_timestamp (number; default -1): Last time the cancel button was clicked.
 - displayed (boolean; optional): Is the modal currently displayed.
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading

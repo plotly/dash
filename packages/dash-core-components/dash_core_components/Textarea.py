@@ -42,11 +42,11 @@ are also acccepted.
 - style (dict; optional): Defines CSS styles which will override styles previously set.
 - tabIndex (string | number; optional): Overrides the browser's default tab order and follows the one specified instead.
 - title (string; optional): Text to be displayed in a tooltip when hovering over the element.
-- n_blur (number; optional): Number of times the textarea lost focus.
-- n_blur_timestamp (number; optional): Last time the textarea lost focus.
-- n_clicks (number; optional): Number of times the textarea has been clicked.
-- n_clicks_timestamp (number; optional): Last time the textarea was clicked.
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- n_blur (number; default 0): Number of times the textarea lost focus.
+- n_blur_timestamp (number; default -1): Last time the textarea lost focus.
+- n_clicks (number; default 0): Number of times the textarea has been clicked.
+- n_clicks_timestamp (number; default -1): Last time the textarea was clicked.
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading

@@ -21,9 +21,13 @@ components in an app.
 - style (dict; optional): Appends (inline) styles to the Tabs container holding the individual Tab components.
 - parent_style (dict; optional): Appends (inline) styles to the top-level parent container holding both the Tabs container and the content container.
 - content_style (dict; optional): Appends (inline) styles to the tab content container holding the children of the Tab that is selected.
-- vertical (boolean; optional): Renders the tabs vertically (on the side)
-- mobile_breakpoint (number; optional): Breakpoint at which tabs are rendered full width (can be 0 if you don't want full width tabs on mobile)
-- colors (optional): Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:
+- vertical (boolean; default False): Renders the tabs vertically (on the side)
+- mobile_breakpoint (number; default 800): Breakpoint at which tabs are rendered full width (can be 0 if you don't want full width tabs on mobile)
+- colors (dict; default {
+    border: '#d6d6d6',
+    primary: '#1975FA',
+    background: '#f9f9f9',
+}): Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:
 colors: {
    border: '#d6d6d6',
    primary: '#1975FA',
@@ -33,7 +37,7 @@ Those keys have the following types:
   - border (string; optional)
   - primary (string; optional)
   - background (string; optional)
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading

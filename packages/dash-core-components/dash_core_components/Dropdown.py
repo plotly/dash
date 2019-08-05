@@ -18,31 +18,31 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- options (optional): An array of options {label: [string|number], value: [string|number]},
-an optional disabled field can be used for each option. options has the following type: list of dict containing keys 'label', 'value', 'disabled'.
+- options (dict; optional): An array of options {label: [string|number], value: [string|number]},
+an optional disabled field can be used for each option. options has the following type: list of dicts containing keys 'label', 'value', 'disabled'.
 Those keys have the following types:
   - label (string | number; required): The dropdown's label
   - value (string | number; required): The value of the dropdown. This value
 corresponds to the items specified in the
 `value` property.
-  - disabled (boolean; optional): If true, this option is disabled and cannot be selected.s
+  - disabled (boolean; optional): If true, this option is disabled and cannot be selected.
 - value (string | number | list of string | numbers; optional): The value of the input. If `multi` is false (the default)
 then value is just a string that corresponds to the values
 provided in the `options` property. If `multi` is true, then
 multiple values can be selected at once, and `value` is an
 array of items with values corresponding to those in the
 `options` prop.
-- optionHeight (number; optional): height of each option. Can be increased when label lengths would wrap around
+- optionHeight (number; default 35): height of each option. Can be increased when label lengths would wrap around
 - className (string; optional): className of the dropdown element
-- clearable (boolean; optional): Whether or not the dropdown is "clearable", that is, whether or
+- clearable (boolean; default True): Whether or not the dropdown is "clearable", that is, whether or
 not a small "x" appears on the right of the dropdown that removes
 the selected value.
-- disabled (boolean; optional): If true, this dropdown is disabled and the selection cannot be changed.
-- multi (boolean; optional): If true, the user can select multiple values
+- disabled (boolean; default False): If true, this dropdown is disabled and the selection cannot be changed.
+- multi (boolean; default False): If true, the user can select multiple values
 - placeholder (string; optional): The grey, default text shown when no option is selected
-- searchable (boolean; optional): Whether to enable the searching feature or not
+- searchable (boolean; default True): Whether to enable the searching feature or not
 - style (dict; optional): Defines CSS styles which will override styles previously set.
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading

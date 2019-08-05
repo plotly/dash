@@ -15,14 +15,16 @@ in callbacks. The ID needs to be unique across all of the
 components in an app.
 - label (string; optional): The tab's label
 - value (string; optional): Value for determining which Tab is currently selected
-- disabled (boolean; optional): Determines if tab is disabled or not - defaults to false
-- disabled_style (dict; optional): Overrides the default (inline) styles when disabled
+- disabled (boolean; default False): Determines if tab is disabled or not - defaults to false
+- disabled_style (dict; default {
+    color: '#d6d6d6',
+}): Overrides the default (inline) styles when disabled
 - disabled_className (string; optional): Appends a class to the Tab component when it is disabled.
 - className (string; optional): Appends a class to the Tab component.
 - selected_className (string; optional): Appends a class to the Tab component when it is selected.
 - style (dict; optional): Overrides the default (inline) styles for the Tab component.
 - selected_style (dict; optional): Overrides the default (inline) styles for the Tab component when it is selected.
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading

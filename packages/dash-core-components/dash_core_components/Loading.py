@@ -12,13 +12,13 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- type (a value equal to: 'graph', 'cube', 'circle', 'dot', 'default'; optional): Property that determines which spinner to show - one of 'graph', 'cube', 'circle', 'dot', or 'default'.
+- type (a value equal to: 'graph', 'cube', 'circle', 'dot', 'default'; default 'default'): Property that determines which spinner to show - one of 'graph', 'cube', 'circle', 'dot', or 'default'.
 - fullscreen (boolean; optional): Boolean that determines if the loading spinner will be displayed full-screen or not
 - debug (boolean; optional): Boolean that determines if the loading spinner will display the status.prop_name and component_name
 - className (string; optional): Additional CSS class for the root DOM node
 - style (dict; optional): Additional CSS styling for the root DOM node
-- color (string; optional): Primary colour used for the loading spinners
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- color (string; default '#119DFF'): Primary colour used for the loading spinners
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading

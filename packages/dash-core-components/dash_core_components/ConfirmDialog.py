@@ -15,10 +15,10 @@ Keyword arguments:
 in callbacks. The ID needs to be unique across all of the
 components in an app.
 - message (string; optional): Message to show in the popup.
-- submit_n_clicks (number; optional): Number of times the submit button was clicked
-- submit_n_clicks_timestamp (number; optional): Last time the submit button was clicked.
-- cancel_n_clicks (number; optional): Number of times the popup was canceled.
-- cancel_n_clicks_timestamp (number; optional): Last time the cancel button was clicked.
+- submit_n_clicks (number; default 0): Number of times the submit button was clicked
+- submit_n_clicks_timestamp (number; default -1): Last time the submit button was clicked.
+- cancel_n_clicks (number; default 0): Number of times the popup was canceled.
+- cancel_n_clicks_timestamp (number; default -1): Last time the cancel button was clicked.
 - displayed (boolean; optional): Set to true to send the ConfirmDialog."""
     @_explicitize_args
     def __init__(self, id=Component.UNDEFINED, message=Component.UNDEFINED, submit_n_clicks=Component.UNDEFINED, submit_n_clicks_timestamp=Component.UNDEFINED, cancel_n_clicks=Component.UNDEFINED, cancel_n_clicks_timestamp=Component.UNDEFINED, displayed=Component.UNDEFINED, **kwargs):

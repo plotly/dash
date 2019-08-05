@@ -16,7 +16,7 @@ components in an app.
 - search (string; optional): search in window.location - e.g., "?myargument=1"
 - hash (string; optional): hash in window.location - e.g., "#myhash"
 - href (string; optional): href in window.location - e.g., "/my/full/pathname?myargument=1#myhash"
-- refresh (boolean; optional): Refresh the page when the location is updated?"""
+- refresh (boolean; default True): Refresh the page when the location is updated?"""
     @_explicitize_args
     def __init__(self, id=Component.REQUIRED, pathname=Component.UNDEFINED, search=Component.UNDEFINED, hash=Component.UNDEFINED, href=Component.UNDEFINED, refresh=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'pathname', 'search', 'hash', 'href', 'refresh']

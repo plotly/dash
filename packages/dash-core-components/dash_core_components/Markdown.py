@@ -15,18 +15,18 @@ Keyword arguments:
 in callbacks. The ID needs to be unique across all of the
 components in an app.
 - className (string; optional): Class name of the container element
-- dangerously_allow_html (boolean; optional): A boolean to control raw HTML escaping.
+- dangerously_allow_html (boolean; default False): A boolean to control raw HTML escaping.
 Setting HTML from code is risky because it's easy to
 inadvertently expose your users to a cross-site scripting (XSS)
 (https://en.wikipedia.org/wiki/Cross-site_scripting) attack.
-- dedent (boolean; optional): Remove matching leading whitespace from all lines.
+- dedent (boolean; default True): Remove matching leading whitespace from all lines.
 Lines that are empty, or contain *only* whitespace, are ignored.
 Both spaces and tab characters are removed, but only if they match;
 we will not convert tabs to spaces or vice versa.
-- highlight_config (optional): Config options for syntax highlighting.. highlight_config has the following type: dict containing keys 'theme'.
+- highlight_config (dict; optional): Config options for syntax highlighting. highlight_config has the following type: dict containing keys 'theme'.
 Those keys have the following types:
   - theme (a value equal to: 'dark', 'light'; optional): Color scheme; default 'light'
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading

@@ -1538,6 +1538,11 @@
               "description": "Double click interaction (false, 'reset', 'autosize' or 'reset+autosize')",
               "required": false
             },
+            "doubleClickDelay": {
+              "name": "number",
+              "description": "Delay for registering a double-click event in ms. The\nminimum value is 100 and the maximum value is 1000. By\ndefault this is 300.",
+              "required": false
+            },
             "showTips": {
               "name": "bool",
               "description": "New users see some hints about interactivity",
@@ -1590,6 +1595,11 @@
             "showSendToCloud": {
               "name": "bool",
               "description": "Should we include a modebar button to send this data to a\nPlotly Cloud instance, linked by `plotlyServerURL`.\nBy default this is false.",
+              "required": false
+            },
+            "showEditInChartStudio": {
+              "name": "bool",
+              "description": "Should we show a modebar button to send this data to a\nPlotly Chart Studio plot. If both this and showSendToCloud\nare selected, only showEditInChartStudio will be\nhonored. By default this is false.",
               "required": false
             },
             "modeBarButtonsToRemove": {
@@ -1739,15 +1749,68 @@
     "displayName": "Input",
     "methods": [
       {
-        "name": "propsToState",
+        "name": "setInputValue",
         "docblock": null,
         "modifiers": [],
         "params": [
           {
-            "name": "newProps",
+            "name": "base",
+            "type": null
+          },
+          {
+            "name": "value",
             "type": null
           }
         ],
+        "returns": null
+      },
+      {
+        "name": "setPropValue",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "base",
+            "type": null
+          },
+          {
+            "name": "value",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "onEvent",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "onBlur",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "onKeyPress",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "e",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "onChange",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
         "returns": null
       }
     ],
@@ -2185,7 +2248,11 @@
           ]
         },
         "required": false,
-        "description": "Works with the min and max attributes to limit the increments at which a numeric or date-time value can be set. It can be the string any or a positive floating point number. If this attribute is not set to any, the control accepts only values at multiples of the step value greater than the minimum."
+        "description": "Works with the min and max attributes to limit the increments at which a numeric or date-time value can be set. It can be the string any or a positive floating point number. If this attribute is not set to any, the control accepts only values at multiples of the step value greater than the minimum.",
+        "defaultValue": {
+          "value": "'any'",
+          "computed": false
+        }
       },
       "n_submit": {
         "type": {
