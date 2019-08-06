@@ -22,12 +22,14 @@ jobs:
           path: ~/dash/packages
           destination: /tmp/packages
 
-  "pip-install-37": &pip
+  "lint-unit-37": &lint-unit
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
+          PYLINTRC: .pylintrc37
           PYVERSION: python37
+
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
@@ -43,34 +45,6 @@ jobs:
           key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
-
-  "pip-install-36":
-      <<: *pip
-      docker:
-        - image: circleci/python:3.6-stretch-node-browsers
-          environment:
-            PYVERSION: python36
-
-  "pip-install-27":
-      <<: *pip
-      docker:
-        - image: circleci/python:2.7-stretch-node-browsers
-          environment:
-            PYVERSION: python27
-
-  "lint-unit-37": &lint-unit
-    working_directory: ~/dash
-    docker:
-      - image: circleci/python:3.7-stretch-node-browsers
-        environment:
-          PYLINTRC: .pylintrc37
-          PYVERSION: python37
-
-    steps:
-      - checkout
-      - run: echo $PYVERSION > ver.txt
-      - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: 🌸 Python & JS Lint
           command: |
@@ -114,6 +88,17 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
+          name: 🚧 pip dev requirements
+          command: |
+            sudo pip install --upgrade virtualenv
+            python -m venv venv || virtualenv venv && . venv/bin/activate
+            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+      - save_cache:
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          paths:
+              - "venv"
+
+      - run:
           name: 🚧 build core
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
@@ -154,6 +139,16 @@ jobs:
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+      - run:
+          name: 🚧 pip dev requirements
+          command: |
+            sudo pip install --upgrade virtualenv
+            python -m venv venv || virtualenv venv && . venv/bin/activate
+            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+      - save_cache:
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          paths:
+              - "venv"
       - run:
           name: 🚧 build misc
           command: |
@@ -230,16 +225,9 @@ workflows:
   version: 2
   python3.7:
     jobs:
-      - pip-install-37
-      - lint-unit-37:
-          requires:
-            - pip-install-37
-      - build-core-37:
-          requires:
-            - pip-install-37
-      - build-misc-37:
-          requires:
-            - pip-install-37
+      - lint-unit-37
+      - build-core-37
+      - build-misc-37
       - "test-37":
           requires:
             - build-core-37
@@ -251,37 +239,27 @@ workflows:
           requires:
             - percy-finalize
           filters:
+            branches:
+              only:
+                - master
+                - dev
             tags:
               only: /v*/
 
   python3.6:
     jobs:
-      - pip-install-36
-      - lint-unit-36:
-          requires:
-            - pip-install-36
-      - build-core-36:
-          requires:
-            - pip-install-36
-      - build-misc-36:
-          requires:
-            - pip-install-36
+      - lint-unit-36
+      - build-core-36
+      - build-misc-36
       - "test-36":
           requires:
             - build-core-36
             - build-misc-36
   python2.7:
     jobs:
-      - pip-install-27
-      - lint-unit-27:
-          requires:
-            - pip-install-27
-      - build-core-27:
-          requires:
-            - pip-install-27
-      - build-misc-27:
-          requires:
-            - pip-install-27
+      - lint-unit-27
+      - build-core-27
+      - build-misc-27
       - "test-27":
           requires:
             - build-core-27
