@@ -1,3 +1,7 @@
+## [1.1.1] - 2019-08-06
+### Changed
+- Bumped dash-core-components version from 1.1.0 to [1.1.1](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#111---2019-08-06)
+
 ## [1.1.0] - 2019-08-05
 ### Added
 - [#827](https://github.com/plotly/dash/pull/827) Adds support for dashR testing using pytest framework
