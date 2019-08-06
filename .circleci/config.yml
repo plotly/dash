@@ -6,6 +6,22 @@ jobs:
     steps:
       - run: percy finalize --all
 
+  "artifacts":
+    docker:
+      - image: circleci/python:3.7-stretch-node-browsers
+        environment:
+          PYVERSION: python37
+    steps:
+      - checkout
+      - run: echo $PYVERSION > ver.txt
+      - restore_cache:
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+      - attach_workspace:
+          at: ~/dash
+      - store_artifacts:
+          path: ~/dash/packages
+          destination: /tmp/packages
+
   "lint-unit-37": &lint-unit
     working_directory: ~/dash
     docker:
@@ -72,6 +88,17 @@ jobs:
       - restore_cache:
           key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
+          name: 🚧 pip dev requirements
+          command: |
+            sudo pip install --upgrade virtualenv
+            python -m venv venv || virtualenv venv && . venv/bin/activate
+            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+      - save_cache:
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          paths:
+              - "venv"
+
+      - run:
           name: 🚧 build core
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
@@ -112,6 +139,16 @@ jobs:
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
           key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+      - run:
+          name: 🚧 pip dev requirements
+          command: |
+            sudo pip install --upgrade virtualenv
+            python -m venv venv || virtualenv venv && . venv/bin/activate
+            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+      - save_cache:
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          paths:
+              - "venv"
       - run:
           name: 🚧 build misc
           command: |
@@ -198,6 +235,17 @@ workflows:
       - "percy-finalize":
           requires:
             - test-37
+      - "artifacts":
+          requires:
+            - percy-finalize
+          filters:
+            branches:
+              only:
+                - master
+                - dev
+            tags:
+              only: /v*/
+
   python3.6:
     jobs:
       - lint-unit-36
