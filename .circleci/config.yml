@@ -19,8 +19,8 @@ jobs:
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
-          path: /tmp/packages
-          destination: ~/dash/packages
+          path: ~/dash/packages
+          destination: /tmp/packages
 
   "pip-install-37": &pip
     working_directory: ~/dash
