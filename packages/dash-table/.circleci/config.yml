@@ -30,7 +30,7 @@ jobs:
                     sudo pip install --upgrade virtualenv
                     python -m venv venv || virtualenv venv
                     . venv/bin/activate
-                    pip install -r requirements.txt --quiet
+                    pip install -r dev-requirements.txt --quiet
                     git clone --depth 1 git@github.com:plotly/dash.git dash-main
                     pip install -e ./dash-main --quiet
 
@@ -106,7 +106,7 @@ jobs:
                     sudo pip install --upgrade virtualenv
                     python -m venv venv || virtualenv venv
                     . venv/bin/activate
-                    pip install -r requirements.txt --quiet
+                    pip install -r dev-requirements.txt --quiet
                     git clone --depth 1 git@github.com:plotly/dash.git dash-main
                     pip install -e ./dash-main --quiet
 
@@ -172,7 +172,7 @@ jobs:
                 name: Install requirements
                 command: |
                     . venv/bin/activate
-                    pip install -r requirements.txt --quiet
+                    pip install -r dev-requirements.txt --quiet
 
             - run:
                 name: Run eslint
@@ -204,7 +204,7 @@ jobs:
                     sudo pip install --upgrade virtualenv
                     python -m venv venv || virtualenv venv
                     . venv/bin/activate
-                    pip install -r requirements.txt --quiet
+                    pip install -r dev-requirements.txt --quiet
                     npm install
 
             - run:
