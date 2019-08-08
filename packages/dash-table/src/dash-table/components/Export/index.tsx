@@ -10,11 +10,12 @@ interface IExportButtonProps {
     virtual_data: IDerivedData;
     visibleColumns: Columns;
     export_headers: string;
+    merge_duplicate_headers: boolean;
 }
 
 export default React.memo((props: IExportButtonProps) => {
 
-    const { columns, export_format, virtual_data, export_headers, visibleColumns } = props;
+    const { columns, export_format, virtual_data, export_headers, visibleColumns, merge_duplicate_headers } = props;
     const isFormatSupported = export_format === 'csv' || export_format === 'xlsx';
 
     const handleExport = () => {
@@ -22,7 +23,7 @@ export default React.memo((props: IExportButtonProps) => {
         const columnHeaders = visibleColumns.map(column => column.name);
         const maxLength = getHeaderRows(columns);
         const heading = (export_headers !== 'none') ? createHeadings(columnHeaders, maxLength) : [];
-        const ws = createWorksheet(heading, virtual_data.data, columnID, export_headers);
+        const ws = createWorksheet(heading, virtual_data.data, columnID, export_headers, merge_duplicate_headers);
         const wb = createWorkbook(ws);
         if (export_format === 'xlsx') {
             XLSX.writeFile(wb, 'Data.xlsx', {bookType: 'xlsx', type: 'buffer'});

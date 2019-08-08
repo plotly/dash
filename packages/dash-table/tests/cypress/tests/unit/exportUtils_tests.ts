@@ -218,11 +218,12 @@ describe('export', () => {
                 {col1: 1, col2: 2, col3: 3},
                 {col1: 2, col2: 3, col3: 4},
                 {col1: 1, col2: 2, col3: 3}
-            ];
+        ];
+        const columnID = ['col1', 'col2', 'col3'];
         it('create sheet with column names as headers for name or display header mode', () => {
-            const columnID = ['col1', 'col2', 'col3'];
-            const wsName = createWorksheet(Headings, data, columnID, 'names');
-            const wsDisplay = createWorksheet(Headings, data, columnID, 'display');
+            const wsName = createWorksheet(Headings, data, columnID, 'names', true);
+            const wsDisplay = createWorksheet(Headings, data, columnID, 'display', true);
+            const wsDisplayNoMerge = createWorksheet(Headings, data, columnID, 'display', false);
             const expectedWS = {
                 A1: {t: 's', v: 'rows'},
                 A2: {t: 's', v: 'rows'},
@@ -251,11 +252,11 @@ describe('export', () => {
                 {s: {r: 1, c: 1}, e: {r: 1, c: 2}},
                 {s: {r: 3, c: 0}, e: {r: 3, c: 2}} ];
             expect(wsName).to.deep.equal(expectedWS);
+            expect(wsDisplayNoMerge).to.deep.equal(expectedWS);
             expect(wsDisplay).to.deep.equal(expectedWSDisplay);
         });
         it('create sheet with column ids as headers', () => {
-            const columnID = ['col1', 'col2', 'col3'];
-            const ws = createWorksheet(Headings, data, columnID, 'ids');
+            const ws = createWorksheet(Headings, data, columnID, 'ids', true);
             const expectedWS = {
                 A1: {t: 's', v: 'col1'},
                 A2: {t: 'n', v: 1},
@@ -273,8 +274,7 @@ describe('export', () => {
             expect(ws).to.deep.equal(expectedWS);
         });
         it('create sheet with no headers', () => {
-            const columnID = ['col1', 'col2', 'col3'];
-            const ws = createWorksheet([], data, columnID, 'none');
+            const ws = createWorksheet([], data, columnID, 'none', true);
             const expectedWS = {
                 A1: {t: 'n', v: 1},
                 A2: {t: 'n', v: 2},
@@ -286,6 +286,34 @@ describe('export', () => {
                 C2: {t: 'n', v: 4},
                 C3: {t: 'n', v: 3}};
             expectedWS['!ref'] = 'A1:C3';
+            expect(ws).to.deep.equal(expectedWS);
+        });
+        it('create sheet with undefined column for clearable columns', () => {
+            const newData = [
+                {col2: 2, col3: 3},
+                {col2: 3, col3: 4},
+                {col2: 2, col3: 3}
+            ];
+            const ws = createWorksheet(Headings, newData, columnID, 'display', false);
+            const expectedWS = {A1: {t: 's', v: 'rows'},
+                    A2: {t: 's', v: 'rows'},
+                    A3: {t: 's', v: 'rows'},
+                    A4: {t: 's', v: 'rows'},
+                    B1: {t: 's', v: 'rows'},
+                    B2: {t: 's', v: 'c'},
+                    B3: {t: 's', v: 'e'},
+                    B4: {t: 's', v: 'rows'},
+                    B5: {t: 'n', v: 2},
+                    B6: {t: 'n', v: 3},
+                    B7: {t: 'n', v: 2},
+                    C1: {t: 's', v: 'b'},
+                    C2: {t: 's', v: 'c'},
+                    C3: {t: 's', v: 'f'},
+                    C4: {t: 's', v: 'rows'},
+                    C5: {t: 'n', v: 3},
+                    C6: {t: 'n', v: 4},
+                    C7: {t: 'n', v: 3}};
+            expectedWS['!ref'] = 'A1:C7';
             expect(ws).to.deep.equal(expectedWS);
         });
     });

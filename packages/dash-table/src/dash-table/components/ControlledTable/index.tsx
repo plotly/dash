@@ -786,13 +786,14 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             tooltip_duration
         );
 
-        const { export_format, export_headers, virtual } = this.props;
+        const { export_format, export_headers, virtual, merge_duplicate_headers } = this.props;
         const buttonProps = {
             export_format,
             virtual_data: virtual,
             columns,
             visibleColumns,
-            export_headers
+            export_headers,
+            merge_duplicate_headers
         };
 
         return (<div
