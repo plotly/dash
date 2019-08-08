@@ -12,6 +12,7 @@ jobs:
             environment:
                 PYTHON_VERSION: py27
                 PERCY_PARALLEL_TOTAL: '-1'
+          - image: percyio/agent
 
       steps:
           - checkout
@@ -53,6 +54,11 @@ jobs:
                     python --version
                     npm run test
 
+          - run:
+                name: Percy TearDown
+                command: percy --finalize -all
+                when: on_fail
+
   'python-3.6':
       <<: *test-template
       docker:
@@ -73,7 +79,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - 'python-2.7'
+      - python-2.7
       - "percy-finalize":
           requires:
             - 'python-2.7'

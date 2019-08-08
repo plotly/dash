@@ -46,7 +46,7 @@ export default class DatePickerRange extends Component {
     }
 
     onDatesChange({startDate: start_date, endDate: end_date}) {
-        const {setProps, updatemode} = this.props;
+        const {setProps, updatemode, clearable} = this.props;
 
         const oldMomentDates = convertToMoment(this.state, [
             'start_date',
@@ -70,6 +70,16 @@ export default class DatePickerRange extends Component {
                     end_date: end_date.format('YYYY-MM-DD'),
                 });
             }
+        }
+
+        if (
+            clearable &&
+            !start_date &&
+            !end_date &&
+            (oldMomentDates.start_date !== start_date ||
+                oldMomentDates.end_date !== end_date)
+        ) {
+            setProps({start_date: null, end_date: null});
         }
     }
 

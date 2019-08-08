@@ -1186,60 +1186,6 @@ class Tests(IntegrationTests):
 
         self.assertNotEqual(graph_1.get_attribute('id'), graph_2.get_attribute('id'))
 
-    def test_datepickerrange_updatemodes(self):
-        app = dash.Dash(__name__)
-
-        app.layout = html.Div([
-            dcc.DatePickerRange(
-                id='date-picker-range',
-                start_date_id='startDate',
-                end_date_id='endDate',
-                start_date_placeholder_text='Select a start date!',
-                end_date_placeholder_text='Select an end date!',
-                updatemode='bothdates'
-            ),
-            html.Div(id='date-picker-range-output')
-        ])
-
-        @app.callback(
-            dash.dependencies.Output('date-picker-range-output', 'children'),
-            [dash.dependencies.Input('date-picker-range', 'start_date'),
-             dash.dependencies.Input('date-picker-range', 'end_date')])
-        def update_output(start_date, end_date):
-            return '{} - {}'.format(start_date, end_date)
-
-        self.startServer(app=app)
-
-        start_date = self.wait_for_element_by_css_selector('#startDate')
-        start_date.click()
-
-        end_date = self.wait_for_element_by_css_selector('#endDate')
-        end_date.click()
-
-        self.wait_for_text_to_equal('#date-picker-range-output', 'None - None')
-
-        # using mouse click with fixed day range, this can be improved
-        # once we start refactoring the test structure
-        start_date.click()
-
-        sday = self.driver.find_element_by_xpath("//td[text()='1' and @tabindex='0']")
-        sday.click()
-        self.wait_for_text_to_equal('#date-picker-range-output', 'None - None')
-
-        eday = self.driver.find_elements_by_xpath("//td[text()='28']")[1]
-        eday.click()
-
-        date_tokens = set(start_date.get_attribute('value').split('/'))
-        date_tokens.update(end_date.get_attribute('value').split('/'))
-
-        self.assertEqual(
-            set(itertools.chain(*[
-                _.split('-')
-                for _ in self.driver.find_element_by_css_selector(
-                    '#date-picker-range-output').text.split(' - ')])),
-            date_tokens,
-            "date should match the callback output")
-
     def test_interval(self):
         app = dash.Dash(__name__)
         app.layout = html.Div([
