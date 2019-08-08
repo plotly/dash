@@ -123,21 +123,17 @@ export const propTypes = {
          * If true, the user can clear the column by clicking on the `clear`
          * action button on the column. If there are multiple header rows, true
          * will display the action button on each row.
-         *
          * If `last`, the `clear` action button will only appear on the last header
          * row. If `first` it will only appear on the first header row. These
          * are respectively shortcut equivalents to `[false, ..., false, true]` and
          * `[true, ..., true, false]`.
-         *
          * If there are merged, multi-header columns then you can choose
          * which column header row to display the `clear` action button in by
          * supplying an array of booleans.
          * For example, `[true, false]` will display the `clear` action button
          * on the first row, but not the second row.
-         *
          * If the `clear` action button appears on a merged column, then clicking
          * on that button will clear *all* of the merged columns associated with it.
-         *
          * Unlike `column.deletable`, this action does not remove the column(s)
          * from the table. It only removed the associated entries from `data`.
          */
@@ -151,18 +147,15 @@ export const propTypes = {
          * If true, the user can remove the column by clicking on the `delete`
          * action button on the column. If there are multiple header rows, true
          * will display the action button on each row.
-         *
          * If `last`, the `delete` action button will only appear on the last header
          * row. If `first` it will only appear on the first header row. These
          * are respectively shortcut equivalents to `[false, ..., false, true]` and
          * `[true, ..., true, false]`.
-         *
          * If there are merged, multi-header columns then you can choose
          * which column header row to display the `delete` action button in by
          * supplying an array of booleans.
          * For example, `[true, false]` will display the `delete` action button
          * on the first row, but not the second row.
-         *
          * If the `delete` action button appears on a merged column, then clicking
          * on that button will remove *all* of the merged columns associated with it.
          */
@@ -176,10 +169,8 @@ export const propTypes = {
          * There are two `editable` flags in the table.
          * This is the  column-level editable flag and there is
          * also the table-level `editable` flag.
-         *
          * These flags determine whether the contents of the table
          * are editable or not.
-         *
          * If the column-level `editable` flag is set it overrides
          * the table-level `editable` flag for that column.
          */
@@ -189,18 +180,15 @@ export const propTypes = {
          * If true, the user can hide the column by clicking on the `hide`
          * action button on the column. If there are multiple header rows, true
          * will display the action button on each row.
-         *
          * If `last`, the `hide` action button will only appear on the last header
          * row. If `first` it will only appear on the first header row. These
          * are respectively shortcut equivalents to `[false, ..., false, true]` and
          * `[true, ..., true, false]`.
-         *
          * If there are merged, multi-header columns then you can choose
          * which column header row to display the `hide` action button in by
          * supplying an array of booleans.
          * For example, `[true, false]` will display the `hide` action button
          * on the first row, but not the second row.
-         *
          * If the `hide` action button appears on a merged column, then clicking
          * on that button will hide *all* of the merged columns associated with it.
          */
@@ -214,18 +202,15 @@ export const propTypes = {
          * If true, the user can rename the column by clicking on the `rename`
          * action button on the column. If there are multiple header rows, true
          * will display the action button on each row.
-         *
          * If `last`, the `rename` action button will only appear on the last header
          * row. If `first` it will only appear on the first header row. These
          * are respectively shortcut equivalents to `[false, ..., false, true]` and
          * `[true, ..., true, false]`.
-         *
          * If there are merged, multi-header columns then you can choose
          * which column header row to display the `rename` action button in by
          * supplying an array of booleans.
          * For example, `[true, false]` will display the `rename` action button
          * on the first row, but not the second row.
-         *
          * If the `rename` action button appears on a merged column, then clicking
          * on that button will rename *all* of the merged columns associated with it.
          */
@@ -237,30 +222,26 @@ export const propTypes = {
 
         /**
          * The formatting applied to the column's data.
-         *
          * This prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from
          * being structured slightly differently (under a single prop), the usage
          * is the same.
-         *
-         * 'locale': represents localization specific formatting information
-         *   When left unspecified, will use the default value provided by d3-format.
-         *
-         *   'symbol': (default: ['$', '']) a list of two strings representing the
-         *   prefix and suffix symbols. Typically used for currency, and implemented using d3's
-         *   currency format, but you can use this for other symbols such as measurement units.
-         *   'decimal': (default: '.') the string used for the decimal separator
-         *   'group': (default: ',') the string used for the groups separator
-         *   'grouping': (default: [3]) a list of integers representing the grouping pattern
-         *   'numerals': a list of ten strings used as replacements for numbers 0-9
-         *   'percent': (default: '%') the string used for the percentage symbol
-         *   'separate_4digits': (default: True) separate integers with 4-digits or less
-         *
-         * 'nully': a value that will be used in place of the nully value during formatting
-         *   If the value type matches the column type, it will be formatted normally
-         * 'prefix': a number representing the SI unit to use during formatting
+         * 'locale': represents localization specific formatting information.
+         *  When left unspecified, will use the default value provided by d3-format.
+         *  The keys are as follows:
+         *  'symbol': (default: ['$', '']) a list of two strings representing the
+         *  prefix and suffix symbols. Typically used for currency, and implemented using d3's
+         *  currency format, but you can use this for other symbols such as measurement units;
+         *  'decimal': (default: '.') the string used for the decimal separator;
+         *  'group': (default: ',') the string used for the groups separator;
+         *  'grouping': (default: [3]) a list of integers representing the grouping pattern.
+         *  'numerals': a list of ten strings used as replacements for numbers 0-9;
+         *  'percent': (default: '%') the string used for the percentage symbol;
+         *  'separate_4digits': (default: True) separate integers with 4-digits or less.
+         * 'nully': a value that will be used in place of the nully value during formatting.
+         *   If the value type matches the column type, it will be formatted normally.
+         * 'prefix': a number representing the SI unit to use during formatting.
          *   See `dash_table.Format.Prefix` enumeration for the list of valid values
-         * 'specifier': (default: '') represents the rules to apply when formatting the number
-         *
+         * 'specifier': (default: '') represents the rules to apply when formatting the number.
          * dash_table.FormatTemplate contains helper functions to rapidly use certain
          * typical number formats.
          */
@@ -307,15 +288,14 @@ export const propTypes = {
         /**
          * The `on_change` behavior of the column for user-initiated modifications.
          * 'action' (default 'coerce'):
-         *  none: do not validate data
+         *  none: do not validate data;
          *  coerce: check if the data corresponds to the destination type and
-         *  attempts to coerce it into the destination type if not
-         *  validate: check if the data corresponds to the destination type (no coercion)
-         *
-         * 'failure' (default 'reject'): what to do with the value if the action fails
-         *  accept: use the invalid value
-         *  default: replace the provided value with `validation.default`
-         *  reject: do not modify the existing value
+         *  attempts to coerce it into the destination type if not;
+         *  validate: check if the data corresponds to the destination type (no coercion).
+         * 'failure' (default 'reject'): what to do with the value if the action fails:
+         *  accept: use the invalid value;
+         *  default: replace the provided value with `validation.default`;
+         *  reject: do not modify the existing value.
          */
         on_change: PropTypes.exact({
             action: PropTypes.oneOf([
@@ -343,8 +323,8 @@ export const propTypes = {
 
         /**
          * The `validation` options.
-         * 'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)
-         * 'default': The default value to apply with on_change.failure = 'default' (default: null)
+         * 'allow_null': Allow the use of nully values. (undefined, null, NaN) (default: false)
+         * 'default': The default value to apply with on_change.failure = 'default'. (default: null)
          * 'allow_YY': `datetime` columns only, allow 2-digit years (default: false).
          *   If true, we interpret years as ranging from now-70 to now+29 - in 2019
          *   this is 1949 to 2048 but in 2020 it will be different. If used with
@@ -358,8 +338,8 @@ export const propTypes = {
 
         /**
          * The data-type of the column's data.
-         * 'numeric': represents both floats and ints
-         * 'text': represents a string
+         * 'numeric': represents both floats and ints.
+         * 'text': represents a string.
          * 'datetime': a string representing a date or date-time, in the form:
          *   'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must
          *   have 4 digits, unless you use `validation.allow_YY: true`. Also
@@ -371,10 +351,8 @@ export const propTypes = {
          *   `validation.allow_YY: true` and do not coerce to 4-digit years.
          *   And parsers that do work with 2-digit years may make a different
          *   guess about the century than we make on the front end.
-         * 'any': represents any type of data
-         *
+         * 'any': represents any type of data.
          * Defaults to 'any' if undefined.
-         *
          * NOTE: This feature has not been fully implemented.
          * In the future, it's data types will impact things like
          * text formatting options in the cell (e.g. display 2 decimals
@@ -394,20 +372,17 @@ export const propTypes = {
 
     /**
      * The localization specific formatting information applied to all columns in the table.
-     *
      * This prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.
-     *
      * When left unspecified, each individual nested prop will default to a pre-determined value.
-     *
      *   'symbol': (default: ['$', '']) a list of two strings representing the
      *   prefix and suffix symbols. Typically used for currency, and implemented using d3's
      *   currency format, but you can use this for other symbols such as measurement units.
-     *   'decimal': (default: '.') the string used for the decimal separator
-     *   'group': (default: ',') the string used for the groups separator
-     *   'grouping': (default: [3]) a list of integers representing the grouping pattern
-     *   'numerals': a list of ten strings used as replacements for numbers 0-9
-     *   'percent': (default: '%') the string used for the percentage symbol
-     *   'separate_4digits': (default: True) separate integers with 4-digits or less
+     *   'decimal': (default: '.') the string used for the decimal separator.
+     *   'group': (default: ',') the string used for the groups separator.
+     *   'grouping': (default: [3]) a list of integers representing the grouping pattern.
+     *   'numerals': a list of ten strings used as replacements for numbers 0-9.
+     *   'percent': (default: '%') the string used for the percentage symbol.
+     *   'separate_4digits': (default: True) separate integers with 4-digits or less.
      */
     locale_format: PropTypes.exact({
         symbol: PropTypes.arrayOf(PropTypes.string),
@@ -424,12 +399,10 @@ export const propTypes = {
      * onto the page.
      * We recommend starting with the `style_*` properties
      * before using this `css` property.
-     *
      * Example:
      * [
      *     {"selector": ".dash-spreadsheet", "rule": 'font-family: "monospace"'}
      * ]
-     *
      */
     css: PropTypes.arrayOf(PropTypes.exact({
         selector: PropTypes.string.isRequired,
@@ -442,14 +415,11 @@ export const propTypes = {
      * Each item can also have an 'id' key, whose value is its row ID. If there
      * is a column with ID='id' this will display the row ID, otherwise it is
      * just used to reference the row for selections, filtering, etc.
-     *
      * Example:
-     *
      * [
      *      {'column-1': 4.5, 'column-2': 'montreal', 'column-3': 'canada'},
      *      {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}
      * ]
-     *
      */
     data: PropTypes.arrayOf(PropTypes.object),
 
@@ -476,7 +446,6 @@ export const propTypes = {
      * When `editable` is True, particular columns can be made
      * uneditable by setting `editable` to `False` inside the `columns`
      * property.
-     *
      * If False, then the data in all of the cells is uneditable.
      * When `editable` is False, particular columns can be made
      * editable by setting `editable` to `True` inside the `columns`
@@ -517,14 +486,13 @@ export const propTypes = {
 
     /**
      * `fill_width` toggles between a set of CSS for two common behaviors:
-     * - True: The table container's width will grow to fill the available space
-     * - False: The table container's width will equal the width of its content
+     * True: The table container's width will grow to fill the available space;
+     * False: The table container's width will equal the width of its content.
      */
     fill_width: PropTypes.bool,
 
     /**
      * List of columns ids of the columns that are currently hidden.
-     *
      * See the associated nested prop `columns.hideable`.
      */
     hidden_columns: PropTypes.arrayOf(PropTypes.string),
@@ -552,14 +520,11 @@ export const propTypes = {
      * they remain visible when scrolling horizontally across
      * the unfixed columns. `fixed_columns` fixes columns
      * from left-to-right.
-     *
      * If `headers` is False, no columns are fixed.
      * If `headers` is True, all operation columns (see `row_deletable` and `row_selectable`)
      * are fixed. Additional data columns can be fixed by
      * assigning a number to `data`.
-     *
      * Defaults to `{ headers: False }`.
-     *
      * Note that fixing columns introduces some changes to the
      * underlying markup of the table and may impact the
      * way that your columns are rendered or sized.
@@ -581,14 +546,11 @@ export const propTypes = {
      * they remain visible when scrolling vertically down
      * the table. `fixed_rows` fixes rows
      * from top-to-bottom, starting from the headers.
-     *
      * If `headers` is False, no rows are fixed.
      * If `headers` is True, all header and filter rows (see `filter_action`) are
      * fixed. Additional data rows can be fixed by assigning
      * a number to `data`.
-     *
      * Defaults to `{ headers: False }`.
-     *
      * Note that fixing rows introduces some changes to the
      * underlying markup of the table and may impact the
      * way that your columns are rendered or sized.
@@ -618,7 +580,6 @@ export const propTypes = {
      * via a checkbox that will appear next to each row.
      * If `False`, then the user will not be able to select rows
      * and no additional UI elements will appear.
-     *
      * When a row is selected, its index will be contained
      * in `selected_rows`.
      */
@@ -682,21 +643,19 @@ export const propTypes = {
      * are displayed (a "page") and the next subset of rows
      * can viewed by clicking "Next" or "Previous" buttons
      * at the bottom of the page.
-     *
      * Pagination is used to improve performance: instead of
      * rendering all of the rows at once (which can be expensive),
      * we only display a subset of them.
-     *
      * With pagination, we can either page through data that exists
      * in the table (e.g. page through `10,000` rows in `data` `100` rows at a time)
      * or we can update the data on-the-fly with callbacks
      * when the user clicks on the "Previous" or "Next" buttons.
      * These modes can be toggled with this `page_action` parameter:
-     * - `'native'`: all data is passed to the table up-front, paging logic is
-     * handled by the table
-     * - `'custom'`: data is passed to the table one page at a time, paging logic
-     * is handled via callbacks
-     * - `none`: disables paging, render all of the data at once
+     * `'native'`: all data is passed to the table up-front, paging logic is
+     * handled by the table;
+     * `'custom'`: data is passed to the table one page at a time, paging logic
+     * is handled via callbacks;
+     * `none`: disables paging, render all of the data at once.
      */
     page_action: PropTypes.oneOf(['custom', 'native', 'none']),
 
@@ -715,7 +674,6 @@ export const propTypes = {
 
     /**
      * `dropdown` specifies dropdown options for different columns.
-     *
      * Each entry refers to the column ID.
      * The `clearable` property defines whether the value can be deleted.
      * The `options` property refers to the `options` of the dropdown.
@@ -733,7 +691,6 @@ export const propTypes = {
 
     /**
      * `dropdown_conditional` specifies dropdown options in various columns and cells.
-     *
      * This property allows you to specify different dropdowns
      * depending on certain conditions. For example, you may
      * render different "city" dropdowns in a row depending on the
@@ -756,7 +713,6 @@ export const propTypes = {
 
     /**
      * `dropdown_data` specifies dropdown options on a row-by-row, column-by-column basis.
-     *
      * Each item in the array corresponds to the corresponding dropdowns for the `data` item
      * at the same index. Each entry in the item refers to the Column ID.
      */
@@ -792,7 +748,6 @@ export const propTypes = {
      * during which the tooltip is shown when hovering a cell.
      * This overrides the table's `tooltip_duration` property.
      * If set to `null`, the tooltip will not disappear.
-     *
      * Alternatively, the value of the property can also be
      * a plain string. The `text` syntax will be used in
      * that case.
@@ -815,28 +770,23 @@ export const propTypes = {
     /**
      * `tooltip_conditional` represents the tooltip shown
      * for different columns and cells.
-     *
      * This property allows you to specify different tooltips for
      * depending on certain conditions. For example, you may have
      * different tooltips in the same column based on the value
      * of a certain data property.
-     *
      * Priority is from first to last defined conditional tooltip
      * in the list. Higher priority (more specific) conditional
      * tooltips should be put at the beginning of the list.
-     *
      * The `if` refers to the condition that needs to be fulfilled
      * in order for the associated tooltip configuration to be
      * used. If multiple conditions are defined, all conditions
      * must be met for the tooltip to be used by a cell.
-     *
      * The `if` nested property `column_id` refers to the column
      * ID that must be matched.
      * The `if` nested property `row_index` refers to the index
      * of the row in the source `data`.
      * The `if` nested property `filter_query` refers to the query that
      * must evaluate to True.
-     *
      * The `type` refers to the type of tooltip syntax used
      * for the tooltip generation. Can either be `markdown`
      * or `text`. Defaults to `text`.
@@ -878,7 +828,6 @@ export const propTypes = {
      * The `property` name refers to the column ID. Each property
      * contains a list of tooltips mapped to the source `data`
      * row index.
-     *
      * The `type` refers to the type of tooltip syntax used
      * for the tooltip generation. Can either be `markdown`
      * or `text`. Defaults to `text`.
@@ -892,7 +841,6 @@ export const propTypes = {
      * during which the tooltip is shown when hovering a cell.
      * This overrides the table's `tooltip_duration` property.
      * If set to `null`, the tooltip will not disappear.
-     *
      * Alternatively, the value of the property can also be
      * a plain string. The `text` syntax will be used in
      * that case.
@@ -916,7 +864,6 @@ export const propTypes = {
      * `tooltip_delay` represents the table-wide delay in milliseconds before
      * the tooltip is shown when hovering a cell. If set to `null`, the tooltip
      * will be shown immediately.
-     *
      * Defaults to 350.
      */
     tooltip_delay: PropTypes.number,
@@ -925,7 +872,6 @@ export const propTypes = {
      * `tooltip_duration` represents the table-wide duration in milliseconds
      * during which the tooltip will be displayed when hovering a cell. If
      * set to `null`, the tooltip will not disappear.
-     *
      * Defaults to 2000.
      */
     tooltip_duration: PropTypes.number,
@@ -939,8 +885,7 @@ export const propTypes = {
 
     /**
      * The `filter_action` property controls the behavior of the `filtering` UI.
-     *
-     * If `'none'`, then the filtering UI is not displayed
+     * If `'none'`, then the filtering UI is not displayed.
      * If `'native'`, then the filtering UI is displayed and the filtering
      * logic is handled by the table. That is, it is performed on the data
      * that exists in the `data` property.
@@ -954,7 +899,6 @@ export const propTypes = {
     /**
      * The `sort_action` property enables data to be
      * sorted on a per-column basis.
-     *
      * If `'none'`, then the sorting UI is not displayed.
      * If `'native'`, then the sorting UI is displayed and the sorting
      * logic is hanled by the table. That is, it is performed on the data
@@ -963,7 +907,6 @@ export const propTypes = {
      * responsibility of the developer to program the sorting
      * through a callback (where `sort_by` would be the input and `data`
      * would be the output).
-     *
      * Clicking on the sort arrows will update the
      * `sort_by` property.
      */
@@ -973,7 +916,6 @@ export const propTypes = {
      * Sorting can be performed across multiple columns
      * (e.g. sort by country, sort within each country,
      *  sort by year) or by a single column.
-     *
      * NOTE - With multi-column sort, it's currently
      * not possible to determine the order in which
      * the columns were sorted through the UI.
@@ -1002,7 +944,6 @@ export const propTypes = {
      * An array of string, number and boolean values that are treated as `null`
      * (i.e. ignored and always displayed last) when sorting.
      * This value will be used by columns without `sort_as_null`.
-     *
      * Defaults to `[]`.
      */
     sort_as_null: PropTypes.arrayOf(PropTypes.oneOfType([
@@ -1013,7 +954,6 @@ export const propTypes = {
 
     /**
      * CSS styles to be applied to the outer `table` container.
-     *
      * This is commonly used for setting properties like the
      * width or the height of the table.
      */
@@ -1021,7 +961,6 @@ export const propTypes = {
 
     /**
      * CSS styles to be applied to each individual cell of the table.
-     *
      * This includes the header cells, the `data` cells, and the filter
      * cells.
      */
@@ -1029,14 +968,12 @@ export const propTypes = {
 
     /**
      * CSS styles to be applied to each individual data cell.
-     *
      * That is, unlike `style_cell`, it excludes the header and filter cells.
      */
     style_data: PropTypes.object,
 
     /**
      * CSS styles to be applied to the filter cells.
-     *
      * Note that this may change in the future as we build out a
      * more complex filtering UI.
      */
@@ -1044,14 +981,12 @@ export const propTypes = {
 
     /**
      * CSS styles to be applied to each individual header cell.
-     *
      * That is, unlike `style_cell`, it excludes the `data` and filter cells.
      */
     style_header: PropTypes.object,
 
     /**
      * Conditional CSS styles for the cells.
-     *
      * This can be used to apply styles to cells on a per-column basis.
      */
     style_cell_conditional: PropTypes.arrayOf(PropTypes.shape({
@@ -1063,7 +998,6 @@ export const propTypes = {
 
     /**
      * Conditional CSS styles for the data cells.
-     *
      * This can be used to apply styles to data cells on a per-column basis.
      */
     style_data_conditional: PropTypes.arrayOf(PropTypes.shape({
@@ -1081,7 +1015,6 @@ export const propTypes = {
 
     /**
      * Conditional CSS styles for the filter cells.
-     *
      * This can be used to apply styles to filter cells on a per-column basis.
      */
     style_filter_conditional: PropTypes.arrayOf(PropTypes.shape({
@@ -1094,7 +1027,6 @@ export const propTypes = {
 
     /**
      * Conditional CSS styles for the header cells.
-     *
      * This can be used to apply styles to header cells on a per-column basis.
      */
     style_header_conditional: PropTypes.arrayOf(PropTypes.shape({
@@ -1111,38 +1043,35 @@ export const propTypes = {
 
     /**
      * This property tells the table to use virtualization when rendering.
-     *
      * Assumptions are that:
-     * - the width of the columns is fixed
-     * - the height of the rows is always the same
-     * - runtime styling changes will not affect width and height vs. first rendering
+     * the width of the columns is fixed;
+     * the height of the rows is always the same; and
+     * runtime styling changes will not affect width and height vs. first rendering
      */
     virtualization: PropTypes.bool,
 
     /**
      * This property represents the current structure of
      * `filter_query` as a tree structure. Each node of the
-     * query structure have:
-     * - type (string; required)
-     *   - 'open-block'
-     *   - 'logical-operator'
-     *   - 'relational-operator'
-     *   - 'unary-operator'
-     *   - 'expression'
-     * - subType (string; optional)
-     *   - 'open-block': '()'
-     *   - 'logical-operator': '&&', '||'
-     *   - 'relational-operator': '=', '>=', '>', '<=', '<', '!=', 'contains'
-     *   - 'unary-operator': '!', 'is bool', 'is even', 'is nil', 'is num', 'is object', 'is odd', 'is prime', 'is str'
-     *   - 'expression': 'value', 'field'
-     * - value (any)
-     *   - 'expression, value': passed value
-     *   - 'expression, field': the field/prop name
-     *
-     * - block (nested query structure; optional)
-     * - left (nested query structure; optional)
-     * - right (nested query structure; optional)
-     *
+     * query structure has:
+     * type (string; required):
+     *   'open-block',
+     *   'logical-operator',
+     *   'relational-operator',
+     *   'unary-operator', or
+     *   'expression';
+     * subType (string; optional):
+     *   'open-block': '()',
+     *   'logical-operator': '&&', '||',
+     *   'relational-operator': '=', '>=', '>', '<=', '<', '!=', 'contains',
+     *   'unary-operator': '!', 'is bool', 'is even', 'is nil', 'is num', 'is object', 'is odd', 'is prime', 'is str',
+     *   'expression': 'value', 'field';
+     * value (any):
+     *   'expression, value': passed value,
+     *   'expression, field': the field/prop name.
+     * block (nested query structure; optional).
+     * left (nested query structure; optional).
+     * right (nested query structure; optional).
      * If the query is invalid or empty, the `derived_filter_query_structure` will
      * be null.
      */
