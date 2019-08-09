@@ -232,6 +232,34 @@ class Browser(DashPageMixin):
                 )
             )
 
+    def select_dcc_dropdown(self, selector, value=None, index=None):
+        dropdown = self.driver.find_element_by_css_selector(selector)
+        dropdown.click()
+
+        menu = dropdown.find_element_by_css_selector("div.Select-menu-outer")
+        logger.debug(
+            "the available options are %s", "|".join(menu.text.split("\n"))
+        )
+
+        options = menu.find_elements_by_css_selector(
+            "div.VirtualizedSelectOption"
+        )
+        if options:
+            if isinstance(index, int):
+                options[index].click()
+                return
+
+            for option in options:
+                if option.text == value:
+                    option.click()
+                    return
+
+        logger.error(
+            "cannot find matching option using value=%s or index=%s",
+            value,
+            index,
+        )
+
     def toggle_window(self):
         """switch between the current working window and the new opened one"""
         idx = (self._window_idx + 1) % 2
