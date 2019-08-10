@@ -19,7 +19,7 @@ from textwrap import dedent
 import flask
 from flask import Flask, Response
 from flask_compress import Compress
-from werkzeug.debug import get_current_traceback
+from werkzeug.debug.tbtools import get_current_traceback
 
 import plotly
 import dash_renderer
