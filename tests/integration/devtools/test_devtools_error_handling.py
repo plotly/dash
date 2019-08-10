@@ -68,16 +68,16 @@ def test_dveh001_python_errors(dash_duo):
     # the top (first) error is the most recent one - ie from the second click
     error0 = get_error_html(dash_duo, 0)
     # user part of the traceback shown by default
-    assert 'update_output' in error0
+    assert 'in update_output' in error0
     assert 'Special 2 clicks exception' in error0
-    assert 'bad_sub' not in error0
+    assert 'in bad_sub' not in error0
     # dash and flask part of the traceback not included
     assert '%% callback invoked %%' not in error0
     assert 'self.wsgi_app' not in error0
 
     error1 = get_error_html(dash_duo, 1)
-    assert 'update_output' in error1
-    assert 'bad_sub' in error1
+    assert 'in update_output' in error1
+    assert 'in bad_sub' in error1
     assert 'ZeroDivisionError' in error1
     assert '%% callback invoked %%' not in error1
     assert 'self.wsgi_app' not in error1
@@ -102,17 +102,17 @@ def test_dveh006_long_python_errors(dash_duo):
     dash_duo.find_element(".test-devtools-error-toggle").click()
 
     error0 = get_error_html(dash_duo, 0)
-    assert 'update_output' in error0
+    assert 'in update_output' in error0
     assert 'Special 2 clicks exception' in error0
-    assert 'bad_sub' not in error0
+    assert 'in bad_sub' not in error0
     # dash and flask part of the traceback ARE included
     # since we set dev_tools_prune_errors=False
     assert '%% callback invoked %%' in error0
     assert 'self.wsgi_app' in error0
 
     error1 = get_error_html(dash_duo, 1)
-    assert 'update_output' in error1
-    assert 'bad_sub' in error1
+    assert 'in update_output' in error1
+    assert 'in bad_sub' in error1
     assert 'ZeroDivisionError' in error1
     assert '%% callback invoked %%' in error1
     assert 'self.wsgi_app' in error1
