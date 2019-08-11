@@ -195,7 +195,7 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate
-            cd packages && ls -la && pip list | grep dash | xargs pip uninstall -y || true
+            cd packages && ls -la && pip uninstall -y dash dash-core-components dash-html-components dash-table || true
             find . -name "*.gz" | xargs pip install --quiet && cd .. && pip list | grep dash
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
