@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 
-def test_dveh001_python_errors(dash_duo):
+def app_with_errors():
     app = dash.Dash(__name__)
 
     app.layout = html.Div(
@@ -19,9 +19,25 @@ def test_dveh001_python_errors(dash_duo):
     @app.callback(Output("output", "children"), [Input("python", "n_clicks")])
     def update_output(n_clicks):
         if n_clicks == 1:
-            1 / 0
+            return bad_sub()
         elif n_clicks == 2:
             raise Exception("Special 2 clicks exception")
+
+    def bad_sub():
+        return 1 / 0
+
+    return app
+
+
+def get_error_html(dash_duo, index):
+    # error is in an iframe so is annoying to read out - get it from the store
+    return dash_duo.driver.execute_script(
+        "return store.getState().error.backEnd[{}].error.html;".format(index)
+    )
+
+
+def test_dveh001_python_errors(dash_duo):
+    app = app_with_errors()
 
     dash_duo.start_server(
         app,
@@ -48,6 +64,58 @@ def test_dveh001_python_errors(dash_duo):
 
     dash_duo.find_element(".test-devtools-error-toggle").click()
     dash_duo.percy_snapshot("devtools - python exception - 2 errors open")
+
+    # the top (first) error is the most recent one - ie from the second click
+    error0 = get_error_html(dash_duo, 0)
+    # user part of the traceback shown by default
+    assert 'in update_output' in error0
+    assert 'Special 2 clicks exception' in error0
+    assert 'in bad_sub' not in error0
+    # dash and flask part of the traceback not included
+    assert '%% callback invoked %%' not in error0
+    assert 'self.wsgi_app' not in error0
+
+    error1 = get_error_html(dash_duo, 1)
+    assert 'in update_output' in error1
+    assert 'in bad_sub' in error1
+    assert 'ZeroDivisionError' in error1
+    assert '%% callback invoked %%' not in error1
+    assert 'self.wsgi_app' not in error1
+
+
+def test_dveh006_long_python_errors(dash_duo):
+    app = app_with_errors()
+
+    dash_duo.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+        dev_tools_prune_errors=False,
+    )
+
+    dash_duo.find_element("#python").click()
+    dash_duo.find_element("#python").click()
+    dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "2")
+
+    dash_duo.find_element(".test-devtools-error-toggle").click()
+
+    error0 = get_error_html(dash_duo, 0)
+    assert 'in update_output' in error0
+    assert 'Special 2 clicks exception' in error0
+    assert 'in bad_sub' not in error0
+    # dash and flask part of the traceback ARE included
+    # since we set dev_tools_prune_errors=False
+    assert '%% callback invoked %%' in error0
+    assert 'self.wsgi_app' in error0
+
+    error1 = get_error_html(dash_duo, 1)
+    assert 'in update_output' in error1
+    assert 'in bad_sub' in error1
+    assert 'ZeroDivisionError' in error1
+    assert '%% callback invoked %%' in error1
+    assert 'self.wsgi_app' in error1
 
 
 def test_dveh002_prevent_update_not_in_error_msg(dash_duo):

@@ -19,6 +19,7 @@ from textwrap import dedent
 import flask
 from flask import Flask, Response
 from flask_compress import Compress
+from werkzeug.debug.tbtools import get_current_traceback
 
 import plotly
 import dash_renderer
@@ -1168,7 +1169,8 @@ class Dash(object):
         def wrap_func(func):
             @wraps(func)
             def add_context(*args, **kwargs):
-                output_value = func(*args, **kwargs)
+                # don't touch the comment on the next line - used by debugger
+                output_value = func(*args, **kwargs)  # %% callback invoked %%
                 if multi:
                     if not isinstance(output_value, (list, tuple)):
                         raise exceptions.InvalidCallbackReturnValue(
@@ -1390,7 +1392,8 @@ class Dash(object):
                 'props_check',
                 'serve_dev_bundles',
                 'hot_reload',
-                'silence_routes_logging'
+                'silence_routes_logging',
+                'prune_errors'
         ):
             dev_tools[attr] = get_combined_config(
                 attr, kwargs.get(attr, None), default=debug
@@ -1419,7 +1422,8 @@ class Dash(object):
             dev_tools_hot_reload_interval=None,
             dev_tools_hot_reload_watch_interval=None,
             dev_tools_hot_reload_max_retry=None,
-            dev_tools_silence_routes_logging=None):
+            dev_tools_silence_routes_logging=None,
+            dev_tools_prune_errors=None):
         """
         Activate the dev tools, called by `run_server`. If your application is
         served by wsgi and you want to activate the dev tools, you can call
@@ -1483,6 +1487,11 @@ class Dash(object):
             env: ``DASH_SILENCE_ROUTES_LOGGING``
         :type dev_tools_silence_routes_logging: bool
 
+        :param dev_tools_prune_errors: Reduce tracebacks to just user code,
+            stripping out Flask and Dash pieces. `True` by default, set to
+            `False` to see the complete traceback.
+        :type dev_tools_prune_errors: bool
+
         :return: debug
         """
         if debug is None:
@@ -1497,7 +1506,8 @@ class Dash(object):
             hot_reload_interval=dev_tools_hot_reload_interval,
             hot_reload_watch_interval=dev_tools_hot_reload_watch_interval,
             hot_reload_max_retry=dev_tools_hot_reload_max_retry,
-            silence_routes_logging=dev_tools_silence_routes_logging
+            silence_routes_logging=dev_tools_silence_routes_logging,
+            prune_errors=dev_tools_prune_errors
         )
 
         if dev_tools.silence_routes_logging:
@@ -1526,6 +1536,21 @@ class Dash(object):
             )
             _reload.watch_thread.daemon = True
             _reload.watch_thread.start()
+
+        if debug and dev_tools.prune_errors:
+            @self.server.errorhandler(Exception)
+            def _wrap_errors(_):
+                # find the callback invocation, if the error is from a callback
+                # and skip the traceback up to that point
+                # if the error didn't come from inside a callback, we won't
+                # skip anything.
+                tb = get_current_traceback()
+                skip = 0
+                for i, line in enumerate(tb.plaintext.splitlines()):
+                    if "%% callback invoked %%" in line:
+                        skip = int((i + 1) / 2)
+                        break
+                return get_current_traceback(skip=skip).render_full(), 500
 
         if (debug and dev_tools.serve_dev_bundles and
                 not self.scripts.config.serve_locally):
@@ -1594,6 +1619,7 @@ class Dash(object):
             dev_tools_hot_reload_watch_interval=None,
             dev_tools_hot_reload_max_retry=None,
             dev_tools_silence_routes_logging=None,
+            dev_tools_prune_errors=None,
             **flask_run_options):
         """
         Start the flask server in local mode, you should not run this on a
@@ -1652,6 +1678,11 @@ class Dash(object):
             env: ``DASH_SILENCE_ROUTES_LOGGING``
         :type dev_tools_silence_routes_logging: bool
 
+        :param dev_tools_prune_errors: Reduce tracebacks to just user code,
+            stripping out Flask and Dash pieces. Only available with debugging.
+            `True` by default, set to `False` to see the complete traceback.
+        :type dev_tools_prune_errors: bool
+
         :param flask_run_options: Given to `Flask.run`
 
         :return:
@@ -1666,6 +1697,7 @@ class Dash(object):
             dev_tools_hot_reload_watch_interval,
             dev_tools_hot_reload_max_retry,
             dev_tools_silence_routes_logging,
+            dev_tools_prune_errors
         )
 
         if self._dev_tools.silence_routes_logging:

@@ -15,7 +15,7 @@ test_cases = {
         "fail": True,
         "name": 'missing required "value" inside options',
         "component": dcc.Checklist,
-        "props": {"options": [{"label": "hello"}], "values": ["test"]},
+        "props": {"options": [{"label": "hello"}], "value": ["test"]},
     },
     "invalid-nested-prop": {
         "fail": True,
@@ -23,14 +23,14 @@ test_cases = {
         "component": dcc.Checklist,
         "props": {
             "options": [{"label": "hello", "value": True}],
-            "values": ["test"],
+            "value": ["test"],
         },
     },
     "invalid-arrayOf": {
         "fail": True,
         "name": "invalid arrayOf",
         "component": dcc.Checklist,
-        "props": {"options": "test", "values": []},
+        "props": {"options": "test", "value": []},
     },
     "invalid-oneOf": {
         "fail": True,
@@ -82,7 +82,7 @@ test_cases = {
         "component": dcc.Checklist,
         "props": {
             "options": [{"label": "hello", "value": "test"}],
-            "values": "test",
+            "value": "test",
         },
     },
     "no-properties": {
