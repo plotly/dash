@@ -183,7 +183,6 @@ jobs:
         environment:
           PERCY_PARALLEL_TOTAL: '-1'
           PYVERSION: python37
-          PERCY_ENABLE: '0'
     parallelism: 1
     steps:
       - checkout
@@ -198,8 +197,7 @@ jobs:
             . venv/bin/activate && cd packages && ls -la
             find . -name "*.gz" | xargs pip install --force-reinstall && pip list | grep dash && cd ..
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --headless tests/integration/test_calendar_props.py
-            # pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
+            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
           path: test-reports
       - store_test_results:
