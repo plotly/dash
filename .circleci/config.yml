@@ -183,7 +183,7 @@ jobs:
         environment:
           PERCY_PARALLEL_TOTAL: '-1'
           PYVERSION: python37
-    parallelism: 1
+    parallelism: 3
     steps:
       - checkout
       - run: echo $PYVERSION > ver.txt
