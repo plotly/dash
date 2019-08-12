@@ -1443,6 +1443,7 @@ class Dash(object):
             - DASH_HOT_RELOAD_WATCH_INTERVAL
             - DASH_HOT_RELOAD_MAX_RETRY
             - DASH_SILENCE_ROUTES_LOGGING
+            - DASH_PRUNE_ERRORS
 
         :param debug: Enable/disable all the dev tools unless overridden by the
             arguments or environment variables. Default is ``True`` when
@@ -1488,8 +1489,9 @@ class Dash(object):
         :type dev_tools_silence_routes_logging: bool
 
         :param dev_tools_prune_errors: Reduce tracebacks to just user code,
-            stripping out Flask and Dash pieces. `True` by default, set to
-            `False` to see the complete traceback.
+            stripping out Flask and Dash pieces. Only available with debugging.
+            `True` by default, set to `False` to see the complete traceback.
+            env: ``DASH_PRUNE_ERRORS``
         :type dev_tools_prune_errors: bool
 
         :return: debug
@@ -1681,6 +1683,7 @@ class Dash(object):
         :param dev_tools_prune_errors: Reduce tracebacks to just user code,
             stripping out Flask and Dash pieces. Only available with debugging.
             `True` by default, set to `False` to see the complete traceback.
+            env: ``DASH_PRUNE_ERRORS``
         :type dev_tools_prune_errors: bool
 
         :param flask_run_options: Given to `Flask.run`
