@@ -40,7 +40,6 @@ class IntegrationTests(unittest.TestCase):
     def tearDownClass(cls):
         super(IntegrationTests, cls).tearDownClass()
         cls.driver.quit()
-        cls.percy_runner.finalize_build()
 
     def setUp(self):
         pass
