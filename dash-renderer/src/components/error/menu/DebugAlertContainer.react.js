@@ -32,7 +32,7 @@ class DebugAlertContainer extends Component {
 DebugAlertContainer.propTypes = {
     errors: PropTypes.object,
     alertsOpened: PropTypes.bool,
-    onClick: PropTypes.function,
+    onClick: PropTypes.func,
 };
 
 export {DebugAlertContainer};
