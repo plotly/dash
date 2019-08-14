@@ -64,4 +64,4 @@ npm-debug*
 
 dash_renderer/bundle.js
 dash_renderer/bundle.js.map
-
+dash_renderer/dash_renderer.*
