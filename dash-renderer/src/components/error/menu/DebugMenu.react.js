@@ -154,8 +154,8 @@ DebugMenu.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
     dependenciesRequest: PropTypes.object,
-    resolveError: PropTypes.function,
-    dispatch: PropTypes.function,
+    resolveError: PropTypes.func,
+    dispatch: PropTypes.func,
 };
 
 export {DebugMenu};
