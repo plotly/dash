@@ -33,7 +33,7 @@
     "cross-env": "^4.0.0",
     "dependency-graph": "^0.5.0",
     "json-loader": "^0.5.4",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "prop-types": "^15.6.2",
     "query-string": "^4.3.2",
     "radium": "^0.22.1",
