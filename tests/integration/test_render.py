@@ -748,7 +748,6 @@ class Tests(IntegrationTests):
             )
         self.assertEqual(call_counts['container'].value, 1)
 
-
     def test_multiple_properties_update_at_same_time_on_same_component(self):
         call_count = Value('i', 0)
         timestamp_1 = Value('d', -5)
