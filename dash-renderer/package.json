@@ -12,6 +12,7 @@
     "build:renderer": "webpack --mode development && webpack --mode production",
     "build:dev": "webpack --mode development --watch",
     "build": "renderer npm && renderer bundles",
+    "build:ci": "renderer npm && renderer bundles True",
     "start": "webpack-serve ./webpack.serve.config.js",
     "format": "prettier --config .prettierrc --write \"src/**/*.js\"",
     "format:test": "prettier --config .prettierrc \"src/**/*.js\" --list-different",

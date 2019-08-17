@@ -67,7 +67,7 @@ def npm():
 
 
 @job("parse package-lock.json and produce the bundles")
-def bundles():
+def bundles(ci=False):
     # make sure we start from fresh folder
     if os.path.exists(assets):
         logger.warning(u"🚨 %s already exists, remove it!", assets)
@@ -95,10 +95,16 @@ def bundles():
             _concat((assets, "{}@{}.min.js".format(name, version))),
         )
 
-        shutil.copyfile(
-            _concat((npm_modules, name) + bundle["dev"]),
-            _concat((assets, "{}@{}.js".format(name, version))),
-        )
+        if ci and name != 'prop-types':
+            shutil.copyfile(
+                _concat((npm_modules, name) + bundle["prod"]),
+                _concat((assets, "{}@{}.js".format(name, version))),
+            )
+        else:
+            shutil.copyfile(
+                _concat((npm_modules, name) + bundle["dev"]),
+                _concat((assets, "{}@{}.js".format(name, version))),
+            )
 
     # run build
     os.chdir(renderer)
