@@ -41,7 +41,9 @@ def _concat(paths):
     return os.path.realpath(os.path.sep.join(paths))
 
 
-root = _concat((__file__, *tuple(os.pardir for _ in range(3))))
+root = _concat(
+    (os.path.abspath(__file__), *tuple(os.pardir for _ in range(3)))
+)
 renderer = _concat((root, "dash-renderer"))
 assets = _concat((renderer, "dash_renderer"))
 package_lock = _concat((renderer, "package-lock.json"))
