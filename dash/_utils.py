@@ -1,6 +1,16 @@
+import shlex
+import sys
 import uuid
+import hashlib
 import collections
+import subprocess
+import logging
+from functools import wraps
+
 import six
+
+
+logger = logging.getLogger()
 
 
 def interpolate_str(template, **data):
@@ -116,3 +126,38 @@ def create_callback_id(output):
     return '{}.{}'.format(
         output.component_id, output.component_property
     )
+
+
+def run_command_with_process(cmd, logger=None):
+    logger = logger if logger else logging.getLogger(__name__)
+    proc = subprocess.Popen(
+        shlex.split(cmd, posix=sys.platform != 'win32')
+    )
+    proc.wait()
+    if proc.poll() is None:
+        logger.warning(u"🚨 trying to terminate subprocess in safe way")
+        try:
+            proc.communicate()
+        except Exception:  # pylint: disable=broad-except
+            logger.exception(u"🚨 first try communicate failed")
+            proc.kill()
+            proc.communicate()
+
+
+def compute_md5(path):
+    with open(path) as fp:
+        return hashlib.md5(fp.read().encode("utf-8")).hexdigest()
+
+
+def job(msg=""):
+    def wrapper(func):
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            logger.info(u" 🏗️  %s ️️🏗️️ ", msg)
+            res = func(*args, **kwargs)
+            logger.info(u"::: 🍻🍻🍻 job done 🍻🍻🍻 :::")
+            return res
+
+        return _wrapper
+
+    return wrapper
