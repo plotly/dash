@@ -10,6 +10,7 @@ import fire
 
 from .._utils import run_command_with_process, compute_md5, job
 
+
 logger = logging.getLogger(__name__)
 coloredlogs.install(
     fmt="%(asctime)s,%(msecs)03d %(levelname)s - %(message)s",
@@ -67,12 +68,13 @@ def bundles():
     # make sure we start from fresh folder
     if os.path.exists(assets):
         logger.warning("🚨 %s already exists, remove it!", assets)
-        try:
-            shutil.rmtree(assets)
-            os.makedirs(assets)
-        except OSError:
-            logger.exception("🚨 having issues manipulate %s", assets)
-            sys.exit(1)
+        shutil.rmtree(assets)
+
+    try:
+        os.makedirs(assets)
+    except OSError:
+        logger.exception("🚨 having issues manipulate %s", assets)
+        sys.exit(1)
 
     # parse the package-lock.json and copy bundles
     with open(package_lock, "r") as fp:
