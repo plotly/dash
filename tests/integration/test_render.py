@@ -748,57 +748,6 @@ class Tests(IntegrationTests):
             )
         self.assertEqual(call_counts['container'].value, 1)
 
-    def test_update_react_version(self):
-        import dash_renderer
-
-        self.assertEqual(
-            dash_renderer._js_dist_dependencies,
-            [{
-                'external_url': {
-                    'prod': [
-                        'https://unpkg.com/react@16.8.6/umd/react.production.min.js',
-                        'https://unpkg.com/react-dom@16.8.6/umd/react-dom.production.min.js',
-                        'https://unpkg.com/prop-types@15.7.2/prop-types.min.js'
-                    ],
-                    'dev': [
-                        'https://unpkg.com/react@16.8.6/umd/react.production.min.js',
-                        'https://unpkg.com/react-dom@16.8.6/umd/react-dom.production.min.js',
-                        'https://unpkg.com/prop-types@15.7.2/prop-types.js'
-                    ]
-                },
-                'relative_package_path': {
-                    'prod': [
-                        'react@16.8.6.min.js',
-                        'react-dom@16.8.6.min.js',
-                        'prop-types@15.7.2.min.js'
-                    ],
-                    'dev': [
-                        'react@16.8.6.min.js',
-                        'react-dom@16.8.6.min.js',
-                        'prop-types@15.7.2.js'
-                    ]
-                },
-                'namespace': 'dash_renderer',
-            }])
-
-        app = dash.Dash()
-
-        # Create a dummy component with no props
-        # (dash-html-components may not support tested React version)
-        class TestComponent(Component):
-            def __init__(self, _namespace):
-                self._type = 'TestComponent'
-                self._prop_names = []
-                self._namespace = _namespace
-                self._valid_wildcard_attributes = []
-                self.available_properties = []
-                self.available_wildcard_properties = []
-                super(TestComponent, self).__init__()
-
-        _test_component = TestComponent(_namespace='test-namespace')
-        app.layout = _test_component
-
-        self.startServer(app)
 
     def test_multiple_properties_update_at_same_time_on_same_component(self):
         call_count = Value('i', 0)
