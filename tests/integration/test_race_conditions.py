@@ -16,7 +16,7 @@ class Tests(IntegrationTests):
         pass
 
 
-DELAY_TIME = 0.7
+DELAY_TIME = 0.2
 
 
 def create_race_conditions_test(endpoints):
