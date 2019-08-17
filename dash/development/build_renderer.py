@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import json
@@ -40,7 +41,7 @@ def _concat(paths):
     return os.path.realpath(os.path.sep.join(paths))
 
 
-root = _concat((__file__, *(os.pardir for _ in range(3))))
+root = _concat((__file__, *tuple(os.pardir for _ in range(3))))
 renderer = _concat((root, "dash-renderer"))
 assets = _concat((renderer, "dash_renderer"))
 package_lock = _concat((renderer, "package-lock.json"))
@@ -67,13 +68,13 @@ def npm():
 def bundles():
     # make sure we start from fresh folder
     if os.path.exists(assets):
-        logger.warning("🚨 %s already exists, remove it!", assets)
+        logger.warning(u"🚨 %s already exists, remove it!", assets)
         shutil.rmtree(assets)
 
     try:
         os.makedirs(assets)
     except OSError:
-        logger.exception("🚨 having issues manipulate %s", assets)
+        logger.exception(u"🚨 having issues manipulate %s", assets)
         sys.exit(1)
 
     # parse the package-lock.json and copy bundles

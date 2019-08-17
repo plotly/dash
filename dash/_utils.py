@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import shlex
 import sys
 import uuid
