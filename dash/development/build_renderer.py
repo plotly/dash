@@ -42,7 +42,7 @@ def _concat(paths):
 
 
 root = _concat(
-    (os.path.abspath(__file__), *tuple(os.pardir for _ in range(3)))
+    [os.path.abspath(__file__)] + [os.pardir for _ in range(3)]
 )
 renderer = _concat((root, "dash-renderer"))
 assets = _concat((renderer, "dash_renderer"))
@@ -91,12 +91,12 @@ def bundles():
         logger.info("processing bundle => %s@%s", name, version)
 
         shutil.copyfile(
-            _concat((npm_modules, name, *bundle["prod"])),
+            _concat((npm_modules, name) + bundle["prod"]),
             _concat((assets, "{}@{}.min.js".format(name, version))),
         )
 
         shutil.copyfile(
-            _concat((npm_modules, name, *bundle["dev"])),
+            _concat((npm_modules, name) + bundle["dev"]),
             _concat((assets, "{}@{}.js".format(name, version))),
         )
 
