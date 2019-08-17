@@ -147,9 +147,9 @@ def compute_md5(path):
     with open(path) as fp:
         content = fp.read()
         try:
-            buf = content.encode("utf-8")
-        except UnicodeDecodeError:
-            buf = content.decode('utf-8')
+            buf = unicode(content, 'utf-8').encode('utf-8')  # noqa:F821
+        except NameError:
+            buf = content.encode('utf-8')
         return hashlib.md5(buf).hexdigest()
 
 
