@@ -8,12 +8,19 @@ Glad that you decided to make your contribution in Dash, to set up your developm
 # in your working directory
 $ git clone https://github.com/plotly/dash
 $ cd dash
-# create a virtualenv
-$ python3 -m venv venv
-# activate the virtualenv (on windows venv\scripts\activate)
-$ . venv/bin/activate
-# Install the dev dependencies
-$ pip install -r .circleci/requirements/dev-requirements.txt
+$ python3 -m venv .venv/dev
+# activate the virtualenv (on windows .venv\dev\scripts\activate)
+$ . .venv/dev/bin/activate
+# install dash and dependencies
+$ pip install -e .[testing,ci]
+$ cd dash-renderer
+# build renderer bundles, this will build all bundles from source code
+# the only true source of npm version is defined in package.json
+$ npm run build
+# install dash-renderer for development
+$ pip install -e .
+# you should see both dash and dash-renderer are pointed to local source repos
+$ pip list | grep dash
 ```
 ## Git
 
