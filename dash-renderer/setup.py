@@ -1,11 +1,12 @@
+import json
 from setuptools import setup
 
-with open('VERSION.txt', 'r') as fp:
-    version = fp.read().strip()
+with open("package.json") as fp:
+    package = json.load(fp.read())
 
 setup(
     name="dash_renderer",
-    version=version,
+    version=package["version"],
     author="Chris Parmer",
     author_email="chris@plot.ly",
     packages=["dash_renderer"],

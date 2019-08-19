@@ -41,9 +41,7 @@ def _concat(paths):
     return os.path.realpath(os.path.sep.join(paths))
 
 
-root = _concat(
-    [os.path.abspath(__file__)] + [os.pardir for _ in range(3)]
-)
+root = _concat([os.path.abspath(__file__)] + [os.pardir for _ in range(3)])
 renderer = _concat((root, "dash-renderer"))
 assets = _concat((renderer, "dash_renderer"))
 package_lock = _concat((renderer, "package-lock.json"))
@@ -56,6 +54,7 @@ with open(_concat((renderer, "VERSION.txt")), "r") as fpv:
 
 @job("run `npm i --ignore-scripts`")
 def npm():
+    """job to run `npm i`"""
     try:
         os.chdir(renderer)
         logger.info("removing old package-lock.json")
@@ -67,7 +66,7 @@ def npm():
 
 
 @job("parse package-lock.json and produce the bundles")
-def bundles(ci=False):
+def bundles():
     # make sure we start from fresh folder
     if os.path.exists(assets):
         logger.warning(u"🚨 %s already exists, remove it!", assets)
@@ -94,17 +93,10 @@ def bundles(ci=False):
             _concat((npm_modules, name) + bundle["prod"]),
             _concat((assets, "{}@{}.min.js".format(name, version))),
         )
-
-        if ci and name != 'prop-types':
-            shutil.copyfile(
-                _concat((npm_modules, name) + bundle["prod"]),
-                _concat((assets, "{}@{}.js".format(name, version))),
-            )
-        else:
-            shutil.copyfile(
-                _concat((npm_modules, name) + bundle["dev"]),
-                _concat((assets, "{}@{}.js".format(name, version))),
-            )
+        shutil.copyfile(
+            _concat((npm_modules, name) + bundle["dev"]),
+            _concat((assets, "{}@{}.js".format(name, version))),
+        )
 
     # run build
     os.chdir(renderer)
