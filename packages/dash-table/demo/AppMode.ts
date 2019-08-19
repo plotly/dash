@@ -24,6 +24,7 @@ export enum AppMode {
     MergeDuplicateHeaders = 'mergeDuplicateHeaders',
     ReadOnly = 'readonly',
     ColumnsInSpace = 'columnsInSpace',
+    SingleHeaders = 'singleHeaders',
     TaleOfTwoTables = 'taleOfTwoTables',
     Tooltips = 'tooltips',
     Typed = 'typed',
@@ -188,6 +189,18 @@ function getTypedState() {
             action: ChangeAction.Coerce,
             failure: ChangeFailure.Reject
         };
+    }, state.tableProps.columns || []);
+
+    return state;
+}
+
+function getSingleHeaderState() {
+    const state = getDefaultState();
+
+    R.forEach(column => {
+        if (Array.isArray(column.name)) {
+            column.name = column.name[column.name.length - 1];
+        }
     }, state.tableProps.columns || []);
 
     return state;
@@ -378,6 +391,8 @@ function getState() {
             return getVirtualizedState();
         case AppMode.Typed:
             return getTypedState();
+        case AppMode.SingleHeaders:
+            return getSingleHeaderState();
         case AppMode.TaleOfTwoTables:
         case AppMode.Default:
         default:

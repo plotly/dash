@@ -96,9 +96,9 @@ export function changeColumnHeader(column, columns, headerRowIndex, mergeDuplica
     );
 
     R.range(groupIndexFirst, groupIndexLast + 1).map(i => {
-        let namePath;
+        const namePath = [i, 'name'];
         if (R.type(newColumns[i].name) === 'Array') {
-            namePath = [i, 'name', headerRowIndex];
+            namePath.push(headerRowIndex);
         }
         newColumns = R.set(R.lensPath(namePath), newColumnName, newColumns);
     });
