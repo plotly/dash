@@ -2,7 +2,7 @@ import json
 from setuptools import setup
 
 with open("package.json") as fp:
-    package = json.load(fp.read())
+    package = json.load(fp)
 
 setup(
     name="dash_renderer",

@@ -48,8 +48,8 @@ package_lock = _concat((renderer, "package-lock.json"))
 npm_modules = _concat((renderer, "node_modules"))
 versions = {}
 
-with open(_concat((renderer, "VERSION.txt")), "r") as fpv:
-    versions["version"] = fpv.read().strip()
+with open("package.json") as fpp:
+    versions["version"] = json.load(fpp)["version"]
 
 
 @job("run `npm i --ignore-scripts`")
@@ -113,7 +113,8 @@ def bundles():
     with open(_concat((renderer, "digest.json")), "w") as fp:
         json.dump(digest, fp, sort_keys=True, indent=4, separators=(",", ":"))
     logger.info(
-        "bundle digest in digest.json:\n%s", json.dumps(digest, indent=4)
+        "bundle digest in digest.json:\n%s",
+        json.dumps(digest, sort_keys=True, indent=4),
     )
 
     # generate the __init__.py from template

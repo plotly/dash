@@ -1,3 +1,3 @@
-include VERSION.txt
+include package.json
 include digest.json
 include dash_renderer/*
