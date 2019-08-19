@@ -63,3 +63,5 @@ node_modules/
 npm-debug*
 
 dash_renderer/
+digest.json
+VERSION.txt
