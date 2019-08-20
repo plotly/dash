@@ -7,7 +7,7 @@ import hashlib
 import collections
 import subprocess
 import logging
-from io import open
+from io import open  # pylint: disable=redefined-builtin
 from functools import wraps
 
 import six
