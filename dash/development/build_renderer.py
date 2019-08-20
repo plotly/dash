@@ -115,12 +115,7 @@ def bundles():
 
 
 @job("compute the hash digest for assets")
-def digest(version):
-    """compute the hash digest of assets in dash_renderer
-
-    version: str
-        the dash_renderer version
-    """
+def digest(version=None):
     copies = (
         _
         for _ in os.listdir(assets)
@@ -129,7 +124,8 @@ def digest(version):
     logger.info("bundles in dash_renderer %s", copies)
 
     # compute the fingerprint for all the assets
-    payload = {"dash_renderer": version}
+    if version is not None:
+        payload = {"dash_renderer": version}
     for copy in copies:
         payload["MD5 ({})".format(copy)] = compute_md5(_concat((assets, copy)))
 
