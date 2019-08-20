@@ -29,7 +29,7 @@ $ pip list | grep dash
 
 If you want to contribute or simply dig deeper into Dash, we encourage you to play and taste it. This is the most efficient way to learn and understand everything under the hood.
 
-For contributors who have purely  **Python**  or  **R**  background. This section might help you understand more details about developing and debugging in Javascript world.
+For contributors with a primarily  **Python**  or  **R**  background, this section might help you understand more details about developing and debugging in Javascript world.
 
 After Dash 1.2, The renderer bundle and its peer dependencies can be packed and generated from the source code. The only version of the truth is defined in  `dash-renderer\package.json`  file. A build tool  `renderer`, which is a tiny Python script defined as a Dash entry point, has few  commands like:
 1.  `renderer npm`  installs all the npm modules using this  `package.json`  files. Note that the  `package-lock.json`  file is the computed reference product for the versions defined with tilde(~) or caret(^) syntax in  **npm**
