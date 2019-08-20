@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import os
 import sys
 import json
@@ -69,13 +70,13 @@ def npm():
 def bundles():
     # make sure we start from fresh folder
     if os.path.exists(assets):
-        logger.warning(u"🚨 %s already exists, remove it!", assets)
+        logger.warning("🚨 %s already exists, remove it!", assets)
         shutil.rmtree(assets)
 
     try:
         os.makedirs(assets)
     except OSError:
-        logger.exception(u"🚨 having issues manipulating %s", assets)
+        logger.exception("🚨 having issues manipulating %s", assets)
         sys.exit(1)
 
     # parse the package-lock.json and copy bundles

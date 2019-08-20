@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from builtins import str as text
 import shlex
 import sys
 import uuid
@@ -8,6 +7,7 @@ import hashlib
 import collections
 import subprocess
 import logging
+from io import open
 from functools import wraps
 
 import six
@@ -145,8 +145,8 @@ def run_command_with_process(cmd):
 
 
 def compute_md5(path):
-    with open(path) as fp:
-        return hashlib.md5(text(fp.read()).encode("utf-8")).hexdigest()
+    with open(path, encoding='utf-8') as fp:
+        return hashlib.md5(fp.read()).hexdigest()
 
 
 def job(msg=""):
