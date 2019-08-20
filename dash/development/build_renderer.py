@@ -49,7 +49,7 @@ package_lock = _concat((renderer, "package-lock.json"))
 npm_modules = _concat((renderer, "node_modules"))
 versions = {}
 
-with open("package.json") as fpp:
+with open(_concat((renderer, "package.json"))) as fpp:
     versions["version"] = json.load(fpp)["version"]
 
 
@@ -79,7 +79,6 @@ def bundles():
         logger.exception("🚨 having issues manipulating %s", assets)
         sys.exit(1)
 
-    # parse the package-lock.json and copy bundles
     with open(package_lock, "r") as fp:
         deps = json.load(fp)["dependencies"]
 
@@ -99,26 +98,13 @@ def bundles():
             _concat((assets, "{}@{}.js".format(name, version))),
         )
 
-    # run build
+    logger.info("run `npm run build:renderer`")
     os.chdir(renderer)
     run_command_with_process("npm run build:renderer")
 
-    copies = os.listdir(assets)
-    logger.info("bundles in dash_renderer %s", copies)
+    digest(versions["version"])
 
-    # compute the fingerprint for all the assets
-    digest = {"dash_renderer": versions["version"]}
-    for copy in copies:
-        digest["MD5 ({})".format(copy)] = compute_md5(_concat((assets, copy)))
-
-    with open(_concat((renderer, "digest.json")), "w") as fp:
-        json.dump(digest, fp, sort_keys=True, indent=4, separators=(",", ":"))
-    logger.info(
-        "bundle digest in digest.json:\n%s",
-        json.dumps(digest, sort_keys=True, indent=4),
-    )
-
-    # generate the __init__.py from template
+    logger.info("generate the `__init__.py` file from template and verisons")
     with open(
         _concat((os.path.dirname(__file__), "renderer_init.template"))
     ) as fp:
@@ -126,6 +112,39 @@ def bundles():
 
     with open(_concat((assets, "__init__.py")), "w") as fp:
         fp.write(t.safe_substitute(versions))
+
+
+@job("compute the hash digest for assets")
+def digest(version):
+    """compute the hash digest of assets in dash_renderer
+
+    version: str
+        the dash_renderer version
+    """
+    copies = (
+        _
+        for _ in os.listdir(assets)
+        if os.path.splitext(_)[-1] in {".js", ".map"}
+    )
+    logger.info("bundles in dash_renderer %s", copies)
+
+    # compute the fingerprint for all the assets
+    payload = {"dash_renderer": version}
+    for copy in copies:
+        payload["MD5 ({})".format(copy)] = compute_md5(_concat((assets, copy)))
+
+    with open(_concat((renderer, "digest.json")), "w") as fp:
+        json.dump(payload, fp, sort_keys=True, indent=4, separators=(",", ":"))
+    logger.info(
+        "bundle digest in digest.json:\n%s",
+        json.dumps(payload, sort_keys=True, indent=4),
+    )
+
+
+@job("build the renderer in dev mode")
+def watch():
+    os.chdir(renderer)
+    os.system("npm run build:dev")
 
 
 def main():

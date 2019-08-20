@@ -22,6 +22,22 @@ $ pip install -e .
 # you should see both dash and dash-renderer are pointed to local source repos
 $ pip list | grep dash
 ```
+
+### Dash-Renderer Beginner Guide
+
+`Dash Renderer`  was a separate Dash project. It was merged into main  `Dash`  repository as part of 1.0 release. The frontend Dash, at its core, is driven by the renderer to handle React Components layout and backend event handling.
+
+If you want to contribute or simply dig deeper into Dash. We encourage you to play and taste it. This is the most efficient way to learn and understand everything under the hood.
+
+For contributors who have purely  **Python**  or  **R**  background. This section might help you understand more details about developing and debugging in Javascript world.
+
+After Dash 1.2, The renderer bundle and its peer dependencies can be packed and generated from the source code. The only version of the truth is defined in  `dash-renderer\package.json`  file. A build tool  `renderer`, which is a tiny Python script defined as a Dash entry point, does three things:
+1.  `renderer npm`  installs all the npm modules using this  `package.json`  files. Note that the  `package-lock.json`  file is the computed reference product for the versions defined with tilde(~) or caret(^) syntax in  **npm**
+2.  `renderer bundles`  parses the locked version JSON, copies all the peer dependencies into dash_renderer folder, bundles the renderer assets, and generates an `__init__.py`  to map all the resources
+3.  `renderer digest`  computes the content hash of each asset in  `dash_renderer`  folder, prints out the result in logs, and dumps into a JSON file  `digest.json`
+
+When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
+
 ## Git
 
 Use the [GitHub flow][] when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the default branch).
