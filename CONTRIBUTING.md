@@ -1,4 +1,4 @@
-# Contributor Guide
+# Contributor **Guide**
 
 ## Getting Started
 
@@ -31,10 +31,11 @@ If you want to contribute or simply dig deeper into Dash. We encourage you to pl
 
 For contributors who have purely  **Python**  or  **R**  background. This section might help you understand more details about developing and debugging in Javascript world.
 
-After Dash 1.2, The renderer bundle and its peer dependencies can be packed and generated from the source code. The only version of the truth is defined in  `dash-renderer\package.json`  file. A build tool  `renderer`, which is a tiny Python script defined as a Dash entry point, does three things:
+After Dash 1.2, The renderer bundle and its peer dependencies can be packed and generated from the source code. The only version of the truth is defined in  `dash-renderer\package.json`  file. A build tool  `renderer`, which is a tiny Python script defined as a Dash entry point, has few  commands like:
 1.  `renderer npm`  installs all the npm modules using this  `package.json`  files. Note that the  `package-lock.json`  file is the computed reference product for the versions defined with tilde(~) or caret(^) syntax in  **npm**
 2.  `renderer bundles`  parses the locked version JSON, copies all the peer dependencies into dash_renderer folder, bundles the renderer assets, and generates an `__init__.py`  to map all the resources
-3.  `renderer digest`  computes the content hash of each asset in  `dash_renderer`  folder, prints out the result in logs, and dumps into a JSON file  `digest.json`
+3.  `renderer digest {renderer version}`  computes the content hash of each asset in  `dash_renderer`  folder, prints out the result in logs, and dumps into a JSON file  `digest.json`
+4.  `renderer watch` runs the webpack in watch mode, so any source code change triggers a rebuild
 
 When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
 
