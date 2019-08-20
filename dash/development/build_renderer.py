@@ -75,7 +75,7 @@ def bundles():
     try:
         os.makedirs(assets)
     except OSError:
-        logger.exception(u"🚨 having issues manipulate %s", assets)
+        logger.exception(u"🚨 having issues manipulating %s", assets)
         sys.exit(1)
 
     # parse the package-lock.json and copy bundles
