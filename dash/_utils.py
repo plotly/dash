@@ -146,7 +146,7 @@ def run_command_with_process(cmd):
 
 def compute_md5(path):
     with open(path, encoding='utf-8') as fp:
-        return hashlib.md5(fp.read()).hexdigest()
+        return hashlib.md5(fp.read().encode('utf-8')).hexdigest()
 
 
 def job(msg=""):
