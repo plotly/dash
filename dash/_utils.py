@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+from builtins import str as text
 import shlex
 import sys
 import uuid
@@ -9,7 +11,6 @@ import logging
 from functools import wraps
 
 import six
-
 
 logger = logging.getLogger()
 
@@ -134,32 +135,27 @@ def run_command_with_process(cmd):
     proc = subprocess.Popen(shlex.split(cmd, posix=sys.platform != "win32"))
     proc.wait()
     if proc.poll() is None:
-        logger.warning(u"🚨 trying to terminate subprocess in safe way")
+        logger.warning("🚨 trying to terminate subprocess in safe way")
         try:
             proc.communicate()
         except Exception:  # pylint: disable=broad-except
-            logger.exception(u"🚨 first try communicate failed")
+            logger.exception("🚨 first try communicate failed")
             proc.kill()
             proc.communicate()
 
 
 def compute_md5(path):
     with open(path) as fp:
-        content = fp.read()
-        try:
-            buf = unicode(content, 'utf-8').encode('utf-8')  # noqa:F821
-        except NameError:
-            buf = content.encode('utf-8')
-        return hashlib.md5(buf).hexdigest()
+        return hashlib.md5(text(fp.read()).encode("utf-8")).hexdigest()
 
 
 def job(msg=""):
     def wrapper(func):
         @wraps(func)
         def _wrapper(*args, **kwargs):
-            logger.info(u" 🏗️  %s ️️🏗️️ ", msg)
+            logger.info(" 🏗️  %s ️️🏗️️ ", msg)
             res = func(*args, **kwargs)
-            logger.info(u"::: 🍻🍻🍻 job done 🍻🍻🍻 :::")
+            logger.info("::: 🍻🍻🍻 job done 🍻🍻🍻 :::")
             return res
 
         return _wrapper

@@ -12,7 +12,7 @@ $ python3 -m venv .venv/dev
 # activate the virtualenv (on windows .venv\dev\scripts\activate)
 $ . .venv/dev/bin/activate
 # install dash and dependencies
-$ pip install -e .[testing,ci]
+$ pip install -e .[testing,ci]  # might need \ to espcae []
 $ cd dash-renderer
 # build renderer bundles, this will build all bundles from source code
 # the only true source of npm version is defined in package.json
