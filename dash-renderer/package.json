@@ -2,7 +2,7 @@
   "name": "dash-renderer",
   "version": "1.0.0",
   "description": "render dash components in react",
-  "main": "src/index.js",
+  "main": "dash_renderer/dash_renderer.min.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint --quiet --fix .",
     "lint:test": "./node_modules/.bin/eslint .",
