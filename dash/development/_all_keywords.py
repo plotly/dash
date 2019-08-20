@@ -1,6 +1,43 @@
-import keyword
-
-python_keywords = set(keyword.kwlist)
+# keyword.kwlist for both python 2 and 3
+python_keywords = {
+    "False",
+    "None",
+    "True",
+    "and",
+    "as",
+    "assert",
+    "async",
+    "await",
+    "break",
+    "class",
+    "continue",
+    "def",
+    "del",
+    "elif",
+    "else",
+    "except",
+    "exec",
+    "finally",
+    "for",
+    "from",
+    "global",
+    "if",
+    "import",
+    "in",
+    "is",
+    "lambda",
+    "nonlocal",
+    "not",
+    "or",
+    "pass",
+    "print",
+    "raise",
+    "return",
+    "try",
+    "while",
+    "with",
+    "yield",
+}
 
 # This is a set of R reserved words that cannot be used as function
 # argument names.
