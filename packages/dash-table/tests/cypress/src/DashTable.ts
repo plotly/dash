@@ -45,6 +45,14 @@ export default class DashTable {
         return cy.get(`#table tbody tr th.dash-header[data-dash-column="${column}"] .column-header--hide`).eq(row).click();
     }
 
+    static getSelectColumnById(row: number, column: string) {
+        return cy.get(`#table tbody tr th.dash-header[data-dash-column="${column}"] .column-header--select input`).eq(row);
+    }
+
+    static selectColumnById(row: number, column: string) {
+        return DashTable.getSelectColumnById(row, column).click();
+    }
+
     static getDelete(row: number) {
         return cy.get(`#table tbody tr td.dash-delete-cell`).eq(row);
     }

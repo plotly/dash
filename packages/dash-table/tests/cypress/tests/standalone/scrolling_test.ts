@@ -1,18 +1,20 @@
+import * as R from 'ramda';
+
 import DashTable from 'cypress/DashTable';
 import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
 
-import { AppMode } from 'demo/AppMode';
+import { AppMode, AppFlavor } from 'demo/AppMode';
 
-const VirtualAppMode = [
-    AppMode.FixedVirtualized,
-    AppMode.Virtualized
-];
+const variants: [AppMode, AppFlavor[]][] = R.xprod(
+    [AppMode.Virtualized],
+    [[AppFlavor.FixedColumn, AppFlavor.FixedRow]]
+);
 
-Object.values(VirtualAppMode).forEach(mode => {
+variants.forEach(([mode, flavors]) => {
     describe(`scrolling, mode=${mode}`, () => {
         beforeEach(() => {
-            cy.visit(`http://localhost:8080?mode=${mode}`);
+            cy.visit(`http://localhost:8080?mode=${mode}&flavor=${flavors.join(';')}`);
         });
 
         it('selects cell and keeps it / loses it based on virtualization', () => {

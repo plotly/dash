@@ -2,7 +2,7 @@ import DashTable from 'cypress/DashTable';
 import DOM from 'cypress/DOM';
 import Key from 'cypress/Key';
 
-import { AppMode } from 'demo/AppMode';
+import { AppMode, AppFlavor } from 'demo/AppMode';
 
 describe(`filter special characters`, () => {
     beforeEach(() => {
@@ -43,7 +43,7 @@ describe(`filter special characters`, () => {
 
 describe('filter', () => {
     beforeEach(() => {
-        cy.visit(`http://localhost:8080?mode=${AppMode.Filtering}`);
+        cy.visit(`http://localhost:8080?mode=${AppMode.Default}&flavor=${AppFlavor.FilterNative}`);
         DashTable.toggleScroll(false);
     });
 

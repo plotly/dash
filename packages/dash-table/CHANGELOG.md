@@ -1,12 +1,22 @@
 # Change Log for dash-table
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
+
 ## [Unreleased]
+### Added
+[#317](https://github.com/plotly/dash-table/issues/317)
+- New `column.selectable` nested prop that displays a selection checkbox or radio button in the column.
+- New `column_selectable` prop to choose whether columns can be selected or not, and whether a single or
+    multiple selections can be in effect at the same time.
+- New `selected_columns` prop that contains the list of visible and hidden columns that are currently selected
+- New `derived_viewport_selected_columns` that contains the list of visible columns that are currently selected
+    This prop is read-only. Use `selected_columns` in callbacks instead.
+
 ### Fixed
 [#533](https://github.com/plotly/dash-table/issues/533)
 - Fixed problem clearing one column shifting everything to the left and
 leaving the last column blank
-- Add merge_duplicate_headers prop to correct `export_format: display` behaviour.
+- Add merge_duplicate_headers prop to correct `export_format: display` behavior.
 [#549](https://github.com/plotly/dash-table/issues/549)
 - Fixed renaming of single-row headers in the GUI
 

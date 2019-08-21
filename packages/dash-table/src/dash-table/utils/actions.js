@@ -1,13 +1,27 @@
 import * as R from 'ramda';
 import getHeaderRows from 'dash-table/derived/header/headerRows';
 
-function getGroupedColumnIndices(column, columns, headerRowIndex, mergeDuplicateHeaders, columnIndex) {
+function getGroupedColumnIndices(column, columns, headerRowIndex, mergeDuplicateHeaders, columnIndex, backwardLooking = false) {
     if (!column.name || (Array.isArray(column.name) && column.name.length < headerRowIndex) || !mergeDuplicateHeaders) {
         return { groupIndexFirst: columnIndex, groupIndexLast: columnIndex };
     }
 
+    // backward looking
+    if (backwardLooking) {
+        for (let i = columnIndex; i >= 0; --i) {
+            const c = columns[i];
+
+            if (c.name && Array.isArray(c.name) && c.name.length > headerRowIndex && c.name[headerRowIndex] === column.name[headerRowIndex]) {
+                columnIndex = i;
+            } else {
+                break;
+            }
+        }
+    }
+
     let lastColumnIndex = columnIndex;
 
+    // forward looking
     for (let i = columnIndex; i < columns.length; ++i) {
         const c = columns[i];
 
@@ -21,9 +35,9 @@ function getGroupedColumnIndices(column, columns, headerRowIndex, mergeDuplicate
     return { groupIndexFirst: columnIndex, groupIndexLast: lastColumnIndex };
 }
 
-export function getAffectedColumns(column, columns, headerRowIndex, mergeDuplicateHeaders) {
+export function getAffectedColumns(column, columns, headerRowIndex, mergeDuplicateHeaders, backwardLooking = false) {
     const { groupIndexFirst, groupIndexLast } = getGroupedColumnIndices(
-        column, columns, headerRowIndex, mergeDuplicateHeaders, columns.indexOf(column)
+        column, columns, headerRowIndex, mergeDuplicateHeaders, columns.indexOf(column), backwardLooking
     );
 
     return R.slice(

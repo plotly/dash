@@ -9,7 +9,7 @@ import {
     IColumn,
     INumberLocale,
     PropsWithDefaults,
-    RowSelection,
+    Selection,
     SanitizedProps,
     SortAsNull,
     TableAction
@@ -34,7 +34,7 @@ const data2number = (data?: any) => +data || 0;
 const getFixedColumns = (
     fixed: Fixed,
     row_deletable: boolean,
-    row_selectable: RowSelection
+    row_selectable: Selection
 ) => !fixed.headers ?
         0 :
         (row_deletable ? 1 : 0) + (row_selectable ? 1 : 0) + data2number(fixed.data);

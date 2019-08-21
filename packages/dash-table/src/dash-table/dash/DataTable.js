@@ -84,12 +84,14 @@ export const defaultProps = {
     tooltip_delay: 350,
     tooltip_duration: 2000,
 
-    data: [],
+    column_selectable: false,
     columns: [],
+    data: [],
     editable: false,
     export_format: 'none',
     include_headers_on_copy_paste: false,
     selected_cells: [],
+    selected_columns: [],
     selected_rows: [],
     selected_row_ids: [],
     row_selectable: false,
@@ -126,7 +128,7 @@ export const propTypes = {
          * If `last`, the `clear` action button will only appear on the last header
          * row. If `first` it will only appear on the first header row. These
          * are respectively shortcut equivalents to `[false, ..., false, true]` and
-         * `[true, ..., true, false]`.
+         * `[true, false, ..., false]`.
          * If there are merged, multi-header columns then you can choose
          * which column header row to display the `clear` action button in by
          * supplying an array of booleans.
@@ -150,7 +152,7 @@ export const propTypes = {
          * If `last`, the `delete` action button will only appear on the last header
          * row. If `first` it will only appear on the first header row. These
          * are respectively shortcut equivalents to `[false, ..., false, true]` and
-         * `[true, ..., true, false]`.
+         * `[true, false, ..., false]`.
          * If there are merged, multi-header columns then you can choose
          * which column header row to display the `delete` action button in by
          * supplying an array of booleans.
@@ -183,7 +185,7 @@ export const propTypes = {
          * If `last`, the `hide` action button will only appear on the last header
          * row. If `first` it will only appear on the first header row. These
          * are respectively shortcut equivalents to `[false, ..., false, true]` and
-         * `[true, ..., true, false]`.
+         * `[true, false, ..., false]`.
          * If there are merged, multi-header columns then you can choose
          * which column header row to display the `hide` action button in by
          * supplying an array of booleans.
@@ -205,7 +207,7 @@ export const propTypes = {
          * If `last`, the `rename` action button will only appear on the last header
          * row. If `first` it will only appear on the first header row. These
          * are respectively shortcut equivalents to `[false, ..., false, true]` and
-         * `[true, ..., true, false]`.
+         * `[true, false, ..., false]`.
          * If there are merged, multi-header columns then you can choose
          * which column header row to display the `rename` action button in by
          * supplying an array of booleans.
@@ -215,6 +217,29 @@ export const propTypes = {
          * on that button will rename *all* of the merged columns associated with it.
          */
         renamable: PropTypes.oneOfType([
+            PropTypes.oneOf(['first', 'last']),
+            PropTypes.bool,
+            PropTypes.arrayOf(PropTypes.bool)
+        ]),
+
+        /**
+         * If true, the user can select the column by clicking on the checkbox or radio button
+         * in the column. If there are multiple header rows, true will display the input
+         * on each row.
+         * If `last`, the input will only appear on the last header row. If `first` it will only
+         * appear on the first header row. These are respectively shortcut equivalents to
+         * `[false, ..., false, true]` and `[true, false, ..., false]`.
+         * If there are merged, multi-header columns then you can choose which column header
+         * row to display the input in by supplying an array of booleans.
+         * For example, `[true, false]` will display the `selectable` input on the first row,
+         * but now on the second row.
+         * If the `selectable` input appears on a merged columns, then clicking on that input
+         * will select *all* of the merged columns associated with it.
+         * The table-level prop `column_selectable` is used to determine the type of column
+         * selection to use.
+         *
+         */
+        selectable: PropTypes.oneOfType([
             PropTypes.oneOf(['first', 'last']),
             PropTypes.bool,
             PropTypes.arrayOf(PropTypes.bool)
@@ -568,6 +593,20 @@ export const propTypes = {
     ]),
 
     /**
+     * If `single`, then the uer can select a single column or group
+     * of merged columns via the radio button that will appear in the
+     * header rows.
+     * If `multi`, then the user can select multiple columns or groups
+     * of merged columns via the checkbox that will appear in the header
+     * rows.
+     * If false, then the user will not be able to select columns and no
+     * input will appear in the header rows.
+     * When a column is selected, its id will be contained in `selected_columns`
+     * and `derived_viewport_selected_columns`.
+     */
+    column_selectable: PropTypes.oneOf(['single', 'multi', false]),
+
+    /**
      * If True, then a `x` will appear next to each `row`
      * and the user can delete the row.
      */
@@ -578,7 +617,7 @@ export const propTypes = {
      * via a radio button that will appear next to each row.
      * If `multi`, then the user can select multiple rows
      * via a checkbox that will appear next to each row.
-     * If `False`, then the user will not be able to select rows
+     * If false, then the user will not be able to select rows
      * and no additional UI elements will appear.
      * When a row is selected, its index will be contained
      * in `selected_rows`.
@@ -605,6 +644,13 @@ export const propTypes = {
      * `row_selectable` is `'single'` or `'multi'`.
      */
     selected_rows: PropTypes.arrayOf(PropTypes.number),
+
+    /**
+     * `selected_columns` contains the ids of columns that
+     * are selected via the UI elements that appear when
+     * `column_selectable` is `'single' or 'multi'`.
+     */
+    selected_columns: PropTypes.arrayOf(PropTypes.string),
 
     /**
      * `selected_row_ids` contains the ids of rows that
@@ -1101,6 +1147,12 @@ export const propTypes = {
     derived_viewport_row_ids: PropTypes.arrayOf(
         PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     ),
+
+    /**
+     * `derived_viewport_selected_columns` contains the ids of the
+     * `selected_columns` that are not currently hidden.
+     */
+    derived_viewport_selected_columns: PropTypes.arrayOf(PropTypes.string),
 
     /**
      * `derived_viewport_selected_rows` represents the indices of the

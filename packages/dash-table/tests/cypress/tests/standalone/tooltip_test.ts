@@ -1,6 +1,6 @@
 import DashTable from 'cypress/DashTable';
 
-import { AppMode } from 'demo/AppMode';
+import { AppMode, AppFlavor } from 'demo/AppMode';
 
 describe(`tooltips, mode=${AppMode.Tooltips}`, () => {
     beforeEach(() => {
@@ -31,9 +31,9 @@ describe(`tooltips, mode=${AppMode.Tooltips}`, () => {
     });
 });
 
-describe(`tooltips, mode=${AppMode.FixedTooltips}`, () => {
+describe(`tooltips, mode=${AppMode.Tooltips},flavor=${[AppFlavor.FixedColumnPlus1, AppFlavor.FixedRowPlus1].join(';')}`, () => {
     beforeEach(() => {
-        cy.visit(`http://localhost:8080?mode=${AppMode.FixedTooltips}`);
+        cy.visit(`http://localhost:8080?mode=${AppMode.Tooltips}&flavor=${[AppFlavor.FixedColumnPlus1, AppFlavor.FixedRowPlus1].join(';')}`);
     });
 
     it('displays in fixed column', () => {

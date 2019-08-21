@@ -31,7 +31,7 @@ describe('delete cells', () => {
 
     describe('sorted data', () => {
         beforeEach(() => {
-            cy.get('tr th.column-0 .sort').last().click();
+            cy.get('tr th.column-0 .column-header--sort').last().click();
         });
 
         it('can delete single cell', () => {

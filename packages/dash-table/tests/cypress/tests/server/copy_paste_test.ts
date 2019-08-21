@@ -173,7 +173,7 @@ describe('copy paste', () => {
         });
 
         it('BE rountrip with sorted, unfiltered data', () => {
-            cy.get('#table tr th.column-2 .sort').last().click();
+            cy.get('#table tr th.column-2 .column-header--sort').last().click();
 
             DashTable.getCell(0, 0).click();
             DashTable.getCell(0, 0).within(() => cy.get('.dash-cell-value').should('have.value', '11'));

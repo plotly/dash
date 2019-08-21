@@ -1,7 +1,8 @@
 import * as R from 'ramda';
 
 import derivedPaginator from 'dash-table/derived/paginator';
-import derivedSelectedRows from 'dash-table/derived/selectedRows';
+import derivedSelectedColumns from 'dash-table/derived/selects/columns';
+import derivedSelectedRows from 'dash-table/derived/selects/rows';
 import derivedViewportData from 'dash-table/derived/data/viewport';
 import derivedVirtualData from 'dash-table/derived/data/virtual';
 import derivedVirtualizedData from 'dash-table/derived/data/virtualized';
@@ -17,6 +18,7 @@ import {
 export default () => {
     const getPaginator = derivedPaginator();
     const getViewport = derivedViewportData();
+    const getViewportSelectedColumns = derivedSelectedColumns();
     const getViewportSelectedRows = derivedSelectedRows();
     const getVirtual = derivedVirtualData();
     const getVirtualSelectedRows = derivedSelectedRows();
@@ -35,6 +37,7 @@ export default () => {
             page_action,
             page_current,
             page_size,
+            selected_columns,
             selected_rows,
             sort_action,
             sort_by,
@@ -75,6 +78,11 @@ export default () => {
             selected_rows
         );
 
+        const viewport_selected_columns = getViewportSelectedColumns(
+            visibleColumns,
+            selected_columns
+        );
+
         const viewport_selected_rows = getViewportSelectedRows(
             viewport.indices,
             selected_rows
@@ -96,6 +104,7 @@ export default () => {
                 setProps,
                 setState,
                 viewport,
+                viewport_selected_columns,
                 viewport_selected_rows,
                 virtual,
                 virtual_selected_rows,

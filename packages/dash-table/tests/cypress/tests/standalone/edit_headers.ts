@@ -1,5 +1,5 @@
 import DashTable from 'cypress/DashTable';
-import { AppMode } from 'demo/AppMode';
+import { AppMode, AppFlavor } from 'demo/AppMode';
 
 describe(`edit, mode=${AppMode.Typed}`, () => {
     describe(`edit headers, mode=${AppMode.Typed}`, () => {
@@ -27,9 +27,9 @@ describe(`edit, mode=${AppMode.Typed}`, () => {
         });
     });
 
-    describe(`edit headers, mode=${AppMode.MergeDuplicateHeaders}`, () => {
+    describe(`edit headers, mode=${AppMode.Default},flavor=${AppFlavor.Merged}`, () => {
         beforeEach(() => {
-            cy.visit(`http://localhost:8080?mode=${AppMode.MergeDuplicateHeaders}`);
+            cy.visit(`http://localhost:8080?mode=${AppMode.Default}&flavor=${AppFlavor.Merged}`);
             DashTable.toggleScroll(false);
         });
         it('changing the column 0 header should not change any column 0 headers below it', () => {

@@ -1,11 +1,11 @@
 import DashTable from 'cypress/DashTable';
 import DOM from 'cypress/DOM';
 
-import { AppMode } from 'demo/AppMode';
+import { AppMode, AppFlavor } from 'demo/AppMode';
 
-describe(`column, mode=${AppMode.ActionableMerged}`, () => {
+describe(`column, mode=${AppMode.Actionable}, flavor=${AppFlavor.Merged}, ${AppFlavor.ColumnSelectableMulti}`, () => {
     beforeEach(() => {
-        cy.visit(`http://localhost:8080?mode=${AppMode.ActionableMerged}`);
+        cy.visit(`http://localhost:8080?mode=${AppMode.Actionable}&flavor=${[AppFlavor.Merged, AppFlavor.ColumnSelectableMulti].join(';')}`);
         DashTable.toggleScroll(false);
     });
 
@@ -80,6 +80,158 @@ describe(`column, mode=${AppMode.ActionableMerged}`, () => {
         DashTable.getHeader(0, 0).within(() => cy.get('span.column-header-name').should('have.html', 'City'));
         DashTable.getHeader(0, 2).within(() => cy.get('span.column-header-name').should('have.html', 'France'));
         DashTable.getHeader(1, 2).within(() => cy.get('span.column-header-name').should('have.html', 'Paris'));
+    });
+});
+
+describe(`column, mode=${AppMode.Actionable}, flavor=${AppFlavor.Merged}, ${AppFlavor.ColumnSelectableMulti}`, () => {
+    beforeEach(() => {
+        cy.visit(`http://localhost:8080?mode=${AppMode.Actionable}&flavor=${[AppFlavor.Merged, AppFlavor.ColumnSelectableMulti].join(';')}`);
+        DashTable.toggleScroll(false);
+    });
+
+    it(`can select multiple columns`, () => {
+        DashTable.selectColumnById(0, 'ccc');
+        DashTable.getSelectColumnById(0, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(1, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(2, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ddd').should('be.checked');
+        DashTable.getSelectColumnById(0, 'eee').should('be.checked');
+        DashTable.getSelectColumnById(1, 'eee').should('be.checked');
+        DashTable.getSelectColumnById(0, 'fff').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ggg').should('be.checked');
+        DashTable.getSelectColumnById(1, 'ggg').should('be.checked');
+
+        DashTable.selectColumnById(0, 'rows');
+        DashTable.getSelectColumnById(0, 'rows').should('be.checked');
+        DashTable.getSelectColumnById(1, 'rows').should('be.checked');
+        DashTable.getSelectColumnById(2, 'rows').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(1, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(2, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ddd').should('be.checked');
+        DashTable.getSelectColumnById(0, 'eee').should('be.checked');
+        DashTable.getSelectColumnById(1, 'eee').should('be.checked');
+        DashTable.getSelectColumnById(0, 'fff').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ggg').should('be.checked');
+        DashTable.getSelectColumnById(1, 'ggg').should('be.checked');
+
+        DashTable.selectColumnById(0, 'ccc');
+        DashTable.selectColumnById(0, 'rows');
+        DashTable.getSelectColumnById(0, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ddd').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'fff').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ggg').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ggg').should('not.be.checked');
+    });
+
+    it(`can't select top row by selecting some column subsets`, () => {
+        DashTable.selectColumnById(1, 'ccc');
+        DashTable.selectColumnById(1, 'ggg');
+        DashTable.getSelectColumnById(0, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(2, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ddd').should('be.checked');
+        DashTable.getSelectColumnById(0, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'fff').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ggg').should('be.checked');
+        DashTable.getSelectColumnById(1, 'ggg').should('be.checked');
+    });
+
+    it(`can select top row by selecting all column subsets`, () => {
+        DashTable.selectColumnById(1, 'ccc');
+        DashTable.selectColumnById(0, 'eee');
+        DashTable.selectColumnById(0, 'ggg');
+        DashTable.getSelectColumnById(0, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(1, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(2, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ddd').should('be.checked');
+        DashTable.getSelectColumnById(0, 'eee').should('be.checked');
+        DashTable.getSelectColumnById(1, 'eee').should('be.checked');
+        DashTable.getSelectColumnById(0, 'fff').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ggg').should('be.checked');
+        DashTable.getSelectColumnById(1, 'ggg').should('be.checked');
+    });
+});
+
+describe(`column, mode=${AppMode.Actionable}, flavor=${AppFlavor.Merged}, ${AppFlavor.ColumnSelectableSingle}`, () => {
+    beforeEach(() => {
+        cy.visit(`http://localhost:8080?mode=${AppMode.Actionable}&flavor=${[AppFlavor.Merged, AppFlavor.ColumnSelectableSingle].join(';')}`);
+        DashTable.toggleScroll(false);
+    });
+
+    it(`can select multiple columns`, () => {
+        DashTable.selectColumnById(0, 'ccc');
+        DashTable.getSelectColumnById(0, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(1, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ddd').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'fff').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ggg').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ggg').should('not.be.checked');
+
+        DashTable.selectColumnById(1, 'ccc');
+        DashTable.getSelectColumnById(0, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(2, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ddd').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'fff').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ggg').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ggg').should('not.be.checked');
+
+        DashTable.selectColumnById(2, 'ccc');
+        DashTable.getSelectColumnById(0, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'ccc').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ddd').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'fff').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ggg').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ggg').should('not.be.checked');
+
+        DashTable.selectColumnById(0, 'rows');
+        DashTable.getSelectColumnById(0, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'rows').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'rows').should('be.checked');
+        DashTable.getSelectColumnById(0, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(2, 'ccc').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ddd').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'eee').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'fff').should('not.be.checked');
+        DashTable.getSelectColumnById(0, 'ggg').should('not.be.checked');
+        DashTable.getSelectColumnById(1, 'ggg').should('not.be.checked');
     });
 });
 

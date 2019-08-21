@@ -83,7 +83,7 @@ describe('select row', () => {
         });
 
         it('can select row when sorted', () => {
-            cy.get('tr th.column-0 .sort').last().click({ force: true });
+            cy.get('tr th.column-0 .column-header--sort').last().click({ force: true });
             DashTable.getSelect(0).within(() => cy.get('input').click());
             DashTable.getSelect(0).within(() => cy.get('input').should('be.checked'));
         });
@@ -91,7 +91,7 @@ describe('select row', () => {
         it('select, sort, new row is not selected', () => {
             DashTable.getSelect(0).within(() => cy.get('input').click());
             DashTable.getSelect(0).within(() => cy.get('input').should('be.checked'));
-            cy.get('tr th.column-0 .sort').last().click({ force: true });
+            cy.get('tr th.column-0 .column-header--sort').last().click({ force: true });
             DashTable.getSelect(0).within(() => cy.get('input').should('not.be.checked'));
         });
     });
@@ -170,11 +170,11 @@ describe('select row', () => {
             DashTable.getCell(3, 1).click();
             expectCellSelection([3], [3006], [1], [1]);
 
-            cy.get('tr th.column-0 .sort').last().click({ force: true });
+            cy.get('tr th.column-0 .column-header--sort').last().click({ force: true });
 
             expectCellSelection([]);
 
-            cy.get('tr th.column-0 .sort').last().click({ force: true });
+            cy.get('tr th.column-0 .column-header--sort').last().click({ force: true });
 
             DashTable.getSelect(0).within(() => cy.get('input').click());
 

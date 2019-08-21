@@ -69,8 +69,8 @@ export type Data = Datum[];
 export type Datum =  IDatumObject | any;
 export type Indices = number[];
 export type RowId = string | number;
-export type RowSelection = 'single' | 'multi' | false;
 export type SelectedCells = ICellCoordinates[];
+export type Selection = 'single' | 'multi' | false;
 export type SetProps = (...args: any[]) => void;
 export type SetState = (state: Partial<IState>) => void;
 export type SortAsNull = (string | number | boolean)[];
@@ -158,6 +158,7 @@ export interface IBaseColumn {
     editable: boolean;
     hideable?: boolean | boolean[] | 'first' | 'last';
     renamable?: boolean | boolean[] | 'first' | 'last';
+    selectable?: boolean | boolean[] | 'first' | 'last';
     sort_as_null: SortAsNull;
     id: ColumnId;
     name: string | string[];
@@ -262,6 +263,7 @@ export interface IProps {
     tooltip_conditional: ConditionalTooltip[];
 
     active_cell?: ICellCoordinates;
+    column_selectable?: Selection;
     columns?: Columns;
     dropdown?: StaticDropdowns;
     dropdown_conditional?: ConditionalDropdowns;
@@ -279,8 +281,9 @@ export interface IProps {
     fixed_columns?: Fixed;
     fixed_rows?: Fixed;
     row_deletable?: boolean;
-    row_selectable?: RowSelection;
+    row_selectable?: Selection;
     selected_cells?: SelectedCells;
+    selected_columns?: string[];
     selected_rows?: Indices;
     selected_row_ids?: RowId[];
     setProps?: SetProps;
@@ -308,6 +311,7 @@ export interface IProps {
 
 interface IDefaultProps {
     active_cell: ICellCoordinates;
+    column_selectable: Selection;
     columns: Columns;
     dropdown: StaticDropdowns;
     dropdown_conditional: ConditionalDropdowns;
@@ -325,8 +329,9 @@ interface IDefaultProps {
     fixed_columns: Fixed;
     fixed_rows: Fixed;
     row_deletable: boolean;
-    row_selectable: RowSelection;
+    row_selectable: Selection;
     selected_cells: SelectedCells;
+    selected_columns: string[];
     start_cell: ICellCoordinates;
     end_cell: ICellCoordinates;
     selected_rows: Indices;
@@ -361,6 +366,7 @@ interface IDerivedProps {
     derived_viewport_data: Data;
     derived_viewport_indices: Indices;
     derived_viewport_row_ids: RowId[];
+    derived_viewport_selected_columns: string[];
     derived_viewport_selected_rows: Indices;
     derived_viewport_selected_row_ids: RowId[];
     derived_virtual_data: Data;
@@ -390,6 +396,7 @@ export type ControlledTableProps = SanitizedProps & IState & {
     currentTooltip: IUSerInterfaceTooltip;
     paginator: IPaginator;
     viewport: IDerivedData;
+    viewport_selected_columns: string[];
     viewport_selected_rows: Indices;
     virtual: IDerivedData;
     virtual_selected_rows: Indices;
@@ -409,7 +416,7 @@ export interface IFilterFactoryProps {
     map: Map<string, SingleColumnSyntaxTree>;
     rawFilterQuery: string;
     row_deletable: boolean;
-    row_selectable: RowSelection;
+    row_selectable: Selection;
     setFilter: SetFilter;
     style_cell: Style;
     style_cell_conditional: Cells;
@@ -439,7 +446,7 @@ export interface ICellFactoryProps {
     is_focused?: boolean;
     paginator: IPaginator;
     row_deletable: boolean;
-    row_selectable: RowSelection;
+    row_selectable: Selection;
     selected_cells: SelectedCells;
     selected_rows: Indices;
     setProps: SetProps;

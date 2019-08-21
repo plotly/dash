@@ -8,7 +8,7 @@ import {
     Data,
     Datum,
     SetProps,
-    RowSelection,
+    Selection,
     Indices
 } from 'dash-table/components/Table/props';
 
@@ -33,7 +33,7 @@ function deleteRow(idx: number, data: Data, selectedRows: number[]) {
     return newProps;
 }
 
-function rowSelectCell(idx: number, rowSelectable: RowSelection, selectedRows: number[], setProps: SetProps, data: Data) {
+function rowSelectCell(idx: number, rowSelectable: Selection, selectedRows: number[], setProps: SetProps, data: Data) {
     return (<td
         key='select'
         className='dash-select-cell'
@@ -75,7 +75,7 @@ const getter = (
     data: Data,
     viewportData: Data,
     viewportIndices: Indices,
-    rowSelectable: RowSelection,
+    rowSelectable: Selection,
     rowDeletable: boolean,
     selectedRows: number[],
     setProps: SetProps

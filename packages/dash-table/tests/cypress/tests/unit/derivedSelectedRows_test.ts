@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 
-import derivedSelectedRows from 'dash-table/derived/selectedRows';
+import derivedSelectedRows from 'dash-table/derived/selects/rows';
 
 describe('derived selected rows', () => {
     let derive = derivedSelectedRows();

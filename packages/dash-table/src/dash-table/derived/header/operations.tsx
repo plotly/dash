@@ -5,7 +5,7 @@ import { memoizeOneFactory } from 'core/memoizer';
 
 import {
     Datum,
-    RowSelection
+    Selection
 } from 'dash-table/components/Table/props';
 
 function rowSelectCell() {
@@ -27,7 +27,7 @@ function rowDeleteHeader() {
 
 const getter = (
     headerRows: number,
-    rowSelectable: RowSelection,
+    rowSelectable: Selection,
     rowDeletable: boolean
 ): JSX.Element[][] => R.addIndex<Datum, JSX.Element[]>(R.map)(
     () => [

@@ -8,20 +8,17 @@ import {
     ChangeAction,
     ChangeFailure,
     ColumnType,
-    TableAction
+    TableAction,
+    IProps,
+    Columns
 } from 'dash-table/components/Table/props';
 import { TooltipSyntax } from 'dash-table/tooltips/props';
 
 export enum AppMode {
     Actionable = 'actionable',
-    ActionableMerged = 'actionableMerged',
     Date = 'date',
     Default = 'default',
-    Filtering = 'filtering',
-    FixedTooltips = 'fixed,tooltips',
-    FixedVirtualized = 'fixed,virtualized',
     Formatting = 'formatting',
-    MergeDuplicateHeaders = 'mergeDuplicateHeaders',
     ReadOnly = 'readonly',
     ColumnsInSpace = 'columnsInSpace',
     SingleHeaders = 'singleHeaders',
@@ -31,9 +28,19 @@ export enum AppMode {
     Virtualized = 'virtualized'
 }
 
+export enum AppFlavor {
+    ColumnSelectableSingle = 'column_selectable="single"',
+    ColumnSelectableMulti = 'column_selectable="multi"',
+    FilterNative = 'filter_action="native"',
+    FixedColumn = 'fixed_columns={ "headers": true }',
+    FixedColumnPlus1 = 'fixed_columns={ "headers": true, "data": 1 }',
+    FixedRow = 'fixed_rows={ "headers": true }',
+    FixedRowPlus1 = 'fixed_rows={ "headers": true, "data": 1 }',
+    Merged = 'merge_duplicate_headers=true'
+}
+
 export const ReadWriteModes = [
     AppMode.Default,
-    AppMode.FixedVirtualized,
     AppMode.Virtualized
 ];
 
@@ -42,7 +49,7 @@ export const BasicModes = [
     AppMode.ReadOnly
 ];
 
-function getBaseTableProps(mock: IDataMock) {
+function getBaseTableProps(mock: IDataMock): Partial<IProps> {
     return {
         id: 'table',
         columns: mock.columns.map((col: any) => R.merge(col, {
@@ -52,7 +59,7 @@ function getBaseTableProps(mock: IDataMock) {
             },
             renamable: true,
             deletable: true
-        })),
+        })) as Columns,
         dropdown: {
             bbb: {
                 clearable: true,
@@ -71,16 +78,20 @@ function getBaseTableProps(mock: IDataMock) {
         },
         page_action: TableAction.None,
         style_table: {
-            max_height: '800px',
+            maxHeight: '800px',
             height: '800px',
-            max_width: '1000px',
+            maxWidth: '1000px',
             width: '1000px'
         },
+        style_cell: {
+            maxWidth: 150,
+            minWidth: 150,
+            width: 150
+        },
         style_cell_conditional: [
-            { max_width: 150, min_width: 150, width: 150 },
-            { if: { column_id: 'rows' }, max_width: 60, min_width: 60, width: 60 },
-            { if: { column_id: 'bbb' }, max_width: 200, min_width: 200, width: 200 },
-            { if: { column_id: 'bbb-readonly' }, max_width: 200, min_width: 200, width: 200 }
+            { if: { column_id: 'rows' }, maxWidth: 60, minWidth: 60, width: 60 },
+            { if: { column_id: 'bbb' }, maxWidth: 200, minWidth: 200, width: 200 },
+            { if: { column_id: 'bbb-readonly' }, maxWidth: 200, minWidth: 200, width: 200 }
         ]
     };
 }
@@ -125,15 +136,6 @@ function getReadonlyState() {
 function getSpaceInColumn() {
     const state = getDefaultState(generateSpaceMockData);
     state.tableProps.filter_action = TableAction.Native;
-
-    return state;
-}
-
-function getFixedTooltipsState() {
-    const state = getTooltipsState();
-
-    state.tableProps.fixed_columns = { headers: true, data: 1 };
-    state.tableProps.fixed_rows = { headers: true, data: 1 };
 
     return state;
 }
@@ -212,15 +214,9 @@ function getActionableState() {
 
     R.forEach(c => {
         c.clearable = true;
-        c.hideable = [false, false, true];
+        c.hideable = 'last';
+        c.selectable = true;
     }, state.tableProps.columns || []);
-
-    return state;
-}
-
-function getActionableMergedState() {
-    const state = getActionableState();
-    state.tableProps.merge_duplicate_headers = true;
 
     return state;
 }
@@ -256,13 +252,6 @@ function getDateState() {
     return state;
 }
 
-function getFilteringState() {
-    const state = getDefaultState();
-    state.tableProps.filter_action = TableAction.Native;
-
-    return state;
-}
-
 function getVirtualizedState() {
     const mock = generateMockData(5000);
 
@@ -273,25 +262,6 @@ function getVirtualizedState() {
             editable: true,
             fill_width: false,
             sort_action: TableAction.Native,
-            merge_duplicate_headers: false,
-            row_deletable: true,
-            row_selectable: 'single',
-            virtualization: true
-        })
-    };
-}
-
-function getFixedVirtualizedState() {
-    const mock = generateMockData(5000);
-
-    return {
-        filter_query: '',
-        tableProps: R.merge(getBaseTableProps(mock), {
-            data: mock.data,
-            editable: true,
-            sort_action: TableAction.Native,
-            fixed_rows: { headers: true },
-            fixed_columns: { headers: true },
             merge_duplicate_headers: false,
             row_deletable: true,
             row_selectable: 'single',
@@ -355,36 +325,18 @@ function getFormattingState() {
     return state;
 }
 
-function getMergeDuplicateHeadersState() {
-    const state = getDefaultState();
-    state.tableProps.merge_duplicate_headers = true;
-    return state;
-}
-
-function getState() {
-    const mode = Environment.searchParams.get('mode');
-
+function getModeState(mode: string | null) {
     switch (mode) {
         case AppMode.Actionable:
             return getActionableState();
-        case AppMode.ActionableMerged:
-            return getActionableMergedState();
         case AppMode.Date:
             return getDateState();
-        case AppMode.Filtering:
-            return getFilteringState();
-        case AppMode.FixedTooltips:
-            return getFixedTooltipsState();
-        case AppMode.FixedVirtualized:
-            return getFixedVirtualizedState();
         case AppMode.Formatting:
             return getFormattingState();
         case AppMode.ReadOnly:
             return getReadonlyState();
         case AppMode.ColumnsInSpace:
             return getSpaceInColumn();
-        case AppMode.MergeDuplicateHeaders:
-            return getMergeDuplicateHeadersState();
         case AppMode.Tooltips:
             return getTooltipsState();
         case AppMode.Virtualized:
@@ -398,5 +350,21 @@ function getState() {
         default:
             return getDefaultState();
     }
+}
+
+function getState() {
+    const mode = Environment.searchParams.get('mode');
+    const flavorParam = Environment.searchParams.get('flavor');
+    const flavors = flavorParam ? flavorParam.split(';') : [];
+
+    let state = getModeState(mode);
+    flavors.forEach(flavor => {
+        const [key, valueString] = flavor.split('=');
+        const value = JSON.parse(valueString);
+
+        (state.tableProps as any)[key] = value;
+    });
+
+    return state;
 }
 export default getState();

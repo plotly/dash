@@ -370,7 +370,7 @@
             .column-header--delete,
             .column-header--edit,
             .column-header--hide
-            .sort {
+            .column-header--sort {
                 .not-selectable();
                 cursor: pointer;
             }
@@ -439,19 +439,6 @@
 
     .dash-spreadsheet-inner td {
         background-color: white;
-    }
-
-    .sort {
-        cursor: pointer;
-        float: left;
-        color: var(--faded-text-header);
-    }
-
-    th:hover .sort {
-        color: var(--accent);
-    }
-    .sort:hover {
-        text-decoration: underline;
     }
 
     .expanded-row--empty-cell {
@@ -524,26 +511,34 @@
     }
 
     .dash-spreadsheet-inner {
+        [class^='column-header--'] {
+            cursor: pointer;
+            float: left;
+        }
+
+        .column-header--select {
+            height: auto;
+        }
+
+        .column-header--select,
+        .column-header--sort {
+            color: var(--faded-text-header);
+        }
+
+
         .column-header--clear,
         .column-header--delete,
         .column-header--edit,
         .column-header--hide {
-            float: left;
             opacity: 0.1;
             padding-left: 2px;
             padding-right: 2px;
-            cursor: pointer;
         }
 
         th:hover {
-            .column-header--clear,
-            .column-header--delete,
-            .column-header--edit,
-            .column-header--hide {
-                &:not(.disabled) {
-                    color: var(--accent);
-                    opacity: 1;
-                }
+            [class^='column-header--']:not(.disabled) {
+                color: var(--accent);
+                opacity: 1;
             }
         }
     }

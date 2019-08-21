@@ -16,6 +16,7 @@ export default () => {
     const paginationCache = memoizeOneWithFlag((page_current, page_size) => [page_current, page_size]);
     const sortCache = memoizeOneWithFlag(sort => sort);
     const viewportCache = memoizeOneWithFlag(viewport => viewport);
+    const viewportSelectedColumnsCache = memoizeOneWithFlag(viewport => viewport);
     const viewportSelectedRowsCache = memoizeOneWithFlag(viewport => viewport);
     const virtualCache = memoizeOneWithFlag(virtual => virtual);
     const virtualSelectedRowsCache = memoizeOneWithFlag(virtual => virtual);
@@ -33,6 +34,7 @@ export default () => {
             sort_action,
             sort_by,
             viewport,
+            viewport_selected_columns,
             viewport_selected_rows,
             virtual,
             virtual_selected_rows
@@ -43,6 +45,7 @@ export default () => {
         const viewportCached = viewportCache(viewport).cached;
         const virtualCached = virtualCache(virtual).cached;
 
+        const viewportSelectedColumnsCached = viewportSelectedColumnsCache(viewport_selected_columns).cached;
         const viewportSelectedRowsCached = viewportSelectedRowsCache(viewport_selected_rows).cached;
         const virtualSelectedRowsCached = virtualSelectedRowsCache(virtual_selected_rows).cached;
 
@@ -79,6 +82,10 @@ export default () => {
                 i => virtual.data[i].id,
                 virtual_selected_rows
             );
+        }
+
+        if (!viewportSelectedColumnsCached) {
+            newProps.derived_viewport_selected_columns = viewport_selected_columns;
         }
 
         if (!viewportSelectedRowsCached) {
