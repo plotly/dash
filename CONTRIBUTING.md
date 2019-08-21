@@ -8,16 +8,41 @@ Glad that you decided to make your contribution in Dash, to set up your developm
 # in your working directory
 $ git clone https://github.com/plotly/dash
 $ cd dash
-# create a virtualenv
-$ python3 -m venv venv
-# activate the virtualenv (on windows venv\scripts\activate)
-$ . venv/bin/activate
-# Install the dev dependencies
-$ pip install -r .circleci/requirements/dev-requirements.txt
+$ python3 -m venv .venv/dev
+# activate the virtualenv (on windows .venv\dev\scripts\activate)
+$ . .venv/dev/bin/activate
+# install dash and dependencies
+$ pip install -e .[testing,ci]  # in some shells you need \ to escape []
+$ cd dash-renderer
+# build renderer bundles, this will build all bundles from source code
+# the only true source of npm version is defined in package.json
+$ npm run build
+# install dash-renderer for development
+$ pip install -e .
+# you should see both dash and dash-renderer are pointed to local source repos
+$ pip list | grep dash
 ```
+
+### Dash-Renderer Beginner Guide
+
+`Dash Renderer` began as a separate repository. It was merged into the main  `Dash` repository as part of the 1.0 release. It is the common frontend for all Dash backends (**R** and **Python**), and manages React Component layout and backend event handling.
+
+If you want to contribute or simply dig deeper into Dash, we encourage you to play and taste it. This is the most efficient way to learn and understand everything under the hood.
+
+For contributors with a primarily  **Python**  or  **R**  background, this section might help you understand more details about developing and debugging in Javascript world.
+
+As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and generated from the source code. The `dash-renderer\package.json` file is the one version of the truth for dash renderer version and npm dependencies. A build tool `renderer`, which is a tiny Python script installed by Dash as a command-line tool, has a few commands:
+
+1.  `renderer npm`  installs all the npm modules using this  `package.json`  files. Note that the  `package-lock.json`  file is the computed reference product for the versions defined with tilde(~) or caret(^) syntax in npm.
+2.  `renderer bundles` parses the locked version JSON, copies all the peer dependencies into dash_renderer folder, bundles the renderer assets, and generates an `__init__.py` to map all the resources. There are also a list of helpful `scripts` defined in `package.json` you might need to do some handy tasks like linting, syntax format with prettier, etc.
+3.  `renderer digest` computes the content hash of each asset in `dash_renderer` folder, prints out the result in logs, and dumps into a JSON file `digest.json`. Use this when you have a doubt about the current assets in `dash_renderer`, and compare it with previous result in one shot by this command.
+4.  `renderer watch` runs the webpack in watch mode, so any source code change triggers a rebuild. Use this if you are actively updating renderer code and you want to test your changes immediately.
+
+When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
+
 ## Git
 
-Use the [GitHub flow][] when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the default branch).
+Use the [GitHub flow](https://guides.github.com/introduction/flow/) when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the default branch).
 
 ### Organize your commits
 

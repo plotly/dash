@@ -543,9 +543,7 @@ function updateOutput(
         } catch (e) {
             /* eslint-disable no-console */
             console.error(
-                `The following error occurred while executing ${
-                    clientside_function.namespace
-                }.${clientside_function.function_name} ` +
+                `The following error occurred while executing ${clientside_function.namespace}.${clientside_function.function_name} ` +
                     `in order to update component "${payload.output}" ⋁⋁⋁`
             );
             console.error(e);
@@ -566,9 +564,7 @@ function updateOutput(
             /* eslint-disable no-console */
             console.error(
                 'The clientside function ' +
-                    `${clientside_function.namespace}.${
-                        clientside_function.function_name
-                    } ` +
+                    `${clientside_function.namespace}.${clientside_function.function_name} ` +
                     'returned a Promise instead of a value. Promises are not ' +
                     'supported in Dash clientside right now, but may be in the ' +
                     'future.'
@@ -779,9 +775,7 @@ function updateOutput(
                                 function appendIds(child) {
                                     if (hasId(child)) {
                                         keys(child.props).forEach(childProp => {
-                                            const componentIdAndProp = `${
-                                                child.props.id
-                                            }.${childProp}`;
+                                            const componentIdAndProp = `${child.props.id}.${childProp}`;
                                             if (
                                                 has(
                                                     componentIdAndProp,

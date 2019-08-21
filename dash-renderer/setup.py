@@ -1,16 +1,17 @@
+import json
 from setuptools import setup
 
-version = {}
-exec(open('dash_renderer/version.py').read(), version)  # pylint: disable=exec-used
+with open("package.json") as fp:
+    package = json.load(fp)
 
 setup(
-    name='dash_renderer',
-    version=version['__version__'],
-    author='Chris Parmer',
-    author_email='chris@plot.ly',
-    packages=['dash_renderer'],
+    name="dash_renderer",
+    version=package["version"],
+    author="Chris Parmer",
+    author_email="chris@plot.ly",
+    packages=["dash_renderer"],
     include_package_data=True,
-    license='MIT',
-    description='Front-end component renderer for dash',
-    install_requires=[]
+    license="MIT",
+    description="Front-end component renderer for dash",
+    install_requires=[],
 )
