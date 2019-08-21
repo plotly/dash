@@ -1,14 +1,42 @@
-# This is a set of Python keywords that cannot be used as prop names.
-# Keywords for a particular version are obtained as follows:
-# >>> import keyword
-# >>> keyword.kwlist
-
+# keyword.kwlist for both python 2 and 3
 python_keywords = {
-    'and', 'elif', 'is', 'global', 'as', 'in', 'if', 'from', 'raise', 'for',
-    'except', 'nonlocal', 'pass', 'finally', 'print', 'import', 'True', 'None',
-    'return', 'exec', 'await', 'else', 'break', 'not', 'with', 'class',
-    'assert', 'False', 'yield', 'try', 'while', 'continue', 'del', 'async',
-    'or', 'def', 'lambda'
+    "False",
+    "None",
+    "True",
+    "and",
+    "as",
+    "assert",
+    "async",
+    "await",
+    "break",
+    "class",
+    "continue",
+    "def",
+    "del",
+    "elif",
+    "else",
+    "except",
+    "exec",
+    "finally",
+    "for",
+    "from",
+    "global",
+    "if",
+    "import",
+    "in",
+    "is",
+    "lambda",
+    "nonlocal",
+    "not",
+    "or",
+    "pass",
+    "print",
+    "raise",
+    "return",
+    "try",
+    "while",
+    "with",
+    "yield",
 }
 
 # This is a set of R reserved words that cannot be used as function
@@ -19,7 +47,24 @@ python_keywords = {
 # > ?reserved
 
 r_keywords = {
-    'if', 'else', 'repeat', 'while', 'function', 'for', 'in', 'next', 'break',
-    'TRUE', 'FALSE', 'NULL', 'Inf', 'NaN', 'NA', 'NA_integer_', 'NA_real_',
-    'NA_complex_', 'NA_character_', '...'
+    "if",
+    "else",
+    "repeat",
+    "while",
+    "function",
+    "for",
+    "in",
+    "next",
+    "break",
+    "TRUE",
+    "FALSE",
+    "NULL",
+    "Inf",
+    "NaN",
+    "NA",
+    "NA_integer_",
+    "NA_real_",
+    "NA_complex_",
+    "NA_character_",
+    "...",
 }

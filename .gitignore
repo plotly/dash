@@ -62,7 +62,6 @@ node_modules/
 .npm
 npm-debug*
 
-dash_renderer/bundle.js
-dash_renderer/bundle.js.map
-dash_renderer.dev*
-dash_renderer.min*
+dash_renderer/
+digest.json
+VERSION.txt

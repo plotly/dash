@@ -32,8 +32,9 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "dash-generate-components ="
-            " dash.development.component_generator:cli"
+            "dash-generate-components = "
+            "dash.development.component_generator:cli",
+            "renderer = dash.development.build_renderer:main",
         ],
         "pytest11": ["dash = dash.testing.plugin"],
     },
