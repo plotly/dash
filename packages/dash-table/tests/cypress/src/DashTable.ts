@@ -69,6 +69,30 @@ export default class DashTable {
         return cy.get(`#table tbody td.cell--selected`);
     }
 
+    static scrollToTop() {
+        cy.get(`.cell.cell-1-1.dash-fixed-content`).invoke(`outerHeight`).then(height => {
+            cy.scrollTo(0, -height);
+        })
+    }
+
+    static scrollToBottom() {
+        cy.get(`.cell.cell-1-1.dash-fixed-content`).invoke(`outerHeight`).then(height => {
+            cy.scrollTo(0, height);
+        })
+    }
+
+    static getCellInLastRowOfColumn(column: number) {
+        const cellInLastRow = cy.get(`td.dash-cell.column-${column}`).last().then(elem => {
+            const lastRow = elem ? elem.attr(`data-dash-row`) : undefined;
+            return lastRow ? cy.get(`td.dash-cell.column-${column}[data-dash-row="${lastRow}"`) : undefined;
+        });
+        return cellInLastRow;
+    }
+
+    static getCellFromDataDash(row: number, column: number) {
+        return cy.get(`td.column-${column}[data-dash-row="${row}"]`);
+    }
+
     static toggleScroll(toggled: boolean) {
         cy.get('.row-1').then($el => {
             $el[0].style.overflow = toggled ? '' : 'unset';

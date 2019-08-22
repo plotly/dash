@@ -907,14 +907,14 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     }
 
     private adjustTooltipPosition() {
-        const { currentTooltip, virtualized } = this.props;
+        const { currentTooltip } = this.props;
 
         if (!currentTooltip) {
             return;
         }
 
         const id = currentTooltip.id;
-        const row = currentTooltip.row - virtualized.offset.rows;
+        const row = currentTooltip.row;
 
         const { table, tooltip: t } = this.refs as { [key: string]: any };
 

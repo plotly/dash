@@ -83,6 +83,15 @@ Object.values(BasicModes).forEach(mode => {
                 DashTable.getCell(2, 1).should('have.class', 'focused');
                 DashTable.getCell(3, 1).should('not.have.class', 'focused');
             });
+
+            it('can move out of the viewport in virtualized mode', () => {
+                DashTable.toggleScroll(true);
+                for (let i = 0; i < 25; i++) {
+                    DOM.focused.type(Key.ArrowDown);
+                }
+                DOM.focused.type(Key.ArrowRight);
+                DashTable.getCellFromDataDash(28, 2).should('have.class', 'focused');
+            });
         });
 
         describe('with mouse', () => {
@@ -99,6 +108,14 @@ Object.values(BasicModes).forEach(mode => {
                 DashTable.getCell(4, 2).click();
                 DashTable.getCell(4, 2).should('have.class', 'focused');
                 DashTable.getCell(3, 1).should('not.have.class', 'focused');
+            });
+
+            it('can select a cell and scroll it out of the viewport', () => {
+                DashTable.toggleScroll(true);
+                DashTable.getCell(4, 2).click();
+                DashTable.scrollToBottom();
+                DashTable.getCellInLastRowOfColumn(3).click();
+                DashTable.getCell(4, 2).should('not.have.class', 'focused');
             });
         });
     });

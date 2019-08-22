@@ -22,13 +22,13 @@ class Wrappers {
     partialGet = memoizeOne((
         columns: Columns,
         data: Data,
-        _offset: IViewportOffset
+        offset: IViewportOffset
     ) => R.addIndex<Datum, JSX.Element[]>(R.map)(
         (_, rowIndex) => R.addIndex<IColumn, JSX.Element>(R.map)(
             (column, columnIndex) => this.getWrapper(
                 false,
                 false,
-                rowIndex,
+                rowIndex + offset.rows,
                 columnIndex,
                 column
             ), columns), data));
