@@ -34,7 +34,8 @@ setup(
         "console_scripts": [
             "dash-generate-components = "
             "dash.development.component_generator:cli",
-            "renderer = dash.development.build_renderer:main",
+            "renderer = dash.development.build_process:renderer",
+            "dcc = dash.development.build_process:dcc",
         ],
         "pytest11": ["dash = dash.testing.plugin"],
     },

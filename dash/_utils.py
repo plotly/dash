@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import shlex
 import sys
@@ -153,11 +152,9 @@ def job(msg=""):
     def wrapper(func):
         @wraps(func)
         def _wrapper(*args, **kwargs):
-            logger.info(" 🏗️  %s ️️🏗️️ ", msg)
+            logger.info("🏗️  [%s] 🏗️️  - %s", func.__name__, msg)
             res = func(*args, **kwargs)
-            logger.info("::: 🍻🍻🍻 job done 🍻🍻🍻 :::")
+            logger.info("::: 🍻🍻🍻 [%s] job done 🍻🍻🍻 :::", func.__name__)
             return res
-
         return _wrapper
-
     return wrapper
