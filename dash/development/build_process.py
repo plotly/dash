@@ -22,10 +22,11 @@ class BuildProcess(object):
     def __init__(self, main, deps_info):
         self.main = main
         self.deps_info = deps_info
-        self.package_lock = self._concat(self.main, "package-lock.json")
         self.npm_modules = self._concat(self.main, "node_modules")
-        self._parse_package()
+        self.logger = logger
+        self.package_lock = self._concat(self.main, "package-lock.json")
         self.asset_paths = (self.build_folder, self.npm_modules)
+        self._parse_package()
 
     def _parse_package(self):
         with open(self.package_lock, "r") as fp:
@@ -74,7 +75,7 @@ class BuildProcess(object):
         os.chdir(self.main)
         os.system("npm run build:dev")
 
-    @job("run the full building process")
+    @job("run the whole building process in sequence")
     def build(self):
         self.clean()
         self.npm()
@@ -116,12 +117,9 @@ class BuildProcess(object):
                 )
                 sys.exit(1)
 
-        if self.__class__.__name__ == "DCC":
-            shutil.copyfile(
-                self._concat(self.main, "assets", "highlight.pack.js"),
-                self._concat(self.build_folder, "highlight.pack.js"),
-            )
-            logger.info("copy the customized highligh js")
+        self._parse_package()
+
+        getattr(self, "_bundles_extra", lambda: None)()
 
         versions = {
             "version": self.version,
