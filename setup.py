@@ -27,7 +27,7 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=read_req_file("install"),
     extras_require={
-        "ci": read_req_file("ci"),
+        "dev": read_req_file("dev"),
         "testing": read_req_file("testing"),
     },
     entry_points={
@@ -35,7 +35,6 @@ setup(
             "dash-generate-components = "
             "dash.development.component_generator:cli",
             "renderer = dash.development.build_process:renderer",
-            "dcc = dash.development.build_process:dcc",
         ],
         "pytest11": ["dash = dash.testing.plugin"],
     },

@@ -6,7 +6,6 @@ import json
 import string
 import shutil
 import logging
-from builtins import input  # pylint: disable=redefined-builtin
 import coloredlogs
 import fire
 
@@ -84,7 +83,7 @@ class BuildProcess(object):
 
     @job("compute the hash digest for assets")
     def digest(self):
-        copies = (
+        copies = tuple(
             _
             for _ in os.listdir(self.build_folder)
             if os.path.splitext(_)[-1] in {".js", ".map"}
@@ -161,8 +160,7 @@ class Renderer(BuildProcess):
         # dash-renderer's path is binding with the dash folder hierarchy
         super(Renderer, self).__init__(
             self._concat(
-                os.path.abspath(__file__),
-                os.pardir,
+                os.path.dirname(__file__),
                 os.pardir,
                 os.pardir,
                 "dash-renderer",
@@ -178,34 +176,5 @@ class Renderer(BuildProcess):
         )
 
 
-class DCC(BuildProcess):
-    def __init__(self, main=None):
-        main = (
-            os.path.abspath(os.path.expanduser(main)) if main else os.getcwd()
-        )
-        logger.info("start the build process at %s", main)
-        if os.path.basename(main) != "dash-core-components":
-            logger.warning(
-                "⚡ the working folder is not `dash-core-components`. "
-                "Unexpected file operation might happen if we are running the "
-                "process in a wrong place. Try run `dcc build --main={path}` "
-                "or go to the DCC root then execute `dcc build`."
-            )
-            if input("do you want to continue? yes/no\n").lower() != "yes":
-                sys.exit(1)
-
-        super(DCC, self).__init__(
-            main, (("plotly.js-dist", None, "plotly.js", "plotly-{}.min.js"),)
-        )
-        self.asset_paths = self.asset_paths + (
-            self._concat(self.main, "R"),
-            self._concat(self.main, "inst"),
-        )
-
-
 def renderer():
     fire.Fire(Renderer)
-
-
-def dcc():
-    fire.Fire(DCC)
