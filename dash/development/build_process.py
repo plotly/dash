@@ -20,16 +20,17 @@ coloredlogs.install(
 
 class BuildProcess(object):
     def __init__(self, main, deps_info):
+        self.logger = logger
         self.main = main
         self.deps_info = deps_info
         self.npm_modules = self._concat(self.main, "node_modules")
-        self.logger = logger
         self.package_lock = self._concat(self.main, "package-lock.json")
+        self.package = self._concat(self.main, "package.json")
+        self._parse_package(path=self.package)
         self.asset_paths = (self.build_folder, self.npm_modules)
-        self._parse_package()
 
-    def _parse_package(self):
-        with open(self.package_lock, "r") as fp:
+    def _parse_package(self, path):
+        with open(path, "r") as fp:
             package = json.load(fp)
             self.version = package["version"]
             self.name = package["name"]
@@ -117,7 +118,7 @@ class BuildProcess(object):
                 )
                 sys.exit(1)
 
-        self._parse_package()
+        self._parse_package(self.package_lock)
 
         getattr(self, "_bundles_extra", lambda: None)()
 
