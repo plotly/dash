@@ -6,9 +6,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fixed problems with `Graph` components leaking events and being recreated multiple times if declared with no ID [#604](https://github.com/plotly/dash-core-components/pull/604)
 
+### Updated
+- Upgraded plotly.js to 1.49.4 [#612](https://github.com/plotly/dash-core-components/issues/612)
+  - Patch releases [1.49.4](https://github.com/plotly/plotly.js/releases/tag/v1.49.4), [1.49.3](https://github.com/plotly/plotly.js/releases/tag/v1.49.3), [1.49.2](https://github.com/plotly/plotly.js/releases/tag/v1.49.2)
+
+
 ## [1.1.1] - 2019-08-06
+### Updated
 - Upgraded plotly.js to 1.49.1 [#595](https://github.com/plotly/dash-core-components/issues/595)
-- Patch release [1.49.1](https://github.com/plotly/plotly.js/releases/tag/v1.49.1)
+  - Patch release [1.49.1](https://github.com/plotly/plotly.js/releases/tag/v1.49.1)
 
 ## [1.1.0] - 2019-08-05
 ### Changed
