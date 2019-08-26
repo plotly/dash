@@ -230,24 +230,6 @@ class Test2(IntegrationTests):
             "#relayout-data", '{"xaxis.autorange": true}'
         )
 
-    def test_graphs_without_ids(self):
-        app = dash.Dash(__name__)
-        app.layout = html.Div(
-            [
-                dcc.Graph(className="graph-no-id-1"),
-                dcc.Graph(className="graph-no-id-2"),
-            ]
-        )
-
-        self.startServer(app=app)
-
-        graph_1 = self.wait_for_element_by_css_selector(".graph-no-id-1")
-        graph_2 = self.wait_for_element_by_css_selector(".graph-no-id-2")
-
-        self.assertNotEqual(
-            graph_1.get_attribute("id"), graph_2.get_attribute("id")
-        )
-
     def test_interval(self):
         app = dash.Dash(__name__)
         app.layout = html.Div(

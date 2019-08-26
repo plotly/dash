@@ -6,40 +6,27 @@ This package provides the core React component suite for [Dash][].
 
 ## Development
 
-### Testing Locally
+The `dash` package contains some tools to build components and drive the bundles build process.
+To avoid the circular dependency situation, we don't add `dash` as a required install in the `dash-core-components` setup.
+But, in order to do development locally, you need to install `dash` before everything.
 
 1. Install the dependencies with:
 
-```
-$ npm i
-```
+```bash
+# it's recommended to install your python packages in a virtualenv
+# python 2
+$ pip install virtualenv --user && virtualenv venv && . venv/bin/activate
+# python 3
+$ python -m venv && . venv/bin/activate
 
-2. Build the code:
+# make sure dash is installed with dev and testing dependencies
+$ pip install dash[dev,testing]  # in some shells you need \ to escape []
 
-```
-$ npm run build
-```
+# run the build process
+$ npm i --ignore-scripts && npm run build
 
-3. Install the library
-
-```
-$ python setup.py install
-```
-
-I recommend installing the library and running the examples in a fresh virtualenv in a separate folder:
-
-```
-$ mkdir dash_examples # create a new folder to test examples
-$ cd dash_examples
-$ virtualenv venv # create a virtual env
-$ source venv/bin/activate # use the virtual env
-```
-
-(and then repeat step 3).
-
-4. Add the following line to your Dash app
-```
-app.scripts.config.serve_locally = True
+# install dcc in editable mode
+$ pip install -e .
 ```
 
 ### Demo server
@@ -73,12 +60,6 @@ npm run test-unit
 
         # Import dash_core_components to your layout, then run it:
         $ python my_dash_layout.py
-
-## Installing python package locally
-
-You can run
-        $ python setup.py install
-to install the package locally, so you can test it out in your current environment.
 
 ## Uninstalling python package locally
 

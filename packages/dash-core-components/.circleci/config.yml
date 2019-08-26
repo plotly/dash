@@ -31,7 +31,7 @@ jobs:
           name: 🌸 Lint
           command: |
             . venv/bin/activate
-            npm i --ignore-scripts && npm i --ignore-scripts --only=dev
+            npm i --ignore-scripts
             npm run format:test && npm run lint
             flake8 --ignore=E501,F401,F841,F811,W503 tests
       - run:
@@ -80,8 +80,8 @@ jobs:
             . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
             # build main dash
             git clone --depth 1 https://github.com/plotly/dash.git dash-main
-            cd dash-main && pip install -e .[ci,testing] && python setup.py sdist && mv dist/* ../packages/
-            cd dash-renderer && npm i --ignore-scripts && npm run build
+            cd dash-main && pip install -e .[dev,testing] && python setup.py sdist && mv dist/* ../packages/
+            cd dash-renderer && npm run build
             python setup.py sdist && mv dist/* ../../packages/ && cd ../..
             # build dcc
             npm i --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ./packages
@@ -175,6 +175,7 @@ jobs:
             . venv/bin/activate && cd packages && ls -la && mv dash-*.tar.gz main.tar.gz
             pip install main.tar.gz[testing] --quiet && pip list | grep dash | xargs pip uninstall -y
             find . -name "dash*.gz" | xargs pip install && pip install main.tar.gz && pip list | grep dash && cd ..
+            npm run test:pyimport
             TESTFILES=$(circleci tests glob "tests/test_integration_*.py" | circleci tests split --split-by=timings)
             pytest --durations=10 --junitxml=test-reports/junit_legacy.xml ${TESTFILES}
       - store_artifacts:
