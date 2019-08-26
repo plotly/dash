@@ -15,7 +15,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
@@ -34,15 +34,15 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+            pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
@@ -86,15 +86,15 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+            pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
@@ -102,7 +102,7 @@ jobs:
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
               python setup.py sdist && mv dist/* packages/
-              cd dash-renderer && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
@@ -137,15 +137,15 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . -r requires-install.txt -r requires-ci.txt -r requires-testing.txt --quiet
+            pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
@@ -187,7 +187,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-ci.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - attach_workspace:
           at: ~/dash
       - run:
