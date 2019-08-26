@@ -142,9 +142,9 @@ class BuildProcess(object):
                 self._concat(self.build_folder, target),
             )
 
-        logger.info("run `npm run build:webpack`")
+        logger.info("run `npm run build:js`")
         os.chdir(self.main)
-        run_command_with_process("npm run build:webpack")
+        run_command_with_process("npm run build:js")
 
         logger.info("generate the `__init__.py` from template and verisons")
         with open(self._concat(self.main, "init.template")) as fp:
