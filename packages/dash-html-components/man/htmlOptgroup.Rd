@@ -11,9 +11,10 @@ Optgroup is a wrapper for the <optgroup> HTML5 element. For detailed attribute i
 
 \usage{
 htmlOptgroup(children=NULL, id=NULL, n_clicks=NULL, n_clicks_timestamp=NULL, key=NULL,
-role=NULL, disabled=NULL, accessKey=NULL, className=NULL, contentEditable=NULL,
-contextMenu=NULL, dir=NULL, draggable=NULL, hidden=NULL, lang=NULL,
-spellCheck=NULL, style=NULL, tabIndex=NULL, title=NULL, loading_state=NULL)
+role=NULL, disabled=NULL, label=NULL, accessKey=NULL, className=NULL,
+contentEditable=NULL, contextMenu=NULL, dir=NULL, draggable=NULL, hidden=NULL,
+lang=NULL, spellCheck=NULL, style=NULL, tabIndex=NULL, title=NULL,
+loading_state=NULL)
 }
 
 \arguments{
@@ -37,6 +38,8 @@ See https://reactjs.org/docs/lists-and-keys.html for more info}
 \item{role}{Character. The ARIA role attribute}
 
 \item{disabled}{A value equal to: 'disabled', 'disabled' | logical. Indicates whether the user can interact with the element.}
+
+\item{label}{Character. Specifies a user-readable title of the element.}
 
 \item{accessKey}{Character. Defines a keyboard shortcut to activate or add focus to the element.}
 

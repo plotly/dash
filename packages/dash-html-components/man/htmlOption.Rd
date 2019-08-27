@@ -11,7 +11,7 @@ Option is a wrapper for the <option> HTML5 element. For detailed attribute info 
 
 \usage{
 htmlOption(children=NULL, id=NULL, n_clicks=NULL, n_clicks_timestamp=NULL, key=NULL,
-role=NULL, disabled=NULL, selected=NULL, value=NULL, accessKey=NULL,
+role=NULL, disabled=NULL, label=NULL, selected=NULL, value=NULL, accessKey=NULL,
 className=NULL, contentEditable=NULL, contextMenu=NULL, dir=NULL,
 draggable=NULL, hidden=NULL, lang=NULL, spellCheck=NULL, style=NULL,
 tabIndex=NULL, title=NULL, loading_state=NULL)
@@ -38,6 +38,8 @@ See https://reactjs.org/docs/lists-and-keys.html for more info}
 \item{role}{Character. The ARIA role attribute}
 
 \item{disabled}{A value equal to: 'disabled', 'disabled' | logical. Indicates whether the user can interact with the element.}
+
+\item{label}{Character. Specifies a user-readable title of the element.}
 
 \item{selected}{A value equal to: 'selected', 'selected' | logical. Defines a value which will be selected on page load.}
 

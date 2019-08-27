@@ -27,7 +27,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - aria-* (string; optional): A wildcard aria attribute
 - default (a value equal to: 'default', 'DEFAULT' | boolean; optional): Indicates that the track should be enabled unless the user's preferences indicate something different.
 - kind (string; optional): Specifies the kind of text track.
-- label (string; optional): Specifies a user-readable title of the text track.
+- label (string; optional): Specifies a user-readable title of the element.
 - src (string; optional): The URL of the embeddable content.
 - srcLang (string; optional)
 - accessKey (string; optional): Defines a keyboard shortcut to activate or add focus to the element.

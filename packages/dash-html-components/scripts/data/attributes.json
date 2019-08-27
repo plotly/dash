@@ -366,9 +366,11 @@
         },
         "label": {
             "elements": [
+                "optgroup",
+                "option",
                 "track"
             ],
-            "description": "Specifies a user-readable title of the text track."
+            "description": "Specifies a user-readable title of the element."
         },
         "lang": {
             "elements": [
@@ -987,10 +989,12 @@
             "name"
         ],
         "optgroup": [
-            "disabled"
+            "disabled",
+            "label"
         ],
         "option": [
             "disabled",
+            "label",
             "selected",
             "value"
         ],

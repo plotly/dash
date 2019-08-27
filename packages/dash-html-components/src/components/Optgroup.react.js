@@ -90,6 +90,11 @@ Optgroup.propTypes = {
      ]),
 
     /**
+     * Specifies a user-readable title of the element.
+     */
+    'label': PropTypes.string,
+
+    /**
      * Defines a keyboard shortcut to activate or add focus to the element.
      */
     'accessKey': PropTypes.string,

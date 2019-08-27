@@ -18058,6 +18058,13 @@
         "required": false,
         "description": "Indicates whether the user can interact with the element."
       },
+      "label": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies a user-readable title of the element."
+      },
       "accessKey": {
         "type": {
           "name": "string"
@@ -18286,6 +18293,13 @@
         },
         "required": false,
         "description": "Indicates whether the user can interact with the element."
+      },
+      "label": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Specifies a user-readable title of the element."
       },
       "selected": {
         "type": {
@@ -27334,7 +27348,7 @@
           "name": "string"
         },
         "required": false,
-        "description": "Specifies a user-readable title of the text track."
+        "description": "Specifies a user-readable title of the element."
       },
       "src": {
         "type": {

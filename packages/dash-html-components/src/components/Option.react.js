@@ -90,6 +90,11 @@ Option.propTypes = {
      ]),
 
     /**
+     * Specifies a user-readable title of the element.
+     */
+    'label': PropTypes.string,
+
+    /**
      * Defines a value which will be selected on page load.
      */
     'selected': PropTypes.oneOfType([

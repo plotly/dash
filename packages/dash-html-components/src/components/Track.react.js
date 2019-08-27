@@ -95,7 +95,7 @@ Track.propTypes = {
     'kind': PropTypes.string,
 
     /**
-     * Specifies a user-readable title of the text track.
+     * Specifies a user-readable title of the element.
      */
     'label': PropTypes.string,
 

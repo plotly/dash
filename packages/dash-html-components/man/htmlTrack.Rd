@@ -41,7 +41,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info}
 
 \item{kind}{Character. Specifies the kind of text track.}
 
-\item{label}{Character. Specifies a user-readable title of the text track.}
+\item{label}{Character. Specifies a user-readable title of the element.}
 
 \item{src}{Character. The URL of the embeddable content.}
 
