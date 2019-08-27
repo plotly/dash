@@ -1,6 +1,6 @@
 {
   "src/components/A.react.js": {
-    "description": "",
+    "description": "A is a wrapper for the <a> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
     "displayName": "A",
     "methods": [],
     "props": {
@@ -253,7 +253,7 @@
     }
   },
   "src/components/Abbr.react.js": {
-    "description": "",
+    "description": "Abbr is a wrapper for the <abbr> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/abbr",
     "displayName": "Abbr",
     "methods": [],
     "props": {
@@ -457,7 +457,7 @@
     }
   },
   "src/components/Acronym.react.js": {
-    "description": "",
+    "description": "Acronym is a wrapper for the <acronym> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/acronym",
     "displayName": "Acronym",
     "methods": [],
     "props": {
@@ -661,7 +661,7 @@
     }
   },
   "src/components/Address.react.js": {
-    "description": "",
+    "description": "Address is a wrapper for the <address> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/address",
     "displayName": "Address",
     "methods": [],
     "props": {
@@ -865,7 +865,7 @@
     }
   },
   "src/components/Area.react.js": {
-    "description": "",
+    "description": "Area is a wrapper for the <area> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/area",
     "displayName": "Area",
     "methods": [],
     "props": {
@@ -1132,7 +1132,7 @@
     }
   },
   "src/components/Article.react.js": {
-    "description": "",
+    "description": "Article is a wrapper for the <article> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/article",
     "displayName": "Article",
     "methods": [],
     "props": {
@@ -1336,7 +1336,7 @@
     }
   },
   "src/components/Aside.react.js": {
-    "description": "",
+    "description": "Aside is a wrapper for the <aside> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside",
     "displayName": "Aside",
     "methods": [],
     "props": {
@@ -1540,7 +1540,7 @@
     }
   },
   "src/components/Audio.react.js": {
-    "description": "",
+    "description": "Audio is a wrapper for the <audio> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio",
     "displayName": "Audio",
     "methods": [],
     "props": {
@@ -1869,7 +1869,7 @@
     }
   },
   "src/components/B.react.js": {
-    "description": "",
+    "description": "B is a wrapper for the <b> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/b",
     "displayName": "B",
     "methods": [],
     "props": {
@@ -2073,7 +2073,7 @@
     }
   },
   "src/components/Base.react.js": {
-    "description": "",
+    "description": "Base is a wrapper for the <base> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/base",
     "displayName": "Base",
     "methods": [],
     "props": {
@@ -2291,7 +2291,7 @@
     }
   },
   "src/components/Basefont.react.js": {
-    "description": "",
+    "description": "Basefont is a wrapper for the <basefont> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/basefont",
     "displayName": "Basefont",
     "methods": [],
     "props": {
@@ -2495,7 +2495,7 @@
     }
   },
   "src/components/Bdi.react.js": {
-    "description": "",
+    "description": "Bdi is a wrapper for the <bdi> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdi",
     "displayName": "Bdi",
     "methods": [],
     "props": {
@@ -2699,7 +2699,7 @@
     }
   },
   "src/components/Bdo.react.js": {
-    "description": "",
+    "description": "Bdo is a wrapper for the <bdo> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdo",
     "displayName": "Bdo",
     "methods": [],
     "props": {
@@ -2903,7 +2903,7 @@
     }
   },
   "src/components/Big.react.js": {
-    "description": "",
+    "description": "Big is a wrapper for the <big> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/big",
     "displayName": "Big",
     "methods": [],
     "props": {
@@ -3107,7 +3107,7 @@
     }
   },
   "src/components/Blink.react.js": {
-    "description": "",
+    "description": "Blink is a wrapper for the <blink> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/blink",
     "displayName": "Blink",
     "methods": [],
     "props": {
@@ -3311,7 +3311,7 @@
     }
   },
   "src/components/Blockquote.react.js": {
-    "description": "",
+    "description": "Blockquote is a wrapper for the <blockquote> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote",
     "displayName": "Blockquote",
     "methods": [],
     "props": {
@@ -3522,7 +3522,7 @@
     }
   },
   "src/components/Br.react.js": {
-    "description": "",
+    "description": "Br is a wrapper for the <br> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/br",
     "displayName": "Br",
     "methods": [],
     "props": {
@@ -3726,7 +3726,7 @@
     }
   },
   "src/components/Button.react.js": {
-    "description": "",
+    "description": "Button is a wrapper for the <button> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
     "displayName": "Button",
     "methods": [],
     "props": {
@@ -4069,7 +4069,7 @@
     }
   },
   "src/components/Canvas.react.js": {
-    "description": "",
+    "description": "Canvas is a wrapper for the <canvas> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas",
     "displayName": "Canvas",
     "methods": [],
     "props": {
@@ -4303,7 +4303,7 @@
     }
   },
   "src/components/Caption.react.js": {
-    "description": "",
+    "description": "Caption is a wrapper for the <caption> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption",
     "displayName": "Caption",
     "methods": [],
     "props": {
@@ -4507,7 +4507,7 @@
     }
   },
   "src/components/Center.react.js": {
-    "description": "",
+    "description": "Center is a wrapper for the <center> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/center",
     "displayName": "Center",
     "methods": [],
     "props": {
@@ -4711,7 +4711,7 @@
     }
   },
   "src/components/Cite.react.js": {
-    "description": "",
+    "description": "Cite is a wrapper for the <cite> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/cite",
     "displayName": "Cite",
     "methods": [],
     "props": {
@@ -4915,7 +4915,7 @@
     }
   },
   "src/components/Code.react.js": {
-    "description": "",
+    "description": "Code is a wrapper for the <code> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/code",
     "displayName": "Code",
     "methods": [],
     "props": {
@@ -5119,7 +5119,7 @@
     }
   },
   "src/components/Col.react.js": {
-    "description": "",
+    "description": "Col is a wrapper for the <col> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/col",
     "displayName": "Col",
     "methods": [],
     "props": {
@@ -5330,7 +5330,7 @@
     }
   },
   "src/components/Colgroup.react.js": {
-    "description": "",
+    "description": "Colgroup is a wrapper for the <colgroup> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/colgroup",
     "displayName": "Colgroup",
     "methods": [],
     "props": {
@@ -5541,7 +5541,7 @@
     }
   },
   "src/components/Command.react.js": {
-    "description": "",
+    "description": "Command is a wrapper for the <command> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/command",
     "displayName": "Command",
     "methods": [],
     "props": {
@@ -5816,7 +5816,7 @@
     }
   },
   "src/components/Content.react.js": {
-    "description": "",
+    "description": "Content is a wrapper for the <content> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/content",
     "displayName": "Content",
     "methods": [],
     "props": {
@@ -6020,7 +6020,7 @@
     }
   },
   "src/components/Data.react.js": {
-    "description": "",
+    "description": "Data is a wrapper for the <data> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/data",
     "displayName": "Data",
     "methods": [],
     "props": {
@@ -6231,7 +6231,7 @@
     }
   },
   "src/components/Datalist.react.js": {
-    "description": "",
+    "description": "Datalist is a wrapper for the <datalist> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist",
     "displayName": "Datalist",
     "methods": [],
     "props": {
@@ -6435,7 +6435,7 @@
     }
   },
   "src/components/Dd.react.js": {
-    "description": "",
+    "description": "Dd is a wrapper for the <dd> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/dd",
     "displayName": "Dd",
     "methods": [],
     "props": {
@@ -6639,7 +6639,7 @@
     }
   },
   "src/components/Del.react.js": {
-    "description": "",
+    "description": "Del is a wrapper for the <del> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/del",
     "displayName": "Del",
     "methods": [],
     "props": {
@@ -6857,7 +6857,7 @@
     }
   },
   "src/components/Details.react.js": {
-    "description": "",
+    "description": "Details is a wrapper for the <details> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/details",
     "displayName": "Details",
     "methods": [],
     "props": {
@@ -7086,7 +7086,7 @@
     }
   },
   "src/components/Dfn.react.js": {
-    "description": "",
+    "description": "Dfn is a wrapper for the <dfn> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/dfn",
     "displayName": "Dfn",
     "methods": [],
     "props": {
@@ -7290,7 +7290,7 @@
     }
   },
   "src/components/Dialog.react.js": {
-    "description": "",
+    "description": "Dialog is a wrapper for the <dialog> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog",
     "displayName": "Dialog",
     "methods": [],
     "props": {
@@ -7494,7 +7494,7 @@
     }
   },
   "src/components/Div.react.js": {
-    "description": "",
+    "description": "Div is a wrapper for the <div> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/div",
     "displayName": "Div",
     "methods": [],
     "props": {
@@ -7698,7 +7698,7 @@
     }
   },
   "src/components/Dl.react.js": {
-    "description": "",
+    "description": "Dl is a wrapper for the <dl> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/dl",
     "displayName": "Dl",
     "methods": [],
     "props": {
@@ -7902,7 +7902,7 @@
     }
   },
   "src/components/Dt.react.js": {
-    "description": "",
+    "description": "Dt is a wrapper for the <dt> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt",
     "displayName": "Dt",
     "methods": [],
     "props": {
@@ -8106,7 +8106,7 @@
     }
   },
   "src/components/Element.react.js": {
-    "description": "",
+    "description": "Element is a wrapper for the <element> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/element",
     "displayName": "Element",
     "methods": [],
     "props": {
@@ -8310,7 +8310,7 @@
     }
   },
   "src/components/Em.react.js": {
-    "description": "",
+    "description": "Em is a wrapper for the <em> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/em",
     "displayName": "Em",
     "methods": [],
     "props": {
@@ -8514,7 +8514,7 @@
     }
   },
   "src/components/Embed.react.js": {
-    "description": "",
+    "description": "Embed is a wrapper for the <embed> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/embed",
     "displayName": "Embed",
     "methods": [],
     "props": {
@@ -8762,7 +8762,7 @@
     }
   },
   "src/components/Fieldset.react.js": {
-    "description": "",
+    "description": "Fieldset is a wrapper for the <fieldset> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/fieldset",
     "displayName": "Fieldset",
     "methods": [],
     "props": {
@@ -9005,7 +9005,7 @@
     }
   },
   "src/components/Figcaption.react.js": {
-    "description": "",
+    "description": "Figcaption is a wrapper for the <figcaption> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/figcaption",
     "displayName": "Figcaption",
     "methods": [],
     "props": {
@@ -9209,7 +9209,7 @@
     }
   },
   "src/components/Figure.react.js": {
-    "description": "",
+    "description": "Figure is a wrapper for the <figure> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure",
     "displayName": "Figure",
     "methods": [],
     "props": {
@@ -9413,7 +9413,7 @@
     }
   },
   "src/components/Font.react.js": {
-    "description": "",
+    "description": "Font is a wrapper for the <font> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/font",
     "displayName": "Font",
     "methods": [],
     "props": {
@@ -9617,7 +9617,7 @@
     }
   },
   "src/components/Footer.react.js": {
-    "description": "",
+    "description": "Footer is a wrapper for the <footer> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer",
     "displayName": "Footer",
     "methods": [],
     "props": {
@@ -9821,7 +9821,7 @@
     }
   },
   "src/components/Form.react.js": {
-    "description": "",
+    "description": "Form is a wrapper for the <form> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/form",
     "displayName": "Form",
     "methods": [],
     "props": {
@@ -10110,7 +10110,7 @@
     }
   },
   "src/components/Frame.react.js": {
-    "description": "",
+    "description": "Frame is a wrapper for the <frame> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/frame",
     "displayName": "Frame",
     "methods": [],
     "props": {
@@ -10314,7 +10314,7 @@
     }
   },
   "src/components/Frameset.react.js": {
-    "description": "",
+    "description": "Frameset is a wrapper for the <frameset> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/frameset",
     "displayName": "Frameset",
     "methods": [],
     "props": {
@@ -10518,7 +10518,7 @@
     }
   },
   "src/components/H1.react.js": {
-    "description": "",
+    "description": "H1 is a wrapper for the <h1> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1",
     "displayName": "H1",
     "methods": [],
     "props": {
@@ -10722,7 +10722,7 @@
     }
   },
   "src/components/H2.react.js": {
-    "description": "",
+    "description": "H2 is a wrapper for the <h2> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/h2",
     "displayName": "H2",
     "methods": [],
     "props": {
@@ -10926,7 +10926,7 @@
     }
   },
   "src/components/H3.react.js": {
-    "description": "",
+    "description": "H3 is a wrapper for the <h3> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/h3",
     "displayName": "H3",
     "methods": [],
     "props": {
@@ -11130,7 +11130,7 @@
     }
   },
   "src/components/H4.react.js": {
-    "description": "",
+    "description": "H4 is a wrapper for the <h4> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/h4",
     "displayName": "H4",
     "methods": [],
     "props": {
@@ -11334,7 +11334,7 @@
     }
   },
   "src/components/H5.react.js": {
-    "description": "",
+    "description": "H5 is a wrapper for the <h5> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/h5",
     "displayName": "H5",
     "methods": [],
     "props": {
@@ -11538,7 +11538,7 @@
     }
   },
   "src/components/H6.react.js": {
-    "description": "",
+    "description": "H6 is a wrapper for the <h6> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/h6",
     "displayName": "H6",
     "methods": [],
     "props": {
@@ -11742,7 +11742,7 @@
     }
   },
   "src/components/Header.react.js": {
-    "description": "",
+    "description": "Header is a wrapper for the <header> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/header",
     "displayName": "Header",
     "methods": [],
     "props": {
@@ -11946,7 +11946,7 @@
     }
   },
   "src/components/Hgroup.react.js": {
-    "description": "",
+    "description": "Hgroup is a wrapper for the <hgroup> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/hgroup",
     "displayName": "Hgroup",
     "methods": [],
     "props": {
@@ -12150,7 +12150,7 @@
     }
   },
   "src/components/Hr.react.js": {
-    "description": "",
+    "description": "Hr is a wrapper for the <hr> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr",
     "displayName": "Hr",
     "methods": [],
     "props": {
@@ -12354,7 +12354,7 @@
     }
   },
   "src/components/I.react.js": {
-    "description": "",
+    "description": "I is a wrapper for the <i> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/i",
     "displayName": "I",
     "methods": [],
     "props": {
@@ -12558,7 +12558,7 @@
     }
   },
   "src/components/Iframe.react.js": {
-    "description": "",
+    "description": "Iframe is a wrapper for the <iframe> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe",
     "displayName": "Iframe",
     "methods": [],
     "props": {
@@ -12820,7 +12820,7 @@
     }
   },
   "src/components/Img.react.js": {
-    "description": "",
+    "description": "Img is a wrapper for the <img> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/img",
     "displayName": "Img",
     "methods": [],
     "props": {
@@ -13096,7 +13096,7 @@
     }
   },
   "src/components/Ins.react.js": {
-    "description": "",
+    "description": "Ins is a wrapper for the <ins> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/ins",
     "displayName": "Ins",
     "methods": [],
     "props": {
@@ -13314,7 +13314,7 @@
     }
   },
   "src/components/Isindex.react.js": {
-    "description": "",
+    "description": "Isindex is a wrapper for the <isindex> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/isindex",
     "displayName": "Isindex",
     "methods": [],
     "props": {
@@ -13518,7 +13518,7 @@
     }
   },
   "src/components/Kbd.react.js": {
-    "description": "",
+    "description": "Kbd is a wrapper for the <kbd> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/kbd",
     "displayName": "Kbd",
     "methods": [],
     "props": {
@@ -13722,7 +13722,7 @@
     }
   },
   "src/components/Keygen.react.js": {
-    "description": "",
+    "description": "Keygen is a wrapper for the <keygen> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/keygen",
     "displayName": "Keygen",
     "methods": [],
     "props": {
@@ -14008,7 +14008,7 @@
     }
   },
   "src/components/Label.react.js": {
-    "description": "",
+    "description": "Label is a wrapper for the <label> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
     "displayName": "Label",
     "methods": [],
     "props": {
@@ -14226,7 +14226,7 @@
     }
   },
   "src/components/Legend.react.js": {
-    "description": "",
+    "description": "Legend is a wrapper for the <legend> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/legend",
     "displayName": "Legend",
     "methods": [],
     "props": {
@@ -14430,7 +14430,7 @@
     }
   },
   "src/components/Li.react.js": {
-    "description": "",
+    "description": "Li is a wrapper for the <li> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/li",
     "displayName": "Li",
     "methods": [],
     "props": {
@@ -14641,7 +14641,7 @@
     }
   },
   "src/components/Link.react.js": {
-    "description": "",
+    "description": "Link is a wrapper for the <link> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/link",
     "displayName": "Link",
     "methods": [],
     "props": {
@@ -14894,7 +14894,7 @@
     }
   },
   "src/components/Listing.react.js": {
-    "description": "",
+    "description": "Listing is a wrapper for the <listing> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/listing",
     "displayName": "Listing",
     "methods": [],
     "props": {
@@ -15098,7 +15098,7 @@
     }
   },
   "src/components/Main.react.js": {
-    "description": "",
+    "description": "Main is a wrapper for the <main> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
     "displayName": "Main",
     "methods": [],
     "props": {
@@ -15302,7 +15302,7 @@
     }
   },
   "src/components/MapEl.react.js": {
-    "description": "",
+    "description": "MapEl is a wrapper for the <map> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/map",
     "displayName": "MapEl",
     "methods": [],
     "props": {
@@ -15513,7 +15513,7 @@
     }
   },
   "src/components/Mark.react.js": {
-    "description": "",
+    "description": "Mark is a wrapper for the <mark> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark",
     "displayName": "Mark",
     "methods": [],
     "props": {
@@ -15717,7 +15717,7 @@
     }
   },
   "src/components/Marquee.react.js": {
-    "description": "",
+    "description": "Marquee is a wrapper for the <marquee> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee",
     "displayName": "Marquee",
     "methods": [],
     "props": {
@@ -15946,7 +15946,7 @@
     }
   },
   "src/components/Meta.react.js": {
-    "description": "",
+    "description": "Meta is a wrapper for the <meta> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta",
     "displayName": "Meta",
     "methods": [],
     "props": {
@@ -16178,7 +16178,7 @@
     }
   },
   "src/components/Meter.react.js": {
-    "description": "",
+    "description": "Meter is a wrapper for the <meter> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter",
     "displayName": "Meter",
     "methods": [],
     "props": {
@@ -16447,7 +16447,7 @@
     }
   },
   "src/components/Multicol.react.js": {
-    "description": "",
+    "description": "Multicol is a wrapper for the <multicol> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/multicol",
     "displayName": "Multicol",
     "methods": [],
     "props": {
@@ -16651,7 +16651,7 @@
     }
   },
   "src/components/Nav.react.js": {
-    "description": "",
+    "description": "Nav is a wrapper for the <nav> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav",
     "displayName": "Nav",
     "methods": [],
     "props": {
@@ -16855,7 +16855,7 @@
     }
   },
   "src/components/Nextid.react.js": {
-    "description": "",
+    "description": "Nextid is a wrapper for the <nextid> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/nextid",
     "displayName": "Nextid",
     "methods": [],
     "props": {
@@ -17059,7 +17059,7 @@
     }
   },
   "src/components/Nobr.react.js": {
-    "description": "",
+    "description": "Nobr is a wrapper for the <nobr> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/nobr",
     "displayName": "Nobr",
     "methods": [],
     "props": {
@@ -17263,7 +17263,7 @@
     }
   },
   "src/components/Noscript.react.js": {
-    "description": "",
+    "description": "Noscript is a wrapper for the <noscript> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/noscript",
     "displayName": "Noscript",
     "methods": [],
     "props": {
@@ -17467,7 +17467,7 @@
     }
   },
   "src/components/ObjectEl.react.js": {
-    "description": "",
+    "description": "ObjectEl is a wrapper for the <object> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/object",
     "displayName": "ObjectEl",
     "methods": [],
     "props": {
@@ -17729,7 +17729,7 @@
     }
   },
   "src/components/Ol.react.js": {
-    "description": "",
+    "description": "Ol is a wrapper for the <ol> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol",
     "displayName": "Ol",
     "methods": [],
     "props": {
@@ -17965,7 +17965,7 @@
     }
   },
   "src/components/Optgroup.react.js": {
-    "description": "",
+    "description": "Optgroup is a wrapper for the <optgroup> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup",
     "displayName": "Optgroup",
     "methods": [],
     "props": {
@@ -18194,7 +18194,7 @@
     }
   },
   "src/components/Option.react.js": {
-    "description": "",
+    "description": "Option is a wrapper for the <option> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/option",
     "displayName": "Option",
     "methods": [],
     "props": {
@@ -18455,7 +18455,7 @@
     }
   },
   "src/components/Output.react.js": {
-    "description": "",
+    "description": "Output is a wrapper for the <output> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/output",
     "displayName": "Output",
     "methods": [],
     "props": {
@@ -18680,7 +18680,7 @@
     }
   },
   "src/components/P.react.js": {
-    "description": "",
+    "description": "P is a wrapper for the <p> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/p",
     "displayName": "P",
     "methods": [],
     "props": {
@@ -18884,7 +18884,7 @@
     }
   },
   "src/components/Param.react.js": {
-    "description": "",
+    "description": "Param is a wrapper for the <param> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/param",
     "displayName": "Param",
     "methods": [],
     "props": {
@@ -19102,7 +19102,7 @@
     }
   },
   "src/components/Picture.react.js": {
-    "description": "",
+    "description": "Picture is a wrapper for the <picture> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture",
     "displayName": "Picture",
     "methods": [],
     "props": {
@@ -19306,7 +19306,7 @@
     }
   },
   "src/components/Plaintext.react.js": {
-    "description": "",
+    "description": "Plaintext is a wrapper for the <plaintext> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/plaintext",
     "displayName": "Plaintext",
     "methods": [],
     "props": {
@@ -19510,7 +19510,7 @@
     }
   },
   "src/components/Pre.react.js": {
-    "description": "",
+    "description": "Pre is a wrapper for the <pre> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre",
     "displayName": "Pre",
     "methods": [],
     "props": {
@@ -19714,7 +19714,7 @@
     }
   },
   "src/components/Progress.react.js": {
-    "description": "",
+    "description": "Progress is a wrapper for the <progress> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress",
     "displayName": "Progress",
     "methods": [],
     "props": {
@@ -19947,7 +19947,7 @@
     }
   },
   "src/components/Q.react.js": {
-    "description": "",
+    "description": "Q is a wrapper for the <q> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/q",
     "displayName": "Q",
     "methods": [],
     "props": {
@@ -20158,7 +20158,7 @@
     }
   },
   "src/components/Rb.react.js": {
-    "description": "",
+    "description": "Rb is a wrapper for the <rb> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/rb",
     "displayName": "Rb",
     "methods": [],
     "props": {
@@ -20362,7 +20362,7 @@
     }
   },
   "src/components/Rp.react.js": {
-    "description": "",
+    "description": "Rp is a wrapper for the <rp> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/rp",
     "displayName": "Rp",
     "methods": [],
     "props": {
@@ -20566,7 +20566,7 @@
     }
   },
   "src/components/Rt.react.js": {
-    "description": "",
+    "description": "Rt is a wrapper for the <rt> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/rt",
     "displayName": "Rt",
     "methods": [],
     "props": {
@@ -20770,7 +20770,7 @@
     }
   },
   "src/components/Rtc.react.js": {
-    "description": "",
+    "description": "Rtc is a wrapper for the <rtc> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/rtc",
     "displayName": "Rtc",
     "methods": [],
     "props": {
@@ -20974,7 +20974,7 @@
     }
   },
   "src/components/Ruby.react.js": {
-    "description": "",
+    "description": "Ruby is a wrapper for the <ruby> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/ruby",
     "displayName": "Ruby",
     "methods": [],
     "props": {
@@ -21178,7 +21178,7 @@
     }
   },
   "src/components/S.react.js": {
-    "description": "",
+    "description": "S is a wrapper for the <s> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/s",
     "displayName": "S",
     "methods": [],
     "props": {
@@ -21382,7 +21382,7 @@
     }
   },
   "src/components/Samp.react.js": {
-    "description": "",
+    "description": "Samp is a wrapper for the <samp> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/samp",
     "displayName": "Samp",
     "methods": [],
     "props": {
@@ -21586,7 +21586,7 @@
     }
   },
   "src/components/Script.react.js": {
-    "description": "",
+    "description": "Script is a wrapper for the <script> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/script",
     "displayName": "Script",
     "methods": [],
     "props": {
@@ -21875,7 +21875,7 @@
     }
   },
   "src/components/Section.react.js": {
-    "description": "",
+    "description": "Section is a wrapper for the <section> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/section",
     "displayName": "Section",
     "methods": [],
     "props": {
@@ -22079,7 +22079,7 @@
     }
   },
   "src/components/Select.react.js": {
-    "description": "",
+    "description": "Select is a wrapper for the <select> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/select",
     "displayName": "Select",
     "methods": [],
     "props": {
@@ -22423,7 +22423,7 @@
     }
   },
   "src/components/Shadow.react.js": {
-    "description": "",
+    "description": "Shadow is a wrapper for the <shadow> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/shadow",
     "displayName": "Shadow",
     "methods": [],
     "props": {
@@ -22627,7 +22627,7 @@
     }
   },
   "src/components/Slot.react.js": {
-    "description": "",
+    "description": "Slot is a wrapper for the <slot> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot",
     "displayName": "Slot",
     "methods": [],
     "props": {
@@ -22831,7 +22831,7 @@
     }
   },
   "src/components/Small.react.js": {
-    "description": "",
+    "description": "Small is a wrapper for the <small> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/small",
     "displayName": "Small",
     "methods": [],
     "props": {
@@ -23035,7 +23035,7 @@
     }
   },
   "src/components/Source.react.js": {
-    "description": "",
+    "description": "Source is a wrapper for the <source> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/source",
     "displayName": "Source",
     "methods": [],
     "props": {
@@ -23274,7 +23274,7 @@
     }
   },
   "src/components/Spacer.react.js": {
-    "description": "",
+    "description": "Spacer is a wrapper for the <spacer> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/spacer",
     "displayName": "Spacer",
     "methods": [],
     "props": {
@@ -23478,7 +23478,7 @@
     }
   },
   "src/components/Span.react.js": {
-    "description": "",
+    "description": "Span is a wrapper for the <span> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/span",
     "displayName": "Span",
     "methods": [],
     "props": {
@@ -23682,7 +23682,7 @@
     }
   },
   "src/components/Strike.react.js": {
-    "description": "",
+    "description": "Strike is a wrapper for the <strike> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/strike",
     "displayName": "Strike",
     "methods": [],
     "props": {
@@ -23886,7 +23886,7 @@
     }
   },
   "src/components/Strong.react.js": {
-    "description": "",
+    "description": "Strong is a wrapper for the <strong> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong",
     "displayName": "Strong",
     "methods": [],
     "props": {
@@ -24090,7 +24090,7 @@
     }
   },
   "src/components/Sub.react.js": {
-    "description": "",
+    "description": "Sub is a wrapper for the <sub> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub",
     "displayName": "Sub",
     "methods": [],
     "props": {
@@ -24294,7 +24294,7 @@
     }
   },
   "src/components/Summary.react.js": {
-    "description": "",
+    "description": "Summary is a wrapper for the <summary> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary",
     "displayName": "Summary",
     "methods": [],
     "props": {
@@ -24498,7 +24498,7 @@
     }
   },
   "src/components/Sup.react.js": {
-    "description": "",
+    "description": "Sup is a wrapper for the <sup> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup",
     "displayName": "Sup",
     "methods": [],
     "props": {
@@ -24702,7 +24702,7 @@
     }
   },
   "src/components/Table.react.js": {
-    "description": "",
+    "description": "Table is a wrapper for the <table> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/table",
     "displayName": "Table",
     "methods": [],
     "props": {
@@ -24913,7 +24913,7 @@
     }
   },
   "src/components/Tbody.react.js": {
-    "description": "",
+    "description": "Tbody is a wrapper for the <tbody> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody",
     "displayName": "Tbody",
     "methods": [],
     "props": {
@@ -25117,7 +25117,7 @@
     }
   },
   "src/components/Td.react.js": {
-    "description": "",
+    "description": "Td is a wrapper for the <td> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/td",
     "displayName": "Td",
     "methods": [],
     "props": {
@@ -25358,7 +25358,7 @@
     }
   },
   "src/components/Template.react.js": {
-    "description": "",
+    "description": "Template is a wrapper for the <template> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/template",
     "displayName": "Template",
     "methods": [],
     "props": {
@@ -25562,7 +25562,7 @@
     }
   },
   "src/components/Textarea.react.js": {
-    "description": "",
+    "description": "Textarea is a wrapper for the <textarea> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea",
     "displayName": "Textarea",
     "methods": [],
     "props": {
@@ -25954,7 +25954,7 @@
     }
   },
   "src/components/Tfoot.react.js": {
-    "description": "",
+    "description": "Tfoot is a wrapper for the <tfoot> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/tfoot",
     "displayName": "Tfoot",
     "methods": [],
     "props": {
@@ -26158,7 +26158,7 @@
     }
   },
   "src/components/Th.react.js": {
-    "description": "",
+    "description": "Th is a wrapper for the <th> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/th",
     "displayName": "Th",
     "methods": [],
     "props": {
@@ -26406,7 +26406,7 @@
     }
   },
   "src/components/Thead.react.js": {
-    "description": "",
+    "description": "Thead is a wrapper for the <thead> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead",
     "displayName": "Thead",
     "methods": [],
     "props": {
@@ -26610,7 +26610,7 @@
     }
   },
   "src/components/Time.react.js": {
-    "description": "",
+    "description": "Time is a wrapper for the <time> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/time",
     "displayName": "Time",
     "methods": [],
     "props": {
@@ -26821,7 +26821,7 @@
     }
   },
   "src/components/Title.react.js": {
-    "description": "",
+    "description": "Title is a wrapper for the <title> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/title",
     "displayName": "Title",
     "methods": [],
     "props": {
@@ -27025,7 +27025,7 @@
     }
   },
   "src/components/Tr.react.js": {
-    "description": "",
+    "description": "Tr is a wrapper for the <tr> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr",
     "displayName": "Tr",
     "methods": [],
     "props": {
@@ -27229,7 +27229,7 @@
     }
   },
   "src/components/Track.react.js": {
-    "description": "",
+    "description": "Track is a wrapper for the <track> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/track",
     "displayName": "Track",
     "methods": [],
     "props": {
@@ -27486,7 +27486,7 @@
     }
   },
   "src/components/U.react.js": {
-    "description": "",
+    "description": "U is a wrapper for the <u> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/u",
     "displayName": "U",
     "methods": [],
     "props": {
@@ -27690,7 +27690,7 @@
     }
   },
   "src/components/Ul.react.js": {
-    "description": "",
+    "description": "Ul is a wrapper for the <ul> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul",
     "displayName": "Ul",
     "methods": [],
     "props": {
@@ -27894,7 +27894,7 @@
     }
   },
   "src/components/Var.react.js": {
-    "description": "",
+    "description": "Var is a wrapper for the <var> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/var",
     "displayName": "Var",
     "methods": [],
     "props": {
@@ -28098,7 +28098,7 @@
     }
   },
   "src/components/Video.react.js": {
-    "description": "",
+    "description": "Video is a wrapper for the <video> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/video",
     "displayName": "Video",
     "methods": [],
     "props": {
@@ -28464,7 +28464,7 @@
     }
   },
   "src/components/Wbr.react.js": {
-    "description": "",
+    "description": "Wbr is a wrapper for the <wbr> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/wbr",
     "displayName": "Wbr",
     "methods": [],
     "props": {
@@ -28668,7 +28668,7 @@
     }
   },
   "src/components/Xmp.react.js": {
-    "description": "",
+    "description": "Xmp is a wrapper for the <xmp> HTML5 element.\nFor detailed attribute info see:\nhttps://developer.mozilla.org/en-US/docs/Web/HTML/Element/xmp",
     "displayName": "Xmp",
     "methods": [],
     "props": {

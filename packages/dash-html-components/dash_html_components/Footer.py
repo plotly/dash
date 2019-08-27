@@ -5,16 +5,18 @@ from dash.development.base_component import Component, _explicitize_args
 
 class Footer(Component):
     """A Footer component.
-
+Footer is a wrapper for the <footer> HTML5 element.
+For detailed attribute info see:
+https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer
 
 Keyword arguments:
 - children (a list of or a singular dash component, string or number; optional): The children of this component
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- n_clicks (number; optional): An integer that represents the number of times
+- n_clicks (number; default 0): An integer that represents the number of times
 that this element has been clicked on.
-- n_clicks_timestamp (number; optional): An integer that represents the time (in ms since 1970)
+- n_clicks_timestamp (number; default -1): An integer that represents the time (in ms since 1970)
 at which n_clicks changed. This can be used to tell
 which button was changed most recently.
 - key (string; optional): A unique identifier for the component, used to improve
@@ -35,7 +37,7 @@ See https://reactjs.org/docs/lists-and-keys.html for more info
 - style (dict; optional): Defines CSS styles which will override styles previously set.
 - tabIndex (string; optional): Overrides the browser's default tab order and follows the one specified instead.
 - title (string; optional): Text to be displayed in a tooltip when hovering over the element.
-- loading_state (optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
+- loading_state (dict; optional): Object that holds the loading state object coming from dash-renderer. loading_state has the following type: dict containing keys 'is_loading', 'prop_name', 'component_name'.
 Those keys have the following types:
   - is_loading (boolean; optional): Determines if the component is loading or not
   - prop_name (string; optional): Holds which property is loading
