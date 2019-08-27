@@ -73,7 +73,7 @@ Those keys have the following types:
 unless a separate `edits` config item overrides individual parts
   - edits (dict; optional): A set of editable properties. edits has the following type: dict containing keys 'annotationPosition', 'annotationTail', 'annotationText', 'axisTitleText', 'colorbarPosition', 'colorbarTitleText', 'legendPosition', 'legendText', 'shapePosition', 'titleText'.
 Those keys have the following types:
-  - annotationPosition (boolean; optional): annotationPosition: the main anchor of the annotation, which is the
+  - annotationPosition (boolean; optional): The main anchor of the annotation, which is the
 text (if no arrow) or the arrow (which drags the whole thing leaving
 the arrow length & direction unchanged)
   - annotationTail (boolean; optional): Just for annotations with arrows, change the length and direction of the arrow
@@ -114,12 +114,12 @@ honored. By default this is false.
   - modeBarButtonsToRemove (list; optional): Remove mode bar button by name.
 All modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js
 Common names include:
- - sendDataToCloud
-- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d
-- (Cartesian): hoverClosestCartesian, hoverCompareCartesian
-- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d
-- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo
-- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews
+sendDataToCloud;
+(2D) zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d;
+(Cartesian) hoverClosestCartesian, hoverCompareCartesian;
+(3D) zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d;
+(Geo) zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo;
+hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews.
   - modeBarButtonsToAdd (list; optional): Add mode bar button using config objects
   - modeBarButtons (boolean | number | string | dict | list; optional): Fully custom mode bar buttons as nested array,
 where the outer arrays represents button groups, and
