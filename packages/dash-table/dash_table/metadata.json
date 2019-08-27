@@ -69,7 +69,7 @@
                     }
                   }
                 ],
-                "description": "If true, the user can clear the column by clicking on the `clear`\naction button on the column. If there are multiple header rows, true\nwill display the action button on each row.\n\nIf `last`, the `clear` action button will only appear on the last header\nrow. If `first` it will only appear on the first header row. These\nare respectively shortcut equivalents to `[false, ..., false, true]` and\n`[true, ..., true, false]`.\n\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the `clear` action button in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the `clear` action button\non the first row, but not the second row.\n\nIf the `clear` action button appears on a merged column, then clicking\non that button will clear *all* of the merged columns associated with it.\n\nUnlike `column.deletable`, this action does not remove the column(s)\nfrom the table. It only removed the associated entries from `data`.",
+                "description": "If true, the user can clear the column by clicking on the `clear`\naction button on the column. If there are multiple header rows, true\nwill display the action button on each row.\nIf `last`, the `clear` action button will only appear on the last header\nrow. If `first` it will only appear on the first header row. These\nare respectively shortcut equivalents to `[false, ..., false, true]` and\n`[true, false, ..., false]`.\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the `clear` action button in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the `clear` action button\non the first row, but not the second row.\nIf the `clear` action button appears on a merged column, then clicking\non that button will clear *all* of the merged columns associated with it.\nUnlike `column.deletable`, this action does not remove the column(s)\nfrom the table. It only removed the associated entries from `data`.",
                 "required": false
               },
               "deletable": {
@@ -98,12 +98,12 @@
                     }
                   }
                 ],
-                "description": "If true, the user can remove the column by clicking on the `delete`\naction button on the column. If there are multiple header rows, true\nwill display the action button on each row.\n\nIf `last`, the `delete` action button will only appear on the last header\nrow. If `first` it will only appear on the first header row. These\nare respectively shortcut equivalents to `[false, ..., false, true]` and\n`[true, ..., true, false]`.\n\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the `delete` action button in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the `delete` action button\non the first row, but not the second row.\n\nIf the `delete` action button appears on a merged column, then clicking\non that button will remove *all* of the merged columns associated with it.",
+                "description": "If true, the user can remove the column by clicking on the `delete`\naction button on the column. If there are multiple header rows, true\nwill display the action button on each row.\nIf `last`, the `delete` action button will only appear on the last header\nrow. If `first` it will only appear on the first header row. These\nare respectively shortcut equivalents to `[false, ..., false, true]` and\n`[true, false, ..., false]`.\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the `delete` action button in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the `delete` action button\non the first row, but not the second row.\nIf the `delete` action button appears on a merged column, then clicking\non that button will remove *all* of the merged columns associated with it.",
                 "required": false
               },
               "editable": {
                 "name": "bool",
-                "description": "There are two `editable` flags in the table.\nThis is the  column-level editable flag and there is\nalso the table-level `editable` flag.\n\nThese flags determine whether the contents of the table\nare editable or not.\n\nIf the column-level `editable` flag is set it overrides\nthe table-level `editable` flag for that column.",
+                "description": "There are two `editable` flags in the table.\nThis is the  column-level editable flag and there is\nalso the table-level `editable` flag.\nThese flags determine whether the contents of the table\nare editable or not.\nIf the column-level `editable` flag is set it overrides\nthe table-level `editable` flag for that column.",
                 "required": false
               },
               "hideable": {
@@ -132,7 +132,7 @@
                     }
                   }
                 ],
-                "description": "If true, the user can hide the column by clicking on the `hide`\naction button on the column. If there are multiple header rows, true\nwill display the action button on each row.\n\nIf `last`, the `hide` action button will only appear on the last header\nrow. If `first` it will only appear on the first header row. These\nare respectively shortcut equivalents to `[false, ..., false, true]` and\n`[true, ..., true, false]`.\n\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the `hide` action button in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the `hide` action button\non the first row, but not the second row.\n\nIf the `hide` action button appears on a merged column, then clicking\non that button will hide *all* of the merged columns associated with it.",
+                "description": "If true, the user can hide the column by clicking on the `hide`\naction button on the column. If there are multiple header rows, true\nwill display the action button on each row.\nIf `last`, the `hide` action button will only appear on the last header\nrow. If `first` it will only appear on the first header row. These\nare respectively shortcut equivalents to `[false, ..., false, true]` and\n`[true, false, ..., false]`.\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the `hide` action button in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the `hide` action button\non the first row, but not the second row.\nIf the `hide` action button appears on a merged column, then clicking\non that button will hide *all* of the merged columns associated with it.",
                 "required": false
               },
               "renamable": {
@@ -161,7 +161,36 @@
                     }
                   }
                 ],
-                "description": "If true, the user can rename the column by clicking on the `rename`\naction button on the column. If there are multiple header rows, true\nwill display the action button on each row.\n\nIf `last`, the `rename` action button will only appear on the last header\nrow. If `first` it will only appear on the first header row. These\nare respectively shortcut equivalents to `[false, ..., false, true]` and\n`[true, ..., true, false]`.\n\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the `rename` action button in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the `rename` action button\non the first row, but not the second row.\n\nIf the `rename` action button appears on a merged column, then clicking\non that button will rename *all* of the merged columns associated with it.",
+                "description": "If true, the user can rename the column by clicking on the `rename`\naction button on the column. If there are multiple header rows, true\nwill display the action button on each row.\nIf `last`, the `rename` action button will only appear on the last header\nrow. If `first` it will only appear on the first header row. These\nare respectively shortcut equivalents to `[false, ..., false, true]` and\n`[true, false, ..., false]`.\nIf there are merged, multi-header columns then you can choose\nwhich column header row to display the `rename` action button in by\nsupplying an array of booleans.\nFor example, `[true, false]` will display the `rename` action button\non the first row, but not the second row.\nIf the `rename` action button appears on a merged column, then clicking\non that button will rename *all* of the merged columns associated with it.",
+                "required": false
+              },
+              "selectable": {
+                "name": "union",
+                "value": [
+                  {
+                    "name": "enum",
+                    "value": [
+                      {
+                        "value": "'first'",
+                        "computed": false
+                      },
+                      {
+                        "value": "'last'",
+                        "computed": false
+                      }
+                    ]
+                  },
+                  {
+                    "name": "bool"
+                  },
+                  {
+                    "name": "arrayOf",
+                    "value": {
+                      "name": "bool"
+                    }
+                  }
+                ],
+                "description": "If true, the user can select the column by clicking on the checkbox or radio button\nin the column. If there are multiple header rows, true will display the input\non each row.\nIf `last`, the input will only appear on the last header row. If `first` it will only\nappear on the first header row. These are respectively shortcut equivalents to\n`[false, ..., false, true]` and `[true, false, ..., false]`.\nIf there are merged, multi-header columns then you can choose which column header\nrow to display the input in by supplying an array of booleans.\nFor example, `[true, false]` will display the `selectable` input on the first row,\nbut now on the second row.\nIf the `selectable` input appears on a merged columns, then clicking on that input\nwill select *all* of the merged columns associated with it.\nThe table-level prop `column_selectable` is used to determine the type of column\nselection to use.",
                 "required": false
               },
               "format": {
@@ -223,7 +252,7 @@
                     "required": false
                   }
                 },
-                "description": "The formatting applied to the column's data.\n\nThis prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from\nbeing structured slightly differently (under a single prop), the usage\nis the same.\n\n'locale': represents localization specific formatting information\n  When left unspecified, will use the default value provided by d3-format.\n\n  'symbol': (default: ['$', '']) a list of two strings representing the\n  prefix and suffix symbols. Typically used for currency, and implemented using d3's\n  currency format, but you can use this for other symbols such as measurement units.\n  'decimal': (default: '.') the string used for the decimal separator\n  'group': (default: ',') the string used for the groups separator\n  'grouping': (default: [3]) a list of integers representing the grouping pattern\n  'numerals': a list of ten strings used as replacements for numbers 0-9\n  'percent': (default: '%') the string used for the percentage symbol\n  'separate_4digits': (default: True) separate integers with 4-digits or less\n\n'nully': a value that will be used in place of the nully value during formatting\n  If the value type matches the column type, it will be formatted normally\n'prefix': a number representing the SI unit to use during formatting\n  See `dash_table.Format.Prefix` enumeration for the list of valid values\n'specifier': (default: '') represents the rules to apply when formatting the number\n\ndash_table.FormatTemplate contains helper functions to rapidly use certain\ntypical number formats.",
+                "description": "The formatting applied to the column's data.\nThis prop is derived from the [d3-format](https://github.com/d3/d3-format) library specification. Apart from\nbeing structured slightly differently (under a single prop), the usage\nis the same.\n'locale': represents localization specific formatting information.\n When left unspecified, will use the default value provided by d3-format.\n The keys are as follows:\n 'symbol': (default: ['$', '']) a list of two strings representing the\n prefix and suffix symbols. Typically used for currency, and implemented using d3's\n currency format, but you can use this for other symbols such as measurement units;\n 'decimal': (default: '.') the string used for the decimal separator;\n 'group': (default: ',') the string used for the groups separator;\n 'grouping': (default: [3]) a list of integers representing the grouping pattern.\n 'numerals': a list of ten strings used as replacements for numbers 0-9;\n 'percent': (default: '%') the string used for the percentage symbol;\n 'separate_4digits': (default: True) separate integers with 4-digits or less.\n'nully': a value that will be used in place of the nully value during formatting.\n  If the value type matches the column type, it will be formatted normally.\n'prefix': a number representing the SI unit to use during formatting.\n  See `dash_table.Format.Prefix` enumeration for the list of valid values\n'specifier': (default: '') represents the rules to apply when formatting the number.\ndash_table.FormatTemplate contains helper functions to rapidly use certain\ntypical number formats.",
                 "required": false
               },
               "id": {
@@ -302,7 +331,7 @@
                     "required": false
                   }
                 },
-                "description": "The `on_change` behavior of the column for user-initiated modifications.\n'action' (default 'coerce'):\n none: do not validate data\n coerce: check if the data corresponds to the destination type and\n attempts to coerce it into the destination type if not\n validate: check if the data corresponds to the destination type (no coercion)\n\n'failure' (default 'reject'): what to do with the value if the action fails\n accept: use the invalid value\n default: replace the provided value with `validation.default`\n reject: do not modify the existing value",
+                "description": "The `on_change` behavior of the column for user-initiated modifications.\n'action' (default 'coerce'):\n none: do not validate data;\n coerce: check if the data corresponds to the destination type and\n attempts to coerce it into the destination type if not;\n validate: check if the data corresponds to the destination type (no coercion).\n'failure' (default 'reject'): what to do with the value if the action fails:\n accept: use the invalid value;\n default: replace the provided value with `validation.default`;\n reject: do not modify the existing value.",
                 "required": false
               },
               "sort_as_null": {
@@ -340,7 +369,7 @@
                     "required": false
                   }
                 },
-                "description": "The `validation` options.\n'allow_null': Allow the use of nully values (undefined, null, NaN) (default: false)\n'default': The default value to apply with on_change.failure = 'default' (default: null)\n'allow_YY': `datetime` columns only, allow 2-digit years (default: false).\n  If true, we interpret years as ranging from now-70 to now+29 - in 2019\n  this is 1949 to 2048 but in 2020 it will be different. If used with\n  `action: 'coerce'`, will convert user input to a 4-digit year.",
+                "description": "The `validation` options.\n'allow_null': Allow the use of nully values. (undefined, null, NaN) (default: false)\n'default': The default value to apply with on_change.failure = 'default'. (default: null)\n'allow_YY': `datetime` columns only, allow 2-digit years (default: false).\n  If true, we interpret years as ranging from now-70 to now+29 - in 2019\n  this is 1949 to 2048 but in 2020 it will be different. If used with\n  `action: 'coerce'`, will convert user input to a 4-digit year.",
                 "required": false
               },
               "type": {
@@ -363,7 +392,7 @@
                     "computed": false
                   }
                 ],
-                "description": "The data-type of the column's data.\n'numeric': represents both floats and ints\n'text': represents a string\n'datetime': a string representing a date or date-time, in the form:\n  'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must\n  have 4 digits, unless you use `validation.allow_YY: true`. Also\n  accepts 'T' or 't' between date and time, and allows timezone info\n  at the end. To convert these strings to Python `datetime` objects,\n  use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the\n  `parsedate` library.\n  WARNING: these parsers do not work with 2-digit years, if you use\n  `validation.allow_YY: true` and do not coerce to 4-digit years.\n  And parsers that do work with 2-digit years may make a different\n  guess about the century than we make on the front end.\n'any': represents any type of data\n\nDefaults to 'any' if undefined.\n\nNOTE: This feature has not been fully implemented.\nIn the future, it's data types will impact things like\ntext formatting options in the cell (e.g. display 2 decimals\nfor a number), filtering options and behavior, and editing\nbehavior.\nStay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)",
+                "description": "The data-type of the column's data.\n'numeric': represents both floats and ints.\n'text': represents a string.\n'datetime': a string representing a date or date-time, in the form:\n  'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years must\n  have 4 digits, unless you use `validation.allow_YY: true`. Also\n  accepts 'T' or 't' between date and time, and allows timezone info\n  at the end. To convert these strings to Python `datetime` objects,\n  use `dateutil.parser.isoparse`. In R use `parse_iso_8601` from the\n  `parsedate` library.\n  WARNING: these parsers do not work with 2-digit years, if you use\n  `validation.allow_YY: true` and do not coerce to 4-digit years.\n  And parsers that do work with 2-digit years may make a different\n  guess about the century than we make on the front end.\n'any': represents any type of data.\nDefaults to 'any' if undefined.\nNOTE: This feature has not been fully implemented.\nIn the future, it's data types will impact things like\ntext formatting options in the cell (e.g. display 2 decimals\nfor a number), filtering options and behavior, and editing\nbehavior.\nStay tuned by following [https://github.com/plotly/dash-table/issues/166](https://github.com/plotly/dash-table/issues/166)",
                 "required": false
               }
             }
@@ -431,7 +460,7 @@
           }
         },
         "required": false,
-        "description": "The localization specific formatting information applied to all columns in the table.\n\nThis prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.\n\nWhen left unspecified, each individual nested prop will default to a pre-determined value.\n\n  'symbol': (default: ['$', '']) a list of two strings representing the\n  prefix and suffix symbols. Typically used for currency, and implemented using d3's\n  currency format, but you can use this for other symbols such as measurement units.\n  'decimal': (default: '.') the string used for the decimal separator\n  'group': (default: ',') the string used for the groups separator\n  'grouping': (default: [3]) a list of integers representing the grouping pattern\n  'numerals': a list of ten strings used as replacements for numbers 0-9\n  'percent': (default: '%') the string used for the percentage symbol\n  'separate_4digits': (default: True) separate integers with 4-digits or less"
+        "description": "The localization specific formatting information applied to all columns in the table.\nThis prop is derived from the [d3.formatLocale](https://github.com/d3/d3-format#formatLocale) data structure specification.\nWhen left unspecified, each individual nested prop will default to a pre-determined value.\n  'symbol': (default: ['$', '']) a list of two strings representing the\n  prefix and suffix symbols. Typically used for currency, and implemented using d3's\n  currency format, but you can use this for other symbols such as measurement units.\n  'decimal': (default: '.') the string used for the decimal separator.\n  'group': (default: ',') the string used for the groups separator.\n  'grouping': (default: [3]) a list of integers representing the grouping pattern.\n  'numerals': a list of ten strings used as replacements for numbers 0-9.\n  'percent': (default: '%') the string used for the percentage symbol.\n  'separate_4digits': (default: True) separate integers with 4-digits or less."
       },
       "css": {
         "type": {
@@ -451,7 +480,7 @@
           }
         },
         "required": false,
-        "description": "The `css` property is a way to embed CSS selectors and rules\nonto the page.\nWe recommend starting with the `style_*` properties\nbefore using this `css` property.\n\nExample:\n[\n    {\"selector\": \".dash-spreadsheet\", \"rule\": 'font-family: \"monospace\"'}\n]",
+        "description": "The `css` property is a way to embed CSS selectors and rules\nonto the page.\nWe recommend starting with the `style_*` properties\nbefore using this `css` property.\nExample:\n[\n    {\"selector\": \".dash-spreadsheet\", \"rule\": 'font-family: \"monospace\"'}\n]",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -465,7 +494,7 @@
           }
         },
         "required": false,
-        "description": "The contents of the table.\nThe keys of each item in data should match the column IDs.\nEach item can also have an 'id' key, whose value is its row ID. If there\nis a column with ID='id' this will display the row ID, otherwise it is\njust used to reference the row for selections, filtering, etc.\n\nExample:\n\n[\n     {'column-1': 4.5, 'column-2': 'montreal', 'column-3': 'canada'},\n     {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}\n]",
+        "description": "The contents of the table.\nThe keys of each item in data should match the column IDs.\nEach item can also have an 'id' key, whose value is its row ID. If there\nis a column with ID='id' this will display the row ID, otherwise it is\njust used to reference the row for selections, filtering, etc.\nExample:\n[\n     {'column-1': 4.5, 'column-2': 'montreal', 'column-3': 'canada'},\n     {'column-1': 8, 'column-2': 'boston', 'column-3': 'america'}\n]",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -493,7 +522,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "If True, then the data in all of the cells is editable.\nWhen `editable` is True, particular columns can be made\nuneditable by setting `editable` to `False` inside the `columns`\nproperty.\n\nIf False, then the data in all of the cells is uneditable.\nWhen `editable` is False, particular columns can be made\neditable by setting `editable` to `True` inside the `columns`\nproperty.",
+        "description": "If True, then the data in all of the cells is editable.\nWhen `editable` is True, particular columns can be made\nuneditable by setting `editable` to `False` inside the `columns`\nproperty.\nIf False, then the data in all of the cells is uneditable.\nWhen `editable` is False, particular columns can be made\neditable by setting `editable` to `True` inside the `columns`\nproperty.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -587,7 +616,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "`fill_width` toggles between a set of CSS for two common behaviors:\n- True: The table container's width will grow to fill the available space\n- False: The table container's width will equal the width of its content",
+        "description": "`fill_width` toggles between a set of CSS for two common behaviors:\nTrue: The table container's width will grow to fill the available space;\nFalse: The table container's width will equal the width of its content.",
         "defaultValue": {
           "value": "true",
           "computed": false
@@ -601,7 +630,7 @@
           }
         },
         "required": false,
-        "description": "List of columns ids of the columns that are currently hidden.\n\nSee the associated nested prop `columns.hideable`."
+        "description": "List of columns ids of the columns that are currently hidden.\nSee the associated nested prop `columns.hideable`."
       },
       "id": {
         "type": {
@@ -675,7 +704,7 @@
           ]
         },
         "required": false,
-        "description": "`fixed_columns` will \"fix\" the set of columns so that\nthey remain visible when scrolling horizontally across\nthe unfixed columns. `fixed_columns` fixes columns\nfrom left-to-right.\n\nIf `headers` is False, no columns are fixed.\nIf `headers` is True, all operation columns (see `row_deletable` and `row_selectable`)\nare fixed. Additional data columns can be fixed by\nassigning a number to `data`.\n\nDefaults to `{ headers: False }`.\n\nNote that fixing columns introduces some changes to the\nunderlying markup of the table and may impact the\nway that your columns are rendered or sized.\nView the documentation examples to learn more.",
+        "description": "`fixed_columns` will \"fix\" the set of columns so that\nthey remain visible when scrolling horizontally across\nthe unfixed columns. `fixed_columns` fixes columns\nfrom left-to-right.\nIf `headers` is False, no columns are fixed.\nIf `headers` is True, all operation columns (see `row_deletable` and `row_selectable`)\nare fixed. Additional data columns can be fixed by\nassigning a number to `data`.\nDefaults to `{ headers: False }`.\nNote that fixing columns introduces some changes to the\nunderlying markup of the table and may impact the\nway that your columns are rendered or sized.\nView the documentation examples to learn more.",
         "defaultValue": {
           "value": "{\n    headers: false,\n    data: 0\n}",
           "computed": false
@@ -732,9 +761,34 @@
           ]
         },
         "required": false,
-        "description": "`fixed_rows` will \"fix\" the set of rows so that\nthey remain visible when scrolling vertically down\nthe table. `fixed_rows` fixes rows\nfrom top-to-bottom, starting from the headers.\n\nIf `headers` is False, no rows are fixed.\nIf `headers` is True, all header and filter rows (see `filter_action`) are\nfixed. Additional data rows can be fixed by assigning\na number to `data`.\n\nDefaults to `{ headers: False }`.\n\nNote that fixing rows introduces some changes to the\nunderlying markup of the table and may impact the\nway that your columns are rendered or sized.\nView the documentation examples to learn more.",
+        "description": "`fixed_rows` will \"fix\" the set of rows so that\nthey remain visible when scrolling vertically down\nthe table. `fixed_rows` fixes rows\nfrom top-to-bottom, starting from the headers.\nIf `headers` is False, no rows are fixed.\nIf `headers` is True, all header and filter rows (see `filter_action`) are\nfixed. Additional data rows can be fixed by assigning\na number to `data`.\nDefaults to `{ headers: False }`.\nNote that fixing rows introduces some changes to the\nunderlying markup of the table and may impact the\nway that your columns are rendered or sized.\nView the documentation examples to learn more.",
         "defaultValue": {
           "value": "{\n    headers: false,\n    data: 0\n}",
+          "computed": false
+        }
+      },
+      "column_selectable": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'single'",
+              "computed": false
+            },
+            {
+              "value": "'multi'",
+              "computed": false
+            },
+            {
+              "value": "false",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "If `single`, then the uer can select a single column or group\nof merged columns via the radio button that will appear in the\nheader rows.\nIf `multi`, then the user can select multiple columns or groups\nof merged columns via the checkbox that will appear in the header\nrows.\nIf false, then the user will not be able to select columns and no\ninput will appear in the header rows.\nWhen a column is selected, its id will be contained in `selected_columns`\nand `derived_viewport_selected_columns`.",
+        "defaultValue": {
+          "value": "false",
           "computed": false
         }
       },
@@ -764,7 +818,7 @@
           ]
         },
         "required": false,
-        "description": "If `single`, then the user can select a single row\nvia a radio button that will appear next to each row.\nIf `multi`, then the user can select multiple rows\nvia a checkbox that will appear next to each row.\nIf `False`, then the user will not be able to select rows\nand no additional UI elements will appear.\n\nWhen a row is selected, its index will be contained\nin `selected_rows`.",
+        "description": "If `single`, then the user can select a single row\nvia a radio button that will appear next to each row.\nIf `multi`, then the user can select multiple rows\nvia a checkbox that will appear next to each row.\nIf false, then the user will not be able to select rows\nand no additional UI elements will appear.\nWhen a row is selected, its index will be contained\nin `selected_rows`.",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -819,6 +873,20 @@
         },
         "required": false,
         "description": "`selected_rows` contains the indices of rows that\nare selected via the UI elements that appear when\n`row_selectable` is `'single'` or `'multi'`.",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "selected_columns": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "`selected_columns` contains the ids of columns that\nare selected via the UI elements that appear when\n`column_selectable` is `'single' or 'multi'`.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -916,7 +984,7 @@
           ]
         },
         "required": false,
-        "description": "`page_action` refers to a mode of the table where\nnot all of the rows are displayed at once: only a subset\nare displayed (a \"page\") and the next subset of rows\ncan viewed by clicking \"Next\" or \"Previous\" buttons\nat the bottom of the page.\n\nPagination is used to improve performance: instead of\nrendering all of the rows at once (which can be expensive),\nwe only display a subset of them.\n\nWith pagination, we can either page through data that exists\nin the table (e.g. page through `10,000` rows in `data` `100` rows at a time)\nor we can update the data on-the-fly with callbacks\nwhen the user clicks on the \"Previous\" or \"Next\" buttons.\nThese modes can be toggled with this `page_action` parameter:\n- `'native'`: all data is passed to the table up-front, paging logic is\nhandled by the table\n- `'custom'`: data is passed to the table one page at a time, paging logic\nis handled via callbacks\n- `none`: disables paging, render all of the data at once",
+        "description": "`page_action` refers to a mode of the table where\nnot all of the rows are displayed at once: only a subset\nare displayed (a \"page\") and the next subset of rows\ncan viewed by clicking \"Next\" or \"Previous\" buttons\nat the bottom of the page.\nPagination is used to improve performance: instead of\nrendering all of the rows at once (which can be expensive),\nwe only display a subset of them.\nWith pagination, we can either page through data that exists\nin the table (e.g. page through `10,000` rows in `data` `100` rows at a time)\nor we can update the data on-the-fly with callbacks\nwhen the user clicks on the \"Previous\" or \"Next\" buttons.\nThese modes can be toggled with this `page_action` parameter:\n`'native'`: all data is passed to the table up-front, paging logic is\nhandled by the table;\n`'custom'`: data is passed to the table one page at a time, paging logic\nis handled via callbacks;\n`none`: disables paging, render all of the data at once.",
         "defaultValue": {
           "value": "'native'",
           "computed": false
@@ -983,7 +1051,7 @@
           }
         },
         "required": false,
-        "description": "`dropdown` specifies dropdown options for different columns.\n\nEach entry refers to the column ID.\nThe `clearable` property defines whether the value can be deleted.\nThe `options` property refers to the `options` of the dropdown.",
+        "description": "`dropdown` specifies dropdown options for different columns.\nEach entry refers to the column ID.\nThe `clearable` property defines whether the value can be deleted.\nThe `options` property refers to the `options` of the dropdown.",
         "defaultValue": {
           "value": "{}",
           "computed": false
@@ -1042,7 +1110,7 @@
           }
         },
         "required": false,
-        "description": "`dropdown_conditional` specifies dropdown options in various columns and cells.\n\nThis property allows you to specify different dropdowns\ndepending on certain conditions. For example, you may\nrender different \"city\" dropdowns in a row depending on the\ncurrent value in the \"state\" column.",
+        "description": "`dropdown_conditional` specifies dropdown options in various columns and cells.\nThis property allows you to specify different dropdowns\ndepending on certain conditions. For example, you may\nrender different \"city\" dropdowns in a row depending on the\ncurrent value in the \"state\" column.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1090,7 +1158,7 @@
           }
         },
         "required": false,
-        "description": "`dropdown_data` specifies dropdown options on a row-by-row, column-by-column basis.\n\nEach item in the array corresponds to the corresponding dropdowns for the `data` item\nat the same index. Each entry in the item refers to the Column ID.",
+        "description": "`dropdown_data` specifies dropdown options on a row-by-row, column-by-column basis.\nEach item in the array corresponds to the corresponding dropdowns for the `data` item\nat the same index. Each entry in the item refers to the Column ID.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1140,7 +1208,7 @@
           }
         },
         "required": false,
-        "description": "`tooltip` represents the tooltip shown\nfor different columns.\nThe `property` name refers to the column ID.\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\n\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case.",
+        "description": "`tooltip` represents the tooltip shown\nfor different columns.\nThe `property` name refers to the column ID.\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case.",
         "defaultValue": {
           "value": "{}",
           "computed": false
@@ -1218,7 +1286,7 @@
           }
         },
         "required": false,
-        "description": "`tooltip_conditional` represents the tooltip shown\nfor different columns and cells.\n\nThis property allows you to specify different tooltips for\ndepending on certain conditions. For example, you may have\ndifferent tooltips in the same column based on the value\nof a certain data property.\n\nPriority is from first to last defined conditional tooltip\nin the list. Higher priority (more specific) conditional\ntooltips should be put at the beginning of the list.\n\nThe `if` refers to the condition that needs to be fulfilled\nin order for the associated tooltip configuration to be\nused. If multiple conditions are defined, all conditions\nmust be met for the tooltip to be used by a cell.\n\nThe `if` nested property `column_id` refers to the column\nID that must be matched.\nThe `if` nested property `row_index` refers to the index\nof the row in the source `data`.\nThe `if` nested property `filter_query` refers to the query that\nmust evaluate to True.\n\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.",
+        "description": "`tooltip_conditional` represents the tooltip shown\nfor different columns and cells.\nThis property allows you to specify different tooltips for\ndepending on certain conditions. For example, you may have\ndifferent tooltips in the same column based on the value\nof a certain data property.\nPriority is from first to last defined conditional tooltip\nin the list. Higher priority (more specific) conditional\ntooltips should be put at the beginning of the list.\nThe `if` refers to the condition that needs to be fulfilled\nin order for the associated tooltip configuration to be\nused. If multiple conditions are defined, all conditions\nmust be met for the tooltip to be used by a cell.\nThe `if` nested property `column_id` refers to the column\nID that must be matched.\nThe `if` nested property `row_index` refers to the index\nof the row in the source `data`.\nThe `if` nested property `filter_query` refers to the query that\nmust evaluate to True.\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1271,7 +1339,7 @@
           }
         },
         "required": false,
-        "description": "`tooltip_data` represents the tooltip shown\nfor different columns and cells.\nThe `property` name refers to the column ID. Each property\ncontains a list of tooltips mapped to the source `data`\nrow index.\n\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\n\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case.",
+        "description": "`tooltip_data` represents the tooltip shown\nfor different columns and cells.\nThe `property` name refers to the column ID. Each property\ncontains a list of tooltips mapped to the source `data`\nrow index.\nThe `type` refers to the type of tooltip syntax used\nfor the tooltip generation. Can either be `markdown`\nor `text`. Defaults to `text`.\nThe `value` refers to the syntax-based content of\nthe tooltip. This value is required.\nThe `delay` represents the delay in milliseconds before\nthe tooltip is shown when hovering a cell. This overrides\nthe table's `tooltip_delay` property. If set to `null`,\nthe tooltip will be shown immediately.\nThe `duration` represents the duration in milliseconds\nduring which the tooltip is shown when hovering a cell.\nThis overrides the table's `tooltip_duration` property.\nIf set to `null`, the tooltip will not disappear.\nAlternatively, the value of the property can also be\na plain string. The `text` syntax will be used in\nthat case.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1282,7 +1350,7 @@
           "name": "number"
         },
         "required": false,
-        "description": "`tooltip_delay` represents the table-wide delay in milliseconds before\nthe tooltip is shown when hovering a cell. If set to `null`, the tooltip\nwill be shown immediately.\n\nDefaults to 350.",
+        "description": "`tooltip_delay` represents the table-wide delay in milliseconds before\nthe tooltip is shown when hovering a cell. If set to `null`, the tooltip\nwill be shown immediately.\nDefaults to 350.",
         "defaultValue": {
           "value": "350",
           "computed": false
@@ -1293,7 +1361,7 @@
           "name": "number"
         },
         "required": false,
-        "description": "`tooltip_duration` represents the table-wide duration in milliseconds\nduring which the tooltip will be displayed when hovering a cell. If\nset to `null`, the tooltip will not disappear.\n\nDefaults to 2000.",
+        "description": "`tooltip_duration` represents the table-wide duration in milliseconds\nduring which the tooltip will be displayed when hovering a cell. If\nset to `null`, the tooltip will not disappear.\nDefaults to 2000.",
         "defaultValue": {
           "value": "2000",
           "computed": false
@@ -1329,7 +1397,7 @@
           ]
         },
         "required": false,
-        "description": "The `filter_action` property controls the behavior of the `filtering` UI.\n\nIf `'none'`, then the filtering UI is not displayed\nIf `'native'`, then the filtering UI is displayed and the filtering\nlogic is handled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, then the filtering UI is displayed but it is the\nresponsibility of the developer to program the filtering\nthrough a callback (where `filter_query` or `derived_filter_query_structure` would be the input\nand `data` would be the output).",
+        "description": "The `filter_action` property controls the behavior of the `filtering` UI.\nIf `'none'`, then the filtering UI is not displayed.\nIf `'native'`, then the filtering UI is displayed and the filtering\nlogic is handled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, then the filtering UI is displayed but it is the\nresponsibility of the developer to program the filtering\nthrough a callback (where `filter_query` or `derived_filter_query_structure` would be the input\nand `data` would be the output).",
         "defaultValue": {
           "value": "'none'",
           "computed": false
@@ -1354,7 +1422,7 @@
           ]
         },
         "required": false,
-        "description": "The `sort_action` property enables data to be\nsorted on a per-column basis.\n\nIf `'none'`, then the sorting UI is not displayed.\nIf `'native'`, then the sorting UI is displayed and the sorting\nlogic is hanled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, the the sorting UI is displayed but it is the\nresponsibility of the developer to program the sorting\nthrough a callback (where `sort_by` would be the input and `data`\nwould be the output).\n\nClicking on the sort arrows will update the\n`sort_by` property.",
+        "description": "The `sort_action` property enables data to be\nsorted on a per-column basis.\nIf `'none'`, then the sorting UI is not displayed.\nIf `'native'`, then the sorting UI is displayed and the sorting\nlogic is hanled by the table. That is, it is performed on the data\nthat exists in the `data` property.\nIf `'custom'`, the the sorting UI is displayed but it is the\nresponsibility of the developer to program the sorting\nthrough a callback (where `sort_by` would be the input and `data`\nwould be the output).\nClicking on the sort arrows will update the\n`sort_by` property.",
         "defaultValue": {
           "value": "'none'",
           "computed": false
@@ -1375,7 +1443,7 @@
           ]
         },
         "required": false,
-        "description": "Sorting can be performed across multiple columns\n(e.g. sort by country, sort within each country,\n sort by year) or by a single column.\n\nNOTE - With multi-column sort, it's currently\nnot possible to determine the order in which\nthe columns were sorted through the UI.\nSee [https://github.com/plotly/dash-table/issues/170](https://github.com/plotly/dash-table/issues/170)",
+        "description": "Sorting can be performed across multiple columns\n(e.g. sort by country, sort within each country,\n sort by year) or by a single column.\nNOTE - With multi-column sort, it's currently\nnot possible to determine the order in which\nthe columns were sorted through the UI.\nSee [https://github.com/plotly/dash-table/issues/170](https://github.com/plotly/dash-table/issues/170)",
         "defaultValue": {
           "value": "'single'",
           "computed": false
@@ -1434,7 +1502,7 @@
           }
         },
         "required": false,
-        "description": "An array of string, number and boolean values that are treated as `null`\n(i.e. ignored and always displayed last) when sorting.\nThis value will be used by columns without `sort_as_null`.\n\nDefaults to `[]`.",
+        "description": "An array of string, number and boolean values that are treated as `null`\n(i.e. ignored and always displayed last) when sorting.\nThis value will be used by columns without `sort_as_null`.\nDefaults to `[]`.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1445,7 +1513,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "CSS styles to be applied to the outer `table` container.\n\nThis is commonly used for setting properties like the\nwidth or the height of the table.",
+        "description": "CSS styles to be applied to the outer `table` container.\nThis is commonly used for setting properties like the\nwidth or the height of the table.",
         "defaultValue": {
           "value": "{}",
           "computed": false
@@ -1456,28 +1524,28 @@
           "name": "object"
         },
         "required": false,
-        "description": "CSS styles to be applied to each individual cell of the table.\n\nThis includes the header cells, the `data` cells, and the filter\ncells."
+        "description": "CSS styles to be applied to each individual cell of the table.\nThis includes the header cells, the `data` cells, and the filter\ncells."
       },
       "style_data": {
         "type": {
           "name": "object"
         },
         "required": false,
-        "description": "CSS styles to be applied to each individual data cell.\n\nThat is, unlike `style_cell`, it excludes the header and filter cells."
+        "description": "CSS styles to be applied to each individual data cell.\nThat is, unlike `style_cell`, it excludes the header and filter cells."
       },
       "style_filter": {
         "type": {
           "name": "object"
         },
         "required": false,
-        "description": "CSS styles to be applied to the filter cells.\n\nNote that this may change in the future as we build out a\nmore complex filtering UI."
+        "description": "CSS styles to be applied to the filter cells.\nNote that this may change in the future as we build out a\nmore complex filtering UI."
       },
       "style_header": {
         "type": {
           "name": "object"
         },
         "required": false,
-        "description": "CSS styles to be applied to each individual header cell.\n\nThat is, unlike `style_cell`, it excludes the `data` and filter cells."
+        "description": "CSS styles to be applied to each individual header cell.\nThat is, unlike `style_cell`, it excludes the `data` and filter cells."
       },
       "style_cell_conditional": {
         "type": {
@@ -1521,7 +1589,7 @@
           }
         },
         "required": false,
-        "description": "Conditional CSS styles for the cells.\n\nThis can be used to apply styles to cells on a per-column basis.",
+        "description": "Conditional CSS styles for the cells.\nThis can be used to apply styles to cells on a per-column basis.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1599,7 +1667,7 @@
           }
         },
         "required": false,
-        "description": "Conditional CSS styles for the data cells.\n\nThis can be used to apply styles to data cells on a per-column basis.",
+        "description": "Conditional CSS styles for the data cells.\nThis can be used to apply styles to data cells on a per-column basis.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1651,7 +1719,7 @@
           }
         },
         "required": false,
-        "description": "Conditional CSS styles for the filter cells.\n\nThis can be used to apply styles to filter cells on a per-column basis.",
+        "description": "Conditional CSS styles for the filter cells.\nThis can be used to apply styles to filter cells on a per-column basis.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1725,7 +1793,7 @@
           }
         },
         "required": false,
-        "description": "Conditional CSS styles for the header cells.\n\nThis can be used to apply styles to header cells on a per-column basis.",
+        "description": "Conditional CSS styles for the header cells.\nThis can be used to apply styles to header cells on a per-column basis.",
         "defaultValue": {
           "value": "[]",
           "computed": false
@@ -1736,7 +1804,7 @@
           "name": "bool"
         },
         "required": false,
-        "description": "This property tells the table to use virtualization when rendering.\n\nAssumptions are that:\n- the width of the columns is fixed\n- the height of the rows is always the same\n- runtime styling changes will not affect width and height vs. first rendering",
+        "description": "This property tells the table to use virtualization when rendering.\nAssumptions are that:\nthe width of the columns is fixed;\nthe height of the rows is always the same; and\nruntime styling changes will not affect width and height vs. first rendering",
         "defaultValue": {
           "value": "false",
           "computed": false
@@ -1747,7 +1815,7 @@
           "name": "object"
         },
         "required": false,
-        "description": "This property represents the current structure of\n`filter_query` as a tree structure. Each node of the\nquery structure have:\n- type (string; required)\n  - 'open-block'\n  - 'logical-operator'\n  - 'relational-operator'\n  - 'unary-operator'\n  - 'expression'\n- subType (string; optional)\n  - 'open-block': '()'\n  - 'logical-operator': '&&', '||'\n  - 'relational-operator': '=', '>=', '>', '<=', '<', '!=', 'contains'\n  - 'unary-operator': '!', 'is bool', 'is even', 'is nil', 'is num', 'is object', 'is odd', 'is prime', 'is str'\n  - 'expression': 'value', 'field'\n- value (any)\n  - 'expression, value': passed value\n  - 'expression, field': the field/prop name\n\n- block (nested query structure; optional)\n- left (nested query structure; optional)\n- right (nested query structure; optional)\n\nIf the query is invalid or empty, the `derived_filter_query_structure` will\nbe null."
+        "description": "This property represents the current structure of\n`filter_query` as a tree structure. Each node of the\nquery structure has:\ntype (string; required):\n  'open-block',\n  'logical-operator',\n  'relational-operator',\n  'unary-operator', or\n  'expression';\nsubType (string; optional):\n  'open-block': '()',\n  'logical-operator': '&&', '||',\n  'relational-operator': '=', '>=', '>', '<=', '<', '!=', 'contains',\n  'unary-operator': '!', 'is bool', 'is even', 'is nil', 'is num', 'is object', 'is odd', 'is prime', 'is str',\n  'expression': 'value', 'field';\nvalue (any):\n  'expression, value': passed value,\n  'expression, field': the field/prop name.\nblock (nested query structure; optional).\nleft (nested query structure; optional).\nright (nested query structure; optional).\nIf the query is invalid or empty, the `derived_filter_query_structure` will\nbe null."
       },
       "derived_viewport_data": {
         "type": {
@@ -1798,6 +1866,16 @@
           "value": "[]",
           "computed": false
         }
+      },
+      "derived_viewport_selected_columns": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "string"
+          }
+        },
+        "required": false,
+        "description": "`derived_viewport_selected_columns` contains the ids of the\n`selected_columns` that are not currently hidden."
       },
       "derived_viewport_selected_rows": {
         "type": {
