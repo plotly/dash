@@ -30,6 +30,7 @@
     "test": "run-s -c test:py test:import lint"
   },
   "author": "Chris Parmer <chris@plot.ly>",
+  "maintainer": "Ryan Patrick Kyle <ryan@plot.ly>",
   "dependencies": {
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",

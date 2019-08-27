@@ -9,5 +9,5 @@ Dash is a web application framework that provides pure Python and R abstraction 
 
 }
 \author{
-\strong{Maintainer}: Chris Parmer <chris@plot.ly>
+\strong{Maintainer}: Ryan Patrick Kyle <ryan@plot.ly>
 }
