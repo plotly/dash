@@ -9,5 +9,5 @@ Dash DataTable is an interactive table component designed for designed for viewi
 
 }
 \author{
-\strong{Maintainer}: Ryan Patrick Kyle <ryan@plot.ly> 
+\strong{Maintainer}: Ryan Patrick Kyle <ryan@plot.ly>
 }
