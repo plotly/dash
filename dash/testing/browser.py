@@ -32,21 +32,24 @@ class Browser(DashPageMixin):
     def __init__(
         self,
         browser,
+        remote=False,
+        remote_url=None,
         headless=False,
         options=None,
-        remote=None,
         download_path=None,
         percy_finalize=True,
         wait_timeout=10,
     ):
         self._browser = browser.lower()
+        self._remote_url = remote_url
+        self._remote = remote
         self._headless = headless
         self._options = options
         self._download_path = download_path
         self._wait_timeout = wait_timeout
         self._percy_finalize = percy_finalize
 
-        self._driver = until(lambda: self.get_webdriver(remote), timeout=1)
+        self._driver = until(lambda: self.get_webdriver(), timeout=1)
         self._driver.implicitly_wait(2)
 
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
@@ -285,16 +288,14 @@ class Browser(DashPageMixin):
             )
         )
 
-    def get_webdriver(self, remote):
+    def get_webdriver(self):
         try:
             return (
                 getattr(self, "_get_{}".format(self._browser))()
-                if remote is None
+                if not self._remote
                 else webdriver.Remote(
-                    command_executor=remote,
-                    desired_capabilities=getattr(
-                        DesiredCapabilities, self._browser.upper()
-                    ),
+                    command_executor=self._remote_url,
+                    desired_capabilities={'browserName': self._browser}
                 )
             )
         except WebDriverException:
