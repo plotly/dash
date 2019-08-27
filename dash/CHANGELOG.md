@@ -1,6 +1,12 @@
-## [UNRELEASED]
+## [1.2.0] - 2019-08-27
 ### Added
 - [#860](https://github.com/plotly/dash/pull/860) Adds a new arg `dev_tools_prune_errors` to `app.run_server` and `app.enable_dev_tools`. Default `True`, tracebacks only include user code and below. Set it to `False` for the previous behavior showing all the Dash and Flask parts of the stack.
+
+### Changed
+- Bumped dash-table version from 4.1.0 to [4.2.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#420---2019-08-27)
+- Bumped dash-core-components version from 1.1.1 to [1.1.2](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#112---2019-08-27)
+- Bumped dash-html-components version from 1.0.0 to [1.0.1](https://github.com/plotly/dash-html-components/blob/master/CHANGELOG.md#101---2019-08-27)
+- Bumped dash-renderer version from 1.0.0 to [1.0.1](https://github.com/plotly/dash/blob/dev/dash-renderer/CHANGELOG.md#101---2019-08-27)
 
 ## [1.1.1] - 2019-08-06
 ### Changed
