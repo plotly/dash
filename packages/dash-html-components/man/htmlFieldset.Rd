@@ -14,7 +14,7 @@ htmlFieldset(children=NULL, id=NULL, n_clicks=NULL, n_clicks_timestamp=NULL, key
 role=NULL, disabled=NULL, form=NULL, name=NULL, accessKey=NULL, className=NULL,
 contentEditable=NULL, contextMenu=NULL, dir=NULL, draggable=NULL, hidden=NULL,
 lang=NULL, spellCheck=NULL, style=NULL, tabIndex=NULL, title=NULL,
-loading_state=NULL)
+loading_state=NULL, ...)
 }
 
 \arguments{
@@ -72,4 +72,8 @@ those elements have the following types:
   - is_loading (logical; optional): determines if the component is loading or not
   - prop_name (character; optional): holds which property is loading
   - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
+
+
+\item{...}{wildcards allowed have the form: `'data-*', 'aria-*'`}
+
 }
