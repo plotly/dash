@@ -83,7 +83,7 @@ those elements have the following types:
 unless a separate `edits` config item overrides individual parts
   - edits (optional): a set of editable properties. edits has the following type: lists containing elements 'annotationposition', 'annotationtail', 'annotationtext', 'axistitletext', 'colorbarposition', 'colorbartitletext', 'legendposition', 'legendtext', 'shapeposition', 'titletext'.
 those elements have the following types:
-  - annotationposition (logical; optional): annotationposition: the main anchor of the annotation, which is the
+  - annotationposition (logical; optional): the main anchor of the annotation, which is the
 text (if no arrow) or the arrow (which drags the whole thing leaving
 the arrow length & direction unchanged)
   - annotationtail (logical; optional): just for annotations with arrows, change the length and direction of the arrow
@@ -124,12 +124,12 @@ honored. by default this is false.
   - modebarbuttonstoremove (unnamed list; optional): remove mode bar button by name.
 all modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js
 common names include:
- - senddatatocloud
-- (2d): zoom2d, pan2d, select2d, lasso2d, zoomin2d, zoomout2d, autoscale2d, resetscale2d
-- (cartesian): hoverclosestcartesian, hovercomparecartesian
-- (3d): zoom3d, pan3d, orbitrotation, tablerotation, handledrag3d, resetcameradefault3d, resetcameralastsave3d, hoverclosest3d
-- (geo): zoomingeo, zoomoutgeo, resetgeo, hoverclosestgeo
-- hoverclosestgl2d, hoverclosestpie, togglehover, resetviews
+senddatatocloud;
+(2d) zoom2d, pan2d, select2d, lasso2d, zoomin2d, zoomout2d, autoscale2d, resetscale2d;
+(cartesian) hoverclosestcartesian, hovercomparecartesian;
+(3d) zoom3d, pan3d, orbitrotation, tablerotation, handledrag3d, resetcameradefault3d, resetcameralastsave3d, hoverclosest3d;
+(geo) zoomingeo, zoomoutgeo, resetgeo, hoverclosestgeo;
+hoverclosestgl2d, hoverclosestpie, togglehover, resetviews.
   - modebarbuttonstoadd (unnamed list; optional): add mode bar button using config objects
   - modebarbuttons (logical | numeric | character | named list | unnamed list; optional): fully custom mode bar buttons as nested array,
 where the outer arrays represents button groups, and

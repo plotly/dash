@@ -9,5 +9,5 @@ Dash ships with supercharged components for interactive user interfaces. A core 
 
 }
 \author{
-\strong{Maintainer}: Chris Parmer <chris@plot.ly>
+\strong{Maintainer}: Ryan Patrick Kyle <ryan@plot.ly>
 }

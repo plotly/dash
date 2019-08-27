@@ -1,11 +1,11 @@
 Package: dashCoreComponents
-Title: Core component suite for Dash
-Version: 1.0.0
-Description: Supercharged components for interactive user interfaces in Dash. A core set of components, written and maintained by the Dash team, is available in the 'dashCoreComponents' package. The source for this package is on GitHub: 'plotly/dash-core-components'. 
+Title: Core Component Suite for Dash 
+Version: 1.1.2
+Description: Supercharged components for interactive user interfaces in Dash. A core set of components, written and maintained by the Dash team, is available in the 'dashCoreComponents' package. The source for this package is on GitHub: 'plotly/dash-core-components'.
 Depends: R (>= 3.0.2)
 Imports: 
 Suggests: knitr, rmarkdown
-VignetteBuilder: knitr 
+VignetteBuilder: knitr
 License: MIT + file LICENSE
 URL: https://github.com/plotly/dash-core-components
 BugReports: https://github.com/plotly/dash-core-components/issues
