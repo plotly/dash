@@ -2,8 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
-
+## [1.0.1] - 2019-08-27
 - Clean all the binary assets in dash-renderer repo, add tool to build all the required bundles from fresh source code to avoid confusion of the assets and improve the release process. [#874](https://github.com/plotly/dash/pull/874)
 
   fixes [#868](https://github.com/plotly/dash/pull/868) and [#734](https://github.com/plotly/dash/pull/734)
