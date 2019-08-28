@@ -16,6 +16,13 @@ Please lint any additions to react components with `npm run lint`. Rules defined
 
 Use the [GitHub flow][] when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the master branch).
 
+## Making a Contribution
+_For larger features, your contribution will have a higher likelihood of getting merged if you create an issue to discuss the changes that you'd like to make before you create a pull request._
+
+1. Create a pull request.
+2. After a review has been done and your changes have been approved, they will be merged and included in a future release of Dash.
+3. If significant enough, you have created an issue about documenting the new feature or change and you have added it to the [dash-docs](https://github.com/plotly/dash-docs) project.
+
 ## Running the Tests
 
 In order to run the tests, you first need to have built the JavaScript
@@ -23,33 +30,6 @@ In order to run the tests, you first need to have built the JavaScript
 you've pulled from upstream otherwise you may be running with an out of date
 `bundle.js`. See the instructions for building `bundle.js` in the [Testing
 Locally](README.md#testing-locally) section of README.md.
-
-## Publishing New Components/Features
-
-For now, multiple steps are necessary for publishing to NPM and PyPi,
-respectively. TODO:
-[#5](https://github.com/plotly/dash-components-archetype/issues/5) will roll up publishing steps into one workflow.
-
-1. Create a pull request and tag the Plotly team (`@plotly/dash`) as well as an appropriate reviewer (frequent [contributors][] are a safe bet).
-2. After a review has been done and your changes have been approved, create a prerelease and comment in the PR. Version numbers should follow [semantic versioning][]. To create a prerelease:
-    * Add `rc1` to `version.py` (`./dash_core_components/version.py`) e.g. `0.13.0rc1`
-    * Add `-rc1` to `package.json` e.g. `0.13.0-rc1`
-    * Update the `unpkg` link in `./dash_core_components/__init__.py`, replacing `__version__` with your release candidate (e.g. `"0.13.0-rc1"`)
-    * Run `npm run publish-all`.
-        - If needed, ask @chriddyp to get NPM / PyPi package publishing access.
-        - If the `publish-all` script fails on the `twine` command, try running
-            ```sh
-            twine upload dist/dash_core_components-X.X.X.tar.gz # where xx.x.x is the version number
-            ```
-3. Comment in the PR with the prerelease version
-4. Update the top-level comment to include info about how to install, a summary of the changes, and a simple example. For a good example, see the [Confirmation Modal component][].
-    * This makes it easier for a community member to come in and try it out. As more folks review, it's harder to find the installation instructions deep in the PR
-    * Keep this top-level comment updated with installation instructions (e.g. the `pip install` command)
-5. Make a post in the [Dash Community Forum][]
-    * Title it `":mega: Announcement! New <Your Feature> - Feedback Welcome"`
-    * In the description, link to the PR and any relevant issue(s)
-    * Pin the topic so that it appears at the top of the forum for two weeks
-    * For a good example, see the [Confirmation Modal announcement][]
 
 ## Updating Plotly.js
 

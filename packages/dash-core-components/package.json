@@ -12,8 +12,6 @@
   "homepage": "https://github.com/plotly/dash-core-components",
   "main": "dash_core_components/dash_core_components.min.js",
   "scripts": {
-    "prepare": "npm run build",
-    "publish-all": "node scripts/publish.js",
     "start": "webpack-serve ./webpack.serve.config.js --open",
     "lint": "eslint src tests",
     "lint:py": "flake8 --ignore=E501,F401,F841,F811,W503 tests",
