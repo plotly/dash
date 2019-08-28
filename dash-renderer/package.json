@@ -6,9 +6,6 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint --quiet --fix .",
     "lint:test": "./node_modules/.bin/eslint .",
-    "prepublish": "npm test && npm run build",
-    "publish-all": "npm publish && echo \"twine!!!\"",
-    "publish-pypi": "npm run prepublish && python setup.py sdist upload",
     "build:js": "webpack --mode development && webpack --mode production",
     "build:dev": "webpack --mode development --watch",
     "build": "renderer build",
