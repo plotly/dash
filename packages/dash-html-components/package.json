@@ -14,12 +14,9 @@
   "homepage": "https://github.com/plotly/dash-html-components",
   "scripts": {
     "clean": "rm -rf src/* && mkdir -p src/components",
-    "generate-components": "cd scripts && sh generate-all.sh && cd -",
+    "prebuild": "cd scripts && sh generate-all.sh && cd -",
     "install-local": "python setup.py install",
     "uninstall-local": "pip uninstall dash-html-components -y",
-    "prepare": "npm run clean && npm run generate-components",
-    "prepublishOnly": "npm run build",
-    "publish-all": "node scripts/publish.js",
     "lint": "eslint src scripts",
     "build:js": "webpack --mode production",
     "build:py_and_r": "dash-generate-components ./src/components dash_html_components -p package-info.json --r-prefix 'html'",

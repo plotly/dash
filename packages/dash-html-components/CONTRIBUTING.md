@@ -8,6 +8,13 @@ Refer to the [readme](README.md) for installation and development workflow instr
 
 [Dash HTML Components][] consist of generic HTML5 elements based on the [MDN spec][] (also see the [W3 index of elements][]). For more complex UI components, see the [Dash Core Components][]. Contributions are welcome! This repository's open [issues][] are a good place to start.
 
+## Making a Contribution
+_For larger features, your contribution will have a higher likelihood of getting merged if you create an issue to discuss the changes that you'd like to make before you create a pull request._
+
+1. Create a pull request.
+2. After a review has been done and your changes have been approved, they will be merged and included in a future release of Dash.
+3. If significant enough, you have created an issue about documenting the new feature or change and you have added it to the [dash-docs](https://github.com/plotly/dash-docs) project.
+
 ## Coding Style
 
 Please lint any additions to react components with `npm run lint`. Rules defined in [.eslintrc](.eslintrc) are inherited from [`dash-components-archetype`](https://github.com/plotly/dash-components-archetype)'s [eslintrc-react.json][]

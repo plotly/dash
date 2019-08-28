@@ -44,7 +44,6 @@ jobs:
               . venv/bin/activate
               python --version
               npm run clean
-              npm run generate-components
               npm run build
 
       - run:
