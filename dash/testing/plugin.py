@@ -1,6 +1,8 @@
 # pylint: disable=missing-docstring,redefined-outer-name
 import warnings
 
+SELENIUM_GRID_DEFAULT = "http://localhost:4444/wd/hub"
+
 try:
     import pytest
 
@@ -30,14 +32,14 @@ def pytest_addoption(parser):
     dash.addoption(
         "--remote",
         action="store_true",
-        help="instruct pytest to use selenium grid"
+        help="instruct pytest to use selenium grid",
     )
 
     dash.addoption(
         "--remote-url",
         action="store",
-        default="http://localhost:4444/wd/hub",
-        help="set a different selenium grid remote url if other than default"
+        default=SELENIUM_GRID_DEFAULT,
+        help="set a different selenium grid remote url if other than default",
     )
 
     dash.addoption(

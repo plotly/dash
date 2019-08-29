@@ -23,6 +23,7 @@ from dash.testing.wait import (
 )
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError
+from dash.testing.plugin import SELENIUM_GRID_DEFAULT
 
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,11 @@ class Browser(DashPageMixin):
     ):
         self._browser = browser.lower()
         self._remote_url = remote_url
-        self._remote = True if remote_url else remote
+        self._remote = (
+            True
+            if remote_url and remote_url != SELENIUM_GRID_DEFAULT
+            else remote
+        )
         self._headless = headless
         self._options = options
         self._download_path = download_path
