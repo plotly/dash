@@ -8,7 +8,7 @@ import subprocess
 import logging
 from io import open  # pylint: disable=redefined-builtin
 from functools import wraps
-import future.moves.collections as collections 
+import future.moves.collections as collections
 
 logger = logging.getLogger()
 
