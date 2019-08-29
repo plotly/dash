@@ -34,7 +34,7 @@ def pytest_addoption(parser):
     )
 
     dash.addoption(
-        "--remote_url",
+        "--remote-url",
         action="store",
         default="http://localhost:4444/wd/hub",
         help="set a different selenium grid remote url if other than default"
