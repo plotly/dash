@@ -20,6 +20,10 @@ declare class Remarkable {
     render(value: string): any;
 }
 
+declare interface RemarkableCtor {
+    new(): Remarkable;
+}
+
 declare module 'remarkable' {
-    export default Remarkable;
+    export const Remarkable: RemarkableCtor;
 }

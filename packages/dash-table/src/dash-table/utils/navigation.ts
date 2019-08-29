@@ -1,18 +1,19 @@
 import * as R from 'ramda';
+import { ICellCoordinates } from 'dash-table/components/Table/props';
 
-export function selectionBounds(selected_cells) {
+export function selectionBounds(selected_cells: ICellCoordinates[]) {
     const selectedRows = R.pluck('row', selected_cells);
     const selectedCols = R.pluck('column', selected_cells);
 
     return {
-        minRow: R.reduce(R.min, Infinity, selectedRows),
-        minCol: R.reduce(R.min, Infinity, selectedCols),
-        maxRow: R.reduce(R.max, 0, selectedRows),
-        maxCol: R.reduce(R.max, 0, selectedCols)
+        minRow: R.reduce<number, number>(R.min, Infinity, selectedRows),
+        minCol: R.reduce<number, number>(R.min, Infinity, selectedCols),
+        maxRow: R.reduce<number, number>(R.max, 0, selectedRows),
+        maxCol: R.reduce<number, number>(R.max, 0, selectedCols)
     };
 }
 
-export function selectionCycle(nextCell, selected_cells) {
+export function selectionCycle(nextCell: [number, number], selected_cells: ICellCoordinates[]) {
     const {minRow, minCol, maxRow, maxCol} = selectionBounds(selected_cells);
 
     const [nextRow, nextCol] = nextCell;

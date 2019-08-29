@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import React, { PureComponent } from 'react';
-import Remarkable from 'remarkable';
+import { Remarkable } from 'remarkable';
 
 import { isEqual } from 'core/comparer';
 
