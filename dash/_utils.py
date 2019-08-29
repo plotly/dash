@@ -8,7 +8,7 @@ import subprocess
 import logging
 from io import open  # pylint: disable=redefined-builtin
 from functools import wraps
-import future.moves.collections as collections
+import future.moves.collections 
 
 logger = logging.getLogger()
 
@@ -55,7 +55,7 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 
 # pylint: disable=no-member
 def patch_collections_abc(member):
-    return getattr(collections, member)
+    return getattr(future.moves.collections, member)
 
 
 class AttributeDict(dict):
