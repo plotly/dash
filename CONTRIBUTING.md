@@ -48,12 +48,12 @@ Use the [GitHub flow](https://guides.github.com/introduction/flow/) when proposi
 
 ### Organize your commits
 
-For pull request with notable file changes or a big feature developmennt, we highly recommend to organize the commits in a logical manner, so it
+For pull request with notable file changes or a big feature development, we highly recommend to organize the commits in a logical manner, so it
 
 - makes a code review experience much more pleasant
 - facilitates a possible cherry picking with granular commits
 
-*an intutive [example](https://github.com/plotly/dash-core-components/pull/548) is worth a thousand words.*
+*an intuitive [example](https://github.com/plotly/dash-core-components/pull/548) is worth a thousand words.*
 
 #### Git Desktop
 
@@ -106,7 +106,6 @@ Note: *You might find out that we have more integration tests than unit tests in
 
 We introduced the `dash.testing` feature in [Dash 1.0](https://community.plot.ly/t/announcing-dash-testing/24868). It makes writing a Dash integration test much easier. Please read the [tutorial](http://dash.plot.ly/testing) and add relevant integration tests with any new features or bug fixes.
 
-
 ## Financial Contributions
 
 Dash, and many of Plotly's open source products, have been funded through direct sponsorship by companies. [Get in touch] about funding feature additions, consulting, or custom app development.
@@ -114,7 +113,7 @@ Dash, and many of Plotly's open source products, have been funded through direct
 [Dash Core Components]: https://dash.plot.ly/dash-core-components
 [Dash HTML Components]: https://github.com/plotly/dash-html-components
 [write your own components]: https://dash.plot.ly/plugins
-[Dash Component Biolerplate]: https://github.com/plotly/dash-component-boilerplate
+[Dash Component Boilerplate]: https://github.com/plotly/dash-component-boilerplate
 [issues]: https://github.com/plotly/dash-core-components/issues
 [GitHub flow]: https://guides.github.com/introduction/flow/
 [semantic versioning]: https://semver.org/
