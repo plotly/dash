@@ -4,13 +4,11 @@ import shlex
 import sys
 import uuid
 import hashlib
-import collections
 import subprocess
 import logging
 from io import open  # pylint: disable=redefined-builtin
 from functools import wraps
-
-import six
+import future.moves.collections as collections 
 
 logger = logging.getLogger()
 
@@ -57,9 +55,7 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 
 # pylint: disable=no-member
 def patch_collections_abc(member):
-    if six.PY2:
-        return getattr(collections, member)
-    return getattr(collections.abc, member)
+    return getattr(collections, member)
 
 
 class AttributeDict(dict):
