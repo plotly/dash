@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring,redefined-outer-name
 import warnings
+from .consts import SELENIUM_GRID_DEFAULT
 
-SELENIUM_GRID_DEFAULT = "http://localhost:4444/wd/hub"
 
 try:
     import pytest

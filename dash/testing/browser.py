@@ -23,7 +23,7 @@ from dash.testing.wait import (
 )
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError
-from dash.testing.plugin import SELENIUM_GRID_DEFAULT
+from dash.testing.consts import SELENIUM_GRID_DEFAULT
 
 
 logger = logging.getLogger(__name__)
