@@ -42,7 +42,7 @@ class Browser(DashPageMixin):
     ):
         self._browser = browser.lower()
         self._remote_url = remote_url
-        self._remote = remote
+        self._remote = True if remote_url else remote
         self._headless = headless
         self._options = options
         self._download_path = download_path
