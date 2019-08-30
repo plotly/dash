@@ -5,6 +5,7 @@ import {
     append,
     concat,
     contains,
+    filter,
     findIndex,
     findLastIndex,
     flatten,
@@ -31,6 +32,7 @@ import {getAction} from './constants';
 import cookie from 'cookie';
 import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
+import Registry from './../registry';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
@@ -213,11 +215,52 @@ function reduceInputIds(nodeIds, InputGraph) {
     return sortedInputOutputPairs;
 }
 
+const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
+const isSimpleComponent = component =>
+    contains(type(component), SIMPLE_COMPONENT_TYPES);
+
+function findComponent(targetId, layout) {
+    const queue = [layout];
+
+    while (queue.length) {
+        const elementLayout = queue.shift();
+
+        const props = elementLayout && elementLayout.props;
+
+        if (!props) {
+            continue;
+        }
+
+        const { children, id } = props;
+
+        if (id === targetId) {
+            return Registry.resolve(elementLayout);
+        }
+
+        if (children) {
+            const filteredChildren = filter(
+                child => !isSimpleComponent(child),
+                Array.isArray(children) ? children : [children]
+            );
+
+            queue.push(...filteredChildren);
+        }
+    }
+}
+
 export function notifyObservers(payload) {
-    return function(dispatch, getState) {
+    return async function (dispatch, getState) {
         const {id, props, excludedOutputs} = payload;
 
-        const {graphs, requestQueue} = getState();
+        const { graphs, layout, requestQueue } = getState();
+
+        const component = findComponent(id, layout);
+        const isReady = component && component._dashprivate_isLazyComponentReady;
+
+        if (isReady !== true && typeof isReady !== 'undefined') {
+            await component._dashprivate_isLazyComponentReady;
+        }
+
         const {InputGraph} = graphs;
         /*
          * Figure out all of the output id's that depend on this input.
