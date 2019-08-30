@@ -231,7 +231,7 @@ function findComponent(targetId, layout) {
             continue;
         }
 
-        const { children, id } = props;
+        const {children, id} = props;
 
         if (id === targetId) {
             return Registry.resolve(elementLayout);
@@ -251,15 +251,20 @@ function findComponent(targetId, layout) {
 }
 
 export function notifyObservers(payload) {
-    return async function (dispatch, getState) {
+    return async function(dispatch, getState) {
         const {id, props, excludedOutputs} = payload;
 
-        const { graphs, layout, requestQueue } = getState();
+        const {graphs, layout, requestQueue} = getState();
 
         const component = findComponent(id, layout);
-        const isReady = component && component._dashprivate_isLazyComponentReady;
+        const isReady =
+            component && component._dashprivate_isLazyComponentReady;
 
-        if (isReady !== true && isReady !== null && typeof isReady !== 'undefined') {
+        if (
+            isReady !== true &&
+            isReady !== null &&
+            typeof isReady !== 'undefined'
+        ) {
             await component._dashprivate_isLazyComponentReady;
         }
 
