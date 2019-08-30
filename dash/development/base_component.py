@@ -1,7 +1,7 @@
 import abc
 import inspect
 import sys
-import six
+from future.utils import with_metaclass
 
 from .._utils import patch_collections_abc
 
@@ -59,8 +59,7 @@ def _check_if_has_indexable_children(item):
         raise KeyError
 
 
-@six.add_metaclass(ComponentMeta)
-class Component(object):
+class Component(with_metaclass(ComponentMeta, object)):
     class _UNDEFINED(object):
         def __repr__(self):
             return "undefined"
