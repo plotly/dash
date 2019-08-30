@@ -246,6 +246,8 @@ function findComponent(targetId, layout) {
             queue.push(...filteredChildren);
         }
     }
+
+    return null;
 }
 
 export function notifyObservers(payload) {
@@ -257,7 +259,7 @@ export function notifyObservers(payload) {
         const component = findComponent(id, layout);
         const isReady = component && component._dashprivate_isLazyComponentReady;
 
-        if (isReady !== true && typeof isReady !== 'undefined') {
+        if (isReady !== true && isReady !== null && typeof isReady !== 'undefined') {
             await component._dashprivate_isLazyComponentReady;
         }
 
