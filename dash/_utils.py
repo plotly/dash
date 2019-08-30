@@ -4,11 +4,12 @@ import shlex
 import sys
 import uuid
 import hashlib
+import collections
 import subprocess
 import logging
 from io import open  # pylint: disable=redefined-builtin
 from functools import wraps
-import future.moves.collections
+import future.utils as utils
 
 logger = logging.getLogger()
 
@@ -55,7 +56,11 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 
 # pylint: disable=no-member
 def patch_collections_abc(member):
-    return getattr(future.moves.collections, member)
+    return (
+        getattr(collections, member)
+        if utils.PY2
+        else getattr(collections.abc, member)
+    )
 
 
 class AttributeDict(dict):
@@ -141,8 +146,8 @@ def run_command_with_process(cmd):
 
 
 def compute_md5(path):
-    with open(path, encoding='utf-8') as fp:
-        return hashlib.md5(fp.read().encode('utf-8')).hexdigest()
+    with open(path, encoding="utf-8") as fp:
+        return hashlib.md5(fp.read().encode("utf-8")).hexdigest()
 
 
 def job(msg=""):
@@ -153,5 +158,7 @@ def job(msg=""):
             res = func(*args, **kwargs)
             logger.info("::: 🍻🍻🍻 [%s] job done 🍻🍻🍻 :::", func.__name__)
             return res
+
         return _wrapper
+
     return wrapper
