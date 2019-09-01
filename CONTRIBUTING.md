@@ -48,7 +48,7 @@ Writing Python 2/3 compatible code might be a challenging task for contributors 
 
 From the #892, we started to adopt  `python-future`  instead of  `six`  as our tool to better achieve the goal where we can mainly write Python 3 code and make it back-compatible in Python 2.7 (last Python 2 version Dash supports before it gets deprecated).
 
-Please refer to [this list of idioms](https://python-future.org/compatible_idioms.html "https://python-future.org/compatible_idioms.html")  whenever you doubt this topic.
+Please refer to [this list of idioms](https://python-future.org/compatible_idioms.html "https://python-future.org/compatible_idioms.html") for more details on working with `python-future`.
 
 ## Git
 
