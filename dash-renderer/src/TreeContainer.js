@@ -22,6 +22,7 @@ import {
     type,
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
+import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
 import checkPropTypes from 'check-prop-types';
 
@@ -164,6 +165,7 @@ class TreeContainer extends Component {
                 _dashprivate_dependencies,
                 _dashprivate_dispatch,
                 _dashprivate_path,
+                _dashprivate_layout,
             } = this.props;
 
             const id = this.getLayoutProps().id;
@@ -184,6 +186,10 @@ class TreeContainer extends Component {
                             )
                     )
             )(keysIn(newProps));
+
+            // setProps here is triggered by the UI - record these changes
+            // for persistence
+            recordUiEdit(_dashprivate_layout, newProps);
 
             // Always update this component's props
             _dashprivate_dispatch(

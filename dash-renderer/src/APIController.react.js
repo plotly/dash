@@ -10,6 +10,7 @@ import {
     hydrateInitialOutputs,
     setLayout,
 } from './actions/index';
+import {applyPersistence} from './persistence';
 import apiThunk from './actions/api';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
@@ -48,7 +49,7 @@ class UnconnectedContainer extends Component {
             dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
         } else if (layoutRequest.status === STATUS.OK) {
             if (isEmpty(layout)) {
-                dispatch(setLayout(layoutRequest.content));
+                dispatch(setLayout(applyPersistence(layoutRequest.content)));
             } else if (isNil(paths)) {
                 dispatch(computePaths({subTree: layout, startingPath: []}));
             }
