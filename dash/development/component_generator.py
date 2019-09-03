@@ -53,8 +53,6 @@ def generate_components(
 
     is_windows = sys.platform == "win32"
 
-    yamldata = None
-
     extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
 
     reserved_patterns = "|".join("^{}$".format(p) for p in reserved_words)
