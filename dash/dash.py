@@ -442,6 +442,7 @@ class Dash(object):
                 'or a function that returns '
                 'a dash component.')
 
+        self._cached_layout = None
         self._layout = value
 
     @property
