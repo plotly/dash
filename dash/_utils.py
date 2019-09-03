@@ -9,8 +9,7 @@ import subprocess
 import logging
 from io import open  # pylint: disable=redefined-builtin
 from functools import wraps
-
-import six
+import future.utils as utils
 
 logger = logging.getLogger()
 
@@ -57,9 +56,7 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 
 # pylint: disable=no-member
 def patch_collections_abc(member):
-    if six.PY2:
-        return getattr(collections, member)
-    return getattr(collections.abc, member)
+    return getattr(collections if utils.PY2 else collections.abc, member)
 
 
 class AttributeDict(dict):
@@ -145,8 +142,8 @@ def run_command_with_process(cmd):
 
 
 def compute_md5(path):
-    with open(path, encoding='utf-8') as fp:
-        return hashlib.md5(fp.read().encode('utf-8')).hexdigest()
+    with open(path, encoding="utf-8") as fp:
+        return hashlib.md5(fp.read().encode("utf-8")).hexdigest()
 
 
 def job(msg=""):
@@ -157,5 +154,7 @@ def job(msg=""):
             res = func(*args, **kwargs)
             logger.info("::: 🍻🍻🍻 [%s] job done 🍻🍻🍻 :::", func.__name__)
             return res
+
         return _wrapper
+
     return wrapper
