@@ -56,11 +56,7 @@ def get_asset_path(requests_pathname, asset_path, asset_url_path):
 
 # pylint: disable=no-member
 def patch_collections_abc(member):
-    return (
-        getattr(collections, member)
-        if utils.PY2
-        else getattr(collections.abc, member)
-    )
+    return getattr(collections if utils.PY2 else collections.abc, member)
 
 
 class AttributeDict(dict):
