@@ -1,5 +1,7 @@
 # pylint: disable=missing-docstring,redefined-outer-name
 import warnings
+from .consts import SELENIUM_GRID_DEFAULT
+
 
 try:
     import pytest
@@ -14,12 +16,10 @@ try:
 except ImportError:
     warnings.warn("run `pip install dash[testing]` if you need dash.testing")
 
-WEBDRIVERS = {"Chrome", "Firefox", "Remote"}
+WEBDRIVERS = {"Chrome", "Firefox"}
 
 
 def pytest_addoption(parser):
-    # Add options to the pytest parser, either on the commandline or ini
-    # TODO add more options for the selenium driver.
     dash = parser.getgroup("Dash", "Dash Integration Tests")
 
     dash.addoption(
@@ -27,6 +27,19 @@ def pytest_addoption(parser):
         choices=tuple(WEBDRIVERS),
         default="Chrome",
         help="Name of the selenium driver to use",
+    )
+
+    dash.addoption(
+        "--remote",
+        action="store_true",
+        help="instruct pytest to use selenium grid",
+    )
+
+    dash.addoption(
+        "--remote-url",
+        action="store",
+        default=SELENIUM_GRID_DEFAULT,
+        help="set a different selenium grid remote url if other than default",
     )
 
     dash.addoption(
@@ -99,6 +112,8 @@ def dashr_server():
 def dash_br(request, tmpdir):
     with Browser(
         browser=request.config.getoption("webdriver"),
+        remote=request.config.getoption("remote"),
+        remote_url=request.config.getoption("remote_url"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
@@ -112,6 +127,8 @@ def dash_duo(request, dash_thread_server, tmpdir):
     with DashComposite(
         dash_thread_server,
         browser=request.config.getoption("webdriver"),
+        remote=request.config.getoption("remote"),
+        remote_url=request.config.getoption("remote_url"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
@@ -125,6 +142,8 @@ def dashr(request, dashr_server, tmpdir):
     with DashRComposite(
         dashr_server,
         browser=request.config.getoption("webdriver"),
+        remote=request.config.getoption("remote"),
+        remote_url=request.config.getoption("remote_url"),
         headless=request.config.getoption("headless"),
         options=request.config.hook.pytest_setup_options(),
         download_path=tmpdir.mkdir("download").strpath,
