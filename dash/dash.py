@@ -422,16 +422,16 @@ class Dash(object):
         # e.g. for adding authentication with flask_login
         self.routes.append(name)
 
+    @property
+    def layout(self):
+        return self._layout
+
     def _layout_value(self):
         if isinstance(self._layout, _patch_collections_abc('Callable')):
             self._cached_layout = self._layout()
         else:
             self._cached_layout = self._layout
         return self._cached_layout
-
-    @property
-    def layout(self):
-        return self._layout
 
     @layout.setter
     def layout(self, value):
