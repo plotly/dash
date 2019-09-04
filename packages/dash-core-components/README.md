@@ -85,3 +85,7 @@ See the [dash-component-boilerplate](https://github.com/plotly/dash-component-bo
 [Dash Component Boilerplate]: (https://github.com/plotly/dash-component-boilerplate)
 [NPM package authors]: https://www.npmjs.com/package/dash-core-components/access
 [PyPi]: https://pypi.python.org/pypi
+
+
+## Big Thanks
+Cross-browser Testing Powered by [![image](https://user-images.githubusercontent.com/1394467/64290307-e4c66600-cf33-11e9-85a1-12c82230a597.png)](https://saucelabs.com) 
