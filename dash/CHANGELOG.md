@@ -1,3 +1,9 @@
+## Unreleased
+
+### Fixed
+
+- [#829](https://github.com/plotly/dash/issues/829) Fixes the `--remote` pytest argument which was not effective in the code, adding a new argument `--remote-url` to support the selenium grid usage in the cloud.
+
 ## [1.2.0] - 2019-08-27
 ### Added
 - [#860](https://github.com/plotly/dash/pull/860) Adds a new arg `dev_tools_prune_errors` to `app.run_server` and `app.enable_dev_tools`. Default `True`, tracebacks only include user code and below. Set it to `False` for the previous behavior showing all the Dash and Flask parts of the stack.

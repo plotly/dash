@@ -9,7 +9,7 @@ import subprocess
 import logging
 
 import runpy
-import six
+import future.utils as utils
 import flask
 import requests
 
@@ -208,7 +208,7 @@ class ProcessRunner(BaseDashRunner):
         if self.proc:
             try:
                 self.proc.terminate()
-                if six.PY3:
+                if utils.PY3:
                     # pylint:disable=no-member
                     _except = subprocess.TimeoutExpired
                     # pylint: disable=unexpected-keyword-arg
