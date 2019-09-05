@@ -17,22 +17,29 @@
  *   have defaults, so all a user needs to do to enable persistence is set this
  *   one prop.
  *
- * - `persisted_props`: array of prop names allowed to persist. Normally should
- *   default to the full list of supported props, so they can all be enabled at
- *   once. The main exception to this is if there's a prop that *can* be
- *   persisted but most users wouldn't want this.
+ * - `persisted_props`: array of prop names or "nested prop IDs" allowed to
+ *   persist. Normally should default to the full list of supported props,
+ *   so they can all be enabled at once. The main exception to this is if
+ *   there's a prop that *can* be persisted but most users wouldn't want this.
+ *   A nested prop ID describes *part* of a prop to store. It must be
+ *   "<propName>.<piece>" where propName is the prop that has this info, and
+ *   piece may or may not map to the exact substructure being stored but is
+ *   meaningful to the user. For example, in `dash_table`, `columns.name`
+ *   stores `columns[i].name` for all columns `i`. Nested props also need
+ *   entries in `persistenceTransforms` - see below.
  *
  * - `persistence_type`: one of "local", "session", or "memory", just like
  *   `dcc.Store`. But the default here should be "local" because the main use
  *   case is to maintain settings across reloads.
  *
- * In addition, if any props require special behavior - particularly for storing
- * a piece nested inside a larger prop, a component can define a class property
- * (not a React prop) `persistenceTransforms`. This should be an object:
+ * If any `persisted_props` are nested prop IDs, the component should define a
+ * class property (not a React prop) `persistenceTransforms`, as an object:
  * {
  *   [propName]: {
- *     extract: propValue => valueToStore,
- *     apply: (storedValue, propValue) => newPropValue
+ *     [piece]: {
+ *       extract: propValue => valueToStore,
+ *       apply: (storedValue, propValue) => newPropValue
+ *     }
  *   }
  * }
  * - `extract` turns a prop value into a reduced value to store.
