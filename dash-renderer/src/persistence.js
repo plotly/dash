@@ -163,6 +163,11 @@ const getProps = layout => {
     const {props} = layout;
     const {id, persistence} = props;
     if (!id || !persistence) {
+        // This component doesn't have persistence. To make downstream
+        // tests more efficient don't return either one, so we just have to
+        // test for truthy persistence.
+        // But we still need to return props for consumers that look for
+        // nested components
         return {props};
     }
 
