@@ -39,6 +39,7 @@ describe('expression', () => {
         expect(typeof stringExpression.resolve).to.equal('function');
 
         if (stringExpression.resolve) {
+            expect(stringExpression.resolve(undefined, { value: '\'\'' } as ISyntaxTree)).to.equal('');
             expect(stringExpression.resolve(undefined, { value: '\'abc\'' } as ISyntaxTree)).to.equal('abc');
             expect(stringExpression.resolve(undefined, { value: '"abc"' } as ISyntaxTree)).to.equal('abc');
             expect(stringExpression.resolve(undefined, { value: '`abc`' } as ISyntaxTree)).to.equal('abc');

@@ -4,7 +4,7 @@ import { LexemeType, IUnboundedLexeme } from 'core/syntax-tree/lexicon';
 import { ISyntaxTree } from 'core/syntax-tree/syntaxer';
 
 const FIELD_REGEX = /^{(([^{}\\]|\\.)+)}/;
-const STRING_REGEX = /^(('([^'\\]|\\.)+')|("([^"\\]|\\.)+")|(`([^`\\]|\\.)+`))/;
+const STRING_REGEX = /^(('([^'\\]|\\.)*')|("([^"\\]|\\.)*")|(`([^`\\]|\\.)*`))/;
 const VALUE_REGEX = /^(([^\s'"`{}()\\]|\\.)+)(?:[\s)]|$)/;
 
 const getField = (

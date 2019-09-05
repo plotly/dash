@@ -264,6 +264,15 @@ describe('Query Syntax Tree', () => {
             expect(tree.evaluate(data2)).to.equal(false);
             expect(tree.evaluate(data3)).to.equal(false);
         });
+
+        it('can compare to empty string', () => {
+            const tree = new QuerySyntaxTree('{c} eq ""');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate({ c: 'a' })).to.equal(false);
+            expect(tree.evaluate({ c: ' ' })).to.equal(false);
+            expect(tree.evaluate({ c: '' })).to.equal(true);
+        });
     });
 
     describe('block', () => {
