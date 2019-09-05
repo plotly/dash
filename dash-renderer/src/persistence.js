@@ -43,7 +43,11 @@
  *   }
  * }
  * - `extract` turns a prop value into a reduced value to store.
- * - `apply` puts an extracted value back into the prop.
+ * - `apply` puts an extracted value back into the prop. Make sure this creates
+ *   a new object rather than mutating `proValue`, and that if there are
+ *   multiple `piece` entries for one `propName`, their `apply` functions
+ *   commute - which should not be an issue if they extract and apply
+ *   non-intersecting parts of the full prop.
  * You only need to define these for the props that need them.
  * It's important that `extract` pulls out *only* the relevant pieces of the
  * prop, because persistence is only maintained if the extracted value of the
@@ -52,13 +56,13 @@
  */
 
 import {
-    difference,
     equals,
     filter,
     forEach,
     keys,
     lensPath,
     set,
+    symmetricDifference,
     type,
 } from 'ramda';
 
@@ -159,10 +163,12 @@ const noopTransform = {
     apply: (storedValue, _propValue) => storedValue,
 };
 
-const getTransform = (element, propName) =>
-    (element.persistenceTransforms || {})[propName] || noopTransform;
+const getTransform = (element, propName, propPart) =>
+    propPart
+        ? element.persistenceTransforms[propName][propPart]
+        : noopTransform;
 
-const getNewValKey = (id, propName) => id + '.' + propName;
+const getNewValKey = (id, persistedProp) => id + '.' + persistedProp;
 const getOriginalValKey = newValKey => newValKey + '.orig';
 const getPersistIdKey = newValKey => newValKey + '.id';
 
@@ -202,41 +208,37 @@ export function recordUiEdit(layout, newProps) {
         return;
     }
 
-    forEach(propName => {
-        // TODO: this only supports specifying top-level props to persist
-        // DO we need nested specification?
-        // This *does* support custom methods to save/restore these props,
-        // so if we persist `columns` on a table, the component can specify
-        // to only keep & restore the names, associating them with IDs.
-        // It just wouldn't allow us to separately enable/disable persisting
-        // something else inside columns.
+    forEach(persistedProp => {
+        const [propName, propPart] = persistedProp.split('.');
         if (newProps[propName]) {
             const storage = stores[persistence_type];
-            const transform = getTransform(element, propName);
+            const {extract} = getTransform(element, propName, propPart);
 
-            const newValKey = getNewValKey(id, propName);
+            const newValKey = getNewValKey(id, persistedProp);
             const persistIdKey = getPersistIdKey(newValKey);
-            const setOriginalAndId = () => {
-                storage.setItem(
-                    getOriginalValKey(newValKey),
-                    transform.extract(props[propName])
-                );
-                storage.setItem(persistIdKey, persistence);
-            };
-            if (
-                !storage.hasItem(newValKey) ||
-                storage.getItem(persistIdKey) !== persistence
-            ) {
-                setOriginalAndId();
+            const previousVal = extract(props[propName]);
+            const newVal = extract(newProps[propName]);
+
+            // mainly for nested props with multiple persisted parts, it's
+            // possible to have the same value as before - should not store
+            // in this case.
+            if (previousVal !== newVal) {
+                if (
+                    !storage.hasItem(newValKey) ||
+                    storage.getItem(persistIdKey) !== persistence
+                ) {
+                    storage.setItem(getOriginalValKey(newValKey), previousVal);
+                    storage.setItem(persistIdKey, persistence);
+                }
+                storage.setItem(newValKey, newVal);
             }
-            storage.setItem(newValKey, transform.extract(newProps[propName]));
         }
     }, persisted_props);
 }
 
-function clearUIEdit(id, persistence_type, propName) {
+function clearUIEdit(id, persistence_type, persistedProp) {
     const storage = stores[persistence_type];
-    const newValKey = getNewValKey(id, propName);
+    const newValKey = getNewValKey(id, persistedProp);
 
     if (storage.hasItem(newValKey)) {
         storage.removeItem(newValKey);
@@ -270,10 +272,13 @@ function persistenceMods(layout, component, path) {
     let layoutOut = layout;
     if (persistence) {
         const storage = stores[persistence_type];
-        forEach(propName => {
-            const newValKey = getNewValKey(id, propName);
+        const update = {};
+        forEach(persistedProp => {
+            const [propName, propPart] = persistedProp.split('.');
+            const newValKey = getNewValKey(id, persistedProp);
             const storedPersistID = storage.getItem(getPersistIdKey(newValKey));
-            const transform = getTransform(element, propName);
+            const transform = getTransform(element, propName, propPart);
+
             if (storedPersistID) {
                 if (
                     storedPersistID === persistence &&
@@ -282,19 +287,25 @@ function persistenceMods(layout, component, path) {
                         transform.extract(props[propName])
                     )
                 ) {
-                    layoutOut = set(
-                        lensPath(path.concat('props', propName)),
-                        transform.apply(
-                            storage.getItem(newValKey),
-                            props[propName]
-                        ),
-                        layoutOut
+                    // To handle multiple nested props, apply each stored value
+                    // in turn; then at the end we'll push these into the layout
+                    update[propName] = transform.apply(
+                        storage.getItem(newValKey),
+                        propName in update ? update[propName] : props[propName]
                     );
                 } else {
-                    clearUIEdit(id, persistence_type, propName);
+                    clearUIEdit(id, persistence_type, persistedProp);
                 }
             }
         }, persisted_props);
+
+        for (const propName in update) {
+            layoutOut = set(
+                lensPath(path.concat('props', propName)),
+                update[propName],
+                layoutOut
+            );
+        }
     }
 
     // recurse inward
@@ -326,9 +337,13 @@ function persistenceMods(layout, component, path) {
  * but not for props nested inside children
  */
 export function prunePersistence(layout, newProps) {
-    const {id, persistence, persisted_props, persistence_type} = getProps(
-        layout
-    );
+    const {
+        id,
+        persistence,
+        persisted_props,
+        persistence_type,
+        element,
+    } = getProps(layout);
     if (!persistence) {
         return;
     }
@@ -343,15 +358,26 @@ export function prunePersistence(layout, newProps) {
         return;
     }
 
+    // if the persisted props list itself changed, clear any props not
+    // present in both the new and old
     if ('persisted_props' in newProps) {
         forEach(
-            prevPropName => clearUIEdit(id, persistence_type, prevPropName),
-            difference(persisted_props, newProps.persisted_props)
+            persistedProp => clearUIEdit(id, persistence_type, persistedProp),
+            symmetricDifference(persisted_props, newProps.persisted_props)
         );
     }
 
-    forEach(
-        propName => clearUIEdit(id, persistence_type, propName),
-        difference(keys(newProps), persisted_props)
-    );
+    // now the main point - clear any edit associated with a prop that changed
+    // note that this is independent of the new prop value.
+    const transforms = element.persistenceTransforms || {};
+    for (const propName in newProps) {
+        const propTransforms = transforms[propName];
+        if (propTransforms) {
+            for (const propPart in propTransforms) {
+                clearUIEdit(id, persistence_type, `${propName}.${propPart}`);
+            }
+        } else {
+            clearUIEdit(id, persistence_type, propName);
+        }
+    }
 }
