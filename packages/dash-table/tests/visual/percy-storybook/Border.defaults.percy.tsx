@@ -145,3 +145,16 @@ storiesOf('DashTable/ListView style, Border (available space filled)', module)
         fixed_columns={{ headers: true, data: 1 }}
         fixed_rows={{ headers: true }}
     />));
+
+storiesOf('DashTable/Rounded Border', module)
+    .add('with rounded border', () => (<DataTable {...{
+        setProps,
+        id: 'table',
+        data: data,
+        columns,
+        style_table: {
+            border: '1px solid red',
+            borderRadius: '15px',
+            overflow: 'hidden'
+        }
+    }} />));

@@ -40,6 +40,7 @@ export default interface IStyle {
     borderLeftColor: StyleProperty;
     borderLeftStyle: StyleProperty;
     borderLeftWidth: StyleProperty;
+    borderRadius: StyleProperty;
     borderRight: StyleProperty;
     borderRightColor: StyleProperty;
     borderRightStyle: StyleProperty;

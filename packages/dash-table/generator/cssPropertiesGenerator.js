@@ -38,6 +38,7 @@ const props = [
     'borderLeftColor',
     'borderLeftStyle',
     'borderLeftWidth',
+    'borderRadius',
     'borderRight',
     'borderRightColor',
     'borderRightStyle',
@@ -282,52 +283,27 @@ const props = [
     'zoom'
 ];
 
-function toSnakeCase(name) {
-    return name.replace(/[A-Z]/g, v => `_${v.toLowerCase()}`);
-}
-
-function toKebabCase(name) {
-    return name.replace(/[A-Z]/g, v => `-${v.toLowerCase()}`);
-}
-
-const snakes = props.map(prop => [toSnakeCase(prop), prop]);
-const kebabs = props.map(prop => [toKebabCase(prop), prop]);
-const camels = props.map(prop => [prop, prop]);
-
-const map = new Map();
-
-snakes.forEach(([snake, camel]) => map.set(snake, camel));
-kebabs.forEach(([kebab, camel]) => map.set(kebab, camel));
-camels.forEach(([camel]) => map.set(camel, camel));
-
 const fs = require('fs');
 
-var stream1 = fs.createWriteStream('src/dash-table/derived/style/py2jsCssProperties.ts');
+const propFragments = props.map(prop => {
+    let matches = prop.match(/[a-zA-Z][a-z]*/g);
+    matches = matches.map(m => `'${m.toLowerCase()}'`);
+
+    return `[${matches.join(', ')}]`;
+});
+
+var stream1 = fs.createWriteStream('src/dash-table/derived/style/cssProperties.ts');
 stream1.once('open', () => {
-    stream1.write('export type StyleProperty = string | number;\n');
-    stream1.write('\n');
-    stream1.write('export default new Map<string, string>([\n');
-
-    let first = true;
-    map.forEach((value, key) => {
-        if (!first) {
-            stream1.write(',\n');
-        }
-
-        first = false;
-        stream1.write(`    ['${key}', '${value}']`);
-    });
-    stream1.write('\n]);');
-
+    stream1.write(`export default [\n    ${propFragments.join(',\n    ')}\n];`);
     stream1.end();
 });
 
 var stream2 = fs.createWriteStream('src/dash-table/derived/style/IStyle.ts');
 stream2.once('open', () => {
-    stream2.write(`import { StyleProperty } from './ py2jsCssProperties';\n`);
+    stream2.write(`import { StyleProperty } from './py2jsCssProperties';\n`);
     stream2.write('\n');
     stream2.write('export default interface IStyle {\n');
-    camels.forEach(([key]) => {
+    props.forEach(key => {
         stream2.write(`    ${key}: StyleProperty;\n`);
     });
     stream2.write('}');
@@ -338,7 +314,7 @@ stream2.once('open', () => {
 var stream3 = fs.createWriteStream('proptypes.js');
 stream3.once('open', () => {
     let first = true;
-    map.forEach((value, key) => {
+    props.forEach(key => {
         if (!first) {
             stream3.write(',\n');
         }

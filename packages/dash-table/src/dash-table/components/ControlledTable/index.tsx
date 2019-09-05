@@ -39,6 +39,11 @@ const DEFAULT_STYLE = {
     width: '100%'
 };
 
+const INNER_STYLE = {
+    minHeight: '100%',
+    minWidth: '100%'
+};
+
 export default class ControlledTable extends PureComponent<ControlledTableProps> {
     private readonly menuRef = React.createRef<HTMLDivElement>();
     private readonly stylesheet: Stylesheet = new Stylesheet(`#${this.props.id}`);
@@ -817,7 +822,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 <div
                     ref='table'
                     className={innerClasses.join(' ')}
-                    style={tableStyle}
+                    style={INNER_STYLE}
                 >
                     {grid.map((row, rowIndex) => (<div
                         key={`r${rowIndex}`}

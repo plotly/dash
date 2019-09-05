@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import { CSSProperties } from 'react';
 
 import { OptionalMap, OptionalProp, PropOf } from 'core/type';
-import py2jsCssProperties from '../style/py2jsCssProperties';
+import { KnownCssProperties } from '../style/py2jsCssProperties';
 import { shallowClone } from 'core/math/matrixZipMap';
 
 export type Edge = any;
@@ -26,11 +26,9 @@ export const BORDER_PROPERTIES: BorderProp[] = [
     'borderTop'
 ];
 
-export const BORDER_PROPERTIES_AND_FRAGMENTS: string[] = R.uniq(
-    R.filter(
-        p => p.indexOf('border') === 0,
-        Array.from(py2jsCssProperties.values())
-    )
+export const BORDER_PROPERTIES_AND_FRAGMENTS: string[] = R.filter(
+    p => p.indexOf('border') === 0,
+    KnownCssProperties
 );
 
 export interface IEdgesMatrix {
