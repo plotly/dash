@@ -49,7 +49,6 @@ import {
     equals,
     filter,
     forEach,
-    forEachObjIndexed,
     keys,
     lensPath,
     set,
@@ -191,7 +190,7 @@ export function recordUiEdit(layout, newProps) {
         return;
     }
 
-    forEachObjIndexed((newPropVal, propName) => {
+    forEach(propName => {
         // TODO: this only supports specifying top-level props to persist
         // DO we need nested specification?
         // This *does* support custom methods to save/restore these props,
@@ -199,7 +198,7 @@ export function recordUiEdit(layout, newProps) {
         // to only keep & restore the names, associating them with IDs.
         // It just wouldn't allow us to separately enable/disable persisting
         // something else inside columns.
-        if (persisted_props.indexOf(propName) !== -1) {
+        if (newProps[propName]) {
             const storage = stores[persistence_type];
             const transform = getTransform(element, propName);
 
@@ -218,9 +217,9 @@ export function recordUiEdit(layout, newProps) {
             ) {
                 setOriginalAndId();
             }
-            storage.setItem(newValKey, transform.extract(newPropVal));
+            storage.setItem(newValKey, transform.extract(newProps[propName]));
         }
-    }, newProps);
+    }, persisted_props);
 }
 
 function clearUIEdit(id, persistence_type, propName) {
