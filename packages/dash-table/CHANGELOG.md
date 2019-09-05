@@ -9,7 +9,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 [#567](https://github.com/plotly/dash-table/issues/567)
 - Add support for missing `border-radius` in style_** props
-- Fix table's inner vs. outer container styling 
+- Fix table's inner vs. outer container styling
+
+[#18](https://github.com/plotly/dash-table/issues/18)
+- Fix row selection vertical and horizontal alignment
 
 ## [4.2.0] - 2019-08-27
 ### Added
