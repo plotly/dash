@@ -8,6 +8,7 @@
     "lint:test": "./node_modules/.bin/eslint .",
     "build:js": "webpack --build release",
     "build:dev": "webpack --build local",
+    "build:local": "renderer build local",
     "build": "renderer build",
     "start": "webpack-serve ./webpack.serve.config.js",
     "format": "prettier --config .prettierrc --write \"src/**/*.js\"",

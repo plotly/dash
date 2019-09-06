@@ -38,7 +38,7 @@ As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and 
 3.  `renderer bundles` parses the locked version JSON, copies all the peer dependencies into dash_renderer folder, bundles the renderer assets, and generates an `__init__.py` to map all the resources. There are also a list of helpful `scripts` property defined in `package.json` you might need to do some handy tasks like linting, syntax format with prettier, etc.
 4.  `renderer digest` computes the content hash of each asset in `dash_renderer` folder, prints out the result in logs, and dumps into a JSON file `digest.json`. Use this when you have a doubt about the current assets in `dash_renderer`, and compare it with previous result in one shot by this command.
 5.  `renderer build` runs 1, 2, 3, 4 in sequence as a complete build process from scratch.
-6.  `renderer watch` runs the webpack in watch mode, so any source code change triggers a rebuild. Use this if you are actively updating renderer code and you want to test your changes immediately.
+6.  `renderer build local` runs the same oreder as in 5 except the source maps are generated for debugging purpose, you also need to install dash-renderer with editable mode: `pip install -e .`.
 
 When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
 
