@@ -32,12 +32,13 @@ module.exports = (env, argv) => {
             library: dashLibraryName,
             libraryTarget: 'window',
         },
-        devtool: 'source-map',
+        // devtool: mode === 'development' ? 'source-map' : 'none',
+        devtool: 'none',
         externals: {
             react: 'React',
             'react-dom': 'ReactDOM',
             'plotly.js': 'Plotly',
-            'prop-types': 'PropTypes'
+            'prop-types': 'PropTypes',
         },
         module: {
             rules: [
@@ -61,12 +62,11 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.svg$/,
-                    use: ['@svgr/webpack']
+                    use: ['@svgr/webpack'],
                 },
                 {
                     test: /\.txt$/i,
                     use: 'raw-loader',
-
                 },
             ],
         },
