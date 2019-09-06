@@ -56,16 +56,13 @@ const defaultOptions = {
 };
 
 module.exports = (_, argv) => {
-    const build = argv.build || 'release';
+    const devtool = argv.build === 'local' ? 'source-map' : 'none';
     return [
-        R.mergeDeepLeft(
-            {devtool: build === 'release' ? 'none' : 'source-map'},
-            defaultOptions
-        ),
+        R.mergeDeepLeft({devtool}, defaultOptions),
         R.mergeDeepLeft(
             {
+                devtool: devtool,
                 mode: 'production',
-                devtool: build === 'release' ? 'none' : 'source-map',
                 output: {
                     filename: `${dashLibraryName}.min.js`,
                 },
