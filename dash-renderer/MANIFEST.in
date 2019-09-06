@@ -1,4 +1,4 @@
 include package.json
 include digest.json
 include dash_renderer/*.js
-exclude dash_renderer/*.map
+include dash_renderer/*.map
