@@ -49,7 +49,11 @@ class UnconnectedContainer extends Component {
             dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
         } else if (layoutRequest.status === STATUS.OK) {
             if (isEmpty(layout)) {
-                dispatch(setLayout(applyPersistence(layoutRequest.content)));
+                const finalLayout = applyPersistence(
+                    layoutRequest.content,
+                    dispatch
+                );
+                dispatch(setLayout(finalLayout));
             } else if (isNil(paths)) {
                 dispatch(computePaths({subTree: layout, startingPath: []}));
             }

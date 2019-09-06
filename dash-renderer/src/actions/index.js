@@ -541,11 +541,11 @@ function updateOutput(
 
         // This is a callback-generated update.
         // Check if this invalidates existing persisted prop values,
-        prunePersistence(path(itempath, layout), updatedProps);
+        prunePersistence(path(itempath, layout), updatedProps, dispatch);
 
         // In case the update contains whole components, see if any of
         // those components have props to update to persist user edits.
-        const finalProps = applyPersistence(updatedProps);
+        const finalProps = applyPersistence(updatedProps, dispatch);
 
         dispatch(
             updateProps({

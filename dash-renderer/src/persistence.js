@@ -65,24 +65,45 @@ import {
     symmetricDifference,
     type,
 } from 'ramda';
+import {createAction} from 'redux-actions';
+import uniqid from 'uniqid';
 
 import Registry from './registry';
 
 const storePrefix = '_dash_persistence.';
 const UNDEFINED = 'U';
 
+function err(e) {
+    const error = typeof e === 'string' ? new Error(e) : e;
+
+    /* eslint-disable no-console */
+    // Send this to the console too, so it's still available with debug off
+    console.error(e);
+    /* eslint-disable no-console */
+
+    return createAction('ON_ERROR')({
+        myUID: uniqid(),
+        myID: storePrefix,
+        type: 'frontEnd',
+        error,
+    });
+}
+
 /*
  * Does a key fit this prefix? Must either be an exact match
- * or a scoped match - exact prefix followed by a dot (then anything else)
+ * or, if a separator is provided, a scoped match - exact prefix
+ * followed by the separator (then anything else)
  */
-function keyPrefixMatch(prefix) {
-    return key =>
-        key === prefix || key.substr(0, prefix.length + 1) === prefix + '.';
+function keyPrefixMatch(prefix, separator) {
+    const fullStr = prefix + separator;
+    const fullLen = fullStr.length;
+    return key => key === prefix || key.substr(0, fullLen) === fullStr;
 }
 
 class WebStore {
-    constructor(storage) {
-        this._storage = storage;
+    constructor(backEnd) {
+        this._name = backEnd;
+        this._storage = window[backEnd];
     }
 
     hasItem(key) {
@@ -96,18 +117,37 @@ class WebStore {
         return gotVal === UNDEFINED ? void 0 : JSON.parse(gotVal);
     }
 
-    setItem(key, value) {
+    /*
+     * In addition to the regular key->value to set, setItem takes
+     * dispatch as a parameter, so it can report OOM to devtools
+     */
+    setItem(key, value, dispatch) {
         const setVal = value === void 0 ? UNDEFINED : JSON.stringify(value);
-        this._storage.setItem(storePrefix + key, setVal);
+        try {
+            this._storage.setItem(storePrefix + key, setVal);
+        } catch (e) {
+            if (dispatch) {
+                dispatch(err(e));
+            } else {
+                throw e;
+            }
+            // TODO: Should we clear storage here? Or fall back to memory?
+            // Probably not, unless we want to handle this at a higher level
+            // so we can keep all 3 items in sync
+        }
     }
 
     removeItem(key) {
         this._storage.removeItem(storePrefix + key);
     }
 
+    /*
+     * clear matching keys matching (optionally followed by a dot and more
+     * characters) - or all keys associated with this store if no prefix.
+     */
     clear(keyPrefix) {
-        const fullPrefix = storePrefix + keyPrefix;
-        const keyMatch = keyPrefixMatch(fullPrefix);
+        const fullPrefix = storePrefix + (keyPrefix || '');
+        const keyMatch = keyPrefixMatch(fullPrefix, keyPrefix ? '.' : '');
         const keysToRemove = [];
         // 2-step process, so we don't depend on any particular behavior of
         // key order while removing some
@@ -117,7 +157,7 @@ class WebStore {
                 keysToRemove.push(fullKey);
             }
         }
-        forEach(this._storage.removeItem, keysToRemove);
+        forEach(k => this._storage.removeItem(k), keysToRemove);
     }
 }
 
@@ -145,18 +185,81 @@ class MemStore {
     }
 
     clear(keyPrefix) {
-        forEach(
-            key => delete this._data[key],
-            filter(keyPrefixMatch(keyPrefix), keys(this._data))
-        );
+        if (keyPrefix) {
+            forEach(
+                key => delete this._data[key],
+                filter(keyPrefixMatch(keyPrefix, '.'), keys(this._data))
+            );
+        } else {
+            this._data = {};
+        }
     }
 }
 
+// Make a string 2^16 characters long (*2 bytes/char = 130kB), to test storage.
+// That should be plenty for common persistence use cases,
+// without getting anywhere near typical browser limits
+const pow = 16;
+function longString() {
+    let s = 'Spam';
+    for (let i = 2; i < pow; i++) {
+        s += s;
+    }
+    return s;
+}
+
 const stores = {
-    local: new WebStore(window.localStorage),
-    session: new WebStore(window.sessionStorage),
     memory: new MemStore(),
+    // Defer testing & making local/session stores until requested.
+    // That way if we have errors here they can show up in devtools.
 };
+
+const backEnds = {
+    local: 'localStorage',
+    session: 'sessionStorage',
+};
+
+function tryGetWebStore(backEnd, dispatch) {
+    const store = new WebStore(backEnd);
+    const fallbackStore = stores.memory;
+    const storeTest = longString();
+    const testKey = 'x.x';
+    try {
+        store.setItem(testKey, storeTest);
+        if (store.getItem(testKey) !== storeTest) {
+            dispatch(
+                err(`${backEnd} init failed set/get, falling back to memory`)
+            );
+            return fallbackStore;
+        }
+        store.removeItem(testKey);
+        return store;
+    } catch (e) {
+        dispatch(
+            err(`${backEnd} init first try failed; clearing and retrying`)
+        );
+    }
+    try {
+        store.clear();
+        store.setItem(testKey, storeTest);
+        if (store.getItem(testKey) !== storeTest) {
+            throw new Error('nope');
+        }
+        store.removeItem(testKey);
+        dispatch(err(`${backEnd} init set/get succeeded after clearing!`));
+        return store;
+    } catch (e) {
+        dispatch(err(`${backEnd} init still failed, falling back to memory`));
+        return fallbackStore;
+    }
+}
+
+function getStore(type, dispatch) {
+    if (!stores[type]) {
+        stores[type] = tryGetWebStore(backEnds[type], dispatch);
+    }
+    return stores[type];
+}
 
 const noopTransform = {
     extract: propValue => propValue,
@@ -195,7 +298,7 @@ const getProps = layout => {
     return {id, props, element, persistence, persisted_props, persistence_type};
 };
 
-export function recordUiEdit(layout, newProps) {
+export function recordUiEdit(layout, newProps, dispatch) {
     const {
         id,
         props,
@@ -211,7 +314,7 @@ export function recordUiEdit(layout, newProps) {
     forEach(persistedProp => {
         const [propName, propPart] = persistedProp.split('.');
         if (newProps[propName]) {
-            const storage = stores[persistence_type];
+            const storage = getStore(persistence_type, dispatch);
             const {extract} = getTransform(element, propName, propPart);
 
             const newValKey = getNewValKey(id, persistedProp);
@@ -227,17 +330,21 @@ export function recordUiEdit(layout, newProps) {
                     !storage.hasItem(newValKey) ||
                     storage.getItem(persistIdKey) !== persistence
                 ) {
-                    storage.setItem(getOriginalValKey(newValKey), previousVal);
-                    storage.setItem(persistIdKey, persistence);
+                    storage.setItem(
+                        getOriginalValKey(newValKey),
+                        previousVal,
+                        dispatch
+                    );
+                    storage.setItem(persistIdKey, persistence, dispatch);
                 }
-                storage.setItem(newValKey, newVal);
+                storage.setItem(newValKey, newVal, dispatch);
             }
         }
     }, persisted_props);
 }
 
-function clearUIEdit(id, persistence_type, persistedProp) {
-    const storage = stores[persistence_type];
+function clearUIEdit(id, persistence_type, persistedProp, dispatch) {
+    const storage = getStore(persistence_type, dispatch);
     const newValKey = getNewValKey(id, persistedProp);
 
     if (storage.hasItem(newValKey)) {
@@ -251,15 +358,15 @@ function clearUIEdit(id, persistence_type, persistedProp) {
  * Used for entire layouts (on load) or partial layouts (from children
  * callbacks) to apply previously-stored UI edits to components
  */
-export function applyPersistence(layout) {
+export function applyPersistence(layout, dispatch) {
     if (type(layout) !== 'Object' || !layout.props) {
         return layout;
     }
 
-    return persistenceMods(layout, layout, []);
+    return persistenceMods(layout, layout, [], dispatch);
 }
 
-function persistenceMods(layout, component, path) {
+function persistenceMods(layout, component, path, dispatch) {
     const {
         id,
         props,
@@ -271,7 +378,7 @@ function persistenceMods(layout, component, path) {
 
     let layoutOut = layout;
     if (persistence) {
-        const storage = stores[persistence_type];
+        const storage = getStore(persistence_type, dispatch);
         const update = {};
         forEach(persistedProp => {
             const [propName, propPart] = persistedProp.split('.');
@@ -294,7 +401,7 @@ function persistenceMods(layout, component, path) {
                         propName in update ? update[propName] : props[propName]
                     );
                 } else {
-                    clearUIEdit(id, persistence_type, persistedProp);
+                    clearUIEdit(id, persistence_type, persistedProp, dispatch);
                 }
             }
         }, persisted_props);
@@ -316,16 +423,17 @@ function persistenceMods(layout, component, path) {
                 layoutOut = persistenceMods(
                     layoutOut,
                     child,
-                    path.concat('props', 'children', i)
+                    path.concat('props', 'children', i),
+                    dispatch
                 );
             }
         });
-        forEach(applyPersistence, children);
     } else if (type(children) === 'Object' && children.props) {
         layoutOut = persistenceMods(
             layoutOut,
             children,
-            path.concat('props', 'children')
+            path.concat('props', 'children'),
+            dispatch
         );
     }
     return layoutOut;
@@ -336,7 +444,7 @@ function persistenceMods(layout, component, path) {
  * these override UI-driven edits of those exact props
  * but not for props nested inside children
  */
-export function prunePersistence(layout, newProps) {
+export function prunePersistence(layout, newProps, dispatch) {
     const {
         id,
         persistence,
@@ -354,7 +462,7 @@ export function prunePersistence(layout, newProps) {
         ('persistence_type' in newProps &&
             newProps.persistence_type !== persistence_type)
     ) {
-        stores[persistence_type].clear(id);
+        getStore(persistence_type, dispatch).clear(id);
         return;
     }
 
@@ -362,7 +470,8 @@ export function prunePersistence(layout, newProps) {
     // present in both the new and old
     if ('persisted_props' in newProps) {
         forEach(
-            persistedProp => clearUIEdit(id, persistence_type, persistedProp),
+            persistedProp =>
+                clearUIEdit(id, persistence_type, persistedProp, dispatch),
             symmetricDifference(persisted_props, newProps.persisted_props)
         );
     }
@@ -374,10 +483,15 @@ export function prunePersistence(layout, newProps) {
         const propTransforms = transforms[propName];
         if (propTransforms) {
             for (const propPart in propTransforms) {
-                clearUIEdit(id, persistence_type, `${propName}.${propPart}`);
+                clearUIEdit(
+                    id,
+                    persistence_type,
+                    `${propName}.${propPart}`,
+                    dispatch
+                );
             }
         } else {
-            clearUIEdit(id, persistence_type, propName);
+            clearUIEdit(id, persistence_type, propName, dispatch);
         }
     }
 }

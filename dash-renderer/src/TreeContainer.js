@@ -189,7 +189,7 @@ class TreeContainer extends Component {
 
             // setProps here is triggered by the UI - record these changes
             // for persistence
-            recordUiEdit(_dashprivate_layout, newProps);
+            recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
 
             // Always update this component's props
             _dashprivate_dispatch(
