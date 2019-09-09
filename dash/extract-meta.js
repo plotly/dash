@@ -5,7 +5,7 @@ const path = require('path');
 const reactDocs = require('react-docgen');
 
 const componentPaths = process.argv.slice(4);
-const ignorePattern = new RegExp(process.argv[2]);
+const ignorePattern = new RegExp(process.argv[2].split('"').join(''));
 const reservedPatterns = process.argv[3].split('|').map(part => new RegExp(part));
 
 let failed = false;
