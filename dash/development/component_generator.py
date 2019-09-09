@@ -60,7 +60,7 @@ def generate_components(
     os.environ["NODE_PATH"] = "node_modules"
 
     cmd = shlex.split(
-        "node {} \"{}\" \"{}\" {}".format(
+        'node {} "{}" "{}" {}'.format(
             extract_path, ignore, reserved_patterns, components_source
         ),
         posix=not is_windows,
