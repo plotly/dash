@@ -77,10 +77,10 @@ class BuildProcess(object):
         os.system("npm run build:dev")
 
     @job("run the whole building process in sequence")
-    def build(self):
+    def build(self, build=None):
         self.clean()
         self.npm()
-        self.bundles()
+        self.bundles(build)
         self.digest()
 
     @job("compute the hash digest for assets")
@@ -108,7 +108,7 @@ class BuildProcess(object):
         )
 
     @job("copy and generate the bundles")
-    def bundles(self):
+    def bundles(self, build=None):
         if not os.path.exists(self.build_folder):
             try:
                 os.makedirs(self.build_folder)
@@ -142,9 +142,10 @@ class BuildProcess(object):
                 self._concat(self.build_folder, target),
             )
 
-        logger.info("run `npm run build:js`")
+        _script = 'build:dev' if build == 'local' else 'build:js'
+        logger.info("run `npm run %s`", _script)
         os.chdir(self.main)
-        run_command_with_process("npm run build:js")
+        run_command_with_process("npm run {}".format(_script))
 
         logger.info("generate the `__init__.py` from template and verisons")
         with open(self._concat(self.main, "init.template")) as fp:
