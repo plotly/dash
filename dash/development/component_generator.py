@@ -58,8 +58,11 @@ def generate_components(
     reserved_patterns = "|".join("^{}$".format(p) for p in reserved_words)
 
     os.environ["NODE_PATH"] = "node_modules"
+
+    fmt = "node {} \"{}\" \"{}\" {}" if is_windows else "node {} {} {} {}"
+
     cmd = shlex.split(
-        "node {} {} {} {}".format(
+        fmt.format(
             extract_path, ignore, reserved_patterns, components_source
         ),
         posix=not is_windows,
