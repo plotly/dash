@@ -2,6 +2,7 @@
 
 ### Fixed
 
+- [#915](https://github.com/plotly/dash/issues/915) Fixes `dash-generate-components` on Windows
 - [#829](https://github.com/plotly/dash/issues/829) Fixes the `--remote` pytest argument which was not effective in the code, adding a new argument `--remote-url` to support the selenium grid usage in the cloud.
 
 ## [1.2.0] - 2019-08-27
