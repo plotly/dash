@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Added
+
+- [#918](https://github.com/plotly/dash/pull/918) Adds `wait_for_element_by_id` and `visit_and_snapshot` APIs, adds optional `start_timeout` argument for process runner
+
 ### Fixed
 
 - [#915](https://github.com/plotly/dash/issues/915) Fixes `dash-generate-components` on Windows
