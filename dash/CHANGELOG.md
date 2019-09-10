@@ -2,7 +2,8 @@
 
 ### Added
 
-- 💥 [#918](https://github.com/plotly/dash/pull/918) Adds `wait_for_element_by_id` and `visit_and_snapshot` APIs, change the process command options and adds optional `start_timeout` argument for process runner
+- [#918](https://github.com/plotly/dash/pull/918) Adds `wait_for_element_by_id` and `visit_and_snapshot` APIs in browser, adds `raw_command` option (it aslo has higher priority than
+the default waitress one) and optional `start_timeout` argument to handle large application within process runner
 
 ### Fixed
 

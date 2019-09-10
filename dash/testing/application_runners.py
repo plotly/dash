@@ -180,10 +180,15 @@ class ProcessRunner(BaseDashRunner):
 
     # pylint: disable=arguments-differ
     def start(
-        self, waitress_module=None, raw_command=None, port=8050, start_timeout=3
+        self,
+        app_module=None,
+        application_name="app",
+        raw_command=None,
+        port=8050,
+        start_timeout=3,
     ):
         """Start the server with waitress-serve in process flavor """
-        if not (waitress_module or raw_command):  # need to set a least one
+        if not (app_module or raw_command):  # need to set a least one
             logging.error(
                 "the process runner needs to start with"
                 " at least one valid command"
@@ -193,8 +198,8 @@ class ProcessRunner(BaseDashRunner):
         args = shlex.split(
             raw_command
             if raw_command
-            else "waitress-serve --listen=0.0.0.0:{} {}".format(
-                port, waitress_module
+            else "waitress-serve --listen=0.0.0.0:{} {}:{}.server".format(
+                port, app_module, application_name
             ),
             posix=not self.is_windows,
         )
