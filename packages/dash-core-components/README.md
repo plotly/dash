@@ -17,7 +17,7 @@ But, in order to do development locally, you need to install `dash` before every
 # python 2
 $ pip install virtualenv --user && virtualenv venv && . venv/bin/activate
 # python 3
-$ python -m venv && . venv/bin/activate
+$ python -m venv venv && . venv/bin/activate
 
 # make sure dash is installed with dev and testing dependencies
 $ pip install dash[dev,testing]  # in some shells you need \ to escape []
