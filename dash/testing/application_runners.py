@@ -179,7 +179,9 @@ class ProcessRunner(BaseDashRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self, app_module, application_name="app", port=8050):
+    def start(
+        self, app_module, application_name="app", port=8050, start_timeout=3
+    ):
         """Start the server with waitress-serve in process flavor """
         entrypoint = "{}:{}.server".format(app_module, application_name)
         self.port = port
@@ -195,7 +197,7 @@ class ProcessRunner(BaseDashRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=3)
+            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
@@ -233,7 +235,7 @@ class RRunner(ProcessRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self, app):
+    def start(self, app, start_timeout=2):
         """Start the server with waitress-serve in process flavor """
 
         # app is a R string chunk
@@ -267,7 +269,7 @@ class RRunner(ProcessRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=2)
+            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
