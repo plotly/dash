@@ -100,8 +100,8 @@ function keyPrefixMatch(prefix, separator) {
 }
 
 const UNDEFINED = 'U';
-const _parse = val => val === UNDEFINED ? void 0 : JSON.parse(val || null);
-const _stringify = val => val === void 0 ? UNDEFINED : JSON.stringify(val);
+const _parse = val => (val === UNDEFINED ? void 0 : JSON.parse(val || null));
+const _stringify = val => (val === void 0 ? UNDEFINED : JSON.stringify(val));
 
 class WebStore {
     constructor(backEnd) {
@@ -119,22 +119,26 @@ class WebStore {
         return _parse(this._storage.getItem(storePrefix + key));
     }
 
+    _setItem(key, value) {
+        // unprotected version of setItem, for use by tryGetWebStore
+        this._storage.setItem(storePrefix + key, _stringify(value));
+    }
     /*
      * In addition to the regular key->value to set, setItem takes
      * dispatch as a parameter, so it can report OOM to devtools
      */
     setItem(key, value, dispatch) {
         try {
-            this._storage.setItem(storePrefix + key, _stringify(value));
+            this._setItem(key, value);
         } catch (e) {
-            if (dispatch) {
-                dispatch(err(e));
-            } else {
-                throw e;
-            }
-            // TODO: Should we clear storage here? Or fall back to memory?
-            // Probably not, unless we want to handle this at a higher level
-            // so we can keep all 3 items in sync
+            dispatch(
+                err(
+                    `${key} failed to save in ${this._name}. Persisted props may be lost.`
+                )
+            );
+            // TODO: at some point we may want to convert this to fall back
+            // on memory, pulling out all persistence keys and putting them
+            // in a MemStore that gets used from then onward.
         }
     }
 
@@ -226,7 +230,7 @@ function tryGetWebStore(backEnd, dispatch) {
     const storeTest = longString();
     const testKey = storePrefix + 'x.x';
     try {
-        store.setItem(testKey, storeTest);
+        store._setItem(testKey, storeTest);
         if (store.getItem(testKey) !== storeTest) {
             dispatch(
                 err(`${backEnd} init failed set/get, falling back to memory`)
@@ -242,7 +246,7 @@ function tryGetWebStore(backEnd, dispatch) {
     }
     try {
         store.clear();
-        store.setItem(testKey, storeTest);
+        store._setItem(testKey, storeTest);
         if (store.getItem(testKey) !== storeTest) {
             throw new Error('nope');
         }

@@ -3,12 +3,6 @@
 /* eslint-disable no-console */
 import {recordUiEdit, stores, storePrefix} from '../src/persistence';
 
-const _dispatch = a => {
-    return evt => {
-        a.push(evt.payload.error.message);
-    }
-};
-
 const longString = pow => {
     let s = 's';
     for (let i = 0; i < pow; i++) {
@@ -74,6 +68,14 @@ describe('storage fallbacks and equivalence', () => {
     const propStr = String(propVal);
     let originalConsoleErr;
     let consoleCalls;
+    let dispatchCalls;
+
+    const _dispatch = evt => {
+        // verify that dispatch is sending errors to the devtools,
+        // and record the message sent
+        expect(evt.type).toEqual('ON_ERROR');
+        dispatchCalls.push(evt.payload.error.message);
+    }
 
     beforeEach(() => {
         window.my_components = {
@@ -85,8 +87,9 @@ describe('storage fallbacks and equivalence', () => {
             }
         };
 
-        originalConsoleErr = console.error;
+        dispatchCalls = [];
         consoleCalls = [];
+        originalConsoleErr = console.error;
         console.error = msg => {
             consoleCalls.push(msg);
         };
@@ -107,10 +110,7 @@ describe('storage fallbacks and equivalence', () => {
         const layout = layoutA(storeType);
 
         test(`empty ${storeName} works`, () => {
-            const dispatchCalls = [];
-            store.clear();
-
-            recordUiEdit(layout, {p1: propVal}, _dispatch(dispatchCalls));
+            recordUiEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).toEqual([]);
             expect(consoleCalls).toEqual([]);
             expect(store.getItem(`${storePrefix}a.p1`)).toEqual(propStr);
@@ -118,10 +118,9 @@ describe('storage fallbacks and equivalence', () => {
         });
 
         test(`${storeName} full from persistence works with warnings`, () => {
-            const dispatchCalls = [];
             fillStorage(store, `${storePrefix}x.x`);
 
-            recordUiEdit(layout, {p1: propVal}, _dispatch(dispatchCalls));
+            recordUiEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).toEqual([
                 `${storeName} init first try failed; clearing and retrying`,
                 `${storeName} init set/get succeeded after clearing!`
@@ -134,10 +133,9 @@ describe('storage fallbacks and equivalence', () => {
         });
 
         test(`${storeName} full from other stuff falls back on memory`, () => {
-            const dispatchCalls = [];
             fillStorage(store, 'not_ours');
 
-            recordUiEdit(layout, {p1: propVal}, _dispatch(dispatchCalls));
+            recordUiEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).toEqual([
                 `${storeName} init first try failed; clearing and retrying`,
                 `${storeName} init still failed, falling back to memory`
@@ -147,6 +145,22 @@ describe('storage fallbacks and equivalence', () => {
             const x = Boolean(store.getItem('not_ours'));
             expect(x).toBe(true);
         });
+
+        test(`${storeName} that fills up later on just logs an error`, () => {
+            // Maybe not ideal long-term behavior, but this is what happens
+
+            // initialize and ensure the store is happy
+            recordUiEdit(layout, {p1: propVal}, _dispatch);
+            expect(dispatchCalls).toEqual([]);
+            expect(consoleCalls).toEqual([]);
+
+            // now flood it.
+            recordUiEdit(layout, {p1: longString(26)}, _dispatch);
+            expect(dispatchCalls).toEqual([
+                `a.p1 failed to save in ${storeName}. Persisted props may be lost.`
+            ]);
+            expect(consoleCalls).toEqual(dispatchCalls);
+        });
     });
 
     ['local', 'session', 'memory'].forEach(storeType => {
@@ -155,7 +169,7 @@ describe('storage fallbacks and equivalence', () => {
 
         test(`${storeType} primitives in/out match`, () => {
             // ensure storage is instantiated
-            recordUiEdit(layout, {p1: propVal}, _dispatch());
+            recordUiEdit(layout, {p1: propVal}, _dispatch);
             const store = stores[storeType];
             [
                 0, 1, 1.1, true, false, null, undefined, '', 'hi', '0', '1'
@@ -166,7 +180,7 @@ describe('storage fallbacks and equivalence', () => {
         });
 
         test(`${storeType} arrays and objects in/out are clones`, () => {
-            recordUiEdit(layout, {p1: propVal}, _dispatch());
+            recordUiEdit(layout, {p1: propVal}, _dispatch);
             const store = stores[storeType];
 
             [[1, 2, 3], {a: 1, b: 2}].forEach(val => {
