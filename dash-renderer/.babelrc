@@ -1,13 +1,4 @@
 {
-    "presets": ["es2015", "react", "stage-2"],
-    "env": {
-        "development": {
-            "presets": ["es2015", "react", "stage-2"],
-            "plugins": [
-                ["transform-es2015-modules-commonjs-simple", {
-                    "noMangle": true
-                }]
-            ]
-        }
-    }
+    "presets": ["@babel/preset-env", "@babel/preset-react"],
+    "plugins": ["@babel/plugin-proposal-object-rest-spread"]
 }
