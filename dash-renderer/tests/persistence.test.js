@@ -1,5 +1,4 @@
 /* eslint-disable no-magic-numbers */
-/* eslint-disable no-undefined */
 /* eslint-disable no-console */
 import {recordUiEdit, stores, storePrefix} from '../src/persistence';
 

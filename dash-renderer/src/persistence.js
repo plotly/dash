@@ -100,8 +100,8 @@ function keyPrefixMatch(prefix, separator) {
 }
 
 const UNDEFINED = 'U';
-const _parse = val => (val === UNDEFINED ? void 0 : JSON.parse(val || null));
-const _stringify = val => (val === void 0 ? UNDEFINED : JSON.stringify(val));
+const _parse = val => (val === UNDEFINED ? undefined : JSON.parse(val || null));
+const _stringify = val => (val === undefined ? UNDEFINED : JSON.stringify(val));
 
 class WebStore {
     constructor(backEnd) {
