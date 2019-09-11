@@ -70,8 +70,7 @@ import uniqid from 'uniqid';
 
 import Registry from './registry';
 
-const storePrefix = '_dash_persistence.';
-const UNDEFINED = 'U';
+export const storePrefix = '_dash_persistence.';
 
 function err(e) {
     const error = typeof e === 'string' ? new Error(e) : e;
@@ -100,6 +99,10 @@ function keyPrefixMatch(prefix, separator) {
     return key => key === prefix || key.substr(0, fullLen) === fullStr;
 }
 
+const UNDEFINED = 'U';
+const _parse = val => val === UNDEFINED ? void 0 : JSON.parse(val || null);
+const _stringify = val => val === void 0 ? UNDEFINED : JSON.stringify(val);
+
 class WebStore {
     constructor(backEnd) {
         this._name = backEnd;
@@ -113,8 +116,7 @@ class WebStore {
     getItem(key) {
         // note: _storage.getItem returns null on missing keys
         // and JSON.parse(null) returns null as well
-        const gotVal = this._storage.getItem(storePrefix + key);
-        return gotVal === UNDEFINED ? void 0 : JSON.parse(gotVal);
+        return _parse(this._storage.getItem(storePrefix + key));
     }
 
     /*
@@ -122,9 +124,8 @@ class WebStore {
      * dispatch as a parameter, so it can report OOM to devtools
      */
     setItem(key, value, dispatch) {
-        const setVal = value === void 0 ? UNDEFINED : JSON.stringify(value);
         try {
-            this._storage.setItem(storePrefix + key, setVal);
+            this._storage.setItem(storePrefix + key, _stringify(value));
         } catch (e) {
             if (dispatch) {
                 dispatch(err(e));
@@ -173,11 +174,11 @@ class MemStore {
     getItem(key) {
         // run this storage through JSON too so we know we get a fresh object
         // each retrieval
-        return JSON.parse(this._data[key] || null);
+        return _parse(this._data[key]);
     }
 
     setItem(key, value) {
-        this._data[key] = JSON.stringify(value);
+        this._data[key] = _stringify(value);
     }
 
     removeItem(key) {
@@ -208,7 +209,7 @@ function longString() {
     return s;
 }
 
-const stores = {
+export const stores = {
     memory: new MemStore(),
     // Defer testing & making local/session stores until requested.
     // That way if we have errors here they can show up in devtools.
@@ -223,7 +224,7 @@ function tryGetWebStore(backEnd, dispatch) {
     const store = new WebStore(backEnd);
     const fallbackStore = stores.memory;
     const storeTest = longString();
-    const testKey = 'x.x';
+    const testKey = storePrefix + 'x.x';
     try {
         store.setItem(testKey, storeTest);
         if (store.getItem(testKey) !== storeTest) {

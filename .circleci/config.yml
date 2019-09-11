@@ -55,10 +55,14 @@ jobs:
             pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
             cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
       - run:
-          name: 🔎 Unit Tests
+          name: 🐍 Python Unit Tests
           command: |
             . venv/bin/activate
             PYTHONPATH=~/dash/tests/assets pytest tests/unit
+      - run:
+          name: ☕ JS Unit Tests
+          command: |
+            cd dash-renderer && npm run test:js
 
   "lint-unit-36":
       <<: *lint-unit
