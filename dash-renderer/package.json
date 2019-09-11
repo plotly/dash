@@ -13,7 +13,6 @@
     "format": "prettier --config .prettierrc --write \"src/**/*.js\"",
     "format:test": "prettier --config .prettierrc \"src/**/*.js\" --list-different",
     "test": "npm run lint",
-    "test:py": "python -m unittest -v tests.test_render tests.test_race_conditions",
     "test:js": "jest"
   },
   "author": "chriddyp",
