@@ -293,7 +293,7 @@ const getProps = layout => {
     const persistence_type =
         props.persistence_type || element.defaultProps.persistence_type;
     if (!persisted_props || !persistence_type) {
-        return {};
+        return {props};
     }
     return {id, props, element, persistence, persisted_props, persistence_type};
 };
