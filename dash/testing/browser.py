@@ -173,6 +173,20 @@ class Browser(DashPageMixin):
             ),
         )
 
+    def wait_for_element_by_id(self, element_id, timeout=None):
+        """explicit wait until the element is present,
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with `EC.presence_of_element_located`
+        """
+        return self._wait_for(
+            EC.presence_of_element_located,
+            ((By.ID, element_id),),
+            timeout,
+            "timeout {}s => waiting for element id {}".format(
+                timeout if timeout else self._wait_timeout, element_id
+            ),
+        )
+
     def wait_for_style_to_equal(self, selector, style, val, timeout=None):
         """explicit wait until the element's style has expected `value`
         timeout if not set, equals to the fixture's `wait_timeout`
@@ -432,6 +446,16 @@ class Browser(DashPageMixin):
             entries = self.driver.get_log("browser")
             if entries:
                 self._last_ts = entries[-1]["timestamp"]
+
+    def visit_and_snapshot(self, resource_path, hook_id):
+        try:
+            self.driver.get(self.server_url + resource_path)
+            self.wait_for_element_by_id(hook_id)
+            self.percy_snapshot(resource_path)
+            self.driver.back()
+        except WebDriverException as e:
+            logger.exception("snapshot at resource %s error", resource_path)
+            raise e
 
     @property
     def driver(self):

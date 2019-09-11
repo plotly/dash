@@ -1,7 +1,13 @@
 ## Unreleased
 
+### Added
+
+- [#918](https://github.com/plotly/dash/pull/918) Adds `wait_for_element_by_id` and `visit_and_snapshot` APIs in browser, adds `raw_command` option (it also has higher priority than
+the default waitress one) and optional `start_timeout` argument to handle large application within process runner
+
 ### Fixed
 
+- [#915](https://github.com/plotly/dash/issues/915) Fixes `dash-generate-components` on Windows
 - [#829](https://github.com/plotly/dash/issues/829) Fixes the `--remote` pytest argument which was not effective in the code, adding a new argument `--remote-url` to support the selenium grid usage in the cloud.
 
 ## [1.2.0] - 2019-08-27
