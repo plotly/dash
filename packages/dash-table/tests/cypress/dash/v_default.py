@@ -78,29 +78,5 @@ app.layout = html.Div(
 )
 
 
-@app.callback(
-    Output("table", "data"),
-    [Input("table", "data_timestamp")],
-    [State("table", "data"), State("table", "data_previous")],
-)
-# pylint: disable=unused-argument
-def updateData(timestamp, current, previous):
-    # pylint: enable=unused-argument
-    if timestamp is None or current is None or previous is None:
-        raise PreventUpdate
-
-    modified = False
-    if len(current) == len(previous):
-        for (i, datum) in enumerate(current):
-            previous_datum = previous[i]
-            if datum[0] != previous_datum[0]:
-                modified = True
-                datum[1] = "MODIFIED"
-
-    if not modified:
-        raise PreventUpdate
-
-    return current
-
 if __name__ == "__main__":
-    app.run_server(port=8082, debug=False)
+    app.run_server(port=8085, debug=False)

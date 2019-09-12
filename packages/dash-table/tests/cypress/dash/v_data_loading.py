@@ -3,9 +3,11 @@ import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_html_components as html
+import dash_core_components as dcc
 import os
 import pandas as pd
 import sys
+from time import sleep
 
 sys.path.append(
     os.path.abspath(
@@ -26,7 +28,9 @@ app.scripts.config.serve_locally = True
 
 app.layout = html.Div(
     [
-        html.Div(id="container", children="Hello World"),
+        dcc.Input(id='change-data-property'),
+        dcc.Input(id='change-other-property'),
+
         dash_table.DataTable(
             id="table",
             data=df[0:250],
@@ -50,57 +54,35 @@ app.layout = html.Div(
             sort_action='native',
             include_headers_on_copy_paste=True,
 
-        ),
-        dash_table.DataTable(
-            id="table2",
-            data=df[0:10],
-            columns=[
-                {"id": 0, "name": "Complaint ID", "hideable": True},
-                {"id": 1, "name": "Product"},
-                {"id": 2, "name": "Sub-product"},
-                {"id": 3, "name": "Issue"},
-                {"id": 4, "name": "Sub-issue"},
-                {"id": 5, "name": "State"},
-                {"id": 6, "name": "ZIP"},
-                {"id": 7, "name": "code"},
-                {"id": 8, "name": "Date received"},
-                {"id": 9, "name": "Date sent to company"},
-                {"id": 10, "name": "Company"},
-                {"id": 11, "name": "Company response"},
-                {"id": 12, "name": "Timely response?"},
-                {"id": 13, "name": "Consumer disputed?"},
-            ],
-            editable=True,
-            sort_action='native',
-            include_headers_on_copy_paste=True,
-        ),
+        )
     ]
 )
 
 
 @app.callback(
+    Output("table", "style_cell_conditional"),
+    [Input("change-other-property", "value")]
+)
+def dontTriggerWait(to_change):
+    if to_change != 'dont_change_data':
+        raise PreventUpdate
+
+    sleep(5)
+    return []
+
+
+@app.callback(
     Output("table", "data"),
-    [Input("table", "data_timestamp")],
-    [State("table", "data"), State("table", "data_previous")],
+    [Input("change-data-property", "value")]
 )
 # pylint: disable=unused-argument
-def updateData(timestamp, current, previous):
-    # pylint: enable=unused-argument
-    if timestamp is None or current is None or previous is None:
+def triggerWait(to_change):
+    if to_change != 'change_data':
         raise PreventUpdate
 
-    modified = False
-    if len(current) == len(previous):
-        for (i, datum) in enumerate(current):
-            previous_datum = previous[i]
-            if datum[0] != previous_datum[0]:
-                modified = True
-                datum[1] = "MODIFIED"
+    sleep(5)
+    return df[0:250]
 
-    if not modified:
-        raise PreventUpdate
-
-    return current
 
 if __name__ == "__main__":
-    app.run_server(port=8082, debug=False)
+    app.run_server(port=8084, debug=False)

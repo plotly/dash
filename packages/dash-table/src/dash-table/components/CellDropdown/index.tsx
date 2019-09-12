@@ -16,6 +16,7 @@ interface IProps {
     dropdown?: IDropdownValue[];
     onChange: (e: ChangeEvent) => void;
     value: any;
+    disabled?: boolean;
 }
 
 export default class CellDropdown extends PureComponent<IProps> {
@@ -24,7 +25,8 @@ export default class CellDropdown extends PureComponent<IProps> {
             clearable,
             dropdown,
             onChange,
-            value
+            value,
+            disabled
         } = this.props;
 
         return (<div className='dash-dropdown-cell-value-container dash-cell-value-container'>
@@ -41,6 +43,7 @@ export default class CellDropdown extends PureComponent<IProps> {
                 options={dropdown}
                 placeholder={''}
                 value={value}
+                disabled={disabled}
             />
         </div>);
     }

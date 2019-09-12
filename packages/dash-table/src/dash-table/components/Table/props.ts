@@ -164,6 +164,12 @@ export interface IBaseColumn {
     name: string | string[];
 }
 
+export interface ILoadingState {
+    is_loading: boolean;
+    prop_name: string | undefined;
+    component_name: string | undefined;
+}
+
 export type ConditionalDropdowns = IConditionalDropdown[];
 export type DataDropdowns = Partial<IDataDropdowns>[];
 export type DataTooltips = Partial<ITableTooltips>[];
@@ -307,6 +313,8 @@ export interface IProps {
     style_header_conditional?: Headers;
     style_table?: Table;
     virtualization?: boolean;
+
+    loading_state?: ILoadingState;
 }
 
 interface IDefaultProps {
@@ -401,6 +409,8 @@ export type ControlledTableProps = SanitizedProps & IState & {
     virtual: IDerivedData;
     virtual_selected_rows: Indices;
     virtualized: IVirtualizedDerivedData;
+
+    loading_state: ILoadingState | undefined;
 };
 
 export type SetFilter = (
@@ -468,4 +478,6 @@ export interface ICellFactoryProps {
     virtualization: boolean;
     virtualized: IVirtualizedDerivedData;
     visibleColumns: Columns;
+
+    loading_state?: ILoadingState;
 }

@@ -35,15 +35,16 @@ function getCellType(
     active: boolean,
     editable: boolean,
     dropdown: IDropdownValue[] | undefined,
-    presentation: Presentation | undefined
+    presentation: Presentation | undefined,
+    is_loading: boolean
 ): CellType {
     switch (presentation) {
         case Presentation.Input:
-            return (!active || !editable) ? CellType.Label : CellType.Input;
+            return (!active || !editable || is_loading) ? CellType.Label : CellType.Input;
         case Presentation.Dropdown:
             return (!dropdown || !editable) ? CellType.DropdownLabel : CellType.Dropdown;
         default:
-            return (!active || !editable) ? CellType.Label : CellType.Input;
+            return (!active || !editable || is_loading) ? CellType.Label : CellType.Input;
     }
 }
 
@@ -62,7 +63,8 @@ class Contents {
         data: Data,
         _offset: IViewportOffset,
         isFocused: boolean,
-        dropdowns: (IDropdown | undefined)[][]
+        dropdowns: (IDropdown | undefined)[][],
+        data_loading: boolean
     ): JSX.Element[][] => {
         const formatters = R.map(getFormatter, columns);
 
@@ -76,7 +78,8 @@ class Contents {
                     columnIndex,
                     rowIndex,
                     datum,
-                    formatters
+                    formatters,
+                    data_loading
                 ), columns), data);
     });
 
@@ -87,7 +90,8 @@ class Contents {
         data: Data,
         offset: IViewportOffset,
         isFocused: boolean,
-        dropdowns: (IDropdown | undefined)[][]
+        dropdowns: (IDropdown | undefined)[][],
+        data_loading: boolean
     ): JSX.Element[][] => {
         if (!activeCell) {
             return contents;
@@ -112,20 +116,22 @@ class Contents {
             jActive,
             iActive,
             data[i],
-            formatters
+            formatters,
+            data_loading
         );
 
         return contents;
     });
 
-    private getContent(active: boolean, isFocused: boolean, column: IColumn, dropdown: IDropdown | undefined, columnIndex: number, rowIndex: number, datum: any, formatters: ((value: any) => any)[]) {
+    private getContent(active: boolean, isFocused: boolean, column: IColumn, dropdown: IDropdown | undefined, columnIndex: number, rowIndex: number, datum: any, formatters: ((value: any) => any)[], data_loading: boolean) {
+
         const className = [
             ...(active ? ['input-active'] : []),
             isFocused ? 'focused' : 'unfocused',
             'dash-cell-value'
         ].join(' ');
 
-        const cellType = getCellType(active, column.editable, dropdown && dropdown.options, column.presentation);
+        const cellType = getCellType(active, column.editable, dropdown && dropdown.options, column.presentation, data_loading);
 
         switch (cellType) {
             case CellType.Dropdown:
@@ -136,6 +142,7 @@ class Contents {
                     dropdown={dropdown && dropdown.options}
                     onChange={this.handlers(Handler.Change, rowIndex, columnIndex)}
                     value={datum[column.id]}
+                    disabled={data_loading}
                 />);
             case CellType.Input:
                 return (<CellInput

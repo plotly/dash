@@ -4,7 +4,7 @@ import Key from 'cypress/Key';
 
 describe('delete cells', () => {
     beforeEach(() => {
-        cy.visit('http://localhost:8082');
+        cy.visit('http://localhost:8085');
     });
 
     describe('unsorted data', () => {

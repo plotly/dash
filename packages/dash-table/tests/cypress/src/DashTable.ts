@@ -1,26 +1,47 @@
+const READY = `.dash-spreadsheet:not(.dash-loading)`;
+const LOADING = `.dash-spreadsheet.dash-loading`;
+const ANY = `.dash-spreadsheet`;
+
+export enum State {
+    Any,
+    Loading,
+    Ready
+}
+
+const getSelector = (state: State) => {
+    switch (state) {
+        case State.Ready:
+            return READY;
+        case State.Loading:
+            return LOADING;
+        default:
+            return ANY;
+    }
+};
+
 export default class DashTable {
-    static getCell(row: number, column: number) {
-        return cy.get(`#table tbody tr td.column-${column}`).eq(row);
+    static getCell(row: number, column: number, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr td.column-${column}`).eq(row);
     }
 
-    static getCellById(row: number, column: string) {
-        return cy.get(`#table tbody tr td[data-dash-column="${column}"]`).eq(row);
+    static getCellById(row: number, column: string, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr td[data-dash-column="${column}"]`).eq(row);
     }
 
-    static getFilter(column: number) {
-        return cy.get(`#table tbody tr th.dash-filter.column-${column}`);
+    static getFilter(column: number, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr th.dash-filter.column-${column}`);
     }
 
-    static getFilterById(column: string) {
-        return cy.get(`#table tbody tr th.dash-filter[data-dash-column="${column}"]`);
+    static getFilterById(column: string, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr th.dash-filter[data-dash-column="${column}"]`);
     }
 
-    static getHeader(row: number, column: number) {
-        return cy.get(`#table tbody tr th.dash-header.column-${column}`).eq(row);
+    static getHeader(row: number, column: number, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr th.dash-header.column-${column}`).eq(row);
     }
 
-    static getHeaderById(row: number, column: string) {
-        return cy.get(`#table tbody tr th.dash-header[data-dash-column="${column}"]`).eq(row);
+    static getHeaderById(row: number, column: string, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr th.dash-header[data-dash-column="${column}"]`).eq(row);
     }
 
     static focusCell(row: number, column: number) {
@@ -33,52 +54,52 @@ export default class DashTable {
         return this.getCellById(row, column).click().scrollIntoView();
     }
 
-    static clearColumnById(row: number, column: string) {
-        return cy.get(`#table tbody tr th.dash-header[data-dash-column="${column}"] .column-header--clear`).eq(row).click();
+    static clearColumnById(row: number, column: string, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr th.dash-header[data-dash-column="${column}"] .column-header--clear`).eq(row).click();
     }
 
-    static deleteColumnById(row: number, column: string) {
-        return cy.get(`#table tbody tr th.dash-header[data-dash-column="${column}"] .column-header--delete`).eq(row).click();
+    static deleteColumnById(row: number, column: string, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr th.dash-header[data-dash-column="${column}"] .column-header--delete`).eq(row).click();
     }
 
-    static hideColumnById(row: number, column: string) {
-        return cy.get(`#table tbody tr th.dash-header[data-dash-column="${column}"] .column-header--hide`).eq(row).click();
+    static hideColumnById(row: number, column: string, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr th.dash-header[data-dash-column="${column}"] .column-header--hide`).eq(row).click();
     }
 
-    static getSelectColumnById(row: number, column: string) {
-        return cy.get(`#table tbody tr th.dash-header[data-dash-column="${column}"] .column-header--select input`).eq(row);
+    static getSelectColumnById(row: number, column: string, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr th.dash-header[data-dash-column="${column}"] .column-header--select input`).eq(row);
     }
 
     static selectColumnById(row: number, column: string) {
         return DashTable.getSelectColumnById(row, column).click();
     }
 
-    static getDelete(row: number) {
-        return cy.get(`#table tbody tr td.dash-delete-cell`).eq(row);
+    static getDelete(row: number, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr td.dash-delete-cell`).eq(row);
     }
 
-    static getSelect(row: number) {
-        return cy.get(`#table tbody tr td.dash-select-cell`).eq(row);
+    static getSelect(row: number, editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody tr td.dash-select-cell`).eq(row);
     }
 
-    static getActiveCell() {
-        return cy.get(`#table tbody td.focused`);
+    static getActiveCell(editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody td.focused`);
     }
 
-    static getSelectedCells() {
-        return cy.get(`#table tbody td.cell--selected`);
+    static getSelectedCells(editable: State = State.Ready) {
+        return cy.get(`#table ${getSelector(editable)} tbody td.cell--selected`);
     }
 
     static scrollToTop() {
         cy.get(`.cell.cell-1-1.dash-fixed-content`).invoke(`outerHeight`).then(height => {
             cy.scrollTo(0, -height);
-        })
+        });
     }
 
     static scrollToBottom() {
         cy.get(`.cell.cell-1-1.dash-fixed-content`).invoke(`outerHeight`).then(height => {
             cy.scrollTo(0, height);
-        })
+        });
     }
 
     static getCellInLastRowOfColumn(column: number) {
