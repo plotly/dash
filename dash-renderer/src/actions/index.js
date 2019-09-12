@@ -545,17 +545,17 @@ function updateOutput(
 
         // In case the update contains whole components, see if any of
         // those components have props to update to persist user edits.
-        const finalProps = applyPersistence(updatedProps, dispatch);
+        const {props} = applyPersistence({props: updatedProps}, dispatch);
 
         dispatch(
             updateProps({
                 itempath,
-                props: finalProps,
+                props,
                 source: 'response',
             })
         );
 
-        return finalProps;
+        return props;
     }
 
     // Clientside hook
