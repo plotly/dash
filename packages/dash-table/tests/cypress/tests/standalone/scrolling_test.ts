@@ -50,7 +50,21 @@ variants.forEach(([mode, flavors]) => {
 
             cy.get('.row-1').scrollTo(0, 0);
             DashTable.getSelectedCells().should('have.length', 6);
+        });
 
+        it('can edit cell', () => {
+            DashTable.toggleScroll(false);
+            DashTable.getCell(0, 0).click();
+            DashTable.toggleScroll(true);
+
+            cy.get('.row-1').scrollTo(0, 1000);
+            cy.wait(1000);
+
+            DashTable.getCell(10, 1).click();
+            DOM.focused.type(`Edited${Key.Enter}`);
+
+            DOM.focused.type(`${Key.ArrowUp}`);
+            DOM.focused.should('have.value', 'Edited');
         });
     });
 });
