@@ -23,6 +23,8 @@ export default class Cell extends Component<ICellProps> {
         const {
             attributes,
             classes,
+            onClick,
+            onDoubleClick,
             onMouseEnter,
             onMouseLeave,
             onMouseMove,
@@ -34,6 +36,8 @@ export default class Cell extends Component<ICellProps> {
             children={(this as any).props.children}
             tabIndex={-1}
             className={classes}
+            onClick={onClick}
+            onDoubleClick={onDoubleClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             onMouseMove={onMouseMove}

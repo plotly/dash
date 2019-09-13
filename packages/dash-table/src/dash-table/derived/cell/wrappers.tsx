@@ -86,7 +86,9 @@ class Wrappers {
             rowIndex,
             this.handlers(Handler.Enter, rowIndex, columnIndex),
             this.handlers(Handler.Leave, rowIndex, columnIndex),
-            this.handlers(Handler.Move, rowIndex, columnIndex)
+            this.handlers(Handler.Move, rowIndex, columnIndex),
+            this.handlers(Handler.Click, rowIndex, columnIndex),
+            this.handlers(Handler.DoubleClick, rowIndex, columnIndex)
         );
     }
 
@@ -101,7 +103,9 @@ class Wrappers {
         rowIndex: number,
         onEnter: (e: MouseEvent) => void,
         onLeave: (e: MouseEvent) => void,
-        onMove: (e: MouseEvent) => void
+        onMove: (e: MouseEvent) => void,
+        onClick: (e: MouseEvent) => void,
+        onDoubleClick: (e: MouseEvent) => void
     ) => (<Cell
         active={active}
         attributes={{
@@ -110,6 +114,8 @@ class Wrappers {
         }}
         classes={classes}
         key={`column-${columnIndex}`}
+        onClick={onClick}
+        onDoubleClick={onDoubleClick}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
         onMouseMove={onMove}

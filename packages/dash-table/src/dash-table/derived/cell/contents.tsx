@@ -151,8 +151,6 @@ class Contents {
                     className={className}
                     focused={isFocused}
                     onChange={this.handlers(Handler.Change, rowIndex, columnIndex)}
-                    onClick={this.handlers(Handler.Click, rowIndex, columnIndex)}
-                    onDoubleClick={this.handlers(Handler.DoubleClick, rowIndex, columnIndex)}
                     onMouseUp={this.handlers(Handler.MouseUp, rowIndex, columnIndex)}
                     onPaste={this.handlers(Handler.Paste, rowIndex, columnIndex)}
                     type={column.type}
@@ -168,8 +166,6 @@ class Contents {
                 return (<CellLabel
                     className={className}
                     key={`column-${columnIndex}`}
-                    onClick={this.handlers(Handler.Click, rowIndex, columnIndex)}
-                    onDoubleClick={this.handlers(Handler.DoubleClick, rowIndex, columnIndex)}
                     value={resolvedValue}
                 />);
         }

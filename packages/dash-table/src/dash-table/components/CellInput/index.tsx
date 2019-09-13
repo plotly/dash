@@ -15,8 +15,6 @@ interface ICellProps {
     className: string;
     focused: boolean;
     onChange: (e: ChangeEvent) => void;
-    onClick: (e: MouseEvent) => void;
-    onDoubleClick: (e: MouseEvent) => void;
     onMouseUp: (e: MouseEvent) => void;
     onPaste: (e: ClipboardEvent<Element>) => void;
     type?: string;
@@ -40,8 +38,6 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
     render() {
         const {
             className,
-            onClick,
-            onDoubleClick,
             onMouseUp,
             onPaste,
             value
@@ -62,8 +58,6 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
                 className={className}
                 onBlur={this.propagateChange}
                 onChange={this.handleChange}
-                onClick={onClick}
-                onDoubleClick={onDoubleClick}
                 onKeyDown={this.handleKeyDown}
                 onMouseUp={onMouseUp}
                 onPaste={onPaste}

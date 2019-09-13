@@ -5,7 +5,12 @@ import isSelected from 'dash-table/derived/cell/isSelected';
 import { makeCell, makeSelection } from 'dash-table/derived/cell/cellProps';
 import reconcile from 'dash-table/type/reconcile';
 
-export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: number, e: any) => {
+export const handleClick = (
+    propsFn: () => ICellFactoryProps,
+    idx: number,
+    i: number,
+    e: any
+) => {
     const {
         selected_cells,
         active_cell,
@@ -15,13 +20,12 @@ export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: nu
         visibleColumns
     } = propsFn();
 
-    const row = idx + virtualized.offset.rows;
     const col = i + virtualized.offset.columns;
 
-    const clickedCell = makeCell(row, col, visibleColumns, viewport);
+    const clickedCell = makeCell(idx, col, visibleColumns, viewport);
 
     // clicking again on the already-active cell: ignore
-    if (active_cell && row === active_cell.row && col === active_cell.column) {
+    if (active_cell && idx === active_cell.row && col === active_cell.column) {
         return;
     }
 
@@ -40,7 +44,7 @@ export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: nu
         browserSelection.removeAllRanges();
     }
 
-    const selected = isSelected(selected_cells, row, col);
+    const selected = isSelected(selected_cells, idx, col);
 
     // if clicking on a *different* already-selected cell (NOT shift-clicking,
     // not the active cell), don't alter the selection,
@@ -61,8 +65,8 @@ export const handleClick = (propsFn: () => ICellFactoryProps, idx: number, i: nu
     if (e.shiftKey && active_cell) {
         newProps.selected_cells = makeSelection(
             {
-                minRow: min(row, active_cell.row),
-                maxRow: max(row, active_cell.row),
+                minRow: min(idx, active_cell.row),
+                maxRow: max(idx, active_cell.row),
                 minCol: min(col, active_cell.column),
                 maxCol: max(col, active_cell.column)
             },
@@ -94,7 +98,7 @@ export const handleDoubleClick = (propsFn: () => ICellFactoryProps, idx: number,
     }
 
     const newCell = makeCell(
-        idx + virtualized.offset.rows,
+        idx,
         i + virtualized.offset.columns,
         visibleColumns, viewport
     );

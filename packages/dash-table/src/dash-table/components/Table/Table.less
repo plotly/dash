@@ -316,12 +316,6 @@
                 }
             }
 
-            div.dash-cell-value {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-
             .cell-value-shadow {
                 margin: auto 0;
                 opacity: 0;
@@ -352,20 +346,9 @@
             }
         }
 
-        // cell content styling
-        td, th {
-            background-clip: padding-box;
-            padding: 2px;
-            white-space: nowrap;
-            overflow-x: hidden;
-            text-overflow: ellipsis;
-
-            height: 30px;
-
-            text-align: right;
-        }
-
         th {
+            white-space: nowrap;
+
             .column-header--clear,
             .column-header--delete,
             .column-header--edit,
@@ -373,6 +356,26 @@
             .column-header--sort {
                 .not-selectable();
                 cursor: pointer;
+            }
+        }
+
+        // cell content styling
+        td, th {
+            background-clip: padding-box;
+            padding: 2px;
+            overflow-x: hidden;
+            white-space: nowrap;
+
+            height: 30px;
+
+            text-align: right;
+
+            div.dash-cell-value {
+                display: inline;
+                vertical-align: middle;
+                white-space: inherit;
+                overflow: inherit;
+                text-overflow: inherit;
             }
         }
     }

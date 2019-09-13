@@ -29,7 +29,10 @@ export default class CellDropdown extends PureComponent<IProps> {
             disabled
         } = this.props;
 
-        return (<div className='dash-dropdown-cell-value-container dash-cell-value-container'>
+        return (<div
+            className='dash-dropdown-cell-value-container dash-cell-value-container'
+            onClick={this.handleClick}
+        >
             <div className='dropdown-cell-value-shadow cell-value-shadow'>
                 {(dropdown && dropdown.find(entry => entry.value === value) || { label: undefined }).label}
             </div>
@@ -54,6 +57,10 @@ export default class CellDropdown extends PureComponent<IProps> {
 
     componentDidMount() {
         this.setFocus();
+    }
+
+    private handleClick(e: React.MouseEvent) {
+        e.stopPropagation();
     }
 
     private setFocus() {
