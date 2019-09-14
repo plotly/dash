@@ -451,14 +451,15 @@ class Browser(DashPageMixin):
             if entries:
                 self._last_ts = entries[-1]["timestamp"]
 
-    def visit_and_snapshot(self, resource_path, hook_id):
+    def visit_and_snapshot(self, resource_path, hook_id, assert_check=True):
         try:
             self.driver.get("{}/{}".format(self.server_url, resource_path))
             self.wait_for_element_by_id(hook_id)
             self.percy_snapshot(resource_path)
-            assert not self.driver.find_elements_by_css_selector(
-                "div.dash-debug-alert"
-            ), "devtools should not raise an error alert"
+            if assert_check:
+                assert not self.driver.find_elements_by_css_selector(
+                    "div.dash-debug-alert"
+                ), "devtools should not raise an error alert"
             self.driver.back()
         except WebDriverException as e:
             logger.exception("snapshot at resource %s error", resource_path)
