@@ -456,7 +456,7 @@ class Browser(DashPageMixin):
             path = resource_path.lstrip('/')
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
-            self.driver.get("{}/{}".format(self.server_url, path))
+            self.driver.get("{}/{}".format(self.server_url.rstrip('/'), path))
             self.wait_for_element_by_id(hook_id)
             self.percy_snapshot(path)
             if assert_check:
