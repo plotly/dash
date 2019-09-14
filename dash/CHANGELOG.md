@@ -2,6 +2,8 @@
 
 ### Added
 
+- [#923](https://github.com/plotly/dash/pull/923) Adds one configuration `--percy-assets` in `pytest` to specify extra application assets path if needed
+
 - [#918](https://github.com/plotly/dash/pull/918) Adds `wait_for_element_by_id` and `visit_and_snapshot` APIs in browser, adds `raw_command` option (it also has higher priority than
 the default waitress one) and optional `start_timeout` argument to handle large application within process runner
 
