@@ -453,16 +453,19 @@ class Browser(DashPageMixin):
 
     def visit_and_snapshot(self, resource_path, hook_id, assert_check=True):
         try:
-            self.driver.get("{}/{}".format(self.server_url, resource_path))
+            path = resource_path.lstrip('/')
+            if path != resource_path:
+                logger.warning("we stripped the left '/' in resource_path")
+            self.driver.get("{}/{}".format(self.server_url, path))
             self.wait_for_element_by_id(hook_id)
-            self.percy_snapshot(resource_path)
+            self.percy_snapshot(path)
             if assert_check:
                 assert not self.driver.find_elements_by_css_selector(
                     "div.dash-debug-alert"
                 ), "devtools should not raise an error alert"
             self.driver.back()
         except WebDriverException as e:
-            logger.exception("snapshot at resource %s error", resource_path)
+            logger.exception("snapshot at resource %s error", path)
             raise e
 
     @property
