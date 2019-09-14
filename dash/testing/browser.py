@@ -37,9 +37,9 @@ class Browser(DashPageMixin):
         remote_url=None,
         headless=False,
         options=None,
-        download_path=None,
+        download_path='',
         percy_finalize=True,
-        percy_assets_root=None,
+        percy_assets_root='',
         wait_timeout=10,
     ):
         self._browser = browser.lower()
