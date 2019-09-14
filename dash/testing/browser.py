@@ -37,8 +37,9 @@ class Browser(DashPageMixin):
         remote_url=None,
         headless=False,
         options=None,
-        download_path=None,
+        download_path="",
         percy_finalize=True,
+        percy_assets_root="",
         wait_timeout=10,
     ):
         self._browser = browser.lower()
@@ -67,14 +68,17 @@ class Browser(DashPageMixin):
             loader=percy.ResourceLoader(
                 webdriver=self.driver,
                 base_url="/assets",
-                root_dir="tests/assets",
+                root_dir=percy_assets_root,
             )
         )
         self.percy_runner.initialize_build()
 
-        logger.debug("initialize browser with arguments")
-        logger.debug("  headless => %s", self._headless)
-        logger.debug("  download_path => %s", self._download_path)
+        logger.info("initialize browser with arguments")
+        logger.info("  headless => %s", self._headless)
+        logger.info("  download_path => %s", self._download_path)
+        logger.info(
+            "  percy asset root => %s", os.path.abspath(percy_assets_root)
+        )
 
     def __enter__(self):
         return self
@@ -447,14 +451,21 @@ class Browser(DashPageMixin):
             if entries:
                 self._last_ts = entries[-1]["timestamp"]
 
-    def visit_and_snapshot(self, resource_path, hook_id):
+    def visit_and_snapshot(self, resource_path, hook_id, assert_check=True):
         try:
-            self.driver.get(self.server_url + resource_path)
+            path = resource_path.lstrip('/')
+            if path != resource_path:
+                logger.warning("we stripped the left '/' in resource_path")
+            self.driver.get("{}/{}".format(self.server_url.rstrip('/'), path))
             self.wait_for_element_by_id(hook_id)
-            self.percy_snapshot(resource_path)
+            self.percy_snapshot(path)
+            if assert_check:
+                assert not self.driver.find_elements_by_css_selector(
+                    "div.dash-debug-alert"
+                ), "devtools should not raise an error alert"
             self.driver.back()
         except WebDriverException as e:
-            logger.exception("snapshot at resource %s error", resource_path)
+            logger.exception("snapshot at resource %s error", path)
             raise e
 
     @property

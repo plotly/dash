@@ -216,6 +216,7 @@ class ProcessRunner(BaseDashRunner):
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
             self.started = False
+            self.stop()
             return
 
         self.started = True
