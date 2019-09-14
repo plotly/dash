@@ -39,6 +39,7 @@ class Browser(DashPageMixin):
         options=None,
         download_path=None,
         percy_finalize=True,
+        percy_assets_root='tests/assets',
         wait_timeout=10,
     ):
         self._browser = browser.lower()
@@ -67,7 +68,7 @@ class Browser(DashPageMixin):
             loader=percy.ResourceLoader(
                 webdriver=self.driver,
                 base_url="/assets",
-                root_dir="tests/assets",
+                root_dir=percy_assets_root,
             )
         )
         self.percy_runner.initialize_build()
