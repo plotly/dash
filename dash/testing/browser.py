@@ -453,7 +453,7 @@ class Browser(DashPageMixin):
 
     def visit_and_snapshot(self, resource_path, hook_id):
         try:
-            self.driver.get(self.server_url + resource_path)
+            self.driver.get("{}/{}".format(self.server_url, resource_path))
             self.wait_for_element_by_id(hook_id)
             self.percy_snapshot(resource_path)
             assert not self.driver.find_elements_by_css_selector(
