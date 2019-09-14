@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Fixed
+[#578](https://github.com/plotly/dash-table/pull/578)
+- Fix [#576](https://github.com/plotly/dash-table/issues/576), editing column names or deleting columns while other columns are hidden causing the hidden columns to be lost.
+- Fix an unreported bug that clicking "Cancel" at the column name edit prompt would clear the name, rather than leaving it unchanged as it should.
+
 [#569](https://github.com/plotly/dash-table/issues/569), [#544](https://github.com/plotly/dash-table/issues/544)
 - Allow empty strings in all `filter_query` (e.g filter_query: '{colA} eq ""')
 

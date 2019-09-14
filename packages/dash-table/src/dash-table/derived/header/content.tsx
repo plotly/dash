@@ -26,6 +26,7 @@ const doAction = (
     action: (
         column: IColumn,
         columns: Columns,
+        visibleColumns: Columns,
         columnRowIndex: any,
         mergeDuplicateHeaders: boolean,
         data: Data
@@ -33,6 +34,7 @@ const doAction = (
     selected_columns: string[],
     column: IColumn,
     columns: Columns,
+    visibleColumns: Columns,
     columnRowIndex: any,
     mergeDuplicateHeaders: boolean,
     setFilter: SetFilter,
@@ -40,7 +42,7 @@ const doAction = (
     map: Map<string, SingleColumnSyntaxTree>,
     data: Data
 ) => () => {
-    const props = action(column, columns, columnRowIndex, mergeDuplicateHeaders, data);
+    const props = action(column, columns, visibleColumns, columnRowIndex, mergeDuplicateHeaders, data);
 
     const affectedColumIds = actions.getAffectedColumns(column, columns, columnRowIndex, mergeDuplicateHeaders);
 
@@ -99,7 +101,10 @@ function doSort(columnId: ColumnId, sortBy: SortBy, mode: SortMode, setProps: Se
 
 function editColumnName(column: IColumn, columns: Columns, columnRowIndex: any, setProps: SetProps, mergeDuplicateHeaders: boolean) {
     return () => {
-        setProps(actions.editColumnName(column, columns, columnRowIndex, mergeDuplicateHeaders));
+        const update = actions.editColumnName(column, columns, columnRowIndex, mergeDuplicateHeaders);
+        if (update) {
+            setProps(update);
+        }
     };
 }
 
@@ -250,7 +255,7 @@ function getter(
                             null :
                             (<span
                                 className='column-header--edit'
-                                onClick={editColumnName(column, visibleColumns, headerRowIndex, setProps, mergeDuplicateHeaders)}
+                                onClick={editColumnName(column, columns, headerRowIndex, setProps, mergeDuplicateHeaders)}
                             >
                                 <FontAwesomeIcon icon='pencil-alt' />
                             </span>)
@@ -260,7 +265,7 @@ function getter(
                             null :
                             (<span
                                 className='column-header--clear'
-                                onClick={doAction(actions.clearColumn, selected_columns, column, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)}
+                                onClick={doAction(actions.clearColumn, selected_columns, column, columns, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)}
                             >
                                 <FontAwesomeIcon icon='eraser' />
                             </span>)
@@ -272,7 +277,7 @@ function getter(
                                 className={'column-header--delete' + (spansAllColumns ? ' disabled' : '')}
                                 onClick={spansAllColumns ?
                                     undefined :
-                                    doAction(actions.deleteColumn, selected_columns, column, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)
+                                    doAction(actions.deleteColumn, selected_columns, column, columns, visibleColumns, headerRowIndex, mergeDuplicateHeaders, setFilter, setProps, map, data)
                                 }
                             >
                                 <FontAwesomeIcon icon={['far', 'trash-alt']} />
