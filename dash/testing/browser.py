@@ -39,7 +39,7 @@ class Browser(DashPageMixin):
         options=None,
         download_path=None,
         percy_finalize=True,
-        percy_assets_root="tests/assets",
+        percy_assets_root=None,
         wait_timeout=10,
     ):
         self._browser = browser.lower()
@@ -73,10 +73,10 @@ class Browser(DashPageMixin):
         )
         self.percy_runner.initialize_build()
 
-        logger.debug("initialize browser with arguments")
-        logger.debug("  headless => %s", self._headless)
-        logger.debug("  download_path => %s", self._download_path)
-        logger.debug(
+        logger.info("initialize browser with arguments")
+        logger.info("  headless => %s", self._headless)
+        logger.info("  download_path => %s", self._download_path)
+        logger.info(
             "  percy asset root => %s", os.path.abspath(percy_assets_root)
         )
 
