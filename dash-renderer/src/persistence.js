@@ -336,7 +336,7 @@ export function recordUiEdit(layout, newProps, dispatch) {
                     originalVal === undefined
                         ? [newVal]
                         : [newVal, originalVal];
-                storage.setItem(valsKey, vals);
+                storage.setItem(valsKey, vals, dispatch);
             }
         }
     }, persisted_props);

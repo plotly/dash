@@ -112,8 +112,7 @@ describe('storage fallbacks and equivalence', () => {
             recordUiEdit(layout, {p1: propVal}, _dispatch);
             expect(dispatchCalls).toEqual([]);
             expect(consoleCalls).toEqual([]);
-            expect(store.getItem(`${storePrefix}a.p1`)).toEqual(propStr);
-            expect(store.getItem(`${storePrefix}a.p1.orig`)).toEqual('U');
+            expect(store.getItem(`${storePrefix}a.p1.true`)).toBe(`[${propStr}]`);
         });
 
         test(`${storeName} full from persistence works with warnings`, () => {
@@ -125,7 +124,7 @@ describe('storage fallbacks and equivalence', () => {
                 `${storeName} init set/get succeeded after clearing!`
             ]);
             expect(consoleCalls).toEqual(dispatchCalls);
-            expect(store.getItem(`${storePrefix}a.p1`)).toBe(propStr);
+            expect(store.getItem(`${storePrefix}a.p1.true`)).toBe(`[${propStr}]`);
             // Boolean so we don't see the very long value if test fails
             const x = Boolean(store.getItem(`${storePrefix}x.x`));
             expect(x).toBe(false);
@@ -140,7 +139,7 @@ describe('storage fallbacks and equivalence', () => {
                 `${storeName} init still failed, falling back to memory`
             ]);
             expect(consoleCalls).toEqual(dispatchCalls);
-            expect(stores.memory.getItem('a.p1')).toBe(propVal);
+            expect(stores.memory.getItem('a.p1.true')).toEqual([propVal]);
             const x = Boolean(store.getItem('not_ours'));
             expect(x).toBe(true);
         });
@@ -156,7 +155,7 @@ describe('storage fallbacks and equivalence', () => {
             // now flood it.
             recordUiEdit(layout, {p1: longString(26)}, _dispatch);
             expect(dispatchCalls).toEqual([
-                `a.p1 failed to save in ${storeName}. Persisted props may be lost.`
+                `a.p1.true failed to save in ${storeName}. Persisted props may be lost.`
             ]);
             expect(consoleCalls).toEqual(dispatchCalls);
         });
