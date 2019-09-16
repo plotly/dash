@@ -1243,7 +1243,7 @@ export const propTypes = {
      * hasn't changed from its previous value, any `persisted_props` that the
      * user has changed while using the app will keep those changes, as long as
      * the new prop value also matches what was given originally.
-     * Used in conjunction with `persistence` and `persisted_props`.
+     * Used in conjunction with `persistence_type` and `persisted_props`.
      */
     persistence: PropTypes.oneOfType(
         [PropTypes.bool, PropTypes.string, PropTypes.number]
