@@ -101,7 +101,18 @@ export const defaultProps = {
     style_data_conditional: [],
     style_filter_conditional: [],
     style_header_conditional: [],
-    virtualization: false
+    virtualization: false,
+
+    persisted_props: [
+        'columns.name',
+        // data is not included by default
+        'filter_query',
+        'hidden_columns',
+        'selected_columns',
+        'selected_rows',
+        'sort_by'
+    ],
+    persistence_type: 'local'
 };
 
 export const propTypes = {
@@ -1224,8 +1235,53 @@ export const propTypes = {
          * Holds the name of the component that is loading
          */
         component_name: PropTypes.string
-    })
+    }),
 
+    /**
+     * Used to allow user interactions in this component to be persisted when
+     * the component - or the page - is refreshed. If `persisted` is truthy and
+     * hasn't changed from its previous value, any `persisted_props` that the
+     * user has changed while using the app will keep those changes, as long as
+     * the new prop value also matches what was given originally.
+     * Used in conjunction with `persistence` and `persisted_props`.
+     */
+    persistence: PropTypes.oneOfType(
+        [PropTypes.bool, PropTypes.string, PropTypes.number]
+    ),
+
+    /**
+     * Properties whose user interactions will persist after refreshing the
+     * component or the page.
+     */
+    persisted_props: PropTypes.arrayOf(
+        PropTypes.oneOf([
+            'columns.name',
+            'data',
+            'filter_query',
+            'hidden_columns',
+            'selected_columns',
+            'selected_rows',
+            'sort_by'
+        ])
+    ),
+
+    /**
+     * Where persisted user changes will be stored:
+     * memory: only kept in memory, reset on page refresh.
+     * local: window.localStorage, data is kept after the browser quit.
+     * session: window.sessionStorage, data is cleared once the browser quit.
+     */
+    persistence_type: PropTypes.oneOf(['local', 'session', 'memory'])
+};
+
+DataTable.persistenceTransforms = {
+    columns: {
+        name: {
+            extract: propValue => R.pluck('name', propValue),
+            apply: (storedValue, propValue) =>
+                R.zipWith(R.assoc('name'), storedValue, propValue)
+        }
+    }
 };
 
 DataTable.defaultProps = defaultProps;
