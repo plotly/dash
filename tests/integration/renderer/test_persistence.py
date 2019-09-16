@@ -98,12 +98,15 @@ def test_rdps001_local_reload(dash_duo):
     app.persistence.value = 2
     dash_duo.wait_for_page()
     check_table_names(dash_duo, ['a', 'b'])
+    rename_and_hide(dash_duo, 1, 'two', 0)
+    dash_duo.wait_for_text_to_equal('#out', 'names: [a, two]; hidden: [c0]')
+    check_table_names(dash_duo, ['two'])
 
-    # put back the old persistence, but values are gone
+    # put back the old persistence, get the old values
     app.persistence.value = 1
     dash_duo.wait_for_page()
-    check_table_names(dash_duo, ['a', 'b'])
-    rename_and_hide(dash_duo)
+    dash_duo.wait_for_text_to_equal('#out', 'names: [x, b]; hidden: [c1]')
+    check_table_names(dash_duo, ['x'])
 
     # falsy persistence disables it
     app.persistence.value = 0
@@ -114,13 +117,11 @@ def test_rdps001_local_reload(dash_duo):
     dash_duo.wait_for_page()
     check_table_names(dash_duo, ['a', 'b'])
 
-    # falsy to previous truthy DOES bring the values back
-    # because with falsy persistence we don't look at the store at all
-    # TODO: is this what we want? maybe not... but the same thing would
-    # happen if you changed persistence_type then changed it back.
-    app.persistence.value = 1
+    # falsy to previous truthy also brings the values
+    app.persistence.value = 2
     dash_duo.wait_for_page()
-    check_table_names(dash_duo, ['x'])
+    dash_duo.wait_for_text_to_equal('#out', 'names: [a, two]; hidden: [c0]')
+    check_table_names(dash_duo, ['two'])
 
 
 def test_rdps002_session_reload(dash_duo):
@@ -218,7 +219,6 @@ def test_rdps005_persisted_props(dash_duo):
 
     dash_duo.find_element('#toggle-table').click()
     # back to original persisted_props hidden_columns returns
-    # TODO: is this actually what we want?
     check_table_names(dash_duo, ['x'])
 
 

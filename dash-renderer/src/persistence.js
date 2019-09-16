@@ -61,8 +61,8 @@ import {
     forEach,
     keys,
     lensPath,
+    mergeRight,
     set,
-    symmetricDifference,
     type,
 } from 'ramda';
 import {createAction} from 'redux-actions';
@@ -276,9 +276,8 @@ const getTransform = (element, propName, propPart) =>
         ? element.persistenceTransforms[propName][propPart]
         : noopTransform;
 
-const getNewValKey = (id, persistedProp) => id + '.' + persistedProp;
-const getOriginalValKey = newValKey => newValKey + '.orig';
-const getPersistIdKey = newValKey => newValKey + '.id';
+const getValsKey = (id, persistedProp, persistence) =>
+    `${id}.${persistedProp}.${JSON.stringify(persistence)}`;
 
 const getProps = layout => {
     const {props} = layout;
@@ -322,41 +321,25 @@ export function recordUiEdit(layout, newProps, dispatch) {
             const storage = getStore(persistence_type, dispatch);
             const {extract} = getTransform(element, propName, propPart);
 
-            const newValKey = getNewValKey(id, persistedProp);
-            const persistIdKey = getPersistIdKey(newValKey);
-            const previousVal = extract(props[propName]);
+            const valsKey = getValsKey(id, persistedProp, persistence);
+            let originalVal = extract(props[propName]);
             const newVal = extract(newProps[propName]);
 
             // mainly for nested props with multiple persisted parts, it's
             // possible to have the same value as before - should not store
             // in this case.
-            if (previousVal !== newVal) {
-                if (
-                    !storage.hasItem(newValKey) ||
-                    storage.getItem(persistIdKey) !== persistence
-                ) {
-                    storage.setItem(
-                        getOriginalValKey(newValKey),
-                        previousVal,
-                        dispatch
-                    );
-                    storage.setItem(persistIdKey, persistence, dispatch);
+            if (originalVal !== newVal) {
+                if (storage.hasItem(valsKey)) {
+                    originalVal = storage.getItem(valsKey)[1];
                 }
-                storage.setItem(newValKey, newVal, dispatch);
+                const vals =
+                    originalVal === undefined
+                        ? [newVal]
+                        : [newVal, originalVal];
+                storage.setItem(valsKey, vals);
             }
         }
     }, persisted_props);
-}
-
-function clearUIEdit(id, persistence_type, persistedProp, dispatch) {
-    const storage = getStore(persistence_type, dispatch);
-    const newValKey = getNewValKey(id, persistedProp);
-
-    if (storage.hasItem(newValKey)) {
-        storage.removeItem(newValKey);
-        storage.removeItem(getOriginalValKey(newValKey));
-        storage.removeItem(getPersistIdKey(newValKey));
-    }
 }
 
 /*
@@ -369,6 +352,28 @@ export function applyPersistence(layout, dispatch) {
     }
 
     return persistenceMods(layout, layout, [], dispatch);
+}
+
+const UNDO = true;
+function modProp(key, storage, element, props, persistedProp, update, undo) {
+    if (storage.hasItem(key)) {
+        const [newVal, originalVal] = storage.getItem(key);
+        const fromVal = undo ? newVal : originalVal;
+        const toVal = undo ? originalVal : newVal;
+        const [propName, propPart] = persistedProp.split('.');
+        const transform = getTransform(element, propName, propPart);
+
+        if (equals(fromVal, transform.extract(props[propName]))) {
+            update[propName] = transform.apply(
+                toVal,
+                propName in update ? update[propName] : props[propName]
+            );
+        } else {
+            // clear this saved edit - we've started with the wrong
+            // value for this persistence ID
+            storage.removeItem(key);
+        }
+    }
 }
 
 function persistenceMods(layout, component, path, dispatch) {
@@ -385,31 +390,18 @@ function persistenceMods(layout, component, path, dispatch) {
     if (persistence) {
         const storage = getStore(persistence_type, dispatch);
         const update = {};
-        forEach(persistedProp => {
-            const [propName, propPart] = persistedProp.split('.');
-            const newValKey = getNewValKey(id, persistedProp);
-            const storedPersistID = storage.getItem(getPersistIdKey(newValKey));
-            const transform = getTransform(element, propName, propPart);
-
-            if (storedPersistID) {
-                if (
-                    storedPersistID === persistence &&
-                    equals(
-                        storage.getItem(getOriginalValKey(newValKey)),
-                        transform.extract(props[propName])
-                    )
-                ) {
-                    // To handle multiple nested props, apply each stored value
-                    // in turn; then at the end we'll push these into the layout
-                    update[propName] = transform.apply(
-                        storage.getItem(newValKey),
-                        propName in update ? update[propName] : props[propName]
-                    );
-                } else {
-                    clearUIEdit(id, persistence_type, persistedProp, dispatch);
-                }
-            }
-        }, persisted_props);
+        forEach(
+            persistedProp =>
+                modProp(
+                    getValsKey(id, persistedProp, persistence),
+                    storage,
+                    element,
+                    props,
+                    persistedProp,
+                    update
+                ),
+            persisted_props
+        );
 
         for (const propName in update) {
             layoutOut = set(
@@ -452,51 +444,85 @@ function persistenceMods(layout, component, path, dispatch) {
 export function prunePersistence(layout, newProps, dispatch) {
     const {
         id,
+        props,
         persistence,
         persisted_props,
         persistence_type,
         element,
     } = getProps(layout);
-    if (!persistence) {
-        return;
+
+    const getFinal = (propName, prevVal) =>
+        propName in newProps ? newProps[propName] : prevVal;
+    const finalPersistence = getFinal('persistence', persistence);
+
+    if (!persistence && !finalPersistence) {
+        return newProps;
     }
 
-    // first look for conditions that clear the persistence store entirely
-    if (
-        ('persistence' in newProps && newProps.persistence !== persistence) ||
-        ('persistence_type' in newProps &&
-            newProps.persistence_type !== persistence_type)
-    ) {
-        getStore(persistence_type, dispatch).clear(id);
-        return;
-    }
+    const finalPersistenceType = getFinal('persistence_type', persistence_type);
+    const finalPersistedProps = getFinal('persisted_props', persisted_props);
+    const persistenceChanged =
+        finalPersistence !== persistence ||
+        finalPersistenceType !== persistence_type ||
+        finalPersistedProps !== persisted_props;
 
-    // if the persisted props list itself changed, clear any props not
-    // present in both the new and old
-    if ('persisted_props' in newProps) {
+    const notInNewProps = persistedProp =>
+        !(persistedProp.split('.')[0] in newProps);
+
+    const update = {};
+
+    if (persistenceChanged && persistence) {
+        // clear previously-applied persistence
+        const storage = getStore(persistence_type, dispatch);
         forEach(
             persistedProp =>
-                clearUIEdit(id, persistence_type, persistedProp, dispatch),
-            symmetricDifference(persisted_props, newProps.persisted_props)
+                modProp(
+                    getValsKey(id, persistedProp, persistence),
+                    storage,
+                    element,
+                    props,
+                    persistedProp,
+                    update,
+                    UNDO
+                ),
+            filter(notInNewProps, persisted_props)
         );
     }
 
-    // now the main point - clear any edit associated with a prop that changed
-    // note that this is independent of the new prop value.
-    const transforms = element.persistenceTransforms || {};
-    for (const propName in newProps) {
-        const propTransforms = transforms[propName];
-        if (propTransforms) {
-            for (const propPart in propTransforms) {
-                clearUIEdit(
-                    id,
-                    persistence_type,
-                    `${propName}.${propPart}`,
-                    dispatch
-                );
+    if (finalPersistence) {
+        const finalStorage = getStore(finalPersistenceType, dispatch);
+
+        if (persistenceChanged) {
+            // apply new persistence
+            forEach(
+                persistedProp =>
+                    modProp(
+                        getValsKey(id, persistedProp, persistence),
+                        finalStorage,
+                        element,
+                        props,
+                        persistedProp,
+                        update
+                    ),
+                filter(notInNewProps, finalPersistedProps)
+            );
+        }
+
+        // now the main point - clear any edit of a prop that changed
+        // note that this is independent of the new prop value.
+        const transforms = element.persistenceTransforms || {};
+        for (const propName in newProps) {
+            const propTransforms = transforms[propName];
+            if (propTransforms) {
+                for (const propPart in propTransforms) {
+                    finalStorage.removeItem(
+                        getValsKey(id, `${propName}.${propPart}`, persistence)
+                    );
+                }
+            } else {
+                finalStorage.removeItem(getValsKey(id, propName, persistence));
             }
-        } else {
-            clearUIEdit(id, persistence_type, propName, dispatch);
         }
     }
+    return persistenceChanged ? mergeRight(newProps, update) : newProps;
 }
