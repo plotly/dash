@@ -55,10 +55,14 @@ jobs:
             pylint tests/unit tests/integration/devtools tests/integration/renderer tests/integration/dash_assets -d all -e C0410,C0411,C0412,C0413,W0109
             cd dash-renderer && npm install --ignore-scripts && npm run lint:test && npm run format:test
       - run:
-          name: 🔎 Unit Tests
+          name: 🐍 Python Unit Tests
           command: |
             . venv/bin/activate
             PYTHONPATH=~/dash/tests/assets pytest tests/unit
+      - run:
+          name: ☕ JS Unit Tests
+          command: |
+            cd dash-renderer && npm run test:js
 
   "lint-unit-36":
       <<: *lint-unit
@@ -92,6 +96,7 @@ jobs:
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
+            sed -i '/dash/d' requires-install.txt
             pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
           key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
@@ -152,7 +157,7 @@ jobs:
           name: ️️🏗️ build misc
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
-              git clone --depth 1 https://github.com/plotly/dash-table.git
+              git clone --depth 1 -b persistence https://github.com/plotly/dash-table.git
               cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
               cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..

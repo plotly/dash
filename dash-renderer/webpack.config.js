@@ -8,7 +8,7 @@ const defaultOptions = {
     mode: 'development',
     devtool: 'none',
     entry: {
-        main: ['@babel/polyfill', 'whatwg-fetch', './src/index.js'],
+        main: ['whatwg-fetch', './src/index.js'],
     },
     output: {
         path: path.resolve(__dirname, dashLibraryName),

@@ -16,6 +16,7 @@ import {
     lensPath,
     mergeLeft,
     mergeDeepRight,
+    path,
     pluck,
     propEq,
     reject,
@@ -31,6 +32,7 @@ import {getAction} from './constants';
 import cookie from 'cookie';
 import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
+import {applyPersistence, prunePersistence} from '../persistence';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
@@ -530,6 +532,37 @@ function updateOutput(
         });
     }
 
+    function doUpdateProps(id, updatedProps) {
+        const {layout, paths} = getState();
+        const itempath = paths[id];
+        if (!itempath) {
+            return false;
+        }
+
+        // This is a callback-generated update.
+        // Check if this invalidates existing persisted prop values,
+        // or if persistence changed, whether this updates other props.
+        const updatedProps2 = prunePersistence(
+            path(itempath, layout),
+            updatedProps,
+            dispatch
+        );
+
+        // In case the update contains whole components, see if any of
+        // those components have props to update to persist user edits.
+        const {props} = applyPersistence({props: updatedProps2}, dispatch);
+
+        dispatch(
+            updateProps({
+                itempath,
+                props,
+                source: 'response',
+            })
+        );
+
+        return props;
+    }
+
     // Clientside hook
     if (clientside_function) {
         let returnValue;
@@ -587,24 +620,20 @@ function updateOutput(
             updateRequestQueue(false, STATUS.OK);
 
             // Update the layout with the new result
-            dispatch(
-                updateProps({
-                    itempath: getState().paths[outputId],
-                    props: updatedProps,
-                    source: 'response',
-                })
-            );
+            const appliedProps = doUpdateProps(outputId, updatedProps);
 
             /*
              * This output could itself be a serverside or clientside input
              * to another function
              */
-            dispatch(
-                notifyObservers({
-                    id: outputId,
-                    props: updatedProps,
-                })
-            );
+            if (appliedProps) {
+                dispatch(
+                    notifyObservers({
+                        id: outputId,
+                        props: appliedProps,
+                    })
+                );
+            }
         }
 
         if (isMultiOutputProp(payload.output)) {
@@ -717,20 +746,16 @@ function updateOutput(
                 const handleResponse = ([outputIdAndProp, props]) => {
                     // Backward compatibility
                     const pathKey = multi ? outputIdAndProp : outputComponentId;
-                    const observerUpdatePayload = {
-                        itempath: getState().paths[pathKey],
-                        props,
-                        source: 'response',
-                    };
-                    if (!observerUpdatePayload.itempath) {
+
+                    const appliedProps = doUpdateProps(pathKey, props);
+                    if (!appliedProps) {
                         return;
                     }
-                    dispatch(updateProps(observerUpdatePayload));
 
                     dispatch(
                         notifyObservers({
                             id: pathKey,
-                            props: props,
+                            props: appliedProps,
                         })
                     );
 
@@ -739,10 +764,11 @@ function updateOutput(
                      * paths store.
                      * TODO - Do we need to wait for updateProps to finish?
                      */
-                    if (has('children', observerUpdatePayload.props)) {
+                    if (has('children', appliedProps)) {
+                        const newChildren = appliedProps.children;
                         dispatch(
                             computePaths({
-                                subTree: observerUpdatePayload.props.children,
+                                subTree: newChildren,
                                 startingPath: concat(
                                     getState().paths[pathKey],
                                     ['props', 'children']
@@ -756,11 +782,8 @@ function updateOutput(
                          * new children components
                          */
                         if (
-                            contains(
-                                type(observerUpdatePayload.props.children),
-                                ['Array', 'Object']
-                            ) &&
-                            !isEmpty(observerUpdatePayload.props.children)
+                            contains(type(newChildren), ['Array', 'Object']) &&
+                            !isEmpty(newChildren)
                         ) {
                             /*
                              * TODO: We're just naively crawling
@@ -770,32 +793,27 @@ function updateOutput(
                              * to compute the subtree
                              */
                             const newProps = {};
-                            crawlLayout(
-                                observerUpdatePayload.props.children,
-                                function appendIds(child) {
-                                    if (hasId(child)) {
-                                        keys(child.props).forEach(childProp => {
-                                            const componentIdAndProp = `${child.props.id}.${childProp}`;
-                                            if (
-                                                has(
-                                                    componentIdAndProp,
-                                                    InputGraph.nodes
-                                                )
-                                            ) {
-                                                newProps[componentIdAndProp] = {
-                                                    id: child.props.id,
-                                                    props: {
-                                                        [childProp]:
-                                                            child.props[
-                                                                childProp
-                                                            ],
-                                                    },
-                                                };
-                                            }
-                                        });
-                                    }
+                            crawlLayout(newChildren, function appendIds(child) {
+                                if (hasId(child)) {
+                                    keys(child.props).forEach(childProp => {
+                                        const componentIdAndProp = `${child.props.id}.${childProp}`;
+                                        if (
+                                            has(
+                                                componentIdAndProp,
+                                                InputGraph.nodes
+                                            )
+                                        ) {
+                                            newProps[componentIdAndProp] = {
+                                                id: child.props.id,
+                                                props: {
+                                                    [childProp]:
+                                                        child.props[childProp],
+                                                },
+                                            };
+                                        }
+                                    });
                                 }
-                            );
+                            });
 
                             /*
                              * Organize props by shared outputs so that we
