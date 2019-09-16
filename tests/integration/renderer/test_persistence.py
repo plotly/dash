@@ -1,9 +1,10 @@
 from multiprocessing import Value
+
 import dash
+from dash.dependencies import Input, Output
+
 import dash_html_components as html
 import dash_table as dt
-
-from dash.dependencies import Input, Output
 
 
 def table_columns(names, **extra_props):
