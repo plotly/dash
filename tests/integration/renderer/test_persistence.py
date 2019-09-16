@@ -50,8 +50,10 @@ def reloadable_app(**props_override):
 
     return app
 
+NEW_NAME = 'mango'
 
-def rename_and_hide(dash_duo, rename=0, new_name='x', hide=1):
+
+def rename_and_hide(dash_duo, rename=0, new_name=NEW_NAME, hide=1):
     dash_duo.find_element(
         '.dash-header.column-{} .column-header--edit'.format(rename)
     ).click()
@@ -86,13 +88,13 @@ def test_rdps001_local_reload(dash_duo):
 
     rename_and_hide(dash_duo)
     # callback output
-    dash_duo.wait_for_text_to_equal('#out', 'names: [x, b]; hidden: [c1]')
-    check_table_names(dash_duo, ['x'])
+    dash_duo.wait_for_text_to_equal('#out', 'names: [{}, b]; hidden: [c1]'.format(NEW_NAME))
+    check_table_names(dash_duo, [NEW_NAME])
 
     dash_duo.wait_for_page()
     # callback gets persisted values, not the values provided with the layout
-    dash_duo.wait_for_text_to_equal('#out', 'names: [x, b]; hidden: [c1]')
-    check_table_names(dash_duo, ['x'])
+    dash_duo.wait_for_text_to_equal('#out', 'names: [{}, b]; hidden: [c1]'.format(NEW_NAME))
+    check_table_names(dash_duo, [NEW_NAME])
 
     # new persistence reverts
     app.persistence.value = 2
@@ -105,15 +107,15 @@ def test_rdps001_local_reload(dash_duo):
     # put back the old persistence, get the old values
     app.persistence.value = 1
     dash_duo.wait_for_page()
-    dash_duo.wait_for_text_to_equal('#out', 'names: [x, b]; hidden: [c1]')
-    check_table_names(dash_duo, ['x'])
+    dash_duo.wait_for_text_to_equal('#out', 'names: [{}, b]; hidden: [c1]'.format(NEW_NAME))
+    check_table_names(dash_duo, [NEW_NAME])
 
     # falsy persistence disables it
     app.persistence.value = 0
     dash_duo.wait_for_page()
     check_table_names(dash_duo, ['a', 'b'])
     rename_and_hide(dash_duo)
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
     dash_duo.wait_for_page()
     check_table_names(dash_duo, ['a', 'b'])
 
@@ -129,12 +131,12 @@ def test_rdps002_session_reload(dash_duo):
     dash_duo.start_server(app)
     check_table_names(dash_duo, ['a', 'b'])
     rename_and_hide(dash_duo)
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
 
     dash_duo.wait_for_page()
     # callback gets persisted values, not the values provided with the layout
-    dash_duo.wait_for_text_to_equal('#out', 'names: [x, b]; hidden: [c1]')
-    check_table_names(dash_duo, ['x'])
+    dash_duo.wait_for_text_to_equal('#out', 'names: [{}, b]; hidden: [c1]'.format(NEW_NAME))
+    check_table_names(dash_duo, [NEW_NAME])
 
 
 def test_rdps003_memory_reload(dash_duo):
@@ -142,7 +144,7 @@ def test_rdps003_memory_reload(dash_duo):
     dash_duo.start_server(app)
     check_table_names(dash_duo, ['a', 'b'])
     rename_and_hide(dash_duo)
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
 
     dash_duo.wait_for_page()
     # no persistence after reload with persistence_type=memory
@@ -172,7 +174,7 @@ def test_rdps004_show_hide(dash_duo):
     check_table_names(dash_duo, ['a', 'b'])
 
     rename_and_hide(dash_duo)
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
 
     dash_duo.find_element('#toggle-table').click()
     # table is gone
@@ -180,7 +182,7 @@ def test_rdps004_show_hide(dash_duo):
 
     dash_duo.find_element('#toggle-table').click()
     # table is back, with persisted props
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
 
     dash_duo.find_element('#toggle-table').click()
     # gone again
@@ -211,15 +213,15 @@ def test_rdps005_persisted_props(dash_duo):
     check_table_names(dash_duo, ['a', 'b'])
 
     rename_and_hide(dash_duo)
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
 
     dash_duo.find_element('#toggle-table').click()
     # hidden_columns not persisted
-    check_table_names(dash_duo, ['x', 'b'])
+    check_table_names(dash_duo, [NEW_NAME, 'b'])
 
     dash_duo.find_element('#toggle-table').click()
     # back to original persisted_props hidden_columns returns
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
 
 
 def test_rdps006_move_on_page(dash_duo):
@@ -251,12 +253,12 @@ def test_rdps006_move_on_page(dash_duo):
     check_table_names(dash_duo, ['a', 'b'])
 
     rename_and_hide(dash_duo)
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
 
     for i in range(1, 5):
         dash_duo.find_element('#move-table').click()
         find_last_div(i)
-        check_table_names(dash_duo, ['x'])
+        check_table_names(dash_duo, [NEW_NAME])
 
 
 def test_rdps007_one_prop_changed(dash_duo):
@@ -277,7 +279,7 @@ def test_rdps007_one_prop_changed(dash_duo):
     check_table_names(dash_duo, ['a', 'b'])
 
     rename_and_hide(dash_duo)
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
 
     dash_duo.find_element('#hide-cols').click()
     # hidden_columns gets the new value
@@ -285,7 +287,7 @@ def test_rdps007_one_prop_changed(dash_duo):
 
     dash_duo.find_element('#hide-cols').click()
     # back to original hidden_columns, but saved value won't come back
-    check_table_names(dash_duo, ['x', 'b'])
+    check_table_names(dash_duo, [NEW_NAME, 'b'])
 
 
 def test_rdps008_unsaved_part_changed(dash_duo):
@@ -310,17 +312,17 @@ def test_rdps008_unsaved_part_changed(dash_duo):
     check_table_names(dash_duo, ['a', 'b'])
 
     rename_and_hide(dash_duo)
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
     assert len(dash_duo.find_elements('.column-header--delete')) == 0
 
     dash_duo.find_element('#deletable').click()
     # column names still persisted when columns.deletable changed
     # because extracted name list didn't change
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
     assert len(dash_duo.find_elements('.column-header--delete')) == 1
 
     dash_duo.find_element('#deletable').click()
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
     assert len(dash_duo.find_elements('.column-header--delete')) == 0
 
 
@@ -346,7 +348,7 @@ def test_rdps009_clear_prop_callback(dash_duo):
     check_table_names(dash_duo, ['a', 'b'])
 
     rename_and_hide(dash_duo)
-    check_table_names(dash_duo, ['x'])
+    check_table_names(dash_duo, [NEW_NAME])
 
     dash_duo.find_element('#reset-names').click()
     # names are reset, but not hidden_columns
