@@ -47,8 +47,8 @@ expected_arg_strings = OrderedDict(
                 [
                     "dict containing keys 'customData', 'value'.",
                     "Those keys have the following types:",
-                    "- customData (dict; required): customData has the following type: dict containing keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', 'style', 'value'.",
-                    "  Those keys have the following types:",
+                    "- customData (dict; required): customData.",
+                    "  customData is a dict with keys:",
                     "  - checked (boolean; optional)",
                     "  - children (a list of or a singular dash component, string or number; optional)",
                     "  - customData (bool | number | str | dict | list; required)",
@@ -80,11 +80,8 @@ expected_doc = [
     "long description that covers several lines. It includes the newline character ",
     "and should span 3 lines in total.",
     "- requiredUnion (string | number; required)",
-    "- optionalSignature(shape) (dict; optional): This is a test of an object's shape. "
-    "optionalSignature(shape) has the following type: dict containing keys 'checked', "
-    "'children', 'customData', 'disabled', 'label', 'primaryText', 'secondaryText', "
-    "'style', 'value'.",
-    "  Those keys have the following types:",
+    "- optionalSignature(shape) (dict; optional): This is a test of an object's shape.",
+    "  optionalSignature(shape) is a dict with keys:",
     "  - checked (boolean; optional)",
     "  - children (a list of or a singular dash component, string or number; optional)",
     "  - customData (bool | number | str | dict | list; required): A test description",
@@ -94,13 +91,10 @@ expected_doc = [
     "  - secondaryText (string; optional)",
     "  - style (dict; optional)",
     "  - value (bool | number | str | dict | list; required)",
-    "- requiredNested (dict; required): requiredNested has the following type: dict containing "
-    "keys 'customData', 'value'.",
-    "  Those keys have the following types:",
-    "  - customData (dict; required): customData has the following type: dict containing "
-    "keys 'checked', 'children', 'customData', 'disabled', 'label', 'primaryText', "
-    "'secondaryText', 'style', 'value'.",
-    "    Those keys have the following types:",
+    "- requiredNested (dict; required): requiredNested.",
+    "  requiredNested is a dict with keys:",
+    "  - customData (dict; required): customData.",
+    "    customData is a dict with keys:",
     "    - checked (boolean; optional)",
     "    - children (a list of or a singular dash component, string or number; optional)",
     "    - customData (bool | number | str | dict | list; required)",

@@ -21,22 +21,22 @@ Keyword arguments:
 - optionalUnion (string | number; optional)
 - optionalArrayOf (list of numbers; optional)
 - optionalObjectOf (dict with strings as keys and values of type number; optional)
-- optionalObjectWithExactAndNestedDescription (dict; optional): optionalObjectWithExactAndNestedDescription has the following type: dict containing keys 'color', 'fontSize', 'figure'.
-Those keys have the following types:
+- optionalObjectWithExactAndNestedDescription (dict; optional): optionalObjectWithExactAndNestedDescription.
+  optionalObjectWithExactAndNestedDescription is a dict with keys:
   - color (string; optional)
   - fontSize (number; optional)
-  - figure (dict; optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.
-Those keys have the following types:
-  - data (list of dicts; optional): data is a collection of traces
-  - layout (dict; optional): layout describes the rest of the figure
-- optionalObjectWithShapeAndNestedDescription (dict; optional): optionalObjectWithShapeAndNestedDescription has the following type: dict containing keys 'color', 'fontSize', 'figure'.
-Those keys have the following types:
+  - figure (dict; optional): Figure is a plotly graph object.
+    figure is a dict with keys:
+    - data (list of dicts; optional): data is a collection of traces
+    - layout (dict; optional): layout describes the rest of the figure
+- optionalObjectWithShapeAndNestedDescription (dict; optional): optionalObjectWithShapeAndNestedDescription.
+  optionalObjectWithShapeAndNestedDescription is a dict with keys:
   - color (string; optional)
   - fontSize (number; optional)
-  - figure (dict; optional): Figure is a plotly graph object. figure has the following type: dict containing keys 'data', 'layout'.
-Those keys have the following types:
-  - data (list of dicts; optional): data is a collection of traces
-  - layout (dict; optional): layout describes the rest of the figure
+  - figure (dict; optional): Figure is a plotly graph object.
+    figure is a dict with keys:
+    - data (list of dicts; optional): data is a collection of traces
+    - layout (dict; optional): layout describes the rest of the figure
 - optionalAny (boolean | number | string | dict | list; optional)
 - customProp (optional)
 - customArrayProp (list; optional)
