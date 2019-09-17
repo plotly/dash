@@ -2,13 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [1.2.0] - 2019-09-17
 ### Added
-
 - Added support for persistence of user-edited props to value-input components: `Checklist`, `DatePickerRange`, `DatePickerSingle`, `Dropdown`, `Input`, `RadioItems`, `RangeSlider`, `Slider`, `Tabs`, and `Textarea`. New props are `persistence`, `persistence_type`, and `persisted_props`. Set `persistence` to a truthy value to enable, the other two modify persistence behavior. See [plotly/dash#903](https://github.com/plotly/dash/pull/903) for more details. [#646](https://github.com/plotly/dash-core-components/pull/646)
 
 ### Fixed
-
 - Fixed `Slider` and `RangeSlider` components with `tooltip.always_visible` [#640](https://github.com/plotly/dash-core-components/issues/640)
 
 - Fixed an infinite loop problem when `Graph` is wrapped by `Loading` component [#608](https://github.com/plotly/dash-core-components/issues/608)

@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -12,8 +12,6 @@
   "homepage": "https://github.com/plotly/dash-core-components",
   "main": "dash_core_components/dash_core_components.min.js",
   "scripts": {
-    "prepare": "npm run build",
-    "publish-all": "node scripts/publish.js",
     "start": "webpack-serve ./webpack.serve.config.js --open",
     "lint": "eslint src tests",
     "lint:py": "flake8 --ignore=E501,F401,F841,F811,W503 tests",
@@ -36,7 +34,7 @@
     "color": "^3.1.0",
     "moment": "^2.20.1",
     "prop-types": "^15.6.0",
-    "ramda": "^0.24.1",
+    "ramda": "^0.26.1",
     "rc-slider": "^8.6.11",
     "react-addons-shallow-compare": "^15.6.0",
     "react-dates": "^20.1.0",

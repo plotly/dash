@@ -17,7 +17,8 @@ calendar_orientation=NULL, is_RTL=NULL, reopen_calendar_on_clear=NULL,
 number_of_months_shown=NULL, with_portal=NULL, with_full_screen_portal=NULL,
 first_day_of_week=NULL, minimum_nights=NULL, stay_open_on_select=NULL,
 show_outside_days=NULL, month_format=NULL, display_format=NULL, disabled=NULL,
-clearable=NULL, style=NULL, className=NULL, updatemode=NULL, loading_state=NULL)
+clearable=NULL, style=NULL, className=NULL, updatemode=NULL, loading_state=NULL,
+persistence=NULL, persisted_props=NULL, persistence_type=NULL)
 }
 
 \arguments{
@@ -124,4 +125,19 @@ those elements have the following types:
   - is_loading (logical; optional): determines if the component is loading or not
   - prop_name (character; optional): holds which property is loading
   - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
+
+\item{persistence}{Logical | character | numeric. Used to allow user interactions in this component to be persisted when
+the component - or the page - is refreshed. If `persisted` is truthy and
+hasn't changed from its previous value, any `persisted_props` that the
+user has changed while using the app will keep those changes, as long as
+the new prop value also matches what was given originally.
+Used in conjunction with `persistence_type` and `persisted_props`.}
+
+\item{persisted_props}{List of a value equal to: 'start_date', 'end_date's. Properties whose user interactions will persist after refreshing the
+component or the page.}
+
+\item{persistence_type}{A value equal to: 'local', 'session', 'memory'. Where persisted user changes will be stored:
+memory: only kept in memory, reset on page refresh.
+local: window.localStorage, data is kept after the browser quit.
+session: window.sessionStorage, data is cleared once the browser quit.}
 }
