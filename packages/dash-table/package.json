@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "Dash table",
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
     "private::build:js-dev": "run-s \"private::build -- --mode development --config webpack.dev.config.js\"",
     "private::build:js-test": "run-s \"private::build -- --mode development --config webpack.test.config.js\"",
     "private::build:js-test-watch": "run-s \"private::build -- --mode development --config webpack.test.config.js --watch\"",
-    "private::build:py": "dash-generate-components src/dash-table/dash/DataTable.js dash_table -p package-info.json --r-prefix ''",
+    "private::build:py": "dash-generate-components src/dash-table/dash/DataTable.js dash_table -p package-info.json --r-prefix 'dash'",
     "private::host_dash8081": "python tests/cypress/dash/v_be_page.py",
     "private::host_dash8082": "python tests/cypress/dash/v_copy_paste.py",
     "private::host_dash8083": "python tests/cypress/dash/v_fe_page.py",

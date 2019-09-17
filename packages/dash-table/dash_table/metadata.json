@@ -1998,6 +1998,117 @@
           "value": "[]",
           "computed": false
         }
+      },
+      "loading_state": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "is_loading": {
+              "name": "bool",
+              "description": "Determines if the component is loading or not",
+              "required": false
+            },
+            "prop_name": {
+              "name": "string",
+              "description": "Holds which property is loading",
+              "required": false
+            },
+            "component_name": {
+              "name": "string",
+              "description": "Holds the name of the component that is loading",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "Object that holds the loading state object coming from dash-renderer"
+      },
+      "persistence": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "bool"
+            },
+            {
+              "name": "string"
+            },
+            {
+              "name": "number"
+            }
+          ]
+        },
+        "required": false,
+        "description": "Used to allow user interactions in this component to be persisted when\nthe component - or the page - is refreshed. If `persisted` is truthy and\nhasn't changed from its previous value, any `persisted_props` that the\nuser has changed while using the app will keep those changes, as long as\nthe new prop value also matches what was given originally.\nUsed in conjunction with `persistence_type` and `persisted_props`."
+      },
+      "persisted_props": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "enum",
+            "value": [
+              {
+                "value": "'columns.name'",
+                "computed": false
+              },
+              {
+                "value": "'data'",
+                "computed": false
+              },
+              {
+                "value": "'filter_query'",
+                "computed": false
+              },
+              {
+                "value": "'hidden_columns'",
+                "computed": false
+              },
+              {
+                "value": "'selected_columns'",
+                "computed": false
+              },
+              {
+                "value": "'selected_rows'",
+                "computed": false
+              },
+              {
+                "value": "'sort_by'",
+                "computed": false
+              }
+            ]
+          }
+        },
+        "required": false,
+        "description": "Properties whose user interactions will persist after refreshing the\ncomponent or the page.",
+        "defaultValue": {
+          "value": "[\n    'columns.name',\n    // data is not included by default\n    'filter_query',\n    'hidden_columns',\n    'selected_columns',\n    'selected_rows',\n    'sort_by'\n]",
+          "computed": false
+        }
+      },
+      "persistence_type": {
+        "type": {
+          "name": "enum",
+          "value": [
+            {
+              "value": "'local'",
+              "computed": false
+            },
+            {
+              "value": "'session'",
+              "computed": false
+            },
+            {
+              "value": "'memory'",
+              "computed": false
+            }
+          ]
+        },
+        "required": false,
+        "description": "Where persisted user changes will be stored:\nmemory: only kept in memory, reset on page refresh.\nlocal: window.localStorage, data is kept after the browser quit.\nsession: window.sessionStorage, data is cleared once the browser quit.",
+        "defaultValue": {
+          "value": "'local'",
+          "computed": false
+        }
       }
     }
   }

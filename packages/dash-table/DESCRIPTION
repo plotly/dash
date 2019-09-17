@@ -1,11 +1,11 @@
 Package: dashTable
-Title: Core Interactive Table Component for Dash 
-Version: 4.2.0
+Title: Core Interactive Table Component for Dash
+Version: 4.3.0
 Authors @R: as.person(c(Chris Parmer <chris@plot.ly>))
-Description:  Dash DataTable is an interactive table component designed for designed for viewing, editing, and exploring large datasets. DataTable is rendered with standard, semantic HTML <table/> markup, which makes it accessible, responsive, and easy to style. This component was written from scratch in React.js specifically for the Dash community. Its API was designed to be ergonomic and its behavior is completely customizable through its properties. 
+Description:  Dash DataTable is an interactive table component designed for designed for viewing, editing, and exploring large datasets. DataTable is rendered with standard, semantic HTML <table/> markup, which makes it accessible, responsive, and easy to style. This component was written from scratch in React.js specifically for the Dash community. Its API was designed to be ergonomic and its behavior is completely customizable through its properties.
 Depends: R (>= 3.0.2)
-Imports: 
-Suggests: 
+Imports:
+Suggests:
 License: MIT + file LICENSE
 URL: https://github.com/plotly/dash-table
 BugReports: https://github.com/plotly/dash-table/issues

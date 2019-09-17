@@ -32,7 +32,8 @@ derived_viewport_row_ids=NULL, derived_viewport_selected_columns=NULL,
 derived_viewport_selected_rows=NULL, derived_viewport_selected_row_ids=NULL,
 derived_virtual_data=NULL, derived_virtual_indices=NULL,
 derived_virtual_row_ids=NULL, derived_virtual_selected_rows=NULL,
-derived_virtual_selected_row_ids=NULL)
+derived_virtual_selected_row_ids=NULL, loading_state=NULL, persistence=NULL,
+persisted_props=NULL, persistence_type=NULL)
 }
 
 \arguments{
@@ -778,4 +779,25 @@ while `derived_virtual_row_ids` contains IDs across all pages.}
 \item{derived_virtual_selected_row_ids}{List of character | numerics. `derived_virtual_selected_row_ids` represents the IDs of the
 `selected_rows` as they appear after filtering and sorting,
 across all pages.}
+
+\item{loading_state}{Lists containing elements 'is_loading', 'prop_name', 'component_name'.
+those elements have the following types:
+  - is_loading (logical; optional): determines if the component is loading or not
+  - prop_name (character; optional): holds which property is loading
+  - component_name (character; optional): holds the name of the component that is loading. Object that holds the loading state object coming from dash-renderer}
+
+\item{persistence}{Logical | character | numeric. Used to allow user interactions in this component to be persisted when
+the component - or the page - is refreshed. If `persisted` is truthy and
+hasn't changed from its previous value, any `persisted_props` that the
+user has changed while using the app will keep those changes, as long as
+the new prop value also matches what was given originally.
+Used in conjunction with `persistence_type` and `persisted_props`.}
+
+\item{persisted_props}{List of a value equal to: 'columns.name', 'data', 'filter_query', 'hidden_columns', 'selected_columns', 'selected_rows', 'sort_by's. Properties whose user interactions will persist after refreshing the
+component or the page.}
+
+\item{persistence_type}{A value equal to: 'local', 'session', 'memory'. Where persisted user changes will be stored:
+memory: only kept in memory, reset on page refresh.
+local: window.localStorage, data is kept after the browser quit.
+session: window.sessionStorage, data is cleared once the browser quit.}
 }
