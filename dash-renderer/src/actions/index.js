@@ -4,6 +4,8 @@ import {
     any,
     append,
     concat,
+    contains,
+    filter,
     findIndex,
     findLastIndex,
     flatten,
@@ -177,7 +179,7 @@ function reduceInputIds(nodeIds, InputGraph) {
     /*
      * Create input-output(s) pairs,
      * sort by number of outputs,
-     * and remove redudant inputs (inputs that update the same output)
+     * and remove redundant inputs (inputs that update the same output)
      */
     const inputOutputPairs = nodeIds.map(nodeId => ({
         input: nodeId,
@@ -196,7 +198,7 @@ function reduceInputIds(nodeIds, InputGraph) {
      * trigger components to update multiple times.
      *
      * For example, [A, B] => C and [A, D] => E
-     * The unique inputs might be [A, B, D] but that is redudant.
+     * The unique inputs might be [A, B, D] but that is redundant.
      * We only need to update B and D or just A.
      *
      * In these cases, we'll supply an additional list of outputs
@@ -664,7 +666,7 @@ function updateOutput(
 
             /*
              * Update the request queue by treating a successful clientside
-             * like a succesful serverside response (200 status code)
+             * like a successful serverside response (200 status code)
              */
             updateRequestQueue(false, STATUS.OK);
 
