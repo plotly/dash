@@ -96,7 +96,7 @@ jobs:
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            sed -i '/dash/d' requires-install.txt
+            sed -i '/dash-/d' requires-install.txt
             pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
@@ -106,8 +106,8 @@ jobs:
           name: ️️🏗️ build core
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
-              cd dash-renderer && pip install -e . && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               python setup.py sdist && mv dist/* packages/
+              cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
@@ -201,7 +201,7 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate && cd packages && ls -la
-            find . -name "*.gz" | xargs pip install --force-reinstall && pip list | grep dash && cd ..
+            find . -name "*.gz" | xargs pip install --upgrade && pip list | grep dash && cd ..
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
