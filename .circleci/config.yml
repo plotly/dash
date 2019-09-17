@@ -112,10 +112,11 @@ jobs:
               cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
               cd dash-renderer-test-components && npm install --ignore-scripts && npm run build:all && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              ls -la packages
       - persist_to_workspace:
           root: ~/dash
           paths:
-            - packages
+            - packages/*.tar.gz
 
   "build-core-36":
       <<: *build-core
@@ -161,10 +162,11 @@ jobs:
               cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
               cd dash-html-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              ls -la packages
       - persist_to_workspace:
           root: ~/dash
           paths:
-            - packages
+            - packages/*.tar.gz
 
   "build-misc-36":
       <<: *build-misc
