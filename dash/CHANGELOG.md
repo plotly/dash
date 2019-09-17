@@ -1,14 +1,16 @@
-## Unreleased
-
+## [1.3.0] - 2019-09-17
 ### Added
-
 - [#923](https://github.com/plotly/dash/pull/923) Adds one configuration `--percy-assets` in `pytest` to specify extra application assets path if needed
 
 - [#918](https://github.com/plotly/dash/pull/918) Adds `wait_for_element_by_id` and `visit_and_snapshot` APIs in browser, adds `raw_command` option (it also has higher priority than
 the default waitress one) and optional `start_timeout` argument to handle large application within process runner
 
-### Fixed
+### Changed
+- Bumped dash-table version from 4.2.0 to [4.3.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#430---2019-09-17)
+- Bumped dash-core-components version from 1.1.2 to [1.2.0](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#120---2019-09-17)
+- Bumped dash-renderer version from 1.0.1 to [1.1.0](https://github.com/plotly/dash/blob/master/dash-renderer/CHANGELOG.md#110---2019-09-17)
 
+### Fixed
 - [#915](https://github.com/plotly/dash/issues/915) Fixes `dash-generate-components` on Windows
 - [#829](https://github.com/plotly/dash/issues/829) Fixes the `--remote` pytest argument which was not effective in the code, adding a new argument `--remote-url` to support the selenium grid usage in the cloud.
 
