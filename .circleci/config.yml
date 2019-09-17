@@ -106,8 +106,8 @@ jobs:
           name: ️️🏗️ build core
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
-              python setup.py sdist && mv dist/* packages/
               cd dash-renderer && renderer build && pip install -e . && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              python setup.py sdist && mv dist/* packages/
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
