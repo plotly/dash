@@ -13,12 +13,12 @@ export const isTerminal = (lexemes: ILexemeResult[], _: ILexemeResult | undefine
 export const isTerminalExpression = (lexemes: ILexemeResult[], previous: ILexemeResult | undefined) =>
     isTerminal(lexemes, previous) &&
     !!previous &&
-    R.contains(previous.lexeme.type, [
+    R.includes(previous.lexeme.type, [
         LexemeType.RelationalOperator
     ]);
 
 export const ifBlockClose = (lexemes: ILexemeResult[], previous: ILexemeResult | undefined) =>
-    !!previous && R.contains(
+    !!previous && R.includes(
         previous.lexeme.type,
         [
             LexemeType.BlockClose,
@@ -29,7 +29,7 @@ export const ifBlockClose = (lexemes: ILexemeResult[], previous: ILexemeResult |
     ) && nestingReducer(0, lexemes) > 0;
 
 export const ifBlockOpen = (_: ILexemeResult[], previous: ILexemeResult | undefined) =>
-    !previous || R.contains(
+    !previous || R.includes(
         previous.lexeme.type,
         [
             LexemeType.BlockOpen,
@@ -39,7 +39,7 @@ export const ifBlockOpen = (_: ILexemeResult[], previous: ILexemeResult | undefi
     );
 
 export const ifExpression = (_: ILexemeResult[], previous: ILexemeResult | undefined) => {
-    return !previous || R.contains(
+    return !previous || R.includes(
         previous.lexeme.type,
         [
             LexemeType.BlockOpen,
@@ -53,7 +53,7 @@ export const ifLeading = (_lexs: ILexemeResult[], previous: ILexemeResult | unde
     !previous;
 
 export const ifLogicalOperator = (_: ILexemeResult[], previous: ILexemeResult | undefined) =>
-    !!previous && R.contains(
+    !!previous && R.includes(
         previous.lexeme.type,
         [
             LexemeType.BlockClose,
@@ -63,7 +63,7 @@ export const ifLogicalOperator = (_: ILexemeResult[], previous: ILexemeResult | 
     );
 
 export const ifRelationalOperator = (_: ILexemeResult[], previous: ILexemeResult | undefined) =>
-    !!previous && R.contains(
+    !!previous && R.includes(
         previous.lexeme.type,
         [LexemeType.Expression]
     );

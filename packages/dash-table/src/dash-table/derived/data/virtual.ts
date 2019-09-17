@@ -45,7 +45,7 @@ const getter = (
     const isNully = (
         value: any,
         columnId: ColumnId
-    ) => R.isNil(value) || R.contains(value, getNullyCases(columnId));
+    ) => R.isNil(value) || R.includes(value, getNullyCases(columnId));
 
     if (sort_action === TableAction.Native) {
         data = sort(data, sort_by, isNully);

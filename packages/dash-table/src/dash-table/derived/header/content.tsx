@@ -48,8 +48,8 @@ const doAction = (
 
     if (action === actions.deleteColumn) {
         if (R.intersection(selected_columns, affectedColumIds).length > 0) {
-            props.selected_columns = R.reject(
-                R.contains(R.__, affectedColumIds),
+            props.selected_columns = R.without(
+                affectedColumIds,
                 selected_columns
             );
         }
@@ -126,10 +126,7 @@ function selectColumn(current_selection: string[], column: IColumn, columns: Col
     } else {
         // 'multi' + unselect -> invert of intersection
         return () => setProps({
-            selected_columns: R.reject(
-                R.contains(R.__, selected_columns),
-                current_selection
-            )
+            selected_columns: R.without(selected_columns, current_selection)
         });
     }
 }

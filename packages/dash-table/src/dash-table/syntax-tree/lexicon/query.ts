@@ -50,7 +50,7 @@ import {
 } from '.';
 
 const ifNotUnaryOperator = (_: ILexemeResult[], previous: ILexemeResult | undefined) =>
-    !previous || R.contains(
+    !previous || R.includes(
         previous.lexeme.type,
         [
             LexemeType.LogicalOperator,

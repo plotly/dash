@@ -121,7 +121,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         if (selected_cells.length &&
             active_cell &&
-            !R.contains(active_cell, selected_cells)
+            !R.includes(active_cell, selected_cells)
         ) {
             setProps({ active_cell: selected_cells[0] });
         }

@@ -43,12 +43,12 @@ function rowSelectCell(idx: number, rowSelectable: Selection, selectedRows: numb
             type={rowSelectable === 'single' ? 'radio' : 'checkbox'}
             style={{ verticalAlign: 'middle' }}
             name='row-select'
-            checked={R.contains(idx, selectedRows)}
+            checked={R.includes(idx, selectedRows)}
             onChange={() => {
                 const newSelectedRows = rowSelectable === 'single' ?
                     [idx] :
                     R.ifElse(
-                        R.contains(idx),
+                        R.includes(idx),
                         R.without([idx]),
                         R.append(idx)
                     )(selectedRows);
