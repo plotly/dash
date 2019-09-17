@@ -4,12 +4,12 @@ import {
     any,
     append,
     concat,
-    contains,
     findIndex,
     findLastIndex,
     flatten,
     flip,
     has,
+    includes,
     intersection,
     isEmpty,
     keys,
@@ -206,7 +206,7 @@ function reduceInputIds(nodeIds, InputGraph) {
             pluck('outputs', slice(0, i, sortedInputOutputPairs))
         );
         pair.outputs.forEach(output => {
-            if (contains(output, outputsThatWillBeUpdated)) {
+            if (includes(output, outputsThatWillBeUpdated)) {
                 pair.excludedOutputs.push(output);
             }
         });
@@ -244,7 +244,7 @@ export function notifyObservers(payload) {
                  * We only need to update the output once for this
                  * update, so keep outputObservers unique.
                  */
-                if (!contains(outputId, outputObservers)) {
+                if (!includes(outputId, outputObservers)) {
                     outputObservers.push(outputId);
                 }
             });
@@ -252,7 +252,7 @@ export function notifyObservers(payload) {
 
         if (excludedOutputs) {
             outputObservers = reject(
-                flip(contains)(excludedOutputs),
+                flip(includes)(excludedOutputs),
                 outputObservers
             );
         }
@@ -323,7 +323,7 @@ export function notifyObservers(payload) {
              */
             const controllerIsInExistingQueue = any(
                 r =>
-                    contains(r.controllerId, controllers) &&
+                    includes(r.controllerId, controllers) &&
                     r.status === 'loading',
                 requestQueue
             );
@@ -468,7 +468,7 @@ function updateOutput(
 
     payload.inputs = inputs.map(inputObject => {
         // Make sure the component id exists in the layout
-        if (!contains(inputObject.id, validKeys)) {
+        if (!includes(inputObject.id, validKeys)) {
             throw new ReferenceError(
                 'An invalid input object was used in an ' +
                     '`Input` of a Dash callback. ' +
@@ -498,13 +498,13 @@ function updateOutput(
     const inputsPropIds = inputs.map(p => `${p.id}.${p.property}`);
 
     payload.changedPropIds = changedPropIds.filter(p =>
-        contains(p, inputsPropIds)
+        includes(p, inputsPropIds)
     );
 
     if (state.length > 0) {
         payload.state = state.map(stateObject => {
             // Make sure the component id exists in the layout
-            if (!contains(stateObject.id, validKeys)) {
+            if (!includes(stateObject.id, validKeys)) {
                 throw new ReferenceError(
                     'An invalid input object was used in a ' +
                         '`State` object of a Dash callback. ' +
@@ -782,7 +782,7 @@ function updateOutput(
                          * new children components
                          */
                         if (
-                            contains(type(newChildren), ['Array', 'Object']) &&
+                            includes(type(newChildren), ['Array', 'Object']) &&
                             !isEmpty(newChildren)
                         ) {
                             /*

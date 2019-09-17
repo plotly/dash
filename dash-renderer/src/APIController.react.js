@@ -1,5 +1,5 @@
 import {connect} from 'react-redux';
-import {contains, isEmpty, isNil} from 'ramda';
+import {includes, isEmpty, isNil} from 'ramda';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import TreeContainer from './TreeContainer';
@@ -107,13 +107,13 @@ class UnconnectedContainer extends Component {
 
         if (
             layoutRequest.status &&
-            !contains(layoutRequest.status, [STATUS.OK, 'loading'])
+            !includes(layoutRequest.status, [STATUS.OK, 'loading'])
         ) {
             return <div className="_dash-error">Error loading layout</div>;
         } else if (
             errorLoading ||
             (dependenciesRequest.status &&
-                !contains(dependenciesRequest.status, [STATUS.OK, 'loading']))
+                !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
         ) {
             return (
                 <div className="_dash-error">Error loading dependencies</div>

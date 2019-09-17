@@ -1,4 +1,4 @@
-import {contains, has} from 'ramda';
+import {has, includes} from 'ramda';
 
 export function propTypeErrorHandler(message, props, type) {
     /*
@@ -37,14 +37,14 @@ export function propTypeErrorHandler(message, props, type) {
 
     const messageParts = message.split('`');
     let errorMessage;
-    if (contains('is marked as required', message)) {
+    if (includes('is marked as required', message)) {
         const invalidPropPath = messageParts[1];
         errorMessage = `${invalidPropPath} in ${type}`;
         if (props.id) {
             errorMessage += ` with ID "${props.id}"`;
         }
         errorMessage += ` is required but it was not provided.`;
-    } else if (contains('Bad object', message)) {
+    } else if (includes('Bad object', message)) {
         /*
          * Handle .exact errors
          * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L438-L442
@@ -55,8 +55,8 @@ export function propTypeErrorHandler(message, props, type) {
             '.\nBad' +
             message.split('.\nBad')[1];
     } else if (
-        contains('Invalid ', message) &&
-        contains(' supplied to ', message)
+        includes('Invalid ', message) &&
+        includes(' supplied to ', message)
     ) {
         const invalidPropPath = messageParts[1];
 
@@ -71,7 +71,7 @@ export function propTypeErrorHandler(message, props, type) {
          * In particular, oneOfType.
          * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L388
          */
-        if (contains(', expected ', message)) {
+        if (includes(', expected ', message)) {
             const expectedPropType = message.split(', expected ')[1];
             errorMessage += `\nExpected ${expectedPropType}`;
         }
@@ -81,7 +81,7 @@ export function propTypeErrorHandler(message, props, type) {
          * In particular, oneOfType.
          * https://github.com/facebook/prop-types/blob/v15.7.2/factoryWithTypeCheckers.js#L388
          */
-        if (contains(' of type `', message)) {
+        if (includes(' of type `', message)) {
             const invalidPropTypeProvided = message
                 .split(' of type `')[1]
                 .split('`')[0];
@@ -100,7 +100,7 @@ export function propTypeErrorHandler(message, props, type) {
                 2
             );
             if (jsonSuppliedValue) {
-                if (contains('\n', jsonSuppliedValue)) {
+                if (includes('\n', jsonSuppliedValue)) {
                     errorMessage += `\nValue provided: \n${jsonSuppliedValue}`;
                 } else {
                     errorMessage += `\nValue provided: ${jsonSuppliedValue}`;
