@@ -4,19 +4,19 @@ import {
     any,
     append,
     concat,
-    contains,
-    filter,
     findIndex,
     findLastIndex,
     flatten,
     flip,
     has,
+    includes,
     intersection,
     isEmpty,
     keys,
     lensPath,
     mergeLeft,
     mergeDeepRight,
+    path,
     pluck,
     propEq,
     reject,
@@ -33,6 +33,7 @@ import cookie from 'cookie';
 import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
 import Registry from './../registry';
+import {applyPersistence, prunePersistence} from '../persistence';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
@@ -206,7 +207,7 @@ function reduceInputIds(nodeIds, InputGraph) {
             pluck('outputs', slice(0, i, sortedInputOutputPairs))
         );
         pair.outputs.forEach(output => {
-            if (contains(output, outputsThatWillBeUpdated)) {
+            if (includes(output, outputsThatWillBeUpdated)) {
                 pair.excludedOutputs.push(output);
             }
         });
@@ -292,7 +293,7 @@ export function notifyObservers(payload) {
                  * We only need to update the output once for this
                  * update, so keep outputObservers unique.
                  */
-                if (!contains(outputId, outputObservers)) {
+                if (!includes(outputId, outputObservers)) {
                     outputObservers.push(outputId);
                 }
             });
@@ -300,7 +301,7 @@ export function notifyObservers(payload) {
 
         if (excludedOutputs) {
             outputObservers = reject(
-                flip(contains)(excludedOutputs),
+                flip(includes)(excludedOutputs),
                 outputObservers
             );
         }
@@ -371,7 +372,7 @@ export function notifyObservers(payload) {
              */
             const controllerIsInExistingQueue = any(
                 r =>
-                    contains(r.controllerId, controllers) &&
+                    includes(r.controllerId, controllers) &&
                     r.status === 'loading',
                 requestQueue
             );
@@ -516,7 +517,7 @@ function updateOutput(
 
     payload.inputs = inputs.map(inputObject => {
         // Make sure the component id exists in the layout
-        if (!contains(inputObject.id, validKeys)) {
+        if (!includes(inputObject.id, validKeys)) {
             throw new ReferenceError(
                 'An invalid input object was used in an ' +
                     '`Input` of a Dash callback. ' +
@@ -546,13 +547,13 @@ function updateOutput(
     const inputsPropIds = inputs.map(p => `${p.id}.${p.property}`);
 
     payload.changedPropIds = changedPropIds.filter(p =>
-        contains(p, inputsPropIds)
+        includes(p, inputsPropIds)
     );
 
     if (state.length > 0) {
         payload.state = state.map(stateObject => {
             // Make sure the component id exists in the layout
-            if (!contains(stateObject.id, validKeys)) {
+            if (!includes(stateObject.id, validKeys)) {
                 throw new ReferenceError(
                     'An invalid input object was used in a ' +
                         '`State` object of a Dash callback. ' +
@@ -578,6 +579,37 @@ function updateOutput(
                 value: view(propLens, layout),
             };
         });
+    }
+
+    function doUpdateProps(id, updatedProps) {
+        const {layout, paths} = getState();
+        const itempath = paths[id];
+        if (!itempath) {
+            return false;
+        }
+
+        // This is a callback-generated update.
+        // Check if this invalidates existing persisted prop values,
+        // or if persistence changed, whether this updates other props.
+        const updatedProps2 = prunePersistence(
+            path(itempath, layout),
+            updatedProps,
+            dispatch
+        );
+
+        // In case the update contains whole components, see if any of
+        // those components have props to update to persist user edits.
+        const {props} = applyPersistence({props: updatedProps2}, dispatch);
+
+        dispatch(
+            updateProps({
+                itempath,
+                props,
+                source: 'response',
+            })
+        );
+
+        return props;
     }
 
     // Clientside hook
@@ -637,24 +669,20 @@ function updateOutput(
             updateRequestQueue(false, STATUS.OK);
 
             // Update the layout with the new result
-            dispatch(
-                updateProps({
-                    itempath: getState().paths[outputId],
-                    props: updatedProps,
-                    source: 'response',
-                })
-            );
+            const appliedProps = doUpdateProps(outputId, updatedProps);
 
             /*
              * This output could itself be a serverside or clientside input
              * to another function
              */
-            dispatch(
-                notifyObservers({
-                    id: outputId,
-                    props: updatedProps,
-                })
-            );
+            if (appliedProps) {
+                dispatch(
+                    notifyObservers({
+                        id: outputId,
+                        props: appliedProps,
+                    })
+                );
+            }
         }
 
         if (isMultiOutputProp(payload.output)) {
@@ -767,20 +795,16 @@ function updateOutput(
                 const handleResponse = ([outputIdAndProp, props]) => {
                     // Backward compatibility
                     const pathKey = multi ? outputIdAndProp : outputComponentId;
-                    const observerUpdatePayload = {
-                        itempath: getState().paths[pathKey],
-                        props,
-                        source: 'response',
-                    };
-                    if (!observerUpdatePayload.itempath) {
+
+                    const appliedProps = doUpdateProps(pathKey, props);
+                    if (!appliedProps) {
                         return;
                     }
-                    dispatch(updateProps(observerUpdatePayload));
 
                     dispatch(
                         notifyObservers({
                             id: pathKey,
-                            props: props,
+                            props: appliedProps,
                         })
                     );
 
@@ -789,10 +813,11 @@ function updateOutput(
                      * paths store.
                      * TODO - Do we need to wait for updateProps to finish?
                      */
-                    if (has('children', observerUpdatePayload.props)) {
+                    if (has('children', appliedProps)) {
+                        const newChildren = appliedProps.children;
                         dispatch(
                             computePaths({
-                                subTree: observerUpdatePayload.props.children,
+                                subTree: newChildren,
                                 startingPath: concat(
                                     getState().paths[pathKey],
                                     ['props', 'children']
@@ -806,11 +831,8 @@ function updateOutput(
                          * new children components
                          */
                         if (
-                            contains(
-                                type(observerUpdatePayload.props.children),
-                                ['Array', 'Object']
-                            ) &&
-                            !isEmpty(observerUpdatePayload.props.children)
+                            includes(type(newChildren), ['Array', 'Object']) &&
+                            !isEmpty(newChildren)
                         ) {
                             /*
                              * TODO: We're just naively crawling
@@ -820,32 +842,27 @@ function updateOutput(
                              * to compute the subtree
                              */
                             const newProps = {};
-                            crawlLayout(
-                                observerUpdatePayload.props.children,
-                                function appendIds(child) {
-                                    if (hasId(child)) {
-                                        keys(child.props).forEach(childProp => {
-                                            const componentIdAndProp = `${child.props.id}.${childProp}`;
-                                            if (
-                                                has(
-                                                    componentIdAndProp,
-                                                    InputGraph.nodes
-                                                )
-                                            ) {
-                                                newProps[componentIdAndProp] = {
-                                                    id: child.props.id,
-                                                    props: {
-                                                        [childProp]:
-                                                            child.props[
-                                                                childProp
-                                                            ],
-                                                    },
-                                                };
-                                            }
-                                        });
-                                    }
+                            crawlLayout(newChildren, function appendIds(child) {
+                                if (hasId(child)) {
+                                    keys(child.props).forEach(childProp => {
+                                        const componentIdAndProp = `${child.props.id}.${childProp}`;
+                                        if (
+                                            has(
+                                                componentIdAndProp,
+                                                InputGraph.nodes
+                                            )
+                                        ) {
+                                            newProps[componentIdAndProp] = {
+                                                id: child.props.id,
+                                                props: {
+                                                    [childProp]:
+                                                        child.props[childProp],
+                                                },
+                                            };
+                                        }
+                                    });
                                 }
-                            );
+                            });
 
                             /*
                              * Organize props by shared outputs so that we

@@ -53,15 +53,14 @@ def generate_components(
 
     is_windows = sys.platform == "win32"
 
-    yamldata = None
-
     extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
 
     reserved_patterns = "|".join("^{}$".format(p) for p in reserved_words)
 
     os.environ["NODE_PATH"] = "node_modules"
+
     cmd = shlex.split(
-        "node {} {} {} {}".format(
+        'node {} "{}" "{}" {}'.format(
             extract_path, ignore, reserved_patterns, components_source
         ),
         posix=not is_windows,
