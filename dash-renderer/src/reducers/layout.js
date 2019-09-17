@@ -1,4 +1,4 @@
-import {append, assocPath, contains, lensPath, mergeRight, view} from 'ramda';
+import {append, assocPath, includes, lensPath, mergeRight, view} from 'ramda';
 
 import {getAction} from '../actions/constants';
 
@@ -6,7 +6,7 @@ const layout = (state = {}, action) => {
     if (action.type === getAction('SET_LAYOUT')) {
         return action.payload;
     } else if (
-        contains(action.type, [
+        includes(action.type, [
             'UNDO_PROP_CHANGE',
             'REDO_PROP_CHANGE',
             getAction('ON_PROP_CHANGE'),
