@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {omit} from 'ramda';
+import {assoc, omit} from 'ramda';
 import {Range, createSliderWithTooltip} from 'rc-slider';
 
 /**
@@ -52,9 +52,7 @@ export default class RangeSlider extends Component {
              * the rc-tooltip API uses `visible`, but `always_visible is more semantic
              * assigns the new (renamed) key to the old key and deletes the old key
              */
-            tipProps = Object.assign(tooltip, {
-                visible: tooltip.always_visible,
-            });
+            tipProps = assoc('visible', tooltip.always_visible, tooltip);
             delete tipProps.always_visible;
         } else {
             tipProps = tooltip;

@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed `Slider` and `RangeSlider` components with `tooltip.always_visible` [#640](https://github.com/plotly/dash-core-components/issues/640)
+
 - Fixed an infinite loop problem when `Graph` is wrapped by `Loading` component [#608](https://github.com/plotly/dash-core-components/issues/608)
 
 ## [1.1.2] - 2019-08-27

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import ReactSlider, {createSliderWithTooltip} from 'rc-slider';
 import PropTypes from 'prop-types';
-import {omit} from 'ramda';
+import {assoc, omit} from 'ramda';
 import './css/rc-slider@6.1.2.css';
 
 /**
@@ -49,12 +49,10 @@ export default class Slider extends Component {
         if (tooltip && tooltip.always_visible) {
             /**
              * clone `tooltip` but with renamed key `always_visible` -> `visible`
-             * the rc-tooltip API uses `visible`, but `always_visible is more semantic
+             * the rc-tooltip API uses `visible`, but `always_visible` is more semantic
              * assigns the new (renamed) key to the old key and deletes the old key
              */
-            tipProps = Object.assign(tooltip, {
-                visible: tooltip.always_visible,
-            });
+            tipProps = assoc('visible', tooltip.always_visible, tooltip);
             delete tipProps.always_visible;
         } else {
             tipProps = tooltip;
@@ -82,7 +80,7 @@ export default class Slider extends Component {
                             setProps({value});
                         }
                     }}
-                    tipProps={tooltip}
+                    tipProps={tipProps}
                     value={value}
                     {...omit(
                         ['className', 'setProps', 'updatemode', 'value'],
