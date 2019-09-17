@@ -96,7 +96,7 @@ jobs:
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            sed -i '/dash-/d' requires-install.txt
+            sed -i '/dash/d' requires-install.txt
             pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
           key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
@@ -107,7 +107,7 @@ jobs:
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
               python setup.py sdist && mv dist/* packages/
-              cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
+              cd dash-renderer && renderer build && pip install -e . && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
