@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {append, contains, without} from 'ramda';
+import {append, includes, without} from 'ramda';
 import React, {Component} from 'react';
 
 /**
@@ -40,14 +40,14 @@ export default class Checklist extends Component {
                         className={labelClassName}
                     >
                         <input
-                            checked={contains(option.value, value)}
+                            checked={includes(option.value, value)}
                             className={inputClassName}
                             disabled={Boolean(option.disabled)}
                             style={inputStyle}
                             type="checkbox"
                             onChange={() => {
                                 let newValue;
-                                if (contains(option.value, value)) {
+                                if (includes(option.value, value)) {
                                     newValue = without([option.value], value);
                                 } else {
                                     newValue = append(option.value, value);

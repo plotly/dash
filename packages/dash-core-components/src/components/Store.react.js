@@ -1,4 +1,4 @@
-import {isNil, type, contains, any} from 'ramda';
+import {any, includes, isNil, type} from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -28,7 +28,7 @@ function dataChanged(newData, oldData) {
                 return true;
             }
         }
-    } else if (contains(newType, ['String', 'Number', 'Boolean'])) {
+    } else if (includes(newType, ['String', 'Number', 'Boolean'])) {
         return oldData !== newData;
     } else if (newType === 'Object') {
         const oldEntries = Object.entries(oldData);

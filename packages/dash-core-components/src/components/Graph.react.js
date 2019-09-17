@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {contains, filter, clone, has, isNil, type, omit, equals} from 'ramda';
+import {clone, equals, filter, has, includes, isNil, omit, type} from 'ramda';
 /* global Plotly:true */
 
 const filterEventData = (gd, eventData, event) => {
     let filteredEventData;
-    if (contains(event, ['click', 'hover', 'selected'])) {
+    if (includes(event, ['click', 'hover', 'selected'])) {
         const points = [];
 
         if (isNil(eventData)) {
@@ -25,7 +25,7 @@ const filterEventData = (gd, eventData, event) => {
         for (let i = 0; i < eventData.points.length; i++) {
             const fullPoint = eventData.points[i];
             const pointData = filter(function(o) {
-                return !contains(type(o), ['Object', 'Array']);
+                return !includes(type(o), ['Object', 'Array']);
             }, fullPoint);
             if (
                 has('curveNumber', fullPoint) &&
