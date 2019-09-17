@@ -15,7 +15,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - attach_workspace:
           at: ~/dash
       - store_artifacts:
@@ -34,7 +34,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
@@ -42,7 +42,7 @@ jobs:
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
@@ -90,7 +90,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
@@ -99,7 +99,7 @@ jobs:
             sed -i '/dash/d' requires-install.txt
             pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
@@ -143,7 +143,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
@@ -151,7 +151,7 @@ jobs:
             python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
               - "venv"
       - run:
@@ -194,7 +194,7 @@ jobs:
       - checkout
       - run: echo $PYVERSION > ver.txt
       - restore_cache:
-          key: dep-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
       - attach_workspace:
           at: ~/dash
       - run:
