@@ -38,9 +38,17 @@ As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and 
 3.  `renderer bundles` parses the locked version JSON, copies all the peer dependencies into dash_renderer folder, bundles the renderer assets, and generates an `__init__.py` to map all the resources. There are also a list of helpful `scripts` property defined in `package.json` you might need to do some handy tasks like linting, syntax format with prettier, etc.
 4.  `renderer digest` computes the content hash of each asset in `dash_renderer` folder, prints out the result in logs, and dumps into a JSON file `digest.json`. Use this when you have a doubt about the current assets in `dash_renderer`, and compare it with previous result in one shot by this command.
 5.  `renderer build` runs 1, 2, 3, 4 in sequence as a complete build process from scratch.
-6.  `renderer watch` runs the webpack in watch mode, so any source code change triggers a rebuild. Use this if you are actively updating renderer code and you want to test your changes immediately.
+6.  `renderer build local` runs the same order as in 5 and also generates source maps for debugging purposes. You also need to install dash-renderer with editable mode: `pip install -e .`.
 
 When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
+
+## Python 2 And 3 Compatibility
+
+Writing Python 2/3 compatible code might be a challenging task for contributors used to working on one particular version, especially new learners who start directly with Python 3.
+
+From the #892, we started to adopt  `python-future`  instead of  `six`  as our tool to better achieve the goal where we can mainly write Python 3 code and make it back-compatible in Python 2.7 (last Python 2 version Dash supports before it gets deprecated).
+
+Please refer to [this list of idioms](https://python-future.org/compatible_idioms.html "https://python-future.org/compatible_idioms.html") for more details on working with `python-future`.
 
 ## Git
 
@@ -48,12 +56,12 @@ Use the [GitHub flow](https://guides.github.com/introduction/flow/) when proposi
 
 ### Organize your commits
 
-For pull request with notable file changes or a big feature developmennt, we highly recommend to organize the commits in a logical manner, so it
+For pull request with notable file changes or a big feature development, we highly recommend to organize the commits in a logical manner, so it
 
 - makes a code review experience much more pleasant
 - facilitates a possible cherry picking with granular commits
 
-*an intutive [example](https://github.com/plotly/dash-core-components/pull/548) is worth a thousand words.*
+*an intuitive [example](https://github.com/plotly/dash-core-components/pull/548) is worth a thousand words.*
 
 #### Git Desktop
 
@@ -106,7 +114,6 @@ Note: *You might find out that we have more integration tests than unit tests in
 
 We introduced the `dash.testing` feature in [Dash 1.0](https://community.plot.ly/t/announcing-dash-testing/24868). It makes writing a Dash integration test much easier. Please read the [tutorial](http://dash.plot.ly/testing) and add relevant integration tests with any new features or bug fixes.
 
-
 ## Financial Contributions
 
 Dash, and many of Plotly's open source products, have been funded through direct sponsorship by companies. [Get in touch] about funding feature additions, consulting, or custom app development.
@@ -114,7 +121,7 @@ Dash, and many of Plotly's open source products, have been funded through direct
 [Dash Core Components]: https://dash.plot.ly/dash-core-components
 [Dash HTML Components]: https://github.com/plotly/dash-html-components
 [write your own components]: https://dash.plot.ly/plugins
-[Dash Component Biolerplate]: https://github.com/plotly/dash-component-boilerplate
+[Dash Component Boilerplate]: https://github.com/plotly/dash-component-boilerplate
 [issues]: https://github.com/plotly/dash-core-components/issues
 [GitHub flow]: https://guides.github.com/introduction/flow/
 [semantic versioning]: https://semver.org/

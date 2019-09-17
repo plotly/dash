@@ -9,7 +9,7 @@ import subprocess
 import logging
 
 import runpy
-import six
+import future.utils as utils
 import flask
 import requests
 
@@ -179,15 +179,31 @@ class ProcessRunner(BaseDashRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self, app_module, application_name="app", port=8050):
+    def start(
+        self,
+        app_module=None,
+        application_name="app",
+        raw_command=None,
+        port=8050,
+        start_timeout=3,
+    ):
         """Start the server with waitress-serve in process flavor """
-        entrypoint = "{}:{}.server".format(app_module, application_name)
+        if not (app_module or raw_command):  # need to set a least one
+            logging.error(
+                "the process runner needs to start with"
+                " at least one valid command"
+            )
+            return
         self.port = port
-
         args = shlex.split(
-            "waitress-serve --listen=0.0.0.0:{} {}".format(port, entrypoint),
+            raw_command
+            if raw_command
+            else "waitress-serve --listen=0.0.0.0:{} {}:{}.server".format(
+                port, app_module, application_name
+            ),
             posix=not self.is_windows,
         )
+
         logger.debug("start dash process with %s", args)
 
         try:
@@ -195,11 +211,12 @@ class ProcessRunner(BaseDashRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=3)
+            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
             self.started = False
+            self.stop()
             return
 
         self.started = True
@@ -208,7 +225,7 @@ class ProcessRunner(BaseDashRunner):
         if self.proc:
             try:
                 self.proc.terminate()
-                if six.PY3:
+                if utils.PY3:
                     # pylint:disable=no-member
                     _except = subprocess.TimeoutExpired
                     # pylint: disable=unexpected-keyword-arg
@@ -233,7 +250,7 @@ class RRunner(ProcessRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self, app):
+    def start(self, app, start_timeout=2):
         """Start the server with waitress-serve in process flavor """
 
         # app is a R string chunk
@@ -267,7 +284,7 @@ class RRunner(ProcessRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=2)
+            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")

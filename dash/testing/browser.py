@@ -23,6 +23,7 @@ from dash.testing.wait import (
 )
 from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError
+from dash.testing.consts import SELENIUM_GRID_DEFAULT
 
 
 logger = logging.getLogger(__name__)
@@ -32,21 +33,29 @@ class Browser(DashPageMixin):
     def __init__(
         self,
         browser,
+        remote=False,
+        remote_url=None,
         headless=False,
         options=None,
-        remote=None,
-        download_path=None,
+        download_path="",
         percy_finalize=True,
+        percy_assets_root="",
         wait_timeout=10,
     ):
         self._browser = browser.lower()
+        self._remote_url = remote_url
+        self._remote = (
+            True
+            if remote_url and remote_url != SELENIUM_GRID_DEFAULT
+            else remote
+        )
         self._headless = headless
         self._options = options
         self._download_path = download_path
         self._wait_timeout = wait_timeout
         self._percy_finalize = percy_finalize
 
-        self._driver = until(lambda: self.get_webdriver(remote), timeout=1)
+        self._driver = until(self.get_webdriver, timeout=1)
         self._driver.implicitly_wait(2)
 
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
@@ -59,14 +68,17 @@ class Browser(DashPageMixin):
             loader=percy.ResourceLoader(
                 webdriver=self.driver,
                 base_url="/assets",
-                root_dir="tests/assets",
+                root_dir=percy_assets_root,
             )
         )
         self.percy_runner.initialize_build()
 
-        logger.debug("initialize browser with arguments")
-        logger.debug("  headless => %s", self._headless)
-        logger.debug("  download_path => %s", self._download_path)
+        logger.info("initialize browser with arguments")
+        logger.info("  headless => %s", self._headless)
+        logger.info("  download_path => %s", self._download_path)
+        logger.info(
+            "  percy asset root => %s", os.path.abspath(percy_assets_root)
+        )
 
     def __enter__(self):
         return self
@@ -162,6 +174,20 @@ class Browser(DashPageMixin):
             timeout,
             "timeout {}s => waiting for selector {}".format(
                 timeout if timeout else self._wait_timeout, selector
+            ),
+        )
+
+    def wait_for_element_by_id(self, element_id, timeout=None):
+        """explicit wait until the element is present,
+        timeout if not set, equals to the fixture's `wait_timeout`
+        shortcut to `WebDriverWait` with `EC.presence_of_element_located`
+        """
+        return self._wait_for(
+            EC.presence_of_element_located,
+            ((By.ID, element_id),),
+            timeout,
+            "timeout {}s => waiting for element id {}".format(
+                timeout if timeout else self._wait_timeout, element_id
             ),
         )
 
@@ -285,21 +311,11 @@ class Browser(DashPageMixin):
             )
         )
 
-    def get_webdriver(self, remote):
+    def get_webdriver(self):
         try:
-            return (
-                getattr(self, "_get_{}".format(self._browser))()
-                if remote is None
-                else webdriver.Remote(
-                    command_executor=remote,
-                    desired_capabilities=getattr(
-                        DesiredCapabilities, self._browser.upper()
-                    ),
-                )
-            )
+            return getattr(self, "_get_{}".format(self._browser))()
         except WebDriverException:
             logger.exception("<<<Webdriver not initialized correctly>>>")
-            return None
 
     def _get_wd_options(self):
         options = (
@@ -333,8 +349,16 @@ class Browser(DashPageMixin):
             },
         )
 
-        chrome = webdriver.Chrome(
-            options=options, desired_capabilities=capabilities
+        chrome = (
+            webdriver.Remote(
+                command_executor=self._remote_url,
+                options=options,
+                desired_capabilities=capabilities,
+            )
+            if self._remote
+            else webdriver.Chrome(
+                options=options, desired_capabilities=capabilities
+            )
         )
 
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
@@ -372,8 +396,16 @@ class Browser(DashPageMixin):
             "browser.helperApps.neverAsk.saveToDisk",
             "application/octet-stream",  # this MIME is generic for binary
         )
-        return webdriver.Firefox(
-            firefox_profile=fp, options=options, capabilities=capabilities
+        return (
+            webdriver.Remote(
+                command_executor=self._remote_url,
+                options=options,
+                desired_capabilities=capabilities,
+            )
+            if self._remote
+            else webdriver.Firefox(
+                firefox_profile=fp, options=options, capabilities=capabilities
+            )
         )
 
     @staticmethod
@@ -418,6 +450,23 @@ class Browser(DashPageMixin):
             entries = self.driver.get_log("browser")
             if entries:
                 self._last_ts = entries[-1]["timestamp"]
+
+    def visit_and_snapshot(self, resource_path, hook_id, assert_check=True):
+        try:
+            path = resource_path.lstrip('/')
+            if path != resource_path:
+                logger.warning("we stripped the left '/' in resource_path")
+            self.driver.get("{}/{}".format(self.server_url.rstrip('/'), path))
+            self.wait_for_element_by_id(hook_id)
+            self.percy_snapshot(path)
+            if assert_check:
+                assert not self.driver.find_elements_by_css_selector(
+                    "div.dash-debug-alert"
+                ), "devtools should not raise an error alert"
+            self.driver.back()
+        except WebDriverException as e:
+            logger.exception("snapshot at resource %s error", path)
+            raise e
 
     @property
     def driver(self):

@@ -17,7 +17,6 @@ from functools import wraps
 from textwrap import dedent
 
 import flask
-from flask import Flask, Response
 from flask_compress import Compress
 from werkzeug.debug.tbtools import get_current_traceback
 
@@ -241,13 +240,13 @@ class Dash(object):
 
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
-        if isinstance(server, Flask):
+        if isinstance(server, flask.Flask):
             self.server = server
             if name is None:
                 name = getattr(server, 'name', '__main__')
         elif isinstance(server, bool):
             name = name if name else '__main__'
-            self.server = Flask(name) if server else None
+            self.server = flask.Flask(name) if server else None
         else:
             raise ValueError('server must be a Flask app or a boolean')
 
@@ -442,6 +441,7 @@ class Dash(object):
                 'or a function that returns '
                 'a dash component.')
 
+        self._cached_layout = None
         self._layout = value
 
     @property
@@ -677,7 +677,7 @@ class Dash(object):
             'map': 'application/json'
         })[path_in_package_dist.split('.')[-1]]
 
-        return Response(
+        return flask.Response(
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype
         )

@@ -2,7 +2,7 @@ import {connect} from 'react-redux';
 import {Component} from 'react';
 import PropTypes from 'prop-types';
 import Radium from 'radium';
-import {contains, pluck} from 'ramda';
+import {includes, pluck} from 'ramda';
 import uniqid from 'uniqid';
 import {onError, revert} from '../../actions';
 
@@ -34,7 +34,7 @@ class UnconnectedComponentErrorBoundary extends Component {
     componentDidUpdate(prevProps, prevState) {
         const {error} = this.props;
         const {myUID} = this.state;
-        const hasError = contains(myUID, pluck('myUID')(error.frontEnd));
+        const hasError = includes(myUID, pluck('myUID')(error.frontEnd));
         if (
             !hasError &&
             prevState.oldChildren !== prevProps.children &&
@@ -50,7 +50,7 @@ class UnconnectedComponentErrorBoundary extends Component {
     render() {
         const {error} = this.props;
         const {myUID} = this.state;
-        const hasError = contains(myUID, pluck('myUID')(error.frontEnd));
+        const hasError = includes(myUID, pluck('myUID')(error.frontEnd));
 
         if (hasError) {
             return this.state.oldChildren;

@@ -7,10 +7,10 @@ import {
     addIndex,
     any,
     concat,
-    contains,
     filter,
     forEach,
     has,
+    includes,
     isEmpty,
     isNil,
     keysIn,
@@ -22,12 +22,13 @@ import {
     type,
 } from 'ramda';
 import {notifyObservers, updateProps} from './actions';
+import {recordUiEdit} from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
 import checkPropTypes from 'check-prop-types';
 
 const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
 const isSimpleComponent = component =>
-    contains(type(component), SIMPLE_COMPONENT_TYPES);
+    includes(type(component), SIMPLE_COMPONENT_TYPES);
 
 function validateComponent(componentDefinition) {
     if (type(componentDefinition) === 'Array') {
@@ -164,6 +165,7 @@ class TreeContainer extends Component {
                 _dashprivate_dependencies,
                 _dashprivate_dispatch,
                 _dashprivate_path,
+                _dashprivate_layout,
             } = this.props;
 
             const id = this.getLayoutProps().id;
@@ -184,6 +186,10 @@ class TreeContainer extends Component {
                             )
                     )
             )(keysIn(newProps));
+
+            // setProps here is triggered by the UI - record these changes
+            // for persistence
+            recordUiEdit(_dashprivate_layout, newProps, _dashprivate_dispatch);
 
             // Always update this component's props
             _dashprivate_dispatch(
@@ -307,7 +313,7 @@ function getLoadingState(layout, requestQueue) {
             const controllerId = isNil(r.controllerId) ? '' : r.controllerId;
             if (
                 r.status === 'loading' &&
-                any(id => contains(id, controllerId), ids)
+                any(id => includes(id, controllerId), ids)
             ) {
                 isLoading = true;
                 [loadingComponent, loadingProp] = r.controllerId.split('.');
