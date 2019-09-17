@@ -1,7 +1,6 @@
 import time
 import sys
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 
 
 def test_inni001_invalid_numbers(ninput_app, dash_duo):

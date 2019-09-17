@@ -31,6 +31,8 @@ describe('Props can be set properly', () => {
             component_name: '',
             prop_name: '',
         },
+        persisted_props: ['value'],
+        persistence_type: 'local',
     };
 
     const multiProps = Object.assign({}, singleProps, {

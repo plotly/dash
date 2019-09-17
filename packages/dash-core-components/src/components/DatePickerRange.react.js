@@ -398,6 +398,34 @@ DatePickerRange.propTypes = {
          */
         component_name: PropTypes.string,
     }),
+
+    /**
+     * Used to allow user interactions in this component to be persisted when
+     * the component - or the page - is refreshed. If `persisted` is truthy and
+     * hasn't changed from its previous value, any `persisted_props` that the
+     * user has changed while using the app will keep those changes, as long as
+     * the new prop value also matches what was given originally.
+     * Used in conjunction with `persistence_type` and `persisted_props`.
+     */
+    persistence: PropTypes.oneOfType(
+        [PropTypes.bool, PropTypes.string, PropTypes.number]
+    ),
+
+    /**
+     * Properties whose user interactions will persist after refreshing the
+     * component or the page.
+     */
+    persisted_props: PropTypes.arrayOf(
+        PropTypes.oneOf(['start_date', 'end_date'])
+    ),
+
+    /**
+     * Where persisted user changes will be stored:
+     * memory: only kept in memory, reset on page refresh.
+     * local: window.localStorage, data is kept after the browser quit.
+     * session: window.sessionStorage, data is cleared once the browser quit.
+     */
+    persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
 };
 
 DatePickerRange.defaultProps = {
@@ -413,4 +441,6 @@ DatePickerRange.defaultProps = {
     clearable: false,
     disabled: false,
     updatemode: 'singledate',
+    persisted_props: ['start_date', 'end_date'],
+    persistence_type: 'local',
 };

@@ -28,6 +28,8 @@ describe('Props can be set properly', () => {
             component_name: '',
             prop_name: '',
         },
+        persisted_props: ['value'],
+        persistence_type: 'local',
     };
 
     const testProps = Object.assign({}, testPropsNoValue, {value: ['a', 2]});
