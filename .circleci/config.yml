@@ -201,7 +201,7 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate && cd packages && ls -la
-            find . -name "*.gz" | xargs pip install --upgrade && pip list | grep dash && cd ..
+            find . -name "*.gz" | xargs pip install --ignore-installed && pip list | grep dash && cd ..
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
