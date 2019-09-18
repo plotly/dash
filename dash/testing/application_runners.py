@@ -172,7 +172,7 @@ class ProcessRunner(BaseDashRunner):
     this flavor is closer to production environment but slower
     """
 
-    def __init__(self, keep_open=False, stop_timeout=3):
+    def __init__(self, keep_open=False, stop_timeout=10):
         super(ProcessRunner, self).__init__(
             keep_open=keep_open, stop_timeout=stop_timeout
         )
@@ -238,8 +238,11 @@ class ProcessRunner(BaseDashRunner):
                     "subprocess terminate not success, trying to kill "
                     "the subprocess in a safe manner"
                 )
-                self.proc.kill()
-                self.proc.communicate()
+                try:
+                    self.proc.kill()
+                    self.proc.communicate()
+                except _except:
+                    logger.exception("cannot terminate after kill")
 
 
 class RRunner(ProcessRunner):
