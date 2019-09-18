@@ -172,7 +172,7 @@ class ProcessRunner(BaseDashRunner):
     this flavor is closer to production environment but slower
     """
 
-    def __init__(self, keep_open=False, stop_timeout=10):
+    def __init__(self, keep_open=False, stop_timeout=3):
         super(ProcessRunner, self).__init__(
             keep_open=keep_open, stop_timeout=stop_timeout
         )
@@ -246,7 +246,7 @@ class ProcessRunner(BaseDashRunner):
 
 
 class RRunner(ProcessRunner):
-    def __init__(self, keep_open=False, stop_timeout=3):
+    def __init__(self, keep_open=False, stop_timeout=10):
         super(RRunner, self).__init__(
             keep_open=keep_open, stop_timeout=stop_timeout
         )
