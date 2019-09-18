@@ -74,7 +74,7 @@ describe('Dash Table Queries', () => {
 
                 describe('contains', () => {
                     processCases(c.syntaxer, [
-                        { name: 'cannot compare "11" to 1', query: `${c.hideOperand ? '' : '{a} '}contains 1`, target: { a: '11' }, valid: true, evaluate: true },
+                        { name: 'compares "11" to 1', query: `${c.hideOperand ? '' : '{a} '}contains 1`, target: { a: '11' }, valid: true, evaluate: true },
                         { name: 'cannot compare 11 to 1', query: `${c.hideOperand ? '' : '{a} '}contains 1`, target: { a: 11 }, valid: true, evaluate: false },
                         { name: 'compares "11" to "1"', query: `${c.hideOperand ? '' : '{a} '}contains "1"`, target: { a: '11' }, valid: true, evaluate: true },
                         { name: 'compares 11 to "1"', query: `${c.hideOperand ? '' : '{a} '}contains "1"`, target: { a: 11 }, valid: true, evaluate: true },
@@ -84,8 +84,8 @@ describe('Dash Table Queries', () => {
                         { name: 'compares "abc" to "b"', query: `${c.hideOperand ? '' : '{a} '}contains "b"`, target: { a: 'abc' }, valid: true, evaluate: true },
                         { name: 'compares "abc" to " b"', query: `${c.hideOperand ? '' : '{a} '}contains " b"`, target: { a: 'abc' }, valid: true, evaluate: false },
                         { name: 'compares "abc" to "b "', query: `${c.hideOperand ? '' : '{a} '}contains "b "`, target: { a: 'abc' }, valid: true, evaluate: false },
-                        { name: 'compares "abc" to " b"', query: `${c.hideOperand ? '' : '{a} '}contains " b"`, target: { a: 'a bc' }, valid: true, evaluate: true },
-                        { name: 'compares "abc" to "b "', query: `${c.hideOperand ? '' : '{a} '}contains "b "`, target: { a: 'ab c' }, valid: true, evaluate: true }
+                        { name: 'compares "a bc" to " b"', query: `${c.hideOperand ? '' : '{a} '}contains " b"`, target: { a: 'a bc' }, valid: true, evaluate: true },
+                        { name: 'compares "ab c" to "b "', query: `${c.hideOperand ? '' : '{a} '}contains "b "`, target: { a: 'ab c' }, valid: true, evaluate: true }
                     ]);
                 });
 
@@ -96,7 +96,7 @@ describe('Dash Table Queries', () => {
                         { name: '0yyy in "0yyy"', query: `${c.hideOperand ? '' : '{a} '}datestartswith "0987"`, target: { a: '0987' }, valid: true, evaluate: true },
                         { name: 'yyyy in "yyyy"', query: `${c.hideOperand ? '' : '{a} '}datestartswith "2006"`, target: { a: '2005' }, valid: true, evaluate: false },
                         { name: 'yyyy in "yyyy"', query: `${c.hideOperand ? '' : '{a} '}datestartswith "2005"`, target: { a: '2005' }, valid: true, evaluate: true },
-                        { name: 'yyyy in yyyy', query: `${c.hideOperand ? '' : '{a} '}datestartswith 2005`, target: { a: '2005' }, valid: true, evaluate: false },
+                        { name: 'yyyy in yyyy', query: `${c.hideOperand ? '' : '{a} '}datestartswith 2005`, target: { a: '2005' }, valid: true, evaluate: true },
                         { name: 'yyyy-mm in "yyyy"', query: `${c.hideOperand ? '' : '{a} '}datestartswith "2005"`, target: { a: '2005-01' }, valid: true, evaluate: true },
                         { name: 'yyyy-mm-dd in "yyyy"', query: `${c.hideOperand ? '' : '{a} '}datestartswith "2005"`, target: { a: '2005-01-01' }, valid: true, evaluate: true },
                         { name: 'yyyy-mm-dd hh in "yyyy"', query: `${c.hideOperand ? '' : '{a} '}datestartswith "2005"`, target: { a: '2005-01-01T10' }, valid: true, evaluate: true },

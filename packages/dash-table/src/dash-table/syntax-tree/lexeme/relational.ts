@@ -88,6 +88,9 @@ const DATE_OPTIONS: IDateValidation = {
 
 export const dateStartsWith: IUnboundedLexeme = R.merge({
     evaluate: relationalEvaluator(([op, exp]) => {
+        op = typeof op === 'number' ? op.toString() : op;
+        exp = typeof exp === 'number' ? exp.toString() : exp;
+
         const normalizedOp = normalizeDate(op, DATE_OPTIONS);
         const normalizedExp = normalizeDate(exp, DATE_OPTIONS);
 

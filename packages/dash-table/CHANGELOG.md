@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+### Fixed
+[#460](https://github.com/plotly/dash-table/issues/460)
+- The `datestartswith` relational operator now supports number comparison
+- Fixed a bug where the implicit operator for columns was `equal` instead of the expected default for the column type
+
 ## [4.3.0] - 2019-09-17
 ### Added
 [#566](https://github.com/plotly/dash-table/pull/566)
