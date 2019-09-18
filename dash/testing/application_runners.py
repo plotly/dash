@@ -238,11 +238,11 @@ class ProcessRunner(BaseDashRunner):
                     "subprocess terminate not success, trying to kill "
                     "the subprocess in a safe manner"
                 )
-                try:
-                    self.proc.kill()
-                    self.proc.communicate()
-                except _except:
-                    logger.exception("cannot terminate after kill")
+                # try:
+                #     self.proc.kill()
+                #     self.proc.communicate()
+                # except _except:
+                #     logger.exception("cannot terminate after kill")
 
 
 class RRunner(ProcessRunner):
