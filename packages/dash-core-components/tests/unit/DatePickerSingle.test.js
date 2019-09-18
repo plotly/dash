@@ -1,5 +1,5 @@
 import DatePickerSingle from '../../src/components/DatePickerSingle.react';
-import R from 'ramda';
+import { merge } from 'ramda';
 import React from 'react';
 import {mount, render} from 'enzyme';
 
@@ -15,7 +15,7 @@ describe('Date can be set properly', () => {
     };
 
     test('null date is not converted by moment', () => {
-        const props = R.merge(defaultProps, {
+        const props = merge(defaultProps, {
             date: null,
         });
 
@@ -26,7 +26,7 @@ describe('Date can be set properly', () => {
     });
 
     test('valid date is not converted by moment', () => {
-        const props = R.merge(defaultProps, {
+        const props = merge(defaultProps, {
             date: '2019-01-01',
         });
 

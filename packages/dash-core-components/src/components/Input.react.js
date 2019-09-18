@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import { isNil, omit } from 'ramda';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import isNumeric from 'fast-isnumeric';
@@ -33,7 +33,7 @@ export default class Input extends PureComponent {
     componentWillReceiveProps(nextProps) {
         const {value, valueAsNumber} = this.input.current;
         this.setInputValue(
-            R.isNil(valueAsNumber) ? value : valueAsNumber,
+            isNil(valueAsNumber) ? value : valueAsNumber,
             nextProps.value
         );
         if (this.props.type !== 'number') {
@@ -44,7 +44,7 @@ export default class Input extends PureComponent {
     componentDidMount() {
         const {value, valueAsNumber} = this.input.current;
         this.setInputValue(
-            R.isNil(valueAsNumber) ? value : valueAsNumber,
+            isNil(valueAsNumber) ? value : valueAsNumber,
             this.props.value
         );
     }
@@ -69,7 +69,7 @@ export default class Input extends PureComponent {
                 onChange={this.onChange}
                 onKeyPress={this.onKeyPress}
                 {...valprops}
-                {...R.omit(
+                {...omit(
                     [
                         'debounce',
                         'value',
@@ -113,7 +113,7 @@ export default class Input extends PureComponent {
         if (this.props.type === 'number') {
             this.setPropValue(
                 this.props.value,
-                R.isNil(valueAsNumber) ? value : valueAsNumber
+                isNil(valueAsNumber) ? value : valueAsNumber
             );
         } else {
             this.props.setProps({value});

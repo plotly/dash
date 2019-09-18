@@ -1,5 +1,5 @@
 import moment from 'moment';
-import R from 'ramda';
+import { has } from 'ramda';
 
 export default (newProps, momentProps) => {
     const dest = {};
@@ -16,7 +16,7 @@ export default (newProps, momentProps) => {
         } else {
             dest[key] = moment(value);
 
-            if (key === 'max_date_allowed' && R.has(key, dest)) {
+            if (key === 'max_date_allowed' && has(key, dest)) {
                 dest[key].add(1, 'days');
             }
         }

@@ -1,5 +1,5 @@
 import DatePickerRange from '../../src/components/DatePickerRange.react';
-import R from 'ramda';
+import { merge } from 'ramda';
 import React from 'react';
 import {mount, render} from 'enzyme';
 
@@ -17,7 +17,7 @@ test('DatePickerRange renders', () => {
 
 describe('Date can be set properly', () => {
     test('null date is not converted by moment', () => {
-        const props = R.merge(defaultProps, {
+        const props = merge(defaultProps, {
             end_date: null,
             start_date: null,
         });
@@ -30,7 +30,7 @@ describe('Date can be set properly', () => {
     });
 
     test('valid date is not converted by moment', () => {
-        const props = R.merge(defaultProps, {
+        const props = merge(defaultProps, {
             end_date: '2019-01-01',
             start_date: '2019-01-01',
         });
