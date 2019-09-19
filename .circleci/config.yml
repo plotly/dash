@@ -106,8 +106,8 @@ jobs:
           name: ️️🏗️ build core
           command: |
               . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
-              cd dash-renderer && renderer build && pip uninstall -y dash-renderer &&  pip install -e . && python setup.py sdist && mv dist/* ../packages/ && cd ..
               python setup.py sdist && mv dist/* packages/
+              cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
               cd dash-core-components && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/  && cd ..
               git clone --depth 1 https://github.com/plotly/dash-renderer-test-components
@@ -201,7 +201,7 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate && cd packages && ls -la
-            find . -name "*.gz" | xargs pip install --force-reinstall && pip list | grep dash && cd ..
+            find . -name "*.gz" | xargs pip install --ignore-installed && pip list | grep dash && cd ..
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:

@@ -39,10 +39,14 @@ class Resources:
                 filtered_resource['asset_path'] = s['asset_path']
                 filtered_resource['ts'] = info.st_mtime
             elif self.config.serve_locally:
-                warnings.warn(
-                    'A local version of {} is not available'.format(
-                        s['external_url']
-                    )
+                warnings.warn((
+                    'You have set your config to `serve_locally=True` but '
+                    'A local version of {} is not available.\n'
+                    'If you added this file with `app.scripts.append_script` '
+                    'or `app.css.append_css`, use `external_scripts` '
+                    'or `external_stylesheets` instead.\n'
+                    'See https://dash.plot.ly/external-resources'
+                    ).format(s['external_url'])
                 )
                 continue
             else:
