@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - The `datestartswith` relational operator now supports number comparison
 - Fixed a bug where the implicit operator for columns was `equal` instead of the expected default for the column type
 
+[#591](https://github.com/plotly/dash-table/issues/591)
+- Fixed row and column selection when multiple tables are present
+
 ## [4.3.0] - 2019-09-17
 ### Added
 [#566](https://github.com/plotly/dash-table/pull/566)

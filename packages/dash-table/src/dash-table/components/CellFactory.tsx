@@ -42,6 +42,7 @@ export default class CellFactory {
             dropdown,
             data,
             dropdown_data,
+            id,
             is_focused,
             row_deletable,
             row_selectable,
@@ -94,6 +95,7 @@ export default class CellFactory {
         );
 
         const operations = this.cellOperations(
+            id,
             data,
             virtualized.data,
             virtualized.indices,

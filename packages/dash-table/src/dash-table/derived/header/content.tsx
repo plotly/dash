@@ -150,6 +150,7 @@ function getSortingIcon(columnId: ColumnId, sortBy: SortBy) {
 }
 
 function getter(
+    id: string,
     visibleColumns: Columns,
     columns: Columns,
     hiddenColumns: string[] | undefined,
@@ -230,7 +231,7 @@ function getter(
                                         column_selectable === 'single',
                                         !allSelected
                                     )}
-                                    name='column-header--select'
+                                    name={`column-select-${id}`}
                                     type={column_selectable === 'single' ?
                                         'radio' :
                                         'checkbox'

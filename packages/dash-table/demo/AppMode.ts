@@ -36,7 +36,8 @@ export enum AppFlavor {
     FixedColumnPlus1 = 'fixed_columns={ "headers": true, "data": 1 }',
     FixedRow = 'fixed_rows={ "headers": true }',
     FixedRowPlus1 = 'fixed_rows={ "headers": true, "data": 1 }',
-    Merged = 'merge_duplicate_headers=true'
+    Merged = 'merge_duplicate_headers=true',
+    NoId = 'id=null'
 }
 
 export const ReadWriteModes = [
@@ -346,6 +347,7 @@ function getModeState(mode: string | null) {
         case AppMode.SingleHeaders:
             return getSingleHeaderState();
         case AppMode.TaleOfTwoTables:
+            return getActionableState();
         case AppMode.Default:
         default:
             return getDefaultState();

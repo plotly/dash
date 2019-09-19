@@ -40,6 +40,7 @@ export default class HeaderFactory {
             columns,
             data,
             hidden_columns,
+            id,
             map,
             merge_duplicate_headers,
             page_action,
@@ -93,6 +94,7 @@ export default class HeaderFactory {
         );
 
         const contents = this.headerContent(
+            id,
             visibleColumns,
             columns,
             hidden_columns,

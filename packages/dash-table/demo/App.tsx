@@ -6,7 +6,6 @@ import Environment from 'core/environment';
 import { memoizeOne } from 'core/memoizer';
 import Logger from 'core/Logger';
 import AppState, { AppMode, AppFlavor } from './AppMode';
-import memoizerCache from 'core/cache/memoizer';
 
 import './style.less';
 
@@ -50,14 +49,18 @@ class App extends Component<any, any> {
                     }} />
             </div>);
         } else if (mode === AppMode.TaleOfTwoTables) {
-            const props: any = {};
-            Object.entries(this.state.tableProps).forEach(([key, value]) => {
-                props[key] = this.propCache.get(key)(value);
-            });
+            if (!this.state.tableProps2) {
+                this.setState({
+                    tableProps2: R.clone(this.state.tableProps)
+                });
+            }
 
-            return (<DataTable
-                {...props}
-            />);
+            const baseId = this.state.tableProps2 && this.state.tableProps2.id;
+
+            return (this.state.tableProps2 ? <DataTable
+                {...this.state.tableProps2}
+                id={baseId ? 'table2' : baseId}
+            /> : null);
         }
     }
 
@@ -70,8 +73,6 @@ class App extends Component<any, any> {
             />
         </div>);
     }
-
-    private propCache = memoizerCache<[string]>()(R.clone);
 
     private setProps = memoizeOne(() => {
         return (newProps: any) => {

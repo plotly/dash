@@ -33,7 +33,7 @@ function deleteRow(idx: number, data: Data, selectedRows: number[]) {
     return newProps;
 }
 
-function rowSelectCell(idx: number, rowSelectable: Selection, selectedRows: number[], setProps: SetProps, data: Data) {
+function rowSelectCell(id: string, idx: number, rowSelectable: Selection, selectedRows: number[], setProps: SetProps, data: Data) {
     return (<td
         key='select'
         className='dash-select-cell'
@@ -42,7 +42,7 @@ function rowSelectCell(idx: number, rowSelectable: Selection, selectedRows: numb
         <input
             type={rowSelectable === 'single' ? 'radio' : 'checkbox'}
             style={{ verticalAlign: 'middle' }}
-            name='row-select'
+            name={`row-select-${id}`}
             checked={R.includes(idx, selectedRows)}
             onChange={() => {
                 const newSelectedRows = rowSelectable === 'single' ?
@@ -73,6 +73,7 @@ function rowDeleteCell(doDelete: () => any) {
 }
 
 const getter = (
+    id: string,
     data: Data,
     viewportData: Data,
     viewportIndices: Indices,
@@ -83,7 +84,7 @@ const getter = (
 ): JSX.Element[][] => R.addIndex<Datum, JSX.Element[]>(R.map)(
     (_, rowIndex) => [
         ...(rowDeletable ? [rowDeleteCell(() => setProps(deleteRow(viewportIndices[rowIndex], data, selectedRows)))] : []),
-        ...(rowSelectable ? [rowSelectCell(viewportIndices[rowIndex], rowSelectable, selectedRows, setProps, data)] : [])
+        ...(rowSelectable ? [rowSelectCell(id, viewportIndices[rowIndex], rowSelectable, selectedRows, setProps, data)] : [])
     ],
     viewportData
 );
