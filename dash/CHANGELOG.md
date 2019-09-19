@@ -1,3 +1,7 @@
+## [1.3.1] - 2019-09-19
+### Changed
+- Bumped dash-core-components version from 1.2.0 to [1.2.1](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#120---2019-09-19)
+
 ## [1.3.0] - 2019-09-17
 ### Added
 - [#923](https://github.com/plotly/dash/pull/923) Adds one configuration `--percy-assets` in `pytest` to specify extra application assets path if needed
