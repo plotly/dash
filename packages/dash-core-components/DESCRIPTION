@@ -1,4 +1,5 @@
 Package: dashCoreComponents
+Version: 1.2.1
 Title: Core Component Suite for Dash
 Version: 1.2.0
 Description: Supercharged components for interactive user interfaces in Dash. A core set of components, written and maintained by the Dash team, is available in the 'dashCoreComponents' package. The source for this package is on GitHub: 'plotly/dash-core-components'.
