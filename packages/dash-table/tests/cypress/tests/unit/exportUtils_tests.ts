@@ -1,44 +1,45 @@
-import { transformMultDimArray, getMergeRanges, createHeadings, createWorksheet } from 'dash-table/components/Export/utils';
+import { transformMultiDimArray, getMergeRanges, createHeadings, createWorksheet } from 'dash-table/components/Export/utils';
 import * as R from 'ramda';
+import { ExportHeaders } from 'dash-table/components/Table/props';
 
 describe('export', () => {
 
-    describe('transformMultDimArray', () => {
+    describe('transformMultiDimArray', () => {
         it('array with only strings', () => {
             const testedArray = [];
-            const transformedArray = transformMultDimArray(testedArray, 0);
+            const transformedArray = transformMultiDimArray(testedArray, 0);
             const expectedArray = [];
             expect(transformedArray).to.deep.equal(expectedArray);
         });
         it('array with only strings', () => {
             const testedArray = ['a', 'b', 'c', 'd'];
-            const transformedArray = transformMultDimArray(testedArray, 0);
+            const transformedArray = transformMultiDimArray(testedArray, 0);
             const expectedArray = [['a'], ['b'], ['c'], ['d']];
             expect(transformedArray).to.deep.equal(expectedArray);
         });
         it ('array with strings and strings array with same length', () => {
             const testedArray = ['a', ['b', 'c'], ['b', 'd']];
-            const transformedArray = transformMultDimArray(testedArray, 2);
+            const transformedArray = transformMultiDimArray(testedArray, 2);
             const expectedArray = [['a', 'a'], ['b', 'c'], ['b', 'd']];
             expect(transformedArray).to.deep.equal(expectedArray);
         });
         it ('2D strings array', () => {
             const testedArray = [['a', 'b', 'c'], ['b', 'c', 'd'], ['b', 'd', 'a']];
-            const transformedArray = transformMultDimArray(testedArray, 3);
+            const transformedArray = transformMultiDimArray(testedArray, 3);
             const expectedArray = [['a', 'b', 'c'], ['b', 'c', 'd'], ['b', 'd', 'a']];
             expect(transformedArray).to.deep.equal(expectedArray);
 
         });
         it ('multidimensional array', () => {
             const testedArray = [['a', 'b'], ['b', 'c', 'd'], ['a', 'b', 'd', 'a']];
-            const transformedArray = transformMultDimArray(testedArray, 4);
+            const transformedArray = transformMultiDimArray(testedArray, 4);
             const expectedArray = [['a', 'b', '', ''], ['b', 'c', 'd', ''], ['a', 'b', 'd', 'a']];
             expect(transformedArray).to.deep.equal(expectedArray);
 
         });
         it ('multidimensional array with strings', () => {
             const testedArray = ['rows', ['a', 'b'], ['b', 'c', 'd'], ['a', 'b', 'd', 'a']];
-            const transformedArray = transformMultDimArray(testedArray, 4);
+            const transformedArray = transformMultiDimArray(testedArray, 4);
             const expectedArray = [['rows', 'rows', 'rows', 'rows'], ['a', 'b', '', ''], ['b', 'c', 'd', ''], ['a', 'b', 'd', 'a']];
             expect(transformedArray).to.deep.equal(expectedArray);
         });
@@ -210,20 +211,24 @@ describe('export', () => {
     });
 
     describe('createWorksheet ', () => {
-        const Headings =    [['rows', 'rows', 'b'],
-                            ['rows', 'c', 'c'],
-                            ['rows', 'e', 'f'],
-                            ['rows', 'rows', 'rows']];
-        const data = [
-                {col1: 1, col2: 2, col3: 3},
-                {col1: 2, col2: 3, col3: 4},
-                {col1: 1, col2: 2, col3: 3}
+        const Headings = [
+            ['rows', 'rows', 'b'],
+            ['rows', 'c', 'c'],
+            ['rows', 'e', 'f'],
+            ['rows', 'rows', 'rows']
         ];
-        const columnID = ['col1', 'col2', 'col3'];
+
+        const data = [
+            { col1: 1, col2: 2, col3: 'x', col4: 3 },
+            { col1: 2, col2: 3, col3: 'x', col4: 4 },
+            { col1: 1, col2: 2, col3: 'x', col4: 3 }
+        ];
+
+        const columnID = ['col1', 'col2', 'col4'];
         it('create sheet with column names as headers for name or display header mode', () => {
-            const wsName = createWorksheet(Headings, data, columnID, 'names', true);
-            const wsDisplay = createWorksheet(Headings, data, columnID, 'display', true);
-            const wsDisplayNoMerge = createWorksheet(Headings, data, columnID, 'display', false);
+            const wsName = createWorksheet(Headings, data, columnID, ExportHeaders.Names, true);
+            const wsDisplay = createWorksheet(Headings, data, columnID, ExportHeaders.Display, true);
+            const wsDisplayNoMerge = createWorksheet(Headings, data, columnID, ExportHeaders.Display, false);
             const expectedWS = {
                 A1: {t: 's', v: 'rows'},
                 A2: {t: 's', v: 'rows'},
@@ -256,7 +261,7 @@ describe('export', () => {
             expect(wsDisplay).to.deep.equal(expectedWSDisplay);
         });
         it('create sheet with column ids as headers', () => {
-            const ws = createWorksheet(Headings, data, columnID, 'ids', true);
+            const ws = createWorksheet(Headings, data, columnID, ExportHeaders.Ids, true);
             const expectedWS = {
                 A1: {t: 's', v: 'col1'},
                 A2: {t: 'n', v: 1},
@@ -266,7 +271,7 @@ describe('export', () => {
                 B2: {t: 'n', v: 2},
                 B3: {t: 'n', v: 3},
                 B4: {t: 'n', v: 2},
-                C1: {t: 's', v: 'col3'},
+                C1: {t: 's', v: 'col4'},
                 C2: {t: 'n', v: 3},
                 C3: {t: 'n', v: 4},
                 C4: {t: 'n', v: 3}};
@@ -274,7 +279,7 @@ describe('export', () => {
             expect(ws).to.deep.equal(expectedWS);
         });
         it('create sheet with no headers', () => {
-            const ws = createWorksheet([], data, columnID, 'none', true);
+            const ws = createWorksheet([], data, columnID, ExportHeaders.None, true);
             const expectedWS = {
                 A1: {t: 'n', v: 1},
                 A2: {t: 'n', v: 2},
@@ -290,11 +295,11 @@ describe('export', () => {
         });
         it('create sheet with undefined column for clearable columns', () => {
             const newData = [
-                {col2: 2, col3: 3},
-                {col2: 3, col3: 4},
-                {col2: 2, col3: 3}
+                {col2: 2, col4: 3},
+                {col2: 3, col4: 4},
+                {col2: 2, col4: 3}
             ];
-            const ws = createWorksheet(Headings, newData, columnID, 'display', false);
+            const ws = createWorksheet(Headings, newData, columnID, ExportHeaders.Display, false);
             const expectedWS = {A1: {t: 's', v: 'rows'},
                     A2: {t: 's', v: 'rows'},
                     A3: {t: 's', v: 'rows'},

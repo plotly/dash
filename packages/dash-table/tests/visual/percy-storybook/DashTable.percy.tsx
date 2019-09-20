@@ -46,7 +46,7 @@ fixtures.forEach(fixture => {
 });
 
 import dataset from './../../assets/gapminder.csv';
-import { TableAction } from 'dash-table/components/Table/props';
+import { TableAction, ExportFormat } from 'dash-table/components/Table/props';
 
 storiesOf('DashTable/Without Data', module)
     .add('with 1 column', () => (<DataTable
@@ -363,13 +363,13 @@ storiesOf('DashTable/Export', module)
             setProps={setProps}
             data={dataA2J.slice(0, 10)}
             columns={columnsA2J.slice(0, 10)}
-            export_format= {'xlsx'}
+            export_format= {ExportFormat.Xlsx}
         />))
         .add('Export Button for csv file', () => (<DataTable
             setProps={setProps}
             data={dataA2J.slice(0, 10)}
             columns={columnsA2J.slice(0, 10)}
-            export_format= {'xlsx'}
+            export_format={ExportFormat.Xlsx}
         />))
         .add('No export Button for file formatted not supported', () => (<DataTable
             setProps={setProps}
@@ -381,5 +381,5 @@ storiesOf('DashTable/Export', module)
             setProps={setProps}
             data={dataA2J.slice(0, 10)}
             columns={columnsA2J.slice(0, 10)}
-            export_format= {'none'}
+            export_format= {ExportFormat.None}
         />));

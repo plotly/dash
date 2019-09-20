@@ -88,6 +88,7 @@ export const defaultProps = {
     columns: [],
     data: [],
     editable: false,
+    export_columns: 'visible',
     export_format: 'none',
     include_headers_on_copy_paste: false,
     selected_cells: [],
@@ -502,6 +503,13 @@ export const propTypes = {
         row_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         column_id: PropTypes.string
     }),
+
+    /**
+     * Denotes the columns that will be used in the export data file.
+     * If `all`, all columns will be used (visible + hidden). If `visible`,
+     * only the visible columns will be used. Defaults to `visible`.
+     */
+    export_columns: PropTypes.oneOf(['all', 'visible']),
 
     /**
      * Denotes the type of the export data file,

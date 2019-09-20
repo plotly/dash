@@ -3,10 +3,17 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+[#546](https://github.com/plotly/dash-table/issues/546)
+- New prop `export_columns` that takes values `all` or `visible` (default). This prop controls the columns used during export
+
 ### Fixed
 [#460](https://github.com/plotly/dash-table/issues/460)
 - The `datestartswith` relational operator now supports number comparison
 - Fixed a bug where the implicit operator for columns was `equal` instead of the expected default for the column type
+
+[#546](https://github.com/plotly/dash-table/issues/546)
+- Visible columns are used correctly for both header and data rows
 
 [#591](https://github.com/plotly/dash-table/issues/591)
 - Fixed row and column selection when multiple tables are present

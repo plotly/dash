@@ -12,7 +12,9 @@ import {
     Selection,
     SanitizedProps,
     SortAsNull,
-    TableAction
+    TableAction,
+    ExportFormat,
+    ExportHeaders
 } from 'dash-table/components/Table/props';
 import headerRows from 'dash-table/derived/header/headerRows';
 import resolveFlag from 'dash-table/derived/cell/resolveFlag';
@@ -79,10 +81,10 @@ export default class Sanitizer {
         const visibleColumns = this.getVisibleColumns(columns, props.hidden_columns);
 
         let headerFormat = props.export_headers;
-        if (props.export_format === 'xlsx' &&  R.isNil(headerFormat)) {
-            headerFormat = 'names';
-        } else if (props.export_format === 'csv' && R.isNil(headerFormat)) {
-            headerFormat = 'ids';
+        if (props.export_format === ExportFormat.Xlsx &&  R.isNil(headerFormat)) {
+            headerFormat =  ExportHeaders.Names;
+        } else if (props.export_format === ExportFormat.Csv && R.isNil(headerFormat)) {
+            headerFormat = ExportHeaders.Ids;
         }
 
         return R.merge(props, {

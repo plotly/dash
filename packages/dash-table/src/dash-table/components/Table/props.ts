@@ -23,6 +23,24 @@ export enum ColumnType {
     Datetime = 'datetime'
 }
 
+export enum ExportColumns {
+    All = 'all',
+    Visible = 'visible'
+}
+
+export enum ExportFormat {
+    Csv = 'csv',
+    Xlsx = 'xlsx',
+    None = 'none'
+}
+
+export enum ExportHeaders {
+    Ids = 'ids',
+    Names = 'names',
+    None = 'none',
+    Display = 'display'
+}
+
 export enum SortMode {
     Single = 'single',
     Multi = 'multi'
@@ -327,8 +345,9 @@ interface IDefaultProps {
     css: IStylesheetRule[];
     data: Data;
     editable: boolean;
-    export_format: 'csv' | 'xlsx' | 'none';
-    export_headers: 'ids' | 'names' | 'none' | 'display';
+    export_columns: ExportColumns;
+    export_format: ExportFormat;
+    export_headers: ExportHeaders;
     fill_width: boolean;
     filter_query: string;
     filter_action: TableAction;
