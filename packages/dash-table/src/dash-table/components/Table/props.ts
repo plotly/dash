@@ -203,7 +203,7 @@ interface IDatumObject {
 
 export interface IDropdownValue {
     label: string;
-    value: string | number;
+    value: string | number | boolean;
 }
 
 export interface IDropdown {

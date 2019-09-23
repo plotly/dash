@@ -17,7 +17,9 @@ export default class CellLabel extends PureComponent<IProps> {
         return (<div
             className={className}
         >
-            {value}
+            {typeof value === 'boolean' ?
+                value.toString() :
+                value}
         </div>);
     }
 }

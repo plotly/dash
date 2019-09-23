@@ -50,6 +50,9 @@ multi-line & ellipsis with `style_data` and other style props.
 [#583](https://github.com/plotly/dash-table/issues/583)
 - Fix regression when editing the content of a cell in a scrolled virtualized table
 
+[#539](https://github.com/plotly/dash-table/issues/539)
+- Fix bug where boolean values are not showing up in the table
+
 ## [4.2.0] - 2019-08-27
 ### Added
 [#317](https://github.com/plotly/dash-table/issues/317)
