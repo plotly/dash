@@ -13,7 +13,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.action_chains import ActionChains
 
-from selenium.common.exceptions import WebDriverException, TimeoutException
+from selenium.common.exceptions import (
+    WebDriverException,
+    TimeoutException,
+    MoveTargetOutOfBoundsException,
+)
 
 from dash.testing.wait import (
     text_to_equal,
@@ -429,6 +433,32 @@ class Browser(DashPageMixin):
             .send_keys(Keys.DELETE)
         ).perform()
 
+    def zoom_in_graph_by_ratio(
+        self, elem, start_point_ratio=0.5, zoom_ratio=0.2, compare=True
+    ):
+        """zoom out a graph by its dimension ratio
+        default start at middle with a rectangle of 20% of the dimension
+        """
+        prev = elem.get_attribute("innerHTML")
+        w, h = elem.size["width"], elem.size["height"]
+        try:
+            ActionChains(self.driver).move_to_element_with_offset(
+                elem, w * start_point_ratio, h * start_point_ratio
+            ).drag_and_drop_by_offset(
+                elem, w * zoom_ratio, h * zoom_ratio
+            ).perform()
+        except MoveTargetOutOfBoundsException:
+            logger.exception("graph offset outside of the boundary")
+        if compare:
+            assert prev != elem.get_attribute(
+                "innerHTML"
+            ), "SVG content should be different after zoom"
+
+    def click_at_coord_fractions(self, elem, fx, fy):
+        ActionChains(self.driver).move_to_element_with_offset(
+            elem, elem.size["width"] * fx, elem.size["height"] * fy
+        ).click().perform()
+
     def get_logs(self):
         """return a list of `SEVERE` level logs after last reset time stamps
         (default to 0, resettable by `reset_log_timestamp`. Chrome only
@@ -453,10 +483,10 @@ class Browser(DashPageMixin):
 
     def visit_and_snapshot(self, resource_path, hook_id, assert_check=True):
         try:
-            path = resource_path.lstrip('/')
+            path = resource_path.lstrip("/")
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
-            self.driver.get("{}/{}".format(self.server_url.rstrip('/'), path))
+            self.driver.get("{}/{}".format(self.server_url.rstrip("/"), path))
             self.wait_for_element_by_id(hook_id)
             self.percy_snapshot(path)
             if assert_check:
