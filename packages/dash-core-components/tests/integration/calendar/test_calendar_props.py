@@ -14,10 +14,16 @@ DAY_SELECTOR = 'div[data-visible="true"] td.CalendarDay'
 def test_cdpr001_date_clearable_true_works(dash_duo):
 
     app = dash.Dash(__name__)
-    app.layout = html.Div([dcc.DatePickerRange(id="dpr", clearable=True)])
+    app.layout = html.Div(
+        [
+            dcc.DatePickerRange(id="dpr", clearable=True),
+            dcc.DatePickerSingle(id="dps", clearable=True),
+        ]
+    )
 
     dash_duo.start_server(app)
 
+    # DPR
     start_date = dash_duo.find_element('input[aria-label="Start Date"]')
     end_date = dash_duo.find_element('input[aria-label="End Date"]')
 
@@ -33,11 +39,20 @@ def test_cdpr001_date_clearable_true_works(dash_duo):
     ), "both start date and end date should get values"
 
     close_btn.click()
-    assert not start_date.get_attribute(
-        "value"
-    ) and not end_date.get_attribute(
+    assert not start_date.get_attribute("value") and not end_date.get_attribute(
         "value"
     ), "both start and end dates should be cleared"
+
+    # DPS
+    date = dash_duo.find_element("#dps input")
+    date.click()
+
+    dash_duo.find_elements(DAY_SELECTOR)[0].click()
+    close_btn = dash_duo.wait_for_element("#dps button")
+
+    assert date.get_attribute("value"), "single date should get a value"
+    close_btn.click()
+    assert not date.get_attribute("value"), "date should be cleared"
 
 
 def test_cdpr002_updatemodes(dash_duo):
@@ -76,16 +91,14 @@ def test_cdpr002_updatemodes(dash_duo):
     end_date.click()
 
     assert (
-        dash_duo.find_element("#date-picker-range-output").text
-        == "None - None"
+        dash_duo.find_element("#date-picker-range-output").text == "None - None"
     ), "the output should not update when both clicked but no selection happen"
 
     start_date.click()
 
     dash_duo.find_elements(DAY_SELECTOR)[4].click()
     assert (
-        dash_duo.find_element("#date-picker-range-output").text
-        == "None - None"
+        dash_duo.find_element("#date-picker-range-output").text == "None - None"
     ), "the output should not update when only one is selected"
 
     eday = dash_duo.find_elements(DAY_SELECTOR)[-4]
