@@ -434,18 +434,19 @@ class Browser(DashPageMixin):
         ).perform()
 
     def zoom_in_graph_by_ratio(
-        self, elem, start_point_ratio=0.5, zoom_ratio=0.2, compare=True
+        self, elem, start_fraction=0.5, zoom_box_fraction=0.2, compare=True
     ):
-        """zoom out a graph by its dimension ratio
-        default start at middle with a rectangle of 20% of the dimension
+        """zoom out a graph with a zoom box fraction of component dimension
+        default start at middle with a rectangle of 1/5 of the dimension
+        use `compare` to control if we check the svg get changed
         """
         prev = elem.get_attribute("innerHTML")
         w, h = elem.size["width"], elem.size["height"]
         try:
             ActionChains(self.driver).move_to_element_with_offset(
-                elem, w * start_point_ratio, h * start_point_ratio
+                elem, w * start_fraction, h * start_fraction
             ).drag_and_drop_by_offset(
-                elem, w * zoom_ratio, h * zoom_ratio
+                elem, w * zoom_box_fraction, h * zoom_box_fraction
             ).perform()
         except MoveTargetOutOfBoundsException:
             logger.exception("graph offset outside of the boundary")
