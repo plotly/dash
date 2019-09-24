@@ -127,8 +127,9 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate && cd packages && ls -la && mv dash-*.tar.gz main.tar.gz
-            pip install --no-cache-dir main.tar.gz[testing] --quiet && pip list | grep dash | xargs pip uninstall -y
-            find . -name "dash*.gz" | xargs pip install --no-cache-dir && pip install --no-cache-dir main.tar.gz && pip list | grep dash && cd ..
+            pip install --no-cache-dir main.tar.gz[testing]
+            find . -name "dash*.gz" | xargs pip install -I --no-cache-dir
+            pip list | grep 'dash|plotly' && cd ..
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
@@ -173,8 +174,9 @@ jobs:
           name: 🧪 Run Legacy Integration Tests
           command: |
             . venv/bin/activate && cd packages && ls -la && mv dash-*.tar.gz main.tar.gz
-            pip install --no-cache-dir main.tar.gz[testing] --quiet && pip list | grep dash | xargs pip uninstall -y
-            find . -name "dash*.gz" | xargs pip install --no-cache-dir && pip install --no-cache-dir main.tar.gz && pip list | grep dash && cd ..
+            pip install -I --no-cache-dir main.tar.gz[testing]
+            find . -name "dash*.gz" | xargs pip install -I --no-cache-dir
+            pip list | grep 'dash|plotly' && cd ..
             npm run test:pyimport
             TESTFILES=$(circleci tests glob "tests/test_integration_*.py" | circleci tests split --split-by=timings)
             pytest --durations=10 --junitxml=test-reports/junit_legacy.xml ${TESTFILES}
