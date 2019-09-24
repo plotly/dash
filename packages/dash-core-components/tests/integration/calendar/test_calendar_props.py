@@ -7,7 +7,7 @@ import dash
 from dash.dependencies import Input, Output
 import dash.testing.wait as wait
 
-DAY_SELECTOR = 'div[data-visible="true"] td.CalendarDay'
+from consts import DATE_PICKER_DAY_SELECTOR
 
 
 @pytest.mark.DCC594
@@ -29,8 +29,8 @@ def test_cdpr001_date_clearable_true_works(dash_duo):
 
     start_date.click()
 
-    dash_duo.find_elements(DAY_SELECTOR)[0].click()
-    dash_duo.find_elements(DAY_SELECTOR)[-1].click()
+    dash_duo.find_elements(DATE_PICKER_DAY_SELECTOR)[0].click()
+    dash_duo.find_elements(DATE_PICKER_DAY_SELECTOR)[-1].click()
 
     close_btn = dash_duo.wait_for_element('button[aria-label="Clear Dates"]')
 
@@ -47,7 +47,7 @@ def test_cdpr001_date_clearable_true_works(dash_duo):
     date = dash_duo.find_element("#dps input")
     date.click()
 
-    dash_duo.find_elements(DAY_SELECTOR)[0].click()
+    dash_duo.find_elements(DATE_PICKER_DAY_SELECTOR)[0].click()
     close_btn = dash_duo.wait_for_element("#dps button")
 
     assert date.get_attribute("value"), "single date should get a value"
@@ -96,12 +96,12 @@ def test_cdpr002_updatemodes(dash_duo):
 
     start_date.click()
 
-    dash_duo.find_elements(DAY_SELECTOR)[4].click()
+    dash_duo.find_elements(DATE_PICKER_DAY_SELECTOR)[4].click()
     assert (
         dash_duo.find_element("#date-picker-range-output").text == "None - None"
     ), "the output should not update when only one is selected"
 
-    eday = dash_duo.find_elements(DAY_SELECTOR)[-4]
+    eday = dash_duo.find_elements(DATE_PICKER_DAY_SELECTOR)[-4]
     wait.until(lambda: eday.is_displayed() and eday.is_enabled(), timeout=2)
     eday.click()
 
