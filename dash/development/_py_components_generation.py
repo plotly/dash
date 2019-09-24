@@ -449,8 +449,8 @@ def create_prop_docstring(prop_name, type_object, required, description,
 
     if '\n' in py_type_name:
         return '{indent_spacing}- {name} (dict; {is_required}): ' \
-            '{description}{period}' \
-            '{name} has the following type: {type}'.format(
+            '{description}{period}\n' \
+            '{indent_spacing}{name} is a {type}'.format(
                 indent_spacing=indent_spacing,
                 name=prop_name,
                 type=py_type_name,
@@ -472,11 +472,7 @@ def map_js_to_py_types_prop_types(type_object):
     """Mapping from the PropTypes js type object to the Python type"""
 
     def shape_or_exact():
-        return 'dict containing keys {}.\n{}'.format(
-            ', '.join(
-                "'{}'".format(t) for t in list(type_object['value'].keys())
-            ),
-            'Those keys have the following types:\n{}'.format(
+        return 'dict with keys:\n{}'.format(
                 '\n'.join(
                     create_prop_docstring(
                         prop_name=prop_name,
@@ -487,7 +483,6 @@ def map_js_to_py_types_prop_types(type_object):
                         indent_num=1
                     ) for prop_name, prop in
                     list(type_object['value'].items())))
-            )
 
     return dict(
         array=lambda: 'list',

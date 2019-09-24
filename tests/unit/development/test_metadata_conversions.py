@@ -29,11 +29,10 @@ expected_arg_strings = OrderedDict(
             "optionalObjectWithExactAndNestedDescription",
             "\n".join(
                 [
-                    "dict containing keys 'color', 'fontSize', 'figure'.",
-                    "Those keys have the following types:",
+                    "dict with keys:",
                     "  - color (string; optional)",
                     "  - fontSize (number; optional)",
-                    "  - figure (dict; optional): Figure is a plotly graph object.",
+                    "  - figure (dict; optional): Figure is a plotly graph object. ",
                     # noqa: E501
                     "  figure is a dict with keys:",
                     "  - data (list of dicts; optional): data is a collection of traces",
@@ -45,11 +44,10 @@ expected_arg_strings = OrderedDict(
             "optionalObjectWithShapeAndNestedDescription",
             "\n".join(
                 [
-                    "dict containing keys 'color', 'fontSize', 'figure'.",
-                    "Those keys have the following types:",
+                    "dict with keys:",
                     "  - color (string; optional)",
                     "  - fontSize (number; optional)",
-                    "  - figure (dict; optional): Figure is a plotly graph object.",
+                    "  - figure (dict; optional): Figure is a plotly graph object. ",
                     # noqa: E501
                     "  figure is a dict with keys:",
                     "  - data (list of dicts; optional): data is a collection of traces",
