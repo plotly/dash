@@ -29,7 +29,7 @@ $ pip list | grep dash
 
 If you want to contribute or simply dig deeper into Dash, we encourage you to play and taste it. This is the most efficient way to learn and understand everything under the hood.
 
-For contributors with a primarily **Python** or **R** background, this section might help you understand more details about developing and debugging in Javascript world.
+For contributors with a primarily **Python** or **R** background, this section might help you understand more details about developing and debugging in JavaScript world.
 
 As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and generated from the source code. The `dash-renderer\package.json` file is the one version of the truth for dash renderer version and npm dependencies. A build tool `renderer`, which is a tiny Python script installed by Dash as a command-line tool, has a few commands:
 
