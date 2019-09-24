@@ -97,6 +97,15 @@ describe('Single Column Syntax Tree', () => {
         expect(tree.toQueryString()).to.equal('{a} = 1');
     });
 
+    it.only('can be permissive value expression', () => {
+        const tree = new SingleColumnSyntaxTree('Hello world', COLUMN_TEXT);
+
+        expect(tree.isValid).to.equal(true);
+        expect(tree.evaluate({ a: 'Hello world' })).to.equal(true);
+        expect(tree.evaluate({ a: 'Helloworld' })).to.equal(false);
+        expect(tree.toQueryString()).to.equal('{a} contains "Hello world"');
+    });
+
     it('`undefined` column type can use `contains`', () => {
         const tree = new SingleColumnSyntaxTree('contains 1', COLUMN_UNDEFINED);
 

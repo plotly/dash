@@ -19,6 +19,7 @@ import {
     notEqual
 } from '../lexeme/relational';
 import {
+    isBlank,
     isBool,
     isEven,
     isNil,
@@ -56,7 +57,8 @@ const lexicon: ILexeme[] = [
         if: ifRelationalOperator,
         terminal: false
     })),
-    ...[isBool,
+    ...[isBlank,
+        isBool,
         isEven,
         isNil,
         isNum,

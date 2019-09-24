@@ -21,6 +21,7 @@ export interface IUnboundedLexeme {
     regexp: RegExp;
     regexpMatch?: number;
     syntaxer?: (lexs: any[], pivot: any, pivotIndex: number) => any;
+    transform?: (value: any) => any;
 }
 
 export interface ILexeme extends IUnboundedLexeme {

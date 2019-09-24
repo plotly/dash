@@ -338,6 +338,16 @@ describe('Query Syntax Tree', () => {
             expect(tree.evaluate(data3)).to.equal(false);
         });
 
+        it('can check blank', () => {
+            const tree = new QuerySyntaxTree('{d} is blank');
+
+            expect(tree.isValid).to.equal(true);
+            expect(tree.evaluate(data0)).to.equal(true);
+            expect(tree.evaluate(data1)).to.equal(false);
+            expect(tree.evaluate(data2)).to.equal(true);
+            expect(tree.evaluate(data3)).to.equal(false);
+        });
+
         it('can invert check nil', () => {
             const tree = new QuerySyntaxTree('!({d} is nil)');
 

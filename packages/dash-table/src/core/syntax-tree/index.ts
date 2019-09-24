@@ -79,7 +79,7 @@ export default class SyntaxTree {
 
     toQueryString() {
         return this.lexerResult.valid ?
-            R.map(l => l.value, this.lexerResult.lexemes).join(' ') :
+            R.map(l => l.lexeme.transform ? l.lexeme.transform(l.value) : l.value, this.lexerResult.lexemes).join(' ') :
             '';
     }
 

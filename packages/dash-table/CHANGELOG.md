@@ -7,6 +7,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [#546](https://github.com/plotly/dash-table/issues/546)
 - New prop `export_columns` that takes values `all` or `visible` (default). This prop controls the columns used during export
 
+[#597](https://github.com/plotly/dash-table/issues/597)
+- Add `is blank` unary operator. Returns true for `undefined`, `null` and `''`.
+
+### Changed
+[#598](https://github.com/plotly/dash-table/issues/598)
+- Allow values with whitespaces in column filters
+
 ### Fixed
 [#460](https://github.com/plotly/dash-table/issues/460)
 - The `datestartswith` relational operator now supports number comparison

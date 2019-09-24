@@ -1,7 +1,7 @@
 import {
     fieldExpression,
     stringExpression,
-    valueExpression
+    permissiveValueExpression
 } from '../lexeme/expression';
 import {
     contains,
@@ -14,6 +14,7 @@ import {
     notEqual
 } from '../lexeme/relational';
 import {
+    isBlank,
     isBool,
     isEven,
     isNil,
@@ -45,7 +46,8 @@ const lexicon: ILexeme[] = [
         if: ifLeading,
         terminal: false
     })),
-    ...[isBool,
+    ...[isBlank,
+        isBool,
         isEven,
         isNil,
         isNum,
@@ -60,8 +62,8 @@ const lexicon: ILexeme[] = [
     })),
     ...[
         fieldExpression,
-        stringExpression,
-        valueExpression
+        permissiveValueExpression,
+        stringExpression
     ].map(exp => ({
         ...exp,
         if: ifExpression,

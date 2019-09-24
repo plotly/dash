@@ -30,7 +30,7 @@ function relationalSyntaxer([left, lexeme]: any[]) {
 }
 
 function relationalEvaluator(
-    fn: (opValue: any[]) => boolean
+    fn: (opValue: any) => boolean
 ) {
     return (target: any, tree: ISyntaxTree) => fn(evaluator(target, tree));
 }
@@ -73,6 +73,11 @@ export const isBool: IUnboundedLexeme = R.merge({
 export const isEven: IUnboundedLexeme = R.merge({
     evaluate: relationalEvaluator(opValue => typeof opValue === 'number' && opValue % 2 === 0),
     regexp: /^(is even)/i
+}, LEXEME_BASE);
+
+export const isBlank: IUnboundedLexeme = R.merge({
+    evaluate: relationalEvaluator(opValue => opValue === undefined || opValue === null || opValue === ''),
+    regexp: /^(is blank)/i
 }, LEXEME_BASE);
 
 export const isNil: IUnboundedLexeme = R.merge({
