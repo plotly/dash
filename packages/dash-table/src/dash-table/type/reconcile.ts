@@ -1,3 +1,5 @@
+import * as R from 'ramda';
+
 import {
     ChangeAction,
     ChangeFailure,
@@ -9,6 +11,7 @@ import reconcileAny from './any';
 import { coerce as coerceNumber, validate as validateNumber } from './number';
 import { coerce as coerceText, validate as validateText } from './text';
 import { coerce as coerceDate, validate as validateDate } from './date';
+import { OptionalPluck } from 'core/type';
 
 export interface IReconciliation {
     action?: ChangeAction;
@@ -17,7 +20,11 @@ export interface IReconciliation {
     value?: any;
 }
 
-function getCoercer(c: IColumnType): (value: any, c?: any) => IReconciliation {
+type Options = OptionalPluck<IColumnType, 'on_change'> &
+    OptionalPluck<IColumnType, 'type'> &
+    OptionalPluck<IColumnType, 'validation'>;
+
+function getCoercer(c: Options): (value: any, c?: any) => IReconciliation {
     switch (c.type) {
         case ColumnType.Numeric:
             return coerceNumber;
@@ -31,7 +38,7 @@ function getCoercer(c: IColumnType): (value: any, c?: any) => IReconciliation {
     }
 }
 
-function getValidator(c: IColumnType): (value: any, c?: any) => IReconciliation {
+function getValidator(c: Options): (value: any, c?: any) => IReconciliation {
     switch (c.type) {
         case ColumnType.Numeric:
             return validateNumber;
@@ -45,7 +52,7 @@ function getValidator(c: IColumnType): (value: any, c?: any) => IReconciliation 
     }
 }
 
-function doAction(value: any, c: IColumnType) {
+function doAction(value: any, c: Options) {
     const action = (c && c.on_change && c.on_change.action) || ChangeAction.Coerce;
 
     switch (action) {
@@ -58,13 +65,14 @@ function doAction(value: any, c: IColumnType) {
     }
 }
 
-function doFailureRecovery(result: IReconciliation, c: IColumnType) {
+function doFailureRecovery(result: IReconciliation, c: Options) {
     // If c/v unsuccessful, process failure
     const failure = (c && c.on_change && c.on_change.failure) || ChangeFailure.Reject;
     result.failure = failure;
 
     if (failure === ChangeFailure.Default) {
-        const defaultValue = (c && c.validation && c.validation.default) || null;
+        const validationDefault = c && c.validation && c.validation.default;
+        const defaultValue = R.isNil(validationDefault) ? null : validationDefault;
         result.success = true;
         result.value = defaultValue;
     } else if (failure === ChangeFailure.Accept) {
@@ -74,7 +82,7 @@ function doFailureRecovery(result: IReconciliation, c: IColumnType) {
     return result;
 }
 
-export default (value: any, c: IColumnType) => {
+export default (value: any, c: Options) => {
     let res: IReconciliation = doAction(value, c);
 
     if (res.success) {

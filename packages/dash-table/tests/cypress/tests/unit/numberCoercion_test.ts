@@ -3,7 +3,8 @@ import { isNully } from 'dash-table/type/null';
 import { coerce } from 'dash-table/type/number';
 
 const DEFAULT_COERCE_SUCCESS = [
-    { input: 42, output: 42, name: 'from number' },
+    { input: 0, output: 0, name: 'from number (0)' },
+    { input: 42, output: 42, name: 'from number (42)' },
     { input: '42', output: 42, name: 'from number string' },
     { input: '-42', output: -42, name: 'from negative number string' },
     { input: '4.242', output: 4.242, name: 'from float string' },

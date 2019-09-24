@@ -3,7 +3,8 @@ import { isNully } from 'dash-table/type/null';
 import { validate } from 'dash-table/type/number';
 
 const DEFAULT_VALIDATE_SUCCESS = [
-    { input: 42, output: 42, name: 'from number' }
+    { input: 0, output: 0, name: 'from number (0)' },
+    { input: 42, output: 42, name: 'from number (42)' }
 ];
 
 const ALLOW_NULL_VALIDATE_SUCCESS = [

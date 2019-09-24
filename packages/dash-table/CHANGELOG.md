@@ -25,6 +25,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [#591](https://github.com/plotly/dash-table/issues/591)
 - Fixed row and column selection when multiple tables are present
 
+[#600](https://github.com/plotly/dash-table/issues/600)
+- Fixed reconciliation when validation default value is `0` (number)
+- Apply reconciliation value when deleting cells, if possible
+
 ## [4.3.0] - 2019-09-17
 ### Added
 [#566](https://github.com/plotly/dash-table/pull/566)
