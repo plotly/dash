@@ -27,15 +27,15 @@ import {
     type,
     view,
 } from 'ramda';
-import {createAction} from 'redux-actions';
-import {crawlLayout, hasId} from '../reducers/utils';
-import {getAppState} from '../reducers/constants';
-import {getAction} from './constants';
+import { createAction } from 'redux-actions';
+import { crawlLayout, hasId } from '../reducers/utils';
+import { getAppState } from '../reducers/constants';
+import { getAction } from './constants';
 import cookie from 'cookie';
-import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
-import {STATUS} from '../constants/constants';
+import { uid, urlBase, isMultiOutputProp, parseMultipleOutputs } from '../utils';
+import { STATUS } from '../constants/constants';
 import Registry from './../registry';
-import {applyPersistence, prunePersistence} from '../persistence';
+import { applyPersistence, prunePersistence } from '../persistence';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
@@ -49,7 +49,7 @@ export const onError = createAction(getAction('ON_ERROR'));
 export const resolveError = createAction(getAction('RESOLVE_ERROR'));
 
 export function hydrateInitialOutputs() {
-    return function(dispatch, getState) {
+    return function (dispatch, getState) {
         triggerDefaultState(dispatch, getState);
         dispatch(setAppLifecycle(getAppState('HYDRATED')));
     };
@@ -62,8 +62,8 @@ export function getCSRFHeader() {
 }
 
 function triggerDefaultState(dispatch, getState) {
-    const {graphs} = getState();
-    const {InputGraph, MultiGraph} = graphs;
+    const { graphs } = getState();
+    const { InputGraph, MultiGraph } = graphs;
     const allNodes = InputGraph.overallOrder();
     // overallOrder will assert circular dependencies for multi output.
 
@@ -110,7 +110,7 @@ function triggerDefaultState(dispatch, getState) {
         dispatch(
             notifyObservers({
                 id: componentId,
-                props: {[componentProp]: propValue},
+                props: { [componentProp]: propValue },
                 excludedOutputs: inputOutput.excludedOutputs,
             })
         );
@@ -118,7 +118,7 @@ function triggerDefaultState(dispatch, getState) {
 }
 
 export function redo() {
-    return function(dispatch, getState) {
+    return function (dispatch, getState) {
         const history = getState().history;
         dispatch(createAction('REDO')());
         const next = history.future[0];
@@ -152,7 +152,7 @@ export function revert() {
 }
 
 function undo_revert(undo_or_revert) {
-    return function(dispatch, getState) {
+    return function (dispatch, getState) {
         const history = getState().history;
         dispatch(undo_or_revert);
         const previous = history.past[history.past.length - 1];
@@ -222,23 +222,23 @@ const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
 const isSimpleComponent = component =>
     contains(type(component), SIMPLE_COMPONENT_TYPES);
 
-function findComponent(targetId, layout) {
+const isAppReadyImpl = layout => {
     const queue = [layout];
+
+    const res = {};
 
     while (queue.length) {
         const elementLayout = queue.shift();
-
-        const props = elementLayout && elementLayout.props;
-
-        if (!props) {
+        if (!elementLayout) {
             continue;
         }
 
-        const {children, id} = props;
+        const children = elementLayout.props && elementLayout.props.children;
+        const namespace = elementLayout.namespace;
+        const type = elementLayout.type;
 
-        if (id === targetId) {
-            return Registry.resolve(elementLayout);
-        }
+        res[namespace] = res[namespace] || {};
+        res[namespace][type] = type;
 
         if (children) {
             const filteredChildren = filter(
@@ -250,28 +250,52 @@ function findComponent(targetId, layout) {
         }
     }
 
-    return null;
-}
+    const promises = [];
+    Object.entries(res).forEach(([namespace, item]) => {
+        Object.entries(item).forEach(([type]) => {
+            const component = Registry.resolve({
+                namespace,
+                type,
+            });
+
+            const isReady =
+                component && component._dashprivate_isLazyComponentReady;
+
+            if (isReady && typeof isReady.then === 'function') {
+                promises.push(isReady);
+            }
+        });
+    });
+
+    return promises.length ? Promise.all(promises) : true;
+};
+
+/**
+ * TODO Resolve this and put it in the state?
+ */
+const isAppReady = (() => {
+    let lastLayout;
+    let lastResult;
+
+    return layout =>
+        layout === lastLayout
+            ? lastResult
+            : (lastLayout = layout) && (lastResult = isAppReadyImpl(layout));
+})();
 
 export function notifyObservers(payload) {
-    return async function(dispatch, getState) {
-        const {id, props, excludedOutputs} = payload;
+    return async function (dispatch, getState) {
+        const { id, props, excludedOutputs } = payload;
 
-        const {graphs, layout, requestQueue} = getState();
+        const { graphs, layout, requestQueue } = getState();
 
-        const component = findComponent(id, layout);
-        const isReady =
-            component && component._dashprivate_isLazyComponentReady;
+        const ready = isAppReady(layout);
 
-        if (
-            isReady !== true &&
-            isReady !== null &&
-            typeof isReady !== 'undefined'
-        ) {
-            await component._dashprivate_isLazyComponentReady;
+        if (ready !== true) {
+            await ready;
         }
 
-        const {InputGraph} = graphs;
+        const { InputGraph } = graphs;
         /*
          * Figure out all of the output id's that depend on this input.
          * This includes id's that are direct children as well as
@@ -451,8 +475,8 @@ function updateOutput(
     dispatch,
     changedPropIds
 ) {
-    const {config, layout, graphs, dependenciesRequest, hooks} = getState();
-    const {InputGraph} = graphs;
+    const { config, layout, graphs, dependenciesRequest, hooks } = getState();
+    const { InputGraph } = graphs;
 
     const getThisRequestIndex = () => {
         const postRequestQueue = getState().requestQueue;
@@ -522,15 +546,15 @@ function updateOutput(
         if (!includes(inputObject.id, validKeys)) {
             throw new ReferenceError(
                 'An invalid input object was used in an ' +
-                    '`Input` of a Dash callback. ' +
-                    'The id of this object is `' +
-                    inputObject.id +
-                    '` and the property is `' +
-                    inputObject.property +
-                    '`. The list of ids in the current layout is ' +
-                    '`[' +
-                    validKeys.join(', ') +
-                    ']`'
+                '`Input` of a Dash callback. ' +
+                'The id of this object is `' +
+                inputObject.id +
+                '` and the property is `' +
+                inputObject.property +
+                '`. The list of ids in the current layout is ' +
+                '`[' +
+                validKeys.join(', ') +
+                ']`'
             );
         }
         const propLens = lensPath(
@@ -558,15 +582,15 @@ function updateOutput(
             if (!includes(stateObject.id, validKeys)) {
                 throw new ReferenceError(
                     'An invalid input object was used in a ' +
-                        '`State` object of a Dash callback. ' +
-                        'The id of this object is `' +
-                        stateObject.id +
-                        '` and the property is `' +
-                        stateObject.property +
-                        '`. The list of ids in the current layout is ' +
-                        '`[' +
-                        validKeys.join(', ') +
-                        ']`'
+                    '`State` object of a Dash callback. ' +
+                    'The id of this object is `' +
+                    stateObject.id +
+                    '` and the property is `' +
+                    stateObject.property +
+                    '`. The list of ids in the current layout is ' +
+                    '`[' +
+                    validKeys.join(', ') +
+                    ']`'
                 );
             }
             const propLens = lensPath(
@@ -584,7 +608,7 @@ function updateOutput(
     }
 
     function doUpdateProps(id, updatedProps) {
-        const {layout, paths} = getState();
+        const { layout, paths } = getState();
         const itempath = paths[id];
         if (!itempath) {
             return false;
@@ -601,7 +625,7 @@ function updateOutput(
 
         // In case the update contains whole components, see if any of
         // those components have props to update to persist user edits.
-        const {props} = applyPersistence({props: updatedProps2}, dispatch);
+        const { props } = applyPersistence({ props: updatedProps2 }, dispatch);
 
         dispatch(
             updateProps({
@@ -628,7 +652,7 @@ function updateOutput(
             /* eslint-disable no-console */
             console.error(
                 `The following error occurred while executing ${clientside_function.namespace}.${clientside_function.function_name} ` +
-                    `in order to update component "${payload.output}" ⋁⋁⋁`
+                `in order to update component "${payload.output}" ⋁⋁⋁`
             );
             console.error(e);
             /* eslint-enable no-console */
@@ -648,10 +672,10 @@ function updateOutput(
             /* eslint-disable no-console */
             console.error(
                 'The clientside function ' +
-                    `${clientside_function.namespace}.${clientside_function.function_name} ` +
-                    'returned a Promise instead of a value. Promises are not ' +
-                    'supported in Dash clientside right now, but may be in the ' +
-                    'future.'
+                `${clientside_function.namespace}.${clientside_function.function_name} ` +
+                'returned a Promise instead of a value. Promises are not ' +
+                'supported in Dash clientside right now, but may be in the ' +
+                'future.'
             );
             /* eslint-enable no-console */
             updateRequestQueue(true, STATUS.CLIENTSIDE_ERROR);
@@ -924,7 +948,7 @@ function updateOutput(
                                     depOrder.indexOf(b.input),
                                 reducedNodeIds
                             );
-                            sortedNewProps.forEach(function(inputOutput) {
+                            sortedNewProps.forEach(function (inputOutput) {
                                 const payload = newProps[inputOutput.input];
                                 payload.excludedOutputs =
                                     inputOutput.excludedOutputs;
@@ -972,7 +996,7 @@ function updateOutput(
                 isMultiOutputProp(payload.output)
                     ? parseMultipleOutputs(payload.output).join(', ')
                     : payload.output
-            }`;
+                }`;
             handleAsyncError(err, message, dispatch);
         });
 }
@@ -999,8 +1023,8 @@ export function handleAsyncError(err, message, dispatch) {
 
 export function serialize(state) {
     // Record minimal input state in the url
-    const {graphs, paths, layout} = state;
-    const {InputGraph} = graphs;
+    const { graphs, paths, layout } = state;
+    const { InputGraph } = graphs;
     const allNodes = InputGraph.nodes;
     const savedState = {};
     keys(allNodes).forEach(nodeId => {
