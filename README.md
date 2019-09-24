@@ -36,7 +36,7 @@ To learn more about Dash, read the [extensive announcement letter](https://mediu
 For companies with software budgets, Plotly offers
 
 - [**Dash Deployment Server**](https://plot.ly/products/dash/)  speeds your time-to-delivery while providing the right resources, security, and scalability you need to deliver production-quality apps
-- [**Dash Design Kit**](https://plot.ly/products/dash/) makes your internal dashboard awesome without expertise in Javascript & CSS.
+- [**Dash Design Kit**](https://plot.ly/products/dash/) makes your internal dashboard awesome without expertise in JavaScript & CSS.
 - [**Snapshot Engine**](https://plot.ly/products/dash/) seamlessly links your analytics and reporting workflows together, giving you a fast way to generate interactive reports of just the data you need
 
 See [https://plot.ly/dash/support](https://plot.ly/dash/support) for ways to get in touch.

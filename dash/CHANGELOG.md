@@ -1,3 +1,9 @@
+## Unreleased
+
+### Added
+
+- [#937](https://github.com/plotly/dash/pull/937) `dash.testing` adds two APIs `zoom_in_graph_by_ratio` and `click_at_coord_fractions` about advanced interactions using mouse `ActionChain`
+
 ## [1.3.1] - 2019-09-19
 ### Changed
 - Bumped dash-core-components version from 1.2.0 to [1.2.1](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#120---2019-09-19)

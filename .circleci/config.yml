@@ -40,7 +40,7 @@ jobs:
           command: |
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
+            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
@@ -97,7 +97,7 @@ jobs:
             sudo pip install --upgrade virtualenv
             python -m venv venv || virtualenv venv && . venv/bin/activate
             sed -i '/dash-/d' requires-install.txt
-            pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
+            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
@@ -105,7 +105,7 @@ jobs:
       - run:
           name: ️️🏗️ build core
           command: |
-              . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
+              . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --quiet && mkdir packages
               python setup.py sdist && mv dist/* packages/
               cd dash-renderer && renderer build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-core-components.git
@@ -147,9 +147,9 @@ jobs:
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
-            sudo pip install --upgrade virtualenv
+            sudo pip install --upgrade virtualenv --quiet
             python -m venv venv || virtualenv venv && . venv/bin/activate
-            pip install -e . -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
+            pip install -e . --no-cache-dir -r requires-install.txt -r requires-dev.txt -r requires-testing.txt --quiet
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requires-dev.txt" }}-{{ checksum "requires-install.txt" }}-{{ checksum "requires-testing.txt" }}
           paths:
@@ -157,7 +157,7 @@ jobs:
       - run:
           name: ️️🏗️ build misc
           command: |
-              . venv/bin/activate && pip install --upgrade -e . --quiet && mkdir packages
+              . venv/bin/activate && pip install --no-cache-dir --upgrade -e . --quiet && mkdir packages
               git clone --depth 1 https://github.com/plotly/dash-table.git
               cd dash-table && npm install --ignore-scripts && npm run build && python setup.py sdist && mv dist/* ../packages/ && cd ..
               git clone --depth 1 https://github.com/plotly/dash-html-components.git
@@ -201,7 +201,7 @@ jobs:
           name: 🧪 Run Integration Tests
           command: |
             . venv/bin/activate && cd packages && ls -la
-            find . -name "*.gz" | xargs pip install --ignore-installed && pip list | grep dash && cd ..
+            find . -name "*.gz" | xargs pip install --no-cache-dir --ignore-installed && pip list | grep dash && cd ..
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
