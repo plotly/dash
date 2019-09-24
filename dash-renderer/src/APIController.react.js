@@ -9,6 +9,7 @@ import {
     computePaths,
     hydrateInitialOutputs,
     setLayout,
+    setAppIsReady,
 } from './actions/index';
 import {applyPersistence} from './persistence';
 import apiThunk from './actions/api';
@@ -54,6 +55,7 @@ class UnconnectedContainer extends Component {
                     dispatch
                 );
                 dispatch(setLayout(finalLayout));
+                dispatch(setAppIsReady());
             } else if (isNil(paths)) {
                 dispatch(computePaths({subTree: layout, startingPath: []}));
             }

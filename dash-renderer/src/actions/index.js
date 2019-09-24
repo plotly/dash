@@ -5,7 +5,6 @@ import {
     append,
     concat,
     contains,
-    filter,
     findIndex,
     findLastIndex,
     flatten,
@@ -34,19 +33,21 @@ import {getAction} from './constants';
 import cookie from 'cookie';
 import {uid, urlBase, isMultiOutputProp, parseMultipleOutputs} from '../utils';
 import {STATUS} from '../constants/constants';
-import Registry from './../registry';
 import {applyPersistence, prunePersistence} from '../persistence';
+import setAppIsReady from './setAppReadyState';
 
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
 export const computeGraphs = createAction(getAction('COMPUTE_GRAPHS'));
 export const computePaths = createAction(getAction('COMPUTE_PATHS'));
-export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
 export const setConfig = createAction(getAction('SET_CONFIG'));
 export const setHooks = createAction(getAction('SET_HOOKS'));
+export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const onError = createAction(getAction('ON_ERROR'));
 export const resolveError = createAction(getAction('RESOLVE_ERROR'));
+
+export {setAppIsReady};
 
 export function hydrateInitialOutputs() {
     return function(dispatch, getState) {
@@ -131,6 +132,8 @@ export function redo() {
             })
         );
 
+        dispatch(setAppIsReady());
+
         // Notify observers
         dispatch(
             notifyObservers({
@@ -164,6 +167,8 @@ function undo_revert(undo_or_revert) {
                 props: previous.props,
             })
         );
+
+        dispatch(setAppIsReady());
 
         // Notify observers
         dispatch(
@@ -218,81 +223,18 @@ function reduceInputIds(nodeIds, InputGraph) {
     return sortedInputOutputPairs;
 }
 
-const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
-const isSimpleComponent = component =>
+export const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
+export const isSimpleComponent = component =>
     contains(type(component), SIMPLE_COMPONENT_TYPES);
-
-const isAppReadyImpl = layout => {
-    const queue = [layout];
-
-    const res = {};
-
-    while (queue.length) {
-        const elementLayout = queue.shift();
-        if (!elementLayout) {
-            continue;
-        }
-
-        const children = elementLayout.props && elementLayout.props.children;
-        const namespace = elementLayout.namespace;
-        const type = elementLayout.type;
-
-        res[namespace] = res[namespace] || {};
-        res[namespace][type] = type;
-
-        if (children) {
-            const filteredChildren = filter(
-                child => !isSimpleComponent(child),
-                Array.isArray(children) ? children : [children]
-            );
-
-            queue.push(...filteredChildren);
-        }
-    }
-
-    const promises = [];
-    Object.entries(res).forEach(([namespace, item]) => {
-        Object.entries(item).forEach(([type]) => {
-            const component = Registry.resolve({
-                namespace,
-                type,
-            });
-
-            const isReady =
-                component && component._dashprivate_isLazyComponentReady;
-
-            if (isReady && typeof isReady.then === 'function') {
-                promises.push(isReady);
-            }
-        });
-    });
-
-    return promises.length ? Promise.all(promises) : true;
-};
-
-/**
- * TODO Resolve this and put it in the state?
- */
-const isAppReady = (() => {
-    let lastLayout;
-    let lastResult;
-
-    return layout =>
-        layout === lastLayout
-            ? lastResult
-            : (lastLayout = layout) && (lastResult = isAppReadyImpl(layout));
-})();
 
 export function notifyObservers(payload) {
     return async function(dispatch, getState) {
         const {id, props, excludedOutputs} = payload;
 
-        const {graphs, layout, requestQueue} = getState();
+        const {graphs, isAppReady, requestQueue} = getState();
 
-        const ready = isAppReady(layout);
-
-        if (ready !== true) {
-            await ready;
+        if (isAppReady !== true) {
+            await isAppReady;
         }
 
         const {InputGraph} = graphs;

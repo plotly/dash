@@ -10,6 +10,7 @@ import {
     view,
 } from 'ramda';
 import {combineReducers} from 'redux';
+import isAppReady from './isAppReady';
 import layout from './layout';
 import graphs from './dependencyGraph';
 import paths from './paths';
@@ -31,6 +32,7 @@ export const apiRequests = [
 function mainReducer() {
     const parts = {
         appLifecycle,
+        isAppReady,
         layout,
         graphs,
         paths,
