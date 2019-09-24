@@ -4,7 +4,6 @@ import {
     any,
     append,
     concat,
-    contains,
     findIndex,
     findLastIndex,
     flatten,
@@ -222,10 +221,6 @@ function reduceInputIds(nodeIds, InputGraph) {
 
     return sortedInputOutputPairs;
 }
-
-export const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
-export const isSimpleComponent = component =>
-    contains(type(component), SIMPLE_COMPONENT_TYPES);
 
 export function notifyObservers(payload) {
     return async function(dispatch, getState) {

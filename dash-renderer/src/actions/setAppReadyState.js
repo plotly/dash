@@ -1,9 +1,12 @@
-import {filter} from 'ramda';
+import {contains, filter, type} from 'ramda';
 import {createAction} from 'redux-actions';
 
 import Registry from './../registry';
 import {getAction} from './constants';
-import {isSimpleComponent} from '.';
+
+export const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
+export const isSimpleComponent = component =>
+    contains(type(component), SIMPLE_COMPONENT_TYPES);
 
 const isAppReady = layout => {
     const queue = [layout];
