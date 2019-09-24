@@ -7,7 +7,7 @@ import dash
 from dash.dependencies import Input, Output
 import dash.testing.wait as wait
 
-from consts import DATE_PICKER_DAY_SELECTOR
+DATE_PICKER_DAY_SELECTOR = 'div[data-visible="true"] td.CalendarDay'
 
 
 @pytest.mark.DCC594
