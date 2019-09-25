@@ -1,5 +1,5 @@
 import pytest
-from .dcc_page import DashCoreComponentsMixin
+from .dash_core_components_page import DashCoreComponentsMixin
 from dash.testing.browser import Browser
 
 
