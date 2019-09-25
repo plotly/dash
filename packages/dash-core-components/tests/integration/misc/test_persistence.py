@@ -6,7 +6,7 @@ import dash
 from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
-from ..utils import click_date, click_at_coord_fractions
+from ..utils import click_date
 
 
 def test_msps001_basic_persistence(dash_duo):
@@ -166,11 +166,11 @@ def test_msps001_basic_persistence(dash_duo):
     dash_duo.find_element("#radioitems label:first-child input").click()  # red
 
     range_slider = dash_duo.find_element("#rangeslider")
-    click_at_coord_fractions(dash_duo, range_slider, 0.01, 0.5)  # 0
-    click_at_coord_fractions(dash_duo, range_slider, 0.5, 0.5)  # 5
+    dash_duo.click_at_coord_fractions(range_slider, 0.01, 0.5)  # 0
+    dash_duo.click_at_coord_fractions(range_slider, 0.5, 0.5)  # 5
 
     slider = dash_duo.find_element("#slider")
-    click_at_coord_fractions(dash_duo, slider, 0.2, 0.5)  # 22
+    dash_duo.click_at_coord_fractions(slider, 0.2, 0.5)  # 22
 
     dash_duo.find_element("#tabs .tab:last-child").click()  # C
 

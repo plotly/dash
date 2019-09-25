@@ -1,4 +1,3 @@
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -51,14 +50,3 @@ def click_date(dash_duo, component_selector, row, col):
             ]
         )
     ).click()
-
-
-def click_at_coord_fractions(dash_duo, el, fx, fy):
-    width = el.size["width"]
-    height = el.size["height"]
-    (
-        ActionChains(dash_duo.driver)
-        .move_to_element_with_offset(el, width * fx, height * fy)
-        .click()
-        .perform()
-    )
