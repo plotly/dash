@@ -679,7 +679,7 @@ class Dash(object):
 
         loader = pkgutil.get_loader(package_name)
         self.logger.info(
-            "serving package %s resource %s => %s",
+            "serving -- package: %s resource: %s => location: %s",
             package_name,
             path_in_package_dist,
             loader.path if hasattr(loader, 'path') else loader,
