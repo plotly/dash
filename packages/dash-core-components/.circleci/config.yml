@@ -21,7 +21,7 @@ jobs:
           name: 🐍 pip dev requirements
           command: |
             sudo pip install virtualenv --upgrade
-            python -m venv || virtualenv venv && . venv/bin/activate
+            python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -68,7 +68,7 @@ jobs:
           name: 🐍 pip dev requirements
           command: |
             sudo pip install virtualenv --upgrade
-            python -m venv || virtualenv venv && . venv/bin/activate
+            python -m venv venv || virtualenv venv && . venv/bin/activate
             pip install --progress-bar off --no-cache-dir -r dev-requirements.txt
       - save_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "dev-requirements.txt" }}
@@ -77,9 +77,9 @@ jobs:
       - run:
           name: 🏗️ build dash
           command: |
-            . venv/bin/activate && pip install --progress-bar off --no-cache-dir --upgrade -e . && mkdir packages
+            . venv/bin/activate && mkdir packages
             # build main dash
-            git clone --depth 1 https://github.com/plotly/dash.git dash-main
+            git clone --depth 1 -b exp-dynamic https://github.com/plotly/dash.git dash-main
             cd dash-main && pip install -e .[dev] && python setup.py sdist && mv dist/* ../packages/
             cd dash-renderer && npm run build
             python setup.py sdist && mv dist/* ../../packages/ && cd ../..
@@ -88,7 +88,7 @@ jobs:
             # build html
             git clone --depth 1 https://github.com/plotly/dash-html-components.git
             cd dash-html-components && npm i --ignore-scripts && npm run build
-            python setup.py sdist && mv dist/* ../packages
+            python setup.py sdist && mv dist/* ../packages && cd .. && ls -la packages
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -126,11 +126,11 @@ jobs:
       - run:
           name: 🧪 Run Integration Tests
           command: |
-            . venv/bin/activate && cd packages && ls -la
+            . venv/bin/activate && rm -rf dash_core_components && ls -la
+            cd packages && mv dash-*.tar.gz main.tar.gz && ls -la
             find . -name "dash_*.gz" | xargs pip install -I --progress-bar off --no-cache-dir
-            mv dash-*.tar.gz main.tar.gz && ls -la
-            pip install --progress-bar off --no-cache-dir main.tar.gz[dev,testing]
-            pip list | grep dash && cd ..
+            pip install --no-cache-dir --progress-bar off main.tar.gz[dev,testing]
+            pip list | grep dash | xargs pip show && cd ..
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}
       - store_artifacts:
@@ -174,14 +174,14 @@ jobs:
       - run:
           name: 🧪 Run Legacy Integration Tests
           command: |
-            . venv/bin/activate && cd packages && ls -la && mv dash-*.tar.gz main.tar.gz
+            . venv/bin/activate && rm -rf dash_core_components && ls -la
+            cd packages && mv dash-*.tar.gz main.tar.gz && ls -la
             find . -name "dash_*.gz" | xargs pip install -I --progress-bar off --no-cache-dir
-            mv dash-*.tar.gz main.tar.gz && ls -la
-            pip install --progress-bar off --no-cache-dir main.tar.gz[dev,testing]
-            pip list | grep dash && cd ..
+            pip install --no-cache-dir --progress-bar off main.tar.gz[dev,testing]
+            pip list | grep dash | xargs pip show && cd ..
             npm run test:pyimport
             TESTFILES=$(circleci tests glob "tests/test_integration_*.py" | circleci tests split --split-by=timings)
-            pytest --durations=10 --junitxml=test-reports/junit_legacy.xml ${TESTFILES}
+            pytest --log-cli-level DEBUG --durations=10 --junitxml=test-reports/junit_legacy.xml ${TESTFILES}
       - store_artifacts:
           path: test-reports
       - store_test_results:
