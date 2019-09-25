@@ -19,7 +19,7 @@ try:
     from urlparse import urlparse
 except ImportError:
     from urllib.parse import urlparse
-from .IntegrationTests import IntegrationTests
+from IntegrationTests import IntegrationTests
 
 TIMEOUT = 10
 
