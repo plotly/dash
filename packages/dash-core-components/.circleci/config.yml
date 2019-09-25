@@ -79,7 +79,7 @@ jobs:
           command: |
             . venv/bin/activate && mkdir packages
             # build main dash
-            git clone --depth 1 -b exp-dynamic https://github.com/plotly/dash.git dash-main
+            git clone --depth 1 https://github.com/plotly/dash.git dash-main
             cd dash-main && pip install -e .[dev] && python setup.py sdist && mv dist/* ../packages/
             cd dash-renderer && npm run build
             python setup.py sdist && mv dist/* ../../packages/ && cd ../..
