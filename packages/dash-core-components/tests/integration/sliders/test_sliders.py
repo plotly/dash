@@ -4,7 +4,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 
 
-def test_slsl001_always_visible_slider(dash_duo):
+def test_slsl001_always_visible_slider(dash_dcc):
     app = dash.Dash(__name__)
     app.layout = html.Div([
         dcc.Slider(
@@ -22,17 +22,17 @@ def test_slsl001_always_visible_slider(dash_duo):
     def update_output(value):
         return "You have selected {}".format(value)
 
-    dash_duo.start_server(app)
-    dash_duo.wait_for_text_to_equal("#out", "You have selected 5")
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_text_to_equal("#out", "You have selected 5")
 
-    slider = dash_duo.find_element("#slider")
-    dash_duo.click_at_coord_fractions(slider, 0.5, 0.5)
-    dash_duo.wait_for_text_to_equal("#out", "You have selected 10")
-    dash_duo.click_at_coord_fractions(slider, 0.75, 0.5)
-    dash_duo.wait_for_text_to_equal("#out", "You have selected 15")
+    slider = dash_dcc.find_element("#slider")
+    dash_dcc.click_at_coord_fractions(slider, 0.5, 0.5)
+    dash_dcc.wait_for_text_to_equal("#out", "You have selected 10")
+    dash_dcc.click_at_coord_fractions(slider, 0.75, 0.5)
+    dash_dcc.wait_for_text_to_equal("#out", "You have selected 15")
 
 
-def test_slsl002_always_visible_rangeslider(dash_duo):
+def test_slsl002_always_visible_rangeslider(dash_dcc):
     app = dash.Dash(__name__)
     app.layout = html.Div([
         dcc.RangeSlider(
@@ -50,11 +50,11 @@ def test_slsl002_always_visible_rangeslider(dash_duo):
     def update_output(rng):
         return "You have selected {}-{}".format(*rng)
 
-    dash_duo.start_server(app)
-    dash_duo.wait_for_text_to_equal("#out", "You have selected 5-15")
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_text_to_equal("#out", "You have selected 5-15")
 
-    slider = dash_duo.find_element("#rangeslider")
-    dash_duo.click_at_coord_fractions(slider, 0.1, 0.5)
-    dash_duo.wait_for_text_to_equal("#out", "You have selected 2-15")
-    dash_duo.click_at_coord_fractions(slider, 0.5, 0.5)
-    dash_duo.wait_for_text_to_equal("#out", "You have selected 2-10")
+    slider = dash_dcc.find_element("#rangeslider")
+    dash_dcc.click_at_coord_fractions(slider, 0.1, 0.5)
+    dash_dcc.wait_for_text_to_equal("#out", "You have selected 2-15")
+    dash_dcc.click_at_coord_fractions(slider, 0.5, 0.5)
+    dash_dcc.wait_for_text_to_equal("#out", "You have selected 2-10")

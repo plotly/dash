@@ -51,7 +51,7 @@ def load_data_by_type(filetype, contents):
 
 
 @pytest.mark.parametrize("filetype", ("csv", "xlsx", "xls", "png", "svg"))
-def test_upft001_test_upload_with_different_file_types(filetype, dash_duo):
+def test_upft001_test_upload_with_different_file_types(filetype, dash_dcc):
 
     filepath = os.path.join(
         os.path.dirname(__file__),
@@ -92,9 +92,9 @@ def test_upft001_test_upload_with_different_file_types(filetype, dash_duo):
         if contents is not None:
             return load_data_by_type(filetype, contents)
 
-    dash_duo.start_server(app)
+    dash_dcc.start_server(app)
 
-    upload_div = dash_duo.wait_for_element("#upload-div input[type=file]")
+    upload_div = dash_dcc.wait_for_element("#upload-div input[type=file]")
     upload_div.send_keys(filepath)
     time.sleep(0.5)
-    dash_duo.percy_snapshot(filepath)
+    dash_dcc.percy_snapshot(filepath)

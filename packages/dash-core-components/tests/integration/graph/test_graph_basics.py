@@ -8,7 +8,7 @@ from dash.dependencies import Input, Output
 import dash.testing.wait as wait
 
 
-def test_grbs001_graph_without_ids(dash_duo):
+def test_grbs001_graph_without_ids(dash_dcc):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -17,18 +17,18 @@ def test_grbs001_graph_without_ids(dash_duo):
         ]
     )
 
-    dash_duo.start_server(app)
+    dash_dcc.start_server(app)
 
-    assert not dash_duo.wait_for_element(".graph-no-id-1").get_attribute(
+    assert not dash_dcc.wait_for_element(".graph-no-id-1").get_attribute(
         "id"
     ), "the graph should contain no more auto-generated id"
-    assert not dash_duo.wait_for_element(".graph-no-id-2").get_attribute(
+    assert not dash_dcc.wait_for_element(".graph-no-id-2").get_attribute(
         "id"
     ), "the graph should contain no more auto-generated id"
 
 
 @pytest.mark.DCC608
-def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_duo):
+def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc):
 
     df = pd.DataFrame(np.random.randn(50, 50))
     figure = {
@@ -75,9 +75,9 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_duo):
         figure["data"][0]["z"] = df.values
         return figure
 
-    dash_duo.start_server(app)
+    dash_dcc.start_server(app)
 
-    wait.until(lambda: dash_duo.driver.title == "Dash", timeout=2)
+    wait.until(lambda: dash_dcc.driver.title == "Dash", timeout=2)
     assert (
-        len({dash_duo.driver.title for _ in range(20)}) == 1
+        len({dash_dcc.driver.title for _ in range(20)}) == 1
     ), "after the first update, there should contain no extra Updating..."

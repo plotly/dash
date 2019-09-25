@@ -10,7 +10,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 
-def test_stda001_data_types(dash_duo):
+def test_stda001_data_types(dash_dcc):
     app = dash.Dash(__name__)
 
     types = [
@@ -56,15 +56,15 @@ def test_stda001_data_types(dash_duo):
             raise PreventUpdate
         return data_types[n_clicks - 1][1]
 
-    dash_duo.start_server(app)
+    dash_dcc.start_server(app)
 
-    button = dash_duo.wait_for_element("#click")
+    button = dash_dcc.wait_for_element("#click")
     for data_type in data_types:
         button.click()
-        dash_duo.wait_for_text_to_equal("#output", json.dumps(data_type[1]))
+        dash_dcc.wait_for_text_to_equal("#output", json.dumps(data_type[1]))
 
 
-def test_stda002_nested_data(dash_duo):
+def test_stda002_nested_data(dash_dcc):
     app = dash.Dash(__name__)
 
     nested = {"nested": {"nest": "much"}}
@@ -106,17 +106,17 @@ def test_stda002_nested_data(dash_duo):
             raise PreventUpdate
         return json.dumps(data)
 
-    dash_duo.start_server(app)
+    dash_dcc.start_server(app)
 
-    obj_btn = dash_duo.wait_for_element("#obj-btn")
-    list_btn = dash_duo.find_element("#list-btn")
+    obj_btn = dash_dcc.wait_for_element("#obj-btn")
+    list_btn = dash_dcc.find_element("#list-btn")
 
     obj_btn.click()
-    dash_duo.wait_for_text_to_equal("#output", json.dumps(nested))
+    dash_dcc.wait_for_text_to_equal("#output", json.dumps(nested))
     # it would of crashed the app before adding the recursive check.
 
     list_btn.click()
-    dash_duo.wait_for_text_to_equal("#output", json.dumps(nested_list))
+    dash_dcc.wait_for_text_to_equal("#output", json.dumps(nested_list))
 
 
 @pytest.mark.skipif(
@@ -124,7 +124,7 @@ def test_stda002_nested_data(dash_duo):
     reason="tests requires depedency only available in 3.6+",
 )
 @pytest.mark.parametrize("storage_type", ("memory", "local", "session"))
-def test_stda003_large_data_size(storage_type, csv_5mb, dash_duo):
+def test_stda003_large_data_size(storage_type, csv_5mb, dash_dcc):
     def fingerprint(data):
         return hashlib.sha1(data.encode("utf-8")).hexdigest()
 
@@ -153,9 +153,9 @@ def test_stda003_large_data_size(storage_type, csv_5mb, dash_duo):
             raise PreventUpdate
         return csv_5mb
 
-    dash_duo.start_server(app)
+    dash_dcc.start_server(app)
 
-    assert dash_duo.find_element("#out").text == "nil"
+    assert dash_dcc.find_element("#out").text == "nil"
 
-    dash_duo.find_element("#btn").click()
-    dash_duo.wait_for_text_to_equal("#out", fingerprint(csv_5mb))
+    dash_dcc.find_element("#btn").click()
+    dash_dcc.wait_for_text_to_equal("#out", fingerprint(csv_5mb))

@@ -4,7 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 
-def test_upca001_upload_children_gallery(dash_duo):
+def test_upca001_upload_children_gallery(dash_dcc):
     app = dash.Dash(__name__)
     app.layout = html.Div(
         [
@@ -32,6 +32,6 @@ def test_upca001_upload_children_gallery(dash_duo):
             ),
         ]
     )
-    dash_duo.start_server(app)
+    dash_dcc.start_server(app)
     time.sleep(0.5)
-    dash_duo.percy_snapshot("upca001 children gallery")
+    dash_dcc.percy_snapshot("upca001 children gallery")
