@@ -677,6 +677,14 @@ class Dash(object):
             'map': 'application/json'
         })[path_in_package_dist.split('.')[-1]]
 
+        loader = pkgutil.get_loader(package_name)
+        self.logger.info(
+            "serving package %s resource %s => %s",
+            package_name,
+            path_in_package_dist,
+            loader.path if hasattr(loader, 'path') else loader,
+        )
+
         return flask.Response(
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype
