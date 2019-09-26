@@ -259,7 +259,7 @@ Dropdown.propTypes = {
 
 Dropdown.defaultProps = {
     clearable: true,
-    disabled: false,
+		    disabled: false,
     multi: false,
     searchable: true,
     optionHeight: 35,
