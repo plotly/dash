@@ -147,7 +147,7 @@ class BuildProcess(object):
         os.chdir(self.main)
         run_command_with_process("npm run {}".format(_script))
 
-        logger.info("generate the `__init__.py` from template and verisons")
+        logger.info("generate the `__init__.py` from template and versions")
         with open(self._concat(self.main, "init.template")) as fp:
             t = string.Template(fp.read())
 
