@@ -2,6 +2,8 @@ from collections import OrderedDict
 import copy
 import os
 
+import black
+
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
@@ -97,7 +99,7 @@ def generate_class_string(typename, props, description, namespace):
          p != 'setProps'] + ["**kwargs"]
     )
     required_args = required_props(props)
-    return c.format(
+    class_string = c.format(
         typename=typename,
         namespace=namespace,
         filtered_props=filtered_props,
@@ -108,6 +110,8 @@ def generate_class_string(typename, props, description, namespace):
         argtext=argtext,
         required_props=required_args
     )
+    class_string = black.format_str(class_string, mode=black.FileMode(line_length=100))
+    return class_string
 
 
 def generate_class_file(typename, props, description, namespace):
@@ -135,6 +139,7 @@ def generate_class_file(typename, props, description, namespace):
         description,
         namespace
     )
+    class_string = black.format_str(class_string, mode=black.FileMode(line_length=100))
     file_name = "{:s}.py".format(typename)
 
     file_path = os.path.join(namespace, file_name)
