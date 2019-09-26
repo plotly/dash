@@ -181,7 +181,7 @@ jobs:
             pip list | grep dash | xargs pip show && cd ..
             echo $(python -V 2>&1) | grep 3. && python -m unittest tests/test_dash_import.py
             TESTFILES=$(circleci tests glob "tests/test_integration_*.py" | circleci tests split --split-by=timings)
-            pytest --log-cli-level DEBUG --durations=10 --junitxml=test-reports/junit_legacy.xml ${TESTFILES}
+            pytest --durations=10 --junitxml=test-reports/junit_legacy.xml ${TESTFILES}
       - store_artifacts:
           path: test-reports
       - store_test_results:
