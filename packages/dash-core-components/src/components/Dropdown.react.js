@@ -100,6 +100,7 @@ export default class Dropdown extends Component {
                             setProps({value});
                         }
                     }}
+                    onInputChange={search_value => setProps({search_value})}
                     {...omit(['setProps', 'value'], this.props)}
                 />
             </div>
@@ -194,6 +195,11 @@ Dropdown.propTypes = {
      * Whether to enable the searching feature or not
      */
     searchable: PropTypes.bool,
+
+    /**
+     * The value typed in the DropDown for searching.
+     */
+    search_value: PropTypes.string,
 
     /**
      * Dash-assigned callback that gets fired when the input changes
