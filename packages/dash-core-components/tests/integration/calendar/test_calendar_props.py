@@ -27,7 +27,7 @@ def test_cdpr001_date_clearable_true_works(dash_dcc):
 
     assert (
         "1" in start_date and "28" in end_date
-    ), "both start date and end date should get values"
+    ), "both start date and end date should match the selected day"
 
     close_btn.click()
     start_date, end_date = dash_dcc.get_date_range("dpr")
@@ -36,13 +36,13 @@ def test_cdpr001_date_clearable_true_works(dash_dcc):
     ), "both start and end dates should be cleared"
 
     # DPS
-    date = dash_dcc.find_element("#dps input")
     selected = dash_dcc.select_date_single("dps", day="1")
 
     assert selected, "single date should get a value"
     close_btn = dash_dcc.wait_for_element("#dps button")
     close_btn.click()
-    assert not date.get_attribute("value"), "date should be cleared"
+    single_date, = dash_dcc.get_date_range("dps")
+    assert not single_date, "date should be cleared"
 
 
 def test_cdpr002_updatemodes(dash_dcc):
