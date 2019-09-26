@@ -160,19 +160,19 @@ function generatePropTypes(element, attributes) {
      */
     'aria-*': PropTypes.string,` +
 
-    supportedAttributes.reduce((propTypes, attributeName) => {
-        const attribute = attributes.attributes[attributeName];
-        const propType = PROP_TYPES[attributeName] || PROP_TYPES._default;
-        if (attributeName === 'id') {
-            return propTypes;
-        }
-        return propTypes + `
+        supportedAttributes.reduce((propTypes, attributeName) => {
+            const attribute = attributes.attributes[attributeName];
+            const propType = PROP_TYPES[attributeName] || PROP_TYPES._default;
+            if (attributeName === 'id') {
+                return propTypes;
+            }
+            return propTypes + `
 
     /**
      *${attribute.description ? ' ' + attribute.description : ''}
      */
     '${attributeName}': PropTypes.${propType},`;
-    }, '') + `
+        }, '') + `
 
     /**
      * Object that holds the loading state object coming from dash-renderer
@@ -263,6 +263,7 @@ function writeComponents(components, destination) {
     let componentPath;
     for (const Component in components) {
         componentPath = path.join(destination, `${Component}.react.js`);
+        fs.mkdirSync(path.join(destination), { recursive: true });
         fs.writeFileSync(componentPath, components[Component]);
     }
 }

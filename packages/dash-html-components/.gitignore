@@ -13,3 +13,16 @@ lib/bundle.js
 lib/bundle.js.map
 lib/metadata.json
 .idea
+
+/scripts/data
+!/scripts/data/elements.txt
+
+/src
+
+/build
+/dash_html_components
+/inst
+/man
+/R
+DESCRIPTION
+NAMESPACE
