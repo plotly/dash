@@ -211,6 +211,7 @@ class Dash(object):
             assets_folder='assets',
             assets_url_path='assets',
             assets_ignore='',
+            eager_loading=True,
             assets_external_path=None,
             include_assets_files=True,
             url_base_pathname=None,
@@ -262,6 +263,7 @@ class Dash(object):
             assets_ignore=assets_ignore,
             assets_external_path=get_combined_config(
                 'assets_external_path', assets_external_path, ''),
+            eager_loading=eager_loading,
             include_assets_files=get_combined_config(
                 'include_assets_files', include_assets_files, True),
             url_base_pathname=base_prefix,
@@ -282,6 +284,7 @@ class Dash(object):
             'name',
             'assets_folder',
             'assets_url_path',
+            'eager_loading',
             'url_base_pathname',
             'routes_pathname_prefix',
             'requests_pathname_prefix',
@@ -306,7 +309,7 @@ class Dash(object):
 
         # static files from the packages
         self.css = Css(serve_locally)
-        self.scripts = Scripts(serve_locally)
+        self.scripts = Scripts(serve_locally, eager_loading)
 
         self.registered_paths = collections.defaultdict(set)
 

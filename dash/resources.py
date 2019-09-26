@@ -20,6 +20,20 @@ class Resources:
             filtered_resource = {}
             if 'dynamic' in s:
                 filtered_resource['dynamic'] = s['dynamic']
+            if 'async' in s:
+                # Async assigns a value dynamically to 'dynamic' based on the value
+                # of 'async' and config.eager_loading
+                #
+                # True -> dynamic if the server is not eager, False otherwise
+                # 'lazy' -> always dynamic
+                # 'eager' -> dynamic if server is not eager (to prevent ever loading it)
+                if s['async'] == True:
+                    filtered_resource['dynamic'] = not self.config.eager_loading
+
+                if (s['async'] == 'eager' and self.config.eager_loading) or s['async'] == 'lazy':
+                    filtered_resource['dynamic'] = True
+                else:
+                    filtered_resource['dynamic'] = False
             if 'namespace' in s:
                 filtered_resource['namespace'] = s['namespace']
             if 'external_url' in s and not self.config.serve_locally:
@@ -71,14 +85,15 @@ class Resources:
 
 # pylint: disable=too-few-public-methods
 class _Config:
-    def __init__(self, serve_locally):
+    def __init__(self, serve_locally, eager_loading):
+        self.eager_loading = eager_loading
         self.serve_locally = serve_locally
 
 
 class Css:
     def __init__(self, serve_locally):
         self._resources = Resources('_css_dist')
-        self._resources.config = self.config = _Config(serve_locally)
+        self._resources.config = self.config = _Config(serve_locally, True)
 
     def append_css(self, stylesheet):
         self._resources.append_resource(stylesheet)
@@ -88,9 +103,9 @@ class Css:
 
 
 class Scripts:
-    def __init__(self, serve_locally):
+    def __init__(self, serve_locally, eager_loading):
         self._resources = Resources('_js_dist')
-        self._resources.config = self.config = _Config(serve_locally)
+        self._resources.config = self.config = _Config(serve_locally, eager_loading)
 
     def append_script(self, script):
         self._resources.append_resource(script)
