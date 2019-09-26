@@ -13,3 +13,11 @@ venv/
 *.log
 .idea/
 .DS_Store
+
+/build
+/dash_core_components
+/inst
+/man
+/R
+DESCRIPTION
+NAMESPACE
