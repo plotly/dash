@@ -18,7 +18,7 @@
     "test": "run-s -c lint lint:py format:test test-unit test:legacy test:intg test:pyimport",
     "test:legacy": "pytest tests/test_integration*.py",
     "test:intg": "pytest --nopercyfinalize --headless tests/integration",
-    "test:pyimport": "python -m unittest tests.test_dash_import",
+    "test:pyimport": "python -m unittest tests/test_dash_import.py",
     "test-unit": "jest",
     "format": "prettier --config .prettierrc --write src/**/*.js tests/unit/*.js",
     "format:test": "prettier --config .prettierrc src/**/*.js tests/unit/*.js --list-different",
