@@ -114,6 +114,7 @@ jobs:
                 name: Run tests
                 command: |
                     . venv/bin/activate
+                    npm run build
                     npm run test.unit
 
 
