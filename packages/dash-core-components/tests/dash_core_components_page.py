@@ -24,7 +24,7 @@ class DashCoreComponentsMixin(object):
                 if outside_month
                 else "__outside" not in elem.get_attribute("class")
             )
-
+        self._wait_until_day_is_clickable()
         days = self.find_elements(self.date_picker_day_locator)
         if day:
             filtered = [
@@ -39,7 +39,7 @@ class DashCoreComponentsMixin(object):
             matched = filtered[0]
         else:
             matched = days[index]
-        self._wait_until_day_is_clickable()
+
         matched.click()
         return date.get_attribute("value")
 
@@ -64,12 +64,12 @@ class DashCoreComponentsMixin(object):
         )
         date.click()
         for day in day_range:
+            self._wait_until_day_is_clickable()
             matched = [
                 _
                 for _ in self.find_elements(self.date_picker_day_locator)
                 if _.text == str(day)
             ]
-            self._wait_until_day_is_clickable()
             matched[0].click()
 
         return self.get_date_range(compid)
