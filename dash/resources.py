@@ -14,6 +14,7 @@ class Resources:
     def append_resource(self, resource):
         self._resources.append(resource)
 
+    # pylint: disable=too-many-branches
     def _filter_resources(self, all_resources, dev_bundles=False):
         filtered_resources = []
         for s in all_resources:
