@@ -615,7 +615,7 @@ function updateOutput(
 
             /*
              * Update the request queue by treating a successful clientside
-             * like a succesful serverside response (200 status code)
+             * like a successful serverside response (200 status code)
              */
             updateRequestQueue(false, STATUS.OK);
 
