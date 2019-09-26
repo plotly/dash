@@ -33,7 +33,7 @@ def test_dtps001_simple_click(dash_dcc):
     dash_dcc.start_server(app)
     date = dash_dcc.find_element("#dps input")
     assert not date.get_attribute("value")
-    assert dash_dcc.select_calendar_date(
+    assert dash_dcc.select_date_single(
         "dps", index=3
     ), "Component should be clickable to choose a valid date"
 
@@ -61,8 +61,8 @@ def test_dtps010_local_and_session_persistence(dash_dcc):
     ), "component should contain no initial date"
 
     for idx in range(3):
-        local = dash_dcc.select_calendar_date("dps-local", index=idx)
-        session = dash_dcc.select_calendar_date("dps-session", index=idx)
+        local = dash_dcc.select_date_single("dps-local", index=idx)
+        session = dash_dcc.select_date_single("dps-session", index=idx)
         dash_dcc.wait_for_page()
         assert (
             dash_dcc.find_element("#dps-local input").get_attribute("value")
@@ -113,8 +113,8 @@ def test_dtps011_memory_persistence(dash_dcc):
     switch = dash_dcc.find_element("#switch")
     switch.click()
 
-    memorized = dash_dcc.select_calendar_date("dps-memory", day="4")
-    amnesiaed = dash_dcc.select_calendar_date(
+    memorized = dash_dcc.select_date_single("dps-memory", day="4")
+    amnesiaed = dash_dcc.select_date_single(
         "dps-none", day="1", outside_month=True
     )
 

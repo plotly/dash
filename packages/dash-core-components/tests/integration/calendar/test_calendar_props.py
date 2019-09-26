@@ -7,8 +7,6 @@ import dash
 from dash.dependencies import Input, Output
 import dash.testing.wait as wait
 
-DATE_PICKER_DAY_SELECTOR = 'div[data-visible="true"] td.CalendarDay'
-
 
 @pytest.mark.DCC594
 def test_cdpr001_date_clearable_true_works(dash_dcc):
@@ -24,33 +22,25 @@ def test_cdpr001_date_clearable_true_works(dash_dcc):
     dash_dcc.start_server(app)
 
     # DPR
-    start_date = dash_dcc.find_element('input[aria-label="Start Date"]')
-    end_date = dash_dcc.find_element('input[aria-label="End Date"]')
-
-    start_date.click()
-
-    dash_dcc.find_elements(DATE_PICKER_DAY_SELECTOR)[0].click()
-    dash_dcc.find_elements(DATE_PICKER_DAY_SELECTOR)[-1].click()
-
+    start_date, end_date = dash_dcc.select_date_range("dpr", (1, 28))
     close_btn = dash_dcc.wait_for_element('button[aria-label="Clear Dates"]')
 
-    assert start_date.get_attribute("value") and end_date.get_attribute(
-        "value"
+    assert (
+        "1" in start_date and "28" in end_date
     ), "both start date and end date should get values"
 
     close_btn.click()
-    assert not start_date.get_attribute("value") and not end_date.get_attribute(
-        "value"
+    start_date, end_date = dash_dcc.get_date_range("dpr")
+    assert (
+        not start_date and not end_date
     ), "both start and end dates should be cleared"
 
     # DPS
     date = dash_dcc.find_element("#dps input")
-    date.click()
+    selected = dash_dcc.select_date_single("dps", day="1")
 
-    dash_dcc.find_elements(DATE_PICKER_DAY_SELECTOR)[0].click()
+    assert selected, "single date should get a value"
     close_btn = dash_dcc.wait_for_element("#dps button")
-
-    assert date.get_attribute("value"), "single date should get a value"
     close_btn.click()
     assert not date.get_attribute("value"), "date should be cleared"
 
@@ -96,12 +86,12 @@ def test_cdpr002_updatemodes(dash_dcc):
 
     start_date.click()
 
-    dash_dcc.find_elements(DATE_PICKER_DAY_SELECTOR)[4].click()
+    dash_dcc.find_elements(dash_dcc.date_picker_day_locator)[4].click()
     assert (
         dash_dcc.find_element("#date-picker-range-output").text == "None - None"
     ), "the output should not update when only one is selected"
 
-    eday = dash_dcc.find_elements(DATE_PICKER_DAY_SELECTOR)[-4]
+    eday = dash_dcc.find_elements(dash_dcc.date_picker_day_locator)[-4]
     wait.until(lambda: eday.is_displayed() and eday.is_enabled(), timeout=2)
     eday.click()
 

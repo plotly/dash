@@ -126,13 +126,13 @@ def test_msps001_basic_persistence(dash_dcc):
 
     dash_dcc.find_element("#checklist label:last-child input").click()  # 🚀
 
-    dash_dcc.select_calendar_date(
-        "datepickerrange", day="4", date_range="start"
+    dash_dcc.select_date_range("datepickerrange", day_range=(4,))
+    dash_dcc.select_date_range(
+        "datepickerrange", day_range=(14,), start_first=False
     )
-    dash_dcc.select_calendar_date("datepickerrange", day="14", date_range="end")
 
     dash_dcc.find_element("#datepickersingle input").click()
-    dash_dcc.select_calendar_date("datepickersingle", day="20")
+    dash_dcc.select_date_single("datepickersingle", day="20")
 
     dash_dcc.find_element("#dropdownsingle .Select-input input").send_keys(
         "one" + Keys.ENTER
