@@ -237,9 +237,11 @@ Dropdown.propTypes = {
      * the new `value` also matches what was given originally.
      * Used in conjunction with `persistence_type`.
      */
-    persistence: PropTypes.oneOfType(
-        [PropTypes.bool, PropTypes.string, PropTypes.number]
-    ),
+    persistence: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.string,
+        PropTypes.number,
+    ]),
 
     /**
      * Properties whose user interactions will persist after refreshing the
@@ -259,7 +261,7 @@ Dropdown.propTypes = {
 
 Dropdown.defaultProps = {
     clearable: true,
-		    disabled: false,
+    disabled: false,
     multi: false,
     searchable: true,
     optionHeight: 35,
