@@ -31,8 +31,11 @@ jobs:
           name: 🌸 Lint
           command: |
             . venv/bin/activate
+            set -eo pipefail
             npm i --ignore-scripts
-            npm run format:test && npm run lint && flake8 --ignore=E501,F401,F841,F811,W503 tests
+            npm run format:test
+            npm run lint
+            flake8 --ignore=E501,F401,F841,F811,W503 tests
       - run:
           name: 🔎 Unit Tests
           command: |
