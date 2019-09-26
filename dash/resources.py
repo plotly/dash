@@ -21,13 +21,14 @@ class Resources:
             if 'dynamic' in s:
                 filtered_resource['dynamic'] = s['dynamic']
             if 'async' in s:
-                # Async assigns a value dynamically to 'dynamic' based on the value
-                # of 'async' and config.eager_loading
+                # Async assigns a value dynamically to 'dynamic'
+                # based on the value of 'async' and config.eager_loading
                 #
                 # True -> dynamic if the server is not eager, False otherwise
                 # 'lazy' -> always dynamic
-                # 'eager' -> dynamic if server is not eager (to prevent ever loading it)
-                if s['async'] == True:
+                # 'eager' -> dynamic if server is not eager
+                # (to prevent ever loading it)
+                if s['async'] is True:
                     filtered_resource['dynamic'] = not self.config.eager_loading
 
                 if (s['async'] == 'eager' and self.config.eager_loading) or s['async'] == 'lazy':
