@@ -695,10 +695,8 @@ class Dash(object):
         )[path_in_package_dist.split(".")[-1]]
 
         loader = pkgutil.get_loader(package_name)
-        msg = getattr(
-            self.logger, "info" if self.config.serve_locally else "debug"
-        )
-        msg(
+
+        self.logger.debug(
             "serving -- package: %s resource: %s => location: %s",
             package_name,
             path_in_package_dist,
