@@ -694,13 +694,13 @@ class Dash(object):
             }
         )[path_in_package_dist.split(".")[-1]]
 
-        loader = pkgutil.get_loader(package_name)
-
-        self.logger.debug(
-            "serving -- package: %s resource: %s => location: %s",
+        package = sys.modules[package_name]
+        self.logger.warning(
+            "serving -- package: %s[%s] resource: %s => location: %s",
             package_name,
+            package.__version__,
             path_in_package_dist,
-            loader.path if hasattr(loader, "path") else loader,
+            package.__path__,
         )
 
         return flask.Response(
