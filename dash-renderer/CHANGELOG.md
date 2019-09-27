@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# Unreleased
+### Fixed
+- [#944](https://github.com/plotly/dash/pull/944) fixed bug with persistence being toggled on/off on an existing component
+
 ## [1.1.0] - 2019-09-17
 ### Added
 - [#903](https://github.com/plotly/dash/pull/903) enables props edited by the user to persist across recreating the component or reloading the page. Components need to define three new props: `persistence`, `persisted_props`, and `persistence_type` as described in the lead comment of `src/persistence.js`. App developers then enable this behavior by, in the simplest case, setting `persistence: true` on the component. First use case is table, see [dash-table#566](https://github.com/plotly/dash-table/pull/566)

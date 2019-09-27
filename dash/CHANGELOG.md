@@ -1,7 +1,7 @@
 ## Unreleased
 
 ### Added
-
+- [#944](https://github.com/plotly/dash/pull/944) relevant `dash.testing` methods can now be called with either an element or a CSS selector: `select_dcc_dropdown`, `multiple_click`, `clear_input`, `zoom_in_graph_by_ratio`, `click_at_coord_fractions`
 - [#937](https://github.com/plotly/dash/pull/937) `dash.testing` adds two APIs `zoom_in_graph_by_ratio` and `click_at_coord_fractions` about advanced interactions using mouse `ActionChain`
 - [#938](https://github.com/plotly/dash/issues/938) Adds debugging traces to dash backend about serving component suites, so we can use it to verify the installed packages whenever in doubt.
 
