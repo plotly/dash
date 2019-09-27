@@ -288,10 +288,9 @@ const getProps = layout => {
     const {id, persistence} = props;
 
     const element = Registry.resolve(layout);
-    const persisted_props =
-        props.persisted_props || element.defaultProps.persisted_props;
-    const persistence_type =
-        props.persistence_type || element.defaultProps.persistence_type;
+    const getVal = prop => props[prop] || (element.defaultProps || {})[prop];
+    const persisted_props = getVal('persisted_props');
+    const persistence_type = getVal('persistence_type');
     const canPersist = id && persisted_props && persistence_type;
 
     return {
