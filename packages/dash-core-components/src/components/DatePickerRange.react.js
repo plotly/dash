@@ -407,9 +407,11 @@ DatePickerRange.propTypes = {
      * the new prop value also matches what was given originally.
      * Used in conjunction with `persistence_type` and `persisted_props`.
      */
-    persistence: PropTypes.oneOfType(
-        [PropTypes.bool, PropTypes.string, PropTypes.number]
-    ),
+    persistence: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.string,
+        PropTypes.number,
+    ]),
 
     /**
      * Properties whose user interactions will persist after refreshing the

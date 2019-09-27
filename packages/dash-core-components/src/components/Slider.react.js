@@ -233,9 +233,11 @@ Slider.propTypes = {
      * the new `value` also matches what was given originally.
      * Used in conjunction with `persistence_type`.
      */
-    persistence: PropTypes.oneOfType(
-        [PropTypes.bool, PropTypes.string, PropTypes.number]
-    ),
+    persistence: PropTypes.oneOfType([
+        PropTypes.bool,
+        PropTypes.string,
+        PropTypes.number,
+    ]),
 
     /**
      * Properties whose user interactions will persist after refreshing the
@@ -256,5 +258,5 @@ Slider.propTypes = {
 Slider.defaultProps = {
     updatemode: 'mouseup',
     persisted_props: ['value'],
-    persistence_type: 'local'
+    persistence_type: 'local',
 };

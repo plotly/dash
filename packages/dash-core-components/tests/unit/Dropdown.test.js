@@ -25,7 +25,7 @@ describe('Props can be set properly', () => {
         multi: false,
         placeholder: 'pick something',
         searchable: true,
-        search_value: "hello",
+        search_value: 'hello',
         style: {backgroundColor: 'hotpink'},
         loading_state: {
             is_loading: false,
