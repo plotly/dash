@@ -1,4 +1,5 @@
 from multiprocessing import Value
+import pytest
 
 import dash
 from dash.dependencies import Input, Output
@@ -6,6 +7,12 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
+
+
+@pytest.fixture(autouse=True)
+def clear_storage(dash_duo):
+    yield
+    dash_duo.clear_storage()
 
 
 def table_columns(names, **extra_props):
@@ -386,7 +393,7 @@ def test_rdps010_toggle_persistence(dash_duo):
     dash_duo.find_element('#persisted').send_keys('lpaca')
     dash_duo.wait_for_text_to_equal('#out', 'alpaca')
 
-    dash_duo.find_element('#persistence-val').send_keys('save!')
+    dash_duo.find_element('#persistence-val').send_keys('s')
     dash_duo.wait_for_text_to_equal('#out', 'a')
     dash_duo.find_element('#persisted').send_keys('nchovies')
     dash_duo.wait_for_text_to_equal('#out', 'anchovies')
@@ -401,16 +408,13 @@ def test_rdps010_toggle_persistence(dash_duo):
     dash_duo.wait_for_text_to_equal('#out', 'a')
 
     # anchovies and aardvark saved
-    dash_duo.find_element('#persistence-val').send_keys('save!')
+    dash_duo.find_element('#persistence-val').send_keys('s')
     dash_duo.wait_for_text_to_equal('#out', 'anchovies')
     dash_duo.find_element('#persistence-val').send_keys('2')
     dash_duo.wait_for_text_to_equal('#out', 'aardvark')
 
 
 def test_rdps011_toggle_persistence2(dash_duo):
-    def make_input(persistence):
-        return dcc.Input(id='persisted', value='a', persistence=persistence)
-
     app = dash.Dash(__name__)
     app.layout = html.Div([
         dcc.Input(id='persistence-val', value=''),
@@ -436,7 +440,7 @@ def test_rdps011_toggle_persistence2(dash_duo):
 
     dash_duo.wait_for_text_to_equal('#out', 'a')
 
-    dash_duo.find_element('#persistence-val').send_keys('save!')
+    dash_duo.find_element('#persistence-val').send_keys('s')
     dash_duo.wait_for_text_to_equal('#out', 'a')
     dash_duo.find_element('#persisted').send_keys('pricot')
     dash_duo.wait_for_text_to_equal('#out', 'apricot')
@@ -451,7 +455,7 @@ def test_rdps011_toggle_persistence2(dash_duo):
     dash_duo.wait_for_text_to_equal('#out', 'a')
 
     # apricot and artichoke saved
-    dash_duo.find_element('#persistence-val').send_keys('save!')
+    dash_duo.find_element('#persistence-val').send_keys('s')
     dash_duo.wait_for_text_to_equal('#out', 'apricot')
     dash_duo.find_element('#persistence-val').send_keys('2')
     dash_duo.wait_for_text_to_equal('#out', 'artichoke')
