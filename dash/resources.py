@@ -39,13 +39,11 @@ class Resources:
                     filtered_resource[
                         'dynamic'
                     ] = not self.config.eager_loading
-
-                if (s['async'] == 'eager' and self.config.eager_loading) or s[
-                    'async'
-                ] == 'lazy':
-                    filtered_resource['dynamic'] = True
                 else:
-                    filtered_resource['dynamic'] = False
+                    filtered_resource['dynamic'] = bool(
+                        (s['async'] == 'eager' and self.config.eager_loading)
+                        or s['async'] == 'lazy'
+                    )
             if 'namespace' in s:
                 filtered_resource['namespace'] = s['namespace']
             if 'external_url' in s and not self.config.serve_locally:
