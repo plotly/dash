@@ -213,7 +213,7 @@ class Dash(object):
         assets_url_path="assets",
         assets_ignore="",
         assets_external_path=None,
-        eager_loading=True,
+        eager_loading=False,
         include_assets_files=True,
         url_base_pathname=None,
         requests_pathname_prefix=None,
@@ -229,6 +229,11 @@ class Dash(object):
         plugins=None,
         **obsolete
     ):
+        # Apply _force_eager_loading overrides from modules
+        for name in ComponentRegistry.registry:
+            module = sys.modules[name]
+            eager = getattr(module, '_force_eager_loading', False)
+            eager_loading = eager_loading or eager
 
         for key in obsolete:
             if key in ["components_cache_max_age", "static_folder"]:

@@ -41,7 +41,8 @@ class Resources:
                     ] = not self.config.eager_loading
                 else:
                     filtered_resource['dynamic'] = bool(
-                        (s['async'] == 'eager' and self.config.eager_loading)
+                        (s['async'] == 'eager' and
+                            not self.config.eager_loading)
                         or s['async'] == 'lazy'
                     )
             if 'namespace' in s:
@@ -67,7 +68,8 @@ class Resources:
                     (
                         'You have set your config to `serve_locally=True` but '
                         'A local version of {} is not available.\n'
-                        'If you added this file with `app.scripts.append_script` '
+                        'If you added this file with '
+                        '`app.scripts.append_script` '
                         'or `app.css.append_css`, use `external_scripts` '
                         'or `external_stylesheets` instead.\n'
                         'See https://dash.plot.ly/external-resources'
