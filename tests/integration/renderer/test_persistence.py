@@ -1,5 +1,6 @@
 from multiprocessing import Value
 import pytest
+import time
 
 import dash
 from dash.dependencies import Input, Output
@@ -418,7 +419,7 @@ def test_rdps011_toggle_persistence2(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div([
         dcc.Input(id='persistence-val', value=''),
-        dcc.Input(id='persisted', value='a', persistence=''),
+        dcc.Input(id='persisted2', value='a', persistence=''),
         html.Div(id='out')
     ])
 
@@ -426,13 +427,13 @@ def test_rdps011_toggle_persistence2(dash_duo):
     # get the right initial value. Much better is to update the whole component
     # as we do in the previous test case... but it shouldn't break this way.
     @app.callback(
-        Output('persisted', 'persistence'),
+        Output('persisted2', 'persistence'),
         [Input('persistence-val', 'value')]
     )
     def set_persistence(val):
         return val
 
-    @app.callback(Output('out', 'children'), [Input('persisted', 'value')])
+    @app.callback(Output('out', 'children'), [Input('persisted2', 'value')])
     def set_out(val):
         return val
 
@@ -442,20 +443,24 @@ def test_rdps011_toggle_persistence2(dash_duo):
 
     dash_duo.find_element('#persistence-val').send_keys('s')
     dash_duo.wait_for_text_to_equal('#out', 'a')
-    dash_duo.find_element('#persisted').send_keys('pricot')
+    time.sleep(0.2)
+    dash_duo.find_element('#persisted2').send_keys('pricot')
     dash_duo.wait_for_text_to_equal('#out', 'apricot')
 
     dash_duo.find_element('#persistence-val').send_keys('2')
     dash_duo.wait_for_text_to_equal('#out', 'a')
-    dash_duo.find_element('#persisted').send_keys('rtichoke')
+    time.sleep(0.2)
+    dash_duo.find_element('#persisted2').send_keys('rtichoke')
     dash_duo.wait_for_text_to_equal('#out', 'artichoke')
 
     # no persistence, still goes back to original value
     dash_duo.clear_input('#persistence-val')
     dash_duo.wait_for_text_to_equal('#out', 'a')
+    time.sleep(0.2)
 
     # apricot and artichoke saved
     dash_duo.find_element('#persistence-val').send_keys('s')
     dash_duo.wait_for_text_to_equal('#out', 'apricot')
+    time.sleep(0.2)
     dash_duo.find_element('#persistence-val').send_keys('2')
     dash_duo.wait_for_text_to_equal('#out', 'artichoke')
