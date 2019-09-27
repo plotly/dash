@@ -36,7 +36,9 @@ class Resources:
                 # 'eager' -> dynamic if server is not eager
                 # (to prevent ever loading it)
                 if s['async'] is True:
-                    filtered_resource['dynamic'] = not self.config.eager_loading
+                    filtered_resource[
+                        'dynamic'
+                    ] = not self.config.eager_loading
 
                 if (s['async'] == 'eager' and self.config.eager_loading) or s[
                     'async'

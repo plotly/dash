@@ -109,8 +109,8 @@ class Component(with_metaclass(ComponentMeta, object)):
                 k: getattr(self, k)
                 for k in self.__dict__
                 if any(
-                    k.startswith(w)
-                    for w in self._valid_wildcard_attributes  # pylint:disable=no-member
+                    # pylint:disable=no-member
+                    k.startswith(w) for w in self._valid_wildcard_attributes
                 )
             }
         )

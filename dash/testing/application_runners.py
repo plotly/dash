@@ -211,7 +211,9 @@ class ProcessRunner(BaseDashRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+            wait.until(
+                lambda: self.accessible(self.url), timeout=start_timeout
+            )
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
@@ -284,7 +286,9 @@ class RRunner(ProcessRunner):
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
-            wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+            wait.until(
+                lambda: self.accessible(self.url), timeout=start_timeout
+            )
 
         except (OSError, ValueError):
             logger.exception("process server has encountered an error")
