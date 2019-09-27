@@ -208,20 +208,20 @@ jobs:
 
 workflows:
   version: 2
-  # python3.7:
-  #   jobs:
-  #     - 'lint-unit-37'
-  #     - 'build-dash-37'
-  #     - "test-37":
-  #         requires:
-  #           - build-dash-37
-  #     - "test-legacy-37":
-  #         requires:
-  #           - build-dash-37
-  #     - "percy-finalize":
-  #         requires:
-  #           - "test-37"
-  #           - "test-legacy-37"
+  python3.7:
+    jobs:
+      - 'lint-unit-37'
+      - 'build-dash-37'
+      - "test-37":
+          requires:
+            - build-dash-37
+      - "test-legacy-37":
+          requires:
+            - build-dash-37
+      - "percy-finalize":
+          requires:
+            - "test-37"
+            - "test-legacy-37"
 
   python3.6:
     jobs:
@@ -234,13 +234,13 @@ workflows:
           requires:
             - build-dash-36
 
-  # python2.7:
-  #   jobs:
-  #     - 'lint-unit-27'
-  #     - 'build-dash-27'
-  #     - "test-27":
-  #         requires:
-  #           - build-dash-27
-  #     - "test-legacy-27":
-  #         requires:
-  #           - build-dash-27
+  python2.7:
+    jobs:
+      - 'lint-unit-27'
+      - 'build-dash-27'
+      - "test-27":
+          requires:
+            - build-dash-27
+      - "test-legacy-27":
+          requires:
+            - build-dash-27
