@@ -230,8 +230,8 @@ class Dash(object):
         **obsolete
     ):
         # Apply _force_eager_loading overrides from modules
-        for name in ComponentRegistry.registry:
-            module = sys.modules[name]
+        for module_name in ComponentRegistry.registry:
+            module = sys.modules[module_name]
             eager = getattr(module, '_force_eager_loading', False)
             eager_loading = eager_loading or eager
 
