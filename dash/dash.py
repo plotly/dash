@@ -710,14 +710,6 @@ class Dash(object):
             package.__path__,
         )
 
-        loader = pkgutil.get_loader(package_name)
-        self.logger.warning(
-            "serving package %s resource %s => %s",
-            package_name,
-            path_in_package_dist,
-            loader.path if hasattr(loader, 'path') else loader,
-        )
-
         return flask.Response(
             pkgutil.get_data(package_name, path_in_package_dist),
             mimetype=mimetype,
