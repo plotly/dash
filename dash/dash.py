@@ -695,7 +695,7 @@ class Dash(object):
         )[path_in_package_dist.split(".")[-1]]
 
         package = sys.modules[package_name]
-        self.logger.warning(
+        self.logger.debug(
             "serving -- package: %s[%s] resource: %s => location: %s",
             package_name,
             package.__version__,
