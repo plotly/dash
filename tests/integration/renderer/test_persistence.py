@@ -442,25 +442,31 @@ def test_rdps011_toggle_persistence2(dash_duo):
     dash_duo.wait_for_text_to_equal('#out', 'a')
 
     dash_duo.find_element('#persistence-val').send_keys('s')
-    dash_duo.wait_for_text_to_equal('#out', 'a')
     time.sleep(0.2)
+    assert not dash_duo.get_logs()
+    dash_duo.wait_for_text_to_equal('#out', 'a')
     dash_duo.find_element('#persisted2').send_keys('pricot')
     dash_duo.wait_for_text_to_equal('#out', 'apricot')
 
     dash_duo.find_element('#persistence-val').send_keys('2')
-    dash_duo.wait_for_text_to_equal('#out', 'a')
     time.sleep(0.2)
+    assert not dash_duo.get_logs()
+    dash_duo.wait_for_text_to_equal('#out', 'a')
     dash_duo.find_element('#persisted2').send_keys('rtichoke')
     dash_duo.wait_for_text_to_equal('#out', 'artichoke')
 
     # no persistence, still goes back to original value
     dash_duo.clear_input('#persistence-val')
-    dash_duo.wait_for_text_to_equal('#out', 'a')
     time.sleep(0.2)
+    assert not dash_duo.get_logs()
+    dash_duo.wait_for_text_to_equal('#out', 'a')
 
     # apricot and artichoke saved
     dash_duo.find_element('#persistence-val').send_keys('s')
-    dash_duo.wait_for_text_to_equal('#out', 'apricot')
     time.sleep(0.2)
+    assert not dash_duo.get_logs()
+    dash_duo.wait_for_text_to_equal('#out', 'apricot')
     dash_duo.find_element('#persistence-val').send_keys('2')
+    time.sleep(0.2)
+    assert not dash_duo.get_logs()
     dash_duo.wait_for_text_to_equal('#out', 'artichoke')
