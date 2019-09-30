@@ -145,6 +145,11 @@ class Browser(DashPageMixin):
         """
         return self.driver.find_elements_by_css_selector(selector)
 
+    def _get_element(self, elem_or_selector):
+        if isinstance(elem_or_selector, str):
+            return self.find_element(elem_or_selector)
+        return elem_or_selector
+
     def _wait_for(self, method, args, timeout, msg):
         """abstract generic pattern for explicit WebDriverWait"""
         _wait = (
@@ -262,8 +267,8 @@ class Browser(DashPageMixin):
                 )
             )
 
-    def select_dcc_dropdown(self, selector, value=None, index=None):
-        dropdown = self.driver.find_element_by_css_selector(selector)
+    def select_dcc_dropdown(self, elem_or_selector, value=None, index=None):
+        dropdown = self._get_element(elem_or_selector)
         dropdown.click()
 
         menu = dropdown.find_element_by_css_selector("div.Select-menu-outer")
@@ -416,13 +421,15 @@ class Browser(DashPageMixin):
     def _is_windows():
         return sys.platform == "win32"
 
-    def multiple_click(self, selector, clicks):
+    def multiple_click(self, elem_or_selector, clicks):
         """multiple_click click the element with number of `clicks`"""
         for _ in range(clicks):
-            self.find_element(selector).click()
+            self._get_element(elem_or_selector).click()
 
-    def clear_input(self, elem):
+    def clear_input(self, elem_or_selector):
         """simulate key press to clear the input"""
+        elem = self._get_element(elem_or_selector)
+
         (
             ActionChains(self.driver)
             .click(elem)
@@ -434,12 +441,18 @@ class Browser(DashPageMixin):
         ).perform()
 
     def zoom_in_graph_by_ratio(
-        self, elem, start_fraction=0.5, zoom_box_fraction=0.2, compare=True
+        self,
+        elem_or_selector,
+        start_fraction=0.5,
+        zoom_box_fraction=0.2,
+        compare=True
     ):
         """zoom out a graph with a zoom box fraction of component dimension
         default start at middle with a rectangle of 1/5 of the dimension
         use `compare` to control if we check the svg get changed
         """
+        elem = self._get_element(elem_or_selector)
+
         prev = elem.get_attribute("innerHTML")
         w, h = elem.size["width"], elem.size["height"]
         try:
@@ -455,7 +468,9 @@ class Browser(DashPageMixin):
                 "innerHTML"
             ), "SVG content should be different after zoom"
 
-    def click_at_coord_fractions(self, elem, fx, fy):
+    def click_at_coord_fractions(self, elem_or_selector, fx, fy):
+        elem = self._get_element(elem_or_selector)
+
         ActionChains(self.driver).move_to_element_with_offset(
             elem, elem.size["width"] * fx, elem.size["height"] * fy
         ).click().perform()

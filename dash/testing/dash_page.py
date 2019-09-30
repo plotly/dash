@@ -49,3 +49,13 @@ class DashPageMixin(object):
                 session_id
             )
         )
+
+    def clear_local_storage(self):
+        self.driver.execute_script("window.localStorage.clear()")
+
+    def clear_session_storage(self):
+        self.driver.execute_script("window.sessionStorage.clear()")
+
+    def clear_storage(self):
+        self.clear_local_storage()
+        self.clear_session_storage()
