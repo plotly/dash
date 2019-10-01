@@ -1091,8 +1091,9 @@ class Dash(object):
                     location_header=(
                         "The value in question is located at"
                         if not toplevel
-                        else "The value in question is either the only value returned,"
-                        "\nor is in the top level of the returned list,"
+                        else "The value in question is either the only value "
+                        "returned,\nor is in the top level of the returned "
+                        "list,"
                     ),
                     location=(
                         "\n"
