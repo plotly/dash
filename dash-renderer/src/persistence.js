@@ -280,30 +280,33 @@ const getValsKey = (id, persistedProp, persistence) =>
     `${id}.${persistedProp}.${JSON.stringify(persistence)}`;
 
 const getProps = layout => {
-    const {props} = layout;
-    const {id, persistence} = props;
-    if (!id || !persistence) {
-        // This component doesn't have persistence. To make downstream
-        // tests more efficient don't return either one, so we just have to
-        // test for truthy persistence.
-        // But we still need to return props for consumers that look for
-        // nested components
+    const {props, type, namespace} = layout;
+    if (!type || !namespace) {
+        // not a real component - just need the props for recursion
         return {props};
     }
+    const {id, persistence} = props;
 
     const element = Registry.resolve(layout);
-    const persisted_props =
-        props.persisted_props || element.defaultProps.persisted_props;
-    const persistence_type =
-        props.persistence_type || element.defaultProps.persistence_type;
-    if (!persisted_props || !persistence_type) {
-        return {props};
-    }
-    return {id, props, element, persistence, persisted_props, persistence_type};
+    const getVal = prop => props[prop] || (element.defaultProps || {})[prop];
+    const persisted_props = getVal('persisted_props');
+    const persistence_type = getVal('persistence_type');
+    const canPersist = id && persisted_props && persistence_type;
+
+    return {
+        canPersist,
+        id,
+        props,
+        element,
+        persistence,
+        persisted_props,
+        persistence_type,
+    };
 };
 
 export function recordUiEdit(layout, newProps, dispatch) {
     const {
+        canPersist,
         id,
         props,
         element,
@@ -311,7 +314,7 @@ export function recordUiEdit(layout, newProps, dispatch) {
         persisted_props,
         persistence_type,
     } = getProps(layout);
-    if (!persistence) {
+    if (!canPersist || !persistence) {
         return;
     }
 
@@ -378,6 +381,7 @@ function modProp(key, storage, element, props, persistedProp, update, undo) {
 
 function persistenceMods(layout, component, path, dispatch) {
     const {
+        canPersist,
         id,
         props,
         element,
@@ -387,7 +391,7 @@ function persistenceMods(layout, component, path, dispatch) {
     } = getProps(component);
 
     let layoutOut = layout;
-    if (persistence) {
+    if (canPersist && persistence) {
         const storage = getStore(persistence_type, dispatch);
         const update = {};
         forEach(
@@ -443,6 +447,7 @@ function persistenceMods(layout, component, path, dispatch) {
  */
 export function prunePersistence(layout, newProps, dispatch) {
     const {
+        canPersist,
         id,
         props,
         persistence,
@@ -455,7 +460,7 @@ export function prunePersistence(layout, newProps, dispatch) {
         propName in newProps ? newProps[propName] : prevVal;
     const finalPersistence = getFinal('persistence', persistence);
 
-    if (!persistence && !finalPersistence) {
+    if (!canPersist || !(persistence || finalPersistence)) {
         return newProps;
     }
 
@@ -470,6 +475,8 @@ export function prunePersistence(layout, newProps, dispatch) {
         !(persistedProp.split('.')[0] in newProps);
 
     const update = {};
+
+    let depersistedProps = props;
 
     if (persistenceChanged && persistence) {
         // clear previously-applied persistence
@@ -487,6 +494,7 @@ export function prunePersistence(layout, newProps, dispatch) {
                 ),
             filter(notInNewProps, persisted_props)
         );
+        depersistedProps = mergeRight(props, update);
     }
 
     if (finalPersistence) {
@@ -497,10 +505,10 @@ export function prunePersistence(layout, newProps, dispatch) {
             forEach(
                 persistedProp =>
                     modProp(
-                        getValsKey(id, persistedProp, persistence),
+                        getValsKey(id, persistedProp, finalPersistence),
                         finalStorage,
                         element,
-                        props,
+                        depersistedProps,
                         persistedProp,
                         update
                     ),
@@ -516,11 +524,17 @@ export function prunePersistence(layout, newProps, dispatch) {
             if (propTransforms) {
                 for (const propPart in propTransforms) {
                     finalStorage.removeItem(
-                        getValsKey(id, `${propName}.${propPart}`, persistence)
+                        getValsKey(
+                            id,
+                            `${propName}.${propPart}`,
+                            finalPersistence
+                        )
                     );
                 }
             } else {
-                finalStorage.removeItem(getValsKey(id, propName, persistence));
+                finalStorage.removeItem(
+                    getValsKey(id, propName, finalPersistence)
+                );
             }
         }
     }
