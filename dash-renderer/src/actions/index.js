@@ -131,8 +131,6 @@ export function redo() {
             })
         );
 
-        dispatch(setAppIsReady());
-
         // Notify observers
         dispatch(
             notifyObservers({
@@ -166,8 +164,6 @@ function undo_revert(undo_or_revert) {
                 props: previous.props,
             })
         );
-
-        dispatch(setAppIsReady());
 
         // Notify observers
         dispatch(
@@ -571,6 +567,8 @@ function updateOutput(
                 source: 'response',
             })
         );
+
+        dispatch(setAppIsReady());
 
         return props;
     }
