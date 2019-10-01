@@ -1,4 +1,4 @@
-import { includes, type } from 'ramda';
+import {includes, type} from 'ramda';
 
 const SIMPLE_COMPONENT_TYPES = ['String', 'Number', 'Null', 'Boolean'];
 

@@ -1,9 +1,9 @@
-import { filter } from 'ramda';
-import { createAction } from 'redux-actions';
+import {filter} from 'ramda';
+import {createAction} from 'redux-actions';
 
 import isSimpleComponent from '../isSimpleComponent';
 import Registry from './../registry';
-import { getAction } from './constants';
+import {getAction} from './constants';
 
 const isAppReady = layout => {
     const queue = [layout];
