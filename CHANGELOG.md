@@ -33,7 +33,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - [#915](https://github.com/plotly/dash/issues/915) Fix `dash-generate-components` on Windows.
 - [#829](https://github.com/plotly/dash/issues/829) Fix the `--remote` pytest argument which was not effective in the code, adding a new argument `--remote-url` to support the selenium grid usage in the cloud.
-- Reduce the dash-renderer packages size on **PyPI** about 55% by removing the source maps. To do more advanced debugging, the source maps needs to be generated from source code with `npm run build:local` and pip install in editable mode, i.e. `pip install -e .` [#910](https://github.com/plotly/dash/pull/910)
+- [#910](https://github.com/plotly/dash/pull/910) Reduce the dash-renderer packages size on **PyPI** about 55% by removing the source maps. To do more advanced debugging, the source maps needs to be generated from source code with `npm run build:local` and pip install in editable mode, i.e. `pip install -e .`
 
 ## [1.2.0] - 2019-08-27
 ### Added
@@ -95,7 +95,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - [#722](https://github.com/plotly/dash/pull/722) Assets are served locally by default. Both JS scripts and CSS files are affected. This improves robustness and flexibility in numerous situations, but in certain cases initial loading could be slowed. To restore the previous CDN serving, set `app.scripts.config.serve_locally = False` (and similarly with `app.css`, but this is generally less important).
 
-- Undo/redo toolbar is removed by default, you can enable it with `app=Dash(show_undo_redo=true)`. The CSS hack `._dash-undo-redo:{display:none;}` is no longer needed [#724](https://github.com/plotly/dash/pull/724), [renderer#175](https://github.com/plotly/dash-renderer/pull/175)
+- [#724](https://github.com/plotly/dash/pull/724), [renderer#175](https://github.com/plotly/dash-renderer/pull/175) Undo/redo toolbar is removed by default, you can enable it with `app=Dash(show_undo_redo=true)`. The CSS hack `._dash-undo-redo:{display:none;}` is no longer needed
 
 - 💥[#709](https://github.com/plotly/dash/pull/709) Merge the `dash-renderer` project into the main dash repo to simplify feature dev workflow. We will keep the [deprecated one](https://github.com/plotly/dash-renderer) for archive purpose.
 
@@ -106,7 +106,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Bump dash-table version from 3.6.0 to [3.7.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#370---2019-05-15)
 
 ### Fixed
-- Fix regression on handling PreventUpdate (204 NO CONTENT) [renderer#170](https://github.com/plotly/dash-renderer/pull/170)
+- [renderer#170](https://github.com/plotly/dash-renderer/pull/170) Fix regression on handling PreventUpdate (204 NO CONTENT)
 
 ## [0.42.0] - 2019-04-25
 ### Added
@@ -277,8 +277,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.28.3 - 2018-10-17
 ### Fixed
 - [#418](https://github.com/plotly/dash/pull/418) Fix http-equiv typo
-- Include missing polyfills to restore Internet Explorer support [renderer#87](https://github.com/plotly/dash-renderer/issues/87)
-- Restored whatwg-fetch [renderer#87](https://github.com/plotly/dash-renderer/issues/87)
+- Include missing polyfills to restore Internet Explorer support, restore whatwg-fetch [renderer#87](https://github.com/plotly/dash-renderer/issues/87)
 
 ## 0.28.2 - 2018-10-05
 ### Changed
