@@ -622,7 +622,9 @@ class Dash(object):
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
-                self.scripts._resources._filter_resources(deps, dev_bundles=dev)
+                self.scripts._resources._filter_resources(
+                    deps, dev_bundles=dev
+                )
             )
             + self.config.external_scripts
             + self._collect_and_register_resources(
@@ -665,7 +667,9 @@ class Dash(object):
 
         tags = []
         if not has_ie_compat:
-            tags.append('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
+            tags.append(
+                '<meta http-equiv="X-UA-Compatible" content="IE=edge">'
+            )
         if not has_charset:
             tags.append('<meta charset="UTF-8">')
 
@@ -945,7 +949,9 @@ class Dash(object):
                             {2}
                         """
                             ).format(
-                                arg_prop, arg_id, component.available_properties
+                                arg_prop,
+                                arg_id,
+                                component.available_properties,
                             )
                         )
 
@@ -1471,7 +1477,8 @@ class Dash(object):
     @staticmethod
     def _serve_default_favicon():
         return flask.Response(
-            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
+            pkgutil.get_data("dash", "favicon.ico"),
+            content_type="image/x-icon",
         )
 
     def get_asset_url(self, path):
