@@ -21,10 +21,11 @@ class DashRComposite(Browser):
         super(DashRComposite, self).__init__(**kwargs)
         self.server = server
 
-    def start_server(self, app):
+    def start_server(self, app, cwd=None):
 
-        # start server with dashR app, the dash arguments are hardcoded
-        self.server(app)
+        # start server with dashR app. The app sets its own run_server args
+        # on the R side, but we support overriding the automatic cwd
+        self.server(app, cwd=cwd)
 
         # set the default server_url, it implicitly call wait_for_page
         self.server_url = self.server.url
