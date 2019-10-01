@@ -24,8 +24,8 @@ class Resources:
             if 'async' in s:
                 if 'dynamic' in s:
                     raise exceptions.ResourceException(
-                        '{} can\'t have both \'dynamic\' and '
-                        '\'async\'.'.format(json.dumps(filtered_resource))
+                        "Can't have both 'dynamic' and 'async'. "
+                        "{}".format(json.dumps(filtered_resource))
                     )
 
                 # Async assigns a value dynamically to 'dynamic'
@@ -40,11 +40,9 @@ class Resources:
                         'dynamic'
                     ] = not self.config.eager_loading
                 else:
-                    filtered_resource['dynamic'] = bool(
-                        (s['async'] == 'eager' and
-                            not self.config.eager_loading)
-                        or s['async'] == 'lazy'
-                    )
+                    filtered_resource['dynamic'] = (
+                        s['async'] == 'eager' and not self.config.eager_loading
+                    ) or s['async'] == 'lazy'
             if 'namespace' in s:
                 filtered_resource['namespace'] = s['namespace']
             if 'external_url' in s and not self.config.serve_locally:
