@@ -35,13 +35,11 @@ class Resources:
                 # 'lazy' -> always dynamic
                 # 'eager' -> dynamic if server is not eager
                 # (to prevent ever loading it)
-                if s['async'] is True:
-                    filtered_resource[
-                        'dynamic'
-                    ] = not self.config.eager_loading
-                else:
-                    filtered_resource['dynamic'] = (
-                        s['async'] == 'eager' and not self.config.eager_loading
+                filtered_resource['dynamic'] = not self.config.eager_loading
+                    if s['async'] is True
+                    else (
+                        s['async'] == 'eager' and not
+                        self.config.eager_loading
                     ) or s['async'] == 'lazy'
             if 'namespace' in s:
                 filtered_resource['namespace'] = s['namespace']
