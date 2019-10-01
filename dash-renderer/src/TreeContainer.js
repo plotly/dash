@@ -21,6 +21,7 @@ import {
     propOr,
     type,
 } from 'ramda';
+import {notifyObservers, updateProps} from './actions';
 import isSimpleComponent from './isSimpleComponent';
 import { recordUiEdit } from './persistence';
 import ComponentErrorBoundary from './components/error/ComponentErrorBoundary.react';
