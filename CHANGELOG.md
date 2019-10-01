@@ -1,5 +1,5 @@
 # Change Log for Dash
-All notable changes `dash` will be documented in this file.
+All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
@@ -150,7 +150,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.38.0] - 2019-02-25
 ### Added
-- [#603](https://github.com/plotly/dash/pull/603) Added components libraries js/css distribution to hot reload watch.
+- [#603](https://github.com/plotly/dash/pull/603) Add components libraries js/css distribution to hot reload watch.
 - [#608](https://github.com/plotly/dash/pull/608), [renderer#124](https://github.com/plotly/dash-renderer/pull/124) Callback context:
   - Know which inputs caused a callback to fire: `dash.callback_context.triggered`
   - Input/State values by name `dash.callback_context.states.get('btn.n_clicks')`
@@ -170,7 +170,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [renderer#118](https://github.com/plotly/dash-renderer/pull/118) Removed redux logger for the dev.
 
 ### Changed
-- [#565](https://github.com/plotly/dash/pull/565) Added core libraries as version locked dependencies
+- [#565](https://github.com/plotly/dash/pull/565) Add core libraries as version locked dependencies
 - Bump dash-table version from 3.3.0 to [3.4.0](https://github.com/plotly/dash-table/blob/master/CHANGELOG.md#340---2019-02-08)
 - Bump dash-renderer version from 0.17.0 to [0.18.0](https://github.com/plotly/dash-renderer/blob/master/CHANGELOG.md#0180---2019-02-11)
 - Bump dash-core-components version from 0.43.0 to [0.43.1](https://github.com/plotly/dash-core-components/blob/master/CHANGELOG.md#0431---2019-02-11)
@@ -470,7 +470,7 @@ app = dash.Dash(...)
 - 📝  Update README.md
 - ✅  Fix CircleCI tests. Note that the [`dash-renderer`](https://github.com/plotly/dash-renderer) contains the bulk of the integration tests.
 - 💄 Flake8 fixes and tests (fixes [#99](https://github.com/plotly/dash/issues/99))
-- ✨ Added this CHANGELOG.md.
+- ✨ Add this CHANGELOG.md.
 
 ## 0.17.3 - 2017-06-22
 ✨ This is the initial open-source release of Dash.
