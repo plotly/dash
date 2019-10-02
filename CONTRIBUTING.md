@@ -34,11 +34,11 @@ For contributors with a primarily **Python** or **R** background, this section m
 As of Dash 1.2, the renderer bundle and its peer dependencies can be packed and generated from the source code. The `dash-renderer\package.json` file is the one version of the truth for dash renderer version and npm dependencies. A build tool `renderer`, which is a tiny Python script installed by Dash as a command-line tool, has a few commands:
 
 1. `renderer clean` deletes all the previously generated assets by this same tool.
-2.  `renderer npm`  installs all the npm modules using this  `package.json`  files. Note that the  `package-lock.json`  file is the computed reference product for the versions defined with tilde(~) or caret(^) syntax in npm.
-3.  `renderer bundles` parses the locked version JSON, copies all the peer dependencies into dash_renderer folder, bundles the renderer assets, and generates an `__init__.py` to map all the resources. There are also a list of helpful `scripts` property defined in `package.json` you might need to do some handy tasks like linting, syntax format with prettier, etc.
-4.  `renderer digest` computes the content hash of each asset in `dash_renderer` folder, prints out the result in logs, and dumps into a JSON file `digest.json`. Use this when you have a doubt about the current assets in `dash_renderer`, and compare it with previous result in one shot by this command.
-5.  `renderer build` runs 1, 2, 3, 4 in sequence as a complete build process from scratch.
-6.  `renderer build local` runs the same order as in 5 and also generates source maps for debugging purposes. You also need to install dash-renderer with editable mode: `pip install -e .`.
+2. `renderer npm` installs all the npm modules using this `package.json` files. Note that the `package-lock.json` file is the computed reference product for the versions defined with tilde(~) or caret(^) syntax in npm.
+3. `renderer bundles` parses the locked version JSON, copies all the peer dependencies into dash_renderer folder, bundles the renderer assets, and generates an `__init__.py` to map all the resources. There are also a list of helpful `scripts` property defined in `package.json` you might need to do some handy tasks like linting, syntax format with prettier, etc.
+4. `renderer digest` computes the content hash of each asset in `dash_renderer` folder, prints out the result in logs, and dumps into a JSON file `digest.json`. Use this when you have a doubt about the current assets in `dash_renderer`, and compare it with previous result in one shot by this command.
+5. `renderer build` runs 1, 2, 3, 4 in sequence as a complete build process from scratch.
+6. `renderer build local` runs the same order as in 5 and also generates source maps for debugging purposes. You also need to install dash-renderer with editable mode: `pip install -e .`.
 
 When a change in renderer code doesn't reflect in your browser as expected, this could be: confused bundle generation, caching issue in a browser, python package not in `editable` mode, etc. The new tool reduces the risk of bundle assets by adding the digest to help compare asset changes.
 
@@ -46,7 +46,7 @@ When a change in renderer code doesn't reflect in your browser as expected, this
 
 Writing Python 2/3 compatible code might be a challenging task for contributors used to working on one particular version, especially new learners who start directly with Python 3.
 
-From the #892, we started to adopt  `python-future`  instead of  `six`  as our tool to better achieve the goal where we can mainly write Python 3 code and make it back-compatible in Python 2.7 (last Python 2 version Dash supports before it gets deprecated).
+From the #892, we started to adopt `python-future` instead of `six` as our tool to better achieve the goal where we can mainly write Python 3 code and make it back-compatible in Python 2.7 (last Python 2 version Dash supports before it gets deprecated).
 
 Please refer to [this list of idioms](https://python-future.org/compatible_idioms.html "https://python-future.org/compatible_idioms.html") for more details on working with `python-future`.
 
@@ -80,7 +80,7 @@ Emojis make the commit messages :cherry_blossom:. If you have no idea about what
 
 **Code Review Comments**
 
-- :dancer: `:dancer:` - used to indicate you can merge!  Equivalent to GitHub's :squirrel:
+- :dancer: `:dancer:` - used to indicate you can merge! Equivalent to GitHub's :squirrel:
 - :cow2: `:cow2:` cow tip - minor coding style or code flow point
 - :tiger2: `:tiger2:` testing tiger - something needs more tests, or tests need to be improved
 - :snake: `:snake:` security snake - known or suspected security flaw

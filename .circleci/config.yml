@@ -1,12 +1,12 @@
 version: 2
 jobs:
-  "percy-finalize":
+  percy-finalize:
     docker:
       - image: percyio/agent
     steps:
       - run: percy finalize --all
 
-  "artifacts":
+  artifacts:
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
         environment:
@@ -22,7 +22,7 @@ jobs:
           path: ~/dash/packages
           destination: /tmp/packages
 
-  "lint-unit-37": &lint-unit
+  lint-unit-37: &lint-unit
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -66,7 +66,7 @@ jobs:
           command: |
             cd dash-renderer && npm run test:js
 
-  "lint-unit-36":
+  lint-unit-36:
       <<: *lint-unit
       docker:
         - image: circleci/python:3.6-stretch-node-browsers
@@ -74,7 +74,7 @@ jobs:
             PYLINTRC: .pylintrc
             PYVERSION: python36
 
-  "lint-unit-27":
+  lint-unit-27:
       <<: *lint-unit
       docker:
         - image: circleci/python:2.7-stretch-node-browsers
@@ -82,7 +82,7 @@ jobs:
             PYLINTRC: .pylintrc
             PYVERSION: python27
 
-  "build-core-37": &build-core
+  build-core-37: &build-core
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -119,21 +119,21 @@ jobs:
           paths:
             - packages/*.tar.gz
 
-  "build-core-36":
+  build-core-36:
       <<: *build-core
       docker:
         - image: circleci/python:3.6-stretch-node-browsers
           environment:
             PYVERSION: python36
 
-  "build-core-27":
+  build-core-27:
       <<: *build-core
       docker:
         - image: circleci/python:2.7-stretch-node-browsers
           environment:
             PYVERSION: python27
 
-  "build-misc-37": &build-misc
+  build-misc-37: &build-misc
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -169,21 +169,21 @@ jobs:
           paths:
             - packages/*.tar.gz
 
-  "build-misc-36":
+  build-misc-36:
       <<: *build-misc
       docker:
         - image: circleci/python:3.6-stretch-node-browsers
           environment:
             PYVERSION: python36
 
-  "build-misc-27":
+  build-misc-27:
       <<: *build-misc
       docker:
         - image: circleci/python:2.7-stretch-node-browsers
           environment:
             PYVERSION: python27
 
-  "test-37": &test
+  test-37: &test
     working_directory: ~/dash
     docker:
       - image: circleci/python:3.7-stretch-node-browsers
@@ -219,7 +219,7 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  "test-36":
+  test-36:
       <<: *test
       docker:
         - image: circleci/python:3.6-stretch-node-browsers
@@ -227,7 +227,7 @@ jobs:
             PERCY_ENABLE: '0'
             PYVERSION: python36
 
-  "test-27":
+  test-27:
       <<: *test
       docker:
         - image: circleci/python:2.7-stretch-node-browsers
@@ -242,14 +242,14 @@ workflows:
       - lint-unit-37
       - build-core-37
       - build-misc-37
-      - "test-37":
+      - test-37:
           requires:
             - build-core-37
             - build-misc-37
-      - "percy-finalize":
+      - percy-finalize:
           requires:
             - test-37
-      - "artifacts":
+      - artifacts:
           requires:
             - percy-finalize
           filters:
@@ -265,7 +265,7 @@ workflows:
       - lint-unit-36
       - build-core-36
       - build-misc-36
-      - "test-36":
+      - test-36:
           requires:
             - build-core-36
             - build-misc-36
@@ -274,7 +274,7 @@ workflows:
       - lint-unit-27
       - build-core-27
       - build-misc-27
-      - "test-27":
+      - test-27:
           requires:
             - build-core-27
             - build-misc-27
