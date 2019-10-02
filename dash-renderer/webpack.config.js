@@ -48,7 +48,12 @@ const asyncHelperOptions = {
         libraryTarget: 'umd'
     },
     externals: {
-        react: 'React',
+        react: {
+            'commonjs': 'react',
+            'commonjs2': 'react',
+            'amd': 'react',
+            'root': 'React'
+        },
         'react-dom': 'ReactDOM',
         'plotly.js': 'Plotly',
         'prop-types': 'PropTypes'
