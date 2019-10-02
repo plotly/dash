@@ -175,7 +175,7 @@ class Tests(IntegrationTests):
         @app.callback(Output('output', 'children'),
                       [Input('button', 'n_clicks')])
         def update_output(n_clicks):
-            if(not n_clicks):
+            if not n_clicks:
                 raise PreventUpdate
             call_count.value += 1
             return 'Click'
@@ -811,8 +811,7 @@ class Tests(IntegrationTests):
     def test_request_hooks(self):
         app = Dash(__name__)
 
-        app.index_string = '''
-        <!DOCTYPE html>
+        app.index_string = '''<!DOCTYPE html>
         <html>
             <head>
                 {%metas%}
@@ -857,8 +856,7 @@ class Tests(IntegrationTests):
                 </footer>
                 <div>With request hooks</div>
             </body>
-        </html>
-        '''
+        </html>'''
 
         app.layout = html.Div([
             dcc.Input(

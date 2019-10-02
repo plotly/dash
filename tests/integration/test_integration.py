@@ -118,10 +118,8 @@ def test_inin002_wildcard_callback(dash_duo):
 
 
 def test_inin003_aborted_callback(dash_duo):
-    """
-    Raising PreventUpdate OR returning no_update
-    prevents update and triggering dependencies
-    """
+    """Raising PreventUpdate OR returning no_update prevents update and
+    triggering dependencies."""
 
     initial_input = "initial input"
     initial_output = "initial output"
@@ -296,8 +294,7 @@ def test_inin007_meta_tags(dash_duo):
 def test_inin008_index_customization(dash_duo):
     app = Dash()
 
-    app.index_string = """
-    <!DOCTYPE html>
+    app.index_string = """<!DOCTYPE html>
     <html>
         <head>
             {%metas%}
@@ -327,8 +324,7 @@ def test_inin008_index_customization(dash_duo):
                 .then(r => config = r).catch(err => ({config}));
             </script>
         </body>
-    </html>
-    """
+    </html>"""
 
     app.layout = html.Div("Dash app", id="app")
 
@@ -345,8 +341,7 @@ def test_inin009_invalid_index_string(dash_duo):
     app = Dash()
 
     def will_raise():
-        app.index_string = """
-        <!DOCTYPE html>
+        app.index_string = """<!DOCTYPE html>
         <html>
             <head>
                 {%metas%}
@@ -360,8 +355,7 @@ def test_inin009_invalid_index_string(dash_duo):
                 <footer>
                 </footer>
             </body>
-        </html>
-        """
+        </html>"""
 
     with pytest.raises(Exception) as err:
         will_raise()
@@ -564,7 +558,7 @@ def test_inin013_no_update_chains(dash_duo):
         [Input("a_in", "value")],
     )
     def a_out(a):
-        return (a, a if len(a) < 3 else no_update)
+        return a, a if len(a) < 3 else no_update
 
     @app.callback(Output("b_out", "children"), [Input("b_in", "value")])
     def b_out(b):
@@ -612,8 +606,7 @@ def test_inin013_no_update_chains(dash_duo):
 def test_inin014_with_custom_renderer(dash_duo):
     app = Dash(__name__)
 
-    app.index_string = """
-    <!DOCTYPE html>
+    app.index_string = """<!DOCTYPE html>
     <html>
         <head>
             {%metas%}
@@ -647,8 +640,7 @@ def test_inin014_with_custom_renderer(dash_duo):
             </footer>
             <div>With request hooks</div>
         </body>
-    </html>
-    """
+    </html>"""
 
     app.layout = html.Div(
         [
@@ -707,8 +699,7 @@ def test_inin015_with_custom_renderer_interpolated(dash_duo):
 
     class CustomDash(Dash):
         def interpolate_index(self, **kwargs):
-            return """
-            <!DOCTYPE html>
+            return """<!DOCTYPE html>
             <html>
                 <head>
                     <title>My App</title>
@@ -722,13 +713,10 @@ def test_inin015_with_custom_renderer_interpolated(dash_duo):
                     {renderer}
                     <div id="custom-footer">My custom footer</div>
                 </body>
-            </html>
-            """.format(
-                app_entry=kwargs["app_entry"],
-                config=kwargs["config"],
-                scripts=kwargs["scripts"],
-                renderer=renderer,
-            )
+            </html>""".format(app_entry=kwargs["app_entry"],
+                              config=kwargs["config"],
+                              scripts=kwargs["scripts"],
+                              renderer=renderer)
 
     app = CustomDash()
 
