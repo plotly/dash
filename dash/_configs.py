@@ -38,9 +38,9 @@ DASH_ENV_VARS = load_dash_env_vars()
 
 
 def get_combined_config(name, val, default=None):
-    '''consolidate the config with priority from high to low
-    provided init value > OS environ > default
-    '''
+    """Consolidate the config with priority from high to low provided init
+    value > OS environ > default."""
+
     if val is not None:
         return val
 

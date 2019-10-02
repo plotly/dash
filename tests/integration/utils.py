@@ -18,9 +18,10 @@ class WaitForTimeout(Exception):
 
 
 def wait_for(condition_function, get_message=lambda: '', *args, **kwargs):
-    """
-    Waits for condition_function to return True or raises WaitForTimeout.
+    """Waits for condition_function to return True or raises WaitForTimeout.
+
     :param (function) condition_function: Should return True on success.
+    :param (function) get_message:
     :param args: Optional args to pass to condition_function.
     :param kwargs: Optional kwargs to pass to condition_function.
         if `timeout` is in kwargs, it will be used to override TIMEOUT
